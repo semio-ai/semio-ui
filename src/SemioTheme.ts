@@ -2,6 +2,12 @@ import { createTheme } from "@mantine/core";
 
 export type ThemeType = ReturnType<typeof createTheme>;
 
+export enum Variant {
+  BLUE = 'semioBlue',
+  RED = 'semioRed',
+  YELLOW = 'semioYellow'
+}
+
 export const SemioTheme: ThemeType = createTheme({
   fontFamily: "sans-serif",
   primaryColor: "semioBlue",
