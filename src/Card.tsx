@@ -1,19 +1,19 @@
-import { Card as MantineCard } from "@mantine/core";
+import { Card as MantineCard, MantineColor } from "@mantine/core";
 import { ReactNode } from "react";
-import { Variant } from "./SemioTheme";
+import { SemioColor } from "./SemioTheme";
 
 export interface CardProps {
   // The contents of the card
   children: ReactNode;
-  // The variant, either 'Variant.BLUE', 'Variant.YELLOW', or 'Variant.RED'. Changes the top bar color.
-  variant?: Variant;
+  // The color, either 'SemioColor.BLUE', 'SemioColor.YELLOW', or 'SemioColor.RED'. Changes the top bar color.
+  color?: SemioColor | MantineColor;
 }
 
-export const Card = ({ children, variant = Variant.BLUE }: CardProps) => {
+export const Card = ({ children, color = SemioColor.BLUE }: CardProps) => {
   return (
     <MantineCard
       style={{
-        borderColor: `var(--mantine-color-${variant}-5)`,
+        borderColor: `var(--mantine-color-${color}-5)`,
         borderTopWidth: 1,
         borderBottomWidth: 0,
         borderLeftWidth: 0,

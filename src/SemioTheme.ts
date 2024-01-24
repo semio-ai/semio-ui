@@ -2,7 +2,7 @@ import { createTheme } from "@mantine/core";
 
 export type ThemeType = ReturnType<typeof createTheme>;
 
-export enum Variant {
+export enum SemioColor {
   BLUE = 'semioBlue',
   RED = 'semioRed',
   YELLOW = 'semioYellow'
@@ -10,11 +10,11 @@ export enum Variant {
 
 export const SemioTheme: ThemeType = createTheme({
   fontFamily: "sans-serif",
-  primaryColor: "semioBlue",
+  primaryColor: SemioColor.BLUE,
   colors: {
     ...createTheme({}).colors,
     // override colors
-    semioBlue: [
+    [SemioColor.BLUE]: [
       "#E3FDFB",
       "#D5F5F1",
       "#B1E7E0",
@@ -26,7 +26,7 @@ export const SemioTheme: ThemeType = createTheme({
       "#22988B",
       "#008477",
     ],
-    semioRed: [
+    [SemioColor.RED]: [
       "#FFF0E3",
       "#FFDFCE",
       "#FDBC9E",
@@ -38,7 +38,7 @@ export const SemioTheme: ThemeType = createTheme({
       "#C24102",
       "#AB3600",
     ],
-    semioYellow: [
+    [SemioColor.YELLOW]: [
       "#fff6e1",
       "#ffedcc",
       "#ffd99b",
@@ -52,5 +52,8 @@ export const SemioTheme: ThemeType = createTheme({
     ],
   },
   defaultRadius: 1,
+  components: {
+
+  }
   // ... other theme override properties
 });
