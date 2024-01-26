@@ -1,11 +1,11 @@
-import { createTheme } from "@mantine/core";
+import { NavLink, createTheme } from "@mantine/core";
 
 export type ThemeType = ReturnType<typeof createTheme>;
 
 export enum SemioColor {
-  BLUE = 'semioBlue',
-  RED = 'semioRed',
-  YELLOW = 'semioYellow'
+  BLUE = "semioBlue",
+  RED = "semioRed",
+  YELLOW = "semioYellow",
 }
 
 export const SemioTheme: ThemeType = createTheme({
@@ -48,12 +48,31 @@ export const SemioTheme: ThemeType = createTheme({
       "#ffa109",
       "#e38d00",
       "#ca7c00",
-      "#b06a00"
+      "#b06a00",
     ],
   },
   defaultRadius: 1,
   components: {
-
-  }
+    NavLink: NavLink.extend({
+      vars: (theme, props) => ({
+        root: {
+          "--nl-hover": "#00000000",
+          "--nl-bg": "#00000000",
+          // '--nl-color': theme.colors[props.color || 'red'],
+          "--_nav-link-color": theme.primaryColor,
+        },
+        children: {},
+      }),
+      // styles: (theme, props) => ({
+      //   root: {
+      //     backhovered
+      //     ? `var(--mantine-color-${color}-3)`
+      //     : active
+      //       ? `var(--mantine-color-${color}-5)`
+      //       : "var(--mantine-color-gray-5)"
+      //   },
+      // }),
+    }),
+  },
   // ... other theme override properties
 });
