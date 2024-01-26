@@ -1,5 +1,5 @@
-import { Card as MantineCard, MantineColor } from "@mantine/core";
-import { ReactNode } from "react";
+import { Card as MantineCard, type MantineColor } from "@mantine/core";
+import type { ReactNode } from "react";
 import { SemioColor } from "./SemioTheme";
 
 export interface CardProps {
@@ -9,12 +9,12 @@ export interface CardProps {
   color?: SemioColor | MantineColor;
 }
 
-export const Card = ({ children, color = SemioColor.BLUE }: CardProps) => {
+export function Card({ children, color = SemioColor.BLUE }: CardProps): ReactNode {
   return (
     <MantineCard
       style={{
         borderColor: `var(--mantine-color-${color}-5)`,
-        borderTopWidth: 1,
+        borderTopWidth: 2,
         borderBottomWidth: 0,
         borderLeftWidth: 0,
         borderRightWidth: 0,

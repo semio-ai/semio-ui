@@ -2,12 +2,13 @@ import {
   Text,
   NavLink,
   Transition,
+  useMantineColorScheme,
+  type MantineColor,
+  type NavLinkProps,
 } from "@mantine/core";
 import { useHover } from "@mantine/hooks";
-import { ReactNode } from "react";
-import { SemioColor } from "./SemioTheme";
-import type { MantineColor, NavLinkProps } from "@mantine/core";
-import { useMantineColorScheme } from '@mantine/core';
+import type { ReactNode } from "react";
+import type { SemioColor } from "./SemioTheme";
 
 export interface MenuButtonProps extends NavLinkProps {
   // Whether to use the minified (icon only) version of the brand (default: false
@@ -23,47 +24,48 @@ export interface MenuButtonProps extends NavLinkProps {
 }
 
 // A component whihc renders the Semio brand (usable in the top-left corner of the app)
-export const MenuButton = ({
+export function MenuButton({
   minified = false,
   icon,
   label,
   color = "primaryColor",
   active = false,
   ...props
-}: MenuButtonProps) => {
+}: MenuButtonProps): ReactNode {
   //   console.log("Color: ", label, color);
   const { colorScheme } = useMantineColorScheme();
   const { hovered, ref: button } = useHover<HTMLAnchorElement>();
+  const hoverShade: number = colorScheme === 'dark' ? 3 : 7;
+  const activeColor: string = active ? `var(--mantine-color-${color}-5)` : "var(--mantine-color-gray-5)";
   return (
     <NavLink
-      ref={button}
+
       {...props}
       active={active}
-      style={{
-        paddingLeft: 17,
-        backgroundColor: "transparent",
-        color: hovered
-          ? `var(--mantine-color-${color}-${colorScheme === 'dark' ? 3 : 7})`
-          : active
-            ? `var(--mantine-color-${color}-5)`
-            : "var(--mantine-color-gray-5)",
-      }}
       color={color}
-      noWrap
-      leftSection={icon}
       label={
         <Transition
-          mounted={!minified}
-          transition="scale-x"
           duration={250}
           exitDuration={1}
+          mounted={!minified}
           timingFunction="ease"
+          transition="scale-x"
         >
           {(styles) => (
             <Text style={{ userSelect: "none", ...styles }}>{label}</Text>
           )}
         </Transition>
       }
+      leftSection={icon}
+      noWrap
+      ref={button}
+      style={{
+        paddingLeft: 17,
+        backgroundColor: "transparent",
+        color: hovered
+          ? `var(--mantine-color-${color}-${hoverShade})`
+          : activeColor,
+      }}
     />
   );
 };

@@ -63,15 +63,6 @@ export const SemioTheme: ThemeType = createTheme({
         },
         children: {},
       }),
-      // styles: (theme, props) => ({
-      //   root: {
-      //     backhovered
-      //     ? `var(--mantine-color-${color}-3)`
-      //     : active
-      //       ? `var(--mantine-color-${color}-5)`
-      //       : "var(--mantine-color-gray-5)"
-      //   },
-      // }),
     }),
   },
   // ... other theme override properties
