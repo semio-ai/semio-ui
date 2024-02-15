@@ -1,4 +1,4 @@
-import { NavLink, createTheme } from "@mantine/core";
+import { ActionIcon, NavLink, createTheme } from "@mantine/core";
 
 export type ThemeType = ReturnType<typeof createTheme>;
 
@@ -64,6 +64,13 @@ export const SemioTheme: ThemeType = createTheme({
         children: {},
       }),
     }),
+    ActionIcon: ActionIcon.extend({
+      vars: (theme, props) => ({
+        root: {
+          "--ai-bd": 'transparent'
+        }
+      })
+    })
   },
   // ... other theme override properties
 });
