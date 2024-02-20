@@ -13,14 +13,20 @@ export interface ModalProps extends MantineModalProps {
   children: ReactNode;
   // The color, either 'SemioColor.BLUE', 'SemioColor.YELLOW', or 'SemioColor.RED'. Changes the top bar color.
   color?: SemioColor | MantineColor;
+  // Movable
+  movable?: boolean;
 }
 
 export function Modal({
   children,
   color = SemioColor.BLUE,
+  movable = false,
   ...props
 }: ModalProps): ReactNode {
   const isMobile = useMediaQuery("(max-width: 48em)");
+
+  const defaultOverlayProps = movable ? {} : DEFAULT_OVERLAY;
+
   return (
     <MantineModal
       centered
@@ -28,8 +34,8 @@ export function Modal({
       {...props}
       overlayProps={
         props.overlayProps
-          ? { ...DEFAULT_OVERLAY, ...props.overlayProps }
-          : DEFAULT_OVERLAY
+          ? { ...defaultOverlayProps, ...props.overlayProps }
+          : defaultOverlayProps
       }
       withinPortal={false}
       styles={{
