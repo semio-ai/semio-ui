@@ -61,4 +61,5 @@ export function Modal({
 const DEFAULT_OVERLAY = {
   backgroundOpacity: 0.55,
   blur: 3,
+  // backgroundColor: "var(--mantine-color-color-body)",
 };
