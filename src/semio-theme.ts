@@ -1,4 +1,4 @@
-import { ActionIcon, NavLink, createTheme } from "@mantine/core";
+import { ActionIcon, Drawer, NavLink, alpha, createTheme } from "@mantine/core";
 
 export type ThemeType = ReturnType<typeof createTheme>;
 
@@ -54,7 +54,7 @@ export const SemioTheme: ThemeType = createTheme({
   defaultRadius: 1,
   components: {
     NavLink: NavLink.extend({
-      vars: (theme, props) => ({
+      vars: (theme, _props) => ({
         root: {
           "--nl-hover": "#00000000",
           "--nl-bg": "#00000000",
@@ -65,10 +65,27 @@ export const SemioTheme: ThemeType = createTheme({
       }),
     }),
     ActionIcon: ActionIcon.extend({
-      vars: (theme, props) => ({
+      vars: (_theme, _props) => ({
         root: {
           "--ai-bd": 'transparent'
         }
+      })
+    }),
+    Drawer: Drawer.extend({
+      styles: (_theme, _props) => ({
+        content: {
+          backgroundColor: alpha("var(--mantine-color-body)", 0.8),
+          backdropFilter: 'blur(10px)',
+          WebkitBackdropFilter: 'blur(10px)',
+          boxShadow: 'inset 0 2px 0 0 var(--mantine-color-semioBlue-5)',
+        },
+        header: {
+          boxShadow: 'inset 0 2px 0 0 var(--mantine-color-semioBlue-5)',
+        }
+        // },
+        // content: {
+
+        // }
       })
     })
   },

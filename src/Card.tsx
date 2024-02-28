@@ -1,6 +1,6 @@
 import { Card as MantineCard, type MantineColor } from "@mantine/core";
 import type { ReactNode } from "react";
-import { SemioColor } from "./SemioTheme";
+import { SemioColor } from "./semio-theme";
 
 export interface CardProps {
   // The contents of the card

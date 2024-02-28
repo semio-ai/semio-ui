@@ -8,7 +8,7 @@ import {
 } from "@mantine/core";
 import { useHover } from "@mantine/hooks";
 import type { ReactNode } from "react";
-import type { SemioColor } from "./SemioTheme";
+import type { SemioColor } from "./semio-theme";
 
 export interface MenuButtonProps extends NavLinkProps {
   // Whether to use the minified (icon only) version of the brand (default: false

@@ -6,7 +6,7 @@ import {
 } from "@mantine/core";
 import { type ReactNode } from "react";
 import { useMediaQuery } from "@mantine/hooks";
-import { SemioColor } from "./SemioTheme";
+import { SemioColor } from "./semio-theme";
 
 export interface ModalProps extends MantineModalProps {
   // The contents of the Modal
@@ -37,7 +37,6 @@ export function Modal({
           ? { ...defaultOverlayProps, ...props.overlayProps }
           : defaultOverlayProps
       }
-      withinPortal={false}
       styles={{
         header: {
           borderStyle: "solid",
@@ -47,17 +46,21 @@ export function Modal({
           borderLeftWidth: 0,
           borderRightWidth: 0,
           // backgroundColor: "transparent",
-          
+
         },
         content: {
           backgroundColor: "transparent"
         },
         body: {
-          backgroundColor: alpha("var(--mantine-color-body)",0.75),
+          backgroundColor: alpha("var(--mantine-color-body)", 0.75),
           backdropFilter: "blur(10px)",
           WebkitBackdropFilter: "blur(10px)",
-        }
+        },
+        // overlay: {
+        //   backgroundColor: alpha("var(--mantine-color-body)",),
+        // }
       }}
+      withinPortal={false}
     >
       {children}
     </MantineModal>
@@ -65,7 +68,7 @@ export function Modal({
 }
 
 const DEFAULT_OVERLAY = {
-  backgroundOpacity: 0.55,
+  backgroundOpacity: 0,
   blur: 3,
   // backgroundColor: "var(--mantine-color-color-body)",
 };
