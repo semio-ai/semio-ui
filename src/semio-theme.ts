@@ -77,10 +77,10 @@ export const SemioTheme: ThemeType = createTheme({
           backgroundColor: alpha("var(--mantine-color-body)", 0.8),
           backdropFilter: 'blur(10px)',
           WebkitBackdropFilter: 'blur(10px)',
-          boxShadow: 'inset 0 2px 0 0 var(--mantine-color-semioBlue-5)',
+          // boxShadow: 'inset 0 2px 0 0 var(--mantine-color-semioBlue-5)',
         },
         header: {
-          boxShadow: 'inset 0 2px 0 0 var(--mantine-color-semioBlue-5)',
+          // boxShadow: 'inset 0 2px 0 0 var(--mantine-color-semioBlue-5)',
         }
         // },
         // content: {
