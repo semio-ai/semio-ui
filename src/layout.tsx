@@ -20,7 +20,7 @@ export interface LayoutProps {
 }
 
 export const Main = styled.div`
-  position: fixed;
+  position: absolute;
   top: 0;
   left: 0;
   height: 100vh;
