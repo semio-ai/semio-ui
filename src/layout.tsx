@@ -26,6 +26,9 @@ export const Main = styled.div`
   height: 100vh;
   width: 100vw;
   background-color: var(--mantine-color-body);
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
 `;
 
 export const Backdrop = styled.div`
@@ -134,6 +137,7 @@ export function Sidebar({
             backdropFilter: "blur(10px)",
             WebkitBackdropFilter: "blur(10px)",
             overflow: "hidden",
+            userSelect: "none",
             ...spring,
           }}
         >
