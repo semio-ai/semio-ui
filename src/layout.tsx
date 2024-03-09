@@ -20,11 +20,11 @@ export interface LayoutProps {
 }
 
 export const Main = styled.div`
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   height: 100vh;
-  width: 100vw;
+  width: 100dvw;
   background-color: var(--mantine-color-body);
   user-select: none;
   -webkit-user-select: none;
