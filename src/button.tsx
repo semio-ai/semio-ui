@@ -1,5 +1,3 @@
-import { Button as MantineButton } from "@mantine/core";
-
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode;
@@ -7,9 +5,9 @@ export interface ButtonProps
 
 export function Button({ children, ...other }: ButtonProps): JSX.Element {
   return (
-    <MantineButton type="button" {...other}>
+    <button type="button" {...other}>
       {children}
-    </MantineButton>
+    </button>
   );
 }
 

@@ -20,11 +20,9 @@ export interface LayoutProps {
 }
 
 export const Main = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  height: 100vh;
-  width: 100dvw;
+  position: static;
+  display: grid;
+  grid-template: auto 1fr auto / 1fr auto;
   background-color: var(--mantine-color-body);
   user-select: none;
   -webkit-user-select: none;
@@ -41,7 +39,7 @@ export const Backdrop = styled.div`
 `;
 
 export const Footer = styled.div`
-  bottom: 0;
+  grid-column: 1 / 8;
   width: 100vw;
   background-color: ${alpha("var(--mantine-color-body)", 0.8)};
   backdrop-filter: blur(10px);
@@ -50,8 +48,7 @@ export const Footer = styled.div`
 `;
 
 export const Header = styled.div`
-  top: 0;
-  width: 100vw;
+  grid-column: 1 / 8;
   background-color: ${alpha("var(--mantine-color-body)", 0.8)};
   backdrop-filter: blur(10px);
   --Webkit-backdrop-filter: blur(10px);
