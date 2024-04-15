@@ -1,4 +1,5 @@
 import { ActionIcon, Drawer, NavLink, alpha, createTheme } from "@mantine/core";
+// import "./styles.css";
 
 export type ThemeType = ReturnType<typeof createTheme>;
 
@@ -9,8 +10,13 @@ export enum SemioColor {
 }
 
 export const SemioTheme: ThemeType = createTheme({
-  fontFamily: "sans-serif",
+  fontFamily: '"Gilroy", sans-serif',
+  fontFamilyMonospace: '"Gilroy", sans-serif',
   primaryColor: SemioColor.BLUE,
+  headings: {
+    fontFamily: '"Gilroy", sans-serif',
+  },
+
   colors: {
     ...createTheme({}).colors,
     // override colors
@@ -67,27 +73,27 @@ export const SemioTheme: ThemeType = createTheme({
     ActionIcon: ActionIcon.extend({
       vars: (_theme, _props) => ({
         root: {
-          "--ai-bd": 'transparent'
-        }
-      })
+          "--ai-bd": "transparent",
+        },
+      }),
     }),
     Drawer: Drawer.extend({
       styles: (_theme, _props) => ({
         content: {
           backgroundColor: alpha("var(--mantine-color-body)", 0.8),
-          backdropFilter: 'blur(10px)',
-          WebkitBackdropFilter: 'blur(10px)',
+          backdropFilter: "blur(10px)",
+          WebkitBackdropFilter: "blur(10px)",
           // boxShadow: 'inset 0 2px 0 0 var(--mantine-color-semioBlue-5)',
         },
         header: {
           // boxShadow: 'inset 0 2px 0 0 var(--mantine-color-semioBlue-5)',
-        }
+        },
         // },
         // content: {
 
         // }
-      })
-    })
+      }),
+    }),
   },
   // ... other theme override properties
 });

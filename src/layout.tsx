@@ -25,6 +25,7 @@ export const Main = styled.div`
   grid-template: auto 1fr auto / 1fr auto;
   background-color: var(--mantine-color-body);
   user-select: none;
+  overflow: hidden;
   -webkit-user-select: none;
   -moz-user-select: none;
 `;
@@ -36,6 +37,7 @@ export const Backdrop = styled.div`
   height: 100vh;
   width: 100vw;
   z-index: 0;
+  overflow: hidden;
 `;
 
 export const Footer = styled.div`
@@ -49,9 +51,9 @@ export const Footer = styled.div`
 
 export const Header = styled.div`
   grid-column: 1 / 8;
-  background-color: ${alpha("var(--mantine-color-body)", 0.8)};
-  backdrop-filter: blur(10px);
-  --Webkit-backdrop-filter: blur(10px);
+  // background-color: ${alpha("var(--mantine-color-body)", 0.8)};
+  // backdrop-filter: blur(10px);
+  // --Webkit-backdrop-filter: blur(10px);
   z-index: 1;
 `;
 
@@ -70,6 +72,7 @@ const CenterContainer = styled.div`
   flex: 1;
   height: 0;
   z-index: -1;
+  overflow: hidden;
 `;
 
 export interface SidebarProps {
@@ -107,7 +110,7 @@ export function Sidebar({
     },
     exitBeforeEnter: true,
     config: {
-      duration: 150,
+      duration: 100,
     },
     delay: 30,
   });
@@ -142,6 +145,7 @@ export function Sidebar({
             justify="space-between"
             style={{
               height: 40,
+              overflow: "hidden",
               backgroundColor: alpha("var(--mantine-color-body)", 0.5),
             }}
           >
