@@ -1,4 +1,4 @@
 /** @type {import("eslint").Linter.Config} */
-module.exports = {
+modules.export = {
   extends: ["@semio/eslint-config/react.js"],
 };

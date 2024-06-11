@@ -1,15 +1,13 @@
 {
   "name": "@semio/ui",
-  "description": "Basic React components, built by Semio with Mantine",
+  "description": "Basic React components, built by Semio with Mantine/Tailwind",
   "version": "0.0.0",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
-  "sideEffects": false,
   "license": "MIT",
-  "files": [
-    "dist/**"
-  ],
+  "files": ["dist/**", "dist/index.css"],
+  "sideEffects": ["**/*.css"],
   "scripts": {
     "build": "tsup src/index.tsx --format esm,cjs --dts --external react",
     "dev": "tsup src/index.tsx --format esm,cjs --watch --dts --external react",
@@ -46,14 +44,17 @@
   "devDependencies": {
     "@semio/eslint-config": "*",
     "@semio/typescript-config": "*",
+    "@semio/tailwind-config": "*",
     "@types/lodash": "^4.17.0",
-    "@types/react": "^18.2.46",
-    "@types/react-dom": "^18.2.18",
-    "esbuild-css-modules-plugin": "^3.1.0",
+    "@types/react": "^18.3.0",
+    "@types/react-dom": "^18.3.0",
     "eslint": "^8.56.0",
-    "react": "^18.2.0",
+    "react": "^18.3.0",
     "tsup": "^8.0.1",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "tailwindcss": "^3.4.3",
+    "postcss": "^8.4.38",
+    "autoprefixer": "^10.4.19"
   },
   "publishConfig": {
     "access": "public"
