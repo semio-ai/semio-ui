@@ -1,0 +1,12 @@
+
+
+export const FormBase = ({children, title}: {children: React.ReactNode, title?: string}) => {
+    return (
+        <div className="flex items-center justify-center">
+            <div className="bg-white p-8 rounded-lg shadow-lg w-96">
+                <h2 className="text-2xl font-bold mb-4 text-center">{title}</h2>
+                {children}
+            </div>
+        </div>
+    );
+}

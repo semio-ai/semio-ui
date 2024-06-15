@@ -8,7 +8,7 @@ import { type ReactNode } from "react";
 import { useMediaQuery } from "@mantine/hooks";
 import { SemioColor } from "./semio-theme";
 
-export interface ModalProps extends MantineModalProps {
+export interface ManModalProps extends MantineModalProps {
   // The contents of the Modal
   children: ReactNode;
   // The color, either 'SemioColor.BLUE', 'SemioColor.YELLOW', or 'SemioColor.RED'. Changes the top bar color.
@@ -17,12 +17,12 @@ export interface ModalProps extends MantineModalProps {
   movable?: boolean;
 }
 
-export function Modal({
+export function ManModal({
   children,
   color = SemioColor.BLUE,
   movable = false,
   ...props
-}: ModalProps): ReactNode {
+}: ManModalProps): ReactNode {
   const isMobile = useMediaQuery("(max-width: 48em)");
 
   const defaultOverlayProps = movable ? {} : DEFAULT_OVERLAY;
