@@ -27,3 +27,4 @@ export { VersionInput, type VersionInputProps } from "./inputs/Version";
 export { FormBase } from "./FormBase";
 
 export { ButtonModal, type ButtonModalProps } from "./buttons/button-modal";
+export { CopyLinkButton } from "./buttons/CopyLinkButton";

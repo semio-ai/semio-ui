@@ -31,8 +31,8 @@ export const ImageInput = ({ imageUrl, onImageChange, uploading=false}: ImageInp
         className="mb-2"
       />
       {localImageURL && (
-        <div className="mb-2">
-          <img src={localImageURL} alt="Preview" className="w-full h-auto rounded-lg" />
+        <div className="mb-2 flex flex-col justify-center items-center">
+          <img src={localImageURL} alt="Preview" className="max-w-64 h-auto rounded-lg" />
           <button
             type="button"
             onClick={handleRemove}
