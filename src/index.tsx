@@ -7,24 +7,24 @@ export { MenuButton, type MenuButtonProps } from "./mantine/menu-button";
 export { SemioTheme, SemioColor, type ThemeType } from "./mantine/semio-theme";
 export { LayoutManager, type LayoutManagerProps } from "./mantine/layout";
 export { SliderNumberField } from "./mantine/slider-number-field";
-export { Spinner } from "./LoadingSpinner";
+export { Spinner } from "./spinner";
 
-export { GoogleSignInButton } from "./buttons/GoogleSignInButton";
+export { GoogleSignInButton } from "./buttons/google-signin-button";
 export { Modal, type ModalProps } from "./modal";
-export { ImageButton, type ImageButtonProps } from "./buttons/ImageButton";
+export { ImageButton, type ImageButtonProps } from "./buttons/image-button";
 
-export { DescriptionInput, type DescriptionInputProps } from "./inputs/Description";
-export { EmailInput, type EmailInputProps } from "./inputs/Email";
-export { EmailsInput, type EmailsInputProps } from "./inputs/Emails";
-export { ImageInput, type ImageInputProps } from "./inputs/Image";
-export { NameInput, type NameInputProps } from "./inputs/Name";
-export { PasswordInput, type PasswordInputProps } from "./inputs/Password";
-export { PublishedInput, type PublishedInputProps } from "./inputs/Published";
-export { TagsInput, type TagsInputProps } from "./inputs/Tags";
-export { UserNameInput, type UserNameInputProps } from "./inputs/UserName";
-export { VersionInput, type VersionInputProps } from "./inputs/Version";
+export { DescriptionInput, type DescriptionInputProps } from "./inputs/description";
+export { EmailInput, type EmailInputProps } from "./inputs/email";
+export { EmailsInput, type EmailsInputProps } from "./inputs/emails";
+export { ImageInput, type ImageInputProps } from "./inputs/image";
+export { NameInput, type NameInputProps } from "./inputs/name";
+export { PasswordInput, type PasswordInputProps } from "./inputs/password";
+export { PublishedInput, type PublishedInputProps } from "./inputs/published";
+export { TagsInput, type TagsInputProps } from "./inputs/tags";
+export { UserNameInput, type UserNameInputProps } from "./inputs/username";
+export { VersionInput, type VersionInputProps } from "./inputs/version";
 
-export { FormBase } from "./FormBase";
+export { FormBase } from "./form-base";
 
 export { ButtonModal, type ButtonModalProps } from "./buttons/button-modal";
-export { CopyLinkButton } from "./buttons/CopyLinkButton";
+export { CopyLinkButton } from "./buttons/copy-link-button";

@@ -1,5 +1,5 @@
 import { useImageInput } from "../hooks/formInputHooks";
-import { Spinner } from '../LoadingSpinner';
+import { Spinner } from '../spinner';
 
 export interface ImageInputProps {
   imageUrl?: string;
