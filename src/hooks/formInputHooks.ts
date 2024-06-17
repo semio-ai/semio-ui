@@ -1,6 +1,5 @@
 import { useState, ChangeEvent, KeyboardEvent, useEffect } from "react";
 
-
 const useDebounce = (value: string, delay: number): string => {
   const [debouncedValue, setDebouncedValue] = useState<string>(value);
 
@@ -22,7 +21,11 @@ const validateEmail = (email: string): boolean => {
   return emailRegex.test(email);
 };
 
-export const useItemsInput = (initialItems: string[], onChange: (items: string[], field: string) => void, fieldName: string) => {
+export const useItemsInput = (
+  initialItems: string[],
+  onChange: (items: string[], field: string) => void,
+  fieldName: string,
+) => {
   const [items, setItems] = useState<string[]>(initialItems);
   const [inputValue, setInputValue] = useState<string>("");
 
@@ -31,7 +34,7 @@ export const useItemsInput = (initialItems: string[], onChange: (items: string[]
   }, [initialItems]);
 
   const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Enter' && inputValue) {
+    if (event.key === "Enter" && inputValue) {
       event.preventDefault();
       if (!items.includes(inputValue)) {
         const newItems = [...items, inputValue];
@@ -43,7 +46,7 @@ export const useItemsInput = (initialItems: string[], onChange: (items: string[]
   };
 
   const handleRemoveItem = (item: string) => {
-    const newItems = items.filter(t => t !== item);
+    const newItems = items.filter((t) => t !== item);
     setItems(newItems);
     onChange(newItems, fieldName);
   };
@@ -57,7 +60,11 @@ export const useItemsInput = (initialItems: string[], onChange: (items: string[]
   };
 };
 
-export const useEmailsInput = (initialEmails: string[], onChange: (emails: string[], field: string) => void, fieldName: string) => {
+export const useEmailsInput = (
+  initialEmails: string[],
+  onChange: (emails: string[], field: string) => void,
+  fieldName: string,
+) => {
   const [emails, setEmails] = useState<string[]>(initialEmails);
   const [inputValue, setInputValue] = useState<string>("");
 
@@ -79,7 +86,7 @@ export const useEmailsInput = (initialEmails: string[], onChange: (emails: strin
 
   // Handle the keydown event to add a new email
   const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Enter' && inputValue) {
+    if (event.key === "Enter" && inputValue) {
       event.preventDefault();
       if (!emails.includes(inputValue) && validateEmail(inputValue)) {
         const newEmails = [...emails, inputValue];
@@ -94,7 +101,7 @@ export const useEmailsInput = (initialEmails: string[], onChange: (emails: strin
   };
 
   const handleRemoveEmail = (email: string) => {
-    const newEmails = emails.filter(e => e !== email);
+    const newEmails = emails.filter((e) => e !== email);
     setEmails(newEmails);
     onChange(newEmails, fieldName);
   };
@@ -109,7 +116,11 @@ export const useEmailsInput = (initialEmails: string[], onChange: (emails: strin
   };
 };
 
-export const useBooleanInput = (initialValue: boolean, onChange: (value: boolean, field: string) => void, fieldName: string) => {
+export const useBooleanInput = (
+  initialValue: boolean,
+  onChange: (value: boolean, field: string) => void,
+  fieldName: string,
+) => {
   const [inputValue, setInputValue] = useState<boolean>(initialValue);
 
   useEffect(() => {
@@ -128,14 +139,20 @@ export const useBooleanInput = (initialValue: boolean, onChange: (value: boolean
   };
 };
 
-export const useInput = (initialValue: string, onChange: (value: string, field: string) => void, fieldName: string) => {
+export const useInput = (
+  initialValue: string,
+  onChange: (value: string, field: string) => void,
+  fieldName: string,
+) => {
   const [inputValue, setInputValue] = useState<string>(initialValue);
 
   useEffect(() => {
     setInputValue(initialValue);
   }, [initialValue]);
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
     setInputValue(e.target.value);
   };
 
@@ -146,11 +163,15 @@ export const useInput = (initialValue: string, onChange: (value: string, field: 
   return {
     inputValue,
     handleChange,
-    handleBlur
+    handleBlur,
   };
 };
 
-export const useEmailInput = (initialEmail: string, onChange: (email: string, field: string) => void, fieldName: string) => {
+export const useEmailInput = (
+  initialEmail: string,
+  onChange: (email: string, field: string) => void,
+  fieldName: string,
+) => {
   const [email, setEmail] = useState<string>(initialEmail);
   const [error, setError] = useState<string>("");
   const debouncedEmail = useDebounce(email, 500); // 500ms debounce
@@ -181,11 +202,16 @@ export const useEmailInput = (initialEmail: string, onChange: (email: string, fi
   };
 };
 
-export const useImageInput = (onChange: (file: File | null) => void, projectImageUrl?: string, ) => {
-  const [localImageURL, setLocalImage] = useState<string|null>(projectImageUrl ?? null);
+export const useImageInput = (
+  onChange: (file: File | null) => void,
+  projectImageUrl?: string,
+) => {
+  const [localImageURL, setLocalImage] = useState<string | null>(
+    projectImageUrl ?? null,
+  );
 
   useEffect(() => {
-    console.log("(useImageInput)Project Image URL changed:", projectImageUrl)
+    console.log("(useImageInput)Project Image URL changed:", projectImageUrl);
     setLocalImage(projectImageUrl ?? null);
   }, [projectImageUrl]);
 
@@ -205,7 +231,7 @@ export const useImageInput = (onChange: (file: File | null) => void, projectImag
   };
 
   const handleRemove = () => {
-    setLocalImage('');
+    setLocalImage("");
     onChange(null);
   };
 
@@ -215,4 +241,3 @@ export const useImageInput = (onChange: (file: File | null) => void, projectImag
     handleRemove,
   };
 };
-

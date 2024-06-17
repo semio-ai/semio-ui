@@ -2,7 +2,7 @@ import {
   Modal as MantineModal,
   type ModalProps as MantineModalProps,
   type MantineColor,
-  alpha
+  alpha,
 } from "@mantine/core";
 import { type ReactNode } from "react";
 import { useMediaQuery } from "@mantine/hooks";
@@ -46,10 +46,9 @@ export function ManModal({
           borderLeftWidth: 0,
           borderRightWidth: 0,
           // backgroundColor: "transparent",
-
         },
         content: {
-          backgroundColor: "transparent"
+          backgroundColor: "transparent",
         },
         body: {
           backgroundColor: alpha("var(--mantine-color-body)", 0.75),

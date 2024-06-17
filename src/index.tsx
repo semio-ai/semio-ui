@@ -13,7 +13,10 @@ export { GoogleSignInButton } from "./buttons/google-signin-button";
 export { Modal, type ModalProps } from "./modal";
 export { ImageButton, type ImageButtonProps } from "./buttons/image-button";
 
-export { DescriptionInput, type DescriptionInputProps } from "./inputs/description";
+export {
+  DescriptionInput,
+  type DescriptionInputProps,
+} from "./inputs/description";
 export { EmailInput, type EmailInputProps } from "./inputs/email";
 export { EmailsInput, type EmailsInputProps } from "./inputs/emails";
 export { ImageInput, type ImageInputProps } from "./inputs/image";

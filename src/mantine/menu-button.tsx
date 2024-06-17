@@ -35,11 +35,12 @@ export function MenuButton({
   //   console.log("Color: ", label, color);
   const { colorScheme } = useMantineColorScheme();
   const { hovered, ref: button } = useHover<HTMLAnchorElement>();
-  const hoverShade: number = colorScheme === 'dark' ? 3 : 7;
-  const activeColor: string = active ? `var(--mantine-color-${color}-5)` : "var(--mantine-color-gray-5)";
+  const hoverShade: number = colorScheme === "dark" ? 3 : 7;
+  const activeColor: string = active
+    ? `var(--mantine-color-${color}-5)`
+    : "var(--mantine-color-gray-5)";
   return (
     <NavLink
-
       {...props}
       active={active}
       color={color}
@@ -68,4 +69,4 @@ export function MenuButton({
       }}
     />
   );
-};
+}

@@ -5,15 +5,23 @@ export interface VersionInputProps {
   onVersionChange: (value: string, field: string) => void;
 }
 
-export const VersionInput = ({ version, onVersionChange }: VersionInputProps) => {
-  const { inputValue, handleChange, handleBlur } = useInput(version, onVersionChange, "version");
+export const VersionInput = ({
+  version,
+  onVersionChange,
+}: VersionInputProps) => {
+  const { inputValue, handleChange, handleBlur } = useInput(
+    version,
+    onVersionChange,
+    "version",
+  );
 
   return (
     <div>
-      <label 
+      <label
         htmlFor="version"
-        className="block text-gray-700 text-sm font-bold mb-2">
-          Version Number:
+        className="block text-gray-700 text-sm font-bold mb-2"
+      >
+        Version Number:
       </label>
       <input
         type="text"

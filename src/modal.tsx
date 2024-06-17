@@ -1,4 +1,4 @@
-import { type ReactNode, useEffect, useRef } from 'react';
+import { type ReactNode, useEffect, useRef } from "react";
 
 export interface ModalProps {
   children: ReactNode;
@@ -7,7 +7,12 @@ export interface ModalProps {
   onClickBackdrop?: () => void;
 }
 
-export const Modal = ({ children, open, title, onClickBackdrop }: ModalProps): ReactNode => {
+export const Modal = ({
+  children,
+  open,
+  title,
+  onClickBackdrop,
+}: ModalProps): ReactNode => {
   const dialogRef = useRef<HTMLDialogElement>(null);
 
   useEffect(() => {
@@ -31,7 +36,7 @@ export const Modal = ({ children, open, title, onClickBackdrop }: ModalProps): R
         }}
       >
         <div className="text-xl dark:bg-gray-800/30 bg-gray-500/30 p-2 flex justify-between items-center">
-          <span>{title || 'Modal'}</span>
+          <span>{title || "Modal"}</span>
           <button
             onClick={onClickBackdrop}
             className="text-semio-yellow text-3xl hover:text-semio-red focus:outline-none"

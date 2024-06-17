@@ -29,6 +29,6 @@ export const Primary: Story = {
   name: "Button",
   args: {
     children: "Hello",
-    type: "button"
+    type: "button",
   },
 };

@@ -5,15 +5,23 @@ export interface UserNameInputProps {
   onUserNameChange: (value: string, field: string) => void;
 }
 
-export const UserNameInput = ({ userName, onUserNameChange }: UserNameInputProps) => {
-  const { inputValue, handleChange, handleBlur } = useInput(userName, onUserNameChange, "userName");
+export const UserNameInput = ({
+  userName,
+  onUserNameChange,
+}: UserNameInputProps) => {
+  const { inputValue, handleChange, handleBlur } = useInput(
+    userName,
+    onUserNameChange,
+    "userName",
+  );
 
   return (
     <div>
-      <label 
+      <label
         htmlFor="userName"
-        className="block text-gray-700 text-sm font-bold mb-2">
-          User Name:
+        className="block text-gray-700 text-sm font-bold mb-2"
+      >
+        User Name:
       </label>
       <input
         type="text"

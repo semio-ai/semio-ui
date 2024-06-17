@@ -9,7 +9,10 @@ export interface CardProps {
   color?: SemioColor | MantineColor;
 }
 
-export function Card({ children, color = SemioColor.BLUE }: CardProps): ReactNode {
+export function Card({
+  children,
+  color = SemioColor.BLUE,
+}: CardProps): ReactNode {
   return (
     <MantineCard
       style={{
@@ -24,4 +27,4 @@ export function Card({ children, color = SemioColor.BLUE }: CardProps): ReactNod
       {children}
     </MantineCard>
   );
-};
+}
