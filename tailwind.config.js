@@ -1,4 +1,4 @@
-// tailwind config is required for editor support
+/** @type {import('tailwindcss').Config} */
 import sharedConfig from "@semio/tailwind-config";
 
 const config = {
