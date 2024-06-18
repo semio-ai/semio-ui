@@ -8,7 +8,7 @@ export { SemioTheme, SemioColor, type ThemeType } from "./mantine/semio-theme";
 export { LayoutManager, type LayoutManagerProps } from "./mantine/layout";
 export { SliderNumberField } from "./mantine/slider-number-field";
 export { Spinner } from "./spinner";
-
+export { Progress, type ProgressProps } from "./progress";
 export { GoogleSignInButton } from "./buttons/google-signin-button";
 export { Modal, type ModalProps } from "./modal";
 export { ImageButton, type ImageButtonProps } from "./buttons/image-button";
@@ -31,3 +31,8 @@ export { FormBase } from "./form-base";
 
 export { ButtonModal, type ButtonModalProps } from "./buttons/button-modal";
 export { CopyLinkButton } from "./buttons/copy-link-button";
+
+export { useSystemThemePreference } from "./hooks/use-system-theme-preference";
+export { useTheme } from "./hooks/use-theme";
+export { ThemeContext, type ThemeContextValue } from "./context";
+export { Theme } from "./types";
