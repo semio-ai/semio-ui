@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-function Spinner({ children, speed }: { children?: ReactNode }): ReactNode {
+function Spinner({ children }: { children?: ReactNode }): ReactNode {
   return (
     <div className="flex justify-center items-center h-auto">
       {children ? (

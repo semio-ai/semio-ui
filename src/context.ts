@@ -11,7 +11,7 @@ export interface ThemeContextValue {
   explicitTheme: Theme;
   systemPreference: Theme;
   setExplicitTheme: (theme: Theme) => void;
-  resolvedTheme: Theme;
+  resolvedTheme: Theme.DARK | Theme.LIGHT;
 }
 
 export const ThemeContext = createContext<ThemeContextValue>({

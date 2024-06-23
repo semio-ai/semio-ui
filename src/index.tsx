@@ -12,7 +12,9 @@ export { Progress, type ProgressProps } from "./progress";
 export { GoogleSignInButton } from "./buttons/google-signin-button";
 export { Modal, type ModalProps } from "./modal";
 export { ImageButton, type ImageButtonProps } from "./buttons/image-button";
-
+export { Avatar, type AvatarProps } from "./avatar";
+export { Collapse, type CollapseProps } from "./collapse";
+export { Popover, type PopoverProps } from "./popover";
 export {
   DescriptionInput,
   type DescriptionInputProps,
@@ -33,6 +35,7 @@ export { ButtonModal, type ButtonModalProps } from "./buttons/button-modal";
 export { CopyLinkButton } from "./buttons/copy-link-button";
 
 export { useSystemThemePreference } from "./hooks/use-system-theme-preference";
+export { useDelayedBoolean } from "./hooks/use-delayed-boolean";
 export { useTheme } from "./hooks/use-theme";
 export { ThemeContext, type ThemeContextValue } from "./context";
 export { Theme } from "./types";

@@ -1,51 +1,143 @@
-import { type ReactNode, useEffect, useRef } from "react";
+import { type ReactNode, type MouseEvent } from "react";
+import { Transition } from "@headlessui/react";
+import * as DialogPrimitive from "@radix-ui/react-dialog";
+import { clsx } from "clsx";
+import { IconX } from "@tabler/icons-react";
 
 export interface ModalProps {
   children: ReactNode;
   open: boolean;
   title?: string;
-  onClickBackdrop?: () => void;
+  description?: string;
+  submitDisabled?: boolean;
+  submitText?: string;
+  onStateChange: (open: boolean) => void;
+  onSubmit?: (event: MouseEvent) => void;
+  onCancel?: (event: MouseEvent) => void;
 }
 
-export const Modal = ({
+export function Modal({
   children,
   open,
   title,
-  onClickBackdrop,
-}: ModalProps): ReactNode => {
-  const dialogRef = useRef<HTMLDialogElement>(null);
+  description,
+  submitDisabled,
+  submitText,
+  onStateChange,
+  onSubmit,
+  onCancel,
+}: ModalProps) {
+  // let [isOpen, setIsOpen] = useState(false);
 
-  useEffect(() => {
-    if (dialogRef && open) {
-      dialogRef.current?.showModal();
-    } else {
-      dialogRef.current?.close();
-    }
-  }, [dialogRef, open]);
-  if (!open) {
-    return null;
-  }
   return (
-    <dialog ref={dialogRef} className="modal" onClick={onClickBackdrop}>
-      <div
-        className="modal-box container mx-auto rounded-none
-                   dark:bg-gray-800/30 bg-gray-500/30 dark:text-gray-200 text-gray-800
-                   p-0 backdrop-blur border-2 border-transparent border-t-semio-red"
-        onClick={(e) => {
-          e.stopPropagation();
-        }}
-      >
-        <div className="text-xl dark:bg-gray-800/30 bg-gray-500/30 p-2 flex justify-between items-center">
-          <span>{title || "Modal"}</span>
-          <button
-            onClick={onClickBackdrop}
-            className="text-semio-yellow text-3xl hover:text-semio-red focus:outline-none"
-          >
-            &times;
-          </button>
-        </div>
-        {children}
-      </div>
-    </dialog>
+    <DialogPrimitive.Root open={open} onOpenChange={onStateChange}>
+      <DialogPrimitive.Portal forceMount>
+        <Transition
+          show={open}
+          enter="ease-out duration-300"
+          enterFrom="opacity-0"
+          enterTo="opacity-100"
+          leave="ease-in duration-200"
+          leaveFrom="opacity-100"
+          leaveTo="opacity-0"
+        >
+          <div>
+            {/* <TransitionChild
+            as={DialogPrimitive.Overlay}
+            enter="ease-out duration-300"
+            enterFrom="opacity-0"
+            enterTo="opacity-100"
+            leave="ease-in duration-200"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-0"
+          > */}
+            <DialogPrimitive.Overlay
+              forceMount
+              className="fixed inset-0 z-20 bg-black/50"
+            />
+            {/* </TransitionChild> */}
+            {/* <TransitionChild
+            as={DialogPrimitive.Content}
+            enter="ease-out duration-300"
+            enterFrom="opacity-0 scale-95"
+            enterTo="opacity-100 scale-100"
+            leave="ease-in duration-200"
+            leaveFrom="opacity-100 scale-100"
+            leaveTo="opacity-0 scale-95"
+          > */}
+            {/* <Transition
+              show={open}
+              enter="ease-out duration-300"
+              enterFrom="opacity-0 scale-95"
+              enterTo="opacity-100 scale-100"
+              leave="ease-in duration-200"
+              leaveFrom="opacity-100 scale-100"
+              leaveTo="opacity-0 scale-95"
+            > */}
+            <DialogPrimitive.Content
+              forceMount
+              className={clsx(
+                "fixed z-50",
+                "w-[95vw] max-w-md p-4 md:w-full",
+                "top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2",
+                "bg-neutral-50/75 dark:bg-neutral-950/75 backdrop-blur-lg",
+                "focus:outline-none focus-visible:ring focus-visible:ring-purple-500 focus-visible:ring-opacity-75",
+                "border-t-2 border-solid border-semio-yellow",
+              )}
+            >
+              <DialogPrimitive.Title className="text-lg capitalize font-medium text-gray-900 dark:text-gray-100 flex align-center justify-between">
+                {title || "Modal"}
+                <DialogPrimitive.Close
+                  className="text-gray-500 dark:text-gray-400 w-7 h-7 hover:text-gray-900 dark:hover:text-gray-100"
+                  asChild
+                  onClick={(event) => {
+                    event.preventDefault();
+                    onStateChange(false);
+                  }}
+                >
+                  <IconX />
+                </DialogPrimitive.Close>
+              </DialogPrimitive.Title>
+              <DialogPrimitive.Description className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                {description ?? "Active Modal Window"}
+              </DialogPrimitive.Description>
+              {children}
+
+              <div className="mt-4 flex gap-3 justify-end">
+                {onCancel && (
+                  <DialogPrimitive.Close
+                    onClick={onCancel}
+                    className={clsx(
+                      "inline-flex select-none justify-center px-4 py-2 text-sm font-medium",
+                      "bg-purple-600 text-white hover:bg-purple-700 dark:bg-purple-700 dark:text-gray-100 dark:hover:bg-purple-600",
+                      "border border-transparent",
+                      "focus:outline-none focus-visible:ring focus-visible:ring-purple-500 focus-visible:ring-opacity-75",
+                    )}
+                  >
+                    Cancel
+                  </DialogPrimitive.Close>
+                )}
+                {onSubmit && (
+                  <DialogPrimitive.Close
+                    disabled={submitDisabled}
+                    onClick={onSubmit}
+                    className={clsx(
+                      submitDisabled && "opacity-50 cursor-not-allowed",
+                      "inline-flex select-none justify-center px-4 py-2 text-sm font-medium",
+                      "bg-purple-600 text-white hover:bg-purple-700 dark:bg-purple-700 dark:text-gray-100 dark:hover:bg-purple-600",
+                      "border border-transparent",
+                      "focus:outline-none focus-visible:ring focus-visible:ring-purple-500 focus-visible:ring-opacity-75",
+                    )}
+                  >
+                    {submitText ?? "Submit"}
+                  </DialogPrimitive.Close>
+                )}
+              </div>
+            </DialogPrimitive.Content>
+            {/* </Transition> */}
+          </div>
+        </Transition>
+      </DialogPrimitive.Portal>
+    </DialogPrimitive.Root>
   );
-};
+}

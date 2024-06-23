@@ -5,6 +5,7 @@ const config = {
   content: ["./src/**/*.tsx"],
   // prefix: "",
   presets: [sharedConfig],
+  darkMode: "selector",
 };
 
 export default config;

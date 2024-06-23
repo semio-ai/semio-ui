@@ -6,13 +6,8 @@
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
   "license": "MIT",
-  "files": [
-    "dist/**",
-    "dist/index.css"
-  ],
-  "sideEffects": [
-    "**/*.css"
-  ],
+  "files": ["dist/**", "dist/index.css"],
+  "sideEffects": ["**/*.css"],
   "scripts": {
     "build": "tsup src/index.tsx --format esm,cjs --dts --external react",
     "dev": "tsup src/index.tsx --format esm,cjs --watch --dts --external react",
@@ -22,11 +17,18 @@
   "dependencies": {
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.5",
+    "@headlessui/react": "^2.0.4",
+    "@radix-ui/react-avatar": "^1.1.0",
+    "@radix-ui/react-collapsible": "^1.1.0",
+    "@radix-ui/react-dialog": "^1.1.0",
+    "@radix-ui/react-popover": "^1.1.0",
     "@radix-ui/react-progress": "^1.0.3",
     "@react-spring/web": "^9.7.3",
     "@semio/utils": "*",
     "@tabler/icons-react": "^2.46.0",
     "@use-gesture/react": "^10.3.0",
+    "@visx/responsive": "^3.10.2",
+    "clsx": "^2.1.1",
     "lodash": "^4.17.21",
     "number-precision": "^1.6.0",
     "react-imask": "^7.6.0",
@@ -58,7 +60,7 @@
     "eslint": "^8.56.0",
     "postcss": "^8.4.38",
     "react": "^18.3.0",
-    "tailwindcss": "^3.4.3",
+    "tailwindcss": "^3.4.4",
     "tsup": "^8.0.1",
     "typescript": "^5.3.3"
   },
