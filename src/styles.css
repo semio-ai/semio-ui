@@ -4,3 +4,60 @@
 
 /* @import "@mantine/core/styles.css"; */
 /* @import "./fonts/Gilroy/Gilroy.css"; */
+.CollapsibleVerticalContent {
+  overflow: hidden;
+}
+.CollapsibleVerticalContent[data-state="open"] {
+  animation: slideDown 200ms ease-out;
+}
+.CollapsibleVerticalContent[data-state="closed"] {
+  animation: slideUp 100ms ease-out;
+}
+
+.CollapsibleHorizontalContent {
+  overflow: hidden;
+}
+
+.CollapsibleHorizontalContent[data-state="open"] {
+  animation: slideRight 200ms ease-out;
+}
+
+.CollapsibleHorizontalContent[data-state="closed"] {
+  animation: slideLeft 100ms ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    height: 0;
+  }
+  to {
+    height: var(--radix-collapsible-content-height);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    height: var(--radix-collapsible-content-height);
+  }
+  to {
+    height: 0;
+  }
+}
+
+@keyframes slideLeft {
+  from {
+    width: var(--radix-collapsible-content-width);
+  }
+  to {
+    width: 0;
+  }
+}
+
+@keyframes slideRight {
+  from {
+    width: 0;
+  }
+  to {
+    width: var(--radix-collapsible-content-width);
+  }
+}
