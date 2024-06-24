@@ -42,38 +42,10 @@ export function Modal({
           leaveTo="opacity-0"
         >
           <div>
-            {/* <TransitionChild
-            as={DialogPrimitive.Overlay}
-            enter="ease-out duration-300"
-            enterFrom="opacity-0"
-            enterTo="opacity-100"
-            leave="ease-in duration-200"
-            leaveFrom="opacity-100"
-            leaveTo="opacity-0"
-          > */}
             <DialogPrimitive.Overlay
               forceMount
               className="fixed inset-0 z-20 bg-black/50"
             />
-            {/* </TransitionChild> */}
-            {/* <TransitionChild
-            as={DialogPrimitive.Content}
-            enter="ease-out duration-300"
-            enterFrom="opacity-0 scale-95"
-            enterTo="opacity-100 scale-100"
-            leave="ease-in duration-200"
-            leaveFrom="opacity-100 scale-100"
-            leaveTo="opacity-0 scale-95"
-          > */}
-            {/* <Transition
-              show={open}
-              enter="ease-out duration-300"
-              enterFrom="opacity-0 scale-95"
-              enterTo="opacity-100 scale-100"
-              leave="ease-in duration-200"
-              leaveFrom="opacity-100 scale-100"
-              leaveTo="opacity-0 scale-95"
-            > */}
             <DialogPrimitive.Content
               forceMount
               className={clsx(
@@ -134,7 +106,6 @@ export function Modal({
                 )}
               </div>
             </DialogPrimitive.Content>
-            {/* </Transition> */}
           </div>
         </Transition>
       </DialogPrimitive.Portal>

@@ -1,11 +1,7 @@
 /** @type {import('tailwindcss').Config} */
-import sharedConfig from "@semio/tailwind-config";
-
-const config = {
+module.exports = {
   content: ["./src/**/*.tsx"],
   // prefix: "",
-  presets: [sharedConfig],
+  presets: [require("@semio/tailwind-config")],
   darkMode: "selector",
 };
-
-export default config;
