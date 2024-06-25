@@ -1,18 +1,26 @@
-import styled from "@emotion/styled";
-import { useMantineTheme, getThemeColor, lighten, alpha } from "@mantine/core";
-import { memo, useMemo, useRef, useState, type ReactNode } from "react";
+// import styled from "@emotion/styled";
+// import { useMantineTheme, getThemeColor, lighten, alpha } from "@mantine/core";
+import {
+  memo,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+  type InputHTMLAttributes,
+} from "react";
 import { round, enableBoundaryChecking } from "number-precision";
+import { clsx } from "clsx";
 import { useGesture } from "@use-gesture/react";
 // import { IMaskMixin } from "react-imask";
 import { useNumeric } from "./use-numeric";
 
 enableBoundaryChecking(false);
 
-interface AdditionalProps {
+interface StyledInputProps extends InputHTMLAttributes<HTMLInputElement> {
   percent?: number;
   color: string;
   sliderMode: SliderMode;
-  sizeVariant: "sm" | "md" | "lg";
+  sizeVariant: keyof typeof heightLookup;
   focused?: boolean;
   inactive?: boolean;
 }
@@ -56,6 +64,23 @@ const InnerInput = styled("input", {
   }),
 );
 
+const StyledInput = (props: StyledInputProps) => (
+  <InnerInput
+    {...props}
+    type="text"
+    className={clsx(
+      "w-full touch-none font-mono text-right outline-none bg-transparent pt-0 pb-0 pl-3 pr-3",
+      "dark:text-white text-black",
+      props.sliderMode === SliderMode.MANUAL
+        ? "select-text font-bold"
+        : "select-none font-normal",
+      props.sizeVariant ? heightLookup[props.sizeVariant] : heightLookup.md,
+      props.sizeVariant ? fontSizeLookup[props.sizeVariant] : fontSizeLookup.md,
+      getCursor(props.disabled || false, props.sliderMode),
+    )}
+  />
+);
+
 const InputWrapper = styled("div", {
   // touchAction: 'none',
   // width: 100%,
@@ -90,15 +115,15 @@ const InputWrapper = styled("div", {
 );
 
 const heightLookup = {
-  sm: "24px",
-  md: "30px",
-  lg: "40px",
+  sm: "h-6",
+  md: "h-8",
+  lg: "h-10",
 };
 
 const fontSizeLookup = {
-  sm: "10px",
-  md: "16px",
-  lg: "20px",
+  sm: "text-xs",
+  md: "text-base",
+  lg: "text-xl",
 };
 
 export interface SliderNumberFieldProps {
@@ -252,9 +277,9 @@ function InnerSliderNumberField({
 }
 
 const getCursor = (disabled: boolean, sliderMode: SliderMode) => {
-  if (disabled) return "not-allowed";
-  if (sliderMode === SliderMode.MANUAL) return "text";
-  return "ew-resize";
+  if (disabled) return "cursor-not-allowed";
+  if (sliderMode === SliderMode.MANUAL) return "cursor-text";
+  return "cursor-ew-resize";
 };
 
 export const SliderNumberField = memo(InnerSliderNumberField);
