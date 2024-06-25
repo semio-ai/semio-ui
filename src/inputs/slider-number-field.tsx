@@ -1,22 +1,22 @@
-// import styled from "@emotion/styled";
-// import { useMantineTheme, getThemeColor, lighten, alpha } from "@mantine/core";
 import {
   memo,
-  useMemo,
   useRef,
   useState,
   type ReactNode,
   type InputHTMLAttributes,
+  type HTMLAttributes,
+  forwardRef,
+  ForwardedRef,
 } from "react";
 import { round, enableBoundaryChecking } from "number-precision";
 import { clsx } from "clsx";
 import { useGesture } from "@use-gesture/react";
-// import { IMaskMixin } from "react-imask";
-import { useNumeric } from "./use-numeric";
+import { useNumeric } from "../hooks/use-numeric";
+import { alpha } from "@semio/utils";
 
 enableBoundaryChecking(false);
 
-interface StyledInputProps extends InputHTMLAttributes<HTMLInputElement> {
+interface AdditionalProps {
   percent?: number;
   color: string;
   sliderMode: SliderMode;
@@ -25,97 +25,14 @@ interface StyledInputProps extends InputHTMLAttributes<HTMLInputElement> {
   inactive?: boolean;
 }
 
-const InnerInput = styled("input", {
-  // touchAction: 'none',
-  // width: 100%,
-  shouldForwardProp: (prop) =>
-    ![
-      "sizeVariant",
-      "percent",
-      "color",
-      "sliderMode",
-      "focused",
-      "inactive",
-    ].includes(prop),
-})<AdditionalProps>(
-  {
-    width: "100%",
-    touchAction: "none",
-    fontFamily: "monospace",
-    textAlign: "right",
-    outline: "none",
-    background: "transparent",
-    padding: "0px 12px 0px 12px",
-    color: "var(--mantine-font-color)",
-  },
-  ({ sizeVariant, color, sliderMode, disabled }) => ({
-    userSelect: sliderMode === SliderMode.MANUAL ? "text" : "none",
-    height: sizeVariant ? heightLookup[sizeVariant] : heightLookup.md,
-    fontSize: sizeVariant ? fontSizeLookup[sizeVariant] : fontSizeLookup.md,
-    fontWeight: sliderMode === SliderMode.MANUAL ? "bold" : "normal",
-    cursor: getCursor(disabled || false, sliderMode),
-    caretColor:
-      sliderMode === SliderMode.MANUAL ? lighten(color, 0.4) : "transparent",
-    // textDecoration: sliderMode === SliderMode.MANUAL ? "underline" : "none",
-    "&::selection": {
-      backgroundColor:
-        sliderMode === SliderMode.MANUAL ? lighten(color, 0.2) : "transparent",
-    },
-  }),
-);
-
-const StyledInput = (props: StyledInputProps) => (
-  <InnerInput
-    {...props}
-    type="text"
-    className={clsx(
-      "w-full touch-none font-mono text-right outline-none bg-transparent pt-0 pb-0 pl-3 pr-3",
-      "dark:text-white text-black",
-      props.sliderMode === SliderMode.MANUAL
-        ? "select-text font-bold"
-        : "select-none font-normal",
-      props.sizeVariant ? heightLookup[props.sizeVariant] : heightLookup.md,
-      props.sizeVariant ? fontSizeLookup[props.sizeVariant] : fontSizeLookup.md,
-      getCursor(props.disabled || false, props.sliderMode),
-    )}
-  />
-);
-
-const InputWrapper = styled("div", {
-  // touchAction: 'none',
-  // width: 100%,
-  shouldForwardProp: (prop) =>
-    ![
-      "sizeVariant",
-      "percent",
-      "color",
-      "sliderMode",
-      "focused",
-      "inactive",
-    ].includes(prop),
-})<AdditionalProps>(
-  {
-    touchAction: "none",
-    padding: 0,
-    overflow: "hidden",
-    borderRadius: 0,
-    transition: "0.3s",
-    // backgroundColor: "red",
-  },
-  ({ sizeVariant, percent = 0, color, focused, inactive }) => ({
-    height: sizeVariant ? heightLookup[sizeVariant] : heightLookup.md,
-    boxShadow: `inset 0 0 0 1px ${focused ? color : "var(--mantine-color-body)"}`,
-    background: `linear-gradient(90deg, ${alpha(color, inactive ? 0.6 : 1)} 0%, ${alpha(color, inactive ? 0.6 : 1)} ${
-      percent * 100
-    }%, ${alpha(color, focused ? 0.25 : 0.15)} ${percent * 100}%, ${alpha(color, focused ? 0.25 : 0.15)} 100%)`,
-    "&:focus": {
-      boxShadow: `1px solid ${color}`,
-    },
-  }),
-);
+enum SliderMode {
+  DRAG,
+  MANUAL,
+  BLURRED,
+}
 
 const heightLookup = {
-  sm: "h-6",
+  sm: "h-7",
   md: "h-8",
   lg: "h-10",
 };
@@ -125,6 +42,63 @@ const fontSizeLookup = {
   md: "text-base",
   lg: "text-xl",
 };
+
+const StyledInput = (
+  props: AdditionalProps & InputHTMLAttributes<HTMLInputElement>,
+) => {
+  const { sliderMode, sizeVariant, disabled, color, ...forwardedProps } = props;
+  return (
+    <input
+      {...forwardedProps}
+      type="text"
+      className={clsx(
+        "w-full touch-none font-mono text-right outline-none bg-transparent pt-0 pb-0 pl-3 pr-3",
+        "dark:text-white text-black",
+        sliderMode === SliderMode.MANUAL
+          ? "select-text font-bold"
+          : "select-none font-normal",
+        sizeVariant ? heightLookup[sizeVariant] : heightLookup.md,
+        sizeVariant ? fontSizeLookup[sizeVariant] : fontSizeLookup.md,
+        getCursor(disabled || false, sliderMode),
+      )}
+    />
+  );
+};
+
+const InputWrapper = forwardRef(
+  (
+    props: AdditionalProps & HTMLAttributes<HTMLDivElement>,
+    ref: ForwardedRef<HTMLDivElement>,
+  ) => {
+    const {
+      sizeVariant,
+      color,
+      percent,
+      inactive,
+      children,
+      focused,
+      ...forwardedProps
+    } = props;
+    return (
+      <div
+        ref={ref}
+        {...forwardedProps}
+        className={clsx(
+          "w-full touch-none p-0 overflow-hidden rounded-none transition-all",
+          sizeVariant ? heightLookup[sizeVariant] : heightLookup.md,
+          `outline outline-1 outline-offset-2`,
+        )}
+        // Tailwind does not support truly dynamic styles, so we have to use inline styles here
+        style={{
+          outlineColor: alpha(color, focused ? 1 : 0),
+          background: `linear-gradient(90deg, ${alpha(color, inactive ? 0.6 : 1)} 0%, ${alpha(color, inactive ? 0.6 : 1)} ${(percent || 0) * 100}%, ${alpha(color, focused ? 0.25 : 0.15)} ${(percent || 0) * 100}%, ${alpha(color, focused ? 0.25 : 0.15)} 100%)`,
+        }}
+      >
+        {children}
+      </div>
+    );
+  },
+);
 
 export interface SliderNumberFieldProps {
   value: number;
@@ -139,19 +113,13 @@ export interface SliderNumberFieldProps {
   disabled?: boolean;
 }
 
-enum SliderMode {
-  DRAG,
-  MANUAL,
-  BLURRED,
-}
-
 /*
 SliderNumberField
 @props value: number - the value of the field
 @props onChange: (value: number) => void - the callback to call when the value changes
 @props min: number - the minimum value of the field
 @props max: number - the maximum value of the field
-@props color?: string - the color of the field
+@props color?: string - the color of the field (defaults to gray. Can be any string in hex, rgb, or hsl format)
 @props strict?: boolean - whether to enforce the min and max values
 @props size?: "sm" | "md" | "lg" - the size of the field
 @props inactive?: boolean - whether the field is inactive (still allows clicking)
@@ -169,21 +137,11 @@ function InnerSliderNumberField({
   inactive,
   disabled,
 }: SliderNumberFieldProps): ReactNode {
-  const theme = useMantineTheme();
-  const [active, setActive] = useState(false);
+  // const theme = useMantineTheme();
+  const [dragging, setDragging] = useState(false);
 
   const boundsRef = useRef<HTMLDivElement>(null);
-
-  const sliderColor = useMemo(() => {
-    if (color) {
-      if (active) {
-        return lighten(color, 0.1);
-      } else return color;
-    }
-    return getThemeColor(active ? "gray.5" : "gray.7", theme);
-  }, [active, color, theme]);
-
-  // const [ref, bounds] = useMeasure();
+  const sliderColor = color || "#737373";
 
   const [sliderMode, setSliderMode] = useState(SliderMode.BLURRED);
 
@@ -216,12 +174,12 @@ function InnerSliderNumberField({
         }
         // animatedValue.set(v);
         onChangeDirect(round(v, 2));
-        setActive(down);
+        setDragging(down);
       },
       onDragEnd: () => {
         if (disabled) return;
         // animatedValue.set(value);
-        setActive(false);
+        setDragging(false);
       },
       onDoubleClick: () => {
         if (disabled) return;
@@ -252,9 +210,9 @@ function InnerSliderNumberField({
       sizeVariant={size}
       inactive={inactive || disabled}
       percent={(value - min) / (max - min)}
-      focused={sliderMode !== SliderMode.BLURRED}
+      focused={sliderMode !== SliderMode.BLURRED || dragging}
     >
-      <InnerInput
+      <StyledInput
         readOnly={inactive || sliderMode !== SliderMode.MANUAL}
         inactive={inactive || disabled}
         disabled={disabled}

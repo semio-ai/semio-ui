@@ -23,41 +23,42 @@ const Popover = (props: PopoverProps) => {
         <PopoverPrimitive.Trigger asChild>
           {props.trigger}
         </PopoverPrimitive.Trigger>
-        <Transition
+        {/* <Transition
           show={props.open}
           enter="ease-out duration-300"
-          enterFrom="opacity-0 translate-y-2"
-          enterTo="opacity-100 translate-y-0.5"
+          enterFrom="opacity-0"
+          enterTo="opacity-100"
           leave="ease-in duration-200"
-          leaveFrom="opacity-100 translate-y-0.5"
-          leaveTo="opacity-0 translate-y-2"
+          leaveFrom="opacity-100"
+          leaveTo="opacity-0"
+        > */}
+        {/* <div> */}
+        <PopoverPrimitive.Content
+          align="center"
+          sideOffset={4}
+          className={clsx(
+            "PopoverContent",
+            "z-50 w-48 p-4 shadow-md md:w-56",
+            "border-t-2 border-solid border-semio-yellow",
+            "bg-neutral-50 dark:bg-neutral-950",
+          )}
         >
-          <div>
-            <PopoverPrimitive.Content
-              align="center"
-              sideOffset={4}
+          <PopoverPrimitive.Arrow className="fill-current text-semio-yellow" />
+
+          <div className="flex justify-between">
+            <span>{props.title}</span>
+            <PopoverPrimitive.Close
               className={clsx(
-                "z-50 w-48 p-4 shadow-md md:w-56",
-                "border-t-2 border-solid border-semio-yellow",
-                "bg-neutral-50 dark:bg-neutral-950",
+                "text-gray-500 dark:text-gray-400 w-7 h-7 hover:text-gray-900 dark:hover:text-gray-100",
               )}
             >
-              <PopoverPrimitive.Arrow className="fill-current text-semio-yellow" />
-
-              <div className="flex justify-between">
-                <span>{props.title}</span>
-                <PopoverPrimitive.Close
-                  className={clsx(
-                    "text-gray-500 dark:text-gray-400 w-7 h-7 hover:text-gray-900 dark:hover:text-gray-100",
-                  )}
-                >
-                  <IconX />
-                </PopoverPrimitive.Close>
-              </div>
-              {props.content}
-            </PopoverPrimitive.Content>
+              <IconX />
+            </PopoverPrimitive.Close>
           </div>
-        </Transition>
+          {props.content}
+        </PopoverPrimitive.Content>
+        {/* </div>
+        </Transition> */}
       </PopoverPrimitive.Root>
     </div>
   );

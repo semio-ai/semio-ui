@@ -6,7 +6,6 @@ export { ManModal, type ManModalProps } from "./mantine/modal";
 export { MenuButton, type MenuButtonProps } from "./mantine/menu-button";
 export { SemioTheme, SemioColor, type ThemeType } from "./mantine/semio-theme";
 export { LayoutManager, type LayoutManagerProps } from "./mantine/layout";
-export { SliderNumberField } from "./mantine/slider-number-field";
 export { Spinner } from "./spinner";
 export { Progress, type ProgressProps } from "./progress";
 export { TextButton, type TextButtonProps } from "./buttons/text-button";
@@ -29,6 +28,7 @@ export { PublishedInput, type PublishedInputProps } from "./inputs/published";
 export { TagsInput, type TagsInputProps } from "./inputs/tags";
 export { UserNameInput, type UserNameInputProps } from "./inputs/username";
 export { VersionInput, type VersionInputProps } from "./inputs/version";
+export { SliderNumberField } from "./inputs/slider-number-field";
 
 export { FormBase } from "./form-base";
 
