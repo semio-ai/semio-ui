@@ -9,6 +9,7 @@ export { LayoutManager, type LayoutManagerProps } from "./mantine/layout";
 export { SliderNumberField } from "./mantine/slider-number-field";
 export { Spinner } from "./spinner";
 export { Progress, type ProgressProps } from "./progress";
+export { TextButton, type TextButtonProps } from "./buttons/text-button";
 export { GoogleSignInButton } from "./buttons/google-signin-button";
 export { Modal, type ModalProps } from "./modal";
 export { ImageButton, type ImageButtonProps } from "./buttons/image-button";
