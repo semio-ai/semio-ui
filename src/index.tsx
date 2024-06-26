@@ -15,6 +15,7 @@ export { ImageButton, type ImageButtonProps } from "./buttons/image-button";
 export { Avatar, type AvatarProps } from "./avatar";
 export { Collapse, type CollapseProps } from "./collapse";
 export { Popover, type PopoverProps } from "./popover";
+export { Tooltip, type TooltipProps } from "./tooltip";
 export {
   DescriptionInput,
   type DescriptionInputProps,
@@ -25,6 +26,7 @@ export { ImageInput, type ImageInputProps } from "./inputs/image";
 export { NameInput, type NameInputProps } from "./inputs/name";
 export { PasswordInput, type PasswordInputProps } from "./inputs/password";
 export { PublishedInput, type PublishedInputProps } from "./inputs/published";
+export { Switch, type SwitchProps } from "./inputs/switch";
 export { TagsInput, type TagsInputProps } from "./inputs/tags";
 export { UserNameInput, type UserNameInputProps } from "./inputs/username";
 export { VersionInput, type VersionInputProps } from "./inputs/version";
@@ -39,4 +41,4 @@ export { useSystemThemePreference } from "./hooks/use-system-theme-preference";
 export { useDelayedBoolean } from "./hooks/use-delayed-boolean";
 export { useTheme } from "./hooks/use-theme";
 export { ThemeContext, type ThemeContextValue } from "./context";
-export { Theme } from "./types";
+export { Theme, Variant } from "./types";

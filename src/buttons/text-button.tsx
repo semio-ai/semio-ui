@@ -1,5 +1,7 @@
 import clsx from "clsx";
 import { ReactNode } from "react";
+import { Variant } from "../types";
+import { getHoverButtonStyles } from "../variant-colors";
 
 export interface TextButtonProps {
   /**
@@ -15,25 +17,23 @@ export interface TextButtonProps {
    */
   onClick?: () => void;
   /**
-   * Optional class name
+   * Optional variant to apply to the button
    */
-  className?: string;
+  variant?: Variant;
 }
 export function TextButton({
   children,
   disabled,
   onClick,
-  className,
+  variant,
 }: TextButtonProps) {
   return (
     <button
       className={clsx(
         "transition-colors",
         "dark:text-white text-black",
-        "dark:bg-neutral-600 bg-neutral-400",
-        "hover:bg-neutral-500",
+        getHoverButtonStyles(variant),
         "pt-2 pb-2 pr-4 pl-4",
-        className,
       )}
       disabled={disabled}
       onClick={onClick}
