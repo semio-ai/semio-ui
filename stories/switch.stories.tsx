@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { Switch } from "@semio/ui";
+import { Switch, Variant } from "@semio/ui";
 import { useState } from "react";
 
 const meta: Meta<typeof Switch> = {
@@ -21,23 +21,27 @@ export const Primary: Story = {
     return (
       <Switch
         {...props}
-        onClick={(v): void => {
+        onChange={(v): void => {
           setValue(v);
-          props.onClick(v);
+          props.onChange(v);
         }}
         value={value}
-      >
-        Hello
-      </Switch>
+      />
     );
   },
   name: "Button",
   args: {
     value: false,
-    onClick: (value: boolean): void => {
-      // eslint-disable-next-line no-alert -- alert for demo
-      console.log(`Value changed to ${value}`);
+    onChange: (value: boolean): void => {
+      // eslint-disable-next-line no-console -- alert for demo
+      console.log(`Value changed to ${value ? "on" : "off"}`);
     },
     disabled: false,
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- Storybook stupidity
+    variant: Variant.SUCCESS,
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- Storybook stupidity
+    offVariant: Variant.ERROR,
+    square: false,
+    size: "md",
   },
 };

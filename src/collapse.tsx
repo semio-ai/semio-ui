@@ -26,13 +26,12 @@ export function Collapse({
       open={open}
       onOpenChange={onStateChange}
       disabled={disabled}
-      className="border-t-2 border border-solid border-t-semio-yellow/50 border-semio-yellow/25"
+      // className="border-t-2 border border-solid border-t-semio-yellow/50 border-semio-yellow/25"
     >
       <Collapsible.Trigger
         className={clsx(
-          "dark:bg-neutral-950 bg-neutral-50 flex items-center w-full",
+          "dark:bg-black bg-white flex items-center w-full",
           "justify-between p-4 cursor-pointer",
-          open && "border-solid border-b-semio-yellow/25",
           disabled
             ? "dark:text-neutral-400 text-neutral-600"
             : "dark:text-white text-black",

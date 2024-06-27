@@ -30,12 +30,16 @@ export { Switch, type SwitchProps } from "./inputs/switch";
 export { TagsInput, type TagsInputProps } from "./inputs/tags";
 export { UserNameInput, type UserNameInputProps } from "./inputs/username";
 export { VersionInput, type VersionInputProps } from "./inputs/version";
-export { SliderNumberField } from "./inputs/slider-number-field";
+export {
+  SliderNumberField,
+  type SliderNumberFieldProps,
+} from "./inputs/slider-number-field";
 
 export { FormBase } from "./form-base";
 
 export { ButtonModal, type ButtonModalProps } from "./buttons/button-modal";
 export { CopyLinkButton } from "./buttons/copy-link-button";
+export { ThemeToggleButton } from "./buttons/theme-toggle-button";
 
 export { useSystemThemePreference } from "./hooks/use-system-theme-preference";
 export { useDelayedBoolean } from "./hooks/use-delayed-boolean";

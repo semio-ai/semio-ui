@@ -52,7 +52,7 @@ export function getHoverButtonStyles(variant?: Variant): string {
     case Variant.PRIMARY:
       return clsx(
         "focus:outline outline-1 outline-offset-2 outline-primary-500 hover:outline-primary-50 dark:hover:outline-primary-950",
-        "hover:bg-primary-50 dark:hover:bg-primary-950 bg-primary-500 dark:bg-primary-700",
+        "data-[checked]:",
         "disabled:cursor-not-allowed disabled:bg-primary-700/50 disabled:hover:bg-primary-700/50",
       );
     case Variant.SECONDARY:
@@ -75,15 +75,15 @@ export function getHoverButtonStyles(variant?: Variant): string {
       );
     case Variant.WARNING:
       return clsx(
-        "focus:outline outline-1 outline-offset-2 outline-warning-600 hover:outline-warning-500 dark:hover:outline-warning-700 ",
-        "hover:bg-warning-500 dark:hover:bg-warning-700 bg-warning-600",
-        "disabled:cursor-not-allowed disabled:bg-warning-600/50 disabled:hover:bg-warning-600/50",
+        "focus:outline outline-1 outline-offset-2 outline-warning-500 hover:outline-warning-400 dark:hover:outline-warning-600 ",
+        "hover:bg-warning-400 dark:hover:bg-warning-600 bg-warning-500",
+        "disabled:cursor-not-allowed disabled:bg-warning-500/50 disabled:hover:bg-warning-500/50",
       );
     case Variant.SUCCESS:
       return clsx(
-        "focus:outline outline-1 outline-offset-2 outline-success-600 hover:outline-success-500 dark:hover:outline-success-700 ",
-        "hover:bg-success-500 dark:hover:bg-success-700 bg-success-600",
-        "disabled:cursor-not-allowed disabled:bg-success-600/50 disabled:hover:bg-success-600/50",
+        "focus:outline outline-1 outline-offset-2 outline-success-500 hover:outline-success-400 dark:hover:outline-success-600 ",
+        "hover:bg-success-400 dark:hover:bg-success-600 bg-success-500",
+        "disabled:cursor-not-allowed disabled:bg-success-500/50 disabled:hover:bg-success-500/50",
       );
     case Variant.INFO:
       return clsx(
@@ -97,6 +97,60 @@ export function getHoverButtonStyles(variant?: Variant): string {
         "focus:outline outline-1 outline-offset-2 outline-default-400 hover:outline-default-300 dark:hover:outline-default-600 ",
         "hover:bg-default-300 dark:hover:bg-default-600 bg-default-400 dark:bg-default-500",
         "disabled:cursor-not-allowed disabled:bg-default-400/50 disabled:hover:bg-default-400/50 disabled:dark:bg-default-500/50 disabled:dark:hover:bg-default-500/50",
+      );
+  }
+}
+
+export function getCheckedBgStyles(variant?: Variant): string {
+  switch (variant) {
+    case Variant.PRIMARY:
+      return clsx(
+        "data-[checked]:outline-primary-500 data-[checked]:hover:outline-primary-50 data-[checked]:dark:hover:outline-primary-950",
+        "data-[checked]:hover:bg-primary-50 data-[checked]:dark:hover:bg-primary-950 data-[checked]:bg-primary-500 data-[checked]:dark:bg-primary-700",
+        "data-[checked]:disabled:cursor-not-allowed data-[checked]:disabled:bg-primary-700/50 data-[checked]:disabled:hover:bg-primary-700/50",
+      );
+    case Variant.SECONDARY:
+      return clsx(
+        "data-[checked]:outline-secondary-500 data-[checked]:hover:outline-secondary-50 data-[checked]:dark:hover:outline-secondary-950",
+        "data-[checked]:hover:bg-secondary-50 data-[checked]:dark:hover:bg-secondary-950 data-[checked]:bg-secondary-500 data-[checked]:dark:bg-secondary-700",
+        "data-[checked]:disabled:cursor-not-allowed data-[checked]:disabled:bg-secondary-700/50 data-[checked]:disabled:hover:bg-secondary-700/50",
+      );
+    case Variant.TERTIARY:
+      return clsx(
+        "data-[checked]:outline-tertiary-500 data-[checked]:hover:outline-tertiary-50 data-[checked]:dark:hover:outline-tertiary-950",
+        "data-[checked]:hover:bg-tertiary-50 data-[checked]:dark:hover:bg-tertiary-950 data-[checked]:bg-tertiary-500 data-[checked]:dark:bg-tertiary-700",
+        "data-[checked]:disabled:cursor-not-allowed data-[checked]:disabled:bg-tertiary-700/50 data-[checked]:disabled:hover:bg-tertiary-700/50",
+      );
+    case Variant.ERROR:
+      return clsx(
+        "data-[checked]:outline-error-600 data-[checked]:hover:outline-error-500 data-[checked]:dark:hover:outline-error-700 ",
+        "data-[checked]:hover:bg-error-500 data-[checked]:dark:hover:bg-error-700 data-[checked]:bg-error-600",
+        "data-[checked]:disabled:cursor-not-allowed data-[checked]:disabled:bg-error-600/50 data-[checked]:disabled:hover:bg-error-600/50",
+      );
+    case Variant.WARNING:
+      return clsx(
+        "data-[checked]:outline-warning-500 data-[checked]:hover:outline-warning-400 data-[checked]:dark:hover:outline-warning-600 ",
+        "data-[checked]:hover:bg-warning-400 data-[checked]:dark:hover:bg-warning-600 data-[checked]:bg-warning-500",
+        "data-[checked]:disabled:cursor-not-allowed data-[checked]:disabled:bg-warning-500/50 data-[checked]:disabled:hover:bg-warning-500/50",
+      );
+    case Variant.SUCCESS:
+      return clsx(
+        "data-[checked]:outline-success-500 data-[checked]:hover:outline-success-400 data-[checked]:dark:hover:outline-success-600 ",
+        "data-[checked]:hover:bg-success-400 data-[checked]:dark:hover:bg-success-600 data-[checked]:bg-success-500",
+        "data-[checked]:disabled:cursor-not-allowed data-[checked]:disabled:bg-success-500/50 data-[checked]:disabled:hover:bg-success-500/50",
+      );
+    case Variant.INFO:
+      return clsx(
+        "data-[checked]:outline-tertiary-500 data-[checked]:hover:outline-tertiary-50 data-[checked]:dark:hover:outline-tertiary-950",
+        "data-[checked]:hover:bg-tertiary-50 data-[checked]:dark:hover:bg-tertiary-950 data-[checked]:bg-tertiary-500 data-[checked]:dark:bg-tertiary-700",
+        "data-[checked]:disabled:cursor-not-allowed data-[checked]:disabled:bg-tertiary-700/50 data-[checked]:disabled:hover:bg-tertiary-700/50",
+      );
+    case Variant.DEFAULT:
+    default:
+      return clsx(
+        "data-[checked]:outline-default-400 data-[checked]:hover:outline-default-300 data-[checked]:dark:hover:outline-default-600 ",
+        "data-[checked]:hover:bg-default-300 data-[checked]:dark:hover:bg-default-600 data-[checked]:bg-default-400 data-[checked]:dark:bg-default-500",
+        "data-[checked]:disabled:cursor-not-allowed data-[checked]:disabled:bg-default-400/50 data-[checked]:disabled:hover:bg-default-400/50 data-[checked]:disabled:dark:bg-default-500/50 data-[checked]:disabled:dark:hover:bg-default-500/50",
       );
   }
 }

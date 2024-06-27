@@ -1,34 +1,71 @@
-import React from "react";
-import * as SwitchPrimitive from "@radix-ui/react-switch";
+import type { ReactNode } from "react";
+import { Switch as HeadlessSwitch } from "@headlessui/react";
 import { clsx } from "clsx";
+import { Variant } from "../types";
+import {
+  getBasicTextColor,
+  getCheckedBgStyles,
+  getHoverButtonStyles,
+} from "../variant-colors";
 
 export interface SwitchProps {
   value: boolean;
   onChange: (value: boolean) => void;
   disabled?: boolean;
+  variant?: Variant;
+  offVariant?: Variant;
+  onIcon?: ReactNode;
+  offIcon?: ReactNode;
+  size?: "sm" | "md" | "lg";
+  square?: boolean;
 }
 
-export function Switch(props: SwitchProps) {
+export function Switch({
+  value,
+  onChange,
+  disabled,
+  variant,
+  size,
+  onIcon,
+  offIcon,
+  offVariant,
+  square,
+}: SwitchProps) {
   return (
-    <SwitchPrimitive.Root
-      checked={props.value}
-      onCheckedChange={props.onChange}
-      disabled={props.disabled}
+    <HeadlessSwitch
+      checked={value}
+      onChange={onChange}
+      disabled={disabled}
       className={clsx(
-        "group",
-        "radix-state-checked:bg-purple-600",
-        "radix-state-unchecked:bg-gray-200 dark:radix-state-unchecked:bg-gray-800",
-        "relative inline-flex h-[24px] w-[44px] flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out",
-        "focus:outline-none focus-visible:ring focus-visible:ring-purple-500 focus-visible:ring-opacity-75",
+        "group inline-flex items-center transition translate duration-300",
+        enclosureSize[size ?? "md"],
+        !square && "rounded-full",
+        getHoverButtonStyles(offVariant ?? Variant.DEFAULT),
+        getCheckedBgStyles(variant),
       )}
     >
-      <SwitchPrimitive.Thumb
+      <div
         className={clsx(
-          "group-radix-state-checked:translate-x-5",
-          "group-radix-state-unchecked:translate-x-0",
-          "pointer-events-none inline-block h-[20px] w-[20px] transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out",
+          "size-4 bg-white dark:bg-black transition ease-in-out duration-300 grid place-content-center",
+          getBasicTextColor(value ? variant : offVariant ?? Variant.DEFAULT),
+          !square && "rounded-full",
+          buttonSize[size ?? "md"],
         )}
-      />
-    </SwitchPrimitive.Root>
+      >
+        {value ? onIcon : offIcon}
+      </div>
+    </HeadlessSwitch>
   );
 }
+
+const enclosureSize = {
+  sm: "h-4 w-8",
+  md: "h-6 w-11",
+  lg: "h-10 w-20",
+};
+
+const buttonSize = {
+  sm: "size-3 translate-x-0.5 group-data-[checked]:translate-x-[18px]",
+  md: "size-4 translate-x-1 group-data-[checked]:translate-x-6",
+  lg: "size-8 translate-x-1 group-data-[checked]:translate-x-11",
+};
