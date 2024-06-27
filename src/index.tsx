@@ -34,6 +34,7 @@ export {
   SliderNumberField,
   type SliderNumberFieldProps,
 } from "./inputs/slider-number-field";
+export { Dropzone, type DropzoneProps } from "./dropzone";
 
 export { FormBase } from "./form-base";
 
