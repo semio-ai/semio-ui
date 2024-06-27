@@ -3,7 +3,8 @@ import { ReactNode } from "react";
 import { Variant } from "../types";
 import { getHoverButtonStyles } from "../variant-colors";
 
-export interface TextButtonProps {
+export interface TextButtonProps
+  extends React.HTMLAttributes<HTMLButtonElement> {
   /**
    * The text to display on the button
    */
@@ -26,9 +27,11 @@ export function TextButton({
   disabled,
   onClick,
   variant,
+  ...props
 }: TextButtonProps) {
   return (
     <button
+      {...props}
       className={clsx(
         "transition-colors",
         "dark:text-white text-black",
