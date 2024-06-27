@@ -19,7 +19,7 @@ export const DescriptionInput = ({
     <div>
       <label
         htmlFor="description"
-        className="block text-gray-700 text-sm font-bold mb-2"
+        className="block dark:text-white/50 text-black/50 text-sm font-bold mb-2"
       >
         Description:
       </label>
@@ -29,7 +29,7 @@ export const DescriptionInput = ({
         onChange={handleChange}
         onBlur={handleBlur}
         rows={3}
-        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+        className="shadow appearance-none border rounded w-full py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
         placeholder="Enter your description"
       />
     </div>
