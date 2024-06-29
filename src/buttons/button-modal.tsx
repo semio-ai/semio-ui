@@ -3,12 +3,12 @@ import { Modal } from "../modal";
 import { Button } from "../button";
 
 export interface ButtonModalProps {
-  text: string;
+  titleText: string;
   onClick: () => void;
 }
 
 export function ButtonModal({
-  text, onClick
+  titleText, onClick
 }: ButtonModalProps): JSX.Element {
 
 
@@ -19,7 +19,7 @@ export function ButtonModal({
     onClick={onClick}
     className="m-1 p-1 rounded-sm bg-tertiary-700 hover:bg-tertiary-900 text-white"
   >
-    {text}
+    {titleText}
   </button>
   );
 }
