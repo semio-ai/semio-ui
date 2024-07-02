@@ -47,12 +47,58 @@ export function getBasicTextColor(variant?: Variant): string {
   }
 }
 
+export function getHoverTextStyles(variant?: Variant): string {
+  switch (variant) {
+    case Variant.PRIMARY:
+      return clsx(
+        "hover:text-primary-50 dark:hover:text-primary-950 text-primary-500",
+        "disabled:cursor-not-allowed disabled:text-primary-500/50 disabled:hover:text-primary-500/50",
+      );
+    case Variant.SECONDARY:
+      return clsx(
+        "hover:text-secondary-50 dark:hover:text-secondary-950 text-secondary-500",
+        "disabled:cursor-not-allowed disabled:text-secondary-500/50 disabled:hover:text-secondary-500/50",
+      );
+    case Variant.TERTIARY:
+      return clsx(
+        "hover:text-tertiary-50 dark:hover:text-tertiary-950 text-tertiary-500",
+        "disabled:cursor-not-allowed disabled:text-tertiary-500/50 disabled:hover:text-tertiary-500/50",
+      );
+    case Variant.ERROR:
+      return clsx(
+        "hover:text-error-500 dark:hover:text-error-700 text-error-600",
+        "disabled:cursor-not-allowed disabled:text-error-600/50 disabled:hover:text-error-6    00/50",
+      );
+    case Variant.WARNING:
+      return clsx(
+        "hover:text-warning-500 dark:hover:text-warning-700 text-warning-600",
+        "disabled:cursor-not-allowed disabled:text-warning-600/50 disabled:hover:text-warning-600/50",
+      );
+    case Variant.SUCCESS:
+      return clsx(
+        "hover:text-success-500 dark:hover:text-success-700 text-success-600",
+        "disabled:cursor-not-allowed disabled:text-success-600/50 disabled:hover:text-success-600/50",
+      );
+    case Variant.INFO:
+      return clsx(
+        "hover:text-info-50 dark:hover:text-info-950 text-info-500",
+        "disabled:cursor-not-allowed disabled:text-info-500/50 disabled:hover:text-info-500/50",
+      );
+    case Variant.DEFAULT:
+    default:
+      return clsx(
+        "hover:text-default-400 dark:hover:text-default-600 text-default-500",
+        "disabled:cursor-not-allowed disabled:text-default-500/50 disabled:hover:text-default-500/50",
+      );
+  }
+}
+
 export function getHoverButtonStyles(variant?: Variant): string {
   switch (variant) {
     case Variant.PRIMARY:
       return clsx(
         "focus:outline outline-1 outline-offset-2 outline-primary-500 hover:outline-primary-50 dark:hover:outline-primary-950",
-        "data-[checked]:",
+        "hover:bg-primary-50 dark:hover:bg-primary-950 bg-primary-500 dark:bg-primary-700",
         "disabled:cursor-not-allowed disabled:bg-primary-700/50 disabled:hover:bg-primary-700/50",
       );
     case Variant.SECONDARY:

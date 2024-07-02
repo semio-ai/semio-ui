@@ -56,13 +56,6 @@ const Popover = ({
 
           <div className="flex justify-between">
             <span>{title}</span>
-            <PopoverPrimitive.Close
-              className={clsx(
-                "text-gray-500 dark:text-gray-400 w-7 h-7 hover:text-gray-900 dark:hover:text-gray-100",
-              )}
-            >
-              <IconX />
-            </PopoverPrimitive.Close>
           </div>
           {content}
         </PopoverPrimitive.Content>

@@ -14,3 +14,11 @@ export enum Variant {
   WARNING = "warning",
   ERROR = "error",
 }
+
+/*
+@description A configuration object for displaying time in the UI.
+*/
+export enum TimeDisplay {
+  FRAMES = "frames",
+  SECONDS = "seconds",
+}
