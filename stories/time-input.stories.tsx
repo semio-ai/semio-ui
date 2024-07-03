@@ -15,15 +15,7 @@ type Story = StoryObj<typeof TimeInput>;
  * to learn how to use render functions.
  */
 export const Primary: Story = {
-  render: (props) => (
-    <TimeInput
-      {...props}
-      onClick={(): void => {
-        // eslint-disable-next-line no-alert -- alert for demo
-        alert("Hello from Turborepo!");
-      }}
-    />
-  ),
+  render: (props) => <TimeInput {...props} />,
   name: "Button",
   args: {
     value: 0.5,
@@ -33,6 +25,8 @@ export const Primary: Story = {
       console.log("Hello World!");
     },
     framerate: 24,
+    size: "sm",
+    variant: Variant.PRIMARY,
     display: TimeDisplay.SECONDS,
     disabled: false,
   },

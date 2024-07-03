@@ -18,9 +18,30 @@ export function getBorder(variant?: Variant): string {
     case Variant.INFO:
       return "border-info-500";
     case Variant.DEFAULT:
-      return "border-default-500";
     default:
       return "border-default-500";
+  }
+}
+
+export function getOutline(variant?: Variant): string {
+  switch (variant) {
+    case Variant.PRIMARY:
+      return "outline-primary-500";
+    case Variant.SECONDARY:
+      return "outline-secondary-500";
+    case Variant.TERTIARY:
+      return "outline-tertiary-500";
+    case Variant.ERROR:
+      return "outline-error-500";
+    case Variant.WARNING:
+      return "outline-warning-500";
+    case Variant.SUCCESS:
+      return "outline-success-500";
+    case Variant.INFO:
+      return "outline-info-500";
+    case Variant.DEFAULT:
+    default:
+      return "outline-default-500";
   }
 }
 
