@@ -1,15 +1,27 @@
 import { useState, useEffect, type ChangeEvent } from "react";
 import { clsx } from "clsx";
-import { TimeDisplay } from "../types";
+import { TimeDisplay, Variant } from "../types";
+import { StyledInput, heightLookup } from "./styled-input";
+import { getOutline } from "../variant-colors";
 
 export interface TimeInputProps
   extends Omit<React.HTMLAttributes<HTMLInputElement>, "onChange"> {
-  value: number;
+  value: number | undefined;
   onChange: (value: number) => void;
   framerate: number;
   display: TimeDisplay;
   disabled?: boolean;
+  min: number;
+  max: number;
+  variant: Variant;
+  size?: "sm" | "md" | "lg";
 }
+
+const widthLookup = {
+  sm: "w-[83px]",
+  md: "w-[100px]",
+  lg: "w-[115px]",
+};
 
 export function TimeInput({
   value,
@@ -17,9 +29,11 @@ export function TimeInput({
   framerate,
   display,
   disabled,
+  variant = Variant.DEFAULT,
+  size = "md",
 }: TimeInputProps) {
   const [editing, setEditing] = useState<
-    "minutes" | "seconds" | "milliseconds" | null
+    "minutes" | "seconds" | "milliseconds" | "frames" | null
   >(null);
   const [time, setTime] = useState(value);
 
@@ -34,7 +48,14 @@ export function TimeInput({
     }
   };
 
-  const formatTime = (ms: number) => {
+  const formatTime = (ms: number | undefined) => {
+    if (ms === undefined) {
+      return {
+        minutes: "--",
+        seconds: "--",
+        milliseconds: "--",
+      };
+    }
     const totalSeconds = Math.floor(ms / 1000);
     const minutes = Math.floor(totalSeconds / 60);
     const seconds = totalSeconds % 60;
@@ -49,7 +70,12 @@ export function TimeInput({
     };
   };
 
-  const formatFrames = (ms: number) => {
+  const formatFrames = (ms: number | undefined) => {
+    if (ms === undefined) {
+      return {
+        frames: "--",
+      };
+    }
     const totalFrames = Math.floor((ms / 1000) * framerate);
     return {
       frames: totalFrames.toFixed(2).toString(),
@@ -86,46 +112,43 @@ export function TimeInput({
     const { minutes, seconds, milliseconds } = formatTime(time);
 
     return (
-      <div className="flex space-x-2">
-        <input
-          disabled={disabled}
+      <>
+        <StyledInput
+          disabled={disabled || value === undefined}
+          readOnly={disabled || value === undefined}
           type="text"
+          sizeVariant={size}
           value={editing === "minutes" ? minutes : `${minutes}`}
           onFocus={() => setEditing("minutes")}
           onBlur={() => setEditing(null)}
           onChange={(e) => handleSegmentChange(e, "minutes")}
-          className={clsx(
-            "w-12 text-center",
-            editing === "minutes" ? "border-b-2 border-blue-500" : "",
-          )}
+          className="text-center"
         />
         <span>:</span>
-        <input
-          disabled={disabled}
+        <StyledInput
+          disabled={disabled || value === undefined}
+          readOnly={disabled || value === undefined}
           type="text"
+          sizeVariant={size}
           value={editing === "seconds" ? seconds : `${seconds}`}
           onFocus={() => setEditing("seconds")}
           onBlur={() => setEditing(null)}
           onChange={(e) => handleSegmentChange(e, "seconds")}
-          className={clsx(
-            "w-12 text-center",
-            editing === "seconds" ? "border-b-2 border-blue-500" : "",
-          )}
+          className="text-center"
         />
         <span>.</span>
-        <input
-          disabled={disabled}
+        <StyledInput
+          disabled={disabled || value === undefined}
+          readOnly={disabled || value === undefined}
           type="text"
+          sizeVariant={size}
           value={editing === "milliseconds" ? milliseconds : `${milliseconds}`}
           onFocus={() => setEditing("milliseconds")}
           onBlur={() => setEditing(null)}
           onChange={(e) => handleSegmentChange(e, "milliseconds")}
-          className={clsx(
-            "w-12 text-center",
-            editing === "milliseconds" ? "border-b-2 border-blue-500" : "",
-          )}
+          className="text-center"
         />
-      </div>
+      </>
     );
   };
 
@@ -133,20 +156,32 @@ export function TimeInput({
     const { frames } = formatFrames(time);
 
     return (
-      <input
-        disabled={disabled}
+      <StyledInput
+        disabled={disabled || value === undefined}
+        readOnly={disabled || value === undefined}
         type="text"
+        sizeVariant={size}
         value={frames}
+        onFocus={() => setEditing("frames")}
+        onBlur={() => setEditing(null)}
         onChange={(e) =>
           handleTimeChange((parseFloat(e.target.value) / framerate) * 1000)
         }
-        className="w-full text-center border-b-2 border-blue-500"
+        className="text-center"
       />
     );
   };
 
   return (
-    <div className="flex flex-col items-center">
+    <div
+      className={clsx(
+        "flex items-baseline",
+        editing !== null && "outline outline-1 outline-offset-2",
+        getOutline(variant),
+        heightLookup[size],
+        widthLookup[size],
+      )}
+    >
       {display === "seconds" ? renderTimeInput() : renderFramesInput()}
     </div>
   );

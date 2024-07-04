@@ -3,7 +3,6 @@ import {
   useRef,
   useState,
   type ReactNode,
-  type InputHTMLAttributes,
   type HTMLAttributes,
   forwardRef,
   ForwardedRef,
@@ -13,13 +12,13 @@ import { clsx } from "clsx";
 import { useGesture } from "@use-gesture/react";
 import { useNumeric } from "../hooks/use-numeric";
 import { alpha } from "@semio/utils";
+import { StyledInput, heightLookup } from "./styled-input";
 
 enableBoundaryChecking(false);
 
-interface AdditionalProps {
+interface InputProps {
   percent?: number;
   color: string;
-  sliderMode: SliderMode;
   sizeVariant: keyof typeof heightLookup;
   focused?: boolean;
   inactive?: boolean;
@@ -31,43 +30,9 @@ enum SliderMode {
   BLURRED,
 }
 
-const heightLookup = {
-  sm: "h-7",
-  md: "h-8",
-  lg: "h-10",
-};
-
-const fontSizeLookup = {
-  sm: "text-xs",
-  md: "text-base",
-  lg: "text-xl",
-};
-
-const StyledInput = (
-  props: AdditionalProps & InputHTMLAttributes<HTMLInputElement>,
-) => {
-  const { sliderMode, sizeVariant, disabled, color, ...forwardedProps } = props;
-  return (
-    <input
-      {...forwardedProps}
-      type="text"
-      className={clsx(
-        "w-full touch-none font-mono text-right outline-none bg-transparent pt-0 pb-0 pl-3 pr-3",
-        "dark:text-white text-black",
-        sliderMode === SliderMode.MANUAL
-          ? "select-text font-bold"
-          : "select-none font-normal",
-        sizeVariant ? heightLookup[sizeVariant] : heightLookup.md,
-        sizeVariant ? fontSizeLookup[sizeVariant] : fontSizeLookup.md,
-        getCursor(disabled || false, sliderMode),
-      )}
-    />
-  );
-};
-
 const InputWrapper = forwardRef(
   (
-    props: AdditionalProps & HTMLAttributes<HTMLDivElement>,
+    props: InputProps & HTMLAttributes<HTMLDivElement>,
     ref: ForwardedRef<HTMLDivElement>,
   ) => {
     const {
@@ -86,7 +51,7 @@ const InputWrapper = forwardRef(
         className={clsx(
           "w-full touch-none p-0 overflow-hidden rounded-none transition-all",
           sizeVariant ? heightLookup[sizeVariant] : heightLookup.md,
-          `outline outline-1 outline-offset-2`,
+          "outline outline-1 outline-offset-2",
         )}
         // Tailwind does not support truly dynamic styles, so we have to use inline styles here
         style={{
@@ -206,7 +171,6 @@ function InnerSliderNumberField({
       ref={boundsRef}
       {...bindings()}
       color={sliderColor}
-      sliderMode={sliderMode}
       sizeVariant={size}
       inactive={inactive || disabled}
       percent={(value - min) / (max - min)}
@@ -218,7 +182,11 @@ function InnerSliderNumberField({
         disabled={disabled}
         type="text"
         color={sliderColor}
-        sliderMode={sliderMode}
+        bold={sliderMode === SliderMode.MANUAL}
+        cursor={
+          sliderMode === SliderMode.MANUAL ? "cursor-text" : "cursor-ew-resize"
+        }
+        className="text-center"
         sizeVariant={size}
         value={textValue}
         onChange={onChangeInner}
@@ -233,11 +201,5 @@ function InnerSliderNumberField({
     </InputWrapper>
   );
 }
-
-const getCursor = (disabled: boolean, sliderMode: SliderMode) => {
-  if (disabled) return "cursor-not-allowed";
-  if (sliderMode === SliderMode.MANUAL) return "cursor-text";
-  return "cursor-ew-resize";
-};
 
 export const SliderNumberField = memo(InnerSliderNumberField);
