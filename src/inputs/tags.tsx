@@ -3,23 +3,25 @@ import { useItemsInput } from "../hooks/formInputHooks";
 
 export interface TagsInputProps {
   tags: string[];
+  tagName?: string;
   onTagsChange: (tags: string[], field: string) => void;
 }
 
 export const TagsInput = ({
   tags: initialTags,
+  tagName = "tags",
   onTagsChange,
 }: TagsInputProps) => {
   const { items, inputValue, setInputValue, handleKeyDown, handleRemoveItem } =
-    useItemsInput(initialTags, onTagsChange, "tags");
+    useItemsInput(initialTags, onTagsChange, tagName);
 
   return (
     <div>
       <label
-        htmlFor="tags"
+        htmlFor={tagName}
         className="block text-gray-700 text-sm font-bold mb-2"
       >
-        Tags:
+        Input {tagName}:
       </label>
       <div className="mb-2">
         {items.map((tag, index) => (
@@ -37,14 +39,14 @@ export const TagsInput = ({
       </div>
       <input
         type="text"
-        id="tags"
+        id={tagName}
         value={inputValue}
         onChange={(e: ChangeEvent<HTMLInputElement>) =>
           setInputValue(e.target.value)
         }
         onKeyDown={handleKeyDown}
         className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-        placeholder="Enter a tag and press Enter to add it to the list."
+        placeholder="Type item and press Enter to add it to the list."
       />
     </div>
   );
