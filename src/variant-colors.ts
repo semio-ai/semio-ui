@@ -19,7 +19,7 @@ export function getBorder(variant?: Variant): string {
       return "border-info-500";
     case Variant.DEFAULT:
     default:
-      return "border-default-500";
+      return "dark:border-default-700 border-default-300";
   }
 }
 
@@ -41,7 +41,7 @@ export function getOutline(variant?: Variant): string {
       return "outline-info-500";
     case Variant.DEFAULT:
     default:
-      return "outline-default-500";
+      return "dark:outline-default-700 outline-default-300";
   }
 }
 

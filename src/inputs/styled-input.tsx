@@ -2,7 +2,6 @@ import { type InputHTMLAttributes } from "react";
 import { clsx } from "clsx";
 
 interface InputProps {
-  color: string;
   sizeVariant: keyof typeof heightLookup;
   focused?: boolean;
   inactive?: boolean;

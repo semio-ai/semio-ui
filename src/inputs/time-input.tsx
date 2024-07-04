@@ -4,21 +4,9 @@ import { TimeDisplay, Variant } from "../types";
 import { StyledInput, heightLookup } from "./styled-input";
 import { getOutline } from "../variant-colors";
 
-export interface SliderNumberFieldProps {
-  value: number;
-  onChange: (value: number) => void;
-
-  units?: string;
-  color?: string;
-  strict?: boolean;
-
-  inactive?: boolean;
-  disabled?: boolean;
-}
-
 export interface TimeInputProps
   extends Omit<React.HTMLAttributes<HTMLInputElement>, "onChange"> {
-  value: number;
+  value: number | undefined;
   onChange: (value: number) => void;
   framerate: number;
   display: TimeDisplay;
@@ -60,7 +48,14 @@ export function TimeInput({
     }
   };
 
-  const formatTime = (ms: number) => {
+  const formatTime = (ms: number | undefined) => {
+    if (ms === undefined) {
+      return {
+        minutes: "--",
+        seconds: "--",
+        milliseconds: "--",
+      };
+    }
     const totalSeconds = Math.floor(ms / 1000);
     const minutes = Math.floor(totalSeconds / 60);
     const seconds = totalSeconds % 60;
@@ -75,7 +70,12 @@ export function TimeInput({
     };
   };
 
-  const formatFrames = (ms: number) => {
+  const formatFrames = (ms: number | undefined) => {
+    if (ms === undefined) {
+      return {
+        frames: "--",
+      };
+    }
     const totalFrames = Math.floor((ms / 1000) * framerate);
     return {
       frames: totalFrames.toFixed(2).toString(),
@@ -114,8 +114,8 @@ export function TimeInput({
     return (
       <>
         <StyledInput
-          disabled={disabled}
-          color="#ff0000"
+          disabled={disabled || value === undefined}
+          readOnly={disabled || value === undefined}
           type="text"
           sizeVariant={size}
           value={editing === "minutes" ? minutes : `${minutes}`}
@@ -126,8 +126,8 @@ export function TimeInput({
         />
         <span>:</span>
         <StyledInput
-          disabled={disabled}
-          color="#ff0000"
+          disabled={disabled || value === undefined}
+          readOnly={disabled || value === undefined}
           type="text"
           sizeVariant={size}
           value={editing === "seconds" ? seconds : `${seconds}`}
@@ -138,8 +138,8 @@ export function TimeInput({
         />
         <span>.</span>
         <StyledInput
-          disabled={disabled}
-          color="#ff0000"
+          disabled={disabled || value === undefined}
+          readOnly={disabled || value === undefined}
           type="text"
           sizeVariant={size}
           value={editing === "milliseconds" ? milliseconds : `${milliseconds}`}
@@ -157,8 +157,8 @@ export function TimeInput({
 
     return (
       <StyledInput
-        disabled={disabled}
-        color="#ff0000"
+        disabled={disabled || value === undefined}
+        readOnly={disabled || value === undefined}
         type="text"
         sizeVariant={size}
         value={frames}
