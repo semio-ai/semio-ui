@@ -40,14 +40,14 @@ export function Switch({
         "group inline-flex items-center transition translate duration-300",
         enclosureSize[size ?? "md"],
         !square && "rounded-full",
-        getHoverButtonStyles(offVariant ?? Variant.DEFAULT),
+        getHoverButtonStyles(offVariant ?? Variant.Default),
         getCheckedBgStyles(variant),
       )}
     >
       <div
         className={clsx(
           "size-4 bg-white dark:bg-black transition ease-in-out duration-300 grid place-content-center",
-          getBasicTextColor(value ? variant : offVariant ?? Variant.DEFAULT),
+          getBasicTextColor(value ? variant : offVariant ?? Variant.Default),
           !square && "rounded-full",
           buttonSize[size ?? "md"],
         )}

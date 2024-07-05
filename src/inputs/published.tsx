@@ -5,10 +5,10 @@ export interface PublishedInputProps {
   onPublishedChange: (value: boolean, field: string) => void;
 }
 
-export const PublishedInput = ({
+export function PublishedInput({
   published,
   onPublishedChange,
-}: PublishedInputProps) => {
+}: PublishedInputProps) {
   const { inputValue, handleChange } = useBooleanInput(
     published,
     onPublishedChange,
@@ -33,4 +33,4 @@ export const PublishedInput = ({
       <span>{inputValue ? "Published" : "Not Published"}</span>
     </div>
   );
-};
+}

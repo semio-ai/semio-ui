@@ -31,6 +31,7 @@ export function IconButton({
 }: IconButtonProps) {
   return (
     <button
+      type="button"
       {...props}
       className={clsx("transition-colors", getHoverTextStyles(variant), "p-2")}
       disabled={disabled}

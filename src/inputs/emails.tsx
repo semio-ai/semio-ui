@@ -8,11 +8,11 @@ export interface EmailsInputProps {
 }
 
 // EmailsInput component using the useEmailsInput custom hook
-export const EmailsInput = ({
+export function EmailsInput({
   emails: initialEmails,
   onEmailsChange,
   title = "Emails:",
-}: EmailsInputProps) => {
+}: EmailsInputProps) {
   const {
     emails,
     inputValue,
@@ -59,4 +59,4 @@ export const EmailsInput = ({
       {error && <span style={{ color: "red" }}>{error}</span>}
     </div>
   );
-};
+}

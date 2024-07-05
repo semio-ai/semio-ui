@@ -22,9 +22,9 @@ export const fontSizeLookup = {
   lg: "text-xl",
 };
 
-export const StyledInput = (
+export function StyledInput(
   props: InputProps & InputHTMLAttributes<HTMLInputElement>,
-) => {
+) {
   const { bold, sizeVariant, disabled, cursor, className, ...forwardedProps } =
     props;
   return (
@@ -42,4 +42,4 @@ export const StyledInput = (
       )}
     />
   );
-};
+}

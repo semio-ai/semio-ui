@@ -37,10 +37,8 @@ export const Primary: Story = {
       console.log(`Value changed to ${value ? "on" : "off"}`);
     },
     disabled: false,
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- Storybook stupidity
-    variant: Variant.SUCCESS,
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- Storybook stupidity
-    offVariant: Variant.ERROR,
+    variant: Variant.Success,
+    offVariant: Variant.Error,
     square: false,
     size: "md",
   },

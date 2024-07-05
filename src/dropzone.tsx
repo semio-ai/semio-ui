@@ -36,7 +36,7 @@ export function Dropzone<T>({
         "cursor-pointer mb-3",
         isDragActive &&
           " bg-radient-ellipse-c from-info-500/25 from-0% to-transparent to-80% transition-all duration-300",
-        (isDragActive || items.length == 0) &&
+        (isDragActive || items.length === 0) &&
           "grid place-items-center hover:text-info-500",
       )}
     >
@@ -53,9 +53,11 @@ export function Dropzone<T>({
       ) : (
         <div className="grid gap-3 grid-cols-1 justify-items-center">
           <div className="h-32 w-32 z-10">
-            <IconArrowBigDownLines size="8rem" className="" />
+            <IconArrowBigDownLines size="128px" className="" />
           </div>
-          <span>{dropText ?? `Drag and Drop File${multiple ?? "s"} Here`}</span>
+          <span>
+            {dropText ?? `Drag and Drop File${multiple ? "s" : ""} Here`}
+          </span>
         </div>
       )}
     </div>

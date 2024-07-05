@@ -7,11 +7,11 @@ export interface TagsInputProps {
   onTagsChange: (tags: string[], field: string) => void;
 }
 
-export const TagsInput = ({
+export function TagsInput({
   tags: initialTags,
   tagName = "tags",
   onTagsChange,
-}: TagsInputProps) => {
+}: TagsInputProps) {
   const { items, inputValue, setInputValue, handleKeyDown, handleRemoveItem } =
     useItemsInput(initialTags, onTagsChange, tagName);
 
@@ -50,4 +50,4 @@ export const TagsInput = ({
       />
     </div>
   );
-};
+}

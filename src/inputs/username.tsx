@@ -5,10 +5,10 @@ export interface UserNameInputProps {
   onUserNameChange: (value: string, field: string) => void;
 }
 
-export const UserNameInput = ({
+export function UserNameInput({
   userName,
   onUserNameChange,
-}: UserNameInputProps) => {
+}: UserNameInputProps) {
   const { inputValue, handleChange, handleBlur } = useInput(
     userName,
     onUserNameChange,
@@ -34,4 +34,4 @@ export const UserNameInput = ({
       />
     </div>
   );
-};
+}

@@ -5,10 +5,7 @@ export interface VersionInputProps {
   onVersionChange: (value: string, field: string) => void;
 }
 
-export const VersionInput = ({
-  version,
-  onVersionChange,
-}: VersionInputProps) => {
+export function VersionInput({ version, onVersionChange }: VersionInputProps) {
   const { inputValue, handleChange, handleBlur } = useInput(
     version,
     onVersionChange,
@@ -34,4 +31,4 @@ export const VersionInput = ({
       />
     </div>
   );
-};
+}

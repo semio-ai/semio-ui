@@ -7,11 +7,11 @@ export interface ImageInputProps {
   uploading?: boolean;
 }
 
-export const ImageInput = ({
+export function ImageInput({
   imageUrl,
   onImageChange,
   uploading = false,
-}: ImageInputProps) => {
+}: ImageInputProps) {
   const { localImageURL, handleChange, handleRemove } = useImageInput(
     onImageChange,
     imageUrl,
@@ -59,4 +59,4 @@ export const ImageInput = ({
       )}
     </div>
   );
-};
+}

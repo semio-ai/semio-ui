@@ -1,15 +1,15 @@
-import { useInput } from "../hooks/formInputHooks";
 import { useState } from "react";
+import { useInput } from "../hooks/formInputHooks";
 
 export interface PasswordInputProps {
   password: string;
   onPasswordChange: (value: string, field: string) => void;
 }
 
-export const PasswordInput = ({
+export function PasswordInput({
   password,
   onPasswordChange,
-}: PasswordInputProps) => {
+}: PasswordInputProps) {
   const { inputValue, handleChange, handleBlur } = useInput(
     password,
     onPasswordChange,
@@ -49,4 +49,4 @@ export const PasswordInput = ({
       </div>
     </div>
   );
-};
+}

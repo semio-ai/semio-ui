@@ -17,19 +17,19 @@ const VALID_CHARS = [
   "-",
 ];
 
-export const NUMERIC_STATUS = {
-  BELOW: "BELOW",
-  LOWER_BOUND: "LOWER",
-  WITHIN: "WITHIN",
-  UPPER_BOUND: "UPPER",
-  ABOVE: "ABOVE",
-  INVALID: "INVALID",
-};
+export enum NumericStatus {
+  Below = "below",
+  LowerBound = "lower-bound",
+  Within = "within",
+  UpperBound = "upper-bound",
+  Above = "above",
+  Invalid = "invalid",
+}
 
-export const PASSABLE_NUMERIC_STATUSES = [
-  NUMERIC_STATUS.LOWER_BOUND,
-  NUMERIC_STATUS.WITHIN,
-  NUMERIC_STATUS.UPPER_BOUND,
+export const PassableNumericStatuses = [
+  NumericStatus.LowerBound,
+  NumericStatus.Within,
+  NumericStatus.UpperBound,
 ];
 
 interface NumericProps {
@@ -95,16 +95,16 @@ export const useNumeric = ({
       if (!newState) {
         setState((prev) => ({
           numeric: prev.numeric,
-          status: NUMERIC_STATUS.INVALID,
+          status: NumericStatus.Invalid,
           textValue: event.target.value,
         }));
-      } else if (PASSABLE_NUMERIC_STATUSES.includes(newState.status)) {
+      } else if (PassableNumericStatuses.includes(newState.status)) {
         setState(newState);
         onValidChange(newState.numeric);
-      } else if (newState.status === NUMERIC_STATUS.BELOW) {
+      } else if (newState.status === NumericStatus.Below) {
         setState(newState);
         onValidChange(min);
-      } else if (newState.status === NUMERIC_STATUS.ABOVE) {
+      } else if (newState.status === NumericStatus.Above) {
         setState(newState);
         onValidChange(max);
       }
@@ -116,7 +116,7 @@ export const useNumeric = ({
     (value: number) => {
       const newState = parse(value, min, max, sigFigs);
       setState(newState);
-      if (PASSABLE_NUMERIC_STATUSES.includes(newState.status)) {
+      if (PassableNumericStatuses.includes(newState.status)) {
         onValidChange(newState.numeric);
       }
     },
@@ -126,7 +126,7 @@ export const useNumeric = ({
   const onStepUp = useCallback(() => {
     const newState = parse(strip(state.numeric + stepSize), min, max, sigFigs);
     setState(newState);
-    if (PASSABLE_NUMERIC_STATUSES.includes(newState.status)) {
+    if (PassableNumericStatuses.includes(newState.status)) {
       onValidChange(newState.numeric);
     }
   }, [min, max, onValidChange, state.numeric, stepSize, sigFigs]);
@@ -134,7 +134,7 @@ export const useNumeric = ({
   const onStepDown = useCallback(() => {
     const newState = parse(strip(state.numeric - stepSize), min, max, sigFigs);
     setState(newState);
-    if (PASSABLE_NUMERIC_STATUSES.includes(newState.status)) {
+    if (PassableNumericStatuses.includes(newState.status)) {
       onValidChange(newState.numeric);
     }
   }, [min, max, onValidChange, state.numeric, stepSize, sigFigs]);
@@ -162,17 +162,17 @@ export const useNumeric = ({
 
 const getStatus = (v: number, min: number, max: number) => {
   if (v < max && v > min) {
-    return NUMERIC_STATUS.WITHIN;
+    return NumericStatus.Within;
   } else if (v > max) {
-    return NUMERIC_STATUS.ABOVE;
+    return NumericStatus.Above;
   } else if (v === max) {
-    return NUMERIC_STATUS.UPPER_BOUND;
+    return NumericStatus.UpperBound;
   } else if (v === min) {
-    return NUMERIC_STATUS.LOWER_BOUND;
+    return NumericStatus.LowerBound;
   } else if (v < min) {
-    return NUMERIC_STATUS.BELOW;
+    return NumericStatus.Below;
   } else {
-    return NUMERIC_STATUS.INVALID;
+    return NumericStatus.Invalid;
   }
 };
 
@@ -202,5 +202,5 @@ const parse = (
     }
   }
   // console.warn("failed with ", v, typeof v);
-  return { numeric: 0, status: NUMERIC_STATUS.INVALID, textValue: v };
+  return { numeric: 0, status: NumericStatus.Invalid, textValue: v };
 };

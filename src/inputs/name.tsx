@@ -5,7 +5,7 @@ export interface NameInputProps {
   onNameChange: (value: string, field: string) => void;
 }
 
-export const NameInput = ({ name, onNameChange }: NameInputProps) => {
+export function NameInput({ name, onNameChange }: NameInputProps) {
   const { inputValue, handleChange, handleBlur } = useInput(
     name,
     onNameChange,
@@ -31,4 +31,4 @@ export const NameInput = ({ name, onNameChange }: NameInputProps) => {
       />
     </div>
   );
-};
+}

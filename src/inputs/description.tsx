@@ -5,10 +5,10 @@ export interface DescriptionInputProps {
   onDescriptionChange: (value: string, field: string) => void;
 }
 
-export const DescriptionInput = ({
+export function DescriptionInput({
   description,
   onDescriptionChange,
-}: DescriptionInputProps) => {
+}: DescriptionInputProps) {
   const { inputValue, handleChange, handleBlur } = useInput(
     description,
     onDescriptionChange,
@@ -34,4 +34,4 @@ export const DescriptionInput = ({
       />
     </div>
   );
-};
+}

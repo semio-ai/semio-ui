@@ -8,10 +8,10 @@ import {
   ForwardedRef,
 } from "react";
 import { round, enableBoundaryChecking } from "number-precision";
+import { alpha } from "@semio/utils";
 import { clsx } from "clsx";
 import { useGesture } from "@use-gesture/react";
 import { useNumeric } from "../hooks/use-numeric";
-import { alpha } from "@semio/utils";
 import { StyledInput, heightLookup } from "./styled-input";
 
 enableBoundaryChecking(false);
@@ -25,9 +25,9 @@ interface InputProps {
 }
 
 enum SliderMode {
-  DRAG,
-  MANUAL,
-  BLURRED,
+  Drag,
+  Manual,
+  Blurred,
 }
 
 const InputWrapper = forwardRef(
@@ -56,7 +56,7 @@ const InputWrapper = forwardRef(
         // Tailwind does not support truly dynamic styles, so we have to use inline styles here
         style={{
           outlineColor: alpha(color, focused ? 1 : 0),
-          background: `linear-gradient(90deg, ${alpha(color, inactive ? 0.6 : 1)} 0%, ${alpha(color, inactive ? 0.6 : 1)} ${(percent || 0) * 100}%, ${alpha(color, focused ? 0.25 : 0.15)} ${(percent || 0) * 100}%, ${alpha(color, focused ? 0.25 : 0.15)} 100%)`,
+          background: `linear-gradient(90deg, ${alpha(color, inactive ? 0.6 : 1)} 0%, ${alpha(color, inactive ? 0.6 : 1)} ${((percent || 0) * 100).toString()}%, ${alpha(color, focused ? 0.25 : 0.15)} ${((percent || 0) * 100).toString()}%, ${alpha(color, focused ? 0.25 : 0.15)} 100%)`,
         }}
       >
         {children}
@@ -64,6 +64,8 @@ const InputWrapper = forwardRef(
     );
   },
 );
+
+InputWrapper.displayName = "InputWrapper";
 
 export interface SliderNumberFieldProps {
   value: number;
@@ -108,7 +110,7 @@ function InnerSliderNumberField({
   const boundsRef = useRef<HTMLDivElement>(null);
   const sliderColor = color || "#737373";
 
-  const [sliderMode, setSliderMode] = useState(SliderMode.BLURRED);
+  const [sliderMode, setSliderMode] = useState(SliderMode.Blurred);
 
   const {
     textValue,
@@ -128,10 +130,10 @@ function InnerSliderNumberField({
         if (disabled) return;
         if (!intentional) return;
         if (tap) return;
-        if (sliderMode === SliderMode.MANUAL) return;
+        if (sliderMode === SliderMode.Manual) return;
         if (!boundsRef.current) return;
         const bounds = boundsRef.current.getBoundingClientRect();
-        setSliderMode(SliderMode.DRAG);
+        setSliderMode(SliderMode.Drag);
         let v = (max - min) * ((x - bounds.left) / bounds.width) + min;
         // console.log("v", v);
         if (strict) {
@@ -148,11 +150,11 @@ function InnerSliderNumberField({
       },
       onDoubleClick: () => {
         if (disabled) return;
-        setSliderMode(SliderMode.MANUAL);
+        setSliderMode(SliderMode.Manual);
       },
       onBlur: ({ event }) => {
         if (disabled) return;
-        setSliderMode(SliderMode.BLURRED);
+        setSliderMode(SliderMode.Blurred);
         onBlur();
         event.stopPropagation();
       },
@@ -174,17 +176,17 @@ function InnerSliderNumberField({
       sizeVariant={size}
       inactive={inactive || disabled}
       percent={(value - min) / (max - min)}
-      focused={sliderMode !== SliderMode.BLURRED || dragging}
+      focused={sliderMode !== SliderMode.Blurred || dragging}
     >
       <StyledInput
-        readOnly={inactive || sliderMode !== SliderMode.MANUAL}
+        readOnly={inactive || sliderMode !== SliderMode.Manual}
         inactive={inactive || disabled}
         disabled={disabled}
         type="text"
         color={sliderColor}
-        bold={sliderMode === SliderMode.MANUAL}
+        bold={sliderMode === SliderMode.Manual}
         cursor={
-          sliderMode === SliderMode.MANUAL ? "cursor-text" : "cursor-ew-resize"
+          sliderMode === SliderMode.Manual ? "cursor-text" : "cursor-ew-resize"
         }
         className="text-center"
         sizeVariant={size}
@@ -192,7 +194,7 @@ function InnerSliderNumberField({
         onChange={onChangeInner}
         onKeyDown={(e) => {
           if (!disabled && e.key === "Enter") {
-            setSliderMode(SliderMode.BLURRED);
+            setSliderMode(SliderMode.Blurred);
             onBlur();
           }
         }}

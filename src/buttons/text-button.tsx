@@ -31,6 +31,7 @@ export function TextButton({
 }: TextButtonProps) {
   return (
     <button
+      type="button"
       {...props}
       className={clsx(
         "transition-colors",

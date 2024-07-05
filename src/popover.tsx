@@ -1,9 +1,6 @@
 import * as PopoverPrimitive from "@radix-ui/react-popover";
 import { clsx } from "clsx";
 import { ReactNode } from "react";
-import { Transition } from "@headlessui/react";
-// import Button from "./shared/button";
-import { IconX } from "@tabler/icons-react";
 import { Variant } from "./types";
 import { getBasicTextColor, getBorder } from "./variant-colors";
 
@@ -16,28 +13,18 @@ export interface PopoverProps {
   variant?: Variant;
 }
 
-const Popover = ({
+function Popover({
   title,
   trigger,
   content,
   open,
   onStateChange,
   variant,
-}: PopoverProps) => {
+}: PopoverProps) {
   return (
     <div className="relative inline-block text-left">
       <PopoverPrimitive.Root open={open} onOpenChange={onStateChange}>
         <PopoverPrimitive.Trigger asChild>{trigger}</PopoverPrimitive.Trigger>
-        {/* <Transition
-          show={open}
-          enter="ease-out duration-300"
-          enterFrom="opacity-0"
-          enterTo="opacity-100"
-          leave="ease-in duration-200"
-          leaveFrom="opacity-100"
-          leaveTo="opacity-0"
-        > */}
-        {/* <div> */}
         <PopoverPrimitive.Content
           align="center"
           sideOffset={4}
@@ -59,11 +46,9 @@ const Popover = ({
           </div>
           {content}
         </PopoverPrimitive.Content>
-        {/* </div>
-        </Transition> */}
       </PopoverPrimitive.Root>
     </div>
   );
-};
+}
 
 export { Popover };

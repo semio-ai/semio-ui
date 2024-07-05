@@ -26,8 +26,8 @@ export const Primary: Story = {
     },
     framerate: 24,
     size: "sm",
-    variant: Variant.PRIMARY,
-    display: TimeDisplay.SECONDS,
+    variant: Variant.Primary,
+    display: TimeDisplay.Seconds,
     disabled: false,
   },
 };

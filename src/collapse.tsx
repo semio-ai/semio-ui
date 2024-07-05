@@ -1,6 +1,5 @@
 import { ReactNode } from "react";
 import * as Collapsible from "@radix-ui/react-collapsible";
-import { Transition } from "@headlessui/react";
 import { IconChevronUp, IconChevronLeft } from "@tabler/icons-react";
 import { clsx } from "clsx";
 

@@ -5,10 +5,10 @@ export interface EmailInputProps {
   onEmailChange: (email: string, field: string) => void;
 }
 
-export const EmailInput = ({
+export function EmailInput({
   email: initialEmail,
   onEmailChange,
-}: EmailInputProps) => {
+}: EmailInputProps) {
   const { email, error, handleChange } = useEmailInput(
     initialEmail,
     onEmailChange,
@@ -34,4 +34,4 @@ export const EmailInput = ({
       {error && <span style={{ color: "red" }}>{error}</span>}
     </div>
   );
-};
+}

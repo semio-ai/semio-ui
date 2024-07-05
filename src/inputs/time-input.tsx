@@ -1,8 +1,8 @@
 import { useState, useEffect, type ChangeEvent } from "react";
 import { clsx } from "clsx";
 import { TimeDisplay, Variant } from "../types";
-import { StyledInput, heightLookup } from "./styled-input";
 import { getOutline } from "../variant-colors";
+import { StyledInput, heightLookup } from "./styled-input";
 
 export interface TimeInputProps
   extends Omit<React.HTMLAttributes<HTMLInputElement>, "onChange"> {
@@ -29,7 +29,7 @@ export function TimeInput({
   framerate,
   display,
   disabled,
-  variant = Variant.DEFAULT,
+  variant = Variant.Default,
   size = "md",
 }: TimeInputProps) {
   const [editing, setEditing] = useState<
@@ -86,23 +86,23 @@ export function TimeInput({
     e: ChangeEvent<HTMLInputElement>,
     segment: "minutes" | "seconds" | "milliseconds",
   ) => {
-    const value = parseInt(e.target.value, 10);
+    const v = parseInt(e.target.value, 10);
     const { minutes, seconds, milliseconds } = formatTime(time);
 
     let newTime;
     if (segment === "minutes") {
       newTime =
-        (value * 60 + parseInt(seconds, 10)) * 1000 +
+        (v * 60 + parseInt(seconds, 10)) * 1000 +
         parseInt(milliseconds, 10) * 10;
     } else if (segment === "seconds") {
       newTime =
-        (parseInt(minutes, 10) * 60 + value) * 1000 +
+        (parseInt(minutes, 10) * 60 + v) * 1000 +
         parseInt(milliseconds, 10) * 10;
     } else if (segment === "milliseconds") {
       newTime =
         parseInt(minutes, 10) * 60 * 1000 +
         parseInt(seconds, 10) * 1000 +
-        value * 10;
+        v * 10;
     }
 
     handleTimeChange(newTime!);
@@ -118,7 +118,7 @@ export function TimeInput({
           readOnly={disabled || value === undefined}
           type="text"
           sizeVariant={size}
-          value={editing === "minutes" ? minutes : `${minutes}`}
+          value={minutes}
           onFocus={() => setEditing("minutes")}
           onBlur={() => setEditing(null)}
           onChange={(e) => handleSegmentChange(e, "minutes")}
@@ -130,7 +130,7 @@ export function TimeInput({
           readOnly={disabled || value === undefined}
           type="text"
           sizeVariant={size}
-          value={editing === "seconds" ? seconds : `${seconds}`}
+          value={seconds}
           onFocus={() => setEditing("seconds")}
           onBlur={() => setEditing(null)}
           onChange={(e) => handleSegmentChange(e, "seconds")}
@@ -142,7 +142,7 @@ export function TimeInput({
           readOnly={disabled || value === undefined}
           type="text"
           sizeVariant={size}
-          value={editing === "milliseconds" ? milliseconds : `${milliseconds}`}
+          value={milliseconds}
           onFocus={() => setEditing("milliseconds")}
           onBlur={() => setEditing(null)}
           onChange={(e) => handleSegmentChange(e, "milliseconds")}
