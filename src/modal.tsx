@@ -57,7 +57,7 @@ export function Modal({
               "data-[closed]:opacity-0",
               "data-[closed]:data-[enter]:translate-y-8",
               "data-[closed]:data-[leave]:translate-y-8",
-              "bg-neutral-50/75 dark:bg-neutral-950/75",
+              "bg-neutral-50/85 dark:bg-neutral-950/85",
               "border-t-2 border-solid",
               getBorder(variant),
             )}

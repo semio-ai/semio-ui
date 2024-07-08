@@ -44,7 +44,7 @@ export function ImageInput({
               <img
                 src={localImageURL}
                 alt="Preview"
-                className="max-w-64 h-auto rounded-lg"
+                className="max-w-36 h-auto rounded-lg"
               />
               <button
                 type="button"

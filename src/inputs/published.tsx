@@ -1,3 +1,4 @@
+import { Field, Label } from '@headlessui/react'
 import { useBooleanInput } from "../hooks/formInputHooks";
 
 export interface PublishedInputProps {
@@ -16,13 +17,12 @@ export function PublishedInput({
   );
 
   return (
-    <div>
-      <label
-        htmlFor="published"
-        className="block text-gray-700 text-sm font-bold mb-2"
+    <Field>
+      <Label
+        className="block text-lg"
       >
         Published:
-      </label>
+      </Label>
       <input
         type="checkbox"
         id="published"
@@ -31,6 +31,6 @@ export function PublishedInput({
         className="mr-2 leading-tight"
       />
       <span>{inputValue ? "Published" : "Not Published"}</span>
-    </div>
+    </Field>
   );
 }
