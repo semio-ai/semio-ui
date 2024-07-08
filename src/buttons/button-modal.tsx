@@ -8,18 +8,16 @@ export interface ButtonModalProps {
 }
 
 export function ButtonModal({
-  titleText, onClick
+  titleText,
+  onClick,
 }: ButtonModalProps): JSX.Element {
-
-
-
   return (
-  <button
-    type="submit"
-    onClick={onClick}
-    className="m-1 p-1 rounded-sm bg-tertiary-700 hover:bg-tertiary-900 text-white"
-  >
-    {titleText}
-  </button>
+    <button
+      type="submit"
+      onClick={onClick}
+      className="m-1 p-1 bg-tertiary-700 hover:bg-tertiary-900 text-white"
+    >
+      {titleText}
+    </button>
   );
 }
