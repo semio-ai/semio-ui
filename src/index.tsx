@@ -1,11 +1,6 @@
 import "./styles.css";
 
 export { Button, type ButtonProps } from "./button";
-// export { Card, type CardProps } from "./mantine/card";
-// export { ManModal, type ManModalProps } from "./mantine/modal";
-// export { MenuButton, type MenuButtonProps } from "./mantine/menu-button";
-// export { SemioTheme, SemioColor, type ThemeType } from "./mantine/semio-theme";
-// export { LayoutManager, type LayoutManagerProps } from "./mantine/layout";
 export { Spinner } from "./spinner";
 export { Progress, type ProgressProps } from "./progress";
 export { TextButton, type TextButtonProps } from "./buttons/text-button";
@@ -19,6 +14,7 @@ export { Popover, type PopoverProps } from "./popover";
 export { Tabs, type TabsProps } from "./tabs";
 export { Dropdown, type DropdownProps } from "./dropdown";
 export { Tooltip, type TooltipProps } from "./tooltip";
+export { DetailsDisplay } from "./details-display";
 export { EmailInput, type EmailInputProps } from "./inputs/basic-form-input/email";
 export { EmailsInput, type EmailsInputProps } from "./inputs/basic-form-input/emails";
 export { ImageInput, type ImageInputProps } from "./inputs/basic-form-input/image";
