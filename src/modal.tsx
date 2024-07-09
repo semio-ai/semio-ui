@@ -40,10 +40,10 @@ export function Modal({
   return (
     <Dialog
       open={open}
-      className="relative z-10 focus:outline-none"
+      className="relative focus:outline-none"
       onClose={onStateChange}
     >
-      <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
+      <div className="fixed inset-0 w-screen overflow-y-auto">
         <div className="flex min-h-full items-center justify-center p-4">
           <Transition show={open}>
             <DialogBackdrop className="transition fixed inset-0 duration-300 ease-in-out data-[closed]:bg-transparent bg-black/30" />

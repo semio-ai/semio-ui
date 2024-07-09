@@ -1,5 +1,5 @@
+import { MouseEventHandler, type ReactNode } from "react";
 import { clsx } from "clsx";
-import { ReactNode } from "react";
 import { Variant } from "../types";
 import { getHoverButtonStyles } from "../variant-colors";
 
@@ -16,17 +16,27 @@ export interface TextButtonProps
   /**
    * Optional click handler
    */
-  onClick?: () => void;
+  onClick?: MouseEventHandler<HTMLButtonElement>;
   /**
    * Optional variant to apply to the button
    */
   variant?: Variant;
+  /**
+   * Optional left icon to add to the button
+   */
+  leftIcon?: ReactNode;
+  /**
+   * Optional right icon to add to the button
+   */
+  rightIcon?: ReactNode;
 }
 export function TextButton({
   children,
   disabled,
   onClick,
   variant,
+  leftIcon,
+  rightIcon,
   ...props
 }: TextButtonProps) {
   return (
@@ -37,12 +47,14 @@ export function TextButton({
         "transition-colors",
         "dark:text-white text-black",
         getHoverButtonStyles(variant),
-        "pt-2 pb-2 pr-4 pl-4",
+        "pt-2 pb-2 pr-4 pl-4 flex items-center",
       )}
       disabled={disabled}
-      onClick={onClick}
+      onClick={onClick ?? ((_e) => {})}
     >
-      {children}
+      {leftIcon}
+      <div className="flex-1 ">{children}</div>
+      {rightIcon}
     </button>
   );
 }
