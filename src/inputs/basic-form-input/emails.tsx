@@ -1,6 +1,6 @@
 import { Field, Input, Label } from '@headlessui/react'
 import { ChangeEvent } from "react";
-import { useEmailsInput } from "../hooks/formInputHooks";
+import { useEmailsInput } from "../../hooks/formInputHooks";
 
 export interface EmailsInputProps {
   emails: string[];

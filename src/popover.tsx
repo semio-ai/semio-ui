@@ -30,8 +30,8 @@ function Popover({
           sideOffset={4}
           className={clsx(
             "PopoverContent",
-            "z-50 w-48 p-4 shadow-md md:w-56",
-            "bg-neutral-50/75 dark:bg-neutral-950/75 backdrop-blur-lg",
+            "w-48 p-4 shadow-md md:w-56",
+            "bg-neutral-50/95 dark:bg-neutral-950/95 backdrop-blur-lg",
             "border-t-2 border-solid",
             // `border-${rootVariant[variant ?? Variant.WARNING]}-500`,
             getBorder(variant),

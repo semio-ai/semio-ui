@@ -16,16 +16,18 @@ export { IconButton, type IconButtonProps } from "./buttons/icon-button";
 export { Avatar, type AvatarProps } from "./avatar";
 export { Collapse, type CollapseProps } from "./collapse";
 export { Popover, type PopoverProps } from "./popover";
+export { Tabs, type TabsProps } from "./tabs";
+export { Dropdown, type DropdownProps } from "./dropdown";
 export { Tooltip, type TooltipProps } from "./tooltip";
-export { EmailInput, type EmailInputProps } from "./inputs/basic-email-input";
-export { EmailsInput, type EmailsInputProps } from "./inputs/basic-emails-input";
-export { ImageInput, type ImageInputProps } from "./inputs/image";
-export { PasswordInput, type PasswordInputProps } from "./inputs/basic-password-input";
-export { PublishedInput, type PublishedInputProps } from "./inputs/published";
+export { EmailInput, type EmailInputProps } from "./inputs/basic-form-input/email";
+export { EmailsInput, type EmailsInputProps } from "./inputs/basic-form-input/emails";
+export { ImageInput, type ImageInputProps } from "./inputs/basic-form-input/image";
+export { PasswordInput, type PasswordInputProps } from "./inputs/basic-form-input/password";
+export { PublishedInput, type PublishedInputProps } from "./inputs/basic-form-input/published";
 export { Switch, type SwitchProps } from "./inputs/switch";
-export { StringsInput, type StringsInputProps } from "./inputs/basic-strings-input";
+export { StringsInput, type StringsInputProps } from "./inputs/basic-form-input/strings";
 export { TimeInput, type TimeInputProps } from "./inputs/time-input";
-export { TextInput, type TextInputProps } from "./inputs/basic-text-input";
+export { TextInput, type TextInputProps } from "./inputs/basic-form-input/text";
 export {
   SliderNumberField,
   type SliderNumberFieldProps,

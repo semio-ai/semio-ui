@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Field, Input, Label } from '@headlessui/react'
-import { useInput } from "../hooks/formInputHooks";
+import { useInput } from "../../hooks/formInputHooks";
 
 export interface PasswordInputProps {
   passwordValue: string;

@@ -1,6 +1,6 @@
 
 import { Field, Input, Label } from '@headlessui/react'
-import { useEmailInput } from "../hooks/formInputHooks";
+import { useEmailInput } from "../../hooks/formInputHooks";
 
 export interface EmailInputProps {
   emailValue: string;

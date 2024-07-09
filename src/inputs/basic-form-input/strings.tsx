@@ -1,6 +1,6 @@
 import { Field, Input, Label } from '@headlessui/react'
 import { ChangeEvent } from "react";
-import { useItemsInput } from "../hooks/formInputHooks";
+import { useItemsInput } from "../../hooks/formInputHooks";
 
 export interface StringsInputProps {
   strings: string[];

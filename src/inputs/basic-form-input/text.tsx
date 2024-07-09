@@ -1,6 +1,6 @@
 
 import { Field, Input, Label, Textarea } from '@headlessui/react'
-import { useInput } from "../hooks/formInputHooks";
+import { useInput } from "../../hooks/formInputHooks";
 
 export interface TextInputProps {
   textValue: string;

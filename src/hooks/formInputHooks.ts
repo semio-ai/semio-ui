@@ -127,10 +127,10 @@ export const useBooleanInput = (
     setInputValue(initialValue);
   }, [initialValue]);
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const newValue = e.target.checked;
-    setInputValue(newValue);
-    onChange(newValue, fieldName);
+  const handleChange = (e: boolean) => {
+    // const newValue = e.target.checked;
+    setInputValue(e);
+    onChange(e, fieldName);
   };
 
   return {

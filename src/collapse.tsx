@@ -4,10 +4,10 @@ import { IconChevronUp, IconChevronLeft } from "@tabler/icons-react";
 import { clsx } from "clsx";
 
 export interface CollapseProps {
-  open: boolean;
   title: string | ReactNode;
-  onStateChange: (open: boolean) => void;
   children: ReactNode;
+  onStateChange?: (open: boolean) => void;
+  open?: boolean;
   direction?: "vertical" | "horizontal";
   disabled?: boolean;
 }
