@@ -40,7 +40,6 @@ export function Modal({
   return (
     <Dialog
       open={open}
-      as="div"
       className="relative z-10 focus:outline-none"
       onClose={onStateChange}
     >
@@ -49,6 +48,7 @@ export function Modal({
           <Transition show={open}>
             <DialogBackdrop className="transition fixed inset-0 duration-300 ease-in-out data-[closed]:bg-transparent bg-black/30" />
           </Transition>
+
           <DialogPanel
             transition
             className={clsx(

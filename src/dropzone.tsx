@@ -32,12 +32,13 @@ export function Dropzone<T>({
         isDragActive
           ? "dark:bg-neutral-900 bg-neutral-100"
           : "dark:bg-black bg-white hover:dark:bg-neutral-950 hover:bg-neutral-50",
-        "h-[30vh] w-full mt-3 overflow-scroll",
+        "h-[30vh] w-full mt-3",
         "cursor-pointer mb-3",
         isDragActive &&
           " bg-radient-ellipse-c from-info-500/25 from-0% to-transparent to-80% transition-all duration-300",
-        (isDragActive || items.length === 0) &&
-          "grid place-items-center hover:text-info-500",
+        isDragActive || items.length === 0
+          ? "grid place-items-center hover:text-info-500 overflow-hidden"
+          : "overflow-y-scroll",
       )}
     >
       <input {...getInputProps()} />
