@@ -1,17 +1,14 @@
 import "./styles.css";
 
 export { Button, type ButtonProps } from "./button";
-// export { Card, type CardProps } from "./mantine/card";
-// export { ManModal, type ManModalProps } from "./mantine/modal";
-// export { MenuButton, type MenuButtonProps } from "./mantine/menu-button";
-// export { SemioTheme, SemioColor, type ThemeType } from "./mantine/semio-theme";
-// export { LayoutManager, type LayoutManagerProps } from "./mantine/layout";
 export { Spinner } from "./spinner";
 export { Progress, type ProgressProps } from "./progress";
+export { Sidebar, type SidebarProps } from "./sidebar";
 export { TextButton, type TextButtonProps } from "./buttons/text-button";
 export { GoogleSignInButton } from "./buttons/google-signin-button";
 export { Modal, type ModalProps } from "./modal";
 export { ImageButton, type ImageButtonProps } from "./buttons/image-button";
+export { MenuButton, type MenuButtonProps } from "./buttons/menu-button";
 export { IconButton, type IconButtonProps } from "./buttons/icon-button";
 export { Avatar, type AvatarProps } from "./avatar";
 export { Collapse, type CollapseProps } from "./collapse";

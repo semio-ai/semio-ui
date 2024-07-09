@@ -23,6 +23,31 @@ export function getBorder(variant?: Variant): string {
   }
 }
 
+export function getReversibleBgText(
+  variant?: Variant,
+  active?: boolean,
+): string {
+  switch (variant) {
+    case Variant.Primary:
+      return `hover:bg-primary-500/75 text-primary-500 border-r-2 hover:border-primary-500 ${active ? "border-primary-500" : "border-transparent"}`;
+    case Variant.Secondary:
+      return `hover:bg-secondary-500/75 text-secondary-500 border-r-2 hover:border-secondary-500 ${active ? "border-secondary-500" : "border-transparent"}`;
+    case Variant.Tertiary:
+      return `hover:bg-tertiary-500/75 text-tertiary-500 border-r-2 hover:border-tertiary-500 ${active ? "border-tertiary-500" : "border-transparent"}`;
+    case Variant.Error:
+      return `hover:bg-error-500/75 text-error-500 border-r-2 hover:border-error-500 ${active ? "border-error-500" : "border-transparent"}`;
+    case Variant.Warning:
+      return `hover:bg-warning-500/75 text-warning-500 border-r-2 hover:border-warning-500 ${active ? "border-warning-500" : "border-transparent"}`;
+    case Variant.Success:
+      return `hover:bg-success-500/75 text-success-500 border-r-2 hover:border-success-500 ${active ? "border-success-500" : "border-transparent"}`;
+    case Variant.Info:
+      return `hover:bg-info-500/75 text-info-500 border-r-2 hover:border-info-500 ${active ? "border-info-500" : "border-transparent"}`;
+    case Variant.Default:
+    default:
+      return `hover:bg-default-500/75 text-default-500 border-r-2 hover:border-default-500 ${active ? "border-default-500" : "border-transparent"}`;
+  }
+}
+
 export function getOutline(variant?: Variant): string {
   switch (variant) {
     case Variant.Primary:
