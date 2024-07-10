@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { TimeDisplay, TimeInput, Variant } from "@semio/ui";
+import { useState } from "react";
 
 const meta: Meta<typeof TimeInput> = {
   component: TimeInput,
@@ -15,10 +16,23 @@ type Story = StoryObj<typeof TimeInput>;
  * to learn how to use render functions.
  */
 export const Primary: Story = {
-  render: (props) => <TimeInput {...props} />,
+  render: (props) => {
+    const [t, setT] = useState(props.value);
+
+    return (
+      <TimeInput
+        {...props}
+        value={t}
+        onChange={(v) => {
+          setT(v);
+          props.onChange(v);
+        }}
+      />
+    );
+  },
   name: "Button",
   args: {
-    value: 500,
+    value: 25030,
     // variant: Variant.PRIMARY,
     onChange: (): void => {
       // eslint-disable-next-line no-console -- log for demo
