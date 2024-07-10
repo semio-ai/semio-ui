@@ -12,6 +12,10 @@ export { MenuButton, type MenuButtonProps } from "./buttons/menu-button";
 export { IconButton, type IconButtonProps } from "./buttons/icon-button";
 export { Avatar, type AvatarProps } from "./avatar";
 export { Collapse, type CollapseProps } from "./collapse";
+export {
+  FullHeightAccordion,
+  type FullHeightAccordionProps,
+} from "./full-height-accordion";
 export { Popover, type PopoverProps } from "./popover";
 export { Tabs, type TabsProps } from "./tabs";
 export { Dropdown, type DropdownProps } from "./dropdown";
