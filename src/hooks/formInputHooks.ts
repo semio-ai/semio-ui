@@ -211,7 +211,7 @@ export const useImageInput = (
   );
 
   useEffect(() => {
-    console.log("(useImageInput)Project Image URL changed:", projectImageUrl);
+    // console.log("(useImageInput)Project Image URL changed:", projectImageUrl);
     setLocalImage(projectImageUrl ?? null);
   }, [projectImageUrl]);
 

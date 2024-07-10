@@ -25,7 +25,7 @@ export function StringsInput({
       <Label
         className="block text-lg"
       >
-        {inputTitle}:
+        {inputTitle}
         {items?.map((tag, index) => (
           <div key={index} className="inline-block mx-2 rounded-lg">
             {tag}{" "}

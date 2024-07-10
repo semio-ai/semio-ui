@@ -47,7 +47,7 @@ export function TextButton({
         "transition-colors",
         "dark:text-white text-black",
         getHoverButtonStyles(variant),
-        "pt-2 pb-2 pr-4 pl-4 flex items-center",
+        "pt-2 pb-2 pr-4 pl-4 flex items-center m-1",
       )}
       disabled={disabled}
       onClick={onClick ?? ((_e) => {})}
