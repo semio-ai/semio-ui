@@ -34,7 +34,7 @@ export function Tabs({
             className="px-2 h-[45px] flex-1 flex items-center justify-center text-[15px] 
             leading-none select-none first:rounded-tl-md last:rounded-tr-md 
             hover:text-primary data-[state=active]:text-secondary 
-            outline-none cursor-default"
+            outline-none"
             value={k.title}
             key={k.title}
           >
@@ -50,7 +50,7 @@ export function Tabs({
       >
         <div className={clsx(
             "PopoverContent",
-            "bg-neutral-50/95 dark:bg-neutral-950/95 backdrop-blur-lg",
+            "bg-neutral-50/95 dark:bg-neutral-950/95 backdrop-blur-lg cursor-default",
             // `border-${rootVariant[variant ?? Variant.WARNING]}-500`,
             // getBorder(variant),
           )}
