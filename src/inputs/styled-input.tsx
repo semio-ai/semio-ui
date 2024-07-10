@@ -8,6 +8,7 @@ interface InputProps {
   cursor?: string;
   bold?: boolean;
   className?: string;
+  flex?: boolean;
 }
 
 export const heightLookup = {
@@ -25,14 +26,22 @@ export const fontSizeLookup = {
 export function StyledInput(
   props: InputProps & InputHTMLAttributes<HTMLInputElement>,
 ) {
-  const { bold, sizeVariant, disabled, cursor, className, ...forwardedProps } =
-    props;
+  const {
+    bold,
+    sizeVariant,
+    disabled,
+    cursor,
+    className,
+    flex = true,
+    ...forwardedProps
+  } = props;
   return (
     <input
       {...forwardedProps}
       type="text"
       className={clsx(
-        "w-full touch-none font-mono outline-none bg-transparent pl-1 pr-1",
+        "touch-none font-mono outline-none bg-transparent pl-1 pr-1",
+        flex && "w-full",
         "dark:text-white text-black",
         bold ? "select-text font-bold" : "select-none font-normal",
         sizeVariant ? heightLookup[sizeVariant] : heightLookup.md,

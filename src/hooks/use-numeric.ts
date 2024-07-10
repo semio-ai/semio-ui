@@ -1,5 +1,5 @@
 import { useState, useCallback, type ChangeEvent } from "react";
-import { isNumber, isNaN } from "lodash";
+import { isNumber, isNaN, round } from "lodash";
 import { strip } from "number-precision";
 
 const VALID_CHARS = [
@@ -123,6 +123,14 @@ export const useNumeric = ({
     [min, max, onValidChange, sigFigs],
   );
 
+  const onChangeHeadless = useCallback(
+    (value: number) => {
+      const newState = parse(value, min, max, sigFigs);
+      setState(newState);
+    },
+    [min, max, sigFigs],
+  );
+
   const onStepUp = useCallback(() => {
     const newState = parse(strip(state.numeric + stepSize), min, max, sigFigs);
     setState(newState);
@@ -154,6 +162,7 @@ export const useNumeric = ({
     status: state.status,
     onChange,
     onChangeDirect,
+    onChangeHeadless,
     onBlur,
     onStepUp,
     onStepDown,
