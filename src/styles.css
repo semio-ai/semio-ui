@@ -143,3 +143,7 @@
     transform: translateX(0);
   }
 }
+
+[data-state="open"] > .radix-accordion-content {
+  height: var(--radix-accordion-content-height);
+}
