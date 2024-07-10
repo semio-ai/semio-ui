@@ -29,7 +29,7 @@ export function FullHeightAccordion({ items }: FullHeightAccordionProps) {
               </Accordion.Trigger>
             </Accordion.Header>
             <Accordion.Content
-              className="transition-all duration-300 overflow-y-scroll"
+              className="transition-all duration-300 overflow-auto"
               style={{ height: contentHeight }}
             >
               {item.content}

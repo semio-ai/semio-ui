@@ -17,7 +17,7 @@ export function Sidebar({ children, sidebar }: SidebarProps) {
   return (
     <div
       className={clsx(
-        "dark:bg-neutral-900 bg-neutral-100 transition-all duration-150 h-full flex-shrink-0 overflow-x-hidden overflow-y-scroll",
+        "dark:bg-neutral-900 bg-neutral-100 transition-all duration-150 h-full flex-shrink-0 overflow-x-hidden overflow-auto",
         sidebar !== null ? "w-52" : "w-0",
       )}
     >
