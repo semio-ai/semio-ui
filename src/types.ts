@@ -20,5 +20,6 @@ export enum Variant {
 */
 export enum TimeDisplay {
   Frames = "frames",
-  Seconds = "seconds",
+  SecondsPlusMilliseconds = "seconds+milliseconds",
+  MinutesPlusSecondsPlusMilliseconds = "minutes+seconds+milliseconds",
 }

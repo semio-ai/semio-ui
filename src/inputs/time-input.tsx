@@ -2,6 +2,7 @@ import { useState, useEffect, type ChangeEvent } from "react";
 import { clsx } from "clsx";
 import { TimeDisplay, Variant } from "../types";
 import { getOutline } from "../variant-colors";
+import { useTemporal } from "../hooks/use-temporal";
 import { StyledInput, heightLookup } from "./styled-input";
 
 export interface TimeInputProps
@@ -18,9 +19,21 @@ export interface TimeInputProps
 }
 
 const widthLookup = {
-  sm: "w-[83px]",
-  md: "w-[100px]",
-  lg: "w-[115px]",
+  [TimeDisplay.Frames]: {
+    sm: "w-[83px]",
+    md: "w-[100px]",
+    lg: "w-[115px]",
+  },
+  [TimeDisplay.MinutesPlusSecondsPlusMilliseconds]: {
+    sm: "w-[120px]",
+    md: "w-[180px]",
+    lg: "w-[210px]",
+  },
+  [TimeDisplay.SecondsPlusMilliseconds]: {
+    sm: "w-[100px]",
+    md: "w-[120px]",
+    lg: "w-[140px]",
+  },
 };
 
 export function TimeInput({
@@ -31,109 +44,57 @@ export function TimeInput({
   disabled,
   variant = Variant.Default,
   size = "md",
+  min,
+  max,
 }: TimeInputProps) {
   const [editing, setEditing] = useState<
     "minutes" | "seconds" | "milliseconds" | "frames" | null
   >(null);
-  const [time, setTime] = useState(value);
 
-  useEffect(() => {
-    setTime(value);
-  }, [value]);
-
-  const handleTimeChange = (newTime: number) => {
-    setTime(newTime);
-    if (onChange) {
-      onChange(newTime);
-    }
-  };
-
-  const formatTime = (ms: number | undefined) => {
-    if (ms === undefined) {
-      return {
-        minutes: "--",
-        seconds: "--",
-        milliseconds: "--",
-      };
-    }
-    const totalSeconds = Math.floor(ms / 1000);
-    const minutes = Math.floor(totalSeconds / 60);
-    const seconds = totalSeconds % 60;
-    const milliseconds = ms % 1000;
-
-    return {
-      minutes: minutes.toString().padStart(2, "0"),
-      seconds: seconds.toString().padStart(2, "0"),
-      milliseconds: Math.floor(milliseconds / 10)
-        .toString()
-        .padStart(2, "0"),
-    };
-  };
-
-  const formatFrames = (ms: number | undefined) => {
-    if (ms === undefined) {
-      return {
-        frames: "--",
-      };
-    }
-    const totalFrames = Math.floor((ms / 1000) * framerate);
-    return {
-      frames: totalFrames.toFixed(2).toString(),
-    };
-  };
-
-  const handleSegmentChange = (
-    e: ChangeEvent<HTMLInputElement>,
-    segment: "minutes" | "seconds" | "milliseconds",
-  ) => {
-    const v = parseInt(e.target.value, 10);
-    const { minutes, seconds, milliseconds } = formatTime(time);
-
-    let newTime;
-    if (segment === "minutes") {
-      newTime =
-        (v * 60 + parseInt(seconds, 10)) * 1000 +
-        parseInt(milliseconds, 10) * 10;
-    } else if (segment === "seconds") {
-      newTime =
-        (parseInt(minutes, 10) * 60 + v) * 1000 +
-        parseInt(milliseconds, 10) * 10;
-    } else if (segment === "milliseconds") {
-      newTime =
-        parseInt(minutes, 10) * 60 * 1000 +
-        parseInt(seconds, 10) * 1000 +
-        v * 10;
-    }
-
-    handleTimeChange(newTime!);
-  };
+  const temporal = useTemporal({
+    ms: value,
+    framerate,
+    format: display,
+    onValidChange: onChange,
+    min,
+    max,
+  });
 
   const renderTimeInput = () => {
-    const { minutes, seconds, milliseconds } = formatTime(time);
-
     return (
       <>
+        {display === TimeDisplay.MinutesPlusSecondsPlusMilliseconds && (
+          <>
+            <StyledInput
+              disabled={disabled || value === undefined}
+              readOnly={disabled || value === undefined}
+              type="text"
+              sizeVariant={size}
+              value={
+                editing === "minutes"
+                  ? temporal.minutes
+                  : temporal.minutesDisplay
+              }
+              onFocus={() => setEditing("minutes")}
+              onBlur={() => setEditing(null)}
+              onChange={(e) => temporal.onChangeMinutes(e.target.value)}
+              className="text-center"
+            />
+            <span>:</span>
+          </>
+        )}
+
         <StyledInput
           disabled={disabled || value === undefined}
           readOnly={disabled || value === undefined}
           type="text"
           sizeVariant={size}
-          value={minutes}
-          onFocus={() => setEditing("minutes")}
-          onBlur={() => setEditing(null)}
-          onChange={(e) => handleSegmentChange(e, "minutes")}
-          className="text-center"
-        />
-        <span>:</span>
-        <StyledInput
-          disabled={disabled || value === undefined}
-          readOnly={disabled || value === undefined}
-          type="text"
-          sizeVariant={size}
-          value={seconds}
+          value={
+            editing === "seconds" ? temporal.seconds : temporal.secondsDisplay
+          }
           onFocus={() => setEditing("seconds")}
           onBlur={() => setEditing(null)}
-          onChange={(e) => handleSegmentChange(e, "seconds")}
+          onChange={(e) => temporal.onChangeSeconds(e.target.value)}
           className="text-center"
         />
         <span>.</span>
@@ -142,10 +103,14 @@ export function TimeInput({
           readOnly={disabled || value === undefined}
           type="text"
           sizeVariant={size}
-          value={milliseconds}
+          value={
+            editing === "milliseconds"
+              ? temporal.milliseconds
+              : temporal.millisecondsDisplay
+          }
           onFocus={() => setEditing("milliseconds")}
           onBlur={() => setEditing(null)}
-          onChange={(e) => handleSegmentChange(e, "milliseconds")}
+          onChange={(e) => temporal.onChangeMilliseconds(e.target.value)}
           className="text-center"
         />
       </>
@@ -153,20 +118,16 @@ export function TimeInput({
   };
 
   const renderFramesInput = () => {
-    const { frames } = formatFrames(time);
-
     return (
       <StyledInput
         disabled={disabled || value === undefined}
         readOnly={disabled || value === undefined}
         type="text"
         sizeVariant={size}
-        value={frames}
+        value={editing === "frames" ? temporal.frames : temporal.framesDisplay}
         onFocus={() => setEditing("frames")}
         onBlur={() => setEditing(null)}
-        onChange={(e) =>
-          handleTimeChange((parseFloat(e.target.value) / framerate) * 1000)
-        }
+        onChange={(e) => temporal.onChangeFrames(e.target.value)}
         className="text-center"
       />
     );
@@ -179,10 +140,10 @@ export function TimeInput({
         editing !== null && "outline outline-1 outline-offset-2",
         getOutline(variant),
         heightLookup[size],
-        widthLookup[size],
+        widthLookup[display]?.[size] ?? "",
       )}
     >
-      {display === "seconds" ? renderTimeInput() : renderFramesInput()}
+      {display === TimeDisplay.Frames ? renderFramesInput() : renderTimeInput()}
     </div>
   );
 }

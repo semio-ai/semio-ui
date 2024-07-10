@@ -18,7 +18,7 @@ export const Primary: Story = {
   render: (props) => <TimeInput {...props} />,
   name: "Button",
   args: {
-    value: 0.5,
+    value: 500,
     // variant: Variant.PRIMARY,
     onChange: (): void => {
       // eslint-disable-next-line no-console -- log for demo
@@ -27,7 +27,7 @@ export const Primary: Story = {
     framerate: 24,
     size: "sm",
     variant: Variant.Primary,
-    display: TimeDisplay.Seconds,
+    display: TimeDisplay.SecondsPlusMilliseconds,
     disabled: false,
   },
 };
