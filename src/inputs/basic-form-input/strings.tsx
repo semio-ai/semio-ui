@@ -26,8 +26,11 @@ export function StringsInput({
         className="block text-lg"
       >
         {inputTitle}
-        {items?.map((tag, index) => (
-          <div key={index} className="inline-block mx-2 rounded-lg">
+      </Label>
+      <div className="flex flex-wrap border shadow w-full">
+      {items?.map((tag, index) => (
+        <div key={index} className="block mx-2 rounded-lg">
+          <div className="block" >
             {tag}{" "}
             <button
               type="button"
@@ -35,18 +38,19 @@ export function StringsInput({
               onClick={() => handleRemoveItem(tag)}
             >x</button>
           </div>
-        ))}
-      </Label>
+        </div>
+      ))}
       <Input
         value={inputValue}
         onChange={(e: ChangeEvent<HTMLInputElement>) =>
           setInputValue(e.target.value)
         }
         onKeyDown={handleKeyDown}
-        className="mt-1 block w-full rounded-md shadow dark:border border-slate-400 py-1 px-3 placeholder:font-thin
+        className="grow min-w-16 rounded-md shadow dark:border border-slate-400 py-1 px-3 placeholder:font-thin
           bg-inherit placeholder:text-inherit text-inherit"
         placeholder={inputPlaceholder}
       />
+        </div>
     </Field>
   );
 }

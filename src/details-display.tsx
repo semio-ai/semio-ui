@@ -4,7 +4,7 @@ export function DetailsDisplay({documentObject}: {documentObject: any}) {
     const orderedKeys = ["id", "name", "description", "tags", "published"];
   
     return (
-      <div className="w-64 p-1`">
+      <div className="w-full p-1`">
         <p className="text-base">Details:</p>
         <div className="w-full shadow m-1">
           <DocumentDetails doc={documentObject} order={orderedKeys} />

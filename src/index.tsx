@@ -26,6 +26,10 @@ export {
   type EmailInputProps,
 } from "./inputs/basic-form-input/email";
 export {
+  FileInput,
+  type FileInputProps,
+} from "./inputs/basic-form-input/file";
+export {
   EmailsInput,
   type EmailsInputProps,
 } from "./inputs/basic-form-input/emails";
