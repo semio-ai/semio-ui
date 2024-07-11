@@ -15,7 +15,7 @@ export function EmailsInput({
   fieldName="emails",
   onEmailsChange,
   inputTitle="",
-  inputPlaceholder="Type an eamil and press 'enter' to add it to the list."
+  inputPlaceholder="Type an email and press 'enter' to add it to the list."
 }: EmailsInputProps) {
 
   const {
