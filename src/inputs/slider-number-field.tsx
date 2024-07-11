@@ -49,7 +49,7 @@ const InputWrapper = forwardRef(
         ref={ref}
         {...forwardedProps}
         className={clsx(
-          "w-full touch-none p-0 overflow-hidden rounded-none transition-all",
+          "relative w-full touch-none p-0 overflow-hidden rounded-none transition-all",
           sizeVariant ? heightLookup[sizeVariant] : heightLookup.md,
           "outline outline-1 outline-offset-2",
         )}
@@ -75,7 +75,7 @@ export interface SliderNumberFieldProps {
   units?: string;
   color?: string;
   strict?: boolean;
-  size?: "sm" | "md" | "lg";
+  size?: "xs" | "sm" | "md" | "lg";
   inactive?: boolean;
   disabled?: boolean;
 }
@@ -123,6 +123,12 @@ function InnerSliderNumberField({
     min,
     max,
   });
+
+  // useEffect(() => {
+  //   if (sliderMode !== SliderMode.Manual) {
+  //     onChangeHeadless(value);
+  //   }
+  // }, [value, sliderMode, onChangeHeadless]);
 
   const bindings = useGesture(
     {
@@ -188,7 +194,7 @@ function InnerSliderNumberField({
         cursor={
           sliderMode === SliderMode.Manual ? "cursor-text" : "cursor-ew-resize"
         }
-        className="text-center"
+        className="text-center absolute"
         sizeVariant={size}
         value={textValue}
         onChange={onChangeInner}

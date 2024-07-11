@@ -1,4 +1,4 @@
-import { useState, useEffect, type ChangeEvent } from "react";
+import { useState, useEffect, useRef } from "react";
 import { clsx } from "clsx";
 import { TimeDisplay, Variant } from "../types";
 import { getOutline } from "../variant-colors";
@@ -229,10 +229,11 @@ function FramesInput({
     max,
   });
 
-  const [focused, setFocused] = useState(false);
+  // const [focused, setFocused] = useState(false);
+  const focusedRef = useRef(false);
 
   useEffect(() => {
-    if (!focused && value !== undefined) {
+    if (!focusedRef.current && value !== undefined) {
       onChangeHeadless(value || 0);
     }
   }, [value, onChangeHeadless]);
@@ -246,11 +247,11 @@ function FramesInput({
       sizeVariant={size}
       value={textValue}
       onFocus={() => {
-        setFocused(true);
+        focusedRef.current = true;
         onFocus && onFocus();
       }}
       onBlur={() => {
-        setFocused(false);
+        focusedRef.current = false;
         onBlurInner();
         onBlur && onBlur();
       }}

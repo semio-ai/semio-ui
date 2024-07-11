@@ -53,6 +53,7 @@ export {
   type SliderNumberFieldProps,
 } from "./inputs/slider-number-field";
 export { Dropzone, type DropzoneProps } from "./dropzone";
+export { ScrollArea } from "./scroll-area";
 export { Select, type SelectProps } from "./select";
 export { FormBase } from "./form-base";
 

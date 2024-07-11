@@ -12,12 +12,14 @@ interface InputProps {
 }
 
 export const heightLookup = {
+  xs: "h-5",
   sm: "h-7",
   md: "h-8",
   lg: "h-10",
 };
 
 export const fontSizeLookup = {
+  xs: "text-[0.6rem]",
   sm: "text-xs",
   md: "text-base",
   lg: "text-xl",
