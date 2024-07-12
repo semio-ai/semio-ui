@@ -48,6 +48,112 @@ export function getReversibleBgText(
   }
 }
 
+export function getItemSideStyle(variant?: Variant): string {
+  const all = clsx(
+    "dark:group-data-[highlighted]:text-black group-data-[highlighted]:text-white",
+    "group-data-[disabled]:text-neutral-500/50",
+  );
+  switch (variant) {
+    case Variant.Primary:
+      return clsx(all, "dark:text-primary-200/75 text-primary-800/75");
+    case Variant.Secondary:
+      return clsx(all, "dark:text-secondary-200/75 text-secondary-800/75");
+    case Variant.Tertiary:
+      return clsx(all, "dark:text-tertiary-200/75 text-tertiary-800/75");
+    case Variant.Error:
+      return clsx(all, "dark:text-error-400/75 text-error-600/75");
+    case Variant.Warning:
+      return clsx(all, "dark:text-warning-400/75 text-warning-600/75");
+    case Variant.Success:
+      return clsx(all, "dark:text-success-400/75 text-success-600/75");
+    case Variant.Info:
+      return clsx(all, "dark:text-info-200/75 text-info-800/75");
+    case Variant.Default:
+    default:
+      return clsx(all, "dark:text-default-200/75 text-default-800/75");
+  }
+}
+
+export function getItemStyle(variant?: Variant): string {
+  const all = clsx(
+    "cursor-pointer group dark:data-[highlighted]:text-black data-[highlighted]:text-white",
+    "data-[disabled]:text-neutral-500/50",
+  );
+  switch (variant) {
+    case Variant.Primary:
+      return clsx(
+        all,
+        "dark:text-primary-200/75 text-primary-800/75",
+        "dark:data-[highlighted]:bg-primary-200/50 data-[highlighted]:bg-primary-800/50",
+      );
+    case Variant.Secondary:
+      return clsx(
+        all,
+        "dark:text-secondary-200/75 text-secondary-800/75",
+        "dark:data-[highlighted]:bg-secondary-200/50 data-[highlighted]:bg-secondary-800/50",
+      );
+    case Variant.Tertiary:
+      return clsx(
+        all,
+        "dark:text-tertiary-200/75 text-tertiary-800/75",
+        "dark:data-[highlighted]:bg-tertiary-200/50 data-[highlighted]:bg-tertiary-800/50",
+      );
+    case Variant.Error:
+      return clsx(
+        all,
+        "dark:text-error-400/75 text-error-600/75",
+        "dark:data-[highlighted]:bg-error-400/50 data-[highlighted]:bg-error-600/50",
+      );
+    case Variant.Warning:
+      return clsx(
+        all,
+        "dark:text-warning-400/75 text-warning-600/75",
+        "dark:data-[highlighted]:bg-warning-400/50 data-[highlighted]:bg-warning-600/50",
+      );
+    case Variant.Success:
+      return clsx(
+        all,
+        "dark:text-success-400/75 text-success-600/75",
+        "dark:data-[highlighted]:bg-success-400/50 data-[highlighted]:bg-success-600/50",
+      );
+    case Variant.Info:
+      return clsx(
+        all,
+        "dark:text-info-200/75 text-info-800/75",
+        "dark:data-[highlighted]:bg-info-200/50 data-[highlighted]:bg-info-800/50",
+      );
+    case Variant.Default:
+    default:
+      return clsx(
+        all,
+        "dark:text-default-200/75 text-default-800/75",
+        "dark:data-[highlighted]:bg-default-200/50 data-[highlighted]:bg-default-800/50",
+      );
+  }
+}
+
+export function getSeparatorStyle(variant?: Variant): string {
+  switch (variant) {
+    case Variant.Primary:
+      return "dark:bg-primary-200/75 bg-primary-800/75";
+    case Variant.Secondary:
+      return "dark:bg-secondary-200/75 bg-secondary-800/75";
+    case Variant.Tertiary:
+      return "dark:bg-tertiary-200/75 bg-tertiary-800/75";
+    case Variant.Error:
+      return "dark:bg-error-400/75 bg-error-600/75";
+    case Variant.Warning:
+      return "dark:bg-warning-400/75 bg-warning-600/75";
+    case Variant.Success:
+      return "dark:bg-success-400/75 bg-success-600/75";
+    case Variant.Info:
+      return "dark:bg-info-200/75 bg-info-800/75";
+    case Variant.Default:
+    default:
+      return "dark:bg-default-200/75 bg-default-800/75";
+  }
+}
+
 export function getOutline(variant?: Variant): string {
   switch (variant) {
     case Variant.Primary:

@@ -1,52 +1,48 @@
 import * as DropdownPrimitive from "@radix-ui/react-dropdown-menu";
 import { clsx } from "clsx";
 import { ReactNode } from "react";
-import { Variant } from "./types";
+import { NestedParent, Variant } from "./types";
 import { getBasicTextColor, getBorder } from "./variant-colors";
+import { NestedParentProvider } from "./nested-elements/context";
 
 export interface DropdownProps {
-  title?: string;
   trigger: ReactNode;
-  content: ReactNode;
-  open?: boolean;
-  onStateChange?: (open: boolean) => void;
+  children: ReactNode;
   variant?: Variant;
 }
 
-function Dropdown({
-  title,
-  trigger,
-  content,
-  open,
-  onStateChange,
-  variant,
-}: DropdownProps) {
+function Dropdown({ trigger, children, variant }: DropdownProps) {
   return (
     <div className="relative inline-block text-left">
-      <DropdownPrimitive.Root open={open} onOpenChange={onStateChange} modal={false}>
-        <DropdownPrimitive.Trigger asChild>{trigger}</DropdownPrimitive.Trigger>
-        <DropdownPrimitive.Content
-          align="center"
-          sideOffset={4}
-          className={clsx(
-            "DropdownContent",
-            "w-48 p-4 shadow-md md:w-56",
-            // "bg-neutral-50/75 dark:bg-neutral-950/75 backdrop-blur-lg",
-            "border-t-2 border-solid",
-            // `border-${rootVariant[variant ?? Variant.WARNING]}-500`,
-            getBorder(variant),
-          )}
-        >
-          <DropdownPrimitive.Arrow
-            className={clsx("fill-current", getBasicTextColor(variant))}
-          />
-
-          <div className="flex justify-between">
-            <span>{title}</span>
-          </div>
-          {content}
-        </DropdownPrimitive.Content>
-      </DropdownPrimitive.Root>
+      <NestedParentProvider value={NestedParent.Dropdown}>
+        <DropdownPrimitive.Root>
+          <DropdownPrimitive.Trigger asChild className="select-none">
+            {trigger}
+          </DropdownPrimitive.Trigger>
+          <DropdownPrimitive.Portal>
+            <DropdownPrimitive.Content
+              align="center"
+              sideOffset={3}
+              className={clsx(
+                "will-change-[opacity,transform]",
+                "data-[side=top]:animate-slideDownAndFade",
+                "data-[side=right]:animate-slideLeftAndFade",
+                "data-[side=bottom]:animate-slideUpAndFade",
+                "data-[side=left]:animate-slideRightAndFade",
+                "min-w-[220px] p-[5px] shadow-md",
+                "bg-neutral-50/50 dark:bg-neutral-950/50 backdrop-blur-lg",
+                "border-t-2 border-solid",
+                getBorder(variant),
+              )}
+            >
+              <DropdownPrimitive.Arrow
+                className={clsx("fill-current", getBasicTextColor(variant))}
+              />
+              {children}
+            </DropdownPrimitive.Content>
+          </DropdownPrimitive.Portal>
+        </DropdownPrimitive.Root>
+      </NestedParentProvider>
     </div>
   );
 }
