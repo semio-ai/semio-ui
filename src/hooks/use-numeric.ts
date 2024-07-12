@@ -1,5 +1,5 @@
 import { useState, useCallback, type ChangeEvent } from "react";
-import { isNumber, isNaN, round } from "lodash";
+import { isNumber, isNaN } from "lodash";
 import { strip } from "number-precision";
 
 const VALID_CHARS = [

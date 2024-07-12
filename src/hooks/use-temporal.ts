@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { TimeDisplay } from "../types";
 import { clamp } from "lodash";
+import { TimeDisplay } from "../types";
 
 interface TemporalProps {
   ms?: number;
@@ -38,14 +38,12 @@ export const useTemporal = ({
   const [seconds, setSeconds] = useState<number>(0);
   const [milliseconds, setMilliseconds] = useState<number>(0);
   const [frames, setFrames] = useState<number>(0);
-  const [framesDisplay, setFramesDisplay] = useState<string>("0");
 
   // useEffect(() => {
   //   onValidChange(clamp(value, min, max));
   // }, [value, onValidChange, min, max]);
 
   useEffect(() => {
-    setFramesDisplay(frames.toFixed(2));
     setFrames(((ms || 0) / 1000) * framerate);
     setMilliseconds(Math.floor((ms || 0) % 1000));
     if (format === TimeDisplay.MinutesPlusSecondsPlusMilliseconds) {
@@ -98,7 +96,6 @@ export const useTemporal = ({
 
   const onChangeFrames = (v: string) => {
     const newFrames = parseInt(v);
-    setFramesDisplay(v);
     if (!isNaN(newFrames)) {
       const newValue = clamp((newFrames / framerate) * 1000, min, max);
       onValidChange(newValue);
