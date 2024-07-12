@@ -2,6 +2,7 @@ import {
   memo,
   useRef,
   useState,
+  useEffect,
   type ReactNode,
   type HTMLAttributes,
   forwardRef,
@@ -116,6 +117,7 @@ function InnerSliderNumberField({
     textValue,
     onChange: onChangeInner,
     onChangeDirect,
+    onChangeHeadless,
     onBlur,
   } = useNumeric({
     initial: value,
@@ -124,11 +126,11 @@ function InnerSliderNumberField({
     max,
   });
 
-  // useEffect(() => {
-  //   if (sliderMode !== SliderMode.Manual) {
-  //     onChangeHeadless(value);
-  //   }
-  // }, [value, sliderMode, onChangeHeadless]);
+  useEffect(() => {
+    if (sliderMode !== SliderMode.Manual) {
+      onChangeHeadless(value);
+    }
+  }, [value, sliderMode, onChangeHeadless]);
 
   const bindings = useGesture(
     {
