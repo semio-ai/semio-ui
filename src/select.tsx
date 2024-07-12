@@ -7,8 +7,6 @@ import {
 import { IconCheck, IconChevronDown } from "@tabler/icons-react";
 import { clsx } from "clsx";
 import { Variant } from "./types";
-import { TextButton } from "./buttons/text-button";
-import { useState } from "react";
 import { getHoverButtonStyles } from "./variant-colors";
 
 export interface SelectProps {
@@ -19,8 +17,6 @@ export interface SelectProps {
 }
 
 export function Select({ value, onChange, options, variant }: SelectProps) {
-  const [open, setOpen] = useState(false);
-
   return (
     <Listbox value={value} onChange={onChange}>
       <ListboxButton

@@ -21,7 +21,7 @@ export function Sidebar({ children, sidebar }: SidebarProps) {
         sidebar !== null ? "w-52" : "w-0",
       )}
     >
-      {children.map((child, index) => (
+      {children.map((child) => (
         <Transition
           key={child.key}
           show={sidebar === child.key}
