@@ -30,7 +30,7 @@ export function Collapse({
       <Collapsible.Trigger
         className={clsx(
           "dark:bg-black bg-white flex items-center w-full",
-          "justify-between p-4 cursor-pointer",
+          "justify-between cursor-pointer",
           disabled
             ? "dark:text-neutral-400 text-neutral-600"
             : "dark:text-white text-black",

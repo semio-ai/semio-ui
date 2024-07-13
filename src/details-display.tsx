@@ -1,14 +1,21 @@
+import { useState } from "react";
+import { Collapse } from "./collapse";
 
-
-export function DetailsDisplay({documentObject}: {documentObject: any}) {
-    const orderedKeys = ["id", "name", "description", "tags", "published"];
-  
+export function DetailsDisplay({documentObject, title}: {documentObject: any, title?: string}) {
+    const orderedKeys = ["id", "name", "description", "tags", "published", "version"];
+    const [open, setOpen] = useState(false);
     return (
       <div className="w-full p-1`">
-        <p className="text-base">Details:</p>
+        <Collapse 
+          open={open}
+          onStateChange={setOpen}
+          direction="vertical"
+          title={title ?? "Show Details:" }
+        >
         <div className="w-full shadow m-1">
           <DocumentDetails doc={documentObject} order={orderedKeys} />
         </div>
+        </Collapse>
       </div>
     )
 }
