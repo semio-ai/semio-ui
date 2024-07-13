@@ -2,7 +2,7 @@ import { DropdownMenuSeparator } from "@radix-ui/react-dropdown-menu";
 import { ContextMenuSeparator } from "@radix-ui/react-context-menu";
 import { clsx } from "clsx";
 import { NestedParent, Variant } from "../types";
-import { getSeparatorStyle } from "../variant-colors";
+import { getSeparatorStyle } from "../style-functions";
 import { useNestedParent } from "./context";
 
 export interface NestedSeparatorProps {

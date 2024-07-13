@@ -1,5 +1,3 @@
-import { type ReactNode } from "react";
-
 export enum Theme {
   Light = "light",
   Dark = "dark",

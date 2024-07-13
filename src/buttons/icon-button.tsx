@@ -1,7 +1,7 @@
 import { clsx } from "clsx";
 import { ReactNode } from "react";
-import { Variant } from "../types";
-import { getHoverTextStyles } from "../variant-colors";
+import { Variant, Size } from "../types";
+import { getFontSize, getHeight, getHoverTextStyles } from "../style-functions";
 
 export interface IconButtonProps
   extends React.HTMLAttributes<HTMLButtonElement> {
@@ -21,19 +21,27 @@ export interface IconButtonProps
    * Optional variant to apply to the button
    */
   variant?: Variant;
+  size?: Size;
 }
 export function IconButton({
   children,
   disabled,
   onClick,
   variant,
+  size,
   ...props
 }: IconButtonProps) {
   return (
     <button
       type="button"
       {...props}
-      className={clsx("transition-colors", getHoverTextStyles(variant), "p-2")}
+      className={clsx(
+        "transition-colors",
+        getHoverTextStyles(variant),
+        "place-items-center m-2",
+        getHeight(size),
+        getFontSize(size),
+      )}
       disabled={disabled}
       onClick={onClick}
     >

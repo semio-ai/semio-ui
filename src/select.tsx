@@ -7,7 +7,7 @@ import {
 import { IconCheck, IconChevronDown } from "@tabler/icons-react";
 import { clsx } from "clsx";
 import { Variant } from "./types";
-import { getHoverButtonStyles } from "./variant-colors";
+import { getHoverButtonStyles } from "./style-functions";
 
 export interface SelectProps {
   variant?: Variant;

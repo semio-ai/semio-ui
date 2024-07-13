@@ -1,10 +1,10 @@
 import { useState, useEffect, useRef } from "react";
 import { clsx } from "clsx";
-import { TimeDisplay, Variant } from "../types";
-import { getOutline } from "../variant-colors";
+import { Size, TimeDisplay, Variant } from "../types";
+import { getHeight, getOutline } from "../style-functions";
 import { useTemporal } from "../hooks/use-temporal";
 import { useNumeric } from "../hooks/use-numeric";
-import { StyledInput, heightLookup } from "./styled-input";
+import { StyledInput } from "./styled-input";
 
 export interface TimeInputProps
   extends Omit<React.HTMLAttributes<HTMLInputElement>, "onChange"> {
@@ -16,23 +16,26 @@ export interface TimeInputProps
   min?: number;
   max?: number;
   variant: Variant;
-  size?: "sm" | "md" | "lg";
+  size?: Size;
 }
 
-function getWidth(length: number, size: "sm" | "md" | "lg"): string {
+function getWidth(length: number, size: Size): string {
   if (length === 2) {
-    if (size === "sm") return "w-7";
-    if (size === "md") return "w-8";
-    if (size === "lg") return "w-10";
+    if (size === Size.Xs) return "w-6";
+    if (size === Size.Sm) return "w-7";
+    if (size === Size.Md) return "w-8";
+    if (size === Size.Lg) return "w-10";
   }
   if (length === 3) {
-    if (size === "sm") return "w-8";
-    if (size === "md") return "w-10";
-    if (size === "lg") return "w-12";
+    if (size === Size.Xs) return "w-8";
+    if (size === Size.Sm) return "w-8";
+    if (size === Size.Md) return "w-10";
+    if (size === Size.Lg) return "w-12";
   }
-  if (size === "sm") return "w-[60px]";
-  if (size === "md") return "w-[80px]";
-  if (size === "lg") return "w-[100px]";
+  if (size === Size.Xs) return "w-[55px]";
+  if (size === Size.Sm) return "w-[60px]";
+  if (size === Size.Md) return "w-[80px]";
+  if (size === Size.Lg) return "w-[100px]";
   return "";
 }
 
@@ -43,7 +46,7 @@ export function TimeInput({
   display = TimeDisplay.SecondsPlusMilliseconds,
   disabled,
   variant = Variant.Default,
-  size = "md",
+  size = Size.Md,
   min = 0,
   max = Infinity,
 }: TimeInputProps) {
@@ -75,7 +78,7 @@ export function TimeInput({
               disabled={actionPrevented}
               readOnly={actionPrevented}
               type="text"
-              sizeVariant={size}
+              size={size}
               value={
                 editing === "minutes"
                   ? temporal.minutes
@@ -100,7 +103,7 @@ export function TimeInput({
           disabled={actionPrevented}
           readOnly={actionPrevented}
           type="text"
-          sizeVariant={size}
+          size={size}
           value={
             editing === "seconds" ? temporal.seconds : temporal.secondsDisplay
           }
@@ -127,7 +130,7 @@ export function TimeInput({
           disabled={actionPrevented}
           readOnly={actionPrevented}
           type="text"
-          sizeVariant={size}
+          size={size}
           value={
             editing === "milliseconds"
               ? temporal.milliseconds
@@ -173,7 +176,7 @@ export function TimeInput({
         "flex items-baseline dark:bg-neutral-950/20 bg-neutral-50/20",
         editing !== null && "outline outline-1 outline-offset-2",
         getOutline(variant),
-        heightLookup[size],
+        getHeight(size),
         // widthLookup[display]?.[size] ?? "",
         "w-fit",
       )}
@@ -200,7 +203,7 @@ interface FramesInputProps {
   value: number | undefined;
   onChange: (value: number) => void;
   disabled?: boolean;
-  size?: "sm" | "md" | "lg";
+  size?: Size;
   onBlur?: () => void;
   onFocus?: () => void;
   min?: number;
@@ -213,7 +216,7 @@ function FramesInput({
   disabled,
   onBlur,
   onFocus,
-  size = "md",
+  size = Size.Md,
   min = 0,
   max = Infinity,
 }: FramesInputProps) {
@@ -244,7 +247,7 @@ function FramesInput({
       disabled={disabled}
       readOnly={disabled}
       type="text"
-      sizeVariant={size}
+      size={size}
       value={textValue}
       onFocus={() => {
         focusedRef.current = true;

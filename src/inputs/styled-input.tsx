@@ -1,42 +1,26 @@
 import { type InputHTMLAttributes } from "react";
 import { clsx } from "clsx";
+import { getHeight, getFontSize } from "../style-functions";
+import { Size } from "../types";
 
 interface InputProps {
-  sizeVariant: keyof typeof heightLookup;
+  size: Size;
   focused?: boolean;
-  inactive?: boolean;
   cursor?: string;
   bold?: boolean;
   className?: string;
   flex?: boolean;
 }
 
-export const heightLookup = {
-  xs: "h-5",
-  sm: "h-7",
-  md: "h-8",
-  lg: "h-10",
-};
-
-export const fontSizeLookup = {
-  xs: "text-[0.6rem]",
-  sm: "text-xs",
-  md: "text-base",
-  lg: "text-xl",
-};
-
-export function StyledInput(
-  props: InputProps & InputHTMLAttributes<HTMLInputElement>,
-) {
-  const {
-    bold,
-    sizeVariant,
-    disabled,
-    cursor,
-    className,
-    flex = true,
-    ...forwardedProps
-  } = props;
+export function StyledInput({
+  size = Size.Md,
+  disabled,
+  cursor,
+  className,
+  flex = true,
+  bold,
+  ...forwardedProps
+}: InputProps & Omit<InputHTMLAttributes<HTMLInputElement>, "size">) {
   return (
     <input
       {...forwardedProps}
@@ -46,8 +30,8 @@ export function StyledInput(
         flex && "w-full",
         "dark:text-white text-black",
         bold ? "select-text font-bold" : "select-none font-normal",
-        sizeVariant ? heightLookup[sizeVariant] : heightLookup.md,
-        sizeVariant ? fontSizeLookup[sizeVariant] : fontSizeLookup.md,
+        getHeight(size),
+        getFontSize(size),
         disabled ? "cursor-not-allowed" : cursor ?? "cursor-text",
         className,
       )}

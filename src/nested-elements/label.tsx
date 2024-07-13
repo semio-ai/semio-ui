@@ -2,16 +2,14 @@ import { type ReactNode } from "react";
 import { DropdownMenuLabel } from "@radix-ui/react-dropdown-menu";
 import { ContextMenuLabel } from "@radix-ui/react-context-menu";
 import { clsx } from "clsx";
-import { NestedParent, Variant } from "../types";
-import { getItemSideStyle } from "../variant-colors";
+import { NestedParent } from "../types";
 import { useNestedParent } from "./context";
 
 export interface NestedLabelProps {
-  variant?: Variant;
   children: ReactNode;
 }
 
-export function NestedLabel({ variant, children }: NestedLabelProps) {
+export function NestedLabel({ children }: NestedLabelProps) {
   const parent = useNestedParent();
 
   const ItemComponent =

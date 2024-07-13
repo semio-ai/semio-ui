@@ -2,7 +2,7 @@ import * as ContextMenuPrimitive from "@radix-ui/react-context-menu";
 import { clsx } from "clsx";
 import { ReactNode } from "react";
 import { NestedParent, Variant } from "./types";
-import { getBasicTextColor, getBorder } from "./variant-colors";
+import { getBasicTextColor, getBorder } from "./style-functions";
 import { NestedParentProvider } from "./nested-elements/context";
 
 export interface ContextMenuProps {

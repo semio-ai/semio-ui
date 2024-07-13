@@ -11,7 +11,7 @@ import {
 import { IconPointFilled } from "@tabler/icons-react";
 import { clsx } from "clsx";
 import { NestedParent, Variant } from "../types";
-import { getItemSideStyle, getItemStyle } from "../variant-colors";
+import { getItemSideStyle, getItemStyle } from "../style-functions";
 import { useNestedParent } from "./context";
 
 export interface NestedRadioProps {

@@ -1,12 +1,12 @@
 import { MouseEventHandler, ReactNode } from "react";
 import { clsx } from "clsx";
 import { Variant } from "../types";
-import { getReversibleBgText } from "../variant-colors";
+import { getReversibleBgText } from "../style-functions";
 
 export interface MenuButtonProps {
   children: ReactNode;
   variant: Variant;
-  onClick: MouseEventHandler;
+  onClick?: MouseEventHandler;
   active?: boolean;
 }
 

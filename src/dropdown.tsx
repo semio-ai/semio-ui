@@ -2,7 +2,7 @@ import * as DropdownPrimitive from "@radix-ui/react-dropdown-menu";
 import { clsx } from "clsx";
 import { ReactNode } from "react";
 import { NestedParent, Variant } from "./types";
-import { getBasicTextColor, getBorder } from "./variant-colors";
+import { getBasicTextColor, getBorder } from "./style-functions";
 import { NestedParentProvider } from "./nested-elements/context";
 
 export interface DropdownProps {
@@ -31,7 +31,10 @@ function Dropdown({ trigger, children, variant }: DropdownProps) {
                 "data-[side=left]:animate-slideRightAndFade",
                 "min-w-[220px] p-[5px] shadow-md",
                 "bg-neutral-50/50 dark:bg-neutral-950/50 backdrop-blur-lg",
-                "border-t-2 border-solid",
+                "data-[side=bottom]:border-t-2 border-solid",
+                "data-[side=top]:border-b-2 border-solid",
+                "data-[side=right]:border-l-2 border-solid",
+                "data-[side=left]:border-r-2 border-solid",
                 getBorder(variant),
               )}
             >

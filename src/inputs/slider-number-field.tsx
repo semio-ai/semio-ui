@@ -13,14 +13,16 @@ import { alpha } from "@semio/utils";
 import { clsx } from "clsx";
 import { useGesture } from "@use-gesture/react";
 import { useNumeric } from "../hooks/use-numeric";
-import { StyledInput, heightLookup } from "./styled-input";
+import { Size } from "../types";
+import { StyledInput } from "./styled-input";
+import { getHeight } from "../style-functions";
 
 enableBoundaryChecking(false);
 
 interface InputProps {
   percent?: number;
   color: string;
-  sizeVariant: keyof typeof heightLookup;
+  size: Size;
   focused?: boolean;
   inactive?: boolean;
 }
@@ -37,7 +39,7 @@ const InputWrapper = forwardRef(
     ref: ForwardedRef<HTMLDivElement>,
   ) => {
     const {
-      sizeVariant,
+      size,
       color,
       percent,
       inactive,
@@ -51,7 +53,7 @@ const InputWrapper = forwardRef(
         {...forwardedProps}
         className={clsx(
           "relative w-full touch-none p-0 overflow-hidden rounded-none transition-all",
-          sizeVariant ? heightLookup[sizeVariant] : heightLookup.md,
+          getHeight(size),
           "outline outline-1 outline-offset-2",
         )}
         // Tailwind does not support truly dynamic styles, so we have to use inline styles here
@@ -76,7 +78,7 @@ export interface SliderNumberFieldProps {
   units?: string;
   color?: string;
   strict?: boolean;
-  size?: "xs" | "sm" | "md" | "lg";
+  size?: Size;
   inactive?: boolean;
   disabled?: boolean;
 }
@@ -101,7 +103,7 @@ function InnerSliderNumberField({
   units,
   color,
   strict,
-  size = "md",
+  size = Size.Md,
   inactive,
   disabled,
 }: SliderNumberFieldProps): ReactNode {
@@ -181,14 +183,13 @@ function InnerSliderNumberField({
       ref={boundsRef}
       {...bindings()}
       color={sliderColor}
-      sizeVariant={size}
+      size={size}
       inactive={inactive || disabled}
       percent={(value - min) / (max - min)}
       focused={sliderMode !== SliderMode.Blurred || dragging}
     >
       <StyledInput
         readOnly={inactive || sliderMode !== SliderMode.Manual}
-        inactive={inactive || disabled}
         disabled={disabled}
         type="text"
         color={sliderColor}
@@ -197,7 +198,7 @@ function InnerSliderNumberField({
           sliderMode === SliderMode.Manual ? "cursor-text" : "cursor-ew-resize"
         }
         className="text-center absolute"
-        sizeVariant={size}
+        size={size}
         value={textValue}
         onChange={onChangeInner}
         onKeyDown={(e) => {

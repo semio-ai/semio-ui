@@ -6,7 +6,7 @@ import {
   getBasicTextColor,
   getCheckedBgStyles,
   getHoverButtonStyles,
-} from "../variant-colors";
+} from "../style-functions";
 
 export interface SwitchProps {
   value: boolean;

@@ -1,5 +1,35 @@
 import { clsx } from "clsx";
-import { Variant } from "./types";
+import { Size, Variant } from "./types";
+
+export function getHeight(size?: Size): string {
+  switch (size) {
+    case Size.Xs:
+      return "h-5";
+    case Size.Sm:
+      return "h-7";
+    case Size.Md:
+      return "h-8";
+    case Size.Lg:
+      return "h-10";
+    default:
+      return "h-8";
+  }
+}
+
+export function getFontSize(size?: Size): string {
+  switch (size) {
+    case Size.Xs:
+      return "text-[0.6rem]";
+    case Size.Sm:
+      return "text-xs";
+    case Size.Md:
+      return "text-base";
+    case Size.Lg:
+      return "text-xl";
+    default:
+      return "text-base";
+  }
+}
 
 export function getBorder(variant?: Variant): string {
   switch (variant) {

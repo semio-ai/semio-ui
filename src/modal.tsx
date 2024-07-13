@@ -10,7 +10,7 @@ import {
 import { clsx } from "clsx";
 import { IconX } from "@tabler/icons-react";
 import { Variant } from "./types";
-import { getBorder, getHoverButtonStyles } from "./variant-colors";
+import { getBorder, getHoverButtonStyles } from "./style-functions";
 
 export interface ModalProps {
   children: ReactNode;

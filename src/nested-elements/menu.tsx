@@ -14,7 +14,7 @@ import {
 import { IconChevronRight } from "@tabler/icons-react";
 import { clsx } from "clsx";
 import { NestedParent, Variant } from "../types";
-import { getItemSideStyle, getItemStyle, getBorder } from "../variant-colors";
+import { getItemSideStyle, getItemStyle, getBorder } from "../style-functions";
 import { useNestedParent } from "./context";
 
 export interface NestedMenuProps {

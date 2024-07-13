@@ -1,7 +1,11 @@
 import { MouseEventHandler, type ReactNode } from "react";
 import { clsx } from "clsx";
-import { Variant } from "../types";
-import { getHoverButtonStyles } from "../variant-colors";
+import { Variant, Size } from "../types";
+import {
+  getFontSize,
+  getHeight,
+  getHoverButtonStyles,
+} from "../style-functions";
 
 export interface TextButtonProps
   extends React.HTMLAttributes<HTMLButtonElement> {
@@ -29,6 +33,7 @@ export interface TextButtonProps
    * Optional right icon to add to the button
    */
   rightIcon?: ReactNode;
+  size?: Size;
 }
 export function TextButton({
   children,
@@ -37,6 +42,7 @@ export function TextButton({
   variant,
   leftIcon,
   rightIcon,
+  size,
   ...props
 }: TextButtonProps) {
   return (
@@ -48,6 +54,8 @@ export function TextButton({
         "dark:text-white text-black",
         getHoverButtonStyles(variant),
         "pt-2 pb-2 pr-4 pl-4 flex items-center m-1",
+        getFontSize(size),
+        getHeight(size),
       )}
       disabled={disabled}
       onClick={onClick ?? ((_e) => {})}

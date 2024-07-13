@@ -2,7 +2,7 @@ import * as PopoverPrimitive from "@radix-ui/react-popover";
 import { clsx } from "clsx";
 import { ReactNode } from "react";
 import { Variant } from "./types";
-import { getBasicTextColor, getBorder } from "./variant-colors";
+import { getBasicTextColor, getBorder } from "./style-functions";
 
 export interface PopoverProps {
   title?: string;
