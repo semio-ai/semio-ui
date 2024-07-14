@@ -39,7 +39,7 @@ function InnerTextField({
       <StyledInput
         {...forwardedProps}
         cursor="cursor-text"
-        className="text-left absolute"
+        className="text-left absolute focus:placeholder-transparent"
         size={size}
         onChange={onChange ? (e) => onChange(e.target.value) : () => {}}
         onFocus={(e) => {

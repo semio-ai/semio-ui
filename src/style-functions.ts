@@ -48,6 +48,7 @@ export function getBorder(variant?: Variant): string {
     case Variant.Info:
       return "border-info-500";
     case Variant.Default:
+      return "border-default-500";
     default:
       return "dark:border-default-700 border-default-300";
   }

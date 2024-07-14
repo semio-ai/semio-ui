@@ -36,7 +36,8 @@ export function IconButton({
       type="button"
       {...props}
       className={clsx(
-        "transition-colors",
+        "transition-all",
+        // "hover:scale-[101%]",
         getHoverTextStyles(variant),
         "place-items-center m-2",
         getHeight(size),
