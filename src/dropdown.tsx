@@ -38,9 +38,7 @@ function Dropdown({ trigger, children, variant }: DropdownProps) {
                 getBorder(variant),
               )}
             >
-              <DropdownPrimitive.Arrow
-                className={clsx("fill-current", getBasicTextColor(variant))}
-              />
+              <DropdownPrimitive.Arrow />
               {children}
             </DropdownPrimitive.Content>
           </DropdownPrimitive.Portal>
