@@ -2,7 +2,7 @@ import * as DropdownPrimitive from "@radix-ui/react-dropdown-menu";
 import { clsx } from "clsx";
 import { ReactNode } from "react";
 import { NestedParent, Variant } from "./types";
-import { getBasicTextColor, getBorder } from "./style-functions";
+import { getBorder } from "./style-functions";
 import { NestedParentProvider } from "./nested-elements/context";
 
 export interface DropdownProps {

@@ -33,6 +33,7 @@ export function ImageButton({
   return (
     <div>
       <button
+        type="button"
         className="p-0 border-none bg-none cursor-pointer focus:outline-none"
         onClick={onClick}
         onMouseEnter={handleMouseEnter}
@@ -42,9 +43,7 @@ export function ImageButton({
         <img
           src={imageUrl}
           alt={altText}
-          className={
-            "transition duration-300 rounded-full ease-in-out transform hover:border-2 hover:border-black"
-          }
+          className="transition duration-300 rounded-full ease-in-out transform hover:border-2 hover:border-black"
           style={dimensions}
         />
       </button>

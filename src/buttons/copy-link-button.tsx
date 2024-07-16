@@ -1,14 +1,13 @@
 import React, { useState } from "react";
 
-export const CopyLinkButton: React.FC<{ link: string }> = ({ link }) => {
+export function CopyLinkButton({ link }: { link: string }) {
   const [copied, setCopied] = useState(false);
 
-  const handleCopy = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleCopy = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    navigator.clipboard.writeText(link).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000); // Reset the copied state after 2 seconds
-    });
+    await navigator.clipboard.writeText(link);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000); // Reset the copied state after 2 seconds
   };
 
   return (
@@ -16,11 +15,14 @@ export const CopyLinkButton: React.FC<{ link: string }> = ({ link }) => {
       <h1 className="">Public Link:</h1>
       <p className="text-sm text-blue-500 truncate max-w-full">{link}</p>
       <button
-        onClick={handleCopy}
+        type="button"
+        onClick={(e) => {
+          void handleCopy(e);
+        }}
         className={`px-3 py-1 border rounded ${copied ? "bg-green-500 text-white" : "bg-gray-200 text-gray-800 hover:bg-gray-300"}`}
       >
         {copied ? "Copied!" : "Copy Link"}
       </button>
     </div>
   );
-};
+}

@@ -13,7 +13,7 @@ export function Progress({ progress, color }: ProgressProps) {
       value={progress}
     >
       <RadixProgress.Indicator
-        style={{ width: `${progress}%` }}
+        style={{ width: `${progress.toString()}%` }}
         className={`${progressColor} h-full duration-300 ease-in-out`}
       />
     </RadixProgress.Root>

@@ -31,7 +31,6 @@ export { NestedSelect, type NestedSelectProps } from "./nested-elements/select";
 export { NestedMenu, type NestedMenuProps } from "./nested-elements/menu";
 export { NestedLabel, type NestedLabelProps } from "./nested-elements/label";
 export { Tooltip, type TooltipProps } from "./tooltip";
-export { DetailsDisplay } from "./details-display";
 export {
   EmailInput,
   type EmailInputProps,

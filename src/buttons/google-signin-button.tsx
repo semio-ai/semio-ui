@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, ButtonProps } from "../button";
+import { Button } from "../button";
 
 interface GoogleSignInButtonProps {
   useGoogleSignIn: () => void;

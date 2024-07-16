@@ -206,13 +206,13 @@ export const useImageInput = (
   onChange: (file: File | null) => void,
   projectImageUrl?: string,
 ) => {
-  const [localImageURL, setLocalImage] = useState<string | null>(
+  const [localImageURL, setLocalImageURL] = useState<string | null>(
     projectImageUrl ?? null,
   );
 
   useEffect(() => {
     // console.log("(useImageInput)Project Image URL changed:", projectImageUrl);
-    setLocalImage(projectImageUrl ?? null);
+    setLocalImageURL(projectImageUrl ?? null);
   }, [projectImageUrl]);
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -222,16 +222,16 @@ export const useImageInput = (
       onChange(file);
       const reader = new FileReader();
       reader.onloadend = () => {
-        setLocalImage(reader.result as string);
+        setLocalImageURL(reader.result as string);
       };
       reader.readAsDataURL(file);
     } else {
-      setLocalImage(null);
+      setLocalImageURL(null);
     }
   };
 
   const handleRemove = () => {
-    setLocalImage("");
+    setLocalImageURL("");
     onChange(null);
   };
 

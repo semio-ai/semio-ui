@@ -14,8 +14,8 @@ import { clsx } from "clsx";
 import { useGesture } from "@use-gesture/react";
 import { useNumeric } from "../hooks/use-numeric";
 import { Size } from "../types";
-import { StyledInput } from "./styled-input";
 import { getHeight } from "../style-functions";
+import { StyledInput } from "./styled-input";
 
 enableBoundaryChecking(false);
 

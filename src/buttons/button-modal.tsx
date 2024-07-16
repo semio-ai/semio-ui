@@ -1,7 +1,3 @@
-import { ReactNode, useState, type MouseEvent } from "react";
-import { Modal } from "../modal";
-import { Button } from "../button";
-
 export interface ButtonModalProps {
   titleText: string;
   onClick: () => void;
