@@ -39,7 +39,7 @@ export function IconButton({
         "transition-all",
         // "hover:scale-[101%]",
         getHoverTextStyles(variant),
-        "place-items-center m-2",
+        "place-items-center",
         getHeight(size),
         getFontSize(size),
       )}
