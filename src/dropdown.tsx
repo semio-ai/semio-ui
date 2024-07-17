@@ -2,7 +2,7 @@ import * as DropdownPrimitive from "@radix-ui/react-dropdown-menu";
 import { clsx } from "clsx";
 import { ReactNode } from "react";
 import { NestedParent, Variant } from "./types";
-import { getBorder } from "./style-functions";
+import { getBorder, getBasicTextColor } from "./style-functions";
 import { NestedParentProvider } from "./nested-elements/context";
 
 export interface DropdownProps {
@@ -38,7 +38,9 @@ function Dropdown({ trigger, children, variant }: DropdownProps) {
                 getBorder(variant),
               )}
             >
-              <DropdownPrimitive.Arrow />
+              <DropdownPrimitive.Arrow
+                className={clsx("fill-current", getBasicTextColor(variant))}
+              />
               {children}
             </DropdownPrimitive.Content>
           </DropdownPrimitive.Portal>

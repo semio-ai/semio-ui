@@ -30,7 +30,15 @@ export { NestedRadio, type NestedRadioProps } from "./nested-elements/radio";
 export { NestedSelect, type NestedSelectProps } from "./nested-elements/select";
 export { NestedMenu, type NestedMenuProps } from "./nested-elements/menu";
 export { NestedLabel, type NestedLabelProps } from "./nested-elements/label";
+export {
+  NestedColorPicker,
+  type NestedColorPickerProps,
+} from "./nested-elements/color-picker";
 export { Tooltip, type TooltipProps } from "./tooltip";
+export {
+  ColorPickerInput,
+  type ColorPickerInputProps,
+} from "./inputs/color-picker-input";
 export {
   EmailInput,
   type EmailInputProps,
