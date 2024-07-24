@@ -8,6 +8,7 @@ export interface TextFieldProps {
   onChange?: (value: string) => void;
   variant?: Variant;
   size?: Size;
+  bg?: boolean;
 }
 
 /*
@@ -21,6 +22,7 @@ function InnerTextField({
   size = Size.Md,
   onChange,
   variant,
+  bg = false,
   ...forwardedProps
 }: TextFieldProps &
   Omit<InputHTMLAttributes<HTMLInputElement>, "size" | "onChange">): ReactNode {
@@ -29,7 +31,8 @@ function InnerTextField({
   return (
     <div
       className={clsx(
-        "relative flex items-baseline dark:bg-neutral-950/20 bg-neutral-50/20",
+        bg && "dark:bg-neutral-950/20 bg-neutral-50/20",
+        "relative flex items-baseline",
         focused && "outline outline-1 outline-offset-2",
         getOutline(variant),
         getHeight(size),
