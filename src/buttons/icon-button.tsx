@@ -42,6 +42,7 @@ export function IconButton({
         "place-items-center",
         getHeight(size),
         getFontSize(size),
+        props.className ?? "",
       )}
       disabled={disabled}
       onClick={onClick}

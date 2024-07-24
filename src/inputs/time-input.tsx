@@ -17,6 +17,7 @@ export interface TimeInputProps
   max?: number;
   variant: Variant;
   size?: Size;
+  bg?: boolean;
 }
 
 function getWidth(length: number, size: Size): string {
@@ -49,6 +50,7 @@ export function TimeInput({
   size = Size.Md,
   min = 0,
   max = Infinity,
+  bg = false,
 }: TimeInputProps) {
   const [editing, setEditing] = useState<
     "minutes" | "seconds" | "milliseconds" | "frames" | null
@@ -173,7 +175,8 @@ export function TimeInput({
   return (
     <div
       className={clsx(
-        "flex items-baseline dark:bg-neutral-950/20 bg-neutral-50/20",
+        bg && "dark:bg-neutral-950/20 bg-neutral-50/20",
+        "flex items-baseline",
         editing !== null && "outline outline-1 outline-offset-2",
         getOutline(variant),
         getHeight(size),

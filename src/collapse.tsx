@@ -10,6 +10,7 @@ export interface CollapseProps {
   open?: boolean;
   direction?: "vertical" | "horizontal";
   disabled?: boolean;
+  side?: "left" | "right";
 }
 
 export function Collapse({
@@ -19,6 +20,7 @@ export function Collapse({
   children,
   direction,
   disabled,
+  side = "right",
 }: CollapseProps): ReactNode {
   return (
     <Collapsible.Root
@@ -36,7 +38,7 @@ export function Collapse({
             : "dark:text-white text-black",
         )}
       >
-        {title}
+        {side === "right" && title}
         {direction === "horizontal" ? (
           <IconChevronLeft
             className={clsx(
@@ -52,6 +54,7 @@ export function Collapse({
             )}
           />
         )}
+        {side === "left" && title}
       </Collapsible.Trigger>
 
       <Collapsible.Content

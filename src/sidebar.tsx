@@ -18,7 +18,7 @@ export function Sidebar({ children, sidebar }: SidebarProps) {
     <div
       className={clsx(
         "dark:bg-neutral-900 bg-neutral-100 transition-all duration-150 h-full flex-shrink-0 overflow-x-hidden overflow-auto",
-        sidebar !== null ? "w-52" : "w-0",
+        sidebar !== null ? "w-fit" : "w-0",
       )}
     >
       {children.map((child) => (
@@ -30,7 +30,7 @@ export function Sidebar({ children, sidebar }: SidebarProps) {
           <div
             className={clsx(
               // Base styles
-              "block w-52 h-full transition-all ease-in-out",
+              "block w-fit h-full transition-all ease-in-out",
               // Shared closed styles
               "data-[closed]:opacity-0",
               // Duration

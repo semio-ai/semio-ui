@@ -14,7 +14,7 @@ import { clsx } from "clsx";
 import { useGesture } from "@use-gesture/react";
 import { useNumeric } from "../hooks/use-numeric";
 import { Size } from "../types";
-import { getHeight } from "../style-functions";
+import { getHeight, getFontSize } from "../style-functions";
 import { StyledInput } from "./styled-input";
 
 enableBoundaryChecking(false);
@@ -31,6 +31,7 @@ enum SliderMode {
   Drag,
   Manual,
   Blurred,
+  Label,
 }
 
 const InputWrapper = forwardRef(
@@ -52,7 +53,7 @@ const InputWrapper = forwardRef(
         ref={ref}
         {...forwardedProps}
         className={clsx(
-          "relative w-full touch-none p-0 overflow-hidden rounded-none transition-all",
+          "relative flex flex-row w-full touch-none p-0 overflow-hidden rounded-none transition-all",
           getHeight(size),
           "outline outline-1 outline-offset-2",
         )}
@@ -81,6 +82,8 @@ export interface SliderNumberFieldProps {
   size?: Size;
   inactive?: boolean;
   disabled?: boolean;
+  label?: string;
+  onLabelChange?: (label: string) => void;
 }
 
 /*
@@ -106,6 +109,8 @@ function InnerSliderNumberField({
   size = Size.Md,
   inactive,
   disabled,
+  label,
+  onLabelChange,
 }: SliderNumberFieldProps): ReactNode {
   // const theme = useMantineTheme();
   const [dragging, setDragging] = useState(false);
@@ -140,7 +145,8 @@ function InnerSliderNumberField({
         if (disabled) return;
         if (!intentional) return;
         if (tap) return;
-        if (sliderMode === SliderMode.Manual) return;
+        if (sliderMode === SliderMode.Manual || sliderMode === SliderMode.Label)
+          return;
         if (!boundsRef.current) return;
         const bounds = boundsRef.current.getBoundingClientRect();
         setSliderMode(SliderMode.Drag);
@@ -157,10 +163,6 @@ function InnerSliderNumberField({
         if (disabled) return;
         // animatedValue.set(value);
         setDragging(false);
-      },
-      onDoubleClick: () => {
-        if (disabled) return;
-        setSliderMode(SliderMode.Manual);
       },
       onBlur: ({ event }) => {
         if (disabled) return;
@@ -188,8 +190,29 @@ function InnerSliderNumberField({
       percent={(value - min) / (max - min)}
       focused={sliderMode !== SliderMode.Blurred || dragging}
     >
+      {label !== undefined && (
+        <input
+          readOnly={!onLabelChange || sliderMode !== SliderMode.Label}
+          onChange={(e) => onLabelChange?.(e.target.value || "")}
+          className={clsx(
+            "flex-1 bg-transparent dark:text-white/75 text-black/75 text-left pl-1 select-none outline-none",
+            getFontSize(size),
+          )}
+          value={label}
+          onDoubleClick={() => {
+            if (disabled) return;
+            setSliderMode(SliderMode.Label);
+          }}
+          onBlur={() => {
+            setSliderMode(SliderMode.Blurred);
+          }}
+        />
+      )}
       <StyledInput
-        readOnly={inactive || sliderMode !== SliderMode.Manual}
+        readOnly={
+          inactive ||
+          (sliderMode !== SliderMode.Manual && sliderMode !== SliderMode.Label)
+        }
         disabled={disabled}
         type="text"
         color={sliderColor}
@@ -197,7 +220,7 @@ function InnerSliderNumberField({
         cursor={
           sliderMode === SliderMode.Manual ? "cursor-text" : "cursor-ew-resize"
         }
-        className="text-center absolute"
+        className="text-right flex-1"
         size={size}
         value={textValue}
         onChange={onChangeInner}
@@ -206,6 +229,10 @@ function InnerSliderNumberField({
             setSliderMode(SliderMode.Blurred);
             onBlur();
           }
+        }}
+        onDoubleClick={() => {
+          if (disabled) return;
+          setSliderMode(SliderMode.Manual);
         }}
       />
       <span>{units}</span>

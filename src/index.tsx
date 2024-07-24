@@ -77,6 +77,10 @@ export { ScrollArea } from "./scroll-area";
 export { Select, type SelectProps } from "./select";
 export { FormBase } from "./form-base";
 
+export { IconPlayerNextKey } from "./icons/player-next-key";
+export { IconPlayerEndBounds } from "./icons/player-end-bounds";
+export { IconPlayerPlay } from "./icons/player-play";
+
 export { ButtonModal, type ButtonModalProps } from "./buttons/button-modal";
 export { CopyLinkButton } from "./buttons/copy-link-button";
 export { ThemeToggleButton } from "./buttons/theme-toggle-button";

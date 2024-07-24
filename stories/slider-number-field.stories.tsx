@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { SliderNumberField } from "@semio/ui";
+import { Size, SliderNumberField } from "@semio/ui";
 import { useState } from "react";
 
 const meta: Meta<typeof SliderNumberField> = {
@@ -23,6 +23,7 @@ export const Primary: Story = {
   // ],
   render: (props) => {
     const [value, setValue] = useState<number>(props.value);
+    const [label, setLabel] = useState<string>(props.label || "Slider Value");
     return (
       <SliderNumberField
         {...props}
@@ -30,6 +31,10 @@ export const Primary: Story = {
         onChange={(v: number) => {
           setValue(v);
           props.onChange(v);
+        }}
+        label={label}
+        onLabelChange={(v: string) => {
+          setLabel(v);
         }}
       />
     );
@@ -44,10 +49,11 @@ export const Primary: Story = {
     min: 0,
     max: 1,
     units: undefined,
-    color: "#ff00ff",
+    color: "#ee11ee",
     strict: true,
-    size: "sm",
+    size: Size.Sm,
     inactive: false,
     disabled: false,
+    label: "Slider Value",
   },
 };
