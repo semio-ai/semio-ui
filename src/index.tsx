@@ -12,7 +12,13 @@ export { ImageButton, type ImageButtonProps } from "./buttons/image-button";
 export { MenuButton, type MenuButtonProps } from "./buttons/menu-button";
 export { IconButton, type IconButtonProps } from "./buttons/icon-button";
 export { Avatar, type AvatarProps } from "./avatar";
-export { Collapse, type CollapseProps } from "./collapse";
+export {
+  Collapse,
+  CollapsibleRoot,
+  CollapsibleContent,
+  CollapsibleTrigger,
+  type CollapseProps,
+} from "./collapse";
 export {
   FullHeightAccordion,
   type FullHeightAccordionProps,
@@ -80,6 +86,8 @@ export { FormBase } from "./form-base";
 export { IconPlayerNextKey } from "./icons/player-next-key";
 export { IconPlayerEndBounds } from "./icons/player-end-bounds";
 export { IconPlayerPlay } from "./icons/player-play";
+export { IconKeyFilled } from "./icons/key-filled";
+export { IconKeyOutline } from "./icons/key-outline";
 
 export { ButtonModal, type ButtonModalProps } from "./buttons/button-modal";
 export { CopyLinkButton } from "./buttons/copy-link-button";
