@@ -28,9 +28,9 @@ export function InnerLayout({
       {menu}
 
       {/* Main Container */}
-      <div className="flex flex-col flex-grow min-w-0 min-h-0 overflow-hidden">
+      <div className="flex flex-col flex-grow min-w-0 min-h-0 overflow-hidden divide-y divide-solid dark:divide-neutral-900/30 divide-neutral-100/30">
         {/* Main Body */}
-        <div className="flex flex-grow min-h-0 overflow-hidden">
+        <div className="flex flex-grow min-h-0 overflow-hidden divide-x divide-solid dark:divide-neutral-900/30 divide-neutral-100/30 dark:bg-neutral-800 bg-neutral-200">
           {/* Left Sidebar */}
           {leftSidebar}
 

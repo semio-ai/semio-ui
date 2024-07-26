@@ -235,43 +235,43 @@ export function getHoverTextStyles(variant?: Variant): string {
     case Variant.Primary:
       return clsx(
         "hover:text-primary-50 dark:hover:text-primary-950 text-primary-500",
-        "disabled:cursor-not-allowed disabled:text-primary-500/50 disabled:hover:text-primary-500/50",
+        "disabled:cursor-not-allowed disabled:text-primary-500/30 disabled:hover:text-primary-500/30",
       );
     case Variant.Secondary:
       return clsx(
         "hover:text-secondary-50 dark:hover:text-secondary-950 text-secondary-500",
-        "disabled:cursor-not-allowed disabled:text-secondary-500/50 disabled:hover:text-secondary-500/50",
+        "disabled:cursor-not-allowed disabled:text-secondary-500/30 disabled:hover:text-secondary-500/30",
       );
     case Variant.Tertiary:
       return clsx(
         "hover:text-tertiary-50 dark:hover:text-tertiary-950 text-tertiary-500",
-        "disabled:cursor-not-allowed disabled:text-tertiary-500/50 disabled:hover:text-tertiary-500/50",
+        "disabled:cursor-not-allowed disabled:text-tertiary-500/30 disabled:hover:text-tertiary-500/30",
       );
     case Variant.Error:
       return clsx(
         "hover:text-error-500 dark:hover:text-error-700 text-error-600",
-        "disabled:cursor-not-allowed disabled:text-error-600/50 disabled:hover:text-error-6    00/50",
+        "disabled:cursor-not-allowed disabled:text-error-600/30 disabled:hover:text-error-6    00/30",
       );
     case Variant.Warning:
       return clsx(
         "hover:text-warning-500 dark:hover:text-warning-700 text-warning-600",
-        "disabled:cursor-not-allowed disabled:text-warning-600/50 disabled:hover:text-warning-600/50",
+        "disabled:cursor-not-allowed disabled:text-warning-600/30 disabled:hover:text-warning-600/30",
       );
     case Variant.Success:
       return clsx(
         "hover:text-success-500 dark:hover:text-success-700 text-success-600",
-        "disabled:cursor-not-allowed disabled:text-success-600/50 disabled:hover:text-success-600/50",
+        "disabled:cursor-not-allowed disabled:text-success-600/30 disabled:hover:text-success-600/30",
       );
     case Variant.Info:
       return clsx(
         "hover:text-info-50 dark:hover:text-info-950 text-info-500",
-        "disabled:cursor-not-allowed disabled:text-info-500/50 disabled:hover:text-info-500/50",
+        "disabled:cursor-not-allowed disabled:text-info-500/30 disabled:hover:text-info-500/30",
       );
     case Variant.Default:
     default:
       return clsx(
         "hover:text-default-400 dark:hover:text-default-600 text-default-500",
-        "disabled:cursor-not-allowed disabled:text-default-500/50 disabled:hover:text-default-500/50",
+        "disabled:cursor-not-allowed disabled:text-default-500/30 disabled:hover:text-default-500/30",
       );
   }
 }

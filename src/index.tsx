@@ -88,6 +88,8 @@ export { IconPlayerEndBounds } from "./icons/player-end-bounds";
 export { IconPlayerPlay } from "./icons/player-play";
 export { IconKeyFilled } from "./icons/key-filled";
 export { IconKeyOutline } from "./icons/key-outline";
+export { IconKeyOutlineDash } from "./icons/key-outline-dash";
+export { IconKey, type IconKeyProps } from "./icons/key";
 
 export { ButtonModal, type ButtonModalProps } from "./buttons/button-modal";
 export { CopyLinkButton } from "./buttons/copy-link-button";

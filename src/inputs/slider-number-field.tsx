@@ -192,10 +192,15 @@ function InnerSliderNumberField({
     >
       {label !== undefined && (
         <input
-          readOnly={!onLabelChange || sliderMode !== SliderMode.Label}
+          readOnly={
+            !onLabelChange || inactive || sliderMode !== SliderMode.Label
+          }
           onChange={(e) => onLabelChange?.(e.target.value || "")}
           className={clsx(
-            "flex-1 bg-transparent dark:text-white/75 text-black/75 text-left pl-1 select-none outline-none overflow-ellipsis max-w-[60%]",
+            "flex-1 bg-transparent dark:text-white/75 text-black/75 text-left pl-1 outline-none overflow-ellipsis max-w-[60%] touch-none",
+            sliderMode === SliderMode.Label
+              ? "cursor-text select-none font-bold"
+              : "cursor-ew-resize select-none font-normal selection:bg-transparent",
             getFontSize(size),
           )}
           value={label}
