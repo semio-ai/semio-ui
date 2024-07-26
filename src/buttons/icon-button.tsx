@@ -2,7 +2,7 @@ import { clsx } from "clsx";
 import { CSSProperties, ReactNode } from "react";
 import { alpha, altColor } from "@semio/utils";
 import { Variant, Size } from "../types";
-import { getFontSize, getHeight, getHoverTextStyles } from "../style-functions";
+import { getHeight, getHoverTextStyles } from "../style-functions";
 
 export interface IconButtonProps
   extends React.HTMLAttributes<HTMLButtonElement> {
