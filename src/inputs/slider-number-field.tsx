@@ -53,7 +53,7 @@ const InputWrapper = forwardRef(
         ref={ref}
         {...forwardedProps}
         className={clsx(
-          "relative flex flex-row w-full touch-none p-0 overflow-hidden rounded-none transition-all",
+          "flex flex-row w-full touch-none p-0 overflow-hidden rounded-none transition-all",
           getHeight(size),
           "outline outline-1 outline-offset-2",
         )}
@@ -192,10 +192,15 @@ function InnerSliderNumberField({
     >
       {label !== undefined && (
         <input
-          readOnly={!onLabelChange || sliderMode !== SliderMode.Label}
+          readOnly={
+            !onLabelChange || inactive || sliderMode !== SliderMode.Label
+          }
           onChange={(e) => onLabelChange?.(e.target.value || "")}
           className={clsx(
-            "flex-1 bg-transparent dark:text-white/75 text-black/75 text-left pl-1 select-none outline-none",
+            "flex-1 bg-transparent dark:text-white/75 text-black/75 text-left pl-1 outline-none overflow-ellipsis max-w-[60%] touch-none",
+            sliderMode === SliderMode.Label
+              ? "cursor-text select-none font-bold"
+              : "cursor-ew-resize select-none font-normal selection:bg-transparent",
             getFontSize(size),
           )}
           value={label}
@@ -208,7 +213,9 @@ function InnerSliderNumberField({
           }}
         />
       )}
+
       <StyledInput
+        flex
         readOnly={
           inactive ||
           (sliderMode !== SliderMode.Manual && sliderMode !== SliderMode.Label)
@@ -235,7 +242,9 @@ function InnerSliderNumberField({
           setSliderMode(SliderMode.Manual);
         }}
       />
-      <span>{units}</span>
+      <span className={clsx("w-fit font-mono pr-1", getFontSize(size))}>
+        {units}
+      </span>
     </InputWrapper>
   );
 }

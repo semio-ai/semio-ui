@@ -23,7 +23,7 @@ export const Primary: Story = {
   // ],
   render: (props) => {
     const [value, setValue] = useState<number>(props.value);
-    const [label, setLabel] = useState<string>(props.label || "Slider Value");
+    const [label, setLabel] = useState<string>(props.label ?? "Slider Value");
     return (
       <SliderNumberField
         {...props}
