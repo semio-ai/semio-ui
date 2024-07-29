@@ -91,6 +91,8 @@ export { IconKeyOutline } from "./icons/key-outline";
 export { IconKeyOutlineDash } from "./icons/key-outline-dash";
 export { IconKey, type IconKeyProps } from "./icons/key";
 
+export { StaticIcon } from "./icons/static-icon";
+
 export { ButtonModal, type ButtonModalProps } from "./buttons/button-modal";
 export { CopyLinkButton } from "./buttons/copy-link-button";
 export { ThemeToggleButton } from "./buttons/theme-toggle-button";
