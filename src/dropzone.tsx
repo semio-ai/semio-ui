@@ -33,8 +33,8 @@ export function Dropzone<T>({
         isDragActive
           ? "dark:bg-neutral-900 bg-neutral-100"
           : "dark:bg-black bg-white hover:dark:bg-neutral-950 hover:bg-neutral-50",
-        "h-[30vh] w-full mt-3",
-        "cursor-pointer mb-3",
+        "min-h-[250px] w-full mt-1",
+        "cursor-pointer mb-1",
         isDragActive &&
           " bg-radient-ellipse-c from-info-500/25 from-0% to-transparent to-80% transition-all duration-300",
         isDragActive || items.length === 0
@@ -55,7 +55,7 @@ export function Dropzone<T>({
         </ScrollArea>
       ) : (
         <div className="grid gap-3 grid-cols-1 justify-items-center">
-          <div className="h-32 w-32 z-10">
+          <div className="h-32 w-32 z-1">
             <IconArrowBigDownLines size="128px" className="" />
           </div>
           <span>

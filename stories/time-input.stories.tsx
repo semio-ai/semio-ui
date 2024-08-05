@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { TimeDisplay, TimeInput, Variant } from "@semio/ui";
+import { Size, TimeDisplay, TimeInput, Variant } from "@semio/ui";
 import { useState } from "react";
 
 const meta: Meta<typeof TimeInput> = {
@@ -30,18 +30,48 @@ export const Primary: Story = {
       />
     );
   },
-  name: "Button",
+  name: "Sec + Msec",
   args: {
     value: 25030,
-    // variant: Variant.PRIMARY,
+    label: "s",
     onChange: (): void => {
       // eslint-disable-next-line no-console -- log for demo
       console.log("Hello World!");
     },
     framerate: 24,
-    size: "sm",
+    size: Size.Sm,
     variant: Variant.Primary,
     display: TimeDisplay.SecondsPlusMilliseconds,
+    disabled: false,
+  },
+};
+
+export const Frames: Story = {
+  render: (props) => {
+    const [t, setT] = useState(props.value);
+
+    return (
+      <TimeInput
+        {...props}
+        value={t}
+        onChange={(v) => {
+          setT(v);
+          props.onChange(v);
+        }}
+      />
+    );
+  },
+  args: {
+    value: 25030,
+    onChange: (): void => {
+      // eslint-disable-next-line no-console -- log for demo
+      console.log("Hello World!");
+    },
+    label: "f",
+    framerate: 24,
+    size: Size.Sm,
+    variant: Variant.Primary,
+    display: TimeDisplay.Frames,
     disabled: false,
   },
 };

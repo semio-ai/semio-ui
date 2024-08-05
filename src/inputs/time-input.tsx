@@ -1,7 +1,12 @@
 import { useState, useEffect, useRef } from "react";
 import { clsx } from "clsx";
 import { Size, TimeDisplay, Variant } from "../types";
-import { getHeight, getOutline } from "../style-functions";
+import {
+  getFontSize,
+  getHeight,
+  getOutline,
+  getTextCaretColor,
+} from "../style-functions";
 import { useTemporal } from "../hooks/use-temporal";
 import { useNumeric } from "../hooks/use-numeric";
 import { StyledInput } from "./styled-input";
@@ -18,6 +23,7 @@ export interface TimeInputProps
   variant: Variant;
   size?: Size;
   bg?: boolean;
+  label?: string;
 }
 
 function getWidth(length: number, size: Size): string {
@@ -51,6 +57,7 @@ export function TimeInput({
   min = 0,
   max = Infinity,
   bg = false,
+  label,
 }: TimeInputProps) {
   const [editing, setEditing] = useState<
     "minutes" | "seconds" | "milliseconds" | "frames" | null
@@ -173,17 +180,30 @@ export function TimeInput({
   // };
 
   return (
-    <div
+    <label
       className={clsx(
-        bg && "dark:bg-neutral-950/20 bg-neutral-50/20",
-        "flex items-baseline",
-        editing !== null && "outline outline-1 outline-offset-2",
+        bg ? "dark:bg-neutral-950/20 bg-neutral-50/20" : "bg:transparent",
+        "focus-within:dark:bg-neutral-950/20 focus-within:bg-neutral-50/20",
+        "relative flex w-full items-baseline gap-1",
+        "text-black dark:text-white",
+        "focus-within:outline focus-within:outline-1 focus-within:outline-offset-2",
         getOutline(variant),
         getHeight(size),
-        // widthLookup[display]?.[size] ?? "",
-        "w-fit",
+        getTextCaretColor(variant),
       )}
     >
+      {label && (
+        <span
+          id={label}
+          aria-label={label}
+          className={clsx(
+            getFontSize(size),
+            "font-mono font-thin px-1 select-none",
+          )}
+        >
+          {label}
+        </span>
+      )}
       {display === TimeDisplay.Frames ? (
         <FramesInput
           disabled={actionPrevented}
@@ -198,7 +218,7 @@ export function TimeInput({
       ) : (
         renderTimeInput()
       )}
-    </div>
+    </label>
   );
 }
 
@@ -206,11 +226,13 @@ interface FramesInputProps {
   value: number | undefined;
   onChange: (value: number) => void;
   disabled?: boolean;
+  label?: string;
   size?: Size;
   onBlur?: () => void;
   onFocus?: () => void;
   min?: number;
   max?: number;
+  bg?: boolean;
 }
 
 function FramesInput({

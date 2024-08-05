@@ -1,4 +1,5 @@
 import { memo, type ReactNode } from "react";
+import { clsx } from "clsx";
 import * as RadixScrollArea from "@radix-ui/react-scroll-area";
 import useMeasure from "react-use-measure";
 // import { ParentSize } from "@visx/responsive";
@@ -7,16 +8,26 @@ export function InnerScrollArea({
   children,
   header,
   footer,
+  className,
+  shrink = false,
 }: {
   children: ReactNode;
   header?: ReactNode;
   footer?: ReactNode;
+  className?: string;
+  shrink?: boolean;
 }) {
   const [headerRef, headerBounds] = useMeasure();
   const [footerRef, footerBounds] = useMeasure();
 
   return (
-    <div className="relative w-full h-full">
+    <div
+      className={clsx(
+        "relative w-full",
+        shrink ? "h-auto max-h-full" : "h-full",
+        className,
+      )}
+    >
       {header && (
         <div
           ref={headerRef}
@@ -33,8 +44,8 @@ export function InnerScrollArea({
           {footer}
         </div>
       )}
-      <RadixScrollArea.Root className="w-full h-full">
-        <RadixScrollArea.Viewport className="w-full h-full">
+      <RadixScrollArea.Root className={clsx("w-full h-full")}>
+        <RadixScrollArea.Viewport className={clsx("w-full h-full")}>
           <div className="w-full" style={{ height: headerBounds.height }} />
           {children}
           <div className="w-full" style={{ height: footerBounds.height }} />

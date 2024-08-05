@@ -8,6 +8,8 @@ import {
   ContextMenuRadioGroup,
   ContextMenuItemIndicator,
 } from "@radix-ui/react-context-menu";
+import { CSSProperties, type ReactNode } from "react";
+import { alpha } from "@semio/utils";
 import { IconPointFilled } from "@tabler/icons-react";
 import { clsx } from "clsx";
 import { NestedParent, Variant } from "../types";
@@ -19,7 +21,13 @@ export interface NestedRadioProps {
   disabled?: boolean;
   onChange?: (value: string) => void;
   value: string;
-  options: { label: string; value: string; disabled?: boolean }[];
+  options: {
+    label: string;
+    value: string;
+    disabled?: boolean;
+    color?: string;
+    icon?: ReactNode;
+  }[];
 }
 
 export function NestedRadio({
@@ -62,20 +70,31 @@ export function NestedRadio({
             e.preventDefault();
           }}
           textValue={option.label}
+          style={
+            option.color
+              ? ({
+                  "--text-color-10": alpha(option.color, 0.1),
+                  "--text-color-50": alpha(option.color, 0.5),
+                  "--text-color-75": alpha(option.color, 0.75),
+                  // "--text-color": option.color,
+                } as CSSProperties)
+              : {}
+          }
           className={clsx(
             "text-[13px] leading-none flex items-center",
             "h-[25px] px-[5px] relative pl-[30px] select-none outline-none",
             "data-[disabled]:pointer-events-none",
-            getItemStyle(variant),
+            getItemStyle(option.color ? "custom" : variant),
           )}
         >
           <ItemIndicatorComponent
+            forceMount
             className={clsx(
               "absolute left-0 w-[30px] inline-flex items-center justify-center",
-              getItemSideStyle(variant),
+              getItemSideStyle(option.color ? "custom" : variant),
             )}
           >
-            <IconPointFilled size="13px" />
+            {option.icon || <IconPointFilled size="13px" />}
           </ItemIndicatorComponent>
           {option.label}
         </ItemComponent>

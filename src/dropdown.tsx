@@ -13,10 +13,10 @@ export interface DropdownProps {
 
 function Dropdown({ trigger, children, variant }: DropdownProps) {
   return (
-    <div className="relative inline-block text-left">
+    <div className="text-left group">
       <NestedParentProvider value={NestedParent.Dropdown}>
         <DropdownPrimitive.Root>
-          <DropdownPrimitive.Trigger asChild className="select-none">
+          <DropdownPrimitive.Trigger asChild>
             {trigger}
           </DropdownPrimitive.Trigger>
           <DropdownPrimitive.Portal>

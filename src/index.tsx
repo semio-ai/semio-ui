@@ -8,6 +8,7 @@ export { Sidebar, type SidebarProps } from "./sidebar";
 export { TextButton, type TextButtonProps } from "./buttons/text-button";
 export { GoogleSignInButton } from "./buttons/google-signin-button";
 export { Modal, type ModalProps } from "./modal";
+export { Dialog, type DialogProps } from "./dialog";
 export { ImageButton, type ImageButtonProps } from "./buttons/image-button";
 export { MenuButton, type MenuButtonProps } from "./buttons/menu-button";
 export { IconButton, type IconButtonProps } from "./buttons/icon-button";
@@ -80,12 +81,15 @@ export {
 } from "./inputs/slider-number-field";
 export { Dropzone, type DropzoneProps } from "./dropzone";
 export { ScrollArea } from "./scroll-area";
+export { Chip, type ChipProps } from "./chip";
 export { Select, type SelectProps } from "./select";
 export { FormBase } from "./form-base";
 
 export { IconPlayerNextKey } from "./icons/player-next-key";
 export { IconPlayerEndBounds } from "./icons/player-end-bounds";
 export { IconPlayerPlay } from "./icons/player-play";
+export { IconPlayerPlay2 } from "./icons/player-play2";
+export { IconPlayPause } from "./icons/play-pause";
 export { IconKeyFilled } from "./icons/key-filled";
 export { IconKeyOutline } from "./icons/key-outline";
 export { IconKeyOutlineDash } from "./icons/key-outline-dash";
