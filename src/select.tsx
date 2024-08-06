@@ -1,23 +1,10 @@
-import {
-  Listbox,
-  ListboxButton,
-  ListboxOption,
-  ListboxOptions,
-} from "@headlessui/react";
 import { CSSProperties, ReactNode } from "react";
-import {
-  IconCheck,
-  IconChevronDown,
-  IconPointFilled,
-  IconSelector,
-} from "@tabler/icons-react";
+import { IconPointFilled, IconSelector } from "@tabler/icons-react";
 import { clsx } from "clsx";
 import { Size, Variant } from "./types";
 import {
-  getHoverButtonStyles,
   getOutline,
   getHeight,
-  getHoverTextStyles,
   getBasicTextColor,
   getFontSize,
 } from "./style-functions";

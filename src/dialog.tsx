@@ -2,7 +2,6 @@ import { type ReactNode, type MouseEvent } from "react";
 import * as AlertDialog from "@radix-ui/react-alert-dialog";
 import { clsx } from "clsx";
 import { IconX } from "@tabler/icons-react";
-import { ScrollArea } from "./scroll-area";
 import { Variant } from "./types";
 import { getBorder } from "./style-functions";
 import { IconButton } from "./buttons/icon-button";

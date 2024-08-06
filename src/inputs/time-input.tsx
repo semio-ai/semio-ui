@@ -24,6 +24,7 @@ export interface TimeInputProps
   size?: Size;
   bg?: boolean;
   label?: string;
+  hidden?: boolean;
 }
 
 function getWidth(length: number, size: Size): string {
@@ -58,6 +59,7 @@ export function TimeInput({
   max = Infinity,
   bg = false,
   label,
+  hidden = false,
 }: TimeInputProps) {
   const [editing, setEditing] = useState<
     "minutes" | "seconds" | "milliseconds" | "frames" | null
@@ -184,9 +186,11 @@ export function TimeInput({
       className={clsx(
         bg ? "dark:bg-neutral-950/20 bg-neutral-50/20" : "bg:transparent",
         "focus-within:dark:bg-neutral-950/20 focus-within:bg-neutral-50/20",
-        "relative flex w-full items-baseline gap-1",
+        "relative flex justify-between w-full items-baseline gap-1",
         "text-black dark:text-white",
         "focus-within:outline focus-within:outline-1 focus-within:outline-offset-2",
+        "px-1",
+        hidden && "hidden",
         getOutline(variant),
         getHeight(size),
         getTextCaretColor(variant),
@@ -284,7 +288,7 @@ function FramesInput({
         onBlur && onBlur();
       }}
       onChange={onChangeInner}
-      className={clsx("text-center", getWidth(4, size))}
+      className={clsx("text-right flex-1", getWidth(4, size))}
     />
   );
 }
