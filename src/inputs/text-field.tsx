@@ -1,4 +1,4 @@
-import { memo, type ReactNode, InputHTMLAttributes, useState } from "react";
+import { memo, type ReactNode, InputHTMLAttributes } from "react";
 import { clsx } from "clsx";
 import { Size, Variant } from "../types";
 import { getHeight, getOutline, getTextCaretColor } from "../style-functions";
