@@ -1,4 +1,4 @@
-import { Field, Input, Label } from '@headlessui/react'
+import { Field, Input, Label } from "@headlessui/react";
 import { useImageInput } from "../../hooks/formInputHooks";
 import { Spinner } from "../../spinner";
 
@@ -13,7 +13,7 @@ export function ImageInput({
   imageUrl,
   onImageChange,
   uploading = false,
-  inputTitle="Upload Image:",
+  inputTitle = "Upload Image:",
 }: ImageInputProps) {
   const { localImageURL, handleChange, handleRemove } = useImageInput(
     onImageChange,
@@ -29,11 +29,7 @@ export function ImageInput({
         </div>
       ) : (
         <Field>
-          <Label
-            className="block mb-2"
-          >
-            {inputTitle}
-          </Label>
+          <Label className="block mb-2">{inputTitle}</Label>
           <Input
             type="file"
             accept="image/*"

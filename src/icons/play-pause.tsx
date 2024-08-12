@@ -10,6 +10,7 @@ export interface IconPlayPauseProps extends TablerIconsProps {
 
 const IconPlayPause = forwardRef(
   (
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars -- WIP
     { fillOpacity = 1, dashed = false, center, ...props }: IconPlayPauseProps,
     ref: ForwardedRef<SVGSVGElement>,
   ) => {

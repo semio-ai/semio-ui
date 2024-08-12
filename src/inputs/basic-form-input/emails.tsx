@@ -1,4 +1,4 @@
-import { Field, Input, Label } from '@headlessui/react'
+import { Field, Input, Label } from "@headlessui/react";
 import { ChangeEvent } from "react";
 import { useEmailsInput } from "../../hooks/formInputHooks";
 
@@ -12,12 +12,11 @@ export interface EmailsInputProps {
 
 export function EmailsInput({
   emails: initialEmails,
-  fieldName="emails",
+  fieldName = "emails",
   onEmailsChange,
-  inputTitle="",
-  inputPlaceholder="Type an email and press 'enter' to add it to the list."
+  inputTitle = "",
+  inputPlaceholder = "Type an email and press 'enter' to add it to the list.",
 }: EmailsInputProps) {
-
   const {
     emails,
     inputValue,
@@ -29,9 +28,7 @@ export function EmailsInput({
 
   return (
     <Field>
-      <Label
-        className="block text-lg"
-      >
+      <Label className="block text-lg">
         {inputTitle}:
         {emails?.map((email, index) => (
           <div key={index} className="inline-block mx-2 rounded-lg text-base">
@@ -40,7 +37,9 @@ export function EmailsInput({
               type="button"
               className="text-red-500"
               onClick={() => handleRemoveEmail(email)}
-            >x</button>
+            >
+              x
+            </button>
           </div>
         ))}
       </Label>

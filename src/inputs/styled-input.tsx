@@ -32,7 +32,7 @@ export function StyledInput({
         bold ? "select-text font-bold" : "select-none font-normal",
         getHeight(size),
         getFontSize(size),
-        disabled ? "cursor-not-allowed" : (cursor ?? "cursor-text"),
+        disabled ? "cursor-not-allowed" : cursor ?? "cursor-text",
         className,
       )}
     />
