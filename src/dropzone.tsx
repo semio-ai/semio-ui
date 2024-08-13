@@ -30,15 +30,13 @@ export function Dropzone<T>({
     <div
       {...getRootProps()}
       className={clsx(
-        isDragActive
-          ? "dark:bg-neutral-900 bg-neutral-100"
-          : "dark:bg-black bg-white hover:dark:bg-neutral-950 hover:bg-neutral-50",
+        "dark:bg-black bg-white dark:hover:bg-neutral-950 hover:bg-neutral-50",
         "min-h-[250px] w-full mt-1",
         "cursor-pointer mb-1",
         isDragActive &&
-          " bg-radient-ellipse-c from-info-500/25 from-0% to-transparent to-80% transition-all duration-300",
+          "bg-radient-ellipse-c from-info-500/25 from-0% to-transparent to-80% transition-all duration-300",
         isDragActive || items.length === 0
-          ? "grid place-items-center hover:text-info-500 overflow-hidden"
+          ? "grid place-items-center hover:text-info-500 dark:text-info-900 text-info-100 overflow-hidden"
           : "",
       )}
     >
