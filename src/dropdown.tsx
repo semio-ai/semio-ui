@@ -29,7 +29,7 @@ function Dropdown({ trigger, children, variant }: DropdownProps) {
                 "data-[side=right]:animate-slideLeftAndFade",
                 "data-[side=bottom]:animate-slideUpAndFade",
                 "data-[side=left]:animate-slideRightAndFade",
-                "min-w-[220px] p-[5px] shadow-md",
+                "min-w-[220px] p-[5px] shadow-md max-h-52",
                 "bg-neutral-50/50 dark:bg-neutral-950/50 backdrop-blur-lg",
                 "data-[side=bottom]:border-t-2 border-solid",
                 "data-[side=top]:border-b-2 border-solid",

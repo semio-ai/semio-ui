@@ -120,26 +120,26 @@ export function Select<T extends string | string[]>({
       }
       variant={variant}
     >
-      {multiple && (
-        <NestedSelect
-          variant={variant}
-          values={value}
-          onChange={(v: string[]) => {
-            onChange(v as T);
-          }}
-          options={options}
-        />
-      )}
-      {!multiple && (
-        <NestedRadio
-          variant={variant}
-          value={value}
-          onChange={(v: string) => {
-            onChange(v as T);
-          }}
-          options={options}
-        />
-      )}
+        {multiple && (
+          <NestedSelect
+            variant={variant}
+            values={value}
+            onChange={(v: string[]) => {
+              onChange(v as T);
+            }}
+            options={options}
+          />
+        )}
+        {!multiple && (
+          <NestedRadio
+            variant={variant}
+            value={value}
+            onChange={(v: string) => {
+              onChange(v as T);
+            }}
+            options={options}
+          />
+        )}
     </Dropdown>
     // <Listbox value={value} onChange={onChange}>
     //   <ListboxButton

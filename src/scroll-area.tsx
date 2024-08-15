@@ -19,7 +19,7 @@ export function InnerScrollArea({
 }) {
   const [headerRef, headerBounds] = useMeasure();
   const [footerRef, footerBounds] = useMeasure();
-
+  
   return (
     <div
       className={clsx(
@@ -44,7 +44,7 @@ export function InnerScrollArea({
           {footer}
         </div>
       )}
-      <RadixScrollArea.Root className={clsx("w-full h-full")}>
+      <RadixScrollArea.Root className={clsx("w-full h-[200px] overflow-hidden")}>
         <RadixScrollArea.Viewport className={clsx("w-full h-full")}>
           <div className="w-full" style={{ height: headerBounds.height }} />
           {children}
