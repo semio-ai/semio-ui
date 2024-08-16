@@ -54,12 +54,13 @@ export function Modal({
               "data-[state=open]:animate-modalAppear data-[state=closed]:animate-modalDisappear",
               "bg-neutral-50/50 dark:bg-neutral-950/50 backdrop-blur-lg",
               "border-t-2 border-solid",
+              "max-h-screen h-screen md:max-h-[85vh] md:h-fit",
               getBorder(variant),
             )}
           >
             <ScrollArea
               // shrink
-              className="flex flex-col"
+              className="md:max-h-[85vh] max-h-screen"
               // className="w-screen h-screen md:w-3/5 md:h-fit bg-cyan-500"
               header={
                 <div className="flex flex-col pt-6 px-6 pb-2 gap-1">

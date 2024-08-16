@@ -21,7 +21,7 @@ export const Primary: Story = {
     const [value, setValue] = useState<string | string[]>(props.value);
 
     return (
-      <div className="w-96">
+      <div className="w-[100%]">
         <Select {...props} value={value} onChange={setValue} />
       </div>
     );
@@ -53,7 +53,7 @@ export const Secondary: Story = {
     const [value, setValue] = useState<string | string[]>(props.value);
 
     return (
-      <div className="w-96">
+      <div className="w-full">
         <Select {...props} value={value} onChange={setValue} />
       </div>
     );

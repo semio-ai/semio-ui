@@ -14,7 +14,6 @@ import { alpha } from "@semio/utils";
 import { clsx } from "clsx";
 import { NestedParent, Variant } from "../types";
 import { getItemSideStyle, getItemStyle } from "../style-functions";
-import { ScrollArea } from "../scroll-area";
 import { useNestedParent } from "./context";
 
 export interface NestedSelectProps {
@@ -58,53 +57,50 @@ export function NestedSelect({
         e.stopPropagation();
       }}
     >
-      <ScrollArea>
-
-        {options.map((option) => (
-          <ItemComponent
-            key={option.value}
-            color={option.color}
-            checked={values.find((v) => v === option.value) !== undefined}
-            onCheckedChange={(v: boolean) => {
-              if (!v && onChange) {
-                onChange(values.filter((value) => value !== option.value));
-              } else if (onChange) {
-                onChange([...values, option.value]);
-              }
-            }}
-            onSelect={(e) => {
-              e.preventDefault();
-            }}
-            disabled={option.disabled || disabled}
-            textValue={option.label}
-            style={
-              option.color
-                ? ({
-                    "--text-color-50": alpha(option.color, 0.5),
-                    "--text-color-75": alpha(option.color, 0.75),
-                    // "--text-color": option.color,
-                  } as CSSProperties)
-                : {}
+      {options.map((option) => (
+        <ItemComponent
+          key={option.value}
+          color={option.color}
+          checked={values.find((v) => v === option.value) !== undefined}
+          onCheckedChange={(v: boolean) => {
+            if (!v && onChange) {
+              onChange(values.filter((value) => value !== option.value));
+            } else if (onChange) {
+              onChange([...values, option.value]);
             }
+          }}
+          onSelect={(e) => {
+            e.preventDefault();
+          }}
+          disabled={option.disabled || disabled}
+          textValue={option.label}
+          style={
+            option.color
+              ? ({
+                  "--text-color-50": alpha(option.color, 0.5),
+                  "--text-color-75": alpha(option.color, 0.75),
+                  // "--text-color": option.color,
+                } as CSSProperties)
+              : {}
+          }
+          className={clsx(
+            "text-[13px] text-inherit/50 leading-none flex items-center",
+            "h-[25px] px-[5px] relative pl-[30px] select-none outline-none",
+            "data-[disabled]:pointer-events-none",
+            getItemStyle(option.color ? "custom" : variant),
+          )}
+        >
+          <ItemIndicatorComponent
             className={clsx(
-              "text-[13px] text-inherit/50 leading-none flex items-center",
-              "h-[25px] px-[5px] relative pl-[30px] select-none outline-none",
-              "data-[disabled]:pointer-events-none",
-              getItemStyle(option.color ? "custom" : variant),
+              "absolute left-0 w-[30px] inline-flex items-center justify-center",
+              getItemSideStyle(option.color ? "custom" : variant),
             )}
           >
-            <ItemIndicatorComponent
-              className={clsx(
-                "absolute left-0 w-[30px] inline-flex items-center justify-center",
-                getItemSideStyle(option.color ? "custom" : variant),
-              )}
-            >
-              <IconCheck size="13px" />
-            </ItemIndicatorComponent>
-            {option.label}
-          </ItemComponent>
-        ))}
-      </ScrollArea>
+            <IconCheck size="13px" />
+          </ItemIndicatorComponent>
+          {option.label}
+        </ItemComponent>
+      ))}
     </GroupComponent>
   );
 }
