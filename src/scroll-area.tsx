@@ -1,4 +1,4 @@
-import { CSSProperties, memo, type ReactNode } from "react";
+import { memo, type ReactNode } from "react";
 import { clsx } from "clsx";
 import * as RadixScrollArea from "@radix-ui/react-scroll-area";
 import useMeasure from "react-use-measure";
