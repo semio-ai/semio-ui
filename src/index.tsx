@@ -46,6 +46,7 @@ export {
   ColorPickerInput,
   type ColorPickerInputProps,
 } from "./inputs/color-picker-input";
+export { NumberOrListInput } from "./inputs/number-or-list";
 export {
   EmailInput,
   type EmailInputProps,
