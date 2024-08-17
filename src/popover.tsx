@@ -42,9 +42,11 @@ function Popover({
               className={clsx("fill-current", getBasicTextColor(variant))}
             />
 
-            {title ?? <div className="flex justify-between">
-              <span>{title}</span>
-            </div>}
+            {title ?? (
+              <div className="flex justify-between">
+                <span>{title}</span>
+              </div>
+            )}
             {content}
           </PopoverPrimitive.Content>
         </PopoverPrimitive.Portal>

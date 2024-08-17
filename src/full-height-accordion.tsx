@@ -1,7 +1,7 @@
 import React, { useMemo } from "react";
 import * as Accordion from "@radix-ui/react-accordion";
 import useMeasure from "react-use-measure";
-import { IconTriangle } from '@tabler/icons-react';
+import { IconTriangle } from "@tabler/icons-react";
 
 export interface FullHeightAccordionProps {
   items: { header: string; content: React.ReactNode; key: string }[];
