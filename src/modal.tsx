@@ -106,7 +106,9 @@ export function Modal({
                 </div>
               }
             >
-              <div className="flex-1 md:flex-none p-2">{children}</div>
+              <div className="flex-1 md:flex-none p-2 dark:text-white text-black">
+                {children}
+              </div>
             </ScrollArea>
           </Dialog.Content>
         </Dialog.Overlay>
