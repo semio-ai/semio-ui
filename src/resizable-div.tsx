@@ -2,7 +2,7 @@ import React, { useRef, useState } from 'react';
 
 export function ResizableDiv({ children }: { children: React.ReactNode }) {
     const resizableDivRef = useRef<HTMLDivElement>(null);
-    const [width, setWidth] = useState(256); // Initial width in pixels (256px = Tailwind's w-64)
+    const [width, setWidth] = useState(258); // Initial width in pixels (256px = Tailwind's w-64)
   
     const handleMouseDownLeftEdge = (e: React.MouseEvent<HTMLDivElement>) => {
       e.preventDefault();
