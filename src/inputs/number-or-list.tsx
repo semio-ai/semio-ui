@@ -18,21 +18,37 @@ export function NumberOrListInput({
     }
   };
 
+
+
   return (
     <div className="flex flex-row m-1 items-center">
       {title && <div>{title}:</div>}
       <div>
-        <input
-          type={Array.isArray(value) ? "text" : "number"}
-          value={Array.isArray(value) ? value.join(", ") : value}
-          step={!Array.isArray(value) ? 0.1 : undefined}
-          onChange={handleChange}
-          className={clsx(
-            "w-full px-2 py-1 text-sm rounded-md",
-            "dark:bg-neutral-800 dark:text-neutral-300",
-            "bg-neutral-200 text-neutral-700",
-          )}
-        />
+        {value === null && "null"}
+        {Array.isArray(value) ? (
+          <input
+            type="text"
+            value={value.join(", ")}
+            onChange={handleChange}
+            className={clsx(
+              "w-full px-2 py-1 text-sm rounded-md",
+              "dark:bg-neutral-800 dark:text-neutral-300",
+              "bg-neutral-200 text-neutral-700",
+            )}
+          />
+        ): (
+          <input
+            type="number"
+            value={value}
+            step={0.1}
+            onChange={handleChange}
+            className={clsx(
+              "w-full px-2 py-1 text-sm rounded-md",
+              "dark:bg-neutral-800 dark:text-neutral-300",
+              "bg-neutral-200 text-neutral-700",
+            )}
+          />
+        )}
       </div>
     </div>
   );
