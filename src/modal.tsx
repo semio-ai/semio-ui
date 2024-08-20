@@ -72,11 +72,9 @@ export function Modal({
                       </IconButton>
                     </Dialog.Close>
                   </Dialog.Title>
-                  {description && (
-                    <Dialog.Description className="text-sm/6 dark:text-white/50 text-black/50">
-                      {description}
-                    </Dialog.Description>
-                  )}
+                  <Dialog.Description className="text-sm/6 dark:text-white/50 text-black/50">
+                    {description ?? ""}
+                  </Dialog.Description>
                 </div>
               }
               footer={
