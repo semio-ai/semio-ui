@@ -8,8 +8,8 @@ import {
   ContextMenuGroup,
   ContextMenuItemIndicator,
 } from "@radix-ui/react-context-menu";
-import { CSSProperties } from "react";
-import { IconCheck } from "@tabler/icons-react";
+import { type CSSProperties, type ReactNode } from "react";
+import { IconCheck, IconPoint } from "@tabler/icons-react";
 import { alpha } from "@semio/utils";
 import { clsx } from "clsx";
 import { NestedParent, Variant } from "../types";
@@ -26,6 +26,7 @@ export interface NestedSelectProps {
     value: string;
     disabled?: boolean;
     color?: string;
+    icon?: ReactNode;
   }[];
 }
 
@@ -91,12 +92,18 @@ export function NestedSelect({
           )}
         >
           <ItemIndicatorComponent
+            forceMount
             className={clsx(
               "absolute left-0 w-[30px] inline-flex items-center justify-center",
               getItemSideStyle(option.color ? "custom" : variant),
             )}
           >
-            <IconCheck size="13px" />
+            {option.icon ||
+              (values.find((v) => v === option.value) !== undefined ? (
+                <IconCheck size="13px" />
+              ) : (
+                <IconPoint size="13px" />
+              ))}
           </ItemIndicatorComponent>
           {option.label}
         </ItemComponent>

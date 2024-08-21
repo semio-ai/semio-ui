@@ -1,6 +1,7 @@
 import { CSSProperties, ReactNode } from "react";
 import { IconPointFilled, IconSelector } from "@tabler/icons-react";
 import { clsx } from "clsx";
+// import { matchSorter } from "match-sorter";
 import { Size, Variant } from "./types";
 import {
   getOutline,
@@ -36,13 +37,18 @@ export function Select<T extends string | string[]>({
   size = Size.Md,
 }: SelectProps<T>) {
   const multiple = Array.isArray(value);
+  // const [searchValue, setSearchValue] = useState("");
+  // const matches = useMemo(
+  //   () => matchSorter(options, searchValue, { keys: ["label"] }),
+  //   [searchValue, options],
+  // );
   return (
     <Dropdown
       trigger={
         <div
           className={clsx(
             // "dark:bg-neutral-950/20 bg-neutral-50/20",
-            "relative flex flex-1 items-center w-full",
+            "relative flex flex-1 items-center w-full group/trigger",
             "focus:outline focus:outline-1 focus:outline-offset-2",
             "data-[state=open]:outline data-[state=open]:outline-1 data-[state=open]:outline-offset-2",
             "px-1",
@@ -120,7 +126,7 @@ export function Select<T extends string | string[]>({
       }
       variant={variant}
     >
-      {multiple && (
+      {multiple && options.length > 0 && (
         <NestedSelect
           variant={variant}
           values={value}
@@ -130,7 +136,7 @@ export function Select<T extends string | string[]>({
           options={options}
         />
       )}
-      {!multiple && (
+      {!multiple && options.length > 0 && (
         <NestedRadio
           variant={variant}
           value={value}
@@ -139,6 +145,16 @@ export function Select<T extends string | string[]>({
           }}
           options={options}
         />
+      )}
+      {options.length === 0 && (
+        <div
+          className={clsx(
+            "p-2 text-center text-neutral-500",
+            getFontSize(size),
+          )}
+        >
+          No results found
+        </div>
       )}
     </Dropdown>
     // <Listbox value={value} onChange={onChange}>

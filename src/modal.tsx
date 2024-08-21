@@ -54,12 +54,13 @@ export function Modal({
               "data-[state=open]:animate-modalAppear data-[state=closed]:animate-modalDisappear",
               "bg-neutral-50/50 dark:bg-neutral-950/50 backdrop-blur-lg",
               "border-t-2 border-solid",
+              "max-h-screen h-screen md:max-h-[85vh] md:h-fit",
               getBorder(variant),
             )}
           >
             <ScrollArea
               // shrink
-              className="flex flex-col"
+              className="md:max-h-[85vh] max-h-screen"
               // className="w-screen h-screen md:w-3/5 md:h-fit bg-cyan-500"
               header={
                 <div className="flex flex-col pt-6 px-6 pb-2 gap-1">
@@ -71,11 +72,9 @@ export function Modal({
                       </IconButton>
                     </Dialog.Close>
                   </Dialog.Title>
-                  {description && (
-                    <Dialog.Description className="text-sm/6 dark:text-white/50 text-black/50">
-                      {description}
-                    </Dialog.Description>
-                  )}
+                  <Dialog.Description className="text-sm/6 dark:text-white/50 text-black/50">
+                    {description ?? ""}
+                  </Dialog.Description>
                 </div>
               }
               footer={

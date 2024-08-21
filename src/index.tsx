@@ -46,6 +46,7 @@ export {
   ColorPickerInput,
   type ColorPickerInputProps,
 } from "./inputs/color-picker-input";
+export { NumberOrListInput } from "./inputs/number-or-list";
 export {
   EmailInput,
   type EmailInputProps,
@@ -94,6 +95,7 @@ export { IconKeyFilled } from "./icons/key-filled";
 export { IconKeyOutline } from "./icons/key-outline";
 export { IconKeyOutlineDash } from "./icons/key-outline-dash";
 export { IconKey, type IconKeyProps } from "./icons/key";
+export { WorldElementEditorIcon } from "./icons/world-element-icons";
 
 export { StaticIcon } from "./icons/static-icon";
 
