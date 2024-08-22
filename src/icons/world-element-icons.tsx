@@ -2,34 +2,55 @@ import {
   IconView360,
   IconTransformPoint,
   IconRotate2,
-  IconAnchor,
+  IconPinned,
   IconRotate,
   IconPencil,
+  IconLine,
 } from "@tabler/icons-react";
 
-export function WorldElementEditorIcon({ type }: { type: string }) {
-  let icon;
-
+export function WorldElementIcon({type}: {type: string}) {
   switch (type) {
     case "shape":
-      icon = <IconView360 size="20px" />;
-      break;
+      return (
+        <div className="text-neutral-700 dark:text-neutral-300">
+          <IconView360 size="20px" />
+        </div>
+      );
     case "body":
-      icon = <IconTransformPoint size="20px" />;
-      break;
+      return (
+        <div className="text-neutral-700 dark:text-neutral-300">
+          <IconTransformPoint size="20px" />
+        </div>
+      );
     case "revolute":
-      icon = <IconRotate2 size="20px" />;
-      break;
+      return (
+        <div className="text-neutral-700 dark:text-neutral-300">
+          <IconRotate2 size="20px" />
+        </div>
+      );
     case "fixed":
-      icon = <IconAnchor size="20px" />;
-      break;
+      return (
+        <div className="text-neutral-700 dark:text-neutral-300">
+          <IconPinned size="20px" />
+        </div>
+      );
     case "continuous":
-      icon = <IconRotate size="20px" />;
-      break;
+      return (
+        <div className="text-neutral-700 dark:text-neutral-300">
+          <IconRotate size="20px" />
+        </div>
+      );
+    case "prismatic":
+      return (
+        <div className="text-neutral-700 dark:text-neutral-300">
+          <IconLine size="20px" />
+        </div>
+      );
     default:
-      icon = <IconPencil size="20px" />;
-      break;
+      return (
+        <div className="text-neutral-700 dark:text-neutral-300">
+          <IconPencil size="20px" />
+        </div>
+      );
   }
-
-  return <div className="text-neutral-700 dark:text-neutral-300">{icon}</div>;
 }
