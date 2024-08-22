@@ -18,8 +18,6 @@ export function NumberOrListInput({
     }
   };
 
-
-
   return (
     <div className="flex flex-row m-1 items-center">
       {title && <div>{title}:</div>}
@@ -36,7 +34,7 @@ export function NumberOrListInput({
               "bg-neutral-200 text-neutral-700",
             )}
           />
-        ): (
+        ) : (
           <input
             type="number"
             value={value}
