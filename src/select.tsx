@@ -43,120 +43,130 @@ export function Select<T extends string | string[]>({
   //   [searchValue, options],
   // );
   return (
-    <Dropdown
-      trigger={
-        <div
-          className={clsx(
-            // "dark:bg-neutral-950/20 bg-neutral-50/20",
-            "relative flex flex-1 items-center w-full group/trigger",
-            "focus:outline focus:outline-1 focus:outline-offset-2",
-            "data-[state=open]:outline data-[state=open]:outline-1 data-[state=open]:outline-offset-2",
-            "px-1",
-            getOutline(variant),
-            getHeight(size),
-            "w-full",
-          )}
-        >
-          {typeof value === "string" && value && (
-            <div className="flex flex-1 flex-row items-center">
-              <StaticIcon
-                size="fit"
-                className="w-3 h-3 pl-0"
-                color={options.find((o) => o.value === value)?.color}
-              >
-                {options.find((o) => o.value === value)?.icon || (
-                  <IconPointFilled size="13px" />
-                )}
-              </StaticIcon>
-              <span
-                style={
-                  {
-                    "--text-color": options.find((o) => o.value === value)
-                      ?.color,
-                  } as CSSProperties
-                }
-                className={clsx(
-                  "flex-1 py-2 px-3",
-                  getFontSize(size),
-                  getBasicTextColor(
-                    options.find((o) => o.value === value)?.color
-                      ? "custom"
-                      : Variant.Default,
-                  ),
-                )}
-              >
-                {options.find((o) => o.value === value)?.label}
-              </span>
+    <div className="flex flex-row">
 
-              <StaticIcon
-                size="fit"
-                className="pr-0.5 items-center justify-around"
-                variant={variant}
-              >
-                <IconSelector size="13px" />
-              </StaticIcon>
-            </div>
-            // <Chip
-            //   variant={variant}
-            //   color={options.find((o) => o.value === value)?.color}
-            //   value={options.find((o) => o.value === value)?.label || "Unknown"}
-            //   icon={options.find((o) => o.value === value)?.icon}
-            //   size={smallerSize(size)}
-            // />
-          )}
-          {Array.isArray(value) && value.length > 0 && (
-            <div className="flex flex-1 gap-1">
-              {value.map((v) => (
-                <Chip
-                  key={v}
+      <Dropdown
+        trigger={
+          <div
+            className={clsx(
+              // "dark:bg-neutral-950/20 bg-neutral-50/20",
+              "relative flex flex-row items-center w-full",
+              "focus:outline focus:outline-1 focus:outline-offset-2",
+              "data-[state=open]:outline data-[state=open]:outline-1 data-[state=open]:outline-offset-2",
+              "px-1",
+              getOutline(variant),
+              getHeight(size),
+              "w-full",
+            )}
+          >
+            {(typeof value === "string" && value) ? (
+              <div className="flex flex-1 flex-row items-center">
+                <StaticIcon
+                  size="fit"
+                  className="w-3 h-3 pl-0"
+                  color={options.find((o) => o.value === value)?.color}
+                >
+                  {options.find((o) => o.value === value)?.icon || (
+                    <IconPointFilled size="13px" />
+                  )}
+                </StaticIcon>
+                <span
+                  style={
+                    {
+                      "--text-color": options.find((o) => o.value === value)
+                        ?.color,
+                    } as CSSProperties
+                  }
+                  className={clsx(
+                    "flex-1 py-2 px-3",
+                    getFontSize(size),
+                    getBasicTextColor(
+                      options.find((o) => o.value === value)?.color
+                        ? "custom"
+                        : Variant.Default,
+                    ),
+                  )}
+                >
+                  {options.find((o) => o.value === value)?.label}
+                </span>
+
+                <StaticIcon
+                  size="fit"
+                  className="pr-0.5 items-center justify-around"
                   variant={variant}
-                  color={options.find((o) => o.value === v)?.color}
-                  value={options.find((o) => o.value === v)?.label || "Unknown"}
-                  size={smallerSize(size)}
-                  icon={options.find((o) => o.value === v)?.icon}
-                  onDelete={(e) => {
-                    onChange(value.filter((f) => f !== v) as T);
-                    e.stopPropagation();
-                  }}
-                />
-              ))}
-            </div>
-          )}
+                >
+                  <IconSelector size="13px" />
+                </StaticIcon>
+              </div>
+              // <Chip
+              //   variant={variant}
+              //   color={options.find((o) => o.value === value)?.color}
+              //   value={options.find((o) => o.value === value)?.label || "Unknown"}
+              //   icon={options.find((o) => o.value === value)?.icon}
+              //   size={smallerSize(size)}
+              // />
+            ) :
+            (
+              <div className="items-center w-full m-1 shadow">
+                <IconSelector size="24px" />
+              </div>
+            )
+          }
+          </div>
+        }
+        variant={variant}
+      >
+        {multiple && options.length > 0 && (
+          <NestedSelect
+            variant={variant}
+            values={value}
+            onChange={(v: string[]) => {
+              onChange(v as T);
+            }}
+            options={options}
+          />
+        )}
+        {!multiple && options.length > 0 && (
+          <NestedRadio
+            variant={variant}
+            value={value}
+            onChange={(v: string) => {
+              onChange(v as T);
+            }}
+            options={options}
+          />
+        )}
+        {options.length === 0 && (
+          <div
+            className={clsx(
+              "p-2 text-center text-neutral-500",
+              getFontSize(size),
+            )}
+          >
+            No results found
+          </div>
+        )}
+      </Dropdown>
+      {Array.isArray(value) && value.length > 0 && (
+        <div className="flex flex-wrap w-full max-w-80 gap-1">
+            {value.map((v) => (
+              <Chip
+                key={v}
+                variant={variant}
+                color={options.find((o) => o.value === v)?.color}
+                value={options.find((o) => o.value === v)?.label || "Unknown"}
+                size={smallerSize(size)}
+                icon={options.find((o) => o.value === v)?.icon}
+                onDelete={(e) => {
+                  console.log("delete", v);
+                  onChange(value.filter((f) => f !== v) as T);
+                  e.stopPropagation();
+                }}
+              />
+            ))}
         </div>
-      }
-      variant={variant}
-    >
-      {multiple && options.length > 0 && (
-        <NestedSelect
-          variant={variant}
-          values={value}
-          onChange={(v: string[]) => {
-            onChange(v as T);
-          }}
-          options={options}
-        />
       )}
-      {!multiple && options.length > 0 && (
-        <NestedRadio
-          variant={variant}
-          value={value}
-          onChange={(v: string) => {
-            onChange(v as T);
-          }}
-          options={options}
-        />
-      )}
-      {options.length === 0 && (
-        <div
-          className={clsx(
-            "p-2 text-center text-neutral-500",
-            getFontSize(size),
-          )}
-        >
-          No results found
-        </div>
-      )}
-    </Dropdown>
+    </div>
     // <Listbox value={value} onChange={onChange}>
     //   <ListboxButton
     //     className={clsx(
