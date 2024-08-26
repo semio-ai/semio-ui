@@ -19,7 +19,7 @@ export function InnerLayout({
   // console.log("Layout Rendered");
   return (
     <div
-      className="fixed h-screen w-screen flex select-none dark:bg-black bg-white"
+      className="fixed h-[100dvh] w-screen flex select-none dark:bg-black bg-white"
       onScroll={(e) => {
         e.preventDefault();
         e.stopPropagation();
