@@ -95,7 +95,7 @@ export { IconKeyFilled } from "./icons/key-filled";
 export { IconKeyOutline } from "./icons/key-outline";
 export { IconKeyOutlineDash } from "./icons/key-outline-dash";
 export { IconKey, type IconKeyProps } from "./icons/key";
-export { WorldElementEditorIcon } from "./icons/world-element-icons";
+export { WorldElementIcon } from "./icons/world-element-icons";
 
 export { StaticIcon } from "./icons/static-icon";
 
@@ -108,3 +108,4 @@ export { useDelayedBoolean } from "./hooks/use-delayed-boolean";
 export { useTheme } from "./hooks/use-theme";
 export { ThemeContext, type ThemeContextValue } from "./context";
 export { Theme, Variant, TimeDisplay, Size } from "./types";
+export { NodeTree } from "./node-tree";

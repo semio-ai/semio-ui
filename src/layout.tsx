@@ -16,7 +16,6 @@ export function InnerLayout({
   bottomPanel,
   children,
 }: LayoutProps) {
-  // console.log("Layout Rendered");
   return (
     <div
       className="fixed h-[100dvh] w-screen flex select-none dark:bg-black bg-white"

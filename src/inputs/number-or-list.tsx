@@ -29,7 +29,7 @@ export function NumberOrListInput({
             value={value.join(", ")}
             onChange={handleChange}
             className={clsx(
-              "w-full px-2 py-1 text-sm rounded-md",
+              "w-full px-2 py-1 text-sm rounded-md max-w-24",
               "dark:bg-neutral-800 dark:text-neutral-300",
               "bg-neutral-200 text-neutral-700",
             )}
@@ -41,7 +41,7 @@ export function NumberOrListInput({
             step={0.1}
             onChange={handleChange}
             className={clsx(
-              "w-full px-2 py-1 text-sm rounded-md",
+              "w-full px-2 py-1 text-sm rounded-md max-w-24",
               "dark:bg-neutral-800 dark:text-neutral-300",
               "bg-neutral-200 text-neutral-700",
             )}
