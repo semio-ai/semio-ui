@@ -52,7 +52,7 @@ export function Modal({
               "flex flex-col focus:outline-none",
               "w-screen h-screen md:w-3/5 md:max-h-[85vh]",
               "data-[state=open]:animate-modalAppear data-[state=closed]:animate-modalDisappear",
-              "bg-neutral-50/50 dark:bg-neutral-950/50 backdrop-blur-lg",
+              "bg-neutral-50/75 dark:bg-neutral-800/75 backdrop-blur-lg",
               "border-t-2 border-solid",
               "max-h-screen h-[100dvh] md:max-h-[85vh] md:h-fit",
               getBorder(variant),
@@ -63,7 +63,7 @@ export function Modal({
               className="md:max-h-[85dvh] max-h-[100dvh]"
               // className="w-screen h-screen md:w-3/5 md:h-fit bg-cyan-500"
               header={
-                <div className="flex flex-col pt-6 px-6 pb-2 gap-1">
+                <div className="flex flex-col pt-6 px-6 pb-2 gap-1 dark:bg-neutral-900/75 bg-neutral-50">
                   <Dialog.Title className="text-base/7 font-medium dark:text-white text-black flex align-center justify-between">
                     {title}
                     <Dialog.Close asChild>
@@ -78,7 +78,7 @@ export function Modal({
                 </div>
               }
               footer={
-                <div className="p-2 flex gap-3 justify-end">
+                <div className="p-2 flex gap-3 justify-end dark:bg-neutral-900/75 bg-neutral-50">
                   {onCancel && (
                     <Dialog.Close asChild>
                       <TextButton
