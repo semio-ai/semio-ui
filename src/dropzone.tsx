@@ -42,8 +42,8 @@ export function Dropzone<T>({
     >
       <input {...getInputProps()} />
 
-      {/* If a URDF is present, show a list of all files (including the URDF) */}
-      {!isDragActive && items.length > 0 ? (
+      {/* If at least one item is uploaded, show a list of all files*/}
+      {items.length > 0 ? (
         <ScrollArea>
           {items.map((item, index) => (
             <div key={index} className="flex items-center justify-between p-3">
