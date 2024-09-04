@@ -2,8 +2,24 @@ import { memo, type ReactNode } from "react";
 import { clsx } from "clsx";
 import * as RadixScrollArea from "@radix-ui/react-scroll-area";
 import useMeasure from "react-use-measure";
-// import { ParentSize } from "@visx/responsive";
 
+/**
+ * Renders a scrollable area with optional header and footer.
+ *
+ * @example
+ * ```tsx
+ * <InnerScrollArea>
+ *   <div>Content goes here</div>
+ * </InnerScrollArea>
+ * ```
+ *
+ * @param children - The content to be rendered inside the scroll area.
+ * @param header - The optional header component to be displayed at the top of the scroll area.
+ * @param footer - The optional footer component to be displayed at the bottom of the scroll area.
+ * @param className - The optional CSS class name for the scroll area container.
+ * @param shrink - Determines whether the scroll area should shrink to fit its content.
+ * @returns The rendered scroll area component.
+ */
 export function InnerScrollArea({
   children,
   header,

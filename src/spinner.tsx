@@ -1,11 +1,21 @@
 import type { ReactNode } from "react";
 
+/**
+ * Renders a spinner component. If children are provided, the spinner will bounce and spin the child,
+ * Otherwise, it will render a default spinner, an animated semi-circle.
+ *
+ * @example
+ * ```tsx
+ * <Spinner>
+ *   <img src="spinner.gif" alt="Loading..." />
+ * </Spinner>
+ * ```
+ */
 function Spinner({ children }: { children?: ReactNode }): ReactNode {
   return (
     <div className="flex justify-center items-center h-auto">
       {children ? (
         <div className="animate-bounce-spin relative">
-          {/* <div className="blur-lg absolute translate-x-2 translate-y-2 rounded-full w-16 h-16 bg-[conic-gradient(#9233ea,#db2777,#2564eb,#9233ea)]" /> */}
           <div className="relative">{children}</div>
         </div>
       ) : (

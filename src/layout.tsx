@@ -9,6 +9,17 @@ export interface LayoutProps {
   children: ReactNode;
 }
 
+/**
+ * Renders the inner layout of the application.
+ * 
+ * TODO: Update with resizeable panes and pop out windows.
+ *
+ * @param menu - The menu component.
+ * @param leftSidebar - The left sidebar component.
+ * @param rightSidebar - The right sidebar component.
+ * @param bottomPanel - The bottom panel component.
+ * @param children - The content to be rendered in the main body.
+ */
 export function InnerLayout({
   menu,
   leftSidebar,
@@ -24,7 +35,7 @@ export function InnerLayout({
         e.stopPropagation();
       }}
     >
-      {/* Menu */}
+      {/* Menu (thin left bar)*/}
       {menu}
 
       {/* Main Container */}
@@ -40,7 +51,6 @@ export function InnerLayout({
             <div className="flex-grow min-h-0 dark:bg-[#303030] bg-[#dddddd] align-middle justify-center">
               {children}
             </div>
-            {/* <span className="absolute top-0 bottom-0 left-0 right-0 shadow-[inset_0_0_50px_-10px_rgba(0,0,0,0.7)] pointer-events-none" /> */}
           </div>
 
           {/* Right Sidebar */}
