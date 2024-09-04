@@ -1,6 +1,6 @@
 {
   "name": "@semio/ui",
-  "description": "Basic React components, built by Semio with Mantine/Tailwind",
+  "description": "Basic React components, built by Semio with Radix/Tailwind",
   "version": "0.0.0",
   "main": "dist/index.js",
   "module": "dist/index.mjs",

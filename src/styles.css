@@ -2,7 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* @import "@mantine/core/styles.css"; */
 /* @import "./fonts/Gilroy/Gilroy.css"; */
 .PopoverContent {
   animation-duration: 400ms;
