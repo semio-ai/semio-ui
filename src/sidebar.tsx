@@ -1,7 +1,6 @@
 import { ReactNode } from "react";
 import { clsx } from "clsx";
 import { Transition } from "@headlessui/react";
-import { ResizableDiv } from "./resizable-div";
 // import { ScrollArea } from "./scroll-area";
 
 export interface SidebarChild {
