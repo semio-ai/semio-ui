@@ -112,7 +112,6 @@ function InnerSliderNumberField({
   label,
   onLabelChange,
 }: SliderNumberFieldProps): ReactNode {
-  // const theme = useMantineTheme();
   const [dragging, setDragging] = useState(false);
 
   const boundsRef = useRef<HTMLDivElement>(null);

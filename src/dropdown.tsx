@@ -16,7 +16,7 @@ export interface DropdownProps {
 
 function Dropdown({ header, trigger, children, variant }: DropdownProps) {
   return (
-    <div className="text-left group">
+    <div className="text-left group flex flex-1">
       <NestedParentProvider value={NestedParent.Dropdown}>
         <DropdownPrimitive.Root>
           <DropdownPrimitive.Trigger asChild>
