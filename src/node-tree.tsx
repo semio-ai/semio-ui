@@ -44,13 +44,17 @@ function Tree({ node, nodeMap, indentLevel = 0, renderNode }: TreeProps) {
   return (
     <>
       <div className="flex flex-row dark:text-neutral-300 text-neutral-700 items-center">
-        <button type="button" onClick={toggleCollapse} style={{ cursor: "pointer" }}>
+        <button
+          type="button"
+          onClick={toggleCollapse}
+          style={{ cursor: "pointer" }}
+        >
           <IconChevronUp
             size="16px"
             className={clsx("mr-2", "transform", isCollapsed && "rotate-180")}
           />
         </button>
-        {renderNode({item: node})}
+        {renderNode({ item: node })}
       </div>
 
       <div style={{ marginLeft: indentLevel }}>
@@ -72,9 +76,9 @@ function Tree({ node, nodeMap, indentLevel = 0, renderNode }: TreeProps) {
 
 /**
  * Remaps the children of a node list to create a node map.
- * 
+ *
  * Nodes are expected to have an `id` field and either a `children` or a `child` and `parent` field.
- * 
+ *
  * @param nodeList - The list of nodes to remap.
  * @returns The remapped node map using just the `children` field.
  */
@@ -112,10 +116,18 @@ function remapChildren(nodeList: any[]): NodeMap {
  * @param renderNode - The function that renders each individual node.
  * @returns The rendered tree component.
  */
-export function NodeTree({ nodeList, renderNode }: { nodeList: any[], renderNode: (node: any) => ReactNode  }) {
+export function NodeTree({
+  nodeList,
+  renderNode,
+}: {
+  nodeList: any[];
+  renderNode: (node: any) => ReactNode;
+}) {
   const root = nodeList.find((node) => node.root); // TODO: turn into a selector for the root
   const rootId = root?.id ?? nodeList[0].id;
   const nodeMap = remapChildren(nodeList);
 
-  return <Tree node={nodeMap[rootId]} nodeMap={nodeMap} renderNode={renderNode} />;
+  return (
+    <Tree node={nodeMap[rootId]} nodeMap={nodeMap} renderNode={renderNode} />
+  );
 }

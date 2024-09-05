@@ -3,7 +3,7 @@ import { Theme } from "../types";
 
 /**
  * Custom hook that returns the preferred system theme.
- * 
+ *
  * @returns The preferred system theme, either `Theme.Dark` or `Theme.Light`.
  */
 export function useSystemThemePreference(): Theme.Dark | Theme.Light {

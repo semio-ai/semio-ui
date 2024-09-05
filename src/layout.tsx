@@ -11,7 +11,7 @@ export interface LayoutProps {
 
 /**
  * Renders the inner layout of the application.
- * 
+ *
  * TODO: Update with resizeable panes and pop out windows.
  *
  * @param menu - The menu component.

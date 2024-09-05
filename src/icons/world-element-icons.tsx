@@ -8,7 +8,7 @@ import {
   IconLine,
 } from "@tabler/icons-react";
 
-export function WorldElementIcon({type}: {type: string}) {
+export function WorldElementIcon({ type }: { type: string }) {
   switch (type) {
     case "shape":
       return (
