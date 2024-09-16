@@ -1,5 +1,7 @@
 import "./styles.css";
 
+export { stampToVisualTime } from "./functions/stamp-to-visual-time";
+
 export { Layout, type LayoutProps } from "./layout";
 export { Button, type ButtonProps } from "./button";
 export { Spinner } from "./spinner";

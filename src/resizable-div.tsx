@@ -4,7 +4,7 @@ export function ResizableDiv({ children }: { children: React.ReactNode }) {
   const resizableDivRef = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(258); // Initial width in pixels (256px = Tailwind's w-64)
 
-  const handleMouseDownLeftEdge = (e: React.MouseEvent<HTMLDivElement>) => {
+  const handleMouseDownLeftEdge = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     document.addEventListener("mousemove", handleMouseMoveLeftEdge);
     document.addEventListener("mouseup", handleMouseUpLeftEdge);
@@ -24,7 +24,7 @@ export function ResizableDiv({ children }: { children: React.ReactNode }) {
     document.removeEventListener("mouseup", handleMouseUpLeftEdge);
   };
 
-  const handleMouseDownRightEdge = (e: React.MouseEvent<HTMLDivElement>) => {
+  const handleMouseDownRightEdge = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     document.addEventListener("mousemove", handleMouseMoveRightEdge);
     document.addEventListener("mouseup", handleMouseUpRightEdge);
@@ -48,18 +48,20 @@ export function ResizableDiv({ children }: { children: React.ReactNode }) {
     <div className="relative">
       <div
         ref={resizableDivRef}
-        style={{ width: `${width}px` }}
+        style={{ width: `${width.toString()}px` }}
         className="h-full flex min-h-[90vh] w-full"
       >
         <div className="flex grow justify-items-center">
           <div className="grow">{children}</div>
         </div>
       </div>
-      <div
+      <button
+        type="button"
         onMouseDown={handleMouseDownLeftEdge}
         className="absolute left-0 top-0 h-full w-1 cursor-ew-resize"
       />
-      <div
+      <button
+        type="button"
         onMouseDown={handleMouseDownRightEdge}
         className="absolute right-0 top-0 h-full w-1 cursor-ew-resize"
       />

@@ -29,6 +29,8 @@ export enum TimeDisplay {
   Frames = "frames",
   SecondsPlusMilliseconds = "seconds+milliseconds",
   MinutesPlusSecondsPlusMilliseconds = "minutes+seconds+milliseconds",
+  SecondsPlusFrames = "seconds+frames",
+  Seconds = "seconds",
 }
 
 export enum NestedParent {
