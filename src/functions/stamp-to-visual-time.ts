@@ -6,26 +6,21 @@ export function stampToVisualTime(
   duration: number,
   framerate: number,
   timeDisplay: TimeDisplay,
+  showDetail?: boolean,
 ): string {
   const t = (stamp * duration) / 1000;
   if (timeDisplay === TimeDisplay.Frames) {
-    let str = round(t * framerate, 1).toString();
-    return `${str}f`;
-    const split = str.split(".");
-    if (split[0].length === 1) {
-      str = `00${str}`;
-    } else if (split[0].length === 2) {
-      str = `0${str}`;
+    if (showDetail) {
+      return `${(t * framerate).toFixed(1)}f`;
+    } else {
+      return `${Math.floor(t * framerate).toString()}f`;
     }
-    if (!split[1]) {
-      str = `${str}.0`;
-    }
-    if (split[0].length > 3) {
-      str = `999+f`;
-    }
-    return `${str}f`;
   } else if (timeDisplay === TimeDisplay.Seconds) {
-    return `${round(t, 2).toString()}s`;
+    if (showDetail) {
+      return `${t.toFixed(3)}s`;
+    } else {
+      return `${(Math.floor(t * 100) / 100).toFixed(2)}s`;
+    }
   } else if (timeDisplay === TimeDisplay.SecondsPlusFrames) {
     const seconds = Math.floor(t);
     const frames = round((t - seconds) * framerate, 2);
