@@ -9,6 +9,17 @@ export interface LayoutProps {
   children: ReactNode;
 }
 
+/**
+ * Renders the inner layout of the application.
+ *
+ * TODO: Update with resizeable panes and pop out windows.
+ *
+ * @param menu - The menu component.
+ * @param leftSidebar - The left sidebar component.
+ * @param rightSidebar - The right sidebar component.
+ * @param bottomPanel - The bottom panel component.
+ * @param children - The content to be rendered in the main body.
+ */
 export function InnerLayout({
   menu,
   leftSidebar,
@@ -18,13 +29,13 @@ export function InnerLayout({
 }: LayoutProps) {
   return (
     <div
-      className="fixed h-screen w-screen flex select-none dark:bg-black bg-white"
+      className="fixed h-[100dvh] w-screen flex select-none dark:bg-black bg-white"
       onScroll={(e) => {
         e.preventDefault();
         e.stopPropagation();
       }}
     >
-      {/* Menu */}
+      {/* Menu (thin left bar)*/}
       {menu}
 
       {/* Main Container */}

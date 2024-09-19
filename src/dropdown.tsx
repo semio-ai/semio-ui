@@ -4,19 +4,22 @@ import { ReactNode } from "react";
 import { NestedParent, Variant } from "./types";
 import { getBorder, getBasicTextColor } from "./style-functions";
 import { NestedParentProvider } from "./nested-elements/context";
+import { ScrollArea } from "./scroll-area";
+import "./styles.css";
 
 export interface DropdownProps {
   trigger: ReactNode;
   children: ReactNode;
   variant?: Variant;
+  header?: ReactNode;
 }
 
-function Dropdown({ trigger, children, variant }: DropdownProps) {
+function Dropdown({ header, trigger, children, variant }: DropdownProps) {
   return (
-    <div className="relative inline-block text-left">
+    <div className="text-left group flex flex-1">
       <NestedParentProvider value={NestedParent.Dropdown}>
         <DropdownPrimitive.Root>
-          <DropdownPrimitive.Trigger asChild className="select-none">
+          <DropdownPrimitive.Trigger asChild>
             {trigger}
           </DropdownPrimitive.Trigger>
           <DropdownPrimitive.Portal>
@@ -29,19 +32,33 @@ function Dropdown({ trigger, children, variant }: DropdownProps) {
                 "data-[side=right]:animate-slideLeftAndFade",
                 "data-[side=bottom]:animate-slideUpAndFade",
                 "data-[side=left]:animate-slideRightAndFade",
-                "min-w-[220px] p-[5px] shadow-md",
+                "min-w-[220px] shadow-md",
                 "bg-neutral-50/50 dark:bg-neutral-950/50 backdrop-blur-lg",
                 "data-[side=bottom]:border-t-2 border-solid",
                 "data-[side=top]:border-b-2 border-solid",
                 "data-[side=right]:border-l-2 border-solid",
                 "data-[side=left]:border-r-2 border-solid",
+                "max-h-[--radix-dropdown-menu-content-available-height]",
+                "w-[calc(var(--radix-dropdown-menu-trigger-width)+10px)]",
                 getBorder(variant),
               )}
             >
               <DropdownPrimitive.Arrow
-                className={clsx("fill-current", getBasicTextColor(variant))}
+                className={clsx(
+                  "relative fill-current",
+                  getBasicTextColor(variant),
+                )}
               />
-              {children}
+              <ScrollArea
+                header={header}
+                shrink
+                className={
+                  clsx("max-h-[--radix-dropdown-menu-content-available-height]")
+                  // "max-h-[calc(var(--radix-dropdown-menu-content-available-height)-0px)]",
+                }
+              >
+                {children}
+              </ScrollArea>
             </DropdownPrimitive.Content>
           </DropdownPrimitive.Portal>
         </DropdownPrimitive.Root>

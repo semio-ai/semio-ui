@@ -1,5 +1,5 @@
 import { clsx } from "clsx";
-import { CSSProperties, ReactNode } from "react";
+import { CSSProperties, ReactNode, type MouseEventHandler } from "react";
 import { alpha, altColor } from "@semio/utils";
 import { Variant, Size } from "../types";
 import { getHeight, getHoverTextStyles } from "../style-functions";
@@ -17,7 +17,7 @@ export interface IconButtonProps
   /**
    * Optional click handler
    */
-  onClick?: () => void;
+  onClick?: MouseEventHandler<HTMLButtonElement>;
   /**
    * Optional variant to apply to the button
    */

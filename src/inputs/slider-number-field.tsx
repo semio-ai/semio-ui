@@ -60,7 +60,7 @@ const InputWrapper = forwardRef(
         // Tailwind does not support truly dynamic styles, so we have to use inline styles here
         style={{
           outlineColor: alpha(color, focused ? 1 : 0),
-          background: `linear-gradient(90deg, ${alpha(color, inactive ? 0.6 : 1)} 0%, ${alpha(color, inactive ? 0.6 : 1)} ${((percent || 0) * 100).toString()}%, ${alpha(color, focused ? 0.25 : 0.15)} ${((percent || 0) * 100).toString()}%, ${alpha(color, focused ? 0.25 : 0.15)} 100%)`,
+          background: `linear-gradient(90deg, ${alpha(color, inactive ? 0.6 : 1)} 0%, ${alpha(color, inactive ? 0.6 : 1)} ${((percent || 0) * 100).toString()}%, ${alpha(color, focused ? 0.35 : 0.2)} ${((percent || 0) * 100).toString()}%, ${alpha(color, focused ? 0.35 : 0.2)} 100%)`,
         }}
       >
         {children}
@@ -112,7 +112,6 @@ function InnerSliderNumberField({
   label,
   onLabelChange,
 }: SliderNumberFieldProps): ReactNode {
-  // const theme = useMantineTheme();
   const [dragging, setDragging] = useState(false);
 
   const boundsRef = useRef<HTMLDivElement>(null);

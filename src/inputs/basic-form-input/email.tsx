@@ -1,5 +1,4 @@
-
-import { Field, Input, Label } from '@headlessui/react'
+import { Field, Input, Label } from "@headlessui/react";
 import { useEmailInput } from "../../hooks/formInputHooks";
 
 export interface EmailInputProps {
@@ -11,14 +10,13 @@ export interface EmailInputProps {
   inputSize?: number;
 }
 
-export function EmailInput({ 
-  emailValue, 
+export function EmailInput({
+  emailValue,
   onEmailChange,
-  fieldName="email",
-  inputTitle="Email:",
-  inputPlaceholder="example@abc.com",
+  fieldName = "email",
+  inputTitle = "Email:",
+  inputPlaceholder = "example@abc.com",
 }: EmailInputProps) {
-
   const { email, error, handleChange } = useEmailInput(
     emailValue,
     onEmailChange,
@@ -27,11 +25,7 @@ export function EmailInput({
 
   return (
     <Field>
-      <Label 
-      className="block text-lg"
-      >
-        {inputTitle}
-      </Label>
+      <Label className="block text-lg">{inputTitle}</Label>
       <Input
         value={email}
         onChange={handleChange}
@@ -40,6 +34,6 @@ export function EmailInput({
         placeholder={inputPlaceholder}
       />
       {error && <span style={{ color: "red" }}>{error}</span>}
-      </Field>
+    </Field>
   );
 }
