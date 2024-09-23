@@ -1,6 +1,6 @@
 import type { MutableRefObject, ReactNode } from "react";
 import { memo, useRef } from "react";
-import { useGesture, usePinch, useScroll, useWheel } from "@use-gesture/react";
+import { useGesture } from "@use-gesture/react";
 
 export interface LayoutProps {
   menu: ReactNode;
