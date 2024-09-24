@@ -1,5 +1,6 @@
-import type { ReactNode } from "react";
-import { memo } from "react";
+import type { MutableRefObject, ReactNode } from "react";
+import { memo, useRef } from "react";
+import { useGesture } from "@use-gesture/react";
 
 export interface LayoutProps {
   menu: ReactNode;
@@ -27,13 +28,25 @@ export function InnerLayout({
   bottomPanel,
   children,
 }: LayoutProps) {
+  const root = useRef<HTMLDivElement>();
+
+  useGesture(
+    {
+      onPinch: ({ event }) => {
+        event.preventDefault();
+        event.stopPropagation();
+      },
+    },
+    {
+      target: root as MutableRefObject<HTMLDivElement>,
+      eventOptions: { passive: false },
+    },
+  );
+
   return (
     <div
-      className="fixed h-[100dvh] w-screen flex select-none dark:bg-black bg-white"
-      onScroll={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-      }}
+      ref={root as MutableRefObject<HTMLDivElement>}
+      className="fixed h-[100dvh] w-screen flex select-none dark:bg-black bg-white touch-none"
     >
       {/* Menu (thin left bar)*/}
       {menu}
