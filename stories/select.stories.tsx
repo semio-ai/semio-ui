@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { Meta, StoryObj } from "@storybook/react";
-import { Select, Size, Variant } from "@semio/ui";
+import { Select, type SelectProps, Size, Variant } from "@semio/ui";
 import { IconMessageCircle2, IconWorld } from "@tabler/icons-react";
 
 const meta: Meta<typeof Select> = {
@@ -11,6 +11,18 @@ export default meta;
 
 type Story = StoryObj<typeof Select>;
 
+// Create a wrapped version of the story with hooks to
+// illustrate callback behavior
+function SelectWithHooks(props: SelectProps<string | string[]>): JSX.Element {
+  const [value, setValue] = useState<string | string[]>(props.value);
+
+  return (
+    <div className="w-[100%]">
+      <Select {...props} value={value} onChange={setValue} />
+    </div>
+  );
+}
+
 /*
  *👇 Render functions are a framework specific feature to allow you control on how the component renders.
  * See https://storybook.js.org/docs/react/api/csf
@@ -18,11 +30,9 @@ type Story = StoryObj<typeof Select>;
  */
 export const Primary: Story = {
   render: (props) => {
-    const [value, setValue] = useState<string | string[]>(props.value);
-
     return (
       <div className="w-[100%]">
-        <Select {...props} value={value} onChange={setValue} />
+        <SelectWithHooks {...props} />
       </div>
     );
   },
@@ -50,11 +60,9 @@ export const Primary: Story = {
 
 export const Secondary: Story = {
   render: (props) => {
-    const [value, setValue] = useState<string | string[]>(props.value);
-
     return (
-      <div className="w-full">
-        <Select {...props} value={value} onChange={setValue} />
+      <div className="w-[100%]">
+        <SelectWithHooks {...props} />
       </div>
     );
   },

@@ -1,5 +1,11 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { Size, TimeDisplay, TimeInput, Variant } from "@semio/ui";
+import {
+  Size,
+  TimeDisplay,
+  TimeInput,
+  type TimeInputProps,
+  Variant,
+} from "@semio/ui";
 import { useState } from "react";
 
 const meta: Meta<typeof TimeInput> = {
@@ -10,6 +16,23 @@ export default meta;
 
 type Story = StoryObj<typeof TimeInput>;
 
+// Create a wrapped version of the story with hooks to
+// illustrate callback behavior
+function TimeInputWithHooks(props: TimeInputProps): JSX.Element {
+  const [t, setT] = useState(props.value);
+
+  return (
+    <TimeInput
+      {...props}
+      value={t}
+      onChange={(v) => {
+        setT(v);
+        props.onChange(v);
+      }}
+    />
+  );
+}
+
 /*
  *👇 Render functions are a framework specific feature to allow you control on how the component renders.
  * See https://storybook.js.org/docs/react/api/csf
@@ -17,18 +40,7 @@ type Story = StoryObj<typeof TimeInput>;
  */
 export const Primary: Story = {
   render: (props) => {
-    const [t, setT] = useState(props.value);
-
-    return (
-      <TimeInput
-        {...props}
-        value={t}
-        onChange={(v) => {
-          setT(v);
-          props.onChange(v);
-        }}
-      />
-    );
+    return <TimeInputWithHooks {...props} />;
   },
   name: "Sec + Msec",
   args: {

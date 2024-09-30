@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { TextField, Variant, Size } from "@semio/ui";
+import { TextField, Variant, Size, type TextFieldProps } from "@semio/ui";
 import { useState } from "react";
 
 const meta: Meta<typeof TextField> = {
@@ -10,6 +10,27 @@ export default meta;
 
 type Story = StoryObj<typeof TextField>;
 
+// Create a wrapped version of the story with hooks to
+// illustrate callback behavior
+function TextFieldWithHooks(props: TextFieldProps): JSX.Element {
+  const [t, setT] = useState<string | readonly string[] | number | undefined>(
+    props.value as string | readonly string[] | number | undefined,
+  );
+
+  return (
+    <div className="w-96">
+      <TextField
+        {...props}
+        value={t}
+        onChange={(v) => {
+          setT(v);
+          props.onChange?.(v);
+        }}
+      />
+    </div>
+  );
+}
+
 /*
  *👇 Render functions are a framework specific feature to allow you control on how the component renders.
  * See https://storybook.js.org/docs/react/api/csf
@@ -17,18 +38,9 @@ type Story = StoryObj<typeof TextField>;
  */
 export const Primary: Story = {
   render: (props) => {
-    const [t, setT] = useState(props.value);
-
     return (
       <div className="w-96">
-        <TextField
-          {...props}
-          value={t}
-          onChange={(v) => {
-            setT(v);
-            props.onChange?.(v);
-          }}
-        />
+        <TextFieldWithHooks {...props} />
       </div>
     );
   },

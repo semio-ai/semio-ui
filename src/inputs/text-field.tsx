@@ -4,12 +4,15 @@ import { Size, Variant } from "../types";
 import { getHeight, getOutline, getTextCaretColor } from "../style-functions";
 import { StyledInput } from "./styled-input";
 
-export interface TextFieldProps {
+interface TextFieldAdditionalProps {
   onChange?: (value: string) => void;
   variant?: Variant;
   size?: Size;
   bg?: boolean;
 }
+
+export type TextFieldProps = TextFieldAdditionalProps &
+  Omit<InputHTMLAttributes<HTMLInputElement>, "size" | "onChange">;
 
 /*
 TextField is a component that allows the user to input text.
@@ -24,8 +27,7 @@ function InnerTextField({
   variant,
   bg = false,
   ...forwardedProps
-}: TextFieldProps &
-  Omit<InputHTMLAttributes<HTMLInputElement>, "size" | "onChange">): ReactNode {
+}: TextFieldProps): ReactNode {
   // const [focused, setFocused] = useState(false);
 
   return (
