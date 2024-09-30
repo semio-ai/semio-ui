@@ -14,7 +14,7 @@ type Story = StoryObj<typeof TextField>;
 // illustrate callback behavior
 function TextFieldWithHooks(props: TextFieldProps): JSX.Element {
   const [t, setT] = useState<string | readonly string[] | number | undefined>(
-    props.value as string | readonly string[] | number | undefined,
+    props.value as unknown as string | readonly string[] | number | undefined,
   );
 
   return (
