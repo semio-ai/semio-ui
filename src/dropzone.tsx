@@ -1,5 +1,5 @@
 import { clsx } from "clsx";
-import { useDropzone, type Accept } from "react-dropzone";
+import { useDropzone, type Accept } from "react-dropzone-esm";
 import { IconArrowBigDownLines } from "@tabler/icons-react";
 import { ScrollArea } from "./scroll-area";
 
