@@ -8,7 +8,9 @@ import {
   forwardRef,
   ForwardedRef,
 } from "react";
+import { animated, useSpringValue, type SpringValue } from "@react-spring/web";
 import { round, enableBoundaryChecking } from "number-precision";
+import { clamp } from "lodash";
 import { alpha } from "@semio/utils";
 import { clsx } from "clsx";
 import { useGesture } from "@use-gesture/react";
@@ -20,11 +22,13 @@ import { StyledInput } from "./styled-input";
 enableBoundaryChecking(false);
 
 interface InputProps {
-  percent?: number;
+  percent: SpringValue<number>;
   color: string;
   size: Size;
   focused?: boolean;
   inactive?: boolean;
+  showFill?: boolean;
+  emphasis?: boolean;
 }
 
 enum SliderMode {
@@ -46,25 +50,33 @@ const InputWrapper = forwardRef(
       inactive,
       children,
       focused,
+      showFill,
+      emphasis,
       ...forwardedProps
     } = props;
+
     return (
-      <div
+      <animated.div
         ref={ref}
         {...forwardedProps}
         className={clsx(
-          "flex flex-row w-full touch-none p-0 overflow-hidden rounded-none transition-all",
+          "flex flex-row w-full touch-none p-0 overflow-hidden rounded-none",
           getHeight(size),
-          "outline outline-1 outline-offset-2",
+          "outline outline-1 outline-offset-2 transition-[outline-color,background]",
         )}
         // Tailwind does not support truly dynamic styles, so we have to use inline styles here
         style={{
           outlineColor: alpha(color, focused ? 1 : 0),
-          background: `linear-gradient(90deg, ${alpha(color, inactive ? 0.6 : 1)} 0%, ${alpha(color, inactive ? 0.6 : 1)} ${((percent || 0) * 100).toString()}%, ${alpha(color, focused ? 0.35 : 0.2)} ${((percent || 0) * 100).toString()}%, ${alpha(color, focused ? 0.35 : 0.2)} 100%)`,
+          background: !showFill
+            ? alpha(color, emphasis ? 0.5 : 0.35)
+            : percent.to(
+                (p) =>
+                  `linear-gradient(90deg, ${alpha(color, inactive ? 0.6 : 1)} 0%, ${alpha(color, inactive ? 0.6 : 1)} ${(p * 100).toString()}%, ${alpha(color, emphasis ? 0.35 : 0.2)} ${(p * 100).toString()}%, ${alpha(color, emphasis ? 0.35 : 0.2)} 100%)`,
+              ),
         }}
       >
         {children}
-      </div>
+      </animated.div>
     );
   },
 );
@@ -74,16 +86,18 @@ InputWrapper.displayName = "InputWrapper";
 export interface SliderNumberFieldProps {
   value: number;
   onChange: (value: number) => void;
-  min: number;
-  max: number;
+  min?: number;
+  max?: number;
   units?: string;
   color?: string;
   strict?: boolean;
+  emphasis?: boolean;
   size?: Size;
   inactive?: boolean;
   disabled?: boolean;
   label?: string;
   onLabelChange?: (label: string) => void;
+  onEmphasisChange?: (emphasis: boolean) => void;
 }
 
 /*
@@ -97,6 +111,9 @@ SliderNumberField
 @props size?: "sm" | "md" | "lg" - the size of the field
 @props inactive?: boolean - whether the field is inactive (still allows clicking)
 @props disabled?: boolean - whether the field is disabled (does not allow clicking or changing the value)
+@props label?: string - the label of the field
+@props onLabelChange?: (label: string) => void - the callback to call when the label changes
+@props onEmphasisChange?: (emphasis: boolean) => void - the callback to call when the field is in focus
 */
 function InnerSliderNumberField({
   value,
@@ -106,18 +123,20 @@ function InnerSliderNumberField({
   units,
   color,
   strict,
+  emphasis,
   size = Size.Md,
   inactive,
   disabled,
   label,
   onLabelChange,
+  onEmphasisChange,
 }: SliderNumberFieldProps): ReactNode {
-  const [dragging, setDragging] = useState(false);
-
   const boundsRef = useRef<HTMLDivElement>(null);
   const sliderColor = color || "#737373";
 
   const [sliderMode, setSliderMode] = useState(SliderMode.Blurred);
+
+  const percentSpring = useSpringValue<number>(value);
 
   const {
     textValue,
@@ -138,9 +157,24 @@ function InnerSliderNumberField({
     }
   }, [value, sliderMode, onChangeHeadless]);
 
-  const bindings = useGesture(
+  useEffect(() => {
+    if (min !== undefined && max !== undefined) {
+      percentSpring.set((value - min) / (max - min));
+    }
+  }, [value, min, max, percentSpring]);
+
+  useGesture(
     {
-      onDrag: ({ xy: [x], down, intentional, tap }) => {
+      onDrag: ({
+        xy: [x],
+        intentional,
+        tap,
+        dragging = false,
+        hovering = false,
+        wheeling = false,
+        event,
+        delta: [dx],
+      }) => {
         if (disabled) return;
         if (!intentional) return;
         if (tap) return;
@@ -148,33 +182,72 @@ function InnerSliderNumberField({
           return;
         if (!boundsRef.current) return;
         const bounds = boundsRef.current.getBoundingClientRect();
-        setSliderMode(SliderMode.Drag);
-        let v = (max - min) * ((x - bounds.left) / bounds.width) + min;
-        // console.log("v", v);
-        if (strict) {
-          v = Math.max(min, Math.min(max, v));
+        if ((wheeling || dragging) && sliderMode !== SliderMode.Drag) {
+          setSliderMode(SliderMode.Drag);
+        } else if (!wheeling && !dragging && sliderMode === SliderMode.Drag) {
+          setSliderMode(SliderMode.Blurred);
         }
-        // animatedValue.set(v);
+        let v = value;
+        if (min !== undefined && max !== undefined) {
+          v = (max - min) * ((x - bounds.left) / bounds.width) + min;
+          if (strict) {
+            v = Math.max(min, Math.min(max, v));
+          }
+        } else {
+          v += dx / 100;
+        }
         onChangeDirect(round(v, 2));
-        setDragging(down);
-      },
-      onDragEnd: () => {
-        if (disabled) return;
-        // animatedValue.set(value);
-        setDragging(false);
-      },
-      onBlur: ({ event }) => {
-        if (disabled) return;
-        setSliderMode(SliderMode.Blurred);
-        onBlur();
+        onEmphasisChange?.(dragging || hovering || wheeling);
+        event.preventDefault();
         event.stopPropagation();
+      },
+      onWheel: ({
+        delta: [, dy],
+        event,
+        dragging = false,
+        hovering = false,
+        wheeling = false,
+      }) => {
+        if (disabled) return;
+        if (dy === 0) return;
+        let v = value;
+        if (min !== undefined && max !== undefined) {
+          const step = (max - min) / 100;
+          v = value + step * (dy > 0 ? 1 : -1);
+          if (strict) {
+            v = clamp(v, min, max);
+          }
+        } else {
+          v += dy / 100;
+        }
+        onChangeDirect(round(v, 2));
+        onEmphasisChange?.(dragging || hovering || wheeling);
+        if ((wheeling || dragging) && sliderMode !== SliderMode.Drag) {
+          setSliderMode(SliderMode.Drag);
+        } else if (!wheeling && !dragging && sliderMode === SliderMode.Drag) {
+          setSliderMode(SliderMode.Blurred);
+        }
+        event.preventDefault();
+        event.stopPropagation();
+      },
+      onHover: ({ hovering = false, dragging = false, wheeling = false }) => {
+        if (disabled) return;
+        onEmphasisChange?.(hovering || dragging || wheeling);
+        if (
+          !hovering &&
+          !dragging &&
+          !wheeling &&
+          sliderMode === SliderMode.Drag
+        ) {
+          setSliderMode(SliderMode.Blurred);
+        }
       },
     },
     {
+      target: boundsRef,
+      eventOptions: { passive: false },
       drag: {
-        // bounds,
         filterTaps: true,
-        // from: [bounds.left + bounds.width * ((value - min) / (max - min)), 0],
       },
     },
   );
@@ -182,12 +255,19 @@ function InnerSliderNumberField({
   return (
     <InputWrapper
       ref={boundsRef}
-      {...bindings()}
       color={sliderColor}
       size={size}
+      showFill={min !== undefined && max !== undefined}
       inactive={inactive || disabled}
-      percent={(value - min) / (max - min)}
-      focused={sliderMode !== SliderMode.Blurred || dragging}
+      percent={percentSpring}
+      focused={sliderMode !== SliderMode.Blurred}
+      emphasis={sliderMode !== SliderMode.Blurred || emphasis}
+      onBlur={(event) => {
+        if (disabled) return;
+        setSliderMode(SliderMode.Blurred);
+        onBlur();
+        event.stopPropagation();
+      }}
     >
       {label !== undefined && (
         <input
@@ -241,7 +321,12 @@ function InnerSliderNumberField({
           setSliderMode(SliderMode.Manual);
         }}
       />
-      <span className={clsx("w-fit font-mono pr-1", getFontSize(size))}>
+      <span
+        className={clsx(
+          "w-fit font-mono pr-1 text-black dark:text-white",
+          getFontSize(size),
+        )}
+      >
         {units}
       </span>
     </InputWrapper>
