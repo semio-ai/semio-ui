@@ -38,7 +38,7 @@ export function InnerLayout({
       },
     },
     {
-      target: root as MutableRefObject<HTMLDivElement>,
+      target: root as MutableRefObject<EventTarget>,
       eventOptions: { passive: false },
     },
   );
