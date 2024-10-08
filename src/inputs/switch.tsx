@@ -47,7 +47,7 @@ export function Switch({
       <div
         className={clsx(
           "size-4 bg-white dark:bg-black transition ease-in-out duration-300 grid place-content-center",
-          getBasicTextColor(value ? variant : offVariant ?? Variant.Default),
+          getBasicTextColor(value ? variant : (offVariant ?? Variant.Default)),
           !square && "rounded-full",
           buttonSize[size ?? "md"],
         )}
