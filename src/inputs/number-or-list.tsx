@@ -11,7 +11,9 @@ export function NumberOrListInput({
 }) {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (Array.isArray(value)) {
-      const values: number[] = e.target.value.split(",").map((v: string) => parseFloat(v.trim()));
+      const values: number[] = e.target.value
+        .split(",")
+        .map((v: string) => parseFloat(v.trim()));
       onChange(values);
     } else {
       onChange(parseFloat(e.target.value as string));
