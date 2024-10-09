@@ -3,12 +3,7 @@ import { IconPointFilled, IconSelector } from "@tabler/icons-react";
 import { clsx } from "clsx";
 // import { matchSorter } from "match-sorter";
 import { Size, Variant } from "./types";
-import {
-  getOutline,
-  getHeight,
-  getBasicTextColor,
-  getFontSize,
-} from "./style-functions";
+import { getOutline, getHeight, getBasicTextColor, getFontSize } from "./style-functions";
 import { Dropdown } from "./dropdown";
 import { StaticIcon } from "./icons/static-icon";
 import { NestedSelect } from "./nested-elements/select";
@@ -69,15 +64,12 @@ export function Select<T extends string | string[]>({
                   className="w-3 h-3 pl-0"
                   color={options.find((o) => o.value === value)?.color}
                 >
-                  {options.find((o) => o.value === value)?.icon || (
-                    <IconPointFilled size="13px" />
-                  )}
+                  {options.find((o) => o.value === value)?.icon || <IconPointFilled size="13px" />}
                 </StaticIcon>
                 <span
                   style={
                     {
-                      "--text-color": options.find((o) => o.value === value)
-                        ?.color,
+                      "--text-color": options.find((o) => o.value === value)?.color,
                     } as CSSProperties
                   }
                   className={clsx(
@@ -85,9 +77,7 @@ export function Select<T extends string | string[]>({
                     getHeight(size),
                     getFontSize(size),
                     getBasicTextColor(
-                      options.find((o) => o.value === value)?.color
-                        ? "custom"
-                        : Variant.Default,
+                      options.find((o) => o.value === value)?.color ? "custom" : Variant.Default,
                     ),
                   )}
                 >
@@ -139,12 +129,7 @@ export function Select<T extends string | string[]>({
           />
         )}
         {options.length === 0 && (
-          <div
-            className={clsx(
-              "p-2 text-center text-neutral-500",
-              getFontSize(size),
-            )}
-          >
+          <div className={clsx("p-2 text-center text-neutral-500", getFontSize(size))}>
             No results found
           </div>
         )}

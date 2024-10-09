@@ -20,9 +20,7 @@ function ColorPickerInputWithHooks({
   const [innerValue, setInnerValue] = useState<string | RawColor>(value);
   return (
     <>
-      <p className="dark:text-white text-black">
-        Current value: {JSON.stringify(innerValue)}
-      </p>
+      <p className="dark:text-white text-black">Current value: {JSON.stringify(innerValue)}</p>
       <ColorPickerInput
         value={innerValue}
         onChange={(v) => {

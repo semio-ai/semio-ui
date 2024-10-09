@@ -27,11 +27,7 @@ export function Sidebar({ children, sidebar }: SidebarProps) {
       {/* <div className="flex grow"> */}
       {/* Test Div */}
       {children.map((child) => (
-        <Transition
-          key={child.key}
-          show={sidebar === child.key}
-          unmount={false}
-        >
+        <Transition key={child.key} show={sidebar === child.key} unmount={false}>
           <div
             className={clsx(
               // Base styles

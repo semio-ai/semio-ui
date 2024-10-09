@@ -56,9 +56,7 @@ export function Dropzone<T>({
           <div className="h-32 w-32 z-1">
             <IconArrowBigDownLines size="128px" className="" />
           </div>
-          <span>
-            {dropText ?? `Drag and Drop File${multiple ? "s" : ""} Here`}
-          </span>
+          <span>{dropText ?? `Drag and Drop File${multiple ? "s" : ""} Here`}</span>
         </div>
       )}
     </div>

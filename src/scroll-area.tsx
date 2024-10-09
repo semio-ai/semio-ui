@@ -46,18 +46,12 @@ export function InnerScrollArea({
       )}
     >
       {header && (
-        <div
-          ref={headerRef}
-          className="absolute top-0 left-0 right-0 z-10 backdrop-blur-md"
-        >
+        <div ref={headerRef} className="absolute top-0 left-0 right-0 z-10 backdrop-blur-md">
           {header}
         </div>
       )}
       {footer && (
-        <div
-          ref={footerRef}
-          className="absolute bottom-0 left-0 right-0 z-10 backdrop-blur-md"
-        >
+        <div ref={footerRef} className="absolute bottom-0 left-0 right-0 z-10 backdrop-blur-md">
           {footer}
         </div>
       )}
@@ -72,13 +66,9 @@ export function InnerScrollArea({
         <RadixScrollArea.Viewport
           className={clsx("w-full", shrink ? "h-fit" : "h-full", className)}
         >
-          {header && (
-            <div className="w-full" style={{ height: headerBounds.height }} />
-          )}
+          {header && <div className="w-full" style={{ height: headerBounds.height }} />}
           {children}
-          {footer && (
-            <div className="w-full" style={{ height: footerBounds.height }} />
-          )}
+          {footer && <div className="w-full" style={{ height: footerBounds.height }} />}
         </RadixScrollArea.Viewport>
         <RadixScrollArea.Scrollbar
           className="flex select-none touch-none py-1 px-0.5 bg-black/5 dark:bg-white/5 transition-colors duration-[160ms] ease-out hover:dark:bg-white/25 hover:bg-black/25 data-[orientation=vertical]:w-2.5 data-[orientation=horizontal]:flex-col data-[orientation=horizontal]:h-2.5"

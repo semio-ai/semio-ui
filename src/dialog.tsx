@@ -88,11 +88,7 @@ export function Dialog({
               )}
               {onSubmit && (
                 <AlertDialog.Action asChild>
-                  <TextButton
-                    variant={variant}
-                    onClick={onSubmit}
-                    disabled={submitDisabled}
-                  >
+                  <TextButton variant={variant} onClick={onSubmit} disabled={submitDisabled}>
                     {submitText}
                   </TextButton>
                 </AlertDialog.Action>

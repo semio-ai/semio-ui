@@ -12,8 +12,7 @@ export function ResizableDiv({ children }: { children: React.ReactNode }) {
 
   const handleMouseMoveLeftEdge = (e: { clientX: number }) => {
     if (resizableDivRef.current) {
-      const newWidth =
-        resizableDivRef.current.getBoundingClientRect().right - e.clientX;
+      const newWidth = resizableDivRef.current.getBoundingClientRect().right - e.clientX;
       // console.log('newWidth', newWidth);
       setWidth(newWidth > 100 ? newWidth : 100); // Minimum width of 100px
     }
@@ -32,8 +31,7 @@ export function ResizableDiv({ children }: { children: React.ReactNode }) {
 
   const handleMouseMoveRightEdge = (e: { clientX: number }) => {
     if (resizableDivRef.current) {
-      const newWidth =
-        e.clientX - resizableDivRef.current.getBoundingClientRect().left;
+      const newWidth = e.clientX - resizableDivRef.current.getBoundingClientRect().left;
       // console.log('newWidth', newWidth);
       setWidth(newWidth > 100 ? newWidth : 100); // Minimum width of 100px
     }

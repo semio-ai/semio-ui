@@ -20,14 +20,7 @@ export interface ChipProps {
   onDelete?: MouseEventHandler<HTMLButtonElement>;
 }
 
-export function Chip({
-  value,
-  variant,
-  size = Size.Md,
-  color,
-  icon,
-  onDelete,
-}: ChipProps) {
+export function Chip({ value, variant, size = Size.Md, color, icon, onDelete }: ChipProps) {
   return (
     <div
       className={clsx(

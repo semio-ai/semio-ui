@@ -15,10 +15,7 @@ export function ImageInput({
   uploading = false,
   inputTitle = "Upload Image:",
 }: ImageInputProps) {
-  const { localImageURL, handleChange, handleRemove } = useImageInput(
-    onImageChange,
-    imageUrl,
-  );
+  const { localImageURL, handleChange, handleRemove } = useImageInput(onImageChange, imageUrl);
 
   return (
     <div>
@@ -30,24 +27,11 @@ export function ImageInput({
       ) : (
         <Field>
           <Label className="block mb-2">{inputTitle}</Label>
-          <Input
-            type="file"
-            accept="image/*"
-            onChange={handleChange}
-            className="mb-2"
-          />
+          <Input type="file" accept="image/*" onChange={handleChange} className="mb-2" />
           {localImageURL && (
             <div className="mb-2 flex flex-col justify-center items-center">
-              <img
-                src={localImageURL}
-                alt="Preview"
-                className="max-w-36 h-auto rounded-lg"
-              />
-              <button
-                type="button"
-                onClick={handleRemove}
-                className="mt-2 text-red-500"
-              >
+              <img src={localImageURL} alt="Preview" className="max-w-36 h-auto rounded-lg" />
+              <button type="button" onClick={handleRemove} className="mt-2 text-red-500">
                 Remove
               </button>
             </div>

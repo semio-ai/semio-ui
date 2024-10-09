@@ -44,11 +44,7 @@ function Tree({ node, nodeMap, indentLevel = 0, renderNode }: TreeProps) {
   return (
     <>
       <div className="flex flex-row dark:text-neutral-300 text-neutral-700 items-center">
-        <button
-          type="button"
-          onClick={toggleCollapse}
-          style={{ cursor: "pointer" }}
-        >
+        <button type="button" onClick={toggleCollapse} style={{ cursor: "pointer" }}>
           <IconChevronUp
             size="16px"
             className={clsx("mr-2", "transform", isCollapsed && "rotate-180")}
@@ -127,7 +123,5 @@ export function NodeTree({
   const rootId = root?.id ?? nodeList[0].id;
   const nodeMap = remapChildren(nodeList);
 
-  return (
-    <Tree node={nodeMap[rootId]} nodeMap={nodeMap} renderNode={renderNode} />
-  );
+  return <Tree node={nodeMap[rootId]} nodeMap={nodeMap} renderNode={renderNode} />;
 }

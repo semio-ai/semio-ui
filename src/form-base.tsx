@@ -1,10 +1,4 @@
-export function FormBase({
-  children,
-  title,
-}: {
-  children: React.ReactNode;
-  title?: string;
-}) {
+export function FormBase({ children, title }: { children: React.ReactNode; title?: string }) {
   return (
     <div className="flex items-center justify-center">
       <div className="bg-white p-8 rounded-lg shadow-lg min-w-72 max-w-screen-md">

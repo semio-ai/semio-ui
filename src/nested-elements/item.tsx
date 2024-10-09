@@ -15,18 +15,10 @@ export interface NestedItemProps {
   onClick?: (event: React.MouseEvent) => void;
 }
 
-export function NestedItem({
-  left,
-  children,
-  right,
-  variant,
-  disabled,
-  onClick,
-}: NestedItemProps) {
+export function NestedItem({ left, children, right, variant, disabled, onClick }: NestedItemProps) {
   const parent = useNestedParent();
 
-  const ItemComponent =
-    parent === NestedParent.Dropdown ? DropdownMenuItem : ContextMenuItem;
+  const ItemComponent = parent === NestedParent.Dropdown ? DropdownMenuItem : ContextMenuItem;
 
   return (
     <ItemComponent
@@ -50,11 +42,7 @@ export function NestedItem({
         </div>
       )}
       {children}
-      {right && (
-        <div className={clsx("ml-auto pl-[20px]", getItemSideStyle(variant))}>
-          {right}
-        </div>
-      )}
+      {right && <div className={clsx("ml-auto pl-[20px]", getItemSideStyle(variant))}>{right}</div>}
     </ItemComponent>
   );
 }

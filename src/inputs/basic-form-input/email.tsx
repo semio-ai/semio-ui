@@ -17,11 +17,7 @@ export function EmailInput({
   inputTitle = "Email:",
   inputPlaceholder = "example@abc.com",
 }: EmailInputProps) {
-  const { email, error, handleChange } = useEmailInput(
-    emailValue,
-    onEmailChange,
-    fieldName,
-  );
+  const { email, error, handleChange } = useEmailInput(emailValue, onEmailChange, fieldName);
 
   return (
     <Field>

@@ -17,8 +17,11 @@ export function StringsInput({
   inputTitle = "",
   inputPlaceholder = "Type item and press 'enter' to add it to the list.",
 }: StringsInputProps) {
-  const { items, inputValue, setInputValue, handleKeyDown, handleRemoveItem } =
-    useItemsInput(strings, onStringsChange, fieldName);
+  const { items, inputValue, setInputValue, handleKeyDown, handleRemoveItem } = useItemsInput(
+    strings,
+    onStringsChange,
+    fieldName,
+  );
 
   return (
     <Field>
@@ -28,11 +31,7 @@ export function StringsInput({
           <div key={index} className="block mx-2 rounded-lg">
             <div className="block">
               {tag}{" "}
-              <button
-                type="button"
-                className="text-red-500"
-                onClick={() => handleRemoveItem(tag)}
-              >
+              <button type="button" className="text-red-500" onClick={() => handleRemoveItem(tag)}>
                 x
               </button>
             </div>
@@ -40,9 +39,7 @@ export function StringsInput({
         ))}
         <Input
           value={inputValue}
-          onChange={(e: ChangeEvent<HTMLInputElement>) =>
-            setInputValue(e.target.value)
-          }
+          onChange={(e: ChangeEvent<HTMLInputElement>) => setInputValue(e.target.value)}
           onKeyDown={handleKeyDown}
           className="grow min-w-16 rounded-md shadow dark:border border-slate-400 py-1 px-3 placeholder:font-thin
           bg-inherit placeholder:text-inherit text-inherit"

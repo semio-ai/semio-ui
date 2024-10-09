@@ -19,9 +19,7 @@ function Dropdown({ header, trigger, children, variant }: DropdownProps) {
     <div className="text-left group flex flex-1">
       <NestedParentProvider value={NestedParent.Dropdown}>
         <DropdownPrimitive.Root>
-          <DropdownPrimitive.Trigger asChild>
-            {trigger}
-          </DropdownPrimitive.Trigger>
+          <DropdownPrimitive.Trigger asChild>{trigger}</DropdownPrimitive.Trigger>
           <DropdownPrimitive.Portal>
             <DropdownPrimitive.Content
               align="center"
@@ -44,10 +42,7 @@ function Dropdown({ header, trigger, children, variant }: DropdownProps) {
               )}
             >
               <DropdownPrimitive.Arrow
-                className={clsx(
-                  "relative fill-current",
-                  getBasicTextColor(variant),
-                )}
+                className={clsx("relative fill-current", getBasicTextColor(variant))}
               />
               <ScrollArea
                 header={header}

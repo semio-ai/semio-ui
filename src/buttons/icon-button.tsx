@@ -4,8 +4,7 @@ import { alpha, altColor } from "@semio/utils";
 import { Variant, Size } from "../types";
 import { getHeight, getHoverTextStyles } from "../style-functions";
 
-export interface IconButtonProps
-  extends React.HTMLAttributes<HTMLButtonElement> {
+export interface IconButtonProps extends React.HTMLAttributes<HTMLButtonElement> {
   /**
    * The text to display on the button
    */

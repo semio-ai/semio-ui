@@ -5,19 +5,13 @@ interface GoogleSignInButtonProps {
   useGoogleSignIn: () => void;
 }
 
-export function GoogleSignInButton({
-  useGoogleSignIn,
-}: GoogleSignInButtonProps): JSX.Element {
+export function GoogleSignInButton({ useGoogleSignIn }: GoogleSignInButtonProps): JSX.Element {
   return (
     <Button
       onClick={useGoogleSignIn}
       className="w-full flex items-center justify-center bg-white text-gray-700 border border-gray-300 rounded-md py-2 px-4 shadow-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
     >
-      <svg
-        className="w-6 h-6 mr-2"
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 48 48"
-      >
+      <svg className="w-6 h-6 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
         <path
           fill="#4285F4"
           d="M47.5 24.5c0-1.7-.1-3.3-.4-4.8H24v9.2h13.4c-.6 3-2.5 5.6-5.2 7.3v6.1h8.4c4.9-4.5 7.7-11.2 7.7-18.8z"

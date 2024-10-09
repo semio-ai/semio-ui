@@ -14,11 +14,7 @@ export function PublishedInput({
   fieldName = "published",
   inputTitle = "Published:",
 }: PublishedInputProps) {
-  const { inputValue, handleChange } = useBooleanInput(
-    published,
-    onPublishedChange,
-    fieldName,
-  );
+  const { inputValue, handleChange } = useBooleanInput(published, onPublishedChange, fieldName);
 
   return (
     <Field>
@@ -34,12 +30,7 @@ export function PublishedInput({
           viewBox="0 0 14 14"
           fill="none"
         >
-          <path
-            d="M3 8L6 11L11 3.5"
-            strokeWidth={2}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
+          <path d="M3 8L6 11L11 3.5" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       </Checkbox>
       <span className="m-1">{inputValue ? "Published" : "Not Published"}</span>

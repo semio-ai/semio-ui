@@ -13,20 +13,10 @@ export interface TooltipProps {
   disabled?: boolean;
 }
 
-function Tooltip({
-  content,
-  children,
-  side,
-  controlledState,
-  variant,
-  disabled,
-}: TooltipProps) {
+function Tooltip({ content, children, side, controlledState, variant, disabled }: TooltipProps) {
   return (
     <TooltipPrimitive.Provider>
-      <TooltipPrimitive.Root
-        open={controlledState?.[0]}
-        onOpenChange={controlledState?.[1]}
-      >
+      <TooltipPrimitive.Root open={controlledState?.[0]} onOpenChange={controlledState?.[1]}>
         <TooltipPrimitive.Trigger disabled={disabled} asChild>
           {children}
         </TooltipPrimitive.Trigger>
@@ -49,9 +39,7 @@ function Tooltip({
               getBasicTextColor(variant),
             )}
           >
-            <TooltipPrimitive.Arrow
-              className={clsx("fill-current", getBasicTextColor(variant))}
-            />
+            <TooltipPrimitive.Arrow className={clsx("fill-current", getBasicTextColor(variant))} />
             {content}
           </TooltipPrimitive.Content>
         </TooltipPrimitive.Portal>

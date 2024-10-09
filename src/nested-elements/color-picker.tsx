@@ -19,11 +19,7 @@ export function NestedColorPicker<T extends string | RawColor>({
   variant,
 }: NestedColorPickerProps<T>) {
   return (
-    <NestedMenu
-      variant={variant}
-      label={label ?? "Select a color"}
-      disabled={disabled}
-    >
+    <NestedMenu variant={variant} label={label ?? "Select a color"} disabled={disabled}>
       <ColorPickerInput value={value} onChange={onChange} />
     </NestedMenu>
   );

@@ -39,10 +39,7 @@ enum SliderMode {
 }
 
 const InputWrapper = forwardRef(
-  (
-    props: InputProps & HTMLAttributes<HTMLDivElement>,
-    ref: ForwardedRef<HTMLDivElement>,
-  ) => {
+  (props: InputProps & HTMLAttributes<HTMLDivElement>, ref: ForwardedRef<HTMLDivElement>) => {
     const {
       size,
       color,
@@ -178,8 +175,7 @@ function InnerSliderNumberField({
         if (disabled) return;
         if (!intentional) return;
         if (tap) return;
-        if (sliderMode === SliderMode.Manual || sliderMode === SliderMode.Label)
-          return;
+        if (sliderMode === SliderMode.Manual || sliderMode === SliderMode.Label) return;
         if (!boundsRef.current) return;
         const bounds = boundsRef.current.getBoundingClientRect();
         if ((wheeling || dragging) && sliderMode !== SliderMode.Drag) {
@@ -201,13 +197,7 @@ function InnerSliderNumberField({
         event.preventDefault();
         event.stopPropagation();
       },
-      onWheel: ({
-        delta: [, dy],
-        event,
-        dragging = false,
-        hovering = false,
-        wheeling = false,
-      }) => {
+      onWheel: ({ delta: [, dy], event, dragging = false, hovering = false, wheeling = false }) => {
         if (disabled) return;
         if (dy === 0) return;
         let v = value;
@@ -233,12 +223,7 @@ function InnerSliderNumberField({
       onHover: ({ hovering = false, dragging = false, wheeling = false }) => {
         if (disabled) return;
         onEmphasisChange?.(hovering || dragging || wheeling);
-        if (
-          !hovering &&
-          !dragging &&
-          !wheeling &&
-          sliderMode === SliderMode.Drag
-        ) {
+        if (!hovering && !dragging && !wheeling && sliderMode === SliderMode.Drag) {
           setSliderMode(SliderMode.Blurred);
         }
       },
@@ -271,9 +256,7 @@ function InnerSliderNumberField({
     >
       {label !== undefined && (
         <input
-          readOnly={
-            !onLabelChange || inactive || sliderMode !== SliderMode.Label
-          }
+          readOnly={!onLabelChange || inactive || sliderMode !== SliderMode.Label}
           onChange={(e) => onLabelChange?.(e.target.value || "")}
           className={clsx(
             "flex-1 bg-transparent dark:text-white/75 text-black/75 text-left pl-1 outline-none overflow-ellipsis max-w-[60%] touch-none",
@@ -295,17 +278,12 @@ function InnerSliderNumberField({
 
       <StyledInput
         flex
-        readOnly={
-          inactive ||
-          (sliderMode !== SliderMode.Manual && sliderMode !== SliderMode.Label)
-        }
+        readOnly={inactive || (sliderMode !== SliderMode.Manual && sliderMode !== SliderMode.Label)}
         disabled={disabled}
         type="text"
         color={sliderColor}
         bold={sliderMode === SliderMode.Manual}
-        cursor={
-          sliderMode === SliderMode.Manual ? "cursor-text" : "cursor-ew-resize"
-        }
+        cursor={sliderMode === SliderMode.Manual ? "cursor-text" : "cursor-ew-resize"}
         className="text-right flex-1"
         size={size}
         value={textValue}
@@ -321,12 +299,7 @@ function InnerSliderNumberField({
           setSliderMode(SliderMode.Manual);
         }}
       />
-      <span
-        className={clsx(
-          "w-fit font-mono pr-1 text-black dark:text-white",
-          getFontSize(size),
-        )}
-      >
+      <span className={clsx("w-fit font-mono pr-1 text-black dark:text-white", getFontSize(size))}>
         {units}
       </span>
     </InputWrapper>
