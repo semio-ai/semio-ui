@@ -1,9 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import {
-  Size,
-  SliderNumberField,
-  type SliderNumberFieldProps,
-} from "@semio/ui";
+import { Size, SliderNumberField, type SliderNumberFieldProps } from "@semio/ui";
 import { useState } from "react";
 
 const meta: Meta<typeof SliderNumberField> = {
@@ -16,9 +12,7 @@ type Story = StoryObj<typeof SliderNumberField>;
 
 // Create a wrapped version of the story with hooks to
 // illustrate callback behavior
-function SliderNumberFieldWithHooks(
-  props: SliderNumberFieldProps,
-): JSX.Element {
+function SliderNumberFieldWithHooks(props: SliderNumberFieldProps): JSX.Element {
   const [value, setValue] = useState<number>(props.value);
   const [label, setLabel] = useState<string>(props.label ?? "Slider Value");
   return (

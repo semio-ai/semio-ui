@@ -13,14 +13,7 @@ export interface PopoverProps {
   variant?: Variant;
 }
 
-function Popover({
-  title,
-  trigger,
-  content,
-  open,
-  onStateChange,
-  variant,
-}: PopoverProps) {
+function Popover({ title, trigger, content, open, onStateChange, variant }: PopoverProps) {
   return (
     <div className="relative inline-block text-left">
       <PopoverPrimitive.Root open={open} onOpenChange={onStateChange}>
@@ -38,9 +31,7 @@ function Popover({
               getBorder(variant),
             )}
           >
-            <PopoverPrimitive.Arrow
-              className={clsx("fill-current", getBasicTextColor(variant))}
-            />
+            <PopoverPrimitive.Arrow className={clsx("fill-current", getBasicTextColor(variant))} />
 
             {title ?? (
               <div className="flex justify-between">

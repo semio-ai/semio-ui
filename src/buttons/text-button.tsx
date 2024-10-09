@@ -1,14 +1,9 @@
 import { MouseEventHandler, type ReactNode } from "react";
 import { clsx } from "clsx";
 import { Variant, Size } from "../types";
-import {
-  getFontSize,
-  getHeight,
-  getHoverButtonStyles,
-} from "../style-functions";
+import { getFontSize, getHeight, getHoverButtonStyles } from "../style-functions";
 
-export interface TextButtonProps
-  extends React.HTMLAttributes<HTMLButtonElement> {
+export interface TextButtonProps extends React.HTMLAttributes<HTMLButtonElement> {
   /**
    * The text to display on the button
    */

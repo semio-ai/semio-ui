@@ -18,11 +18,7 @@ export function TextInput({
   inputPlaceholder = "",
   inputSize = 1,
 }: TextInputProps) {
-  const { inputValue, handleChange, handleBlur } = useInput(
-    textValue,
-    onTextChange,
-    fieldName,
-  );
+  const { inputValue, handleChange, handleBlur } = useInput(textValue, onTextChange, fieldName);
 
   return (
     <Field>

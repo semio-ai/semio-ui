@@ -36,18 +36,12 @@ export function NestedMenu({
 }: NestedMenuProps) {
   const parent = useNestedParent();
 
-  const SubComponent =
-    parent === NestedParent.Dropdown ? DropdownMenuSub : ContextMenuSub;
+  const SubComponent = parent === NestedParent.Dropdown ? DropdownMenuSub : ContextMenuSub;
   const SubTriggerComponent =
-    parent === NestedParent.Dropdown
-      ? DropdownMenuSubTrigger
-      : ContextMenuSubTrigger;
-  const PortalComponent =
-    parent === NestedParent.Dropdown ? DropdownMenuPortal : ContextMenuPortal;
+    parent === NestedParent.Dropdown ? DropdownMenuSubTrigger : ContextMenuSubTrigger;
+  const PortalComponent = parent === NestedParent.Dropdown ? DropdownMenuPortal : ContextMenuPortal;
   const SubContentComponent =
-    parent === NestedParent.Dropdown
-      ? DropdownMenuSubContent
-      : ContextMenuSubContent;
+    parent === NestedParent.Dropdown ? DropdownMenuSubContent : ContextMenuSubContent;
 
   return (
     <SubComponent>
@@ -72,9 +66,7 @@ export function NestedMenu({
         )}
         {label}
 
-        <div
-          className={clsx("ml-auto pl-[20px]", getItemSideStyle(labelVariant))}
-        >
+        <div className={clsx("ml-auto pl-[20px]", getItemSideStyle(labelVariant))}>
           <IconChevronRight size="13px" />
         </div>
       </SubTriggerComponent>

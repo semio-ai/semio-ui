@@ -12,8 +12,7 @@ export interface NestedLabelProps {
 export function NestedLabel({ children }: NestedLabelProps) {
   const parent = useNestedParent();
 
-  const ItemComponent =
-    parent === NestedParent.Dropdown ? DropdownMenuLabel : ContextMenuLabel;
+  const ItemComponent = parent === NestedParent.Dropdown ? DropdownMenuLabel : ContextMenuLabel;
 
   return (
     <ItemComponent

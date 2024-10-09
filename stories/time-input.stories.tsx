@@ -1,11 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import {
-  Size,
-  TimeDisplay,
-  TimeInput,
-  type TimeInputProps,
-  Variant,
-} from "@semio/ui";
+import { Size, TimeDisplay, TimeInput, type TimeInputProps, Variant } from "@semio/ui";
 import { useState } from "react";
 
 const meta: Meta<typeof TimeInput> = {

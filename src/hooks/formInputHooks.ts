@@ -150,9 +150,7 @@ export const useInput = (
     setInputValue(initialValue);
   }, [initialValue]);
 
-  const handleChange = (
-    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-  ) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setInputValue(e.target.value);
   };
 
@@ -202,13 +200,8 @@ export const useEmailInput = (
   };
 };
 
-export const useImageInput = (
-  onChange: (file: File | null) => void,
-  projectImageUrl?: string,
-) => {
-  const [localImageURL, setLocalImageURL] = useState<string | null>(
-    projectImageUrl ?? null,
-  );
+export const useImageInput = (onChange: (file: File | null) => void, projectImageUrl?: string) => {
+  const [localImageURL, setLocalImageURL] = useState<string | null>(projectImageUrl ?? null);
 
   useEffect(() => {
     // console.log("(useImageInput)Project Image URL changed:", projectImageUrl);

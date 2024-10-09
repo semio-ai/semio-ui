@@ -11,10 +11,7 @@ export interface MenuItemProps {
 }
 
 const MenuItem = forwardRef(
-  (
-    { children, variant, title }: MenuItemProps,
-    ref: ForwardedRef<HTMLDivElement>,
-  ) => {
+  ({ children, variant, title }: MenuItemProps, ref: ForwardedRef<HTMLDivElement>) => {
     return (
       <Tooltip content={title} variant={variant} side="left">
         <div

@@ -30,27 +30,16 @@ export interface NestedSelectProps {
   }[];
 }
 
-export function NestedSelect({
-  variant,
-  disabled,
-  onChange,
-  values,
-  options,
-}: NestedSelectProps) {
+export function NestedSelect({ variant, disabled, onChange, values, options }: NestedSelectProps) {
   const parent = useNestedParent();
 
   const ItemComponent =
-    parent === NestedParent.Dropdown
-      ? DropdownMenuCheckboxItem
-      : ContextMenuCheckboxItem;
+    parent === NestedParent.Dropdown ? DropdownMenuCheckboxItem : ContextMenuCheckboxItem;
 
   const ItemIndicatorComponent =
-    parent === NestedParent.Dropdown
-      ? DropdownMenuItemIndicator
-      : ContextMenuItemIndicator;
+    parent === NestedParent.Dropdown ? DropdownMenuItemIndicator : ContextMenuItemIndicator;
 
-  const GroupComponent =
-    parent === NestedParent.Dropdown ? DropdownMenuGroup : ContextMenuGroup;
+  const GroupComponent = parent === NestedParent.Dropdown ? DropdownMenuGroup : ContextMenuGroup;
 
   return (
     <GroupComponent

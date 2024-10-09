@@ -69,10 +69,7 @@ export function getBorder(variant?: Variant): string {
   }
 }
 
-export function getReversibleBgText(
-  variant?: Variant,
-  active?: boolean,
-): string {
+export function getReversibleBgText(variant?: Variant, active?: boolean): string {
   switch (variant) {
     case Variant.Primary:
       return `hover:bg-primary-500/75 text-primary-500 border-r-2 hover:border-primary-500 ${active ? "border-primary-500" : "border-transparent"}`;
@@ -164,11 +161,7 @@ export function getItemStyle(variant?: Variant | "custom"): string {
   );
   switch (variant) {
     case "custom":
-      return clsx(
-        all,
-        "text-[--text-color-75]",
-        "data-[highlighted]:bg-[--text-color-50]",
-      );
+      return clsx(all, "text-[--text-color-75]", "data-[highlighted]:bg-[--text-color-50]");
     case Variant.Primary:
       return clsx(
         all,

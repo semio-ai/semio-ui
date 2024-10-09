@@ -2,11 +2,7 @@ import type { ReactNode } from "react";
 import { Switch as HeadlessSwitch } from "@headlessui/react";
 import { clsx } from "clsx";
 import { Variant } from "../types";
-import {
-  getBasicTextColor,
-  getCheckedBgStyles,
-  getHoverButtonStyles,
-} from "../style-functions";
+import { getBasicTextColor, getCheckedBgStyles, getHoverButtonStyles } from "../style-functions";
 
 export interface SwitchProps {
   value: boolean;
