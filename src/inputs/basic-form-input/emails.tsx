@@ -17,14 +17,8 @@ export function EmailsInput({
   inputTitle = "",
   inputPlaceholder = "Type an email and press 'enter' to add it to the list.",
 }: EmailsInputProps) {
-  const {
-    emails,
-    inputValue,
-    setInputValue,
-    handleKeyDown,
-    handleRemoveEmail,
-    error,
-  } = useEmailsInput(initialEmails, onEmailsChange, fieldName);
+  const { emails, inputValue, setInputValue, handleKeyDown, handleRemoveEmail, error } =
+    useEmailsInput(initialEmails, onEmailsChange, fieldName);
 
   return (
     <Field>
@@ -33,11 +27,7 @@ export function EmailsInput({
         {emails?.map((email, index) => (
           <div key={index} className="inline-block mx-2 rounded-lg text-base">
             {email}{" "}
-            <button
-              type="button"
-              className="text-red-500"
-              onClick={() => handleRemoveEmail(email)}
-            >
+            <button type="button" className="text-red-500" onClick={() => handleRemoveEmail(email)}>
               x
             </button>
           </div>
@@ -45,9 +35,7 @@ export function EmailsInput({
       </Label>
       <Input
         value={inputValue}
-        onChange={(e: ChangeEvent<HTMLInputElement>) =>
-          setInputValue(e.target.value)
-        }
+        onChange={(e: ChangeEvent<HTMLInputElement>) => setInputValue(e.target.value)}
         onKeyDown={handleKeyDown}
         className="mt-1 block w-full rounded-md shadow dark:border border-slate-400 py-1 px-3 placeholder:font-thin
           bg-inherit placeholder:text-inherit text-inherit"

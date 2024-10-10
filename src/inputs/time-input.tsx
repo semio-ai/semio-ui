@@ -1,18 +1,12 @@
 import { useState, useEffect, useRef } from "react";
 import { clsx } from "clsx";
 import { Size, TimeDisplay, Variant } from "../types";
-import {
-  getFontSize,
-  getHeight,
-  getOutline,
-  getTextCaretColor,
-} from "../style-functions";
+import { getFontSize, getHeight, getOutline, getTextCaretColor } from "../style-functions";
 import { useTemporal } from "../hooks/use-temporal";
 import { useNumeric } from "../hooks/use-numeric";
 import { StyledInput } from "./styled-input";
 
-export interface TimeInputProps
-  extends Omit<React.HTMLAttributes<HTMLInputElement>, "onChange"> {
+export interface TimeInputProps extends Omit<React.HTMLAttributes<HTMLInputElement>, "onChange"> {
   value: number | undefined;
   onChange: (value: number) => void;
   framerate: number;
@@ -61,9 +55,9 @@ export function TimeInput({
   label,
   hidden = false,
 }: TimeInputProps) {
-  const [editing, setEditing] = useState<
-    "minutes" | "seconds" | "milliseconds" | "frames" | null
-  >(null);
+  const [editing, setEditing] = useState<"minutes" | "seconds" | "milliseconds" | "frames" | null>(
+    null,
+  );
 
   const temporal = useTemporal({
     ms: value,
@@ -90,20 +84,13 @@ export function TimeInput({
               readOnly={actionPrevented}
               type="text"
               size={size}
-              value={
-                editing === "minutes"
-                  ? temporal.minutes
-                  : temporal.minutesDisplay
-              }
+              value={editing === "minutes" ? temporal.minutes : temporal.minutesDisplay}
               onFocus={() => {
                 if (!actionPrevented) setEditing("minutes");
               }}
               onBlur={() => setEditing(null)}
               onChange={(e) => temporal.onChangeMinutes(e.target.value)}
-              className={clsx(
-                "text-center",
-                getWidth(temporal.minutesDisplay.length, size),
-              )}
+              className={clsx("text-center", getWidth(temporal.minutesDisplay.length, size))}
             />
             <span className="w-fit">:</span>
           </>
@@ -115,9 +102,7 @@ export function TimeInput({
           readOnly={actionPrevented}
           type="text"
           size={size}
-          value={
-            editing === "seconds" ? temporal.seconds : temporal.secondsDisplay
-          }
+          value={editing === "seconds" ? temporal.seconds : temporal.secondsDisplay}
           onFocus={() => {
             if (!actionPrevented) {
               setEditing("seconds");
@@ -127,12 +112,7 @@ export function TimeInput({
           onChange={(e) => temporal.onChangeSeconds(e.target.value)}
           className={clsx(
             "text-center",
-            getWidth(
-              display === TimeDisplay.MinutesPlusSecondsPlusMilliseconds
-                ? 2
-                : 3,
-              size,
-            ),
+            getWidth(display === TimeDisplay.MinutesPlusSecondsPlusMilliseconds ? 2 : 3, size),
           )}
         />
         <span className="w-fit">.</span>
@@ -142,11 +122,7 @@ export function TimeInput({
           readOnly={actionPrevented}
           type="text"
           size={size}
-          value={
-            editing === "milliseconds"
-              ? temporal.milliseconds
-              : temporal.millisecondsDisplay
-          }
+          value={editing === "milliseconds" ? temporal.milliseconds : temporal.millisecondsDisplay}
           onFocus={() => {
             if (!actionPrevented) {
               setEditing("milliseconds");
@@ -200,10 +176,7 @@ export function TimeInput({
         <span
           id={label}
           aria-label={label}
-          className={clsx(
-            getFontSize(size),
-            "font-mono font-thin px-1 select-none",
-          )}
+          className={clsx(getFontSize(size), "font-mono font-thin px-1 select-none")}
         >
           {label}
         </span>

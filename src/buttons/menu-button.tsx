@@ -12,13 +12,7 @@ export interface MenuButtonProps {
   active?: boolean;
 }
 
-export function MenuButton({
-  children,
-  title,
-  variant,
-  onClick,
-  active,
-}: MenuButtonProps) {
+export function MenuButton({ children, title, variant, onClick, active }: MenuButtonProps) {
   return (
     <Tooltip content={title} variant={variant} side="left">
       <button

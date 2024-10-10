@@ -31,27 +31,15 @@ export interface NestedRadioProps {
   }[];
 }
 
-export function NestedRadio({
-  variant,
-  disabled,
-  onChange,
-  value,
-  options,
-}: NestedRadioProps) {
+export function NestedRadio({ variant, disabled, onChange, value, options }: NestedRadioProps) {
   const parent = useNestedParent();
 
   const ItemComponent =
-    parent === NestedParent.Dropdown
-      ? DropdownMenuRadioItem
-      : ContextMenuRadioItem;
+    parent === NestedParent.Dropdown ? DropdownMenuRadioItem : ContextMenuRadioItem;
   const GroupComponent =
-    parent === NestedParent.Dropdown
-      ? DropdownMenuRadioGroup
-      : ContextMenuRadioGroup;
+    parent === NestedParent.Dropdown ? DropdownMenuRadioGroup : ContextMenuRadioGroup;
   const ItemIndicatorComponent =
-    parent === NestedParent.Dropdown
-      ? DropdownMenuItemIndicator
-      : ContextMenuItemIndicator;
+    parent === NestedParent.Dropdown ? DropdownMenuItemIndicator : ContextMenuItemIndicator;
   return (
     <GroupComponent
       value={value}

@@ -13,13 +13,7 @@ export function NestedSeparator({ variant }: NestedSeparatorProps) {
   const parent = useNestedParent();
 
   const ItemComponent =
-    parent === NestedParent.Dropdown
-      ? DropdownMenuSeparator
-      : ContextMenuSeparator;
+    parent === NestedParent.Dropdown ? DropdownMenuSeparator : ContextMenuSeparator;
 
-  return (
-    <ItemComponent
-      className={clsx("h-[1px] m-[5px]", getSeparatorStyle(variant))}
-    />
-  );
+  return <ItemComponent className={clsx("h-[1px] m-[5px]", getSeparatorStyle(variant))} />;
 }

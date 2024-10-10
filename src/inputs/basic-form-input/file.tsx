@@ -23,11 +23,7 @@ export function FileInput({
       {fileObj ? (
         <div className="flex justify-between mt-1">
           <span> File: {fileObj.name} </span>
-          <button
-            className="text-red-500"
-            type="button"
-            onClick={() => setFile(null)}
-          >
+          <button className="text-red-500" type="button" onClick={() => setFile(null)}>
             Remove
           </button>
         </div>

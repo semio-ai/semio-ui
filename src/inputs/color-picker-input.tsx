@@ -1,10 +1,4 @@
-import {
-  instanceOfRawRGB,
-  instanceOfRawHSL,
-  type RawColor,
-  RawRGB,
-  RawHSL,
-} from "@semio/utils";
+import { instanceOfRawRGB, instanceOfRawHSL, type RawColor, RawRGB, RawHSL } from "@semio/utils";
 import {
   HexColorPicker,
   RgbColorPicker,
@@ -26,34 +20,19 @@ export function ColorPickerInput<T extends string | RawColor>({
   return (
     <section className="p-3">
       {typeof value === "string" && value.startsWith("#") && (
-        <HexColorPicker
-          color={value}
-          onChange={onChange as (v: string) => void}
-        />
+        <HexColorPicker color={value} onChange={onChange as (v: string) => void} />
       )}
       {typeof value === "string" && value.startsWith("rgb") && (
-        <RgbStringColorPicker
-          color={value}
-          onChange={onChange as (v: string) => void}
-        />
+        <RgbStringColorPicker color={value} onChange={onChange as (v: string) => void} />
       )}
       {typeof value === "string" && value.startsWith("hsl") && (
-        <HslStringColorPicker
-          color={value}
-          onChange={onChange as (v: string) => void}
-        />
+        <HslStringColorPicker color={value} onChange={onChange as (v: string) => void} />
       )}
       {instanceOfRawRGB(value) && (
-        <RgbColorPicker
-          color={value}
-          onChange={onChange as (v: RawRGB) => void}
-        />
+        <RgbColorPicker color={value} onChange={onChange as (v: RawRGB) => void} />
       )}
       {instanceOfRawHSL(value) && (
-        <HslColorPicker
-          color={value}
-          onChange={onChange as (v: RawHSL) => void}
-        />
+        <HslColorPicker color={value} onChange={onChange as (v: RawHSL) => void} />
       )}
     </section>
   );

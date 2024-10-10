@@ -2,20 +2,7 @@ import { useState, useCallback, type ChangeEvent } from "react";
 import { isNumber, isNaN } from "lodash";
 import { strip } from "number-precision";
 
-const VALID_CHARS = [
-  "0",
-  "1",
-  "2",
-  "3",
-  "4",
-  "5",
-  "6",
-  "7",
-  "8",
-  "9",
-  ".",
-  "-",
-];
+const VALID_CHARS = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ".", "-"];
 
 export enum NumericStatus {
   Below = "below",
@@ -55,9 +42,7 @@ export const useNumeric = ({
   sigFigs = 2,
   onValidChange = () => {},
 }: NumericProps) => {
-  const [state, setState] = useState<NumericState>(
-    parse(initial, min, max, sigFigs),
-  );
+  const [state, setState] = useState<NumericState>(parse(initial, min, max, sigFigs));
 
   const onChange = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
@@ -185,12 +170,7 @@ const getStatus = (v: number, min: number, max: number) => {
   }
 };
 
-const parse = (
-  v: number | string,
-  min: number,
-  max: number,
-  sigFigs: number,
-) => {
+const parse = (v: number | string, min: number, max: number, sigFigs: number) => {
   if (typeof v === "number") {
     return {
       numeric: v,

@@ -3,10 +3,7 @@ export interface ButtonModalProps {
   onClick: () => void;
 }
 
-export function ButtonModal({
-  titleText,
-  onClick,
-}: ButtonModalProps): JSX.Element {
+export function ButtonModal({ titleText, onClick }: ButtonModalProps): JSX.Element {
   return (
     <button
       type="submit"

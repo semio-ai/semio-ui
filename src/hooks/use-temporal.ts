@@ -61,11 +61,7 @@ export const useTemporal = ({
   const onChangeMinutes = (v: string) => {
     const newMinutes = parseInt(v);
     if (!isNaN(newMinutes)) {
-      const newValue = clamp(
-        newMinutes * 60000 + seconds * 1000 + milliseconds,
-        min,
-        max,
-      );
+      const newValue = clamp(newMinutes * 60000 + seconds * 1000 + milliseconds, min, max);
       onValidChange(newValue);
     }
   };
@@ -73,11 +69,7 @@ export const useTemporal = ({
   const onChangeSeconds = (v: string) => {
     const newSeconds = parseInt(v);
     if (!isNaN(newSeconds)) {
-      const newValue = clamp(
-        minutes * 60000 + newSeconds * 1000 + milliseconds,
-        min,
-        max,
-      );
+      const newValue = clamp(minutes * 60000 + newSeconds * 1000 + milliseconds, min, max);
       onValidChange(newValue);
     }
   };
@@ -85,11 +77,7 @@ export const useTemporal = ({
   const onChangeMilliseconds = (v: string) => {
     const newMilliseconds = parseInt(v);
     if (!isNaN(newMilliseconds)) {
-      const newValue = clamp(
-        minutes * 60000 + seconds * 1000 + newMilliseconds,
-        min,
-        max,
-      );
+      const newValue = clamp(minutes * 60000 + seconds * 1000 + newMilliseconds, min, max);
       onValidChange(newValue);
     }
   };
@@ -102,8 +90,7 @@ export const useTemporal = ({
     }
   };
 
-  const secondsLength =
-    format === TimeDisplay.MinutesPlusSecondsPlusMilliseconds ? 2 : 3;
+  const secondsLength = format === TimeDisplay.MinutesPlusSecondsPlusMilliseconds ? 2 : 3;
 
   return {
     minutes,
@@ -112,11 +99,8 @@ export const useTemporal = ({
     frames,
     minutesDisplay: ms !== undefined ? padNumber(minutes, 2) : emptyRender(2),
     secondsDisplay:
-      ms !== undefined
-        ? padNumber(seconds, secondsLength)
-        : emptyRender(secondsLength),
-    millisecondsDisplay:
-      ms !== undefined ? padNumber(milliseconds, 3) : emptyRender(3),
+      ms !== undefined ? padNumber(seconds, secondsLength) : emptyRender(secondsLength),
+    millisecondsDisplay: ms !== undefined ? padNumber(milliseconds, 3) : emptyRender(3),
     framesDisplay: ms !== undefined ? frames.toFixed(2) : emptyRender(2),
     onChangeMinutes,
     onChangeSeconds,
@@ -125,7 +109,5 @@ export const useTemporal = ({
   };
 };
 
-const padNumber = (num: number, length: number) =>
-  String(num).padStart(length, "0");
-const emptyRender = (length: number) =>
-  Array.from({ length }, () => "-").join("");
+const padNumber = (num: number, length: number) => String(num).padStart(length, "0");
+const emptyRender = (length: number) => Array.from({ length }, () => "-").join("");
