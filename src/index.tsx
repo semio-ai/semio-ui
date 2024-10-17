@@ -35,6 +35,7 @@ export { NestedMenu, type NestedMenuProps } from "./nested-elements/menu";
 export { NestedLabel, type NestedLabelProps } from "./nested-elements/label";
 export { NestedColorPicker, type NestedColorPickerProps } from "./nested-elements/color-picker";
 export { Tooltip, type TooltipProps } from "./tooltip";
+export { TrackedTooltip, type TrackedTooltipProps, useTrackedTooltip } from "./tracked-tooltip";
 export { ColorPickerInput, type ColorPickerInputProps } from "./inputs/color-picker-input";
 export { NumberOrListInput } from "./inputs/number-or-list";
 export { EmailInput, type EmailInputProps } from "./inputs/basic-form-input/email";
