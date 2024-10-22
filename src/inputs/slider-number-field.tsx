@@ -87,7 +87,9 @@ export interface SliderNumberFieldProps {
   max?: number;
   units?: string;
   color?: string;
-  strict?: boolean;
+  strictSlider?: boolean;
+  strictText?: boolean;
+  clampOnBlur?: boolean;
   emphasis?: boolean;
   size?: Size;
   inactive?: boolean;
@@ -104,7 +106,8 @@ SliderNumberField
 @props min: number - the minimum value of the field
 @props max: number - the maximum value of the field
 @props color?: string - the color of the field (defaults to gray. Can be any string in hex, rgb, or hsl format)
-@props strict?: boolean - whether to enforce the min and max values
+@props strictText?: boolean - whether to enforce the min and max values from the text field
+@props strictSlider?: boolean - whether to enforce the min and max values from the slider
 @props size?: "sm" | "md" | "lg" - the size of the field
 @props inactive?: boolean - whether the field is inactive (still allows clicking)
 @props disabled?: boolean - whether the field is disabled (does not allow clicking or changing the value)
@@ -119,7 +122,8 @@ function InnerSliderNumberField({
   max,
   units,
   color,
-  strict,
+  strictText = false,
+  strictSlider = false,
   emphasis,
   size = Size.Md,
   inactive,
@@ -146,6 +150,7 @@ function InnerSliderNumberField({
     onValidChange: onChange,
     min,
     max,
+    enforceLimits: strictText,
   });
 
   useEffect(() => {
@@ -186,8 +191,8 @@ function InnerSliderNumberField({
         let v = value;
         if (min !== undefined && max !== undefined) {
           v = (max - min) * ((x - bounds.left) / bounds.width) + min;
-          if (strict) {
-            v = Math.max(min, Math.min(max, v));
+          if (strictSlider) {
+            v = clamp(v, min, max);
           }
         } else {
           v += dx / 100;
@@ -204,7 +209,7 @@ function InnerSliderNumberField({
         if (min !== undefined && max !== undefined) {
           const step = (max - min) / 100;
           v = value + step * (dy > 0 ? 1 : -1);
-          if (strict) {
+          if (strictSlider) {
             v = clamp(v, min, max);
           }
         } else {
@@ -290,6 +295,12 @@ function InnerSliderNumberField({
         onChange={onChangeInner}
         onKeyDown={(e) => {
           if (!disabled && e.key === "Enter") {
+            setSliderMode(SliderMode.Blurred);
+            onBlur();
+          }
+        }}
+        onBlur={() => {
+          if (!disabled) {
             setSliderMode(SliderMode.Blurred);
             onBlur();
           }
