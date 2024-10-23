@@ -1,5 +1,10 @@
 import { ReactNode } from "react";
 import * as Collapsible from "@radix-ui/react-collapsible";
+import type {
+  CollapsibleContentProps,
+  CollapsibleTriggerProps,
+  CollapsibleProps,
+} from "@radix-ui/react-collapsible";
 import { IconChevronUp, IconChevronLeft } from "@tabler/icons-react";
 import { clsx } from "clsx";
 
@@ -33,25 +38,17 @@ export function Collapse({
         className={clsx(
           "dark:bg-black bg-white flex items-center w-full",
           "justify-between cursor-pointer pl-3 pt-1 pb-1 pr-3",
-          disabled
-            ? "dark:text-neutral-400 text-neutral-600"
-            : "dark:text-white text-black",
+          disabled ? "dark:text-neutral-400 text-neutral-600" : "dark:text-white text-black",
         )}
       >
         {side === "right" && title}
         {direction === "horizontal" ? (
           <IconChevronLeft
-            className={clsx(
-              "transition-transform w-5 h-5",
-              open ? "rotate-0" : "rotate-180",
-            )}
+            className={clsx("transition-transform w-5 h-5", open ? "rotate-0" : "rotate-180")}
           />
         ) : (
           <IconChevronUp
-            className={clsx(
-              "transition-transform w-5 h-5",
-              open ? "rotate-0" : "rotate-180",
-            )}
+            className={clsx("transition-transform w-5 h-5", open ? "rotate-0" : "rotate-180")}
           />
         )}
         {side === "left" && title}
@@ -64,10 +61,32 @@ export function Collapse({
             : "CollapsibleVerticalContent",
         )}
       >
-        <div className={direction === "vertical" ? "h-auto" : "w-auto"}>
-          {children}
-        </div>
+        <div className={direction === "vertical" ? "h-auto" : "w-auto"}>{children}</div>
       </Collapsible.Content>
+    </Collapsible.Root>
+  );
+}
+
+export function CollapsibleContent(props: CollapsibleContentProps) {
+  return (
+    <Collapsible.Content {...props} className={clsx("CollapsibleVerticalContent", props.className)}>
+      <div className="h-auto">{props.children}</div>
+    </Collapsible.Content>
+  );
+}
+
+export function CollapsibleTrigger(props: CollapsibleTriggerProps) {
+  return (
+    <Collapsible.Trigger {...props} className={props.className}>
+      {props.children}
+    </Collapsible.Trigger>
+  );
+}
+
+export function CollapsibleRoot(props: CollapsibleProps) {
+  return (
+    <Collapsible.Root {...props} className={props.className}>
+      {props.children}
     </Collapsible.Root>
   );
 }

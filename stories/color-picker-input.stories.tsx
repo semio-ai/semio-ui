@@ -11,20 +11,16 @@ export default meta;
 
 type Story = StoryObj<typeof ColorPickerInput>;
 
-/*
- *👇 Render functions are a framework specific feature to allow you control on how the component renders.
- * See https://storybook.js.org/docs/react/api/csf
- * to learn how to use render functions.
- */
-export const Primary: Story = {
-  // decorators: [
-  //   (storyFn) => (
-  //     <div className="inline-flex w-40 h-20 bg-white p-2">{storyFn()}</div>
-  //   ),
-  // ],
-  render: ({ value, onChange }: ColorPickerInputProps<string | RawColor>) => {
-    const [innerValue, setInnerValue] = useState<string | RawColor>(value);
-    return (
+// Create a wrapped version of the story with hooks to
+// illustrate callback behavior
+function ColorPickerInputWithHooks({
+  value,
+  onChange,
+}: ColorPickerInputProps<string | RawColor>): JSX.Element {
+  const [innerValue, setInnerValue] = useState<string | RawColor>(value);
+  return (
+    <>
+      <p className="dark:text-white text-black">Current value: {JSON.stringify(innerValue)}</p>
       <ColorPickerInput
         value={innerValue}
         onChange={(v) => {
@@ -32,7 +28,18 @@ export const Primary: Story = {
           (onChange as (v: string | RawColor) => void)(v);
         }}
       />
-    );
+    </>
+  );
+}
+
+/*
+ *👇 Render functions are a framework specific feature to allow you control on how the component renders.
+ * See https://storybook.js.org/docs/react/api/csf
+ * to learn how to use render functions.
+ */
+export const Primary: Story = {
+  render: (props) => {
+    return <ColorPickerInputWithHooks {...props} />;
   },
   name: "ColorPickerInput",
   args: {

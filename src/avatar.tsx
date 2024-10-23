@@ -33,10 +33,7 @@ export const Avatar = forwardRef(
         <AvatarPrimitive.Image
           src={src}
           alt={alt}
-          className={clsx(
-            "h-full w-full object-cover",
-            rounded && "rounded-full",
-          )}
+          className={clsx("h-full w-full object-cover", rounded && "rounded-full")}
         />
         <AvatarPrimitive.Fallback
           className={clsx(

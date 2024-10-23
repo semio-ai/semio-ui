@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { Size, SliderNumberField } from "@semio/ui";
+import { Size, SliderNumberField, type SliderNumberFieldProps } from "@semio/ui";
 import { useState } from "react";
 
 const meta: Meta<typeof SliderNumberField> = {
@@ -10,34 +10,35 @@ export default meta;
 
 type Story = StoryObj<typeof SliderNumberField>;
 
+// Create a wrapped version of the story with hooks to
+// illustrate callback behavior
+function SliderNumberFieldWithHooks(props: SliderNumberFieldProps): JSX.Element {
+  const [value, setValue] = useState<number>(props.value);
+  const [label, setLabel] = useState<string>(props.label ?? "Slider Value");
+  return (
+    <SliderNumberField
+      {...props}
+      value={value}
+      onChange={(v: number) => {
+        setValue(v);
+        props.onChange(v);
+      }}
+      label={label}
+      onLabelChange={(v: string) => {
+        setLabel(v);
+      }}
+    />
+  );
+}
+
 /*
  *👇 Render functions are a framework specific feature to allow you control on how the component renders.
  * See https://storybook.js.org/docs/react/api/csf
  * to learn how to use render functions.
  */
 export const Primary: Story = {
-  // decorators: [
-  //   (storyFn) => (
-  //     <div className="inline-flex w-40 h-20 bg-white p-2">{storyFn()}</div>
-  //   ),
-  // ],
   render: (props) => {
-    const [value, setValue] = useState<number>(props.value);
-    const [label, setLabel] = useState<string>(props.label || "Slider Value");
-    return (
-      <SliderNumberField
-        {...props}
-        value={value}
-        onChange={(v: number) => {
-          setValue(v);
-          props.onChange(v);
-        }}
-        label={label}
-        onLabelChange={(v: string) => {
-          setLabel(v);
-        }}
-      />
-    );
+    return <SliderNumberFieldWithHooks {...props} />;
   },
   name: "SliderNumberField",
   args: {

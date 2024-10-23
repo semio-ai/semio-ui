@@ -27,12 +27,12 @@ export function StyledInput({
       type="text"
       className={clsx(
         "touch-none font-mono outline-none bg-transparent pl-1 pr-1",
-        flex && "w-full",
+        flex && "w-full flex-1",
         "dark:text-white text-black",
         bold ? "select-text font-bold" : "select-none font-normal",
         getHeight(size),
         getFontSize(size),
-        disabled ? "cursor-not-allowed" : cursor ?? "cursor-text",
+        disabled ? "cursor-not-allowed" : (cursor ?? "cursor-text"),
         className,
       )}
     />

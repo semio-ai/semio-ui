@@ -1,13 +1,12 @@
 import { useState, useEffect, useRef } from "react";
 import { clsx } from "clsx";
 import { Size, TimeDisplay, Variant } from "../types";
-import { getHeight, getOutline } from "../style-functions";
+import { getFontSize, getHeight, getOutline, getTextCaretColor } from "../style-functions";
 import { useTemporal } from "../hooks/use-temporal";
 import { useNumeric } from "../hooks/use-numeric";
 import { StyledInput } from "./styled-input";
 
-export interface TimeInputProps
-  extends Omit<React.HTMLAttributes<HTMLInputElement>, "onChange"> {
+export interface TimeInputProps extends Omit<React.HTMLAttributes<HTMLInputElement>, "onChange"> {
   value: number | undefined;
   onChange: (value: number) => void;
   framerate: number;
@@ -18,6 +17,8 @@ export interface TimeInputProps
   variant: Variant;
   size?: Size;
   bg?: boolean;
+  label?: string;
+  hidden?: boolean;
 }
 
 function getWidth(length: number, size: Size): string {
@@ -51,10 +52,12 @@ export function TimeInput({
   min = 0,
   max = Infinity,
   bg = false,
+  label,
+  hidden = false,
 }: TimeInputProps) {
-  const [editing, setEditing] = useState<
-    "minutes" | "seconds" | "milliseconds" | "frames" | null
-  >(null);
+  const [editing, setEditing] = useState<"minutes" | "seconds" | "milliseconds" | "frames" | null>(
+    null,
+  );
 
   const temporal = useTemporal({
     ms: value,
@@ -81,20 +84,13 @@ export function TimeInput({
               readOnly={actionPrevented}
               type="text"
               size={size}
-              value={
-                editing === "minutes"
-                  ? temporal.minutes
-                  : temporal.minutesDisplay
-              }
+              value={editing === "minutes" ? temporal.minutes : temporal.minutesDisplay}
               onFocus={() => {
                 if (!actionPrevented) setEditing("minutes");
               }}
               onBlur={() => setEditing(null)}
               onChange={(e) => temporal.onChangeMinutes(e.target.value)}
-              className={clsx(
-                "text-center",
-                getWidth(temporal.minutesDisplay.length, size),
-              )}
+              className={clsx("text-center", getWidth(temporal.minutesDisplay.length, size))}
             />
             <span className="w-fit">:</span>
           </>
@@ -106,9 +102,7 @@ export function TimeInput({
           readOnly={actionPrevented}
           type="text"
           size={size}
-          value={
-            editing === "seconds" ? temporal.seconds : temporal.secondsDisplay
-          }
+          value={editing === "seconds" ? temporal.seconds : temporal.secondsDisplay}
           onFocus={() => {
             if (!actionPrevented) {
               setEditing("seconds");
@@ -118,12 +112,7 @@ export function TimeInput({
           onChange={(e) => temporal.onChangeSeconds(e.target.value)}
           className={clsx(
             "text-center",
-            getWidth(
-              display === TimeDisplay.MinutesPlusSecondsPlusMilliseconds
-                ? 2
-                : 3,
-              size,
-            ),
+            getWidth(display === TimeDisplay.MinutesPlusSecondsPlusMilliseconds ? 2 : 3, size),
           )}
         />
         <span className="w-fit">.</span>
@@ -133,11 +122,7 @@ export function TimeInput({
           readOnly={actionPrevented}
           type="text"
           size={size}
-          value={
-            editing === "milliseconds"
-              ? temporal.milliseconds
-              : temporal.millisecondsDisplay
-          }
+          value={editing === "milliseconds" ? temporal.milliseconds : temporal.millisecondsDisplay}
           onFocus={() => {
             if (!actionPrevented) {
               setEditing("milliseconds");
@@ -173,17 +158,29 @@ export function TimeInput({
   // };
 
   return (
-    <div
+    <label
       className={clsx(
-        bg && "dark:bg-neutral-950/20 bg-neutral-50/20",
-        "flex items-baseline",
-        editing !== null && "outline outline-1 outline-offset-2",
+        bg ? "dark:bg-neutral-950/20 bg-neutral-50/20" : "bg:transparent",
+        "focus-within:dark:bg-neutral-950/20 focus-within:bg-neutral-50/20",
+        "relative flex justify-between w-full items-baseline gap-1",
+        "text-black dark:text-white",
+        "focus-within:outline focus-within:outline-1 focus-within:outline-offset-2",
+        "px-1",
+        hidden && "hidden",
         getOutline(variant),
         getHeight(size),
-        // widthLookup[display]?.[size] ?? "",
-        "w-fit",
+        getTextCaretColor(variant),
       )}
     >
+      {label && (
+        <span
+          id={label}
+          aria-label={label}
+          className={clsx(getFontSize(size), "font-mono font-thin px-1 select-none")}
+        >
+          {label}
+        </span>
+      )}
       {display === TimeDisplay.Frames ? (
         <FramesInput
           disabled={actionPrevented}
@@ -198,7 +195,7 @@ export function TimeInput({
       ) : (
         renderTimeInput()
       )}
-    </div>
+    </label>
   );
 }
 
@@ -206,11 +203,13 @@ interface FramesInputProps {
   value: number | undefined;
   onChange: (value: number) => void;
   disabled?: boolean;
+  label?: string;
   size?: Size;
   onBlur?: () => void;
   onFocus?: () => void;
   min?: number;
   max?: number;
+  bg?: boolean;
 }
 
 function FramesInput({
@@ -262,7 +261,7 @@ function FramesInput({
         onBlur && onBlur();
       }}
       onChange={onChangeInner}
-      className={clsx("text-center", getWidth(4, size))}
+      className={clsx("text-right flex-1", getWidth(4, size))}
     />
   );
 }

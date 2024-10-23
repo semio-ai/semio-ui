@@ -12,13 +12,12 @@ export interface NestedLabelProps {
 export function NestedLabel({ children }: NestedLabelProps) {
   const parent = useNestedParent();
 
-  const ItemComponent =
-    parent === NestedParent.Dropdown ? DropdownMenuLabel : ContextMenuLabel;
+  const ItemComponent = parent === NestedParent.Dropdown ? DropdownMenuLabel : ContextMenuLabel;
 
   return (
     <ItemComponent
       className={clsx(
-        "pl-[25px] text-xs leading-[25px] text-neutral-800 dark:text-neutral-200 font-bold",
+        "pl-[25px] text-xs leading-[25px] text-neutral-800 dark:text-neutral-200 font-bold py-[5px]",
       )}
     >
       {children}

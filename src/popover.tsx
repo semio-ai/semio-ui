@@ -13,39 +13,34 @@ export interface PopoverProps {
   variant?: Variant;
 }
 
-function Popover({
-  title,
-  trigger,
-  content,
-  open,
-  onStateChange,
-  variant,
-}: PopoverProps) {
+function Popover({ title, trigger, content, open, onStateChange, variant }: PopoverProps) {
   return (
     <div className="relative inline-block text-left">
       <PopoverPrimitive.Root open={open} onOpenChange={onStateChange}>
         <PopoverPrimitive.Trigger asChild>{trigger}</PopoverPrimitive.Trigger>
-        <PopoverPrimitive.Content
-          align="center"
-          sideOffset={4}
-          className={clsx(
-            "PopoverContent",
-            "w-64 p-4 shadow-md",
-            "bg-neutral-50/95 dark:bg-neutral-950/95 backdrop-blur-lg",
-            "border-t-2 border-solid",
-            // `border-${rootVariant[variant ?? Variant.WARNING]}-500`,
-            getBorder(variant),
-          )}
-        >
-          <PopoverPrimitive.Arrow
-            className={clsx("fill-current", getBasicTextColor(variant))}
-          />
+        <PopoverPrimitive.Portal>
+          <PopoverPrimitive.Content
+            align="center"
+            sideOffset={4}
+            className={clsx(
+              "PopoverContent",
+              "w-96 p-4 shadow-md",
+              "bg-neutral-50 dark:bg-neutral-950 backdrop-blur-lg",
+              "border-t-2 border-solid",
+              // `border-${rootVariant[variant ?? Variant.WARNING]}-500`,
+              getBorder(variant),
+            )}
+          >
+            <PopoverPrimitive.Arrow className={clsx("fill-current", getBasicTextColor(variant))} />
 
-          <div className="flex justify-between">
-            <span>{title}</span>
-          </div>
-          {content}
-        </PopoverPrimitive.Content>
+            {title ?? (
+              <div className="flex justify-between">
+                <span>{title}</span>
+              </div>
+            )}
+            {content}
+          </PopoverPrimitive.Content>
+        </PopoverPrimitive.Portal>
       </PopoverPrimitive.Root>
     </div>
   );

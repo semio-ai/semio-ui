@@ -2,11 +2,7 @@ import type { ReactNode } from "react";
 import { Switch as HeadlessSwitch } from "@headlessui/react";
 import { clsx } from "clsx";
 import { Variant } from "../types";
-import {
-  getBasicTextColor,
-  getCheckedBgStyles,
-  getHoverButtonStyles,
-} from "../style-functions";
+import { getBasicTextColor, getCheckedBgStyles, getHoverButtonStyles } from "../style-functions";
 
 export interface SwitchProps {
   value: boolean;
@@ -47,7 +43,7 @@ export function Switch({
       <div
         className={clsx(
           "size-4 bg-white dark:bg-black transition ease-in-out duration-300 grid place-content-center",
-          getBasicTextColor(value ? variant : offVariant ?? Variant.Default),
+          getBasicTextColor(value ? variant : (offVariant ?? Variant.Default)),
           !square && "rounded-full",
           buttonSize[size ?? "md"],
         )}

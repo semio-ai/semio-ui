@@ -6,10 +6,10 @@ export interface ProgressProps {
 }
 
 export function Progress({ progress, color }: ProgressProps) {
-  const progressColor: string = color || "bg-gray-500";
+  const progressColor: string = color || "bg-neutral-500";
   return (
     <RadixProgress.Root
-      className="relative overflow-hidden dark:bg-gray-200 light:bg-gray-800 w-full h-2 translate-z-0"
+      className="relative overflow-hidden dark:bg-neutral-200 bg-neutral-800 w-full h-2 translate-z-0"
       value={progress}
     >
       <RadixProgress.Indicator

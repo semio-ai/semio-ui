@@ -1,4 +1,4 @@
-import { Field, Input, Label } from '@headlessui/react'
+import { Field, Input, Label } from "@headlessui/react";
 import { useImageInput } from "../../hooks/formInputHooks";
 import { Spinner } from "../../spinner";
 
@@ -13,12 +13,9 @@ export function ImageInput({
   imageUrl,
   onImageChange,
   uploading = false,
-  inputTitle="Upload Image:",
+  inputTitle = "Upload Image:",
 }: ImageInputProps) {
-  const { localImageURL, handleChange, handleRemove } = useImageInput(
-    onImageChange,
-    imageUrl,
-  );
+  const { localImageURL, handleChange, handleRemove } = useImageInput(onImageChange, imageUrl);
 
   return (
     <div>
@@ -29,29 +26,12 @@ export function ImageInput({
         </div>
       ) : (
         <Field>
-          <Label
-            className="block mb-2"
-          >
-            {inputTitle}
-          </Label>
-          <Input
-            type="file"
-            accept="image/*"
-            onChange={handleChange}
-            className="mb-2"
-          />
+          <Label className="block mb-2">{inputTitle}</Label>
+          <Input type="file" accept="image/*" onChange={handleChange} className="mb-2" />
           {localImageURL && (
             <div className="mb-2 flex flex-col justify-center items-center">
-              <img
-                src={localImageURL}
-                alt="Preview"
-                className="max-w-36 h-auto rounded-lg"
-              />
-              <button
-                type="button"
-                onClick={handleRemove}
-                className="mt-2 text-red-500"
-              >
+              <img src={localImageURL} alt="Preview" className="max-w-36 h-auto rounded-lg" />
+              <button type="button" onClick={handleRemove} className="mt-2 text-red-500">
                 Remove
               </button>
             </div>

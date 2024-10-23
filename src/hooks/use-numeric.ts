@@ -2,20 +2,7 @@ import { useState, useCallback, type ChangeEvent } from "react";
 import { isNumber, isNaN } from "lodash";
 import { strip } from "number-precision";
 
-const VALID_CHARS = [
-  "0",
-  "1",
-  "2",
-  "3",
-  "4",
-  "5",
-  "6",
-  "7",
-  "8",
-  "9",
-  ".",
-  "-",
-];
+const VALID_CHARS = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ".", "-"];
 
 export enum NumericStatus {
   Below = "below",
@@ -39,6 +26,7 @@ interface NumericProps {
   max?: number;
   onValidChange?: (value: number) => void;
   sigFigs?: number;
+  enforceLimits?: boolean;
 }
 
 interface NumericState {
@@ -54,13 +42,13 @@ export const useNumeric = ({
   max = Number.POSITIVE_INFINITY,
   sigFigs = 2,
   onValidChange = () => {},
+  enforceLimits = true,
 }: NumericProps) => {
-  const [state, setState] = useState<NumericState>(
-    parse(initial, min, max, sigFigs),
-  );
+  const [state, setState] = useState<NumericState>(parse(initial, min, max, sigFigs));
 
   const onChange = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
+      console.log("onChange w/ enforceLimits", enforceLimits);
       // @ts-expect-error React Type description is wrong (data is present)
       if (event?.nativeEvent?.data) {
         // @ts-expect-error React Type description is wrong (data is present)
@@ -98,7 +86,7 @@ export const useNumeric = ({
           status: NumericStatus.Invalid,
           textValue: event.target.value,
         }));
-      } else if (PassableNumericStatuses.includes(newState.status)) {
+      } else if (!enforceLimits || PassableNumericStatuses.includes(newState.status)) {
         setState(newState);
         onValidChange(newState.numeric);
       } else if (newState.status === NumericStatus.Below) {
@@ -109,18 +97,18 @@ export const useNumeric = ({
         onValidChange(max);
       }
     },
-    [min, max, onValidChange, sigFigs],
+    [min, max, onValidChange, sigFigs, enforceLimits],
   );
 
   const onChangeDirect = useCallback(
     (value: number) => {
       const newState = parse(value, min, max, sigFigs);
       setState(newState);
-      if (PassableNumericStatuses.includes(newState.status)) {
+      if (!enforceLimits || PassableNumericStatuses.includes(newState.status)) {
         onValidChange(newState.numeric);
       }
     },
-    [min, max, onValidChange, sigFigs],
+    [min, max, onValidChange, sigFigs, enforceLimits],
   );
 
   const onChangeHeadless = useCallback(
@@ -134,18 +122,18 @@ export const useNumeric = ({
   const onStepUp = useCallback(() => {
     const newState = parse(strip(state.numeric + stepSize), min, max, sigFigs);
     setState(newState);
-    if (PassableNumericStatuses.includes(newState.status)) {
+    if (!enforceLimits || PassableNumericStatuses.includes(newState.status)) {
       onValidChange(newState.numeric);
     }
-  }, [min, max, onValidChange, state.numeric, stepSize, sigFigs]);
+  }, [min, max, onValidChange, state.numeric, stepSize, sigFigs, enforceLimits]);
 
   const onStepDown = useCallback(() => {
     const newState = parse(strip(state.numeric - stepSize), min, max, sigFigs);
     setState(newState);
-    if (PassableNumericStatuses.includes(newState.status)) {
+    if (!enforceLimits || PassableNumericStatuses.includes(newState.status)) {
       onValidChange(newState.numeric);
     }
-  }, [min, max, onValidChange, state.numeric, stepSize, sigFigs]);
+  }, [min, max, onValidChange, state.numeric, stepSize, sigFigs, enforceLimits]);
 
   const onBlur = useCallback(() => {
     const strVersion = state.numeric.toFixed(sigFigs);
@@ -185,12 +173,7 @@ const getStatus = (v: number, min: number, max: number) => {
   }
 };
 
-const parse = (
-  v: number | string,
-  min: number,
-  max: number,
-  sigFigs: number,
-) => {
+const parse = (v: number | string, min: number, max: number, sigFigs: number) => {
   if (typeof v === "number") {
     return {
       numeric: v,
