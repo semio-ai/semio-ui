@@ -26,6 +26,8 @@ export { FullHeightAccordion, type FullHeightAccordionProps } from "./full-heigh
 export { Popover, type PopoverProps } from "./popover";
 export { Tabs, type TabsProps } from "./tabs";
 export { Dropdown, type DropdownProps } from "./dropdown";
+export { ToggleGroup, type ToggleGroupProps } from "./toggle-group";
+export { ToggleSquare, type ToggleSquareProps } from "./toggle-square";
 export { ContextMenu, type ContextMenuProps } from "./context-menu";
 export { NestedItem, type NestedItemProps } from "./nested-elements/item";
 export { NestedSeparator, type NestedSeparatorProps } from "./nested-elements/separator";
