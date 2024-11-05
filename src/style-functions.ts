@@ -567,8 +567,8 @@ export function getToggleButtonStyles(variant: Variant): string {
       return clsx(
         base,
         "hover:ring-default-500/25",
-        "data-[state=on]:ring-default-500/50",
-        "data-[state=on]:text-default-500",
+        "data-[state=on]:dark:ring-default-300/50 data-[state=on]:ring-default-700/50",
+        "data-[state=on]:dark:text-default-300 data-[state=on]:text-default-700",
       );
   }
 }
