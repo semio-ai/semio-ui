@@ -67,6 +67,8 @@ export { IconKeyFilled } from "./icons/key-filled";
 export { IconKeyOutline } from "./icons/key-outline";
 export { IconKeyOutlineDash } from "./icons/key-outline-dash";
 export { IconKey, type IconKeyProps } from "./icons/key";
+export { IconGraphView, type IconGraphViewProps } from "./icons/graph-view";
+export { IconPreviewView, type IconPreviewViewProps } from "./icons/preview-view";
 export { WorldElementIcon } from "./icons/world-element-icons";
 
 export { StaticIcon } from "./icons/static-icon";
