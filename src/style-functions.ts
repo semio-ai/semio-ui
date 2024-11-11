@@ -16,6 +16,21 @@ export function getHeight(size?: Size): string {
   }
 }
 
+export function getWidth(size?: Size): string {
+  switch (size) {
+    case Size.Xs:
+      return "w-5";
+    case Size.Sm:
+      return "w-7";
+    case Size.Md:
+      return "w-8";
+    case Size.Lg:
+      return "w-10";
+    default:
+      return "w-8";
+  }
+}
+
 export function getChipInsertSize(size?: Size): string {
   switch (size) {
     case Size.Xs:
@@ -484,6 +499,76 @@ export function getCheckedBgStyles(variant?: Variant): string {
         "data-[checked]:outline-default-400 data-[checked]:hover:outline-default-300 data-[checked]:dark:hover:outline-default-600 ",
         "data-[checked]:hover:bg-default-300 data-[checked]:dark:hover:bg-default-600 data-[checked]:bg-default-400 data-[checked]:dark:bg-default-500",
         "data-[checked]:disabled:cursor-not-allowed data-[checked]:disabled:bg-default-400/50 data-[checked]:disabled:hover:bg-default-400/50 data-[checked]:disabled:dark:bg-default-500/50 data-[checked]:disabled:dark:hover:bg-default-500/50",
+      );
+  }
+}
+
+export function getToggleButtonStyles(variant: Variant): string {
+  const base = clsx(
+    "outline-none transition-colors",
+    "hover:ring-1 focus:ring-1 data-[state=on]:ring-1 ring-0 ring-inset",
+    "data-disabled:opacity-50 disabled:opacity-50",
+    "dark:text-neutral-600 text-neutral-400",
+    "place-items-center grid grid-cols-1 grid-rows-1",
+    "disabled:hover:ring-transparent disabled:focus:ring-transparent",
+  );
+  switch (variant) {
+    case Variant.Primary:
+      return clsx(
+        base,
+        "hover:ring-primary-500/25 focus:ring-primary-500/25",
+        "data-[state=on]:ring-primary-500/50",
+        "data-[state=on]:text-primary-500",
+      );
+    case Variant.Secondary:
+      return clsx(
+        base,
+        "hover:ring-secondary-500/25 focus:ring-secondary-500/25",
+        "data-[state=on]:ring-secondary-500/50",
+        "data-[state=on]:text-secondary-500",
+      );
+    case Variant.Tertiary:
+      return clsx(
+        base,
+        "hover:ring-tertiary-500/25 focus:ring-tertiary-500/25",
+        "data-[state=on]:ring-tertiary-500/50",
+        "data-[state=on]:text-tertiary-500",
+      );
+    case Variant.Error:
+      return clsx(
+        base,
+        "hover:ring-error-500/25 focus:ring-error-500/25",
+        "data-[state=on]:ring-error-500/50",
+        "data-[state=on]:text-error-500",
+      );
+    case Variant.Warning:
+      return clsx(
+        base,
+        "hover:ring-warning-500/25 focus:ring-warning-500/25",
+        "data-[state=on]:ring-warning-500/50",
+        "data-[state=on]:text-warning-500",
+      );
+    case Variant.Success:
+      return clsx(
+        base,
+        "hover:ring-success-500/25 focus:ring-success-500/25",
+        "data-[state=on]:ring-success-500/50",
+        "data-[state=on]:text-success-500",
+      );
+    case Variant.Info:
+      return clsx(
+        base,
+        "hover:ring-info-500/25 focus:ring-info-500/25",
+        "data-[state=on]:ring-info-500/50",
+        "data-[state=on]:text-info-500",
+      );
+    case Variant.Default:
+    default:
+      return clsx(
+        base,
+        "hover:ring-default-500/25",
+        "data-[state=on]:dark:ring-default-300/50 data-[state=on]:ring-default-700/50",
+        "data-[state=on]:dark:text-default-300 data-[state=on]:text-default-700",
       );
   }
 }
