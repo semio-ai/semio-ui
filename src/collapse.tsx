@@ -28,15 +28,10 @@ export function Collapse({
   side = "right",
 }: CollapseProps): ReactNode {
   return (
-    <Collapsible.Root
-      open={open}
-      onOpenChange={onStateChange}
-      disabled={disabled}
-      // className="border-t-2 border border-solid border-t-semio-yellow/50 border-semio-yellow/25"
-    >
+    <Collapsible.Root open={open} onOpenChange={onStateChange} disabled={disabled}>
       <Collapsible.Trigger
         className={clsx(
-          "dark:bg-black bg-white flex items-center w-full",
+          "bg-neutral-200 dark:bg-neutral-800 flex items-center w-full",
           "justify-between cursor-pointer pl-3 pt-1 pb-1 pr-3",
           disabled ? "dark:text-neutral-400 text-neutral-600" : "dark:text-white text-black",
         )}
@@ -56,6 +51,7 @@ export function Collapse({
 
       <Collapsible.Content
         className={clsx(
+          "bg-transparent",
           direction === "horizontal"
             ? "CollapsibleHorizontalContent"
             : "CollapsibleVerticalContent",

@@ -30,7 +30,7 @@ function Tooltip({ content, children, side, controlledState, variant, disabled }
               "data-[state=delayed-open]:data-[side=left]:animate-slideRightAndFade",
               "data-[state=delayed-open]:data-[side=bottom]:animate-slideUpAndFade",
               "select-none inline-flex items-center px-4 py-2.5",
-              "bg-neutral-50/50 dark:bg-neutral-950/50 backdrop-blur-lg",
+              "bg-neutral-50/50 dark:bg-neutral-950/50 backdrop-blur-lg shadow-md",
               "data-[side=bottom]:border-t-2 border-solid",
               "data-[side=top]:border-b-2 border-solid",
               "data-[side=right]:border-l-2 border-solid",

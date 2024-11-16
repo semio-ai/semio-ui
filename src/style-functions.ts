@@ -77,10 +77,63 @@ export function getBorder(variant?: Variant): string {
       return "border-success-500";
     case Variant.Info:
       return "border-info-500";
-    case Variant.Default:
-      return "border-default-500";
     default:
-      return "dark:border-default-700 border-default-300";
+      return "border-default-500";
+  }
+}
+
+export function getHoverBorder(variant?: Variant): string {
+  const all = "border border-solid";
+  switch (variant) {
+    case Variant.Primary:
+      return clsx(
+        all,
+        "hover:border-primary-50 dark:hover:border-primary-950 border-primary-500",
+        "disabled:cursor-not-allowed disabled:border-primary-500/30 disabled:hover:border-primary-500/30",
+      );
+    case Variant.Secondary:
+      return clsx(
+        all,
+        "hover:border-secondary-50 dark:hover:border-secondary-950 border-secondary-500",
+        "disabled:cursor-not-allowed disabled:border-secondary-500/30 disabled:hover:border-secondary-500/30",
+      );
+    case Variant.Tertiary:
+      return clsx(
+        all,
+        "hover:border-tertiary-50 dark:hover:border-tertiary-950 border-tertiary-500",
+        "disabled:cursor-not-allowed disabled:border-tertiary-500/30 disabled:hover:border-tertiary-500/30",
+      );
+    case Variant.Error:
+      return clsx(
+        all,
+        "hover:border-error-500 dark:hover:border-error-700 border-error-600",
+        "disabled:cursor-not-allowed disabled:border-error-600/30 disabled:hover:border-error-6    00/30",
+      );
+    case Variant.Warning:
+      return clsx(
+        all,
+        "hover:border-warning-500 dark:hover:border-warning-700 border-warning-600",
+        "disabled:cursor-not-allowed disabled:border-warning-600/30 disabled:hover:border-warning-600/30",
+      );
+    case Variant.Success:
+      return clsx(
+        all,
+        "hover:border-success-500 dark:hover:border-success-700 border-success-600",
+        "disabled:cursor-not-allowed disabled:border-success-600/30 disabled:hover:border-success-600/30",
+      );
+    case Variant.Info:
+      return clsx(
+        all,
+        "hover:border-info-50 dark:hover:border-info-950 border-info-500",
+        "disabled:cursor-not-allowed disabled:border-info-500/30 disabled:hover:border-info-500/30",
+      );
+    case Variant.Default:
+    default:
+      return clsx(
+        all,
+        "hover:border-default-400 dark:hover:border-default-600 border-default-500",
+        "disabled:cursor-not-allowed disabled:border-default-500/30 disabled:hover:border-default-500/30",
+      );
   }
 }
 
@@ -570,5 +623,27 @@ export function getToggleButtonStyles(variant: Variant): string {
         "data-[state=on]:dark:ring-default-300/50 data-[state=on]:ring-default-700/50",
         "data-[state=on]:dark:text-default-300 data-[state=on]:text-default-700",
       );
+  }
+}
+
+export function getGradient(variant?: Variant): string {
+  switch (variant) {
+    case Variant.Primary:
+      return "bg-gradient-to-r to-primary-50 from-primary-950";
+    case Variant.Secondary:
+      return "bg-gradient-to-r to-secondary-50 from-secondary-950";
+    case Variant.Tertiary:
+      return "bg-gradient-to-r to-tertiary-50 from-tertiary-950";
+    case Variant.Error:
+      return "bg-gradient-to-r to-error-400 from-error-600";
+    case Variant.Warning:
+      return "bg-gradient-to-r to-warning-400 from-warning-600";
+    case Variant.Success:
+      return "bg-gradient-to-r to-success-400 from-success-600";
+    case Variant.Info:
+      return "bg-gradient-to-r to-info-50 from-info-950";
+    case Variant.Default:
+    default:
+      return "bg-gradient-to-r to-default-400 from-default-600";
   }
 }

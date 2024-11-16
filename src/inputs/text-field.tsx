@@ -14,13 +14,14 @@ interface TextFieldAdditionalProps {
 export type TextFieldProps = TextFieldAdditionalProps &
   Omit<InputHTMLAttributes<HTMLInputElement>, "size" | "onChange">;
 
-/*
-TextField is a component that allows the user to input text.
-Inherits from standard Input HTML element
-@props value: string - the value of the field
-@props onChange: (value: string) => void - the callback to call when the value changes
-@props size?: "xs" | "sm" | "md" | "lg" - the size of the field
-*/
+/**
+ * Inherits from standard Input HTML element
+ * @param value - the value of the field
+ * @param onChange - the callback to call when the value changes
+ * @param size - the size of the field
+ * @param variant - the variant of the field
+ * @param bg - whether to show the field with a background
+ */
 function InnerTextField({
   size = Size.Md,
   onChange,
@@ -28,8 +29,6 @@ function InnerTextField({
   bg = false,
   ...forwardedProps
 }: TextFieldProps): ReactNode {
-  // const [focused, setFocused] = useState(false);
-
   return (
     <div
       className={clsx(
@@ -39,7 +38,6 @@ function InnerTextField({
         getOutline(variant),
         getHeight(size),
         getTextCaretColor(variant),
-        // "w-full",
       )}
     >
       <StyledInput
@@ -48,14 +46,6 @@ function InnerTextField({
         className="text-left absolute focus:placeholder-transparent"
         size={size}
         onChange={onChange ? (e) => onChange(e.target.value) : () => {}}
-        // onFocus={(e) => {
-        //   setFocused(true);
-        //   if (forwardedProps.onFocus) forwardedProps.onFocus(e);
-        // }}
-        // onBlur={(e) => {
-        //   setFocused(false);
-        //   if (forwardedProps.onBlur) forwardedProps.onBlur(e);
-        // }}
       />
     </div>
   );

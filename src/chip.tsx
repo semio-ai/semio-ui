@@ -9,7 +9,7 @@ import {
   getFontSize,
   getHeight,
 } from "./style-functions";
-import { IconButton } from "./buttons/icon-button";
+import { Button } from "./buttons/button";
 
 export interface ChipProps {
   value: string;
@@ -51,10 +51,9 @@ export function Chip({ value, variant, size = Size.Md, color, icon, onDelete }: 
       )}
       {value}
       {onDelete && (
-        <IconButton
+        <Button
           onClick={(e) => {
             onDelete(e);
-            console.log("IN DELETE");
             e.stopPropagation();
           }}
           color={color}
@@ -62,13 +61,12 @@ export function Chip({ value, variant, size = Size.Md, color, icon, onDelete }: 
           className={clsx(
             "dark:bg-white/50 bg-black/50 rounded-sm justify-between items-center",
             "hover:dark:bg-white/75 hover:bg-black/75",
-            // getBasicTextColor(color ? "custom" : variant),
             getChipInsertSize(size),
           )}
           size="fit"
-        >
-          <IconX className={getChipInsertSize(size)} />
-        </IconButton>
+          leftIcon={<IconX className={getChipInsertSize(size)} />}
+          invert
+        />
       )}
     </div>
   );

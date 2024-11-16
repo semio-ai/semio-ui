@@ -1,4 +1,4 @@
-import React, { type ReactNode } from "react";
+import { type ReactNode } from "react";
 import * as RadixToggle from "@radix-ui/react-toggle";
 import { clsx } from "clsx";
 import { Variant, Size } from "./types";
