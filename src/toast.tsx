@@ -105,7 +105,7 @@ function Toast({
         <div
           className={clsx(
             "bg-neutral-50/50 dark:bg-neutral-950/50",
-            "flex flex-row h-11 pl-2 justify-between items-center",
+            "flex flex-row h-11 px-2 justify-between items-center",
           )}
         >
           <p className={clsx("text-[15px]", getBasicTextColor(data.variant))}>{data.title}</p>
