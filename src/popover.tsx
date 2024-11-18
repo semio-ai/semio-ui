@@ -25,9 +25,8 @@ function Popover({ title, trigger, content, open, onStateChange, variant }: Popo
             className={clsx(
               "PopoverContent",
               "w-96 p-4 shadow-md",
-              "bg-neutral-50 dark:bg-neutral-950 backdrop-blur-lg",
+              "bg-neutral-50/50 dark:bg-neutral-950/50 backdrop-blur-lg shadow-md",
               "border-t-2 border-solid",
-              // `border-${rootVariant[variant ?? Variant.WARNING]}-500`,
               getBorder(variant),
             )}
           >

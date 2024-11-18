@@ -3,9 +3,8 @@ import * as AlertDialog from "@radix-ui/react-alert-dialog";
 import { clsx } from "clsx";
 import { IconX } from "@tabler/icons-react";
 import { Variant } from "./types";
-import { getBorder } from "./style-functions";
-import { IconButton } from "./buttons/icon-button";
-import { TextButton } from "./buttons/text-button";
+import { getBorder, getBasicTextColor } from "./style-functions";
+import { Button } from "./buttons/button";
 
 export interface DialogProps {
   children: ReactNode;
@@ -56,13 +55,11 @@ export function Dialog({
               getBorder(variant),
             )}
           >
-            <div className="flex flex-col pt-6 px-6 pb-2 gap-1">
+            {/* <div className="flex flex-col pt-6 px-6 pb-2 gap-1">
               <AlertDialog.Title className="text-base/7 font-medium dark:text-white text-black flex align-center justify-between">
                 {title}
                 <AlertDialog.Cancel asChild>
-                  <IconButton variant={Variant.Default}>
-                    <IconX />
-                  </IconButton>
+                  <Button variant={Variant.Default} leftIcon={<IconX />} />
                 </AlertDialog.Cancel>
               </AlertDialog.Title>
               {description && (
@@ -70,27 +67,43 @@ export function Dialog({
                   {description}
                 </AlertDialog.Description>
               )}
+            </div> */}
+            <div
+              // className="flex flex-col pt-6 px-6 pb-2 gap-1 dark:bg-neutral-900/75 bg-neutral-50"
+              className={clsx(
+                "bg-neutral-50/50 dark:bg-neutral-950/50",
+                "flex flex-col gap-1 p-3",
+                getBasicTextColor(variant),
+              )}
+            >
+              <div className="flex flex-row items-center justify-between">
+                <AlertDialog.Title className="text-base/7 font-medium flex align-center justify-between">
+                  {title}
+                </AlertDialog.Title>
+                <AlertDialog.Cancel asChild>
+                  <Button variant={variant} leftIcon={<IconX />} />
+                </AlertDialog.Cancel>
+              </div>
+              <AlertDialog.Description className="text-sm/6 dark:text-white/50 text-black/50">
+                {description ?? ""}
+              </AlertDialog.Description>
             </div>
 
-            <div className="flex-1 md:flex-none p-2">{children}</div>
+            <div className="flex-1 md:flex-none p-2 dark:text-white text-black">{children}</div>
 
             <div className="p-2 flex gap-3 justify-end">
               {onCancel && (
                 <AlertDialog.Cancel asChild>
-                  <TextButton
-                    variant={Variant.Default}
-                    onClick={onCancel}
-                    disabled={submitDisabled}
-                  >
+                  <Button variant={Variant.Default} onClick={onCancel} disabled={submitDisabled}>
                     Cancel
-                  </TextButton>
+                  </Button>
                 </AlertDialog.Cancel>
               )}
               {onSubmit && (
                 <AlertDialog.Action asChild>
-                  <TextButton variant={variant} onClick={onSubmit} disabled={submitDisabled}>
+                  <Button variant={variant} onClick={onSubmit} disabled={submitDisabled}>
                     {submitText}
-                  </TextButton>
+                  </Button>
                 </AlertDialog.Action>
               )}
             </div>

@@ -46,12 +46,18 @@ export function InnerScrollArea({
       )}
     >
       {header && (
-        <div ref={headerRef} className="absolute top-0 left-0 right-0 z-10 backdrop-blur-md">
+        <div
+          ref={headerRef}
+          className="absolute top-0 left-0 right-0 z-10 backdrop-blur-md background-transparent"
+        >
           {header}
         </div>
       )}
       {footer && (
-        <div ref={footerRef} className="absolute bottom-0 left-0 right-0 z-10 backdrop-blur-md">
+        <div
+          ref={footerRef}
+          className="absolute bottom-0 left-0 right-0 z-10 backdrop-blur-md background-transparent"
+        >
           {footer}
         </div>
       )}
