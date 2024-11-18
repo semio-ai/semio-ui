@@ -77,6 +77,7 @@ export function getBorder(variant?: Variant): string {
       return "border-success-500";
     case Variant.Info:
       return "border-info-500";
+    case Variant.Default:
     default:
       return "border-default-500";
   }
@@ -371,7 +372,6 @@ export function getBasicTextColor(variant?: Variant | "custom"): string {
     case Variant.Info:
       return "text-info-500";
     case Variant.Default:
-      return "text-default-500";
     default:
       return "text-default-500";
   }
