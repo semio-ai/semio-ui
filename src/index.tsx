@@ -53,6 +53,7 @@ export * from "./chip";
 export * from "./select";
 export * from "./form-base";
 
+export * from "./icons/robot";
 export * from "./icons/player-next-key";
 export * from "./icons/player-end-bounds";
 export * from "./icons/player-play";
