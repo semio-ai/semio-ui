@@ -5,7 +5,7 @@ import type {
   CollapsibleTriggerProps,
   CollapsibleProps,
 } from "@radix-ui/react-collapsible";
-import { IconChevronUp, IconChevronLeft } from "@tabler/icons-react";
+import { IconChevronDown, IconChevronLeft } from "@tabler/icons-react";
 import { clsx } from "clsx";
 
 export interface CollapseProps {
@@ -39,11 +39,11 @@ export function Collapse({
         {side === "right" && title}
         {direction === "horizontal" ? (
           <IconChevronLeft
-            className={clsx("transition-transform w-5 h-5", open ? "rotate-0" : "rotate-180")}
+            className={clsx("transition-transform w-5 h-5", open ? "rotate-0" : "-rotate-90")}
           />
         ) : (
-          <IconChevronUp
-            className={clsx("transition-transform w-5 h-5", open ? "rotate-0" : "rotate-180")}
+          <IconChevronDown
+            className={clsx("transition-transform w-5 h-5", open ? "rotate-0" : "-rotate-90")}
           />
         )}
         {side === "left" && title}

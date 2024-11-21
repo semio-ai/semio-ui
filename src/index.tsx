@@ -4,6 +4,7 @@ export * from "./functions/stamp-to-visual-time";
 
 export * from "./layout";
 export * from "./spinner";
+export * from "./status";
 export * from "./progress";
 export * from "./sidebar";
 export * from "./buttons/button";
