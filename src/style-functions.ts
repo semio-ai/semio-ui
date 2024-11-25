@@ -377,6 +377,30 @@ export function getBasicTextColor(variant?: Variant | "custom"): string {
   }
 }
 
+export function getBasicBgColor(variant?: Variant | "custom"): string {
+  switch (variant) {
+    case "custom":
+      return "bg-[--bg-color]";
+    case Variant.Primary:
+      return "bg-primary-500";
+    case Variant.Secondary:
+      return "bg-secondary-500";
+    case Variant.Tertiary:
+      return "bg-tertiary-500";
+    case Variant.Error:
+      return "bg-error-500";
+    case Variant.Warning:
+      return "bg-warning-500";
+    case Variant.Success:
+      return "bg-success-500";
+    case Variant.Info:
+      return "bg-info-500";
+    case Variant.Default:
+    default:
+      return "bg-default-500";
+  }
+}
+
 export function getTextCaretColor(variant?: Variant | "custom"): string {
   switch (variant) {
     case "custom":

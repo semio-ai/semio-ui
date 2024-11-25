@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { clsx } from "clsx";
 import { Variant } from "./types";
-import { getChipColor } from "./style-functions";
+import { getBasicBgColor } from "./style-functions";
 
 export interface StatusProps {
   variant?: Variant;
@@ -21,11 +21,13 @@ export function Status({
       {children}
       <div
         className={clsx(
-          "bg-success-500 rounded-full absolute ring-1 dark:ring-neutral-800 ring-neutral-200",
+          "rounded-full absolute ring-2 dark:ring-neutral-800 ring-neutral-200",
           text
-            ? "h-2 min-w-2 text-[7px] p-[1] text-black font-bold flex flex-row items-center justify-center"
-            : "h-2 w-2",
-          getChipColor(variant),
+            ? "h-[10px] min-w-[10px] text-[7px] p-[1] dark:text-black text-white font-bold flex flex-row items-center justify-center"
+            : "h-[10px] w-[10px]",
+          variant === Variant.Default
+            ? "dark:bg-neutral-50 bg-neutral-950"
+            : getBasicBgColor(variant),
           getPlacement(placement),
         )}
         style={text ? { width: text.length * 6 } : undefined}

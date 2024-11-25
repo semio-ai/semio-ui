@@ -2,7 +2,13 @@ import * as AvatarPrimitive from "@radix-ui/react-avatar";
 import { clsx } from "clsx";
 import { ForwardedRef, MouseEventHandler, forwardRef } from "react";
 import { Variant, Size } from "./types";
-import { getHeight, getWidth, getHoverButtonStyles } from "./style-functions";
+import {
+  getHeight,
+  getWidth,
+  getHoverButtonStyles,
+  getBasicBgColor,
+  getOutline,
+} from "./style-functions";
 import { Status } from "./status";
 
 export interface AvatarProps {
@@ -13,12 +19,14 @@ export interface AvatarProps {
   rounded?: boolean;
   onClick?: MouseEventHandler<HTMLSpanElement>;
   variant?: Variant;
+  border?: Variant;
   noHover?: boolean;
   status?: {
     variant?: Variant;
     placement?: "top-left" | "top-right" | "bottom-left" | "bottom-right";
     text?: string;
   };
+  className?: string;
 }
 
 export const Avatar = forwardRef(
@@ -32,7 +40,9 @@ export const Avatar = forwardRef(
       status,
       rounded = true,
       variant = Variant.Default,
+      border,
       noHover = false,
+      className,
     }: AvatarProps,
     ref: ForwardedRef<HTMLSpanElement>,
   ) => {
@@ -57,6 +67,7 @@ export const Avatar = forwardRef(
             rounded && "rounded-full",
             getHeight(size),
             getWidth(size),
+            className,
           )}
         >
           <AvatarPrimitive.Image
@@ -66,7 +77,10 @@ export const Avatar = forwardRef(
               getHeight(size),
               getWidth(size),
               "object-cover",
+              border && "outline outline-offset-1 outline-1",
+              border && getOutline(border),
               rounded && "rounded-full",
+              className,
             )}
           />
           <AvatarPrimitive.Fallback
@@ -74,11 +88,15 @@ export const Avatar = forwardRef(
               "flex items-center justify-center",
               "dark:text-black text-white font-bold",
               "bg-neutral-500 group-hover:dark:bg-neutral-800 group-hover:bg-neutral-200",
-              "group-hover:dark:text-white group-hover:text-black",
+              "group-hover:dark:text-neutral-200 group-hover:bg-neutral-800",
+              !noHover && "group-hover:dark:text-white group-hover:text-black",
               rounded && "rounded-full",
+              border && "outline outline-offset-1 outline-1",
+              border && getOutline(border),
               getHeight(size),
               getWidth(size),
-              getHoverButtonStyles(variant),
+              noHover ? getBasicBgColor(variant) : getHoverButtonStyles(variant),
+              className,
             )}
           >
             {fallbackContent}
