@@ -55,21 +55,7 @@ export function Dialog({
               getBorder(variant),
             )}
           >
-            {/* <div className="flex flex-col pt-6 px-6 pb-2 gap-1">
-              <AlertDialog.Title className="text-base/7 font-medium dark:text-white text-black flex align-center justify-between">
-                {title}
-                <AlertDialog.Cancel asChild>
-                  <Button variant={Variant.Default} leftIcon={<IconX />} />
-                </AlertDialog.Cancel>
-              </AlertDialog.Title>
-              {description && (
-                <AlertDialog.Description className="text-sm/6 dark:text-white/50 text-black/50">
-                  {description}
-                </AlertDialog.Description>
-              )}
-            </div> */}
             <div
-              // className="flex flex-col pt-6 px-6 pb-2 gap-1 dark:bg-neutral-900/75 bg-neutral-50"
               className={clsx(
                 "bg-neutral-50/50 dark:bg-neutral-950/50",
                 "flex flex-col gap-1 p-3",
