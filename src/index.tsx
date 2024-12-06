@@ -55,6 +55,7 @@ export * from "./select";
 export * from "./form-base";
 
 export * from "./icons/robot";
+export * from "./icons/robot-plus";
 export * from "./icons/player-next-key";
 export * from "./icons/player-end-bounds";
 export * from "./icons/player-play";
@@ -81,5 +82,7 @@ export * from "./hooks/use-add-toast";
 export * from "./context";
 export * from "./types";
 export * from "./node-tree";
+
+export * from "./snippet";
 
 export * from "./style-functions";
