@@ -1,4 +1,3 @@
-import useClipboard from "react-use-clipboard";
 import SyntaxHighlighter from "react-syntax-highlighter";
 import { atomOneDark, atomOneLight } from "react-syntax-highlighter/dist/esm/styles/hljs";
 import { clsx } from "clsx";
@@ -16,7 +15,16 @@ interface SnippetProps {
 
 export function Snippet({ text, language, className }: SnippetProps) {
   const { resolvedTheme } = useTheme();
-  const [isCopied, setCopied] = useClipboard(text, { successDuration: 2000 });
+  const [isCopied, setCopied] = useState(false);
+
+  useEffect(() => {
+    if (isCopied) {
+      const timeout = setTimeout(() => {
+        setCopied(false);
+      }, 2000);
+      return () => clearTimeout(timeout);
+    }
+  }, [isCopied, setCopied]);
 
   return (
     <div className={clsx("w-full bg-neutral-200 dark:bg-neutral-800", className)}>
@@ -52,3 +60,11 @@ export function Snippet({ text, language, className }: SnippetProps) {
     </div>
   );
 }
+function useState(arg0: boolean): [any, any] {
+  throw new Error("Function not implemented.");
+}
+
+function useEffect(arg0: () => () => void) {
+  throw new Error("Function not implemented.");
+}
+
