@@ -37,7 +37,7 @@ export function Snippet({ text, language, className }: SnippetProps) {
       <div className="relative dark:bg-neutral-800 bg-neutral-200">
         <SyntaxHighlighter
           customStyle={{ margin: 0, padding: "1rem", overflow: "auto", background: "transparent" }}
-          language={language}
+          language={language ?? "plaintext"}
           style={resolvedTheme === Theme.Dark ? atomOneDark : atomOneLight}
           codeTagProps={{ className: "bg-transparent" }}
         >
