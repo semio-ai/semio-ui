@@ -16,7 +16,7 @@ interface SnippetProps {
 
 export function Snippet({ text, language, className }: SnippetProps) {
   const { resolvedTheme } = useTheme();
-  const [isCopied, setCopied] = useState(false);
+  const [isCopied, setCopied] = useState<boolean>(false);
 
   useEffect(() => {
     if (isCopied) {
@@ -52,7 +52,10 @@ export function Snippet({ text, language, className }: SnippetProps) {
           <Button
             invert
             variant={isCopied ? Variant.Success : Variant.Default}
-            onClick={setCopied}
+            onClick={() => {
+              navigator.clipboard.writeText(text);
+              setCopied(true);
+            }}
             leftIcon={isCopied ? <IconClipboardCheck /> : <IconClipboardPlus />}
             className="absolute top-3 right-3"
           />
