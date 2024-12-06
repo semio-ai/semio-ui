@@ -16,16 +16,16 @@ interface SnippetProps {
 
 export function Snippet({ text, language, className }: SnippetProps) {
   const { resolvedTheme } = useTheme();
-  const [isCopied, setCopied] = useState<boolean>(false);
+  const [isCopied, setIsCopied] = useState<boolean>(false);
 
   useEffect(() => {
     if (isCopied) {
       const timeout = setTimeout(() => {
-        setCopied(false);
+        setIsCopied(false);
       }, 2000);
       return () => clearTimeout(timeout);
     }
-  }, [isCopied, setCopied]);
+  }, [isCopied, setIsCopied]);
 
   return (
     <div className={clsx("w-full bg-neutral-200 dark:bg-neutral-800", className)}>
@@ -53,8 +53,15 @@ export function Snippet({ text, language, className }: SnippetProps) {
             invert
             variant={isCopied ? Variant.Success : Variant.Default}
             onClick={() => {
-              navigator.clipboard.writeText(text);
-              setCopied(true);
+              navigator.clipboard
+                .writeText(text)
+                .then(() => {
+                  setIsCopied(true);
+                })
+                .catch(() => {
+                  // TODO: report to crashlytics
+                  setIsCopied(false);
+                });
             }}
             leftIcon={isCopied ? <IconClipboardCheck /> : <IconClipboardPlus />}
             className="absolute top-3 right-3"
