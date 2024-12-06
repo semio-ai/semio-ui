@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import SyntaxHighlighter from "react-syntax-highlighter";
 import { atomOneDark, atomOneLight } from "react-syntax-highlighter/dist/esm/styles/hljs";
 import { clsx } from "clsx";
@@ -60,11 +61,3 @@ export function Snippet({ text, language, className }: SnippetProps) {
     </div>
   );
 }
-function useState(arg0: boolean): [any, any] {
-  throw new Error("Function not implemented.");
-}
-
-function useEffect(arg0: () => () => void) {
-  throw new Error("Function not implemented.");
-}
-
