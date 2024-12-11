@@ -2,11 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Hides the emulator warning banner for firebase */
-.firebase-emulator-warning {
-  display: none;
-}
-
 /* @import "./fonts/Gilroy/Gilroy.css"; */
 .PopoverContent {
   animation-duration: 400ms;

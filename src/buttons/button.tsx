@@ -1,4 +1,10 @@
-import { MouseEventHandler, type ReactNode, type CSSProperties } from "react";
+import {
+  MouseEventHandler,
+  forwardRef,
+  type ReactNode,
+  type CSSProperties,
+  type ForwardedRef,
+} from "react";
 import { clsx } from "clsx";
 import { alpha, altColor } from "@semio/utils";
 import { Variant, Size } from "../types";
@@ -42,85 +48,94 @@ export interface ButtonProps extends React.HTMLAttributes<HTMLButtonElement> {
  * @param invert - Whether to invert the button colors (no background and colored text)
  * @param border - Whether to add a border to the button
  */
-export function Button({
-  children,
-  altText,
-  disabled,
-  onClick,
-  variant,
-  color,
-  leftIcon,
-  rightIcon,
-  size = Size.Md,
-  deemphasize = false,
-  invert = false,
-  border = false,
-  submit = false,
-  ...props
-}: ButtonProps) {
-  const iconOnly = (!rightIcon && children === undefined) || (!leftIcon && children === undefined);
-  return (
-    <button
-      type={submit ? "submit" : "button"}
-      {...props}
-      aria-label={altText}
-      data-deemphasized={deemphasize}
-      className={clsx(
-        "transition-colors",
-        "flex items-center",
-        size === "fit" ? "h-fit w-fit" : getHeight(size),
-        size !== "fit" && getFontSize(size),
-        getPaddingAndWidth(size, iconOnly),
-        iconOnly && "place-items-center",
-        !color && !invert && "dark:text-black text-white",
-        !color && (invert ? getHoverTextStyles(variant) : getHoverButtonStyles(variant)),
-        color &&
-          clsx(
-            "hover:text-[--darker-color] hover:dark:text-[--lighter-color] text-[--text-color]",
-            "disabled:hover:text-[--text-deemphasized-color]",
-            "disabled:hover:dark:text-[--text-deemphasized-color]",
-            "disabled:text-[--text-deemphasized-color]",
-            "data-[deemphasized=true]:hover:text-[--darker-deemphasized-color]",
-            "data-[deemphasized=true]:hover:dark:text-[--lighter-deemphasized-color]",
-            "data-[deemphasized=true]:text-[--text-deemphasized-color]",
-          ),
-        color &&
-          border &&
-          clsx(
-            "border border-solid",
-            "hover:border-[--darker-color] hover:dark:border-[--lighter-color] border-[--text-color]",
-            "disabled:hover:border-[--text-deemphasized-color]",
-            "disabled:hover:dark:border-[--text-deemphasized-color]",
-            "disabled:border-[--text-deemphasized-color]",
-            "data-[deemphasized=true]:hover:border-[--darker-deemphasized-color]",
-            "data-[deemphasized=true]:hover:dark:border-[--lighter-deemphasized-color]",
-            "data-[deemphasized=true]:border-[--text-deemphasized-color]",
-          ),
-        border && !color && getHoverBorder(variant),
+export const Button = forwardRef(
+  (
+    {
+      children,
+      altText,
+      disabled,
+      onClick,
+      variant,
+      color,
+      leftIcon,
+      rightIcon,
+      size = Size.Md,
+      deemphasize = false,
+      invert = false,
+      border = false,
+      submit = false,
+      ...props
+    }: ButtonProps,
+    ref: ForwardedRef<HTMLButtonElement>,
+  ) => {
+    const iconOnly =
+      (!rightIcon && children === undefined) || (!leftIcon && children === undefined);
+    return (
+      <button
+        ref={ref}
+        type={submit ? "submit" : "button"}
+        {...props}
+        aria-label={altText}
+        data-deemphasized={deemphasize}
+        className={clsx(
+          "transition-colors",
+          "flex items-center",
+          size === "fit" ? "h-fit w-fit" : getHeight(size),
+          size !== "fit" && getFontSize(size),
+          getPaddingAndWidth(size, iconOnly),
+          iconOnly && "place-items-center",
+          !color && !invert && "dark:text-black text-white",
+          !color && (invert ? getHoverTextStyles(variant) : getHoverButtonStyles(variant)),
+          color &&
+            clsx(
+              "hover:text-[--darker-color] hover:dark:text-[--lighter-color] text-[--text-color]",
+              "disabled:hover:text-[--text-deemphasized-color]",
+              "disabled:hover:dark:text-[--text-deemphasized-color]",
+              "disabled:text-[--text-deemphasized-color]",
+              "data-[deemphasized=true]:hover:text-[--darker-deemphasized-color]",
+              "data-[deemphasized=true]:hover:dark:text-[--lighter-deemphasized-color]",
+              "data-[deemphasized=true]:text-[--text-deemphasized-color]",
+            ),
+          color &&
+            border &&
+            clsx(
+              "border border-solid",
+              "hover:border-[--darker-color] hover:dark:border-[--lighter-color] border-[--text-color]",
+              "disabled:hover:border-[--text-deemphasized-color]",
+              "disabled:hover:dark:border-[--text-deemphasized-color]",
+              "disabled:border-[--text-deemphasized-color]",
+              "data-[deemphasized=true]:hover:border-[--darker-deemphasized-color]",
+              "data-[deemphasized=true]:hover:dark:border-[--lighter-deemphasized-color]",
+              "data-[deemphasized=true]:border-[--text-deemphasized-color]",
+            ),
+          border && !color && getHoverBorder(variant),
 
-        props.className ?? "",
-      )}
-      disabled={disabled}
-      onClick={onClick}
-      style={
-        color
-          ? ({
-              "--text-color": color,
-              "--darker-color": altColor(color, -0.2),
-              "--lighter-color": altColor(color, 0.2),
-              "--text-deemphasized-color": alpha(color, 0.5),
-              "--darker-deemphasized-color": alpha(altColor(color, -0.2), 0.5),
-              "--lighter-deemphasized-color": alpha(altColor(color, 0.2), 0.5),
-            } as CSSProperties)
-          : undefined
-      }
-    >
-      {leftIcon}
-      <div className="flex-1">{children}</div>
-      {rightIcon}
-    </button>
-  );
-}
+          props.className ?? "",
+        )}
+        disabled={disabled}
+        onClick={onClick}
+        style={
+          color
+            ? ({
+                "--text-color": color,
+                "--darker-color": altColor(color, -0.2),
+                "--lighter-color": altColor(color, 0.2),
+                "--text-deemphasized-color": alpha(color, 0.5),
+                "--darker-deemphasized-color": alpha(altColor(color, -0.2), 0.5),
+                "--lighter-deemphasized-color": alpha(altColor(color, 0.2), 0.5),
+              } as CSSProperties)
+            : undefined
+        }
+      >
+        {leftIcon}
+        <div className="flex-1">{children}</div>
+        {rightIcon}
+      </button>
+    );
+  },
+);
+
+Button.displayName = "Button";
 
 function getPaddingAndWidth(size: Size | "fit", onlyIcon: boolean): string {
   if (size === "fit") {
