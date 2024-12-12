@@ -46,7 +46,7 @@ export function InnerLayout({
   return (
     <div
       ref={root as MutableRefObject<HTMLDivElement>}
-      className="fixed h-[100dvh] w-screen flex select-none dark:bg-black bg-white touch-none"
+      className="absolute top-0 left-0 h-[100dvh] w-screen flex select-none dark:bg-black bg-white touch-none"
     >
       {/* Menu (thin left bar)*/}
       {menu}
