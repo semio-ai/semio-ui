@@ -9,7 +9,7 @@ import { Button } from "./buttons/button";
 export interface DialogProps {
   children: ReactNode;
   open: boolean;
-  title?: string;
+  title?: ReactNode;
   description?: string;
   submitDisabled?: boolean;
   submitText?: string;
@@ -48,7 +48,7 @@ export function Dialog({
             forceMount
             className={clsx(
               "flex flex-col focus:outline-none",
-              "h-fit w-fit min-w-[50vw]",
+              "h-fit w-fit",
               "data-[state=open]:animate-modalAppear data-[state=closed]:animate-modalDisappear",
               "bg-neutral-50/50 dark:bg-neutral-950/50 backdrop-blur-lg",
               "border-t-2 border-solid",
@@ -75,7 +75,7 @@ export function Dialog({
               </AlertDialog.Description>
             </div>
 
-            <div className="flex-1 md:flex-none p-2 dark:text-white text-black">{children}</div>
+            <div className="flex-1 md:flex-none p-3 dark:text-white text-black">{children}</div>
 
             <div className="p-2 flex gap-3 justify-end">
               {onCancel && (

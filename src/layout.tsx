@@ -54,7 +54,9 @@ export function InnerLayout({
     >
       {/* Background */}
       {background && (
-        <div className="absolute top-0 left-0 bottom-0 right-0 overflow-hidden">{background}</div>
+        <div className="absolute top-0 left-0 bottom-0 right-0 overflow-hidden z-[0]">
+          {background}
+        </div>
       )}
 
       {/* Menu (thin left bar)*/}
@@ -70,10 +72,7 @@ export function InnerLayout({
           {/* Main Content */}
           <div className="flex flex-col flex-grow min-w-0">
             {/* Main Body */}
-            <div
-              className="flex-grow min-h-0 dark:bg-[#303030] bg-[#dddddd] align-middle justify-center"
-              style={style}
-            >
+            <div className="flex-grow min-h-0 align-middle justify-center" style={style}>
               {children}
             </div>
           </div>
