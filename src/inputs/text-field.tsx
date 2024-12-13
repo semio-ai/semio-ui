@@ -9,6 +9,7 @@ interface TextFieldAdditionalProps {
   variant?: Variant;
   size?: Size;
   bg?: boolean;
+  outline?: boolean;
 }
 
 export type TextFieldProps = TextFieldAdditionalProps &
@@ -21,12 +22,14 @@ export type TextFieldProps = TextFieldAdditionalProps &
  * @param size - the size of the field
  * @param variant - the variant of the field
  * @param bg - whether to show the field with a background
+ * @param outline - whether to show the field with an outline on focus
  */
 function InnerTextField({
   size = Size.Md,
   onChange,
   variant,
   bg = false,
+  outline = true,
   ...forwardedProps
 }: TextFieldProps): ReactNode {
   return (
@@ -34,7 +37,7 @@ function InnerTextField({
       className={clsx(
         bg && "dark:bg-neutral-950/20 bg-neutral-50/20",
         "relative flex w-full items-baseline",
-        "focus-within:outline focus-within:outline-1 focus-within:outline-offset-2",
+        outline && "focus-within:outline focus-within:outline-1 focus-within:outline-offset-2",
         getOutline(variant),
         getHeight(size),
         getTextCaretColor(variant),
