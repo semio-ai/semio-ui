@@ -1,4 +1,11 @@
-import { ForwardedRef, type InputHTMLAttributes, forwardRef } from "react";
+import {
+  ForwardedRef,
+  type InputHTMLAttributes,
+  forwardRef,
+  useState,
+  useEffect,
+  useRef,
+} from "react";
 import { clsx } from "clsx";
 import { getHeight, getFontSize } from "../style-functions";
 import { Size } from "../types";
@@ -25,10 +32,31 @@ export const StyledInput = forwardRef(
     }: InputProps & Omit<InputHTMLAttributes<HTMLInputElement>, "size">,
     ref: ForwardedRef<HTMLInputElement>,
   ) => {
+    const altRef = useRef<HTMLInputElement>(null);
+    const { value, onChange, ...rest } = forwardedProps;
+    const [cursorSetting, setCursorSetting] = useState<number | null>(null);
+
+    useEffect(() => {
+      if (typeof ref === "function") {
+        altRef.current?.setSelectionRange(cursorSetting, cursorSetting);
+      } else if (ref) {
+        ref.current?.setSelectionRange(cursorSetting, cursorSetting);
+      } else {
+        altRef.current?.setSelectionRange(cursorSetting, cursorSetting);
+      }
+    }, [ref, altRef, cursorSetting, value]);
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      setCursorSetting(e.target.selectionStart);
+      onChange?.(e);
+    };
+
     return (
       <input
-        ref={ref}
-        {...forwardedProps}
+        ref={ref || altRef}
+        value={value}
+        {...rest}
+        onChange={handleChange}
         type={forwardedProps.type ?? "text"}
         className={clsx(
           "touch-none font-mono outline-none bg-transparent pl-1 pr-1",
