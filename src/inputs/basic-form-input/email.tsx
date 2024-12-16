@@ -1,35 +1,63 @@
-import { Field, Input, Label } from "@headlessui/react";
-import { useEmailInput } from "../../hooks/formInputHooks";
+import { InputHTMLAttributes, ForwardedRef, forwardRef } from "react";
+import { clsx } from "clsx";
+import { getHeight, getOutline, getTextCaretColor } from "../../style-functions";
+import { Size, Variant } from "../../types";
+import { StyledInput } from "../styled-input";
 
-export interface EmailInputProps {
-  emailValue: string;
-  onEmailChange: (value: string, field: string) => void;
-  fieldName?: string;
-  inputTitle?: string;
-  inputPlaceholder?: string;
-  inputSize?: number;
+export interface EmailInputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, "size"> {
+  invalid?: boolean;
+  message?: string;
+  size?: Size;
+  variant?: Variant;
 }
 
-export function EmailInput({
-  emailValue,
-  onEmailChange,
-  fieldName = "email",
-  inputTitle = "Email:",
-  inputPlaceholder = "example@abc.com",
-}: EmailInputProps) {
-  const { email, error, handleChange } = useEmailInput(emailValue, onEmailChange, fieldName);
+export const EmailInput = forwardRef(
+  (
+    {
+      invalid = false,
+      variant = Variant.Default,
+      size = Size.Md,
+      message = "",
+      ...props
+    }: EmailInputProps,
+    ref: ForwardedRef<HTMLInputElement>,
+  ) => {
+    const isEmpty = checkIsEmpty(ref);
+    const usedVariant = invalid && !isEmpty ? Variant.Error : variant;
 
-  return (
-    <Field>
-      <Label className="block text-lg">{inputTitle}</Label>
-      <Input
-        value={email}
-        onChange={handleChange}
-        className="mt-1 block w-full rounded-md shadow dark:border border-slate-400 py-1 px-3 placeholder:font-thin
-          bg-inherit placeholder:text-inherit text-inherit"
-        placeholder={inputPlaceholder}
-      />
-      {error && <span style={{ color: "red" }}>{error}</span>}
-    </Field>
-  );
+    return (
+      <label>
+        <div className="flex flex-row justify-between items-center p-0.5">
+          <span className="capitalize text-md text-neutral-500">{props.name ?? "Email"}</span>
+          {invalid && <span className="text-xs text-error-500">{message}</span>}
+        </div>
+
+        <div
+          className={clsx(
+            "dark:bg-neutral-800/80 bg-neutral-200/80",
+            "autofill:dark:bg-neutral-800/80 autofill:bg-neutral-200/80",
+            "focus-within:outline focus-within:outline-1 focus-within:outline-offset-2",
+            usedVariant === Variant.Error && "outline outline-1 outline-offset-2",
+            getOutline(usedVariant),
+            getTextCaretColor(usedVariant),
+            getHeight(size),
+          )}
+        >
+          <StyledInput ref={ref} size={size} {...props} />
+        </div>
+      </label>
+    );
+  },
+);
+
+EmailInput.displayName = "EmailInput";
+
+function checkIsEmpty(ref: ForwardedRef<HTMLInputElement>): boolean {
+  if (typeof ref === "object") {
+    return ref?.current?.value === "" || ref?.current?.value === undefined;
+  } else if (typeof ref === "function") {
+    return false;
+  } else {
+    return false;
+  }
 }

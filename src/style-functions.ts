@@ -16,6 +16,21 @@ export function getHeight(size?: Size): string {
   }
 }
 
+export function getWidth(size?: Size): string {
+  switch (size) {
+    case Size.Xs:
+      return "w-5";
+    case Size.Sm:
+      return "w-7";
+    case Size.Md:
+      return "w-8";
+    case Size.Lg:
+      return "w-10";
+    default:
+      return "w-8";
+  }
+}
+
 export function getChipInsertSize(size?: Size): string {
   switch (size) {
     case Size.Xs:
@@ -63,9 +78,63 @@ export function getBorder(variant?: Variant): string {
     case Variant.Info:
       return "border-info-500";
     case Variant.Default:
-      return "border-default-500";
     default:
-      return "dark:border-default-700 border-default-300";
+      return "border-default-500";
+  }
+}
+
+export function getHoverBorder(variant?: Variant): string {
+  const all = "border border-solid";
+  switch (variant) {
+    case Variant.Primary:
+      return clsx(
+        all,
+        "hover:border-primary-50 dark:hover:border-primary-950 border-primary-500",
+        "disabled:cursor-not-allowed disabled:border-primary-500/30 disabled:hover:border-primary-500/30",
+      );
+    case Variant.Secondary:
+      return clsx(
+        all,
+        "hover:border-secondary-50 dark:hover:border-secondary-950 border-secondary-500",
+        "disabled:cursor-not-allowed disabled:border-secondary-500/30 disabled:hover:border-secondary-500/30",
+      );
+    case Variant.Tertiary:
+      return clsx(
+        all,
+        "hover:border-tertiary-50 dark:hover:border-tertiary-950 border-tertiary-500",
+        "disabled:cursor-not-allowed disabled:border-tertiary-500/30 disabled:hover:border-tertiary-500/30",
+      );
+    case Variant.Error:
+      return clsx(
+        all,
+        "hover:border-error-500 dark:hover:border-error-700 border-error-600",
+        "disabled:cursor-not-allowed disabled:border-error-600/30 disabled:hover:border-error-6    00/30",
+      );
+    case Variant.Warning:
+      return clsx(
+        all,
+        "hover:border-warning-500 dark:hover:border-warning-700 border-warning-600",
+        "disabled:cursor-not-allowed disabled:border-warning-600/30 disabled:hover:border-warning-600/30",
+      );
+    case Variant.Success:
+      return clsx(
+        all,
+        "hover:border-success-500 dark:hover:border-success-700 border-success-600",
+        "disabled:cursor-not-allowed disabled:border-success-600/30 disabled:hover:border-success-600/30",
+      );
+    case Variant.Info:
+      return clsx(
+        all,
+        "hover:border-info-50 dark:hover:border-info-950 border-info-500",
+        "disabled:cursor-not-allowed disabled:border-info-500/30 disabled:hover:border-info-500/30",
+      );
+    case Variant.Default:
+    default:
+      return clsx(
+        all,
+        "hover:border-default-400 dark:hover:border-default-600 border-default-500",
+        "disabled:cursor-not-allowed disabled:border-default-500/30 disabled:hover:border-default-500/30",
+      );
   }
 }
 
@@ -303,9 +372,32 @@ export function getBasicTextColor(variant?: Variant | "custom"): string {
     case Variant.Info:
       return "text-info-500";
     case Variant.Default:
-      return "text-default-500";
     default:
       return "text-default-500";
+  }
+}
+
+export function getBasicBgColor(variant?: Variant | "custom"): string {
+  switch (variant) {
+    case "custom":
+      return "bg-[--bg-color]";
+    case Variant.Primary:
+      return "bg-primary-500";
+    case Variant.Secondary:
+      return "bg-secondary-500";
+    case Variant.Tertiary:
+      return "bg-tertiary-500";
+    case Variant.Error:
+      return "bg-error-500";
+    case Variant.Warning:
+      return "bg-warning-500";
+    case Variant.Success:
+      return "bg-success-500";
+    case Variant.Info:
+      return "bg-info-500";
+    case Variant.Default:
+    default:
+      return "bg-default-500";
   }
 }
 
@@ -485,5 +577,97 @@ export function getCheckedBgStyles(variant?: Variant): string {
         "data-[checked]:hover:bg-default-300 data-[checked]:dark:hover:bg-default-600 data-[checked]:bg-default-400 data-[checked]:dark:bg-default-500",
         "data-[checked]:disabled:cursor-not-allowed data-[checked]:disabled:bg-default-400/50 data-[checked]:disabled:hover:bg-default-400/50 data-[checked]:disabled:dark:bg-default-500/50 data-[checked]:disabled:dark:hover:bg-default-500/50",
       );
+  }
+}
+
+export function getToggleButtonStyles(variant: Variant): string {
+  const base = clsx(
+    "outline-none transition-colors",
+    "hover:ring-1 focus:ring-1 data-[state=on]:ring-1 ring-0 ring-inset",
+    "data-disabled:opacity-50 disabled:opacity-50",
+    "dark:text-neutral-600 text-neutral-400",
+    "place-items-center grid grid-cols-1 grid-rows-1",
+    "disabled:hover:ring-transparent disabled:focus:ring-transparent",
+  );
+  switch (variant) {
+    case Variant.Primary:
+      return clsx(
+        base,
+        "hover:ring-primary-500/25 focus:ring-primary-500/25",
+        "data-[state=on]:ring-primary-500/50",
+        "data-[state=on]:text-primary-500",
+      );
+    case Variant.Secondary:
+      return clsx(
+        base,
+        "hover:ring-secondary-500/25 focus:ring-secondary-500/25",
+        "data-[state=on]:ring-secondary-500/50",
+        "data-[state=on]:text-secondary-500",
+      );
+    case Variant.Tertiary:
+      return clsx(
+        base,
+        "hover:ring-tertiary-500/25 focus:ring-tertiary-500/25",
+        "data-[state=on]:ring-tertiary-500/50",
+        "data-[state=on]:text-tertiary-500",
+      );
+    case Variant.Error:
+      return clsx(
+        base,
+        "hover:ring-error-500/25 focus:ring-error-500/25",
+        "data-[state=on]:ring-error-500/50",
+        "data-[state=on]:text-error-500",
+      );
+    case Variant.Warning:
+      return clsx(
+        base,
+        "hover:ring-warning-500/25 focus:ring-warning-500/25",
+        "data-[state=on]:ring-warning-500/50",
+        "data-[state=on]:text-warning-500",
+      );
+    case Variant.Success:
+      return clsx(
+        base,
+        "hover:ring-success-500/25 focus:ring-success-500/25",
+        "data-[state=on]:ring-success-500/50",
+        "data-[state=on]:text-success-500",
+      );
+    case Variant.Info:
+      return clsx(
+        base,
+        "hover:ring-info-500/25 focus:ring-info-500/25",
+        "data-[state=on]:ring-info-500/50",
+        "data-[state=on]:text-info-500",
+      );
+    case Variant.Default:
+    default:
+      return clsx(
+        base,
+        "hover:ring-default-500/25",
+        "data-[state=on]:dark:ring-default-300/50 data-[state=on]:ring-default-700/50",
+        "data-[state=on]:dark:text-default-300 data-[state=on]:text-default-700",
+      );
+  }
+}
+
+export function getGradient(variant?: Variant): string {
+  switch (variant) {
+    case Variant.Primary:
+      return "bg-gradient-to-r to-primary-50 from-primary-950";
+    case Variant.Secondary:
+      return "bg-gradient-to-r to-secondary-50 from-secondary-950";
+    case Variant.Tertiary:
+      return "bg-gradient-to-r to-tertiary-50 from-tertiary-950";
+    case Variant.Error:
+      return "bg-gradient-to-r to-error-400 from-error-600";
+    case Variant.Warning:
+      return "bg-gradient-to-r to-warning-400 from-warning-600";
+    case Variant.Success:
+      return "bg-gradient-to-r to-success-400 from-success-600";
+    case Variant.Info:
+      return "bg-gradient-to-r to-info-50 from-info-950";
+    case Variant.Default:
+    default:
+      return "bg-gradient-to-r to-default-400 from-default-600";
   }
 }

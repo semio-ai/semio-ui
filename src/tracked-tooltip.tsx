@@ -20,7 +20,7 @@ import {
   useState,
 } from "react";
 import { Variant } from "./types";
-import { getBasicTextColor, getBorder } from "./style-functions";
+import { getBasicTextColor } from "./style-functions";
 
 type FloatingResults = ReturnType<typeof useFloating>;
 interface ElementRefs {
@@ -101,8 +101,7 @@ const TrackedTooltip = forwardRef(
           }}
           className={clsx(
             "select-none inline-flex items-center",
-            "bg-neutral-50/50 dark:bg-neutral-950/50 backdrop-blur-lg",
-            getBorder(variant),
+            "bg-neutral-50/50 dark:bg-neutral-950/50 backdrop-blur-lg shadow-md",
             getBasicTextColor(variant),
           )}
         >

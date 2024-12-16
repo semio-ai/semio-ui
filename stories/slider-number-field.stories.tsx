@@ -51,7 +51,6 @@ export const Primary: Story = {
     max: 1,
     units: undefined,
     color: "#ee11ee",
-    strict: true,
     size: Size.Sm,
     inactive: false,
     disabled: false,

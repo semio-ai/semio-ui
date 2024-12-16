@@ -31,7 +31,7 @@ function Dropdown({ header, trigger, children, variant }: DropdownProps) {
                 "data-[side=bottom]:animate-slideUpAndFade",
                 "data-[side=left]:animate-slideRightAndFade",
                 "min-w-[220px] shadow-md",
-                "bg-neutral-50/50 dark:bg-neutral-950/50 backdrop-blur-lg",
+                "bg-neutral-50/50 dark:bg-neutral-950/50 backdrop-blur-lg shadow-md",
                 "data-[side=bottom]:border-t-2 border-solid",
                 "data-[side=top]:border-b-2 border-solid",
                 "data-[side=right]:border-l-2 border-solid",

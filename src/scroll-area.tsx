@@ -1,4 +1,4 @@
-import { memo, type ReactNode } from "react";
+import { memo, type ReactNode, type CSSProperties } from "react";
 import { clsx } from "clsx";
 import * as RadixScrollArea from "@radix-ui/react-scroll-area";
 import useMeasure from "react-use-measure";
@@ -25,12 +25,14 @@ export function InnerScrollArea({
   header,
   footer,
   className,
+  style,
   shrink = false,
 }: {
   children: ReactNode;
   header?: ReactNode;
   footer?: ReactNode;
   className?: string;
+  style?: CSSProperties;
   shrink?: boolean;
 }) {
   const [headerRef, headerBounds] = useMeasure();
@@ -44,14 +46,21 @@ export function InnerScrollArea({
         shrink ? "h-fit" : "h-full",
         className,
       )}
+      style={style}
     >
       {header && (
-        <div ref={headerRef} className="absolute top-0 left-0 right-0 z-10 backdrop-blur-md">
+        <div
+          ref={headerRef}
+          className="absolute top-0 left-0 right-0 z-10 backdrop-blur-md background-transparent"
+        >
           {header}
         </div>
       )}
       {footer && (
-        <div ref={footerRef} className="absolute bottom-0 left-0 right-0 z-10 backdrop-blur-md">
+        <div
+          ref={footerRef}
+          className="absolute bottom-0 left-0 right-0 z-10 backdrop-blur-md background-transparent"
+        >
           {footer}
         </div>
       )}
