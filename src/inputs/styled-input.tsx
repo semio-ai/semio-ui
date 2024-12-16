@@ -1,11 +1,4 @@
-import {
-  ForwardedRef,
-  type InputHTMLAttributes,
-  forwardRef,
-  useState,
-  useEffect,
-  useRef,
-} from "react";
+import { ForwardedRef, type InputHTMLAttributes, forwardRef, memo } from "react";
 import { clsx } from "clsx";
 import { getHeight, getFontSize } from "../style-functions";
 import { Size } from "../types";
@@ -19,58 +12,39 @@ interface InputProps {
   flex?: boolean;
 }
 
-export const StyledInput = forwardRef(
-  (
-    {
-      size = Size.Md,
-      disabled,
-      cursor,
-      className,
-      flex = true,
-      bold,
-      ...forwardedProps
-    }: InputProps & Omit<InputHTMLAttributes<HTMLInputElement>, "size">,
-    ref: ForwardedRef<HTMLInputElement>,
-  ) => {
-    const altRef = useRef<HTMLInputElement>(null);
-    const { value, onChange, ...rest } = forwardedProps;
-    const [cursorSetting, setCursorSetting] = useState<number | null>(null);
-
-    useEffect(() => {
-      if (typeof ref === "function") {
-        altRef.current?.setSelectionRange(cursorSetting, cursorSetting);
-      } else if (ref) {
-        ref.current?.setSelectionRange(cursorSetting, cursorSetting);
-      } else {
-        altRef.current?.setSelectionRange(cursorSetting, cursorSetting);
-      }
-    }, [ref, altRef, cursorSetting, value]);
-
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      setCursorSetting(e.target.selectionStart);
-      onChange?.(e);
-    };
-
-    return (
-      <input
-        ref={ref || altRef}
-        value={value}
-        {...rest}
-        onChange={handleChange}
-        type={forwardedProps.type ?? "text"}
-        className={clsx(
-          "touch-none font-mono outline-none bg-transparent pl-1 pr-1",
-          flex && "w-full flex-1",
-          "dark:text-white text-black",
-          bold ? "select-text font-bold" : "select-none font-normal",
-          getHeight(size),
-          getFontSize(size),
-          disabled ? "cursor-not-allowed" : (cursor ?? "cursor-text"),
-          className,
-        )}
-      />
-    );
-  },
+export const StyledInput = memo(
+  forwardRef(
+    (
+      {
+        size = Size.Md,
+        disabled,
+        cursor,
+        className,
+        flex = true,
+        bold,
+        ...forwardedProps
+      }: InputProps & Omit<InputHTMLAttributes<HTMLInputElement>, "size">,
+      ref: ForwardedRef<HTMLInputElement>,
+    ) => {
+      return (
+        <input
+          ref={ref}
+          {...forwardedProps}
+          type={forwardedProps.type ?? "text"}
+          className={clsx(
+            "touch-none font-mono outline-none bg-transparent pl-1 pr-1",
+            flex && "w-full flex-1",
+            "dark:text-white text-black",
+            bold ? "select-text font-bold" : "select-none font-normal",
+            getHeight(size),
+            getFontSize(size),
+            disabled ? "cursor-not-allowed" : (cursor ?? "cursor-text"),
+            className,
+          )}
+        />
+      );
+    },
+  ),
 );
 
 StyledInput.displayName = "StyledInput";
