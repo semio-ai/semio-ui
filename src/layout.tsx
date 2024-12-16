@@ -1,4 +1,4 @@
-import type { MutableRefObject, ReactNode } from "react";
+import type { MutableRefObject, ReactNode, CSSProperties } from "react";
 import { memo, useRef } from "react";
 import { useGesture } from "@use-gesture/react";
 
@@ -8,6 +8,8 @@ export interface LayoutProps {
   rightSidebar?: ReactNode;
   bottomPanel?: ReactNode;
   children: ReactNode;
+  style?: CSSProperties;
+  background?: ReactNode;
 }
 
 /**
@@ -27,6 +29,8 @@ export function InnerLayout({
   rightSidebar,
   bottomPanel,
   children,
+  style,
+  background,
 }: LayoutProps) {
   const root = useRef<HTMLDivElement>();
 
@@ -46,8 +50,15 @@ export function InnerLayout({
   return (
     <div
       ref={root as MutableRefObject<HTMLDivElement>}
-      className="fixed h-[100dvh] w-screen flex select-none dark:bg-black bg-white touch-none"
+      className="absolute top-0 left-0 h-[100dvh] w-screen flex select-none dark:bg-black bg-white touch-none"
     >
+      {/* Background */}
+      {background && (
+        <div className="absolute top-0 left-0 bottom-0 right-0 overflow-hidden z-[0]">
+          {background}
+        </div>
+      )}
+
       {/* Menu (thin left bar)*/}
       {menu}
 
@@ -61,7 +72,7 @@ export function InnerLayout({
           {/* Main Content */}
           <div className="flex flex-col flex-grow min-w-0">
             {/* Main Body */}
-            <div className="flex-grow min-h-0 dark:bg-[#303030] bg-[#dddddd] align-middle justify-center">
+            <div className="flex-grow min-h-0 align-middle justify-center" style={style}>
               {children}
             </div>
           </div>
