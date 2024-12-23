@@ -74,8 +74,8 @@ export function NestedSelect({ variant, disabled, onChange, values, options }: N
               : {}
           }
           className={clsx(
-            "text-[13px] text-inherit/50 leading-none flex items-center",
-            "h-[25px] px-[5px] relative pl-[30px] select-none outline-none",
+            "text-sm text-inherit/50 leading-none flex items-center",
+            "h-8 px-[5px] relative pl-[30px] select-none outline-none",
             "data-[disabled]:pointer-events-none",
             getItemStyle(option.color ? "custom" : variant),
           )}

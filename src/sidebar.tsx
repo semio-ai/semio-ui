@@ -11,9 +11,10 @@ export interface SidebarChild {
 export interface SidebarProps {
   children: SidebarChild[];
   sidebar: string | null;
+  side?: "left" | "right";
 }
 
-export function Sidebar({ children, sidebar }: SidebarProps) {
+export function Sidebar({ children, sidebar, side }: SidebarProps) {
   const child = children.find((c) => c.key === sidebar);
   const cancelMap = useMemo(() => new WeakMap(), []);
 
@@ -29,17 +30,21 @@ export function Sidebar({ children, sidebar }: SidebarProps) {
   });
 
   return (
-    <div>
+    <div className="h-full">
       {transitions((style, data) => (
         <animated.div
           key={data.key}
           style={style}
           className={clsx(
-            "dark:bg-neutral-800 bg-neutral-200 transition-all",
+            "dark:bg-layout-darkinset bg-layout-lightinset transition-all",
             "duration-150 h-full overflow-x-hidden overflow-auto",
+            side === "left" && "border-r",
+            side === "right" && "border-l",
+            "border-solid border-layout-lightsep/50 dark:border-layout-darksep/50",
           )}
         >
           {child?.content}
+          {/* <Separator orientation="vertical" variant="layout" /> */}
         </animated.div>
       ))}
     </div>

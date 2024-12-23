@@ -283,8 +283,10 @@ export function getItemStyle(variant?: Variant | "custom"): string {
   }
 }
 
-export function getSeparatorStyle(variant?: Variant): string {
+export function getSeparatorStyle(variant?: Variant | "custom"): string {
   switch (variant) {
+    case "custom":
+      return "bg-[--separator-color]/75";
     case Variant.Primary:
       return "dark:bg-primary-200/75 bg-primary-800/75";
     case Variant.Secondary:

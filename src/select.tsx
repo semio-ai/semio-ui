@@ -9,6 +9,7 @@ import { StaticIcon } from "./icons/static-icon";
 import { NestedSelect } from "./nested-elements/select";
 import { NestedRadio } from "./nested-elements/radio";
 import { Chip } from "./chip";
+import { NestedLabel } from "./nested-elements/label";
 
 export interface SelectProps<T extends string | string[]> {
   variant?: Variant;
@@ -22,6 +23,7 @@ export interface SelectProps<T extends string | string[]> {
     icon?: ReactNode;
   }[];
   size?: Size;
+  label?: string;
 }
 
 export function Select<T extends string | string[]>({
@@ -30,13 +32,9 @@ export function Select<T extends string | string[]>({
   options,
   variant,
   size = Size.Md,
+  label,
 }: SelectProps<T>) {
   const multiple = Array.isArray(value);
-  // const [searchValue, setSearchValue] = useState("");
-  // const matches = useMemo(
-  //   () => matchSorter(options, searchValue, { keys: ["label"] }),
-  //   [searchValue, options],
-  // );
   return (
     <div className="flex flex-row w-full">
       <Dropdown
@@ -93,13 +91,6 @@ export function Select<T extends string | string[]>({
                 </StaticIcon>
               </div>
             ) : (
-              // <Chip
-              //   variant={variant}
-              //   color={options.find((o) => o.value === value)?.color}
-              //   value={options.find((o) => o.value === value)?.label || "Unknown"}
-              //   icon={options.find((o) => o.value === value)?.icon}
-              //   size={smallerSize(size)}
-              // />
               <div className="items-center w-full m-1 shadow">
                 <IconSelector size="24px" />
               </div>
@@ -108,6 +99,7 @@ export function Select<T extends string | string[]>({
         }
         variant={variant}
       >
+        {label && <NestedLabel>{label}</NestedLabel>}
         {multiple && options.length > 0 && (
           <NestedSelect
             variant={variant}

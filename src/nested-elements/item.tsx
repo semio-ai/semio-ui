@@ -25,8 +25,8 @@ export function NestedItem({ left, children, right, variant, disabled, onClick }
       disabled={disabled}
       onClick={onClick}
       className={clsx(
-        "text-[13px] leading-none flex items-center",
-        "h-[25px] px-[5px] relative pl-[30px] select-none outline-none",
+        "text-sm leading-none flex items-center",
+        "h-8 px-[5px] relative pl-[30px] select-none outline-none",
         "data-[disabled]:pointer-events-none",
         getItemStyle(variant),
       )}

@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { CSSProperties, ReactNode } from "react";
 import * as RadixSeparator from "@radix-ui/react-separator";
 import { clsx } from "clsx";
 import { Variant } from "./types";
@@ -6,7 +6,8 @@ import { getSeparatorStyle } from "./style-functions";
 
 export interface SeparatorProps {
   children?: ReactNode;
-  variant?: Variant;
+  variant?: Variant | "custom" | "layout";
+  color?: string;
   orientation?: "horizontal" | "vertical";
   className?: string;
 }
@@ -14,6 +15,7 @@ export interface SeparatorProps {
 export function Separator({
   children,
   variant,
+  color,
   orientation = "horizontal",
   className,
 }: SeparatorProps) {
@@ -25,12 +27,19 @@ export function Separator({
           orientation === "horizontal" ? "flex-row" : "flex-col",
           className,
         )}
+        style={
+          {
+            "--separator-color": variant === "custom" && color ? color : undefined,
+          } as CSSProperties
+        }
       >
         <RadixSeparator.Root
           orientation={orientation}
           className={clsx(
             "flex flex-1 data-[orientation=horizontal]:h-px data-[orientation=vertical]:w-px",
-            getSeparatorStyle(variant),
+            variant === "layout"
+              ? "dark:bg-layout-darksep/50 bg-layout-lightsep/50"
+              : getSeparatorStyle(variant),
           )}
         />
         {children}
@@ -38,7 +47,9 @@ export function Separator({
           orientation={orientation}
           className={clsx(
             "flex flex-1 data-[orientation=horizontal]:h-px data-[orientation=vertical]:w-px",
-            getSeparatorStyle(variant),
+            variant === "layout"
+              ? "dark:bg-layout-darksep/50 bg-layout-lightsep/50"
+              : getSeparatorStyle(variant),
           )}
         />
       </div>
@@ -49,7 +60,9 @@ export function Separator({
         orientation={orientation}
         className={clsx(
           "flex data-[orientation=horizontal]:h-px data-[orientation=vertical]:w-px",
-          getSeparatorStyle(variant),
+          variant === "layout"
+            ? "dark:bg-layout-darksep/50 bg-layout-lightsep/50"
+            : getSeparatorStyle(variant),
         )}
       />
     );
