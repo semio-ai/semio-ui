@@ -157,10 +157,11 @@ function Row<T extends BasicRowData>({
       key={row.id}
       tabIndex={idx}
       onKeyDown={(event) => {
-        event.preventDefault();
         if (event.key === "ArrowDown" && focused) {
+          event.preventDefault();
           onShiftDown?.();
         } else if (event.key === "ArrowUp" && focused) {
+          event.preventDefault();
           onShiftUp?.();
         }
       }}

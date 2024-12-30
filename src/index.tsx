@@ -51,6 +51,7 @@ export * from "./inputs/time-input";
 export * from "./inputs/text-field";
 export * from "./inputs/basic-form-input/text";
 export * from "./inputs/slider-number-field";
+export * from "./inputs/styled-input";
 export * from "./dropzone";
 export * from "./scroll-area";
 export * from "./chip";
