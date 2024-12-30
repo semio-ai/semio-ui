@@ -1,4 +1,5 @@
 import { ReactNode } from "react";
+import { atom, useAtom } from "jotai";
 import { ScrollArea } from "./scroll-area";
 import { Separator } from "./separator";
 
@@ -9,13 +10,16 @@ export interface MenuProps {
 }
 
 export function Menu({ header, footer, children }: MenuProps) {
+  const { open } = useMenu();
   return (
     <div
-      className="relative transition-all duration-150 h-full w-10 min-w-10 content-between flex flex-col"
       role="tablist"
+      data-ui={open ? "expanded" : ""}
+      className="group/menu relative transition-all duration-150 h-full w-10 data-expanded:w-48 min-w-10 content-between flex flex-col overflow-x-hidden"
     >
       <ScrollArea
         className="dark:bg-[#333] bg-[#ccc]"
+        orientation="vertical"
         header={
           header ? (
             <>
@@ -37,4 +41,15 @@ export function Menu({ header, footer, children }: MenuProps) {
       </ScrollArea>
     </div>
   );
+}
+
+const menuOpenState = atom(false);
+
+export function useMenu(): { open: boolean; setOpen: (open: boolean) => void } {
+  const [open, setOpen] = useAtom(menuOpenState);
+
+  return {
+    open,
+    setOpen,
+  };
 }

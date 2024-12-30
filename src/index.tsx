@@ -20,6 +20,7 @@ export * from "./collapse";
 export * from "./full-height-accordion";
 export * from "./popover";
 export * from "./tabs";
+export * from "./table-list";
 export * from "./dropdown";
 export * from "./toast";
 export * from "./toggle-group";
@@ -58,7 +59,10 @@ export * from "./form-base";
 
 export * from "./icons/robot";
 export * from "./icons/robot-plus";
+export * from "./icons/file-type-ani";
+export * from "./icons/file-type-mod";
 export * from "./icons/home";
+export * from "./icons/box";
 export * from "./icons/box-plus";
 export * from "./icons/player-next-key";
 export * from "./icons/player-end-bounds";
@@ -86,6 +90,8 @@ export * from "./hooks/use-add-toast";
 export * from "./context";
 export * from "./types";
 export * from "./node-tree";
+
+export * from "./menu-item";
 
 export * from "./snippet";
 

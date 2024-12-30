@@ -10,6 +10,7 @@ interface InputProps {
   bold?: boolean;
   className?: string;
   flex?: boolean;
+  subtle?: boolean;
 }
 
 export const StyledInput = memo(
@@ -22,6 +23,7 @@ export const StyledInput = memo(
         className,
         flex = true,
         bold,
+        subtle,
         ...forwardedProps
       }: InputProps & Omit<InputHTMLAttributes<HTMLInputElement>, "size">,
       ref: ForwardedRef<HTMLInputElement>,
@@ -34,7 +36,9 @@ export const StyledInput = memo(
           className={clsx(
             "touch-none font-mono outline-none bg-transparent pl-1 pr-1",
             flex && "w-full flex-1",
-            "dark:text-white text-black",
+            subtle &&
+              "focus:dark:text-white focus:text-black text-neutral-600 dark:text-neutral-400",
+            !subtle && "text-black dark:text-white",
             bold ? "select-text font-bold" : "select-none font-normal",
             getHeight(size),
             getFontSize(size),
