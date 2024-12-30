@@ -8,7 +8,7 @@ export interface BasicRowData {
 }
 
 export interface ColumnDefinition<T extends BasicRowData> {
-  key: keyof T;
+  key: string;
   header: ReactNode;
   align?: "left" | "center" | "right";
   flex?: boolean;
