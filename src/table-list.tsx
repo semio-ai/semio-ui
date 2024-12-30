@@ -147,8 +147,8 @@ function Row<T extends BasicRowData>({
     }
   });
   return (
-    <button
-      type="button"
+    <div
+      role="button"
       ref={ref}
       className={clsx("group/row grid grid-cols-subgrid", rowClassName)}
       style={{
@@ -179,7 +179,7 @@ function Row<T extends BasicRowData>({
           {column.render(row)}
         </div>
       ))}
-    </button>
+    </div>
   );
 }
 

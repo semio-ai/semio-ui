@@ -2,7 +2,6 @@ import { MouseEventHandler, ReactNode } from "react";
 import { clsx } from "clsx";
 import { Variant } from "../types";
 import { Status } from "../status";
-import { Tooltip } from "../tooltip";
 
 export interface MenuButtonProps {
   id: string;
@@ -39,7 +38,6 @@ export function MenuButton({
     : {};
 
   return (
-    // <Tooltip content={title} variant={variant} side="left">
     <button
       type="button"
       role="tab"
@@ -51,7 +49,7 @@ export function MenuButton({
         hoverable && "hover:scale-105 scale-100",
         "group-data-expanded/menu:origin-left origin-center",
         "flex flex-row gap-[6px]",
-        "text-neutral-500 overflow-x-hidden",
+        "text-neutral-500 overflow-hidden",
         getSelectedStyles(variant),
       )}
       onClick={onClick}
@@ -61,7 +59,6 @@ export function MenuButton({
         {title}
       </span>
     </button>
-    // </Tooltip>
   );
 }
 
