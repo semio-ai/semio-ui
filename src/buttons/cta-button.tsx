@@ -19,7 +19,7 @@ export const CallToActionButton = forwardRef(
         type="button"
         {...props}
         className={clsx(
-          "transition-colors",
+          "transition-colors capitalize",
           "dark:text-white text-black",
           "py-2 px-4 flex flex-row items-center",
           getHeight(size),
