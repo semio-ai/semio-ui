@@ -138,7 +138,7 @@ function Row<T extends BasicRowData>({
   onShiftUp,
   onShiftDown,
 }: RowProps<T>) {
-  const ref = useRef<HTMLButtonElement>(null);
+  const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (focused && ref.current) {
       ref.current.focus();
