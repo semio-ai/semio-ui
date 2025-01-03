@@ -30,6 +30,7 @@ export const StyledInput = memo(
     ) => {
       return (
         <input
+          name="StyledInput"
           ref={ref}
           {...forwardedProps}
           type={forwardedProps.type ?? "text"}
