@@ -74,7 +74,6 @@ export * from "./icons/key-outline";
 export * from "./icons/key-outline-dash";
 export * from "./icons/key";
 export * from "./icons/project";
-export * from "./icons/graph-view";
 export * from "./icons/preview-view";
 export * from "./icons/world-element-icons";
 
