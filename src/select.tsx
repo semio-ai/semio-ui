@@ -71,7 +71,7 @@ export function Select<T extends string | string[]>({
                     } as CSSProperties
                   }
                   className={clsx(
-                    "flex flex-1 flex-row px-3 items-center",
+                    "flex flex-1 flex-row px-3 items-center overflow-ellipsis text-nowrap",
                     getHeight(size),
                     getFontSize(size),
                     getBasicTextColor(
