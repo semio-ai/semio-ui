@@ -53,16 +53,15 @@ export function Modal({
             forceMount
             className={clsx(
               "flex flex-col focus:outline-none",
-              "w-screen h-screen md:w-3/5 md:max-h-[85vh] md:max-w-[750px]",
               "data-[state=open]:animate-modalAppear data-[state=closed]:animate-modalDisappear",
               "bg-neutral-50/50 dark:bg-neutral-950/50 backdrop-blur-lg shadow-md",
               "border-t-2 border-solid",
+              "w-screen md:w-3/5 md:max-w-[750px]",
               "max-h-screen h-[100dvh] md:max-h-[85vh] md:h-fit",
               getBorder(variant),
             )}
           >
             <ScrollArea
-              // shrink
               className="md:max-h-[85dvh] max-h-[100dvh]"
               header={
                 <div

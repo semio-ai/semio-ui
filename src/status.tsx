@@ -8,6 +8,7 @@ export interface StatusProps {
   placement?: "top-left" | "top-right" | "bottom-left" | "bottom-right";
   children: ReactNode;
   text?: string;
+  hidden?: boolean;
 }
 
 export function Status({
@@ -15,7 +16,11 @@ export function Status({
   placement = "top-right",
   text,
   children,
+  hidden,
 }: StatusProps) {
+  if (hidden) {
+    return children;
+  }
   return (
     <div className="relative">
       {children}

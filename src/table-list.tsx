@@ -171,6 +171,7 @@ function Row<T extends BasicRowData>({
         <div
           className={clsx(
             "w-full flex flex-row items-center self-center",
+            column.flex && "min-w-0",
             (column.align === "left" || !column.align) && "justify-start",
             column.align === "center" && "justify-center",
             column.align === "right" && "justify-end",
