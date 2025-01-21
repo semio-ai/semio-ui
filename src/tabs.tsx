@@ -51,7 +51,7 @@ export function Tabs({
           )}
         >
           {leftWidget && (
-            <div ref={leftRef} className="flex-1 p-[0.3rem]">
+            <div ref={leftRef} className="flex flex-1 items-center">
               {leftWidget}
             </div>
           )}
@@ -64,7 +64,7 @@ export function Tabs({
             />
           </div>
           {rightWidget && (
-            <div ref={rightRef} className="flex-1 p-[0.3rem]">
+            <div ref={rightRef} className="flex flex-1 items-center">
               {rightWidget}
             </div>
           )}
@@ -85,11 +85,7 @@ export function Tabs({
               "border-b dark:border-layout-darksep/50 border-layout-lightsep/50",
             )}
           >
-            {leftWidget && (
-              <div ref={leftRef} className="p-[0.3rem]">
-                {leftWidget}
-              </div>
-            )}
+            {leftWidget && <div ref={leftRef}>{leftWidget}</div>}
             {children.map((tabChild) => (
               <Tooltip key={tabChild.key} content={tabChild.title}>
                 <TabsPrimitive.Trigger
@@ -110,11 +106,7 @@ export function Tabs({
                 </TabsPrimitive.Trigger>
               </Tooltip>
             ))}
-            {rightWidget && (
-              <div ref={rightRef} className="p-[0.3rem]">
-                {rightWidget}
-              </div>
-            )}
+            {rightWidget && <div ref={rightRef}>{rightWidget}</div>}
           </TabsPrimitive.List>
           {children.map((tabChild) => (
             <TabsPrimitive.Content key={tabChild.key} value={tabChild.key}>
