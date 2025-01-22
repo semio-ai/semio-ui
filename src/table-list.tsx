@@ -22,6 +22,9 @@ export interface TableListProps<T extends BasicRowData> {
   headerOffset?: number;
   rowClassName?: string;
   fullWidth?: boolean;
+  headerClassName?: string;
+  backgroundClassName?: string;
+  notFound?: ReactNode;
 }
 
 export function TableList<T extends BasicRowData>({
@@ -29,6 +32,9 @@ export function TableList<T extends BasicRowData>({
   columns,
   headerOffset = 0,
   rowClassName = "",
+  headerClassName,
+  backgroundClassName,
+  notFound,
 }: TableListProps<T>) {
   const [containerRef, containerBounds] = useMeasure();
   const [focusIndex, setFocusIndex] = useState<number | null>(null);
@@ -53,6 +59,7 @@ export function TableList<T extends BasicRowData>({
       className={clsx(
         "grid w-full scroll-mt-10 gap-x-4",
         "backdrop-blur-sm dark:bg-black/50 bg-white/50",
+        backgroundClassName,
       )}
       style={{
         gridTemplateColumns: templateColumns,
@@ -64,6 +71,7 @@ export function TableList<T extends BasicRowData>({
           "h-10 grid grid-cols-subgrid sticky w-full z-[1]",
           "dark:text-neutral-600 text-neutral-400 backdrop-blur-lg",
           "dark:bg-black/50 bg-white/50",
+          headerClassName,
         )}
         style={{
           top: headerOffset,
@@ -113,6 +121,16 @@ export function TableList<T extends BasicRowData>({
           }}
         />
       ))}
+      {data.length === 0 && notFound && (
+        <div
+          className={clsx("group/row grid grid-cols-subgrid")}
+          style={{
+            gridColumn: `span ${activeColumns.length.toString()} / span ${activeColumns.length.toString()}`,
+          }}
+        >
+          {notFound}
+        </div>
+      )}
     </div>
   );
 }
