@@ -1,9 +1,9 @@
-import { ForwardedRef, HTMLAttributes, forwardRef } from "react";
+import { ForwardedRef, ButtonHTMLAttributes, forwardRef } from "react";
 import { clsx } from "clsx";
 import { getFontSize, getHeight } from "../style-functions";
 import { Variant, Size } from "../types";
 
-export interface CallToActionButtonProps extends HTMLAttributes<HTMLButtonElement> {
+export interface CallToActionButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant: Variant.Primary | Variant.Secondary | Variant.Tertiary;
   size: Size.Lg | Size.Md | Size.Sm;
 }
@@ -36,16 +36,16 @@ export const CallToActionButton = forwardRef(
 CallToActionButton.displayName = "CallToActionButton";
 
 const backgroundStyles = {
-  [Variant.Primary]: "bg-neutral-500/25 hover:bg-primary-500",
-  [Variant.Secondary]: "bg-neutral-500/25 hover:bg-secondary-500",
-  [Variant.Tertiary]: "bg-neutral-500/25 hover:bg-tertiary-500",
+  [Variant.Primary]: "bg-neutral-500/25 hover:bg-primary-500 disabled:bg-neutral-500/25",
+  [Variant.Secondary]: "bg-neutral-500/25 hover:bg-secondary-500 disabled:bg-neutral-500/25",
+  [Variant.Tertiary]: "bg-neutral-500/25 hover:bg-tertiary-500 disabled:bg-neutral-500/25",
 };
 
 const borderStyles = {
   [Variant.Primary]:
-    "outline outline-1 outline-offset-0 outline-primary-500 focus:outline-offset-2",
+    "outline outline-1 outline-offset-0 outline-primary-500 focus:outline-offset-2 disabled:outline-primary-500/50",
   [Variant.Secondary]:
-    "outline outline-1 outline-offset-0 outline-secondary-500 focus:outline-offset-2",
+    "outline outline-1 outline-offset-0 outline-secondary-500 focus:outline-offset-2 disabled:outline-secondary-500/50",
   [Variant.Tertiary]:
-    "outline outline-1 outline-offset-0 outline-tertiary-500 focus:outline-offset-2",
+    "outline outline-1 outline-offset-0 outline-tertiary-500 focus:outline-offset-2 disabled:outline-tertiary-500/50",
 };

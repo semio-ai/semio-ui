@@ -17,7 +17,7 @@ import {
   getWidth,
 } from "../style-functions";
 
-export interface ButtonProps extends React.HTMLAttributes<HTMLButtonElement> {
+export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children?: ReactNode;
   altText?: string;
   disabled?: boolean;

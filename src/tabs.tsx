@@ -18,6 +18,8 @@ export interface TabsProps {
   onTabChange: (key: string) => void;
   leftWidget?: ReactNode;
   rightWidget?: ReactNode;
+  defaultContent?: ReactNode;
+  emptyTabText?: string;
 }
 
 export function Tabs({
@@ -26,19 +28,23 @@ export function Tabs({
   onTabChange,
   leftWidget,
   rightWidget,
+  defaultContent,
+  emptyTabText = "No tabs",
 }: TabsProps): ReactNode {
   const [mainRef, mainBounds] = useMeasure();
   const [leftRef, leftBounds] = useMeasure();
   const [rightRef, rightBounds] = useMeasure();
-  const neededWidth = MIN_OPEN_TAB_WIDTH + MIN_CLOSED_TAB_WIDTH * (children.length - 1);
+
+  const childrenTabs =
+    children.length > 0
+      ? children
+      : [{ key: "default", title: emptyTabText, content: defaultContent ?? "No Contents" }];
+
+  const neededWidth = MIN_OPEN_TAB_WIDTH + MIN_CLOSED_TAB_WIDTH * (childrenTabs.length - 1);
   const rootWidth = mainBounds.width ?? 0;
   const leftWidth = leftBounds?.width ?? 0;
   const rightWidth = rightBounds?.width ?? 0;
   const mini = rootWidth - leftWidth - rightWidth < neededWidth;
-
-  if (children.length === 0) {
-    return null;
-  }
 
   return (
     <div ref={mainRef}>
@@ -58,9 +64,9 @@ export function Tabs({
           <div className="flex-1 p-[0.3rem]">
             <Select
               size={Size.Xs}
-              value={selected ?? children[0].key}
+              value={selected ?? childrenTabs[0].key}
               onChange={(v) => onTabChange(v as string)}
-              options={children.map((child) => ({ value: child.key, label: child.title }))}
+              options={childrenTabs.map((child) => ({ value: child.key, label: child.title }))}
             />
           </div>
           {rightWidget && (
@@ -73,7 +79,7 @@ export function Tabs({
       {!mini && (
         <TabsPrimitive.Root
           className={clsx("flex flex-col w-full", "cursor-pointer")}
-          value={selected ?? children[0].key}
+          value={selected ?? childrenTabs[0].key}
           onValueChange={onTabChange}
         >
           <TabsPrimitive.List
@@ -86,7 +92,7 @@ export function Tabs({
             )}
           >
             {leftWidget && <div ref={leftRef}>{leftWidget}</div>}
-            {children.map((tabChild) => (
+            {childrenTabs.map((tabChild) => (
               <Tooltip key={tabChild.key} content={tabChild.title}>
                 <TabsPrimitive.Trigger
                   className={clsx(
@@ -108,7 +114,7 @@ export function Tabs({
             ))}
             {rightWidget && <div ref={rightRef}>{rightWidget}</div>}
           </TabsPrimitive.List>
-          {children.map((tabChild) => (
+          {childrenTabs.map((tabChild) => (
             <TabsPrimitive.Content key={tabChild.key} value={tabChild.key}>
               <div
                 className={clsx(
@@ -123,7 +129,7 @@ export function Tabs({
           ))}
         </TabsPrimitive.Root>
       )}
-      {mini && (children.find((child) => child.key === selected)?.content ?? null)}
+      {mini && (childrenTabs.find((child) => child.key === selected)?.content ?? null)}
     </div>
   );
 }
