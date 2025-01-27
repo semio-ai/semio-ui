@@ -85,6 +85,8 @@ export interface SliderNumberFieldProps {
   onChange: (value: number) => void;
   min?: number;
   max?: number;
+  visualMin?: number;
+  visualMax?: number;
   units?: string;
   color?: string;
   strictSlider?: boolean;
@@ -120,6 +122,8 @@ function InnerSliderNumberField({
   onChange,
   min,
   max,
+  visualMin,
+  visualMax,
   units,
   color,
   strictText = false,
@@ -162,8 +166,10 @@ function InnerSliderNumberField({
   useEffect(() => {
     if (min !== undefined && max !== undefined) {
       percentSpring.set((value - min) / (max - min));
+    } else if (visualMin !== undefined && visualMax !== undefined) {
+      percentSpring.set(coerceModuloResult(((value - visualMin) / (visualMax - visualMin)) % 1));
     }
-  }, [value, min, max, percentSpring]);
+  }, [value, min, max, percentSpring, visualMin, visualMax]);
 
   useGesture(
     {
@@ -194,6 +200,8 @@ function InnerSliderNumberField({
           if (strictSlider) {
             v = clamp(v, min, max);
           }
+        } else if (visualMin !== undefined && visualMax !== undefined) {
+          v = (visualMax - visualMin) * ((x - bounds.left) / bounds.width) + visualMin;
         } else {
           v += dx / 100;
         }
@@ -212,6 +220,9 @@ function InnerSliderNumberField({
           if (strictSlider) {
             v = clamp(v, min, max);
           }
+        } else if (visualMin !== undefined && visualMax !== undefined) {
+          const step = (visualMax - visualMin) / 100;
+          v = value + step * (dy > 0 ? 1 : -1);
         } else {
           v += dy / 100;
         }
@@ -247,7 +258,10 @@ function InnerSliderNumberField({
       ref={boundsRef}
       color={sliderColor}
       size={size}
-      showFill={min !== undefined && max !== undefined}
+      showFill={
+        (min !== undefined && max !== undefined) ||
+        (visualMin !== undefined && visualMax !== undefined)
+      }
       inactive={inactive || disabled}
       percent={percentSpring}
       focused={sliderMode !== SliderMode.Blurred}
@@ -318,3 +332,5 @@ function InnerSliderNumberField({
 }
 
 export const SliderNumberField = memo(InnerSliderNumberField);
+
+const coerceModuloResult = (num: number) => (num < 0 ? num + 1 : num);
