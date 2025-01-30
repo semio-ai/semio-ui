@@ -19,6 +19,7 @@ export interface ModalProps {
   onSubmit?: (event: MouseEvent) => void;
   onCancel?: (event: MouseEvent) => void;
   variant?: Variant;
+  scrollDisabled?: boolean;
 }
 
 export function Modal({
@@ -33,6 +34,7 @@ export function Modal({
   onSubmit,
   onCancel,
   variant,
+  scrollDisabled,
 }: ModalProps) {
   const showFooter = onSubmit || onCancel;
   const showHeader = title || description;
@@ -47,8 +49,6 @@ export function Modal({
             "backdrop-blur-[2px] p-0",
           )}
         >
-          {/* </Transition> */}
-
           <Dialog.Content
             forceMount
             className={clsx(
@@ -61,9 +61,65 @@ export function Modal({
               getBorder(variant),
             )}
           >
-            <ScrollArea
-              className="md:max-h-[85dvh] max-h-[100dvh]"
-              header={
+            {!scrollDisabled && (
+              <ScrollArea
+                className="md:max-h-[85dvh] max-h-[100dvh]"
+                header={
+                  <div
+                    className={clsx(
+                      "bg-neutral-50/50 dark:bg-neutral-950/50",
+                      "flex flex-col gap-1 p-3",
+                      !showHeader && "hidden",
+                      getBasicTextColor(variant),
+                    )}
+                  >
+                    <div className="flex flex-row items-center justify-between">
+                      <Dialog.Title className="text-base/7 font-medium flex align-center justify-between">
+                        {title}
+                      </Dialog.Title>
+                      {!dismissDisabled && (
+                        <Dialog.Close asChild>
+                          <Button variant={variant} leftIcon={<IconX />} />
+                        </Dialog.Close>
+                      )}
+                    </div>
+                    <Dialog.Description className="text-sm/6 dark:text-white/50 text-black/50">
+                      {description ?? ""}
+                    </Dialog.Description>
+                  </div>
+                }
+                footer={
+                  showFooter && (
+                    <div className="p-2 flex gap-3 justify-end">
+                      {onCancel && (
+                        <Dialog.Close asChild>
+                          <Button
+                            variant={Variant.Default}
+                            onClick={onCancel}
+                            disabled={submitDisabled}
+                          >
+                            Cancel
+                          </Button>
+                        </Dialog.Close>
+                      )}
+                      {onSubmit && (
+                        <Dialog.Close asChild>
+                          <Button variant={variant} onClick={onSubmit} disabled={submitDisabled}>
+                            {submitText}
+                          </Button>
+                        </Dialog.Close>
+                      )}
+                    </div>
+                  )
+                }
+              >
+                <div className="flex-1 md:flex-none dark:text-white text-black bg-neutral-50/50 dark:bg-neutral-950/50">
+                  {children}
+                </div>
+              </ScrollArea>
+            )}
+            {scrollDisabled && (
+              <div className="md:max-h-[85dvh] max-h-[100dvh] bg-neutral-50/50 dark:bg-neutral-950/50 flex flex-col">
                 <div
                   className={clsx(
                     "bg-neutral-50/50 dark:bg-neutral-950/50",
@@ -86,9 +142,10 @@ export function Modal({
                     {description ?? ""}
                   </Dialog.Description>
                 </div>
-              }
-              footer={
-                showFooter && (
+                <div className="flex-1 md:flex-none dark:text-white text-black min-h-0">
+                  {children}
+                </div>
+                {showFooter && (
                   <div className="p-2 flex gap-3 justify-end">
                     {onCancel && (
                       <Dialog.Close asChild>
@@ -109,13 +166,9 @@ export function Modal({
                       </Dialog.Close>
                     )}
                   </div>
-                )
-              }
-            >
-              <div className="flex-1 md:flex-none dark:text-white text-black bg-neutral-50/50 dark:bg-neutral-950/50">
-                {children}
+                )}
               </div>
-            </ScrollArea>
+            )}
           </Dialog.Content>
         </Dialog.Overlay>
       </Dialog.Portal>

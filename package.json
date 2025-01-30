@@ -58,6 +58,7 @@
     "react-dropzone": "^14.2.9",
     "react-hook-form": "^7.53.2",
     "react-imask": "^7.6.0",
+    "react-merge-refs": "^2.1.1",
     "react-syntax-highlighter": "^15.6.1",
     "react-use-measure": "^2.1.1"
   },

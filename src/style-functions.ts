@@ -673,3 +673,26 @@ export function getGradient(variant?: Variant): string {
       return "bg-gradient-to-r to-default-400 from-default-600";
   }
 }
+
+export function getInputStyles(
+  flex?: boolean,
+  subtle?: boolean,
+  bold?: boolean,
+  size?: Size,
+  disabled?: boolean,
+  className?: string,
+  cursor?: string,
+  constrainHeight = true,
+): string {
+  return clsx(
+    "touch-none outline-none bg-transparent pl-1 pr-1",
+    flex && "w-full flex-1",
+    subtle && "focus:dark:text-white focus:text-black text-neutral-600 dark:text-neutral-400",
+    !subtle && "text-black dark:text-white",
+    bold ? "select-text font-bold" : "select-none font-normal",
+    constrainHeight && getHeight(size),
+    getFontSize(size),
+    disabled ? "cursor-not-allowed" : (cursor ?? "cursor-text"),
+    className,
+  );
+}

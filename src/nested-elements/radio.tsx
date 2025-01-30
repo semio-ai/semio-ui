@@ -21,7 +21,7 @@ export interface NestedRadioProps {
   variant?: Variant;
   disabled?: boolean;
   onChange?: (value: string) => void;
-  value: string;
+  value?: string;
   options: {
     label: string;
     value: string;

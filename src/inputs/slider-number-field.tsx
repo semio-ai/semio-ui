@@ -91,7 +91,6 @@ export interface SliderNumberFieldProps {
   color?: string;
   strictSlider?: boolean;
   strictText?: boolean;
-  clampOnBlur?: boolean;
   emphasis?: boolean;
   size?: Size;
   inactive?: boolean;
@@ -101,22 +100,26 @@ export interface SliderNumberFieldProps {
   onEmphasisChange?: (emphasis: boolean) => void;
 }
 
-/*
-SliderNumberField
-@props value: number - the value of the field
-@props onChange: (value: number) => void - the callback to call when the value changes
-@props min: number - the minimum value of the field
-@props max: number - the maximum value of the field
-@props color?: string - the color of the field (defaults to gray. Can be any string in hex, rgb, or hsl format)
-@props strictText?: boolean - whether to enforce the min and max values from the text field
-@props strictSlider?: boolean - whether to enforce the min and max values from the slider
-@props size?: "sm" | "md" | "lg" - the size of the field
-@props inactive?: boolean - whether the field is inactive (still allows clicking)
-@props disabled?: boolean - whether the field is disabled (does not allow clicking or changing the value)
-@props label?: string - the label of the field
-@props onLabelChange?: (label: string) => void - the callback to call when the label changes
-@props onEmphasisChange?: (emphasis: boolean) => void - the callback to call when the field is in focus
-*/
+/**
+ * SliderNumberField
+ * @param {number} value:  - the value of the field
+ * @param onChange: (value: number) => void - the function to call when the value changes
+ * @param min?: number - the minimum value
+ * @param max?: number - the maximum value
+ * @param visualMin?: number - the minimum visual value
+ * @param visualMax?: number - the maximum visual value
+ * @param units?: string - the units to display
+ * @param color?: string - the color of the slider
+ * @param strictSlider?: boolean - whether to enforce the slider bounds
+ * @param strictText?: boolean - whether to enforce the text bounds
+ * @param emphasis?: boolean - whether the field is emphasized
+ * @param size?: Size - the size of the field
+ * @param inactive?: boolean - whether the field is inactive
+ * @param disabled?: boolean - whether the field is disabled
+ * @param label?: string - the label of the field
+ * @param onLabelChange?: (label: string) => void - the function to call when the label changes
+ * @param onEmphasisChange?: (emphasis: boolean) => void - the function to call when the emphasis changes
+ */
 function InnerSliderNumberField({
   value,
   onChange,
@@ -303,7 +306,7 @@ function InnerSliderNumberField({
         color={sliderColor}
         bold={sliderMode === SliderMode.Manual}
         cursor={sliderMode === SliderMode.Manual ? "cursor-text" : "cursor-ew-resize"}
-        className="text-right flex-1"
+        className="text-right flex-1 font-mono"
         size={size}
         value={textValue}
         onChange={onChangeInner}

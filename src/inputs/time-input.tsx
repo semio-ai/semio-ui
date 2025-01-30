@@ -111,7 +111,7 @@ export function TimeInput({
           onBlur={() => setEditing(null)}
           onChange={(e) => temporal.onChangeSeconds(e.target.value)}
           className={clsx(
-            "text-center",
+            "text-center font-mono",
             getWidth(display === TimeDisplay.MinutesPlusSecondsPlusMilliseconds ? 2 : 3, size),
           )}
         />

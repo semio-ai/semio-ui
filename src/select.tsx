@@ -11,9 +11,32 @@ import { NestedRadio } from "./nested-elements/radio";
 import { Chip } from "./chip";
 import { NestedLabel } from "./nested-elements/label";
 
+/**
+ * @param {string} label - The text to display in the option
+ * @param {string} value - The unique key to register and identify the option
+ * @param {boolean} disabled - Whether the option is disabled
+ * @param {string} color - The color of the option
+ * @param {ReactNode} icon - The icon to display in the option
+ */
+export interface SelectOption {
+  label: string;
+  value: string;
+  disabled?: boolean;
+  color?: string;
+  icon?: ReactNode;
+}
+
+/**
+ * @param {Variant} variant - The variant of the select (defines colors)
+ * @param {T} value - The value of the select
+ * @param {function} onChange - The function to call when the value changes
+ * @param {SelectOption[]} options - The options to display in the select
+ * @param {Size} size - The size of the select
+ * @param {string} label - The label of the select
+ */
 export interface SelectProps<T extends string | string[]> {
   variant?: Variant;
-  value: T;
+  value?: T;
   onChange: (value: T) => void;
   options: {
     label: string;
@@ -26,6 +49,15 @@ export interface SelectProps<T extends string | string[]> {
   label?: string;
 }
 
+/**
+ * A select component that allows users to choose from a list of options
+ * @param {Variant} variant - The variant of the select (defines colors)
+ * @param {T} value - The value of the select
+ * @param {function} onChange - The function to call when the value changes
+ * @param {SelectOption[]} options - The options to display in the select
+ * @param {Size} size - The size of the select
+ * @param {string} label - The label of the select
+ */
 export function Select<T extends string | string[]>({
   value,
   onChange,
@@ -103,7 +135,7 @@ export function Select<T extends string | string[]>({
         {multiple && options.length > 0 && (
           <NestedSelect
             variant={variant}
-            values={value}
+            values={value ?? []}
             onChange={(v: string[]) => {
               onChange(v as T);
             }}

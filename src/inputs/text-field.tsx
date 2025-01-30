@@ -10,7 +10,17 @@ import { Size, Variant } from "../types";
 import { getHeight, getOutline, getTextCaretColor } from "../style-functions";
 import { StyledInput } from "./styled-input";
 
-interface TextFieldAdditionalProps {
+// interface TextFieldAdditionalProps {
+//   onChange?: (value: string) => void;
+//   variant?: Variant;
+//   size?: Size;
+//   bg?: boolean;
+//   outline?: boolean;
+//   subtle?: boolean;
+// }
+
+export interface TextFieldProps
+  extends Omit<InputHTMLAttributes<HTMLInputElement>, "size" | "onChange"> {
   onChange?: (value: string) => void;
   variant?: Variant;
   size?: Size;
@@ -18,9 +28,6 @@ interface TextFieldAdditionalProps {
   outline?: boolean;
   subtle?: boolean;
 }
-
-export type TextFieldProps = TextFieldAdditionalProps &
-  Omit<InputHTMLAttributes<HTMLInputElement>, "size" | "onChange">;
 
 /**
  * Inherits from standard Input HTML element
@@ -36,7 +43,7 @@ const InnerTextField = forwardRef(
     {
       size = Size.Md,
       onChange,
-      variant,
+      variant = Variant.Default,
       bg = false,
       outline = true,
       className,

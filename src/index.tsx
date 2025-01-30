@@ -3,6 +3,7 @@ import "./styles.css";
 export * from "./functions/stamp-to-visual-time";
 
 export * from "./layout";
+export * from "./stepper";
 export * from "./menu";
 export * from "./spinner";
 export * from "./status";
@@ -49,13 +50,16 @@ export * from "./inputs/search";
 export * from "./inputs/basic-form-input/strings";
 export * from "./inputs/time-input";
 export * from "./inputs/text-field";
+export * from "./inputs/text-area";
 export * from "./inputs/basic-form-input/text";
+export * from "./inputs/basic-number-field";
 export * from "./inputs/slider-number-field";
 export * from "./inputs/styled-input";
 export * from "./dropzone";
 export * from "./scroll-area";
 export * from "./chip";
 export * from "./select";
+export * from "./select-list";
 export * from "./form-base";
 
 export * from "./icons/robot";
@@ -90,6 +94,7 @@ export * from "./hooks/use-add-toast";
 export * from "./context";
 export * from "./types";
 export * from "./node-tree";
+export * from "./hooks/use-click-away";
 
 export * from "./menu-item";
 

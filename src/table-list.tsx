@@ -1,7 +1,9 @@
-import { ReactNode, useState, useRef, useEffect, useMemo } from "react";
+import { type ReactNode, type RefObject, useState, useRef, useEffect, useMemo, memo } from "react";
 import { clsx } from "clsx";
 import useMeasure from "react-use-measure";
+import { mergeRefs } from "react-merge-refs";
 import { Size } from "./types";
+import { useClickAway } from "./hooks/use-click-away";
 
 export interface BasicRowData {
   id: string;
@@ -20,24 +22,39 @@ export interface TableListProps<T extends BasicRowData> {
   data: T[];
   columns: ColumnDefinition<T>[];
   headerOffset?: number;
+  noHeader?: boolean;
   rowClassName?: string;
   fullWidth?: boolean;
   headerClassName?: string;
   backgroundClassName?: string;
   notFound?: ReactNode;
+  onFocusChange?: (focusedRow?: string) => void;
+  onRowEnter?: (row: string) => void;
+  onRowClick?: (row: string) => void;
+  selection?: string[];
 }
 
 export function TableList<T extends BasicRowData>({
   data,
   columns,
   headerOffset = 0,
+  noHeader = false,
   rowClassName = "",
   headerClassName,
   backgroundClassName,
   notFound,
+  onFocusChange,
+  onRowEnter,
+  onRowClick,
+  selection,
 }: TableListProps<T>) {
   const [containerRef, containerBounds] = useMeasure();
+  const clickAwayDetectorRef = useRef<HTMLDivElement>(null);
   const [focusIndex, setFocusIndex] = useState<number | null>(null);
+  useClickAway(clickAwayDetectorRef as RefObject<HTMLElement | null>, () => {
+    setFocusIndex(null);
+    onFocusChange?.(undefined);
+  });
   const activeColumns = useMemo(() => {
     return columns.filter((column) => {
       if (column.requiredSize) {
@@ -55,53 +72,52 @@ export function TableList<T extends BasicRowData>({
 
   return (
     <div
-      ref={containerRef}
-      className={clsx(
-        "grid w-full scroll-mt-10 gap-x-4",
-        "backdrop-blur-sm dark:bg-black/50 bg-white/50",
-        backgroundClassName,
-      )}
+      ref={mergeRefs([clickAwayDetectorRef, containerRef])}
+      className={clsx("grid w-full scroll-mt-10 gap-x-4", "backdrop-blur-sm", backgroundClassName)}
       style={{
         gridTemplateColumns: templateColumns,
         gridTemplateAreas,
       }}
     >
-      <header
-        className={clsx(
-          "h-10 grid grid-cols-subgrid sticky w-full z-[1]",
-          "dark:text-neutral-600 text-neutral-400 backdrop-blur-lg",
-          "dark:bg-black/50 bg-white/50",
-          headerClassName,
-        )}
-        style={{
-          top: headerOffset,
-          gridColumn: `span ${activeColumns.length.toString()} / span ${activeColumns.length.toString()}`,
-        }}
-      >
-        {activeColumns.map((column) => (
-          <div
-            className={clsx(
-              "text-xs uppercase",
-              "h-10 w-full flex flex-row items-center",
-              (column.align === "left" || !column.align) && "justify-start",
-              column.align === "center" && "justify-center",
-              column.align === "right" && "justify-end",
-            )}
-            style={{ gridArea: column.key as string }}
-            key={String(column.key)}
-          >
-            {column.header}
-          </div>
-        ))}
-      </header>
+      {!noHeader && (
+        <header
+          className={clsx(
+            "h-10 grid grid-cols-subgrid sticky w-full z-[1]",
+            "dark:text-neutral-600 text-neutral-400 backdrop-blur-lg",
+            "dark:bg-black/50 bg-white/50",
+            headerClassName,
+          )}
+          style={{
+            top: headerOffset,
+            gridColumn: `span ${activeColumns.length.toString()} / span ${activeColumns.length.toString()}`,
+          }}
+        >
+          {activeColumns.map((column) => (
+            <div
+              className={clsx(
+                "text-xs uppercase",
+                "h-10 w-full flex flex-row items-center",
+                (column.align === "left" || !column.align) && "justify-start",
+                column.align === "center" && "justify-center",
+                column.align === "right" && "justify-end",
+              )}
+              style={{ gridArea: column.key as string }}
+              key={String(column.key)}
+            >
+              {column.header}
+            </div>
+          ))}
+        </header>
+      )}
       {data.map((row, idx) => (
         <Row
           key={row.id}
           row={row}
-          columns={activeColumns}
+          columns={activeColumns as ColumnDefinition<BasicRowData>[]}
           idx={idx}
           onFocusChange={(focused) => {
             setFocusIndex(focused ? idx : null);
+            onFocusChange?.(focused ? row.id : undefined);
           }}
           focused={focusIndex === idx}
           rowClassName={rowClassName}
@@ -119,6 +135,11 @@ export function TableList<T extends BasicRowData>({
               setFocusIndex(0);
             }
           }}
+          onEnter={() => {
+            onRowEnter?.(row.id);
+          }}
+          onClick={onRowClick ? () => onRowClick?.(row.id) : undefined}
+          selected={selection?.includes(row.id)}
         />
       ))}
       {data.length === 0 && notFound && (
@@ -144,9 +165,12 @@ interface RowProps<T extends BasicRowData> {
   focused?: boolean;
   onShiftUp?: () => void;
   onShiftDown?: () => void;
+  onEnter?: () => void;
+  onClick?: () => void;
+  selected?: boolean;
 }
 
-function Row<T extends BasicRowData>({
+function InnerRow<T extends BasicRowData>({
   rowClassName,
   row,
   columns,
@@ -155,6 +179,9 @@ function Row<T extends BasicRowData>({
   focused,
   onShiftUp,
   onShiftDown,
+  onEnter,
+  onClick,
+  selected,
 }: RowProps<T>) {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -164,14 +191,17 @@ function Row<T extends BasicRowData>({
       ref.current.blur();
     }
   });
+  // eslint-ignore-next-line non-interactive-element-interactions
   return (
     <div
-      role="button"
+      role="option"
       ref={ref}
       className={clsx("group/row grid grid-cols-subgrid", rowClassName)}
       style={{
         gridColumn: `span ${columns.length.toString()} / span ${columns.length.toString()}`,
       }}
+      aria-selected={selected}
+      // data-ui={selected ? "selected" : ""}
       key={row.id}
       tabIndex={idx}
       onKeyDown={(event) => {
@@ -181,9 +211,17 @@ function Row<T extends BasicRowData>({
         } else if (event.key === "ArrowUp" && focused) {
           event.preventDefault();
           onShiftUp?.();
+        } else if (event.key === "Enter" && focused && onEnter) {
+          event.stopPropagation();
+          onEnter();
         }
       }}
-      onClick={() => onFocusChange(true)}
+      onClick={() => {
+        if (onClick) {
+          onFocusChange(true);
+          onClick?.();
+        }
+      }}
     >
       {columns.map((column, columnIndex) => (
         <div
@@ -202,6 +240,8 @@ function Row<T extends BasicRowData>({
     </div>
   );
 }
+
+const Row = memo(InnerRow) as typeof InnerRow;
 
 // const Row = memo(InnerRow);
 function getTemplateColumns<T extends BasicRowData>(columns: ColumnDefinition<T>[]) {
