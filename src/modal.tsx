@@ -12,6 +12,7 @@ export interface ModalProps {
   open: boolean;
   title?: string | ReactNode;
   description?: string | ReactNode;
+  headerBottom?: ReactNode;
   dismissDisabled?: boolean;
   submitDisabled?: boolean;
   submitText?: string;
@@ -27,6 +28,7 @@ export function Modal({
   open,
   title,
   description,
+  headerBottom,
   dismissDisabled = false,
   submitDisabled,
   submitText = "Submit",
@@ -68,24 +70,32 @@ export function Modal({
                   <div
                     className={clsx(
                       "bg-neutral-50/50 dark:bg-neutral-950/50",
-                      "flex flex-col gap-1 p-3",
+                      "flex flex-col gap-1",
                       !showHeader && "hidden",
-                      getBasicTextColor(variant),
                     )}
                   >
-                    <div className="flex flex-row items-center justify-between">
-                      <Dialog.Title className="text-base/7 font-medium flex align-center justify-between">
-                        {title}
-                      </Dialog.Title>
-                      {!dismissDisabled && (
-                        <Dialog.Close asChild>
-                          <Button variant={variant} leftIcon={<IconX />} />
-                        </Dialog.Close>
+                    <div
+                      className={clsx(
+                        headerBottom ? "px-3 pt-3 pb-0" : "p-3",
+                        "flex flex-col gap-1",
+                        getBasicTextColor(variant),
                       )}
+                    >
+                      <div className="flex flex-row items-center justify-between">
+                        <Dialog.Title className="text-base/7 font-medium flex align-center justify-between">
+                          {title}
+                        </Dialog.Title>
+                        {!dismissDisabled && (
+                          <Dialog.Close asChild>
+                            <Button variant={variant} leftIcon={<IconX />} />
+                          </Dialog.Close>
+                        )}
+                      </div>
+                      <Dialog.Description className="text-sm/6 dark:text-white/50 text-black/50">
+                        {description ?? ""}
+                      </Dialog.Description>
                     </div>
-                    <Dialog.Description className="text-sm/6 dark:text-white/50 text-black/50">
-                      {description ?? ""}
-                    </Dialog.Description>
+                    {headerBottom}
                   </div>
                 }
                 footer={
@@ -123,24 +133,32 @@ export function Modal({
                 <div
                   className={clsx(
                     "bg-neutral-50/50 dark:bg-neutral-950/50",
-                    "flex flex-col gap-1 p-3",
+                    "flex flex-col gap-1",
                     !showHeader && "hidden",
-                    getBasicTextColor(variant),
                   )}
                 >
-                  <div className="flex flex-row items-center justify-between">
-                    <Dialog.Title className="text-base/7 font-medium flex align-center justify-between">
-                      {title}
-                    </Dialog.Title>
-                    {!dismissDisabled && (
-                      <Dialog.Close asChild>
-                        <Button variant={variant} leftIcon={<IconX />} />
-                      </Dialog.Close>
+                  <div
+                    className={clsx(
+                      headerBottom ? "px-3 pt-3 pb-0" : "p-3",
+                      "flex flex-col gap-1",
+                      getBasicTextColor(variant),
                     )}
+                  >
+                    <div className="flex flex-row items-center justify-between">
+                      <Dialog.Title className="text-base/7 font-medium flex align-center justify-between">
+                        {title}
+                      </Dialog.Title>
+                      {!dismissDisabled && (
+                        <Dialog.Close asChild>
+                          <Button variant={variant} leftIcon={<IconX />} />
+                        </Dialog.Close>
+                      )}
+                    </div>
+                    <Dialog.Description className="text-sm/6 dark:text-white/50 text-black/50">
+                      {description ?? ""}
+                    </Dialog.Description>
                   </div>
-                  <Dialog.Description className="text-sm/6 dark:text-white/50 text-black/50">
-                    {description ?? ""}
-                  </Dialog.Description>
+                  {headerBottom}
                 </div>
                 <div className="flex-1 md:flex-none dark:text-white text-black min-h-0">
                   {children}
