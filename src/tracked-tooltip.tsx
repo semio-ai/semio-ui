@@ -30,7 +30,7 @@ interface ElementRefs {
 
 interface TrackedTooltipResult extends FloatingResults {
   elementRefs: ElementRefs;
-  updateHoverState: (x: number, y: number, hovering: boolean) => void;
+  updateHoverState: (x: number | undefined, y: number | undefined, hovering: boolean) => void;
 }
 
 export function useTrackedTooltip(
@@ -52,12 +52,12 @@ export function useTrackedTooltip(
   const context = floating.context;
 
   const updateHoverState = useCallback(
-    (x: number, y: number, hovering: boolean) => {
+    (x: number | undefined, y: number | undefined, hovering: boolean) => {
       floating.refs.setPositionReference(
         createVirtualElement(context.elements.domReference, {
           axis,
-          x,
-          y,
+          x: x ?? context.x,
+          y: y ?? context.y,
           dataRef: context.dataRef,
           pointerType: undefined,
         }),
@@ -101,6 +101,7 @@ const TrackedTooltip = forwardRef(
           }}
           className={clsx(
             "select-none inline-flex items-center",
+            "pointer-events-none",
             "bg-neutral-50/50 dark:bg-neutral-950/50 backdrop-blur-lg shadow-md",
             getBasicTextColor(variant),
           )}

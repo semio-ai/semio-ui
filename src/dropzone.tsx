@@ -10,6 +10,7 @@ export interface DropzoneProps<T extends BasicRowData> {
   data: T[];
   columns: ColumnDefinition<T>[];
   rowClassName?: string;
+  headerClassName?: string;
   multiple?: boolean;
   accept?: Accept;
   dropText?: string;
@@ -22,6 +23,7 @@ export function Dropzone<T extends BasicRowData>({
   data,
   columns,
   rowClassName,
+  headerClassName,
   multiple,
   accept,
   children,
@@ -58,7 +60,13 @@ export function Dropzone<T extends BasicRowData>({
       <input {...getInputProps()} />
       {data.length !== 0 && (
         <ScrollArea orientation="vertical">
-          <TableList data={data} columns={columns} rowClassName={rowClassName} />
+          <TableList
+            data={data}
+            columns={columns}
+            rowClassName={rowClassName}
+            headerClassName={headerClassName}
+            transparentHeader={false}
+          />
         </ScrollArea>
       )}
       {data.length === 0 && (
@@ -85,30 +93,6 @@ export function Dropzone<T extends BasicRowData>({
           </div>
         </div>
       )}
-
-      {/* <ScrollArea orientation="vertical" className="h-full w-full">
-          <TableList
-            data={FAKE_DATA}
-            columns={[{ key: "name", header: "Name", render: (item) => item.name }]}
-          />
-        </ScrollArea> */}
-      {/* If at least one item is uploaded, show a list of all files*/}
-      {/* {items.length > 0 ? (
-          <ScrollArea orientation="vertical">
-            {items.map((item, index) => (
-              <div key={index} className="flex items-center justify-between p-3">
-                {renderFn(item, index)}
-              </div>
-            ))}
-          </ScrollArea>
-        ) : (
-          <div className="grid gap-3 grid-cols-1 justify-items-center">
-            <div className="h-32 w-32 z-1">
-              <IconArrowBigDownLines size="128px" className="" />
-            </div>
-            <span>{dropText ?? `Drag and Drop File${multiple ? "s" : ""} Here`}</span>
-          </div>
-        )} */}
     </div>
   );
 }

@@ -32,6 +32,7 @@ export interface TableListProps<T extends BasicRowData> {
   onRowEnter?: (row: string) => void;
   onRowClick?: (row: string) => void;
   selection?: string[];
+  transparentHeader?: boolean;
 }
 
 export function TableList<T extends BasicRowData>({
@@ -47,6 +48,7 @@ export function TableList<T extends BasicRowData>({
   onRowEnter,
   onRowClick,
   selection,
+  transparentHeader = true,
 }: TableListProps<T>) {
   const [containerRef, containerBounds] = useMeasure();
   const clickAwayDetectorRef = useRef<HTMLDivElement>(null);
@@ -84,7 +86,7 @@ export function TableList<T extends BasicRowData>({
           className={clsx(
             "h-10 grid grid-cols-subgrid sticky w-full z-[1]",
             "dark:text-neutral-600 text-neutral-400 backdrop-blur-lg",
-            "dark:bg-black/50 bg-white/50",
+            transparentHeader ? "dark:bg-black/50 bg-white/50" : "bg-white dark:bg-black",
             headerClassName,
           )}
           style={{
