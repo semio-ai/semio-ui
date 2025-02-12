@@ -17,18 +17,14 @@ interface TabRendererProps {
 }
 
 function TabRenderer({ tabs, selected, onTabChange }: TabRendererProps): ReactNode {
-  const [selectedTab, setSelectedTab] = useState<string | undefined>(
-    selected as string | undefined,
-  );
+  const [selectedTab, setSelectedTab] = useState<string | undefined>(selected);
   const handleTabChange = (key: string): void => {
     setSelectedTab(key);
-    if (onTabChange) {
-      onTabChange(key);
-    }
+    onTabChange(key);
   };
 
   return (
-    <Tabs selected={selectedTab as string} onTabChange={handleTabChange}>
+    <Tabs selected={selectedTab} onTabChange={handleTabChange}>
       {tabs}
     </Tabs>
   );
