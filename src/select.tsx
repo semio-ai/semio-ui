@@ -82,51 +82,43 @@ export function Select<T extends string | string[]>({
               getHeight(size),
             )}
           >
-            {typeof value === "string" && value ? (
-              <div
+            {/* {typeof value === "string" && value ? ( */}
+            <div
+              className={clsx("flex flex-1 flex-row items-center justify-center", getHeight(size))}
+            >
+              <StaticIcon
+                size="fit"
+                className="w-3 h-3 pl-0"
+                color={options.find((o) => o.value === value)?.color}
+              >
+                {options.find((o) => o.value === value)?.icon || <IconPointFilled size="13px" />}
+              </StaticIcon>
+              <span
+                style={
+                  {
+                    "--text-color": options.find((o) => o.value === value)?.color,
+                  } as CSSProperties
+                }
                 className={clsx(
-                  "flex flex-1 flex-row items-center justify-center",
+                  "flex flex-1 flex-row px-3 items-center overflow-ellipsis text-nowrap",
                   getHeight(size),
+                  getFontSize(size),
+                  getBasicTextColor(
+                    options.find((o) => o.value === value)?.color ? "custom" : Variant.Default,
+                  ),
                 )}
               >
-                <StaticIcon
-                  size="fit"
-                  className="w-3 h-3 pl-0"
-                  color={options.find((o) => o.value === value)?.color}
-                >
-                  {options.find((o) => o.value === value)?.icon || <IconPointFilled size="13px" />}
-                </StaticIcon>
-                <span
-                  style={
-                    {
-                      "--text-color": options.find((o) => o.value === value)?.color,
-                    } as CSSProperties
-                  }
-                  className={clsx(
-                    "flex flex-1 flex-row px-3 items-center overflow-ellipsis text-nowrap",
-                    getHeight(size),
-                    getFontSize(size),
-                    getBasicTextColor(
-                      options.find((o) => o.value === value)?.color ? "custom" : Variant.Default,
-                    ),
-                  )}
-                >
-                  {options.find((o) => o.value === value)?.label}
-                </span>
+                {value ? options.find((o) => o.value === value)?.label : label}
+              </span>
 
-                <StaticIcon
-                  size="fit"
-                  className="pr-0.5 items-center justify-around"
-                  variant={variant}
-                >
-                  <IconSelector size="13px" />
-                </StaticIcon>
-              </div>
-            ) : (
-              <div className="items-center w-full m-1 shadow">
-                <IconSelector size="24px" />
-              </div>
-            )}
+              <StaticIcon
+                size="fit"
+                className="pr-0.5 items-center justify-around"
+                variant={variant}
+              >
+                <IconSelector size="13px" />
+              </StaticIcon>
+            </div>
           </div>
         }
         variant={variant}

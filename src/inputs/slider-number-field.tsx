@@ -57,7 +57,7 @@ const InputWrapper = forwardRef(
         ref={ref}
         {...forwardedProps}
         className={clsx(
-          "flex flex-row w-full touch-none p-0 overflow-hidden rounded-none",
+          "flex flex-row w-full touch-none p-0 overflow-hidden rounded-none items-baseline",
           getHeight(size),
           "outline outline-1 outline-offset-2 transition-[outline-color,background]",
         )}
