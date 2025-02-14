@@ -129,7 +129,7 @@ export function Modal({
               </ScrollArea>
             )}
             {scrollDisabled && (
-              <div className="md:max-h-[85dvh] max-h-[100dvh] bg-neutral-50/50 dark:bg-neutral-950/50 flex flex-col">
+              <div className="backdrop-blur-md md:max-h-[85dvh] max-h-[100dvh] bg-neutral-50/50 dark:bg-neutral-950/50 flex flex-col">
                 <div
                   className={clsx(
                     "bg-neutral-50/50 dark:bg-neutral-950/50",
