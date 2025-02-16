@@ -7,6 +7,7 @@ import {
   type HTMLAttributes,
   forwardRef,
   ForwardedRef,
+  FocusEventHandler,
 } from "react";
 import { animated, useSpringValue, type SpringValue } from "@react-spring/web";
 import { round, enableBoundaryChecking } from "number-precision";
@@ -98,6 +99,8 @@ export interface SliderNumberFieldProps {
   label?: string;
   onLabelChange?: (label: string) => void;
   onEmphasisChange?: (emphasis: boolean) => void;
+  onFocus?: FocusEventHandler;
+  onBlur?: FocusEventHandler;
 }
 
 /**
@@ -119,6 +122,8 @@ export interface SliderNumberFieldProps {
  * @param label?: string - the label of the field
  * @param onLabelChange?: (label: string) => void - the function to call when the label changes
  * @param onEmphasisChange?: (emphasis: boolean) => void - the function to call when the emphasis changes
+ * @param onFocus?: FocusEventHandler;
+ * @param onBlur?: FocusEventHandler;
  */
 function InnerSliderNumberField({
   value,
@@ -138,6 +143,8 @@ function InnerSliderNumberField({
   label,
   onLabelChange,
   onEmphasisChange,
+  onBlur: onBlurExternal,
+  onFocus: onFocusExternal,
 }: SliderNumberFieldProps): ReactNode {
   const boundsRef = useRef<HTMLDivElement>(null);
   const sliderColor = color || "#737373";
@@ -209,12 +216,16 @@ function InnerSliderNumberField({
           v += dx / 100;
         }
         onChangeDirect(round(v, 2));
+        if (!dragging && !wheeling) {
+          onBlurExternal?.(event as unknown as React.FocusEvent<HTMLInputElement>);
+        }
         onEmphasisChange?.(dragging || hovering || wheeling);
         event.preventDefault();
         event.stopPropagation();
       },
       onWheel: ({ delta: [, dy], event, dragging = false, hovering = false, wheeling = false }) => {
         if (disabled) return;
+        if (sliderMode === SliderMode.Blurred) return;
         if (dy === 0) return;
         let v = value;
         if (min !== undefined && max !== undefined) {
@@ -235,6 +246,9 @@ function InnerSliderNumberField({
           setSliderMode(SliderMode.Drag);
         } else if (!wheeling && !dragging && sliderMode === SliderMode.Drag) {
           setSliderMode(SliderMode.Blurred);
+        }
+        if (!dragging && !wheeling) {
+          onBlurExternal?.(event as unknown as React.FocusEvent<HTMLInputElement>);
         }
         event.preventDefault();
         event.stopPropagation();
@@ -314,17 +328,20 @@ function InnerSliderNumberField({
           if (!disabled && e.key === "Enter") {
             setSliderMode(SliderMode.Blurred);
             onBlur();
+            onBlurExternal?.(e as unknown as React.FocusEvent<HTMLInputElement>);
           }
         }}
-        onBlur={() => {
+        onBlur={(e) => {
           if (!disabled) {
             setSliderMode(SliderMode.Blurred);
             onBlur();
+            onBlurExternal?.(e as unknown as React.FocusEvent<HTMLInputElement>);
           }
         }}
-        onDoubleClick={() => {
+        onDoubleClick={(e) => {
           if (disabled) return;
           setSliderMode(SliderMode.Manual);
+          onFocusExternal?.(e as unknown as React.FocusEvent<HTMLInputElement>);
         }}
       />
       <span className={clsx("w-fit font-mono pr-1 text-black dark:text-white", getFontSize(size))}>
