@@ -1,0 +1,35 @@
+import { forwardRef, type ForwardedRef } from "react";
+import { type TablerIconsProps } from "@tabler/icons-react";
+import { clsx } from "clsx";
+
+export interface IconFilterBoxProps extends TablerIconsProps {
+  className?: string;
+}
+
+const IconFilterBox = forwardRef(
+  ({ className, ...props }: IconFilterBoxProps, ref: ForwardedRef<SVGSVGElement>) => {
+    return (
+      <svg
+        ref={ref}
+        xmlns="http://www.w3.org/2000/svg"
+        className={clsx("icon icon-tabler", className)}
+        width={props.size ?? 24}
+        height={props.size ?? 24}
+        viewBox="0 0 24 24"
+        fill="none"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path
+          className="transition-[fill]"
+          fill={props.color ?? "currentColor"}
+          d="M11.684,19.051C12.207,18.877 12.774,19.16 12.949,19.684C13.123,20.207 12.84,20.774 12.316,20.949L9.316,21.949C9.011,22.05 8.676,21.999 8.415,21.811C8.155,21.623 8,21.321 8,21L8,12.887L3.78,8.245C3.278,7.693 3,6.973 3,6.227L3,4C3,3.448 3.448,3 4,3L20,3C20.552,3 21,3.448 21,4L21,6.172C21,6.967 20.683,7.731 20.121,8.293L15.707,12.707C15.317,13.097 14.683,13.097 14.293,12.707C13.903,12.317 13.903,11.683 14.293,11.293L18.707,6.879C18.894,6.691 19,6.437 19,6.172L19,5C19,5 5,5 5,5L5,6.227C5,6.476 5.093,6.715 5.26,6.899L9.74,11.827C9.907,12.011 10,12.251 10,12.5L10,19.613L11.684,19.051ZM13.944,16C13.944,15.829 13.988,15.661 14.073,15.51C14.164,15.348 14.296,15.217 14.454,15.128L18.01,13.128C18.315,12.957 18.685,12.957 18.99,13.128L22.546,15.128C22.704,15.217 22.836,15.348 22.927,15.51C23.012,15.661 23.056,15.829 23.056,16L23.056,20C23.056,20.361 22.861,20.694 22.546,20.872L18.99,22.872C18.842,22.955 18.674,23 18.5,23C18.326,23 18.158,22.955 18.01,22.872L14.454,20.872C14.139,20.694 13.944,20.361 13.944,20L13.944,16ZM20.016,16L18.5,15.147L16.984,16L18.5,16.853L20.016,16ZM15.944,17.71L15.944,19.415L17.5,20.29L17.5,18.585L15.944,17.71ZM19.5,20.29L21.056,19.415L21.056,17.71L19.5,18.585L19.5,20.29Z"
+        />
+      </svg>
+    );
+  },
+);
+
+IconFilterBox.displayName = "IconFilterBox";
+
+export { IconFilterBox };

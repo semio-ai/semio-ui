@@ -101,6 +101,8 @@ export function Tabs({
                     "aria-selected:bg-layout-lightinset",
                     "hover:dark:bg-[#2D2D2D]",
                     "hover:bg-[#d9d9d9]",
+                    "text-neutral-500 aria-selected:text-neutral-900 aria-selected:dark:text-neutral-100",
+                    "ring-[1px] ring-transparent aria-selected:ring-neutral-500/50 ring-inset",
                     "aria-selected:min-w-[140px] min-w-10",
                     "overflow-hidden overflow-ellipsis",
                     "text-xs",
