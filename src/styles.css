@@ -146,3 +146,13 @@
 [data-state="open"] > .radix-accordion-content {
   height: var(--radix-accordion-content-height);
 }
+
+@utility hatch-* {
+  background-image: repeating-linear-gradient(
+    calc(--value(integer) * 1deg) in oklab,
+    var(--tw-gradient-from),
+    var(--tw-gradient-from) var(--tw-gradient-from-position),
+    var(--tw-gradient-to) var(--tw-gradient-from-position),
+    var(--tw-gradient-to) var(--tw-gradient-to-position)
+  );
+}
