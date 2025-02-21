@@ -2,11 +2,14 @@ import { MouseEventHandler, ReactNode } from "react";
 import { clsx } from "clsx";
 import { Variant } from "../types";
 import { Status } from "../status";
+import { useMenu } from "../menu";
+import { Tooltip } from "../tooltip";
 
 export interface MenuButtonProps {
   id: string;
   children: ReactNode;
   title: ReactNode;
+  altLabel?: string;
   variant?: Variant.Primary | Variant.Secondary | Variant.Tertiary | Variant.Default;
   onClick?: MouseEventHandler;
   active?: boolean;
@@ -22,12 +25,14 @@ export function MenuButton({
   id,
   children,
   title,
+  altLabel,
   variant = Variant.Primary,
   onClick,
   active,
   status,
   hoverable = true,
 }: MenuButtonProps) {
+  const { open } = useMenu();
   const Wrapper = status ? Status : "div";
   const wrapperProps = status
     ? {
@@ -54,7 +59,15 @@ export function MenuButton({
       )}
       onClick={onClick}
     >
-      <Wrapper {...wrapperProps}>{children}</Wrapper>
+      <Tooltip
+        invert
+        variant={active ? variant : Variant.Default}
+        controlledState={open ? [false, () => {}] : undefined}
+        content={altLabel ?? title}
+        side="right"
+      >
+        <Wrapper {...wrapperProps}>{children}</Wrapper>
+      </Tooltip>
       <span className="transition-colors group-data-expanded/menu:opacity-100 opacity-0">
         {title}
       </span>
