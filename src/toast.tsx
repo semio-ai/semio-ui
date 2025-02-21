@@ -6,9 +6,9 @@ import {
   useCallback,
   memo,
   CSSProperties,
-  useEffect,
+  useRef,
 } from "react";
-import { animated, useSpringValue } from "@react-spring/web";
+import { useAnimationFrame } from "motion/react";
 import * as RadixToast from "@radix-ui/react-toast";
 import useMeasure from "react-use-measure";
 import { clsx } from "clsx";
@@ -57,20 +57,26 @@ export interface ToastData {
 function InnerToast({ data }: { data: ToastData }) {
   const { removeToast } = useContext(ToastContext);
   const [ref, bounds] = useMeasure();
-
-  const width = useSpringValue("0%", {
-    config: {
-      duration: 4000,
-    },
+  const lineRef = useRef<HTMLDivElement>(null);
+  const pauseState = useRef<{ paused: boolean; accumulatedTime: number }>({
+    paused: false,
+    accumulatedTime: 0,
   });
 
-  useEffect(() => {
-    void width.start("100%");
-  }, [width]);
+  const defaultDuration = typeof data.dismiss === "number" ? data.dismiss : 4000;
+  const duration = typeof data.dismiss === "object" ? undefined : defaultDuration;
+
+  useAnimationFrame((_time, delta) => {
+    if (!pauseState.current.paused && lineRef.current && duration !== undefined) {
+      pauseState.current.accumulatedTime = delta + pauseState.current.accumulatedTime;
+      const percentString = `${Math.min(100, Math.max(0, (pauseState.current.accumulatedTime / duration) * 100)).toString()}%`;
+      lineRef.current.style.width = percentString;
+    }
+  });
 
   return (
     <RadixToast.Root
-      duration={4000}
+      duration={duration}
       className={clsx(
         "box-border relative overflow-hidden w-[30ch] pointer-events-auto select-none",
         "data-[swipe=cancel]:translate-x-0 data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)]",
@@ -91,10 +97,11 @@ function InnerToast({ data }: { data: ToastData }) {
         }
       }}
       onPause={() => {
-        width.pause();
+        // width.stop();
+        pauseState.current.paused = true;
       }}
       onResume={() => {
-        width.resume();
+        pauseState.current.paused = false;
       }}
     >
       <div
@@ -112,14 +119,11 @@ function InnerToast({ data }: { data: ToastData }) {
               ? getSeparatorStyle(data.variant)
               : getGradient(data.variant),
           )}
-        >
-          <animated.div
-            style={{
-              width,
-            }}
-            className={clsx("absolute top-0 left-0 h-0.5", getGradient(data.variant))}
-          />
-        </div>
+        />
+        <div
+          ref={lineRef}
+          className={clsx("absolute top-0 left-0 h-0.5", getGradient(data.variant))}
+        />
         <div
           className={clsx(
             "bg-neutral-50/50 dark:bg-neutral-950/50",
