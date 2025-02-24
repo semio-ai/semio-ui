@@ -15,6 +15,7 @@ export interface LayoutProps {
   bottomPanelRef?: MutableRefObject<HTMLDivElement | null>;
   style?: CSSProperties;
   gradient?: boolean;
+  className?: string;
 }
 
 /**
@@ -40,6 +41,7 @@ export function InnerLayout({
   bottomPanelRef,
   style,
   gradient,
+  className,
 }: LayoutProps) {
   const root = useRef<HTMLDivElement>();
 
@@ -57,7 +59,7 @@ export function InnerLayout({
   );
 
   return (
-    <div ref={root as MutableRefObject<HTMLDivElement>} className={rootStyle}>
+    <div ref={root as MutableRefObject<HTMLDivElement>} className={clsx(rootStyle, className)}>
       {/* Menu (thin left bar)*/}
       <div ref={menuRef}>{menu}</div>
 
