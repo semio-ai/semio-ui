@@ -5,6 +5,7 @@ import { Size, Variant } from "./types";
 import { getHeight, getHoverTextStyles, getWidth } from "./style-functions";
 
 export interface CheckboxProps {
+  id?: string;
   checked: boolean;
   onCheckedChange: (checked: boolean) => void;
   variant?: Variant;
@@ -13,6 +14,7 @@ export interface CheckboxProps {
 }
 
 export function Checkbox({
+  id,
   checked,
   onCheckedChange,
   variant = Variant.Default,
@@ -21,6 +23,7 @@ export function Checkbox({
 }: CheckboxProps) {
   return (
     <RadixCheckbox.Root
+      id={id}
       disabled={disabled}
       checked={checked}
       onCheckedChange={onCheckedChange}
