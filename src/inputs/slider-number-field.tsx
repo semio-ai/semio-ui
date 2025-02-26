@@ -7,6 +7,7 @@ import {
   type HTMLAttributes,
   forwardRef,
   ForwardedRef,
+  FocusEventHandler,
 } from "react";
 import { animated, useSpringValue, type SpringValue } from "@react-spring/web";
 import { round, enableBoundaryChecking } from "number-precision";
@@ -57,7 +58,7 @@ const InputWrapper = forwardRef(
         ref={ref}
         {...forwardedProps}
         className={clsx(
-          "flex flex-row w-full touch-none p-0 overflow-hidden rounded-none",
+          "flex flex-row w-full touch-none p-0 overflow-hidden rounded-none items-baseline",
           getHeight(size),
           "outline outline-1 outline-offset-2 transition-[outline-color,background]",
         )}
@@ -85,11 +86,12 @@ export interface SliderNumberFieldProps {
   onChange: (value: number) => void;
   min?: number;
   max?: number;
+  visualMin?: number;
+  visualMax?: number;
   units?: string;
   color?: string;
   strictSlider?: boolean;
   strictText?: boolean;
-  clampOnBlur?: boolean;
   emphasis?: boolean;
   size?: Size;
   inactive?: boolean;
@@ -97,29 +99,39 @@ export interface SliderNumberFieldProps {
   label?: string;
   onLabelChange?: (label: string) => void;
   onEmphasisChange?: (emphasis: boolean) => void;
+  onFocus?: FocusEventHandler;
+  onBlur?: FocusEventHandler;
 }
 
-/*
-SliderNumberField
-@props value: number - the value of the field
-@props onChange: (value: number) => void - the callback to call when the value changes
-@props min: number - the minimum value of the field
-@props max: number - the maximum value of the field
-@props color?: string - the color of the field (defaults to gray. Can be any string in hex, rgb, or hsl format)
-@props strictText?: boolean - whether to enforce the min and max values from the text field
-@props strictSlider?: boolean - whether to enforce the min and max values from the slider
-@props size?: "sm" | "md" | "lg" - the size of the field
-@props inactive?: boolean - whether the field is inactive (still allows clicking)
-@props disabled?: boolean - whether the field is disabled (does not allow clicking or changing the value)
-@props label?: string - the label of the field
-@props onLabelChange?: (label: string) => void - the callback to call when the label changes
-@props onEmphasisChange?: (emphasis: boolean) => void - the callback to call when the field is in focus
-*/
+/**
+ * SliderNumberField
+ * @param {number} value:  - the value of the field
+ * @param onChange: (value: number) => void - the function to call when the value changes
+ * @param min?: number - the minimum value
+ * @param max?: number - the maximum value
+ * @param visualMin?: number - the minimum visual value
+ * @param visualMax?: number - the maximum visual value
+ * @param units?: string - the units to display
+ * @param color?: string - the color of the slider
+ * @param strictSlider?: boolean - whether to enforce the slider bounds
+ * @param strictText?: boolean - whether to enforce the text bounds
+ * @param emphasis?: boolean - whether the field is emphasized
+ * @param size?: Size - the size of the field
+ * @param inactive?: boolean - whether the field is inactive
+ * @param disabled?: boolean - whether the field is disabled
+ * @param label?: string - the label of the field
+ * @param onLabelChange?: (label: string) => void - the function to call when the label changes
+ * @param onEmphasisChange?: (emphasis: boolean) => void - the function to call when the emphasis changes
+ * @param onFocus?: FocusEventHandler;
+ * @param onBlur?: FocusEventHandler;
+ */
 function InnerSliderNumberField({
   value,
   onChange,
   min,
   max,
+  visualMin,
+  visualMax,
   units,
   color,
   strictText = false,
@@ -131,6 +143,8 @@ function InnerSliderNumberField({
   label,
   onLabelChange,
   onEmphasisChange,
+  onBlur: onBlurExternal,
+  onFocus: onFocusExternal,
 }: SliderNumberFieldProps): ReactNode {
   const boundsRef = useRef<HTMLDivElement>(null);
   const sliderColor = color || "#737373";
@@ -162,8 +176,10 @@ function InnerSliderNumberField({
   useEffect(() => {
     if (min !== undefined && max !== undefined) {
       percentSpring.set((value - min) / (max - min));
+    } else if (visualMin !== undefined && visualMax !== undefined) {
+      percentSpring.set(coerceModuloResult(((value - visualMin) / (visualMax - visualMin)) % 1));
     }
-  }, [value, min, max, percentSpring]);
+  }, [value, min, max, percentSpring, visualMin, visualMax]);
 
   useGesture(
     {
@@ -194,16 +210,22 @@ function InnerSliderNumberField({
           if (strictSlider) {
             v = clamp(v, min, max);
           }
+        } else if (visualMin !== undefined && visualMax !== undefined) {
+          v = (visualMax - visualMin) * ((x - bounds.left) / bounds.width) + visualMin;
         } else {
           v += dx / 100;
         }
         onChangeDirect(round(v, 2));
+        if (!dragging && !wheeling) {
+          onBlurExternal?.(event as unknown as React.FocusEvent<HTMLInputElement>);
+        }
         onEmphasisChange?.(dragging || hovering || wheeling);
         event.preventDefault();
         event.stopPropagation();
       },
       onWheel: ({ delta: [, dy], event, dragging = false, hovering = false, wheeling = false }) => {
         if (disabled) return;
+        if (sliderMode === SliderMode.Blurred) return;
         if (dy === 0) return;
         let v = value;
         if (min !== undefined && max !== undefined) {
@@ -212,6 +234,9 @@ function InnerSliderNumberField({
           if (strictSlider) {
             v = clamp(v, min, max);
           }
+        } else if (visualMin !== undefined && visualMax !== undefined) {
+          const step = (visualMax - visualMin) / 100;
+          v = value + step * (dy > 0 ? 1 : -1);
         } else {
           v += dy / 100;
         }
@@ -221,6 +246,9 @@ function InnerSliderNumberField({
           setSliderMode(SliderMode.Drag);
         } else if (!wheeling && !dragging && sliderMode === SliderMode.Drag) {
           setSliderMode(SliderMode.Blurred);
+        }
+        if (!dragging && !wheeling) {
+          onBlurExternal?.(event as unknown as React.FocusEvent<HTMLInputElement>);
         }
         event.preventDefault();
         event.stopPropagation();
@@ -247,7 +275,10 @@ function InnerSliderNumberField({
       ref={boundsRef}
       color={sliderColor}
       size={size}
-      showFill={min !== undefined && max !== undefined}
+      showFill={
+        (min !== undefined && max !== undefined) ||
+        (visualMin !== undefined && visualMax !== undefined)
+      }
       inactive={inactive || disabled}
       percent={percentSpring}
       focused={sliderMode !== SliderMode.Blurred}
@@ -289,7 +320,7 @@ function InnerSliderNumberField({
         color={sliderColor}
         bold={sliderMode === SliderMode.Manual}
         cursor={sliderMode === SliderMode.Manual ? "cursor-text" : "cursor-ew-resize"}
-        className="text-right flex-1"
+        className="text-right flex-1 font-mono"
         size={size}
         value={textValue}
         onChange={onChangeInner}
@@ -297,17 +328,20 @@ function InnerSliderNumberField({
           if (!disabled && e.key === "Enter") {
             setSliderMode(SliderMode.Blurred);
             onBlur();
+            onBlurExternal?.(e as unknown as React.FocusEvent<HTMLInputElement>);
           }
         }}
-        onBlur={() => {
+        onBlur={(e) => {
           if (!disabled) {
             setSliderMode(SliderMode.Blurred);
             onBlur();
+            onBlurExternal?.(e as unknown as React.FocusEvent<HTMLInputElement>);
           }
         }}
-        onDoubleClick={() => {
+        onDoubleClick={(e) => {
           if (disabled) return;
           setSliderMode(SliderMode.Manual);
+          onFocusExternal?.(e as unknown as React.FocusEvent<HTMLInputElement>);
         }}
       />
       <span className={clsx("w-fit font-mono pr-1 text-black dark:text-white", getFontSize(size))}>
@@ -318,3 +352,5 @@ function InnerSliderNumberField({
 }
 
 export const SliderNumberField = memo(InnerSliderNumberField);
+
+const coerceModuloResult = (num: number) => (num < 0 ? num + 1 : num);

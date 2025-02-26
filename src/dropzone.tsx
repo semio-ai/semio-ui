@@ -1,23 +1,33 @@
 import { clsx } from "clsx";
+import { ReactNode } from "react";
 import { useDropzone, type Accept } from "react-dropzone";
 import { IconArrowBigDownLines } from "@tabler/icons-react";
 import { ScrollArea } from "./scroll-area";
+import { BasicRowData, ColumnDefinition, TableList } from "./table-list";
 
-export interface DropzoneProps<T> {
+export interface DropzoneProps<T extends BasicRowData> {
   onDrop: (files: File[]) => void;
-  items: T[];
-  renderFn: (item: T, index: number) => React.ReactNode;
+  data: T[];
+  columns: ColumnDefinition<T>[];
+  rowClassName?: string;
+  headerClassName?: string;
   multiple?: boolean;
   accept?: Accept;
   dropText?: string;
+  children?: ReactNode;
+  className?: string;
 }
 
-export function Dropzone<T>({
+export function Dropzone<T extends BasicRowData>({
   onDrop,
-  items,
-  renderFn,
+  data,
+  columns,
+  rowClassName,
+  headerClassName,
   multiple,
   accept,
+  children,
+  className,
   dropText,
 }: DropzoneProps<T>) {
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -30,33 +40,59 @@ export function Dropzone<T>({
     <div
       {...getRootProps()}
       className={clsx(
-        "dark:bg-black bg-white dark:hover:bg-neutral-950 hover:bg-neutral-50",
-        "min-h-[250px] w-full mt-1",
-        "cursor-pointer mb-1",
-        isDragActive &&
-          "bg-radient-ellipse-c from-info-500/25 from-0% to-transparent to-80% transition-all duration-300",
-        isDragActive || items.length === 0
-          ? "grid place-items-center hover:text-info-500 dark:text-info-900 text-info-100 overflow-hidden"
-          : "",
+        "cursor-pointer grid",
+        "md:grid-cols-[1fr_1fr] md:grid-rows-1",
+        "grid-cols-1 grid-rows-[2fr_3fr]",
+        "focus:outline-none",
+        "relative",
+        !(isDragActive && data.length === 0) && "backdrop-blur-md",
+        className,
       )}
     >
+      {children ? (
+        <button
+          type="button"
+          className="h-full w-full overflow-hidden"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {children}
+        </button>
+      ) : null}
       <input {...getInputProps()} />
-
-      {/* If at least one item is uploaded, show a list of all files*/}
-      {items.length > 0 ? (
-        <ScrollArea>
-          {items.map((item, index) => (
-            <div key={index} className="flex items-center justify-between p-3">
-              {renderFn(item, index)}
-            </div>
-          ))}
+      {data.length !== 0 && (
+        <ScrollArea orientation="vertical">
+          <TableList
+            data={data}
+            // backgroundClassName="backdrop-blur-lg"
+            columns={columns}
+            rowClassName={rowClassName}
+            headerClassName={headerClassName}
+            transparentHeader={false}
+          />
         </ScrollArea>
-      ) : (
-        <div className="grid gap-3 grid-cols-1 justify-items-center">
-          <div className="h-32 w-32 z-1">
-            <IconArrowBigDownLines size="128px" className="" />
+      )}
+      {data.length === 0 && (
+        <div className="grid place-items-center">
+          <div className="grid place-items-center grid-cols-1 gap-3 max-h-40">
+            <div className="h-32 w-32">
+              <IconArrowBigDownLines size="128px" className="text-info" />
+            </div>
+            <span className="text-info">
+              {dropText ?? `Drag and Drop File${multiple ? "s" : ""} Here`}
+            </span>
           </div>
-          <span>{dropText ?? `Drag and Drop File${multiple ? "s" : ""} Here`}</span>
+        </div>
+      )}
+      {isDragActive && data.length === 0 && (
+        <div className="absolute left-0 right-0 top-0 bottom-0 outline outline-info -outline-offset-4 grid place-items-center bg-white/50 dark:bg-black/50 backdrop-blur-sm">
+          <div className="grid place-items-center grid-cols-1 gap-3 max-h-40">
+            <div className="h-32 w-32">
+              <IconArrowBigDownLines size="128px" className="text-info" />
+            </div>
+            <span className="text-info">
+              {dropText ?? `Drag and Drop File${multiple ? "s" : ""} Here`}
+            </span>
+          </div>
         </div>
       )}
     </div>

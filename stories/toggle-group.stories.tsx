@@ -14,15 +14,15 @@ type Story = StoryObj<typeof ToggleGroup>;
 // Create a wrapped version of the story with hooks to
 // illustrate callback behavior
 function ToggleGroupWithHooks(props: ToggleGroupProps): JSX.Element {
-  const [value, setValue] = useState<string>(props.value);
+  const [toggleValue, setToggleValue] = useState<string>(props.value);
   return (
     <ToggleGroup
       {...props}
       onChange={(v): void => {
-        setValue(v);
+        setToggleValue(v);
         props.onChange(v);
       }}
-      value={value}
+      value={toggleValue}
     />
   );
 }

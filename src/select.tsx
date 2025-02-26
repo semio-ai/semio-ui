@@ -9,10 +9,34 @@ import { StaticIcon } from "./icons/static-icon";
 import { NestedSelect } from "./nested-elements/select";
 import { NestedRadio } from "./nested-elements/radio";
 import { Chip } from "./chip";
+import { NestedLabel } from "./nested-elements/label";
 
+/**
+ * @param {string} label - The text to display in the option
+ * @param {string} value - The unique key to register and identify the option
+ * @param {boolean} disabled - Whether the option is disabled
+ * @param {string} color - The color of the option
+ * @param {ReactNode} icon - The icon to display in the option
+ */
+export interface SelectOption {
+  label: string;
+  value: string;
+  disabled?: boolean;
+  color?: string;
+  icon?: ReactNode;
+}
+
+/**
+ * @param {Variant} variant - The variant of the select (defines colors)
+ * @param {T} value - The value of the select
+ * @param {function} onChange - The function to call when the value changes
+ * @param {SelectOption[]} options - The options to display in the select
+ * @param {Size} size - The size of the select
+ * @param {string} label - The label of the select
+ */
 export interface SelectProps<T extends string | string[]> {
   variant?: Variant;
-  value: T;
+  value?: T;
   onChange: (value: T) => void;
   options: {
     label: string;
@@ -22,21 +46,27 @@ export interface SelectProps<T extends string | string[]> {
     icon?: ReactNode;
   }[];
   size?: Size;
+  label?: string;
 }
 
+/**
+ * A select component that allows users to choose from a list of options
+ * @param {Variant} variant - The variant of the select (defines colors)
+ * @param {T} value - The value of the select
+ * @param {function} onChange - The function to call when the value changes
+ * @param {SelectOption[]} options - The options to display in the select
+ * @param {Size} size - The size of the select
+ * @param {string} label - The label of the select
+ */
 export function Select<T extends string | string[]>({
   value,
   onChange,
   options,
   variant,
   size = Size.Md,
+  label,
 }: SelectProps<T>) {
   const multiple = Array.isArray(value);
-  // const [searchValue, setSearchValue] = useState("");
-  // const matches = useMemo(
-  //   () => matchSorter(options, searchValue, { keys: ["label"] }),
-  //   [searchValue, options],
-  // );
   return (
     <div className="flex flex-row w-full">
       <Dropdown
@@ -52,66 +82,52 @@ export function Select<T extends string | string[]>({
               getHeight(size),
             )}
           >
-            {typeof value === "string" && value ? (
-              <div
+            {/* {typeof value === "string" && value ? ( */}
+            <div
+              className={clsx("flex flex-1 flex-row items-center justify-center", getHeight(size))}
+            >
+              <StaticIcon
+                size="fit"
+                className="w-3 h-3 pl-0"
+                color={options.find((o) => o.value === value)?.color}
+              >
+                {options.find((o) => o.value === value)?.icon || <IconPointFilled size="13px" />}
+              </StaticIcon>
+              <span
+                style={
+                  {
+                    "--text-color": options.find((o) => o.value === value)?.color,
+                  } as CSSProperties
+                }
                 className={clsx(
-                  "flex flex-1 flex-row items-center justify-center",
+                  "flex flex-1 flex-row px-3 items-center overflow-ellipsis text-nowrap",
                   getHeight(size),
+                  getFontSize(size),
+                  getBasicTextColor(
+                    options.find((o) => o.value === value)?.color ? "custom" : Variant.Default,
+                  ),
                 )}
               >
-                <StaticIcon
-                  size="fit"
-                  className="w-3 h-3 pl-0"
-                  color={options.find((o) => o.value === value)?.color}
-                >
-                  {options.find((o) => o.value === value)?.icon || <IconPointFilled size="13px" />}
-                </StaticIcon>
-                <span
-                  style={
-                    {
-                      "--text-color": options.find((o) => o.value === value)?.color,
-                    } as CSSProperties
-                  }
-                  className={clsx(
-                    "flex flex-1 flex-row px-3 items-center",
-                    getHeight(size),
-                    getFontSize(size),
-                    getBasicTextColor(
-                      options.find((o) => o.value === value)?.color ? "custom" : Variant.Default,
-                    ),
-                  )}
-                >
-                  {options.find((o) => o.value === value)?.label}
-                </span>
+                {value ? options.find((o) => o.value === value)?.label : label}
+              </span>
 
-                <StaticIcon
-                  size="fit"
-                  className="pr-0.5 items-center justify-around"
-                  variant={variant}
-                >
-                  <IconSelector size="13px" />
-                </StaticIcon>
-              </div>
-            ) : (
-              // <Chip
-              //   variant={variant}
-              //   color={options.find((o) => o.value === value)?.color}
-              //   value={options.find((o) => o.value === value)?.label || "Unknown"}
-              //   icon={options.find((o) => o.value === value)?.icon}
-              //   size={smallerSize(size)}
-              // />
-              <div className="items-center w-full m-1 shadow">
-                <IconSelector size="24px" />
-              </div>
-            )}
+              <StaticIcon
+                size="fit"
+                className="pr-0.5 items-center justify-around"
+                variant={variant}
+              >
+                <IconSelector size="13px" />
+              </StaticIcon>
+            </div>
           </div>
         }
         variant={variant}
       >
+        {label && <NestedLabel>{label}</NestedLabel>}
         {multiple && options.length > 0 && (
           <NestedSelect
             variant={variant}
-            values={value}
+            values={value ?? []}
             onChange={(v: string[]) => {
               onChange(v as T);
             }}

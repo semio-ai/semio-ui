@@ -1,5 +1,6 @@
-import type { MutableRefObject, ReactNode } from "react";
+import type { MutableRefObject, ReactNode, CSSProperties } from "react";
 import { memo, useRef } from "react";
+import { clsx } from "clsx";
 import { useGesture } from "@use-gesture/react";
 
 export interface LayoutProps {
@@ -8,6 +9,13 @@ export interface LayoutProps {
   rightSidebar?: ReactNode;
   bottomPanel?: ReactNode;
   children: ReactNode;
+  menuRef?: MutableRefObject<HTMLDivElement | null>;
+  leftSidebarRef?: MutableRefObject<HTMLDivElement | null>;
+  rightSidebarRef?: MutableRefObject<HTMLDivElement | null>;
+  bottomPanelRef?: MutableRefObject<HTMLDivElement | null>;
+  style?: CSSProperties;
+  gradient?: boolean;
+  className?: string;
 }
 
 /**
@@ -27,6 +35,13 @@ export function InnerLayout({
   rightSidebar,
   bottomPanel,
   children,
+  menuRef,
+  leftSidebarRef,
+  rightSidebarRef,
+  bottomPanelRef,
+  style,
+  gradient,
+  className,
 }: LayoutProps) {
   const root = useRef<HTMLDivElement>();
 
@@ -44,37 +59,66 @@ export function InnerLayout({
   );
 
   return (
-    <div
-      ref={root as MutableRefObject<HTMLDivElement>}
-      className="fixed h-[100dvh] w-screen flex select-none dark:bg-black bg-white touch-none"
-    >
+    <div ref={root as MutableRefObject<HTMLDivElement>} className={clsx(rootStyle, className)}>
       {/* Menu (thin left bar)*/}
-      {menu}
+      <div ref={menuRef}>{menu}</div>
 
       {/* Main Container */}
-      <div className="flex flex-col flex-grow min-w-0 min-h-0 overflow-hidden divide-y divide-solid dark:divide-neutral-900/30 divide-neutral-100/30">
+      <div className={mainContainerStyle}>
         {/* Main Body */}
-        <div className="flex flex-grow min-h-0 overflow-hidden divide-x divide-solid dark:divide-neutral-900/30 divide-neutral-100/30 dark:bg-neutral-800 bg-neutral-200">
+        <div className={mainBodyStyle}>
           {/* Left Sidebar */}
-          {leftSidebar}
+          <div className="h-full" ref={leftSidebarRef}>
+            {leftSidebar}
+          </div>
 
           {/* Main Content */}
-          <div className="flex flex-col flex-grow min-w-0">
+          <div
+            className={clsx(
+              "flex flex-col flex-grow min-w-0",
+              gradient
+                ? "bg-gradient-to-b dark:from-black dark:to-layout-darkbase from-white to-layout-lightbase"
+                : "dark:bg-layout-darkbase bg-layout-lightbase",
+            )}
+          >
             {/* Main Body */}
-            <div className="flex-grow min-h-0 dark:bg-[#303030] bg-[#dddddd] align-middle justify-center">
+            <div className="flex-grow min-h-0 align-middle justify-center" style={style}>
               {children}
             </div>
           </div>
 
           {/* Right Sidebar */}
-          {rightSidebar}
+          <div className="h-full" ref={rightSidebarRef}>
+            {rightSidebar}
+          </div>
         </div>
 
         {/* Bottom Panel */}
-        {bottomPanel}
+        <div className="w-full" ref={bottomPanelRef}>
+          {bottomPanel}
+        </div>
       </div>
     </div>
   );
 }
 
 export const Layout = memo(InnerLayout);
+
+const rootStyle = clsx(
+  "absolute top-0 left-0 h-[100dvh] w-screen flex select-none",
+  "dark:bg-layout-darkbase bg-layout-lightbase touch-none",
+  "border-t border-solid border-layout-lightsep/50 dark:border-layout-darksep/50",
+  "divide-x divide-solid dark:divide-layout-darksep/50 divide-layout-lightsep/50",
+);
+
+const mainContainerStyle = clsx(
+  "flex flex-col flex-grow min-w-0 min-h-0 overflow-hidden",
+  "divide-y divide-solid dark:divide-layout-darksep/50 divide-layout-lightsep/50",
+);
+
+const mainBodyStyle = clsx(
+  "flex flex-grow min-h-0 overflow-hidden",
+  // "divide-x divide-solid",
+  // "dark:divide-layout-darksep/50 divide-layout-lightsep/50",
+  "dark:bg-layout-darkinset bg-layout-lightinset",
+);
