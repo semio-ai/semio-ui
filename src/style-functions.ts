@@ -283,8 +283,10 @@ export function getItemStyle(variant?: Variant | "custom"): string {
   }
 }
 
-export function getSeparatorStyle(variant?: Variant): string {
+export function getSeparatorStyle(variant?: Variant | "custom"): string {
   switch (variant) {
+    case "custom":
+      return "bg-[--separator-color]/75";
     case Variant.Primary:
       return "dark:bg-primary-200/75 bg-primary-800/75";
     case Variant.Secondary:
@@ -374,6 +376,43 @@ export function getBasicTextColor(variant?: Variant | "custom"): string {
     case Variant.Default:
     default:
       return "text-default-500";
+  }
+}
+
+export function getTooltipTextColor(variant?: Variant | "custom", invert?: boolean): string {
+  if (variant === "custom") {
+    return "text-[--bg-color]";
+  }
+  switch (variant) {
+    case Variant.Primary:
+      return invert
+        ? "text-primary-900 dark:text-primary-100"
+        : "text-primary-100 dark:text-primary-900";
+    case Variant.Secondary:
+      return invert
+        ? "text-secondary-900 dark:text-secondary-100"
+        : "text-secondary-100 dark:text-secondary-900";
+    case Variant.Tertiary:
+      return invert
+        ? "text-tertiary-900 dark:text-tertiary-100"
+        : "text-tertiary-100 dark:text-tertiary-900";
+    case Variant.Error:
+      return invert ? "text-error-400 dark:text-error-600" : "text-error-600 dark:text-error-400";
+    case Variant.Warning:
+      return invert
+        ? "text-warning-400 dark:text-warning-600"
+        : "text-warning-600 dark:text-warning-400";
+    case Variant.Success:
+      return invert
+        ? "text-success-400 dark:text-success-600"
+        : "text-success-600 dark:text-success-400";
+    case Variant.Info:
+      return invert ? "text-info-900 dark:text-info-100" : "text-info-100 dark:text-info-900";
+    case Variant.Default:
+    default:
+      return invert
+        ? "text-default-700 dark:text-default-300"
+        : "text-default-500 dark:text-default-500";
   }
 }
 
@@ -670,4 +709,27 @@ export function getGradient(variant?: Variant): string {
     default:
       return "bg-gradient-to-r to-default-400 from-default-600";
   }
+}
+
+export function getInputStyles(
+  flex?: boolean,
+  subtle?: boolean,
+  bold?: boolean,
+  size?: Size,
+  disabled?: boolean,
+  className?: string,
+  cursor?: string,
+  constrainHeight = true,
+): string {
+  return clsx(
+    "touch-none outline-none bg-transparent pl-1 pr-1",
+    flex && "w-full flex-1",
+    subtle && "focus:dark:text-white focus:text-black text-neutral-600 dark:text-neutral-400",
+    !subtle && "text-black dark:text-white",
+    bold ? "select-text font-bold" : "select-none font-normal",
+    constrainHeight && getHeight(size),
+    getFontSize(size),
+    disabled ? "cursor-not-allowed" : (cursor ?? "cursor-text"),
+    className,
+  );
 }

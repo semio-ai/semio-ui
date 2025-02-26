@@ -21,7 +21,7 @@ export interface NestedRadioProps {
   variant?: Variant;
   disabled?: boolean;
   onChange?: (value: string) => void;
-  value: string;
+  value?: string;
   options: {
     label: string;
     value: string;
@@ -69,8 +69,8 @@ export function NestedRadio({ variant, disabled, onChange, value, options }: Nes
                 : {}
             }
             className={clsx(
-              "text-[13px] leading-none flex items-center",
-              "h-[25px] px-[5px] relative pl-[30px] select-none outline-none",
+              "leading-none flex items-center",
+              "h-8 text-sm px-[5px] relative pl-[30px] select-none outline-none",
               "data-[disabled]:pointer-events-none",
               getItemStyle(option.color ? "custom" : variant),
             )}

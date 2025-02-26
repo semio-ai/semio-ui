@@ -17,7 +17,7 @@ import {
   getWidth,
 } from "../style-functions";
 
-export interface ButtonProps extends React.HTMLAttributes<HTMLButtonElement> {
+export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children?: ReactNode;
   altText?: string;
   disabled?: boolean;
@@ -79,7 +79,7 @@ export const Button = forwardRef(
         data-deemphasized={deemphasize}
         className={clsx(
           "transition-colors",
-          "flex items-center",
+          "flex flex-row items-center",
           size === "fit" ? "h-fit w-fit" : getHeight(size),
           size !== "fit" && getFontSize(size),
           getPaddingAndWidth(size, iconOnly),
@@ -109,7 +109,6 @@ export const Button = forwardRef(
               "data-[deemphasized=true]:border-[--text-deemphasized-color]",
             ),
           border && !color && getHoverBorder(variant),
-
           props.className ?? "",
         )}
         disabled={disabled}

@@ -39,7 +39,7 @@ export function Dialog({
           className={clsx(
             "transition-opacity data-[state=open]:animate-fadeIn data-[state=closed]:animate-fadeOut",
             "fixed top-0 bottom-0 left-0 right-0 grid place-items-center",
-            "bg-black/30 backdrop-blur-[2px] p-0",
+            "dark:bg-black/30 bg-white/30 backdrop-blur-[2px] p-0",
           )}
         >
           {/* </Transition> */}

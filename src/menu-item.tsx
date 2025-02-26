@@ -1,29 +1,29 @@
 import { ReactNode, forwardRef, type ForwardedRef } from "react";
 import { clsx } from "clsx";
 import { Variant } from "./types";
-import { Tooltip } from "./tooltip";
-import { getReversibleBgText } from "./style-functions";
 
 export interface MenuItemProps {
   children: ReactNode;
   variant: Variant;
-  title: string;
+  title: ReactNode;
 }
 
 const MenuItem = forwardRef(
-  ({ children, variant, title }: MenuItemProps, ref: ForwardedRef<HTMLDivElement>) => {
+  ({ children, title }: MenuItemProps, ref: ForwardedRef<HTMLDivElement>) => {
     return (
-      <Tooltip content={title} variant={variant} side="left">
-        <div
-          ref={ref}
-          className={clsx(
-            "w-10 h-10 group p-2 hover:dark:text-black hover:text-white transition-all duration-100 group",
-            getReversibleBgText(variant, false),
-          )}
-        >
-          {children}
-        </div>
-      </Tooltip>
+      <div
+        ref={ref}
+        className={clsx(
+          "w-48 h-10 group/button p-2 transition-all duration-100",
+          "hover:dark:text-neutral-400 hover:text-neutral-600",
+          "flex flex-row gap-5",
+          "text-neutral-500 overflow-x-hidden",
+          "dark:aria-selected:text-primary-100 aria-selected:text-primary-900",
+        )}
+      >
+        {children}
+        {title}
+      </div>
     );
   },
 );
