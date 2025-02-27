@@ -38,6 +38,7 @@ export * from "./nested-elements/color-picker";
 export * from "./tooltip";
 export * from "./tracked-tooltip";
 export * from "./inputs/color-picker-input";
+export * from "./inputs/color-picker-popover";
 export * from "./inputs/number-or-list";
 export * from "./inputs/basic-form-input/email";
 export * from "./inputs/basic-form-input/file";
