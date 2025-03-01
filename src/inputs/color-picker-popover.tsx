@@ -1,4 +1,4 @@
-import { instanceOfRawRGB, type RawColor } from "@semio/utils";
+import { instanceOfRawHSL, instanceOfRawRGB, type RawColor } from "@semio/utils";
 
 import "./color-picker-popover.css";
 import { useState } from "react";
@@ -22,18 +22,23 @@ export function ColorPickerPopover<T extends string | RawColor>({
   };
 
   const convertColorToCSSString = (v: string | RawColor) => {
+    console.log(value);
     if (typeof v === "string") {
       return v;
     } else if (instanceOfRawRGB(v)) {
+      console.log("#" + toHex(v.r) + toHex(v.b) + toHex(v.g));
       return "#" + toHex(v.r) + toHex(v.b) + toHex(v.g);
+    } else if (instanceOfRawHSL(v)) {
+      return "white";
     }
+    return "red";
   };
 
   return (
     <section className="p-1">
       <div
         style={{ backgroundColor: convertColorToCSSString(value) }}
-        className="h-6 w-6 border-3 border-white shadow-md cursor-pointer"
+        className="h-6 w-6 border-3 border-white rounded-md shadow-md cursor-pointer"
         onClick={() => setIsOpen(!isOpen)}
       ></div>
       {isOpen && (
