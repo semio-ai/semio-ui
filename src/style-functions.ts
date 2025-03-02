@@ -379,6 +379,43 @@ export function getBasicTextColor(variant?: Variant | "custom"): string {
   }
 }
 
+export function getTooltipTextColor(variant?: Variant | "custom", invert?: boolean): string {
+  if (variant === "custom") {
+    return "text-[--bg-color]";
+  }
+  switch (variant) {
+    case Variant.Primary:
+      return invert
+        ? "text-primary-900 dark:text-primary-100"
+        : "text-primary-100 dark:text-primary-900";
+    case Variant.Secondary:
+      return invert
+        ? "text-secondary-900 dark:text-secondary-100"
+        : "text-secondary-100 dark:text-secondary-900";
+    case Variant.Tertiary:
+      return invert
+        ? "text-tertiary-900 dark:text-tertiary-100"
+        : "text-tertiary-100 dark:text-tertiary-900";
+    case Variant.Error:
+      return invert ? "text-error-400 dark:text-error-600" : "text-error-600 dark:text-error-400";
+    case Variant.Warning:
+      return invert
+        ? "text-warning-400 dark:text-warning-600"
+        : "text-warning-600 dark:text-warning-400";
+    case Variant.Success:
+      return invert
+        ? "text-success-400 dark:text-success-600"
+        : "text-success-600 dark:text-success-400";
+    case Variant.Info:
+      return invert ? "text-info-900 dark:text-info-100" : "text-info-100 dark:text-info-900";
+    case Variant.Default:
+    default:
+      return invert
+        ? "text-default-700 dark:text-default-300"
+        : "text-default-500 dark:text-default-500";
+  }
+}
+
 export function getBasicBgColor(variant?: Variant | "custom"): string {
   switch (variant) {
     case "custom":

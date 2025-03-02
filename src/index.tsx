@@ -35,6 +35,7 @@ export * from "./nested-elements/select";
 export * from "./nested-elements/menu";
 export * from "./nested-elements/label";
 export * from "./nested-elements/color-picker";
+export * from "./nested-elements/checkbox";
 export * from "./tooltip";
 export * from "./tracked-tooltip";
 export * from "./inputs/color-picker-input";
@@ -82,6 +83,8 @@ export * from "./icons/key";
 export * from "./icons/project";
 export * from "./icons/preview-view";
 export * from "./icons/world-element-icons";
+export * from "./icons/filter-box";
+export * from "./icons/filter-x";
 
 export * from "./icons/static-icon";
 
