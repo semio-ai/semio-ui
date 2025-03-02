@@ -1,8 +1,13 @@
-import { instanceOfRawHSL, instanceOfRawRGB, type RawColor } from "@semio/utils";
-
-import "./color-picker-popover.css";
+import {
+  instanceOfRawHSL,
+  instanceOfRawRGB,
+  type RawColor,
+  rawHSLToHex,
+  rawRGBToHex,
+} from "@semio/utils";
 import { useState } from "react";
 import { ColorPickerInput } from "./color-picker-input";
+import "./color-picker-popover.css";
 
 export interface ColorPickerPopoverProps<T extends string | RawColor> {
   value: T;
@@ -15,32 +20,25 @@ export function ColorPickerPopover<T extends string | RawColor>({
 }: ColorPickerPopoverProps<T>) {
   const [isOpen, setIsOpen] = useState(false);
 
-  const toHex = (n: number) => {
-    // https://github.com/omgovich/react-colorful/blob/master/src/utils/convert.ts#L161
-    const h = n.toString(16);
-    return h.length < 2 ? "0" + h : h;
-  };
-
-  const convertColorToCSSString = (v: string | RawColor) => {
-    console.log(value);
+  const convertColorToCSSString = (v: string | RawColor): string => {
     if (typeof v === "string") {
       return v;
     } else if (instanceOfRawRGB(v)) {
-      console.log("#" + toHex(v.r) + toHex(v.b) + toHex(v.g));
-      return "#" + toHex(v.r) + toHex(v.b) + toHex(v.g);
+      return rawRGBToHex(v);
     } else if (instanceOfRawHSL(v)) {
-      return "white";
+      return rawHSLToHex(v);
     }
     return "red";
   };
 
   return (
     <section className="p-1">
-      <div
+      <button
+        type="button"
         style={{ backgroundColor: convertColorToCSSString(value) }}
         className="h-6 w-6 border-3 border-white rounded-md shadow-md cursor-pointer"
         onClick={() => setIsOpen(!isOpen)}
-      ></div>
+      />
       {isOpen && (
         <div>
           <ColorPickerInput value={value} onChange={onChange} />
