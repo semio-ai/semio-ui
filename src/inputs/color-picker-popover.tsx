@@ -8,6 +8,7 @@ import {
 import { useState } from "react";
 import { ColorPickerInput } from "./color-picker-input";
 import "./color-picker-popover.css";
+import { Dropdown } from "../dropdown";
 
 export interface ColorPickerPopoverProps<T extends string | RawColor> {
   value: T;
@@ -32,18 +33,23 @@ export function ColorPickerPopover<T extends string | RawColor>({
   };
 
   return (
-    <section className="p-1">
-      <button
-        type="button"
-        style={{ backgroundColor: convertColorToCSSString(value) }}
-        className="h-6 w-6 border-3 border-white rounded-md shadow-md cursor-pointer"
-        onClick={() => setIsOpen(!isOpen)}
-      />
-      {isOpen && (
-        <div>
-          <ColorPickerInput value={value} onChange={onChange} />
-        </div>
-      )}
-    </section>
+    <Dropdown
+      trigger={
+        <button
+          type="button"
+          style={{
+            backgroundColor: convertColorToCSSString(value),
+            width: 24,
+            height: 24,
+            border: "3px solid white",
+            cursor: "pointer",
+          }}
+          className="h-6 w-6 border-3 border-white rounded-md shadow-md cursor-pointer"
+          // onClick={() => setIsOpen(!isOpen)}
+        />
+      }
+    >
+      <ColorPickerInput value={value} onChange={onChange} />
+    </Dropdown>
   );
 }
