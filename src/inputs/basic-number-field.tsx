@@ -8,9 +8,9 @@ import {
   ForwardedRef,
   FocusEventHandler,
 } from "react";
-import { animated, useSpringValue, type SpringValue } from "@react-spring/web";
 import { enableBoundaryChecking } from "number-precision";
 import { alpha } from "@semio/utils";
+import { useHover } from "@use-gesture/react";
 import { clsx } from "clsx";
 import { useNumeric } from "../hooks/use-numeric";
 import { Size } from "../types";
@@ -20,12 +20,10 @@ import { StyledInput } from "./styled-input";
 enableBoundaryChecking(false);
 
 interface InputProps {
-  percent: SpringValue<number>;
   color: string;
   size: Size;
   focused?: boolean;
   inactive?: boolean;
-  showFill?: boolean;
   emphasis?: boolean;
 }
 
@@ -36,20 +34,13 @@ enum FocusState {
 
 const InputWrapper = forwardRef(
   (props: InputProps & HTMLAttributes<HTMLDivElement>, ref: ForwardedRef<HTMLDivElement>) => {
-    const {
-      size,
-      color,
-      percent,
-      inactive,
-      children,
-      focused,
-      showFill,
-      emphasis,
-      ...forwardedProps
-    } = props;
+    const { size, color, inactive, children, focused, emphasis, ...forwardedProps } = props;
+
+    const activityOpacity = inactive ? 0.25 : 0.35;
+    const opacity = emphasis || focused ? 0.5 : activityOpacity;
 
     return (
-      <animated.div
+      <div
         ref={ref}
         {...forwardedProps}
         className={clsx(
@@ -60,16 +51,11 @@ const InputWrapper = forwardRef(
         // Tailwind does not support truly dynamic styles, so we have to use inline styles here
         style={{
           outlineColor: alpha(color, focused ? 1 : 0),
-          background: !showFill
-            ? alpha(color, emphasis ? 0.5 : 0.35)
-            : percent.to(
-                (p) =>
-                  `linear-gradient(90deg, ${alpha(color, inactive ? 0.6 : 1)} 0%, ${alpha(color, inactive ? 0.6 : 1)} ${(p * 100).toString()}%, ${alpha(color, emphasis ? 0.35 : 0.2)} ${(p * 100).toString()}%, ${alpha(color, emphasis ? 0.35 : 0.2)} 100%)`,
-              ),
+          background: alpha(color, opacity),
         }}
       >
         {children}
-      </animated.div>
+      </div>
     );
   },
 );
@@ -135,11 +121,9 @@ function InnerBasicNumberField({
   onBlur: onBlurExternal,
   onFocus: onFocusExternal,
 }: BasicNumberFieldProps): ReactNode {
-  const sliderColor = color || "#737373";
+  const inputColor = color || "#737373";
 
   const [focusState, setFocusState] = useState(FocusState.Blurred);
-
-  const percentSpring = useSpringValue<number>(value);
 
   const {
     textValue,
@@ -160,13 +144,20 @@ function InnerBasicNumberField({
     }
   }, [value, focusState, onChangeHeadless]);
 
+  const bind = useHover((state) => {
+    if (state.hovering) {
+      onEmphasisChange?.(true);
+    } else {
+      onEmphasisChange?.(false);
+    }
+  });
+
   return (
     <InputWrapper
-      color={sliderColor}
+      {...bind}
+      color={inputColor}
       size={size}
-      showFill={false}
       inactive={inactive || disabled}
-      percent={percentSpring}
       focused={focusState !== FocusState.Blurred}
       emphasis={focusState !== FocusState.Blurred || emphasis}
       onBlur={(event) => {
@@ -175,22 +166,13 @@ function InnerBasicNumberField({
         onBlur();
         event.stopPropagation();
       }}
-      onMouseOver={() => {
-        if (disabled) return;
-        onEmphasisChange?.(true);
-      }}
-      onMouseLeave={() => {
-        if (disabled) return;
-        onEmphasisChange?.(false);
-      }}
     >
       <StyledInput
         flex
         readOnly={inactive || focusState === FocusState.Blurred}
         disabled={disabled}
         type="text"
-        color={sliderColor}
-        bold={focusState === FocusState.Focused}
+        color={inputColor}
         cursor="cursor-text"
         className="text-right flex-1 font-mono"
         size={size}
