@@ -2,7 +2,13 @@ import * as RadixCheckbox from "@radix-ui/react-checkbox";
 import { IconCheck } from "@tabler/icons-react";
 import { clsx } from "clsx";
 import { Size, Variant } from "./types";
-import { getHeight, getHoverTextStyles, getWidth } from "./style-functions";
+import {
+  getBasicBgColor,
+  getHeight,
+  getHoverBorder,
+  getHoverTextStyles,
+  getWidth,
+} from "./style-functions";
 
 export interface CheckboxProps {
   id?: string;
@@ -11,6 +17,7 @@ export interface CheckboxProps {
   variant?: Variant;
   size?: Size;
   disabled?: boolean;
+  invert?: boolean;
 }
 
 export function Checkbox({
@@ -20,6 +27,7 @@ export function Checkbox({
   variant = Variant.Default,
   size = Size.Md,
   disabled = false,
+  invert = false,
 }: CheckboxProps) {
   return (
     <RadixCheckbox.Root
@@ -31,11 +39,13 @@ export function Checkbox({
         getWidth(size),
         getHeight(size),
         "flex items-center justify-center",
-        "dark:bg-black bg-white outline-none",
-        "appearance-none",
+        !invert && "dark:bg-black bg-white",
+        invert && getBasicBgColor(variant),
+        getHoverBorder(variant),
+        "appearance-none outline-none",
       )}
     >
-      <RadixCheckbox.Indicator className={getHoverTextStyles(variant)}>
+      <RadixCheckbox.Indicator className={invert ? "text-black" : getHoverTextStyles(variant)}>
         <IconCheck size={getIconSize(size)} />
       </RadixCheckbox.Indicator>
     </RadixCheckbox.Root>
