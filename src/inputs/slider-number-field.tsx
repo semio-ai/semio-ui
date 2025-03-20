@@ -9,7 +9,7 @@ import {
   ForwardedRef,
   FocusEventHandler,
 } from "react";
-import { animated, useSpringValue, type SpringValue } from "@react-spring/web";
+import { motion, useMotionValue, useTransform, type MotionValue } from "motion/react";
 import { round, enableBoundaryChecking } from "number-precision";
 import { clamp } from "lodash";
 import { alpha } from "@semio/utils";
@@ -23,7 +23,7 @@ import { StyledInput } from "./styled-input";
 enableBoundaryChecking(false);
 
 interface InputProps {
-  percent: SpringValue<number>;
+  percent: MotionValue<number>;
   color: string;
   size: Size;
   focused?: boolean;
@@ -53,10 +53,19 @@ const InputWrapper = forwardRef(
       ...forwardedProps
     } = props;
 
+    const gradient = useTransform(
+      percent,
+      [0, 1],
+      [
+        `linear-gradient(90deg, ${alpha(color, inactive ? 0.6 : 1)} 0%, ${alpha(color, inactive ? 0.6 : 1)} 0%, ${alpha(color, emphasis ? 0.35 : 0.2)} 0%, ${alpha(color, emphasis ? 0.35 : 0.2)} 100%)`,
+        `linear-gradient(90deg, ${alpha(color, inactive ? 0.6 : 1)} 0%, ${alpha(color, inactive ? 0.6 : 1)} 100%, ${alpha(color, emphasis ? 0.35 : 0.2)} 100%, ${alpha(color, emphasis ? 0.35 : 0.2)} 100%)`,
+      ],
+    );
+
     return (
-      <animated.div
+      <motion.div
         ref={ref}
-        {...forwardedProps}
+        {...(forwardedProps as any)}
         className={clsx(
           "flex flex-row w-full touch-none p-0 overflow-hidden rounded-none items-baseline",
           getHeight(size),
@@ -65,16 +74,11 @@ const InputWrapper = forwardRef(
         // Tailwind does not support truly dynamic styles, so we have to use inline styles here
         style={{
           outlineColor: alpha(color, focused ? 1 : 0),
-          background: !showFill
-            ? alpha(color, emphasis ? 0.5 : 0.35)
-            : percent.to(
-                (p) =>
-                  `linear-gradient(90deg, ${alpha(color, inactive ? 0.6 : 1)} 0%, ${alpha(color, inactive ? 0.6 : 1)} ${(p * 100).toString()}%, ${alpha(color, emphasis ? 0.35 : 0.2)} ${(p * 100).toString()}%, ${alpha(color, emphasis ? 0.35 : 0.2)} 100%)`,
-              ),
+          background: !showFill ? alpha(color, emphasis ? 0.5 : 0.35) : gradient,
         }}
       >
         {children}
-      </animated.div>
+      </motion.div>
     );
   },
 );
@@ -151,7 +155,7 @@ function InnerSliderNumberField({
 
   const [sliderMode, setSliderMode] = useState(SliderMode.Blurred);
 
-  const percentSpring = useSpringValue<number>(value);
+  const percentSpring = useMotionValue<number>(value);
 
   const {
     textValue,
@@ -175,9 +179,9 @@ function InnerSliderNumberField({
 
   useEffect(() => {
     if (min !== undefined && max !== undefined) {
-      percentSpring.set((value - min) / (max - min));
+      percentSpring.jump((value - min) / (max - min));
     } else if (visualMin !== undefined && visualMax !== undefined) {
-      percentSpring.set(coerceModuloResult(((value - visualMin) / (visualMax - visualMin)) % 1));
+      percentSpring.jump(coerceModuloResult(((value - visualMin) / (visualMax - visualMin)) % 1));
     }
   }, [value, min, max, percentSpring, visualMin, visualMax]);
 
