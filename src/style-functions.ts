@@ -722,7 +722,7 @@ export function getInputStyles(
   constrainHeight = true,
 ): string {
   return clsx(
-    "touch-none outline-none bg-transparent pl-1 pr-1",
+    "touch-none outline-none focus:outline-none bg-transparent pl-1 pr-1",
     flex && "w-full flex-1",
     subtle && "focus:dark:text-white focus:text-black text-neutral-600 dark:text-neutral-400",
     !subtle && "text-black dark:text-white",
