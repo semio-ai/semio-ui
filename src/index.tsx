@@ -45,7 +45,6 @@ export * from "./inputs/basic-form-input/file";
 export * from "./inputs/basic-form-input/emails";
 export * from "./inputs/basic-form-input/image";
 export * from "./inputs/basic-form-input/password";
-export * from "./inputs/basic-form-input/published";
 export * from "./inputs/switch";
 export * from "./inputs/search";
 export * from "./inputs/basic-form-input/strings";

@@ -1,6 +1,6 @@
-import { ReactNode, useMemo } from "react";
+import { ReactNode } from "react";
 import { clsx } from "clsx";
-import { useTransition, animated, easings } from "@react-spring/web";
+import { AnimatePresence, motion } from "motion/react";
 
 export interface SidebarChild {
   title: string;
@@ -16,37 +16,30 @@ export interface SidebarProps {
 
 export function Sidebar({ children, sidebar, side }: SidebarProps) {
   const child = children.find((c) => c.key === sidebar);
-  const cancelMap = useMemo(() => new WeakMap(), []);
-
-  const transitions = useTransition(child ? [{ key: "key" }] : [], {
-    from: { opacity: 0, scaleX: 0, transformOrigin: side ?? "left" },
-    keys: (item) => item.key,
-    enter: (item) => async (next, cancel) => {
-      cancelMap.set(item, cancel);
-      await next({ opacity: 1, scaleX: 1 });
-    },
-    leave: [{ opacity: 0, scaleX: 0 }],
-    config: { duration: 25, easing: easings.easeInOutCubic },
-  });
 
   return (
     <div className="h-full">
-      {transitions((style, data) => (
-        <animated.div
-          key={data.key}
-          style={style}
-          className={clsx(
-            "dark:bg-layout-darkinset bg-layout-lightinset",
-            "h-full overflow-x-hidden overflow-auto duration-[25ms]",
-            side === "left" && "border-r",
-            side === "right" && "border-l",
-            "border-solid border-layout-lightsep/50 dark:border-layout-darksep/50",
-          )}
-        >
-          {child?.content}
-          {/* <Separator orientation="vertical" variant="layout" /> */}
-        </animated.div>
-      ))}
+      <AnimatePresence mode="wait">
+        {child && (
+          <motion.div
+            layout
+            key={child.key}
+            initial={{ opacity: 0, translateX: side === "left" ? -50 : 50 }}
+            animate={{ opacity: 1, translateX: 0 }}
+            exit={{ opacity: 0, translateX: side === "left" ? -50 : 50 }}
+            transition={{ duration: 0.1 }}
+            className={clsx(
+              "dark:bg-layout-darkinset bg-layout-lightinset",
+              "h-full overflow-x-hidden overflow-auto",
+              side === "left" && "border-r",
+              side === "right" && "border-l",
+              "border-solid border-layout-lightsep/50 dark:border-layout-darksep/50",
+            )}
+          >
+            {child?.content}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
