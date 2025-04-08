@@ -25,14 +25,14 @@ export function Chip({ value, variant, size = Size.Md, color, icon, onDelete }: 
     <div
       className={clsx(
         getChipColor(color ? "custom" : variant),
-        "flex items-center gap-1 py-1 rounded-sm",
+        "flex items-center gap-1 py-1 rounded-xs",
         size === Size.Xs && "px-[4px]",
         size === Size.Sm && "px-[5px]",
         size === Size.Md && "px-[6px]",
         size === Size.Lg && "px-[7px]",
         getFontSize(size),
         "dark:text-white text-black",
-        "drop-shadow-sm",
+        "drop-shadow-xs",
         getHeight(size),
       )}
       style={color ? ({ "--bg-color": color } as CSSProperties) : {}}
@@ -41,7 +41,7 @@ export function Chip({ value, variant, size = Size.Md, color, icon, onDelete }: 
         <div
           style={color ? ({ "--text-color": color } as CSSProperties) : {}}
           className={clsx(
-            "dark:bg-white/50 bg-black/50 rounded-sm flex justify-between items-center p-0.5",
+            "dark:bg-white/50 bg-black/50 rounded-xs flex justify-between items-center p-0.5",
             getBasicTextColor(color ? "custom" : variant),
             getChipInsertSize(size),
           )}
@@ -59,8 +59,8 @@ export function Chip({ value, variant, size = Size.Md, color, icon, onDelete }: 
           color={color}
           variant={variant}
           className={clsx(
-            "dark:bg-white/50 bg-black/50 rounded-sm justify-between items-center",
-            "hover:dark:bg-white/75 hover:bg-black/75",
+            "dark:bg-white/50 bg-black/50 rounded-xs justify-between items-center",
+            "dark:hover:bg-white/75 hover:bg-black/75",
             getChipInsertSize(size),
           )}
           size="fit"

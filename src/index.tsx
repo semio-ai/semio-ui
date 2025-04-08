@@ -1,5 +1,3 @@
-import "./styles.css";
-
 export * from "./functions/stamp-to-visual-time";
 
 export * from "./layout";

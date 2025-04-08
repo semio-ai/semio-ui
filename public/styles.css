@@ -1,0 +1,183 @@
+@import "tailwindcss";
+@import "theme.css";
+
+@custom-variant dark (&:where(.dark, .dark *));
+@custom-variant data-expanded (&[data-ui~="expanded"]);
+@custom-variant data-checked (&[data-ui~="checked"]);
+
+@source "../src";
+
+/* @utility hatch- * {
+  background-image: repeating-linear-gradient(
+    calc(--value(integer) * 1deg) in oklab,
+    var(--tw-gradient-from),
+    var(--tw-gradient-from) var(--tw-gradient-from-position),
+    var(--tw-gradient-to) var(--tw-gradient-from-position),
+    var(--tw-gradient-to) var(--tw-gradient-to-position)
+  );
+} */
+
+@layer utilities {
+  .PopoverContent {
+    animation-duration: 400ms;
+    animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: transform, opacity;
+  }
+
+  .PopoverContent[data-state="open"][data-side="top"] {
+    animation-name: slideDownAndFade;
+  }
+  .PopoverContent[data-state="open"][data-side="right"] {
+    animation-name: slideLeftAndFade;
+  }
+  .PopoverContent[data-state="open"][data-side="bottom"] {
+    animation-name: slideUpAndFade;
+  }
+  .PopoverContent[data-state="open"][data-side="left"] {
+    animation-name: slideRightAndFade;
+  }
+
+  .CollapsibleVerticalContent {
+    overflow: hidden;
+  }
+  .CollapsibleVerticalContent[data-state="open"] {
+    animation: expandDown 200ms ease-out;
+  }
+  .CollapsibleVerticalContent[data-state="closed"] {
+    animation: expandUp 100ms ease-out;
+  }
+
+  .CollapsibleHorizontalContent {
+    overflow: hidden;
+  }
+
+  .CollapsibleHorizontalContent[data-state="open"] {
+    animation: expandRight 200ms ease-out;
+  }
+
+  .CollapsibleHorizontalContent[data-state="closed"] {
+    animation: expandLeft 100ms ease-out;
+  }
+
+  .animate-bounce-spin {
+    animation: bounce-spin 1.5s infinite;
+  }
+
+  @keyframes bounce-spin {
+    0% {
+      transform: translateY(0%) rotate(0deg) scale(0.8);
+      animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
+    }
+    50% {
+      transform: translateY(-30%) rotate(180deg) scale(1);
+      animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+    }
+    100% {
+      transform: translateY(0%) rotate(360deg) scale(0.8);
+      animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
+    }
+  }
+
+  @keyframes expandDown {
+    from {
+      height: 0;
+    }
+    to {
+      height: var(--radix-collapsible-content-height);
+    }
+  }
+
+  @keyframes expandUp {
+    from {
+      height: var(--radix-collapsible-content-height);
+    }
+    to {
+      height: 0;
+    }
+  }
+
+  @keyframes expandLeft {
+    from {
+      width: var(--radix-collapsible-content-width);
+    }
+    to {
+      width: 0;
+    }
+  }
+
+  @keyframes expandRight {
+    from {
+      width: 0;
+    }
+    to {
+      width: var(--radix-collapsible-content-width);
+    }
+  }
+
+  @keyframes slideUpAndFade {
+    from {
+      opacity: 0;
+      transform: translateY(2px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes slideRightAndFade {
+    from {
+      opacity: 0;
+      transform: translateX(-2px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes slideDownAndFade {
+    from {
+      opacity: 0;
+      transform: translateY(-2px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes slideLeftAndFade {
+    from {
+      opacity: 0;
+      transform: translateX(2px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  [data-state="open"] > .radix-accordion-content {
+    height: var(--radix-accordion-content-height);
+  }
+}
+
+.react-colorful__saturation {
+  border-radius: 0px !important;
+}
+
+.react-colorful__hue {
+  border-radius: 0px !important;
+}
+
+.react-colorful__saturation-pointer {
+  width: 16px !important;
+  height: 16px !important;
+  border-radius: 0px !important;
+}
+
+.react-colorful__hue-pointer {
+  border-radius: 0px !important;
+  width: 10px !important;
+}

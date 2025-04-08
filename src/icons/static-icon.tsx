@@ -25,8 +25,8 @@ export function StaticIcon({
       className={clsx(
         "transition-all",
         // "hover:scale-[101%]",
-        color && !deemphasize && "text-[--text-color]",
-        color && deemphasize && "text-[--text-deemphasized-color]",
+        color && !deemphasize && "text-(--text-color)",
+        color && deemphasize && "text-(--text-deemphasized-color)",
         !color && getBasicTextColor(variant),
         "place-items-center",
         size === "fit" ? "h-fit w-fit" : getHeight(size),

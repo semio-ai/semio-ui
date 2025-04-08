@@ -5,7 +5,6 @@ import { NestedParent, Variant } from "./types";
 import { getBorder, getBasicTextColor } from "./style-functions";
 import { NestedParentProvider } from "./nested-elements/context";
 import { ScrollArea } from "./scroll-area";
-import "./styles.css";
 
 export interface DropdownProps {
   trigger: ReactNode;
@@ -39,7 +38,7 @@ const Dropdown = forwardRef(
                   "data-[side=top]:border-b-2 border-solid",
                   "data-[side=right]:border-l-2 border-solid",
                   "data-[side=left]:border-r-2 border-solid",
-                  "max-h-[--radix-dropdown-menu-content-available-height]",
+                  "max-h-(--radix-dropdown-menu-content-available-height)",
                   "w-[calc(var(--radix-dropdown-menu-trigger-width)+10px)]",
                   getBorder(variant),
                 )}
@@ -50,7 +49,7 @@ const Dropdown = forwardRef(
                 <ScrollArea
                   header={header}
                   shrink
-                  className={clsx("max-h-[--radix-dropdown-menu-content-available-height]")}
+                  className={clsx("max-h-(--radix-dropdown-menu-content-available-height)")}
                 >
                   {children}
                 </ScrollArea>

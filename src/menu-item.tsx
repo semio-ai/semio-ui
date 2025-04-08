@@ -15,7 +15,7 @@ const MenuItem = forwardRef(
         ref={ref}
         className={clsx(
           "w-48 h-10 group/button p-2 transition-all duration-100",
-          "hover:dark:text-neutral-400 hover:text-neutral-600",
+          "dark:hover:text-neutral-400 hover:text-neutral-600",
           "flex flex-row gap-5",
           "text-neutral-500 overflow-x-hidden",
           "dark:aria-selected:text-primary-100 aria-selected:text-primary-900",

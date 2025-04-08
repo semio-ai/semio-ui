@@ -87,9 +87,9 @@ export const Avatar = forwardRef(
             className={clsx(
               "flex items-center justify-center",
               "dark:text-black text-white font-bold",
-              "bg-neutral-500 group-hover:dark:bg-neutral-800 group-hover:bg-neutral-200",
-              "group-hover:dark:text-neutral-200 group-hover:bg-neutral-800",
-              !noHover && "group-hover:dark:text-white group-hover:text-black",
+              "bg-neutral-500 dark:group-hover:bg-neutral-800 group-hover:bg-neutral-200",
+              "dark:group-hover:text-neutral-200 group-hover:bg-neutral-800",
+              !noHover && "dark:group-hover:text-white group-hover:text-black",
               rounded && "rounded-full",
               border && "outline outline-offset-1 outline-1",
               border && getOutline(border),

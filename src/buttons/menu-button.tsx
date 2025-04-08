@@ -50,7 +50,7 @@ export function MenuButton({
       id={id}
       className={clsx(
         "w-10 group-data-expanded/menu:w-48 h-10 group/button p-2 transition-all duration-100",
-        hoverable && "hover:dark:text-neutral-400 hover:text-neutral-600",
+        hoverable && "dark:hover:text-neutral-400 hover:text-neutral-600",
         hoverable && "hover:scale-105 scale-100",
         "group-data-expanded/menu:origin-left origin-center",
         "flex flex-row gap-[6px]",

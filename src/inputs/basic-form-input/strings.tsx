@@ -26,7 +26,7 @@ export function StringsInput({
   return (
     <Field>
       <Label className="block text-lg">{inputTitle}</Label>
-      <div className="flex flex-wrap border shadow w-full">
+      <div className="flex flex-wrap border shadow-sm w-full">
         {items?.map((tag, index) => (
           <div key={index} className="block mx-2 rounded-lg">
             <div className="block">

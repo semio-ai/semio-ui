@@ -49,8 +49,8 @@ export function NestedMenu({
         disabled={disabled}
         className={clsx(
           "text-sm leading-none flex items-center",
-          "h-8 px-[5px] relative pl-[30px] select-none outline-none",
-          "data-[disabled]:pointer-events-none",
+          "h-8 px-[5px] relative pl-[30px] select-none outline-hidden",
+          "data-disabled:pointer-events-none",
           getItemStyle(labelVariant),
         )}
       >

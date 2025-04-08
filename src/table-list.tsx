@@ -75,7 +75,7 @@ export function TableList<T extends BasicRowData>({
   return (
     <div
       ref={mergeRefs([clickAwayDetectorRef, containerRef])}
-      className={clsx("grid w-full scroll-mt-10 gap-x-4", "backdrop-blur-sm", backgroundClassName)}
+      className={clsx("grid w-full scroll-mt-10 gap-x-4", "backdrop-blur-xs", backgroundClassName)}
       style={{
         gridTemplateColumns: templateColumns,
         gridTemplateAreas,
@@ -84,7 +84,7 @@ export function TableList<T extends BasicRowData>({
       {!noHeader && (
         <header
           className={clsx(
-            "h-10 grid grid-cols-subgrid sticky w-full z-[1]",
+            "h-10 grid grid-cols-subgrid sticky w-full z-1",
             "dark:text-neutral-600 text-neutral-400 backdrop-blur-lg",
             transparentHeader ? "dark:bg-black/50 bg-white/50" : "bg-white dark:bg-black",
             headerClassName,

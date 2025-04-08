@@ -34,7 +34,7 @@ export function ImageButton({
     <div>
       <button
         type="button"
-        className="p-0 border-none bg-none cursor-pointer focus:outline-none"
+        className="p-0 border-none bg-none cursor-pointer focus:outline-hidden"
         onClick={onClick}
         onMouseEnter={handleMouseEnter}
         onMouseMove={handleMouseMove}
@@ -49,7 +49,7 @@ export function ImageButton({
       </button>
       {showTooltip && hoverText && (
         <div
-          className="absolute bg-gray-700 text-white text-xs rounded py-1 px-2"
+          className="absolute bg-gray-700 text-white text-xs rounded-sm py-1 px-2"
           style={{ top: tooltipPos.y + 10, left: tooltipPos.x + 10 }}
         >
           {hoverText}

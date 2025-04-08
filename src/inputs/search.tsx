@@ -34,7 +34,7 @@ function InnerSearch({
     <div
       className={clsx(
         "flex flex-row gap-2 w-full items-center dark:bg-neutral-950/10 bg-neutral-50/10",
-        "focus-within:dark:bg-neutral-950 focus-within:bg-neutral-50 transition-colors",
+        "dark:focus-within:bg-neutral-950 focus-within:bg-neutral-50 transition-colors",
         getOutline(variant),
         getHeight(size),
         getTextCaretColor(variant),

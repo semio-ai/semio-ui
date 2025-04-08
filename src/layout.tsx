@@ -75,14 +75,14 @@ export function InnerLayout({
           {/* Main Content */}
           <div
             className={clsx(
-              "flex flex-col flex-grow min-w-0",
+              "flex flex-col grow min-w-0",
               gradient
-                ? "bg-gradient-to-b dark:from-black dark:to-layout-darkbase from-white to-layout-lightbase"
-                : "dark:bg-layout-darkbase bg-layout-lightbase",
+                ? "bg-linear-to-b dark:from-black dark:to-layout-dark-base from-white to-layout-light-base"
+                : "dark:bg-layout-dark-base bg-layout-light-base",
             )}
           >
             {/* Main Body */}
-            <div className="flex-grow min-h-0 align-middle justify-center" style={style}>
+            <div className="grow min-h-0 align-middle justify-center" style={style}>
               {children}
             </div>
           </div>
@@ -106,19 +106,17 @@ export const Layout = memo(InnerLayout);
 
 const rootStyle = clsx(
   "absolute top-0 left-0 h-[100dvh] w-screen flex select-none",
-  "dark:bg-layout-darkbase bg-layout-lightbase touch-none",
-  "border-t border-solid border-layout-lightsep/50 dark:border-layout-darksep/50",
-  "divide-x divide-solid dark:divide-layout-darksep/50 divide-layout-lightsep/50",
+  "dark:bg-layout-dark-base bg-layout-light-base touch-none",
+  "border-t border-solid border-layout-light-separator/50 dark:border-layout-dark-separator/50",
+  "divide-x divide-solid dark:divide-layout-dark-separator/50 divide-layout-light-separator/50",
 );
 
 const mainContainerStyle = clsx(
-  "flex flex-col flex-grow min-w-0 min-h-0 overflow-hidden",
-  "divide-y divide-solid dark:divide-layout-darksep/50 divide-layout-lightsep/50",
+  "flex flex-col grow min-w-0 min-h-0 overflow-hidden",
+  "divide-y divide-solid dark:divide-layout-dark-separator/50 divide-layout-light-separator/50",
 );
 
 const mainBodyStyle = clsx(
-  "flex flex-grow min-h-0 overflow-hidden",
-  // "divide-x divide-solid",
-  // "dark:divide-layout-darksep/50 divide-layout-lightsep/50",
-  "dark:bg-layout-darkinset bg-layout-lightinset",
+  "flex grow min-h-0 overflow-hidden",
+  "dark:bg-layout-dark-inset bg-layout-light-inset",
 );

@@ -161,7 +161,7 @@ export function TimeInput({
     <label
       className={clsx(
         bg ? "dark:bg-neutral-950/20 bg-neutral-50/20" : "bg:transparent",
-        "focus-within:dark:bg-neutral-950/20 focus-within:bg-neutral-50/20",
+        "dark:focus-within:bg-neutral-950/20 focus-within:bg-neutral-50/20",
         "relative flex justify-between w-full items-baseline gap-1",
         "text-black dark:text-white",
         "focus-within:outline focus-within:outline-1 focus-within:outline-offset-2",

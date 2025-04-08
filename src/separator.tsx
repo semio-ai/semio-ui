@@ -38,7 +38,7 @@ export function Separator({
           className={clsx(
             "flex flex-1 data-[orientation=horizontal]:h-px data-[orientation=vertical]:w-px",
             variant === "layout"
-              ? "dark:bg-layout-darksep/50 bg-layout-lightsep/50"
+              ? "dark:bg-layout-dark-separator/50 bg-layout-light-separator/50"
               : getSeparatorStyle(variant),
           )}
         />
@@ -48,7 +48,7 @@ export function Separator({
           className={clsx(
             "flex flex-1 data-[orientation=horizontal]:h-px data-[orientation=vertical]:w-px",
             variant === "layout"
-              ? "dark:bg-layout-darksep/50 bg-layout-lightsep/50"
+              ? "dark:bg-layout-dark-separator/50 bg-layout-light-separator/50"
               : getSeparatorStyle(variant),
           )}
         />
@@ -61,7 +61,7 @@ export function Separator({
         className={clsx(
           "flex data-[orientation=horizontal]:h-px data-[orientation=vertical]:w-px",
           variant === "layout"
-            ? "dark:bg-layout-darksep/50 bg-layout-lightsep/50"
+            ? "dark:bg-layout-dark-separator/50 bg-layout-light-separator/50"
             : getSeparatorStyle(variant),
         )}
       />

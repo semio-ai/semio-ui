@@ -47,7 +47,7 @@ export function Dialog({
           <AlertDialog.Content
             forceMount
             className={clsx(
-              "flex flex-col focus:outline-none",
+              "flex flex-col focus:outline-hidden",
               "h-fit w-fit",
               "data-[state=open]:animate-modalAppear data-[state=closed]:animate-modalDisappear",
               "bg-neutral-50/50 dark:bg-neutral-950/50 backdrop-blur-lg",

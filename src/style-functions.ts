@@ -162,123 +162,123 @@ export function getReversibleBgText(variant?: Variant, active?: boolean): string
 
 export function getItemSideStyle(variant?: Variant | "custom"): string {
   const all = clsx(
-    "dark:group-data-[highlighted]:text-black group-data-[highlighted]:text-white",
-    "group-data-[disabled]:text-neutral-500/50",
+    "dark:group-data-highlighted:text-black group-data-highlighted:text-white",
+    "group-data-disabled:text-neutral-500/50",
   );
   switch (variant) {
     case "custom":
       return clsx(
         all,
-        "data-[state=checked]:text-[--text-color-75] data-[state=unchecked]:text-[--text-color-10]",
+        "data-[state=checked]:text-(--text-color-75) data-[state=unchecked]:text-(--text-color-10)",
       );
     case Variant.Primary:
       return clsx(
         all,
-        "data-[state=checked]:dark:text-primary-200/75 data-[state=checked]:text-primary-800/75",
-        "data-[state=unchecked]:dark:text-primary-200/10 data-[state=unchecked]:text-primary-800/10",
+        "dark:data-[state=checked]:text-primary-200/75 data-[state=checked]:text-primary-800/75",
+        "dark:data-[state=unchecked]:text-primary-200/10 data-[state=unchecked]:text-primary-800/10",
       );
     case Variant.Secondary:
       return clsx(
         all,
-        "data-[state=checked]:dark:text-secondary-200/75 data-[state=checked]:text-secondary-800/75",
-        "data-[state=unchecked]:dark:text-secondary-200/10 data-[state=unchecked]:text-secondary-800/10",
+        "dark:data-[state=checked]:text-secondary-200/75 data-[state=checked]:text-secondary-800/75",
+        "dark:data-[state=unchecked]:text-secondary-200/10 data-[state=unchecked]:text-secondary-800/10",
       );
     case Variant.Tertiary:
       return clsx(
         all,
-        "data-[state=checked]:dark:text-tertiary-200/75 data-[state=checked]:text-tertiary-800/75",
-        "data-[state=unchecked]:dark:text-tertiary-200/10 data-[state=unchecked]:text-tertiary-800/10",
+        "dark:data-[state=checked]:text-tertiary-200/75 data-[state=checked]:text-tertiary-800/75",
+        "dark:data-[state=unchecked]:text-tertiary-200/10 data-[state=unchecked]:text-tertiary-800/10",
       );
     case Variant.Error:
       return clsx(
         all,
-        "data-[state=checked]:dark:text-error-400/75 data-[state=checked]:text-error-600/75",
-        "data-[state=unchecked]:dark:text-error-400/10 data-[state=unchecked]:text-error-600/10",
+        "dark:data-[state=checked]:text-error-400/75 data-[state=checked]:text-error-600/75",
+        "dark:data-[state=unchecked]:text-error-400/10 data-[state=unchecked]:text-error-600/10",
       );
     case Variant.Warning:
       return clsx(
         all,
-        "data-[state=checked]:dark:text-warning-400/75 data-[state=checked]:text-warning-600/75",
-        "data-[state=unchecked]:dark:text-warning-400/10 data-[state=unchecked]:text-warning-600/10",
+        "dark:data-[state=checked]:text-warning-400/75 data-[state=checked]:text-warning-600/75",
+        "dark:data-[state=unchecked]:text-warning-400/10 data-[state=unchecked]:text-warning-600/10",
       );
     case Variant.Success:
       return clsx(
         all,
-        "data-[state=checked]:dark:text-success-400/75 data-[state=checked]:text-success-600/75",
-        "data-[state=unchecked]:dark:text-success-400/10 data-[state=unchecked]:text-success-600/10",
+        "dark:data-[state=checked]:text-success-400/75 data-[state=checked]:text-success-600/75",
+        "dark:data-[state=unchecked]:text-success-400/10 data-[state=unchecked]:text-success-600/10",
       );
     case Variant.Info:
       return clsx(
         all,
-        "data-[state=checked]:dark:text-info-200/75 data-[state=checked]:text-info-800/75",
-        "data-[state=unchecked]:dark:text-info-200/10 data-[state=unchecked]:text-info-800/10",
+        "dark:data-[state=checked]:text-info-200/75 data-[state=checked]:text-info-800/75",
+        "dark:data-[state=unchecked]:text-info-200/10 data-[state=unchecked]:text-info-800/10",
       );
     case Variant.Default:
     default:
       return clsx(
         all,
-        "data-[state=checked]:dark:text-default-200/75 data-[state=checked]:text-default-800/75",
-        "data-[state=unchecked]:dark:text-default-200/10 data-[state=unchecked]:text-default-800/10",
+        "dark:data-[state=checked]:text-default-200/75 data-[state=checked]:text-default-800/75",
+        "dark:data-[state=unchecked]:text-default-200/10 data-[state=unchecked]:text-default-800/10",
       );
   }
 }
 
 export function getItemStyle(variant?: Variant | "custom"): string {
   const all = clsx(
-    "cursor-pointer group dark:data-[highlighted]:text-black data-[highlighted]:text-white",
-    "data-[disabled]:text-neutral-500/50",
+    "cursor-pointer group dark:data-highlighted:text-black data-highlighted:text-white",
+    "data-disabled:text-neutral-500/50",
   );
   switch (variant) {
     case "custom":
-      return clsx(all, "text-[--text-color-75]", "data-[highlighted]:bg-[--text-color-50]");
+      return clsx(all, "text-(--text-color-75)", "data-highlighted:bg-(--text-color-50)");
     case Variant.Primary:
       return clsx(
         all,
         "dark:text-primary-200/75 text-primary-800/75",
-        "dark:data-[highlighted]:bg-primary-200/50 data-[highlighted]:bg-primary-800/50",
+        "dark:data-highlighted:bg-primary-200/50 data-highlighted:bg-primary-800/50",
       );
     case Variant.Secondary:
       return clsx(
         all,
         "dark:text-secondary-200/75 text-secondary-800/75",
-        "dark:data-[highlighted]:bg-secondary-200/50 data-[highlighted]:bg-secondary-800/50",
+        "dark:data-highlighted:bg-secondary-200/50 data-highlighted:bg-secondary-800/50",
       );
     case Variant.Tertiary:
       return clsx(
         all,
         "dark:text-tertiary-200/75 text-tertiary-800/75",
-        "dark:data-[highlighted]:bg-tertiary-200/50 data-[highlighted]:bg-tertiary-800/50",
+        "dark:data-highlighted:bg-tertiary-200/50 data-highlighted:bg-tertiary-800/50",
       );
     case Variant.Error:
       return clsx(
         all,
         "dark:text-error-400/75 text-error-600/75",
-        "dark:data-[highlighted]:bg-error-400/50 data-[highlighted]:bg-error-600/50",
+        "dark:data-highlighted:bg-error-400/50 data-highlighted:bg-error-600/50",
       );
     case Variant.Warning:
       return clsx(
         all,
         "dark:text-warning-400/75 text-warning-600/75",
-        "dark:data-[highlighted]:bg-warning-400/50 data-[highlighted]:bg-warning-600/50",
+        "dark:data-highlighted:bg-warning-400/50 data-highlighted:bg-warning-600/50",
       );
     case Variant.Success:
       return clsx(
         all,
         "dark:text-success-400/75 text-success-600/75",
-        "dark:data-[highlighted]:bg-success-400/50 data-[highlighted]:bg-success-600/50",
+        "dark:data-highlighted:bg-success-400/50 data-highlighted:bg-success-600/50",
       );
     case Variant.Info:
       return clsx(
         all,
         "dark:text-info-200/75 text-info-800/75",
-        "dark:data-[highlighted]:bg-info-200/50 data-[highlighted]:bg-info-800/50",
+        "dark:data-highlighted:bg-info-200/50 data-highlighted:bg-info-800/50",
       );
     case Variant.Default:
     default:
       return clsx(
         all,
         "dark:text-default-200/75 text-default-800/75",
-        "dark:data-[highlighted]:bg-default-200/50 data-[highlighted]:bg-default-800/50",
+        "dark:data-highlighted:bg-default-200/50 data-highlighted:bg-default-800/50",
       );
   }
 }
@@ -286,7 +286,7 @@ export function getItemStyle(variant?: Variant | "custom"): string {
 export function getSeparatorStyle(variant?: Variant | "custom"): string {
   switch (variant) {
     case "custom":
-      return "bg-[--separator-color]/75";
+      return "bg-(--separator-color)/75";
     case Variant.Primary:
       return "dark:bg-primary-200/75 bg-primary-800/75";
     case Variant.Secondary:
@@ -309,7 +309,7 @@ export function getSeparatorStyle(variant?: Variant | "custom"): string {
 
 export function getChipColor(variant?: Variant | "custom"): string {
   if (variant === "custom") {
-    return "bg-[--bg-color]";
+    return "bg-(--bg-color)";
   } else {
     switch (variant) {
       case Variant.Primary:
@@ -358,7 +358,7 @@ export function getOutline(variant?: Variant): string {
 export function getBasicTextColor(variant?: Variant | "custom"): string {
   switch (variant) {
     case "custom":
-      return "text-[--text-color]";
+      return "text-(--text-color)";
     case Variant.Primary:
       return "text-primary-500";
     case Variant.Secondary:
@@ -381,7 +381,7 @@ export function getBasicTextColor(variant?: Variant | "custom"): string {
 
 export function getTooltipTextColor(variant?: Variant | "custom", invert?: boolean): string {
   if (variant === "custom") {
-    return "text-[--bg-color]";
+    return "text-(--bg-color)";
   }
   switch (variant) {
     case Variant.Primary:
@@ -419,7 +419,7 @@ export function getTooltipTextColor(variant?: Variant | "custom", invert?: boole
 export function getBasicBgColor(variant?: Variant | "custom"): string {
   switch (variant) {
     case "custom":
-      return "bg-[--bg-color]";
+      return "bg-(--bg-color)";
     case Variant.Primary:
       return "bg-primary-500";
     case Variant.Secondary:
@@ -443,7 +443,7 @@ export function getBasicBgColor(variant?: Variant | "custom"): string {
 export function getTextCaretColor(variant?: Variant | "custom"): string {
   switch (variant) {
     case "custom":
-      return "caret-[--text-color] selection:bg-[--text-color] selection:bg-opacity-50";
+      return "caret-(--text-color) selection:bg-(--text-color) selection:bg-opacity-50";
     case Variant.Primary:
       return "caret-primary-500 selection:bg-primary-500/50";
     case Variant.Secondary:
@@ -560,7 +560,7 @@ export function getHoverButtonStyles(variant?: Variant): string {
       return clsx(
         "focus:outline outline-1 outline-offset-2 outline-default-400 hover:outline-default-300 dark:hover:outline-default-600 ",
         "hover:bg-default-300 dark:hover:bg-default-600 bg-default-400 dark:bg-default-500",
-        "disabled:cursor-not-allowed disabled:bg-default-400/50 disabled:hover:bg-default-400/50 disabled:dark:bg-default-500/50 disabled:dark:hover:bg-default-500/50",
+        "disabled:cursor-not-allowed disabled:bg-default-400/50 disabled:hover:bg-default-400/50 dark:disabled:bg-default-500/50 dark:disabled:hover:bg-default-500/50",
       );
   }
 }
@@ -569,59 +569,59 @@ export function getCheckedBgStyles(variant?: Variant): string {
   switch (variant) {
     case Variant.Primary:
       return clsx(
-        "data-[checked]:outline-primary-500 data-[checked]:hover:outline-primary-50 data-[checked]:dark:hover:outline-primary-950",
-        "data-[checked]:hover:bg-primary-50 data-[checked]:dark:hover:bg-primary-950 data-[checked]:bg-primary-500 data-[checked]:dark:bg-primary-700",
-        "data-[checked]:disabled:cursor-not-allowed data-[checked]:disabled:bg-primary-700/50 data-[checked]:disabled:hover:bg-primary-700/50",
+        "data-checked:outline-primary-500 data-checked:hover:outline-primary-50 dark:data-checked:hover:outline-primary-950",
+        "data-checked:hover:bg-primary-50 dark:data-checked:hover:bg-primary-950 data-checked:bg-primary-500 dark:data-checked:bg-primary-700",
+        "data-checked:disabled:cursor-not-allowed data-checked:disabled:bg-primary-700/50 data-checked:disabled:hover:bg-primary-700/50",
       );
     case Variant.Secondary:
       return clsx(
-        "data-[checked]:outline-secondary-500 data-[checked]:hover:outline-secondary-50 data-[checked]:dark:hover:outline-secondary-950",
-        "data-[checked]:hover:bg-secondary-50 data-[checked]:dark:hover:bg-secondary-950 data-[checked]:bg-secondary-500 data-[checked]:dark:bg-secondary-700",
-        "data-[checked]:disabled:cursor-not-allowed data-[checked]:disabled:bg-secondary-700/50 data-[checked]:disabled:hover:bg-secondary-700/50",
+        "data-checked:outline-secondary-500 data-checked:hover:outline-secondary-50 dark:data-checked:hover:outline-secondary-950",
+        "data-checked:hover:bg-secondary-50 dark:data-checked:hover:bg-secondary-950 data-checked:bg-secondary-500 dark:data-checked:bg-secondary-700",
+        "data-checked:disabled:cursor-not-allowed data-checked:disabled:bg-secondary-700/50 data-checked:disabled:hover:bg-secondary-700/50",
       );
     case Variant.Tertiary:
       return clsx(
-        "data-[checked]:outline-tertiary-500 data-[checked]:hover:outline-tertiary-50 data-[checked]:dark:hover:outline-tertiary-950",
-        "data-[checked]:hover:bg-tertiary-50 data-[checked]:dark:hover:bg-tertiary-950 data-[checked]:bg-tertiary-500 data-[checked]:dark:bg-tertiary-700",
-        "data-[checked]:disabled:cursor-not-allowed data-[checked]:disabled:bg-tertiary-700/50 data-[checked]:disabled:hover:bg-tertiary-700/50",
+        "data-checked:outline-tertiary-500 data-checked:hover:outline-tertiary-50 dark:data-checked:hover:outline-tertiary-950",
+        "data-checked:hover:bg-tertiary-50 dark:data-checked:hover:bg-tertiary-950 data-checked:bg-tertiary-500 dark:data-checked:bg-tertiary-700",
+        "data-checked:disabled:cursor-not-allowed data-checked:disabled:bg-tertiary-700/50 data-checked:disabled:hover:bg-tertiary-700/50",
       );
     case Variant.Error:
       return clsx(
-        "data-[checked]:outline-error-600 data-[checked]:hover:outline-error-500 data-[checked]:dark:hover:outline-error-700 ",
-        "data-[checked]:hover:bg-error-500 data-[checked]:dark:hover:bg-error-700 data-[checked]:bg-error-600",
-        "data-[checked]:disabled:cursor-not-allowed data-[checked]:disabled:bg-error-600/50 data-[checked]:disabled:hover:bg-error-600/50",
+        "data-checked:outline-error-600 data-checked:hover:outline-error-500 dark:data-checked:hover:outline-error-700 ",
+        "data-checked:hover:bg-error-500 dark:data-checked:hover:bg-error-700 data-checked:bg-error-600",
+        "data-checked:disabled:cursor-not-allowed data-checked:disabled:bg-error-600/50 data-checked:disabled:hover:bg-error-600/50",
       );
     case Variant.Warning:
       return clsx(
-        "data-[checked]:outline-warning-500 data-[checked]:hover:outline-warning-400 data-[checked]:dark:hover:outline-warning-600 ",
-        "data-[checked]:hover:bg-warning-400 data-[checked]:dark:hover:bg-warning-600 data-[checked]:bg-warning-500",
-        "data-[checked]:disabled:cursor-not-allowed data-[checked]:disabled:bg-warning-500/50 data-[checked]:disabled:hover:bg-warning-500/50",
+        "data-checked:outline-warning-500 data-checked:hover:outline-warning-400 dark:data-checked:hover:outline-warning-600 ",
+        "data-checked:hover:bg-warning-400 dark:data-checked:hover:bg-warning-600 data-checked:bg-warning-500",
+        "data-checked:disabled:cursor-not-allowed data-checked:disabled:bg-warning-500/50 data-checked:disabled:hover:bg-warning-500/50",
       );
     case Variant.Success:
       return clsx(
-        "data-[checked]:outline-success-500 data-[checked]:hover:outline-success-400 data-[checked]:dark:hover:outline-success-600 ",
-        "data-[checked]:hover:bg-success-400 data-[checked]:dark:hover:bg-success-600 data-[checked]:bg-success-500",
-        "data-[checked]:disabled:cursor-not-allowed data-[checked]:disabled:bg-success-500/50 data-[checked]:disabled:hover:bg-success-500/50",
+        "data-checked:outline-success-500 data-checked:hover:outline-success-400 dark:data-checked:hover:outline-success-600 ",
+        "data-checked:hover:bg-success-400 dark:data-checked:hover:bg-success-600 data-checked:bg-success-500",
+        "data-checked:disabled:cursor-not-allowed data-checked:disabled:bg-success-500/50 data-checked:disabled:hover:bg-success-500/50",
       );
     case Variant.Info:
       return clsx(
-        "data-[checked]:outline-tertiary-500 data-[checked]:hover:outline-tertiary-50 data-[checked]:dark:hover:outline-tertiary-950",
-        "data-[checked]:hover:bg-tertiary-50 data-[checked]:dark:hover:bg-tertiary-950 data-[checked]:bg-tertiary-500 data-[checked]:dark:bg-tertiary-700",
-        "data-[checked]:disabled:cursor-not-allowed data-[checked]:disabled:bg-tertiary-700/50 data-[checked]:disabled:hover:bg-tertiary-700/50",
+        "data-checked:outline-tertiary-500 data-checked:hover:outline-tertiary-50 dark:data-checked:hover:outline-tertiary-950",
+        "data-checked:hover:bg-tertiary-50 dark:data-checked:hover:bg-tertiary-950 data-checked:bg-tertiary-500 dark:data-checked:bg-tertiary-700",
+        "data-checked:disabled:cursor-not-allowed data-checked:disabled:bg-tertiary-700/50 data-checked:disabled:hover:bg-tertiary-700/50",
       );
     case Variant.Default:
     default:
       return clsx(
-        "data-[checked]:outline-default-400 data-[checked]:hover:outline-default-300 data-[checked]:dark:hover:outline-default-600 ",
-        "data-[checked]:hover:bg-default-300 data-[checked]:dark:hover:bg-default-600 data-[checked]:bg-default-400 data-[checked]:dark:bg-default-500",
-        "data-[checked]:disabled:cursor-not-allowed data-[checked]:disabled:bg-default-400/50 data-[checked]:disabled:hover:bg-default-400/50 data-[checked]:disabled:dark:bg-default-500/50 data-[checked]:disabled:dark:hover:bg-default-500/50",
+        "data-checked:outline-default-400 data-checked:hover:outline-default-300 dark:data-checked:hover:outline-default-600 ",
+        "data-checked:hover:bg-default-300 dark:data-checked:hover:bg-default-600 data-checked:bg-default-400 dark:data-checked:bg-default-500",
+        "data-checked:disabled:cursor-not-allowed data-checked:disabled:bg-default-400/50 data-checked:disabled:hover:bg-default-400/50 dark:data-checked:disabled:bg-default-500/50 dark:data-checked:disabled:hover:bg-default-500/50",
       );
   }
 }
 
 export function getToggleButtonStyles(variant: Variant): string {
   const base = clsx(
-    "outline-none transition-colors",
+    "outline-hidden transition-colors",
     "hover:ring-1 focus:ring-1 data-[state=on]:ring-1 ring-0 ring-inset",
     "data-disabled:opacity-50 disabled:opacity-50",
     "dark:text-neutral-600 text-neutral-400",
@@ -683,8 +683,8 @@ export function getToggleButtonStyles(variant: Variant): string {
       return clsx(
         base,
         "hover:ring-default-500/25",
-        "data-[state=on]:dark:ring-default-300/50 data-[state=on]:ring-default-700/50",
-        "data-[state=on]:dark:text-default-300 data-[state=on]:text-default-700",
+        "dark:data-[state=on]:ring-default-300/50 data-[state=on]:ring-default-700/50",
+        "dark:data-[state=on]:text-default-300 data-[state=on]:text-default-700",
       );
   }
 }
@@ -692,22 +692,22 @@ export function getToggleButtonStyles(variant: Variant): string {
 export function getGradient(variant?: Variant): string {
   switch (variant) {
     case Variant.Primary:
-      return "bg-gradient-to-r to-primary-50 from-primary-950";
+      return "bg-linear-to-r to-primary-50 from-primary-950";
     case Variant.Secondary:
-      return "bg-gradient-to-r to-secondary-50 from-secondary-950";
+      return "bg-linear-to-r to-secondary-50 from-secondary-950";
     case Variant.Tertiary:
-      return "bg-gradient-to-r to-tertiary-50 from-tertiary-950";
+      return "bg-linear-to-r to-tertiary-50 from-tertiary-950";
     case Variant.Error:
-      return "bg-gradient-to-r to-error-400 from-error-600";
+      return "bg-linear-to-r to-error-400 from-error-600";
     case Variant.Warning:
-      return "bg-gradient-to-r to-warning-400 from-warning-600";
+      return "bg-linear-to-r to-warning-400 from-warning-600";
     case Variant.Success:
-      return "bg-gradient-to-r to-success-400 from-success-600";
+      return "bg-linear-to-r to-success-400 from-success-600";
     case Variant.Info:
-      return "bg-gradient-to-r to-info-50 from-info-950";
+      return "bg-linear-to-r to-info-50 from-info-950";
     case Variant.Default:
     default:
-      return "bg-gradient-to-r to-default-400 from-default-600";
+      return "bg-linear-to-r to-default-400 from-default-600";
   }
 }
 
@@ -722,9 +722,9 @@ export function getInputStyles(
   constrainHeight = true,
 ): string {
   return clsx(
-    "touch-none outline-none focus:outline-none bg-transparent pl-1 pr-1",
+    "touch-none outline-hidden focus:outline-hidden bg-transparent pl-1 pr-1",
     flex && "w-full flex-1",
-    subtle && "focus:dark:text-white focus:text-black text-neutral-600 dark:text-neutral-400",
+    subtle && "dark:focus:text-white focus:text-black text-neutral-600 dark:text-neutral-400",
     !subtle && "text-black dark:text-white",
     bold ? "select-text font-bold" : "select-none font-normal",
     constrainHeight && getHeight(size),

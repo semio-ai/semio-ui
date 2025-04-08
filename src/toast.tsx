@@ -194,9 +194,9 @@ function InnerToastManager({ children }: ToastContainerProps) {
       <RadixToast.Provider swipeDirection="right">
         <RadixToast.Viewport
           className={clsx(
-            "pointer-events-none fixed top-0 right-0 z-[2147483647] m-0 flex w-[390px]",
+            "pointer-events-none fixed top-0 right-0 z-2147483647 m-0 flex w-[390px]",
             "max-w-[100vw] list-none flex-col gap-2.5 p-[var(--viewport-padding)]",
-            "outline-none [--viewport-padding:_60px]",
+            "outline-hidden [--viewport-padding:_60px]",
           )}
         />
         {toasts.map((toast) => (

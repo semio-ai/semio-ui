@@ -70,8 +70,8 @@ export function NestedRadio({ variant, disabled, onChange, value, options }: Nes
             }
             className={clsx(
               "leading-none flex items-center",
-              "h-8 text-sm px-[5px] relative pl-[30px] select-none outline-none",
-              "data-[disabled]:pointer-events-none",
+              "h-8 text-sm px-[5px] relative pl-[30px] select-none outline-hidden",
+              "data-disabled:pointer-events-none",
               getItemStyle(option.color ? "custom" : variant),
             )}
           >

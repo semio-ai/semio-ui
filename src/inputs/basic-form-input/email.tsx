@@ -35,7 +35,7 @@ export const EmailInput = forwardRef(
         <div
           className={clsx(
             "dark:bg-neutral-800/80 bg-neutral-200/80",
-            "autofill:dark:bg-neutral-800/80 autofill:bg-neutral-200/80",
+            "dark:autofill:bg-neutral-800/80 autofill:bg-neutral-200/80",
             "focus-within:outline focus-within:outline-1 focus-within:outline-offset-2",
             usedVariant === Variant.Error && "outline outline-1 outline-offset-2",
             getOutline(usedVariant),

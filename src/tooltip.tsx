@@ -45,7 +45,7 @@ function Tooltip({
               "data-[side=top]:border-b-2 border-solid",
               "data-[side=right]:border-l-2 border-solid",
               "data-[side=left]:border-r-2 border-solid",
-              "z-[10]",
+              "z-10",
               getBorder(variant),
               getTooltipTextColor(variant, invert),
             )}

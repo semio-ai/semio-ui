@@ -61,7 +61,7 @@ const enclosureSize = {
 };
 
 const buttonSize = {
-  sm: "size-3 translate-x-0.5 group-data-[checked]:translate-x-[18px]",
-  md: "size-4 translate-x-1 group-data-[checked]:translate-x-6",
-  lg: "size-8 translate-x-1 group-data-[checked]:translate-x-11",
+  sm: "size-3 translate-x-0.5 group-data-checked:translate-x-[18px]",
+  md: "size-4 translate-x-1 group-data-checked:translate-x-6",
+  lg: "size-8 translate-x-1 group-data-checked:translate-x-11",
 };

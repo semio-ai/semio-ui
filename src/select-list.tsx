@@ -47,8 +47,8 @@ export function SelectList<T extends string | string[]>({
       rowClassName={clsx(
         "dark:bg-transparent bg-transparent hover:bg-neutral-500/10",
         "focus:outline outline-[1.5px] outline-offset-[-2px]",
-        "has-[:focus]:outline flex flex-row items-center",
-        "aria-selected:focus:outline-black/50 aria-selected:has-[:focus]:outline-black/50",
+        "has-focus:outline flex flex-row items-center",
+        "aria-selected:focus:outline-black/50 aria-selected:has-focus:outline-black/50",
         getHeight(size),
         rowClassName,
       )}

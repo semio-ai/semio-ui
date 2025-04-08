@@ -67,7 +67,7 @@ export function InnerScrollArea({
         </RadixScrollArea.Viewport>
         {(orientation === "both" || orientation === "vertical") && (
           <RadixScrollArea.Scrollbar
-            className="flex select-none touch-none py-1 px-0.5 bg-black/5 dark:bg-white/5 transition-colors duration-[160ms] ease-out hover:dark:bg-white/25 hover:bg-black/25 data-[orientation=vertical]:w-2.5 data-[orientation=horizontal]:flex-col data-[orientation=horizontal]:h-2.5"
+            className="flex select-none touch-none py-1 px-0.5 bg-black/5 dark:bg-white/5 transition-colors duration-[160ms] ease-out dark:hover:bg-white/25 hover:bg-black/25 data-[orientation=vertical]:w-2.5 data-[orientation=horizontal]:flex-col data-[orientation=horizontal]:h-2.5"
             orientation="vertical"
             style={{
               paddingTop: headerBounds.height + 2,
@@ -79,7 +79,7 @@ export function InnerScrollArea({
         )}
         {(orientation === "both" || orientation === "horizontal") && (
           <RadixScrollArea.Scrollbar
-            className="flex select-none touch-none py-0.5 px-1 bg-black/5 dark:bg-white/5 transition-colors duration-[160ms] ease-out hover:dark:bg-white/25 hover:bg-black/25 data-[orientation=vertical]:w-2.5 data-[orientation=horizontal]:flex-col data-[orientation=horizontal]:h-2.5"
+            className="flex select-none touch-none py-0.5 px-1 bg-black/5 dark:bg-white/5 transition-colors duration-[160ms] ease-out dark:hover:bg-white/25 hover:bg-black/25 data-[orientation=vertical]:w-2.5 data-[orientation=horizontal]:flex-col data-[orientation=horizontal]:h-2.5"
             orientation="horizontal"
           >
             <RadixScrollArea.Thumb className="flex-1 bg-default-500/75 rounded-none relative before:content-[''] before:absolute before:top-1/2 before:left-1/2 before:-translate-x-1/2 before:-translate-y-1/2 before:w-full before:h-full before:min-w-[22px] before:min-h-[22px]" />

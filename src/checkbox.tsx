@@ -42,7 +42,7 @@ export function Checkbox({
         !invert && "dark:bg-black bg-white",
         invert && getBasicBgColor(variant),
         getHoverBorder(variant),
-        "appearance-none outline-none",
+        "appearance-none outline-hidden",
       )}
     >
       <RadixCheckbox.Indicator className={invert ? "text-black" : getHoverTextStyles(variant)}>

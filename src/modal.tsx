@@ -54,7 +54,7 @@ export function Modal({
           <Dialog.Content
             forceMount
             className={clsx(
-              "flex flex-col focus:outline-none",
+              "flex flex-col focus:outline-hidden",
               "data-[state=open]:animate-modalAppear data-[state=closed]:animate-modalDisappear",
               "bg-neutral-50/50 dark:bg-neutral-950/50 backdrop-blur-lg shadow-md",
               "border-t-2 border-solid",

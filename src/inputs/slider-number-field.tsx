@@ -299,7 +299,7 @@ function InnerSliderNumberField({
           readOnly={!onLabelChange || inactive || sliderMode !== SliderMode.Label}
           onChange={(e) => onLabelChange?.(e.target.value || "")}
           className={clsx(
-            "outline-none overflow-ellipsis focus:outline-none",
+            "outline-hidden text-ellipsis focus:outline-hidden",
             "flex-1 bg-transparent dark:text-white/75 text-black/75 text-left pl-1 max-w-[60%] touch-none",
             sliderMode === SliderMode.Label
               ? "cursor-text select-none font-bold"

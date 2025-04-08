@@ -13,7 +13,7 @@ export function Anchor({ onClick, variant, children }: AnchorProps) {
     <button
       type="button"
       onClick={onClick}
-      className={clsx(getHoverTextStyles(variant), "focus:outline-none")}
+      className={clsx(getHoverTextStyles(variant), "focus:outline-hidden")}
     >
       {children}
     </button>

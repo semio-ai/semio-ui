@@ -19,7 +19,7 @@ export function CopyLinkButton({ link }: { link: string }) {
         onClick={(e) => {
           void handleCopy(e);
         }}
-        className={`px-3 py-1 border rounded ${copied ? "bg-green-500 text-white" : "bg-gray-200 text-gray-800 hover:bg-gray-300"}`}
+        className={`px-3 py-1 border rounded-sm ${copied ? "bg-green-500 text-white" : "bg-gray-200 text-gray-800 hover:bg-gray-300"}`}
       >
         {copied ? "Copied!" : "Copy Link"}
       </button>
