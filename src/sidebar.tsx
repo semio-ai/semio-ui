@@ -29,11 +29,11 @@ export function Sidebar({ children, sidebar, side }: SidebarProps) {
             exit={{ opacity: 0, translateX: side === "left" ? -50 : 50 }}
             transition={{ duration: 0.1 }}
             className={clsx(
-              "dark:bg-layout-darkinset bg-layout-lightinset",
+              "dark:bg-layout-dark-inset bg-layout-light-inset",
               "h-full overflow-x-hidden overflow-auto",
               side === "left" && "border-r",
               side === "right" && "border-l",
-              "border-solid border-layout-lightsep/50 dark:border-layout-darksep/50",
+              "border-solid border-layout-light-separator/50 dark:border-layout-dark-separator/50",
             )}
           >
             {child?.content}

@@ -511,54 +511,58 @@ export function getHoverTextStyles(variant?: Variant): string {
 }
 
 export function getHoverButtonStyles(variant?: Variant): string {
+  const all =
+    "outline-hidden focus:outline-solid hover:outline-solid outline-1 outline-offset-2 outline-transparent";
   switch (variant) {
     case Variant.Primary:
       return clsx(
-        "focus:outline outline-1 outline-offset-2 outline-primary-500 hover:outline-primary-50 dark:hover:outline-primary-950",
+        all,
+        "hover:outline-primary-50 dark:hover:outline-primary-950",
         "hover:bg-primary-50 dark:hover:bg-primary-950 bg-primary-500 dark:bg-primary-700",
         "disabled:cursor-not-allowed disabled:bg-primary-700/50 disabled:hover:bg-primary-700/50",
       );
 
     case Variant.Secondary:
       return clsx(
-        "focus:outline outline-1 outline-offset-2 outline-secondary-500 hover:outline-secondary-50 dark:hover:outline-secondary-950",
+        all,
+        "hover:outline-secondary-50 dark:hover:outline-secondary-950",
         "hover:bg-secondary-50 dark:hover:bg-secondary-950 bg-secondary-500 dark:bg-secondary-700",
         "disabled:cursor-not-allowed disabled:bg-secondary-700/50 disabled:hover:bg-secondary-700/50",
       );
-    case Variant.Tertiary:
-      return clsx(
-        "focus:outline outline-1 outline-offset-2 outline-tertiary-500 hover:outline-tertiary-50 dark:hover:outline-tertiary-950",
-        "hover:bg-tertiary-50 dark:hover:bg-tertiary-950 bg-tertiary-500 dark:bg-tertiary-700",
-        "disabled:cursor-not-allowed disabled:bg-tertiary-700/50 disabled:hover:bg-tertiary-700/50",
-      );
     case Variant.Error:
       return clsx(
-        "focus:outline outline-1 outline-offset-2 outline-error-600 hover:outline-error-500 dark:hover:outline-error-700 ",
+        all,
+        "hover:outline-error-500 dark:hover:outline-error-700 ",
         "hover:bg-error-500 dark:hover:bg-error-700 bg-error-600",
         "disabled:cursor-not-allowed disabled:bg-error-600/50 disabled:hover:bg-error-600/50",
       );
     case Variant.Warning:
       return clsx(
-        "focus:outline outline-1 outline-offset-2 outline-warning-500 hover:outline-warning-400 dark:hover:outline-warning-600 ",
+        all,
+        "hover:outline-warning-400 dark:hover:outline-warning-600 ",
         "hover:bg-warning-400 dark:hover:bg-warning-600 bg-warning-500",
         "disabled:cursor-not-allowed disabled:bg-warning-500/50 disabled:hover:bg-warning-500/50",
       );
     case Variant.Success:
       return clsx(
-        "focus:outline outline-1 outline-offset-2 outline-success-500 hover:outline-success-400 dark:hover:outline-success-600 ",
+        all,
+        "hover:outline-success-400 dark:hover:outline-success-600 ",
         "hover:bg-success-400 dark:hover:bg-success-600 bg-success-500",
         "disabled:cursor-not-allowed disabled:bg-success-500/50 disabled:hover:bg-success-500/50",
       );
+    case Variant.Tertiary:
     case Variant.Info:
       return clsx(
-        "focus:outline outline-1 outline-offset-2 outline-tertiary-500 hover:outline-tertiary-50 dark:hover:outline-tertiary-950",
+        all,
+        "hover:outline-tertiary-50 dark:hover:outline-tertiary-950",
         "hover:bg-tertiary-50 dark:hover:bg-tertiary-950 bg-tertiary-500 dark:bg-tertiary-700",
         "disabled:cursor-not-allowed disabled:bg-tertiary-700/50 disabled:hover:bg-tertiary-700/50",
       );
     case Variant.Default:
     default:
       return clsx(
-        "focus:outline outline-1 outline-offset-2 outline-default-400 hover:outline-default-300 dark:hover:outline-default-600 ",
+        all,
+        "hover:outline-default-300 dark:hover:outline-default-600 ",
         "hover:bg-default-300 dark:hover:bg-default-600 bg-default-400 dark:bg-default-500",
         "disabled:cursor-not-allowed disabled:bg-default-400/50 disabled:hover:bg-default-400/50 dark:disabled:bg-default-500/50 dark:disabled:hover:bg-default-500/50",
       );

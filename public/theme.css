@@ -42,7 +42,7 @@
   --color-tertiary-950: var(--color-pink-950);
 
   --color-layout-light-separator: var(--color-neutral-400);
-  --color-layout-dark-sepatator: var(--color-neutral-950);
+  --color-layout-dark-separator: var(--color-neutral-950);
   --color-layout-light-base: #cccccc;
   --color-layout-dark-base: #333333;
   --color-layout-light-inset: var(--color-neutral-200);

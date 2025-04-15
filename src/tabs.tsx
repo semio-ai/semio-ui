@@ -52,8 +52,8 @@ export function Tabs({
         <div
           className={clsx(
             "flex flex-row",
-            "divide-x divide-solid dark:divide-layout-darksep/50 divide-layout-lightsep/50",
-            "border-b dark:border-layout-darksep/50 border-layout-lightsep/50",
+            "divide-x divide-solid dark:divide-layout-dark-separator/50 divide-layout-light-separator/50",
+            "border-b dark:border-layout-dark-separator/50 border-layout-light-separator/50",
           )}
         >
           {leftWidget && (
@@ -85,10 +85,10 @@ export function Tabs({
           <TabsPrimitive.List
             className={clsx(
               "flex flex-row items-center",
-              "dark:bg-layout-darkbase bg-layout-lightbase",
+              "dark:bg-layout-dark-base bg-layout-light-base",
               "dark:text-neutral-200 text-neutral-800",
-              "divide-x divide-solid dark:divide-layout-darksep/50 divide-layout-lightsep/50",
-              "border-b dark:border-layout-darksep/50 border-layout-lightsep/50",
+              "divide-x divide-solid dark:divide-layout-dark-separator/50 divide-layout-light-separator/50",
+              "border-b dark:border-layout-dark-separator/50 border-layout-light-separator/50",
             )}
           >
             {leftWidget && <div ref={leftRef}>{leftWidget}</div>}
@@ -97,8 +97,8 @@ export function Tabs({
                 <TabsPrimitive.Trigger
                   className={clsx(
                     "flex-1 text-nowrap px-2 h-[30px] transition-all",
-                    "dark:aria-selected:bg-layout-darkinset",
-                    "aria-selected:bg-layout-lightinset",
+                    "dark:aria-selected:bg-layout-dark-inset",
+                    "aria-selected:bg-layout-light-inset",
                     "dark:hover:bg-[#2D2D2D]",
                     "hover:bg-[#d9d9d9]",
                     "text-neutral-500 aria-selected:text-neutral-900 dark:aria-selected:text-neutral-100",

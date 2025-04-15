@@ -52,7 +52,7 @@ export function MenuButton({
         "w-10 group-data-expanded/menu:w-48 h-10 group/button p-2 transition-all duration-100",
         hoverable && "dark:hover:text-neutral-400 hover:text-neutral-600",
         hoverable && "hover:scale-105 scale-100",
-        "group-data-expanded/menu:origin-left origin-center",
+        "group-data-expanded/menu:origin-[20px_50%] origin-center",
         "flex flex-row gap-[6px]",
         "text-neutral-500 overflow-hidden",
         getSelectedStyles(variant),
@@ -78,13 +78,13 @@ export function MenuButton({
 const getSelectedStyles = (variant: Variant): string => {
   switch (variant) {
     case Variant.Primary:
-      return "dark:aria-selected:text-primary-100 aria-selected:text-primary-900";
+      return "dark:aria-selected:text-primary-100 aria-selected:text-primary-900 hover:dark:aria-selected:text-primary-100 hover:aria-selected:text-primary-900";
     case Variant.Secondary:
-      return "dark:aria-selected:text-secondary-100 aria-selected:text-secondary-900";
+      return "dark:aria-selected:text-secondary-100 aria-selected:text-secondary-900 hover:dark:aria-selected:text-secondary-100 hover:aria-selected:text-secondary-900";
     case Variant.Tertiary:
-      return "dark:aria-selected:text-tertiary-100 aria-selected:text-tertiary-900";
+      return "dark:aria-selected:text-tertiary-100 aria-selected:text-tertiary-900 hover:dark:aria-selected:text-tertiary-100 hover:aria-selected:text-tertiary-900";
     case Variant.Default:
     default:
-      return "dark:aria-selected:text-neutral-100 aria-selected:text-neutral-900";
+      return "dark:aria-selected:text-neutral-100 aria-selected:text-neutral-900 hover:dark:aria-selected:text-neutral-100 hover:aria-selected:text-neutral-900";
   }
 };

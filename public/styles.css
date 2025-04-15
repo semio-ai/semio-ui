@@ -2,6 +2,12 @@
 @import "theme.css";
 
 @custom-variant dark (&:where(.dark, .dark *));
+
+@custom-variant left-sidebar-full (&:where(.left-sidebar-full, .left-sidebar-full *));
+@custom-variant right-sidebar-full (&:where(.right-sidebar-full, .right-sidebar-full *));
+
+@custom-variant desktop (@media (width >= theme(--breakpoint-md)) and (height >= theme(--breakpoint-md)));
+
 @custom-variant data-expanded (&[data-ui~="expanded"]);
 @custom-variant data-checked (&[data-ui~="checked"]);
 
@@ -17,7 +23,77 @@
   );
 } */
 
+@layer components {
+  .card {
+    @apply rounded-sm backdrop-blur-lg shadow-md;
+    @apply dark:bg-layout-dark-base/25 bg-layout-light-base/25;
+    @apply inset-ring-1 dark:inset-ring-layout-light-inset/20 inset-ring-layout-dark-inset/20;
+  }
+}
+
 @layer utilities {
+  .app-layout {
+    display: grid;
+    padding: 4px;
+
+    grid-template-areas:
+      "header"
+      "."
+      "content"
+      "."
+      "left"
+      "."
+      "menu"
+      "."
+      "footer";
+    grid-template-columns: 1fr;
+    grid-template-rows:
+      40px 4px minmax(0, var(--content-size))
+      var(--content-left-gap) minmax(0, var(--left-size)) 4px
+      40px var(--content-footer-gap) minmax(0, auto);
+
+    @variant desktop {
+      grid-template-areas:
+        "menu . header header header  header header"
+        "menu . .      .      .       .      .     "
+        "menu . left   .      content .      right"
+        "menu . .      .      .       .      .     "
+        "menu . footer footer footer  footer footer";
+      grid-template-columns:
+        minmax(40px, auto) 4px var(--left-size) var(--content-left-gap) minmax(
+          0,
+          var(--content-size)
+        )
+        4px
+        minmax(40px, var(--right-size));
+      grid-template-rows: 40px 4px 1fr var(--content-footer-gap) minmax(0, auto);
+    }
+  }
+
+  .grid-area-menu {
+    grid-area: menu;
+  }
+
+  .grid-area-header {
+    grid-area: header;
+  }
+
+  .grid-area-left {
+    grid-area: left;
+  }
+
+  .grid-area-right {
+    grid-area: right;
+  }
+
+  .grid-area-content {
+    grid-area: content;
+  }
+
+  .grid-area-footer {
+    grid-area: footer;
+  }
+
   .PopoverContent {
     animation-duration: 400ms;
     animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);

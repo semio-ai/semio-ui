@@ -1,6 +1,7 @@
 export * from "./functions/stamp-to-visual-time";
 
 export * from "./layout";
+export * from "./layout-new";
 export * from "./stepper";
 export * from "./menu";
 export * from "./spinner";
