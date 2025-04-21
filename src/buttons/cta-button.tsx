@@ -1,6 +1,5 @@
 import { ForwardedRef, ButtonHTMLAttributes, forwardRef } from "react";
 import { clsx } from "clsx";
-import { getFontSize, getHeight } from "../style-functions";
 import { Variant, Size } from "../types";
 
 export interface CallToActionButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -22,8 +21,9 @@ export const CallToActionButton = forwardRef(
           "transition-colors capitalize",
           "dark:text-white text-black",
           "py-2 px-4 flex flex-row items-center",
-          getHeight(size),
-          getFontSize(size),
+          size,
+          "sized-height",
+          "sized-text",
           backgroundStyles[variant],
           borderStyles[variant],
           className,

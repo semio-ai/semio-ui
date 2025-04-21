@@ -14,7 +14,6 @@ import { useHover } from "@use-gesture/react";
 import { clsx } from "clsx";
 import { useNumeric } from "../hooks/use-numeric";
 import { Size } from "../types";
-import { getHeight, getFontSize } from "../style-functions";
 import { StyledInput } from "./styled-input";
 
 enableBoundaryChecking(false);
@@ -45,8 +44,9 @@ const InputWrapper = forwardRef(
         {...forwardedProps}
         className={clsx(
           "flex flex-row w-full touch-none p-0 overflow-hidden rounded-none items-baseline",
-          getHeight(size),
-          "outline outline-1 outline-offset-2 transition-[outline-color,background]",
+          size,
+          "sized-height",
+          "outline outline-offset-2 transition-[outline-color,background]",
         )}
         // Tailwind does not support truly dynamic styles, so we have to use inline styles here
         style={{
@@ -201,7 +201,7 @@ function InnerBasicNumberField({
           e.stopPropagation();
         }}
       />
-      <span className={clsx("w-fit font-mono pr-1 text-black dark:text-white", getFontSize(size))}>
+      <span className={clsx("w-fit font-mono pr-1 text-black dark:text-white", size, "sized-text")}>
         {units}
       </span>
     </InputWrapper>

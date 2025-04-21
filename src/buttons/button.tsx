@@ -8,14 +8,6 @@ import {
 import { clsx } from "clsx";
 import { alpha, altColor } from "@semio/utils";
 import { Variant, Size } from "../types";
-import {
-  getFontSize,
-  getHeight,
-  getHoverBorder,
-  getHoverButtonStyles,
-  getHoverTextStyles,
-  getWidth,
-} from "../style-functions";
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children?: ReactNode;
@@ -30,6 +22,7 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
   deemphasize?: boolean;
   invert?: boolean;
   border?: boolean;
+  callToAction?: boolean;
   submit?: boolean;
 }
 
@@ -61,6 +54,7 @@ export const Button = forwardRef(
       rightIcon,
       size = Size.Md,
       deemphasize = false,
+      callToAction = false,
       invert = false,
       border = false,
       submit = false,
@@ -70,6 +64,7 @@ export const Button = forwardRef(
   ) => {
     const iconOnly =
       (!rightIcon && children === undefined) || (!leftIcon && children === undefined);
+
     return (
       <button
         ref={ref}
@@ -78,37 +73,23 @@ export const Button = forwardRef(
         aria-label={altText}
         data-deemphasized={deemphasize}
         className={clsx(
-          "transition-colors",
-          "flex flex-row items-center",
-          size === "fit" ? "h-fit w-fit" : getHeight(size),
-          size !== "fit" && getFontSize(size),
-          getPaddingAndWidth(size, iconOnly),
-          iconOnly && "place-items-center",
-          !color && !invert && "dark:text-black text-white",
-          !color && (invert ? getHoverTextStyles(variant) : getHoverButtonStyles(variant)),
-          color &&
-            clsx(
-              "hover:text-(--darker-color) dark:hover:text-(--lighter-color) text-(--text-color)",
-              "disabled:hover:text-(--text-deemphasized-color)",
-              "dark:disabled:hover:text-(--text-deemphasized-color)",
-              "disabled:text-(--text-deemphasized-color)",
-              "data-[deemphasized=true]:hover:text-(--darker-deemphasized-color)",
-              "dark:data-[deemphasized=true]:hover:text-(--lighter-deemphasized-color)",
-              "data-[deemphasized=true]:text-(--text-deemphasized-color)",
-            ),
-          color &&
-            border &&
-            clsx(
-              "border border-solid",
-              "hover:border-(--darker-color) dark:hover:border-(--lighter-color) border-(--text-color)",
-              "disabled:hover:border-(--text-deemphasized-color)",
-              "dark:disabled:hover:border-(--text-deemphasized-color)",
-              "disabled:border-(--text-deemphasized-color)",
-              "data-[deemphasized=true]:hover:border-(--darker-deemphasized-color)",
-              "dark:data-[deemphasized=true]:hover:border-(--lighter-deemphasized-color)",
-              "data-[deemphasized=true]:border-(--text-deemphasized-color)",
-            ),
-          border && !color && getHoverBorder(variant),
+          !invert &&
+            !border &&
+            !callToAction &&
+            "variant-responsive-bg variant-responsive-appearing-outline text-black",
+          invert && !callToAction && "variant-responsive-text",
+          invert && border && !callToAction && "variant-responsive-persistent-outline",
+          callToAction && "cta-button",
+          "grid grid-rows-1 place-items-center",
+          leftIcon && children && rightIcon && "grid-cols-[auto_1fr_auto]",
+          leftIcon && children && !rightIcon && "grid-cols-[auto_1fr]",
+          !leftIcon && children && rightIcon && "grid-cols-[1fr_auto]",
+          leftIcon && !children && rightIcon && "grid-cols-[auto_auto]",
+          leftIcon && !children && !rightIcon && "grid-cols-[auto]",
+          size !== "fit" && size,
+          size !== "fit" && "sized-text sized-height",
+          size !== "fit" && iconOnly && "sized-width",
+          color ? "custom-color" : variant,
           props.className ?? "",
         )}
         disabled={disabled}
@@ -116,32 +97,40 @@ export const Button = forwardRef(
         style={
           color
             ? ({
-                "--text-color": color,
-                "--darker-color": altColor(color, -0.2),
-                "--lighter-color": altColor(color, 0.2),
-                "--text-deemphasized-color": alpha(color, 0.5),
-                "--darker-deemphasized-color": alpha(altColor(color, -0.2), 0.5),
-                "--lighter-deemphasized-color": alpha(altColor(color, 0.2), 0.5),
+                "--custom-color": color,
+                "--darker-custom-color": altColor(color, -0.1),
+                "--lighter-custom-color": altColor(color, 0.2),
+                "--deemphasized-custom-color": alpha(color, 0.5),
               } as CSSProperties)
             : undefined
         }
       >
-        {leftIcon}
-        <div className="flex-1">{children}</div>
-        {rightIcon}
+        {leftIcon && (
+          <div
+            className={clsx(
+              "grid place-items-center",
+              size === "fit" ? "h-fit w-fit" : size,
+              size !== "fit" && "sized-text sized-height sized-width",
+            )}
+          >
+            {leftIcon}
+          </div>
+        )}
+        {children && <div className="px-3 py-2">{children}</div>}
+        {rightIcon && (
+          <div
+            className={clsx(
+              "grid place-items-center",
+              size === "fit" ? "h-fit w-fit" : size,
+              size !== "fit" && "sized-text sized-height sized-width",
+            )}
+          >
+            {rightIcon}
+          </div>
+        )}
       </button>
     );
   },
 );
 
 Button.displayName = "Button";
-
-function getPaddingAndWidth(size: Size | "fit", onlyIcon: boolean): string {
-  if (size === "fit") {
-    return "";
-  } else if (onlyIcon) {
-    return clsx("p-2", getWidth(size));
-  } else {
-    return "py-2 px-4";
-  }
-}

@@ -9,11 +9,10 @@ import {
   ContextMenuItemIndicator,
 } from "@radix-ui/react-context-menu";
 import { CSSProperties, type ReactNode } from "react";
-import { alpha } from "@semio/utils";
+import { altColor } from "@semio/utils";
 import { IconPointFilled } from "@tabler/icons-react";
 import { clsx } from "clsx";
 import { NestedParent, Variant } from "../types";
-import { getItemSideStyle, getItemStyle } from "../style-functions";
 import { ScrollArea } from "../scroll-area";
 import { useNestedParent } from "./context";
 
@@ -61,9 +60,9 @@ export function NestedRadio({ variant, disabled, onChange, value, options }: Nes
             style={
               option.color
                 ? ({
-                    "--text-color-10": alpha(option.color, 0.1),
-                    "--text-color-50": alpha(option.color, 0.5),
-                    "--text-color-75": alpha(option.color, 0.75),
+                    "--custom-color": option.color,
+                    "--lighter-custom-color": altColor(option.color, 0.5),
+                    "--darker-custom-color": altColor(option.color, -0.5),
                     // "--text-color": option.color,
                   } as CSSProperties)
                 : {}
@@ -72,14 +71,15 @@ export function NestedRadio({ variant, disabled, onChange, value, options }: Nes
               "leading-none flex items-center",
               "h-8 text-sm px-[5px] relative pl-[30px] select-none outline-hidden",
               "data-disabled:pointer-events-none",
-              getItemStyle(option.color ? "custom" : variant),
+              "highlight-list-item",
+              option.color ? "custom-color" : variant,
             )}
           >
             <ItemIndicatorComponent
               forceMount
               className={clsx(
                 "absolute left-0 w-[30px] inline-flex items-center justify-center",
-                getItemSideStyle(option.color ? "custom" : variant),
+                "check-indicator",
               )}
             >
               {option.icon || <IconPointFilled size="13px" />}

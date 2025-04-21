@@ -731,8 +731,8 @@ export function getInputStyles(
     subtle && "dark:focus:text-white focus:text-black text-neutral-600 dark:text-neutral-400",
     !subtle && "text-black dark:text-white",
     bold ? "select-text font-bold" : "select-none font-normal",
-    constrainHeight && getHeight(size),
-    getFontSize(size),
+    // constrainHeight && getHeight(size),
+    // getFontSize(size),
     disabled ? "cursor-not-allowed" : (cursor ?? "cursor-text"),
     className,
   );

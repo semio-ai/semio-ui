@@ -3,7 +3,7 @@ import { IconPointFilled, IconSelector } from "@tabler/icons-react";
 import { clsx } from "clsx";
 // import { matchSorter } from "match-sorter";
 import { Size, Variant } from "./types";
-import { getOutline, getHeight, getBasicTextColor, getFontSize } from "./style-functions";
+import { getOutline } from "./style-functions";
 import { Dropdown } from "./dropdown";
 import { StaticIcon } from "./icons/static-icon";
 import { NestedSelect } from "./nested-elements/select";
@@ -73,18 +73,19 @@ export function Select<T extends string | string[]>({
         trigger={
           <div
             className={clsx(
-              // "dark:bg-neutral-950/20 bg-neutral-50/20",
+              "rounded-[1px]",
               "w-full flex flex-row flex-1 items-center",
-              "focus:outline focus:outline-1 focus:outline-offset-2",
-              "data-[state=open]:outline data-[state=open]:outline-1 data-[state=open]:outline-offset-2",
+              "focus:outline focus:outline-offset-2",
+              "data-[state=open]:outline data-[state=open]:outline-offset-2",
               "px-1",
+              size,
+              "sized-height",
               getOutline(variant),
-              getHeight(size),
             )}
           >
             {/* {typeof value === "string" && value ? ( */}
             <div
-              className={clsx("flex flex-1 flex-row items-center justify-center", getHeight(size))}
+              className={clsx("flex flex-1 flex-row items-center justify-center", "sized-height")}
             >
               <StaticIcon
                 size="fit"
@@ -101,11 +102,10 @@ export function Select<T extends string | string[]>({
                 }
                 className={clsx(
                   "flex flex-1 flex-row px-3 items-center text-ellipsis text-nowrap",
-                  getHeight(size),
-                  getFontSize(size),
-                  getBasicTextColor(
-                    options.find((o) => o.value === value)?.color ? "custom" : Variant.Default,
-                  ),
+                  "highlight-list-item",
+                  "sized-height",
+                  "sized-text",
+                  options.find((o) => o.value === value)?.color ? "custom-color" : Variant.Default,
                 )}
               >
                 {value ? options.find((o) => o.value === value)?.label : label}
@@ -145,28 +145,31 @@ export function Select<T extends string | string[]>({
           />
         )}
         {options.length === 0 && (
-          <div className={clsx("p-2 text-center text-neutral-500", getFontSize(size))}>
+          <div className={clsx("p-2 text-center text-neutral-500", "sized-text", size)}>
             No results found
           </div>
         )}
       </Dropdown>
       {Array.isArray(value) && value.length > 0 && (
         <div className="flex flex-wrap w-full max-w-80 gap-1">
-          {value.map((v) => (
-            <Chip
-              key={v}
-              variant={variant}
-              color={options.find((o) => o.value === v)?.color}
-              value={options.find((o) => o.value === v)?.label || "Unknown"}
-              size={smallerSize(size)}
-              icon={options.find((o) => o.value === v)?.icon}
-              onDelete={(e) => {
-                console.log("delete", v);
-                onChange(value.filter((f) => f !== v) as T);
-                e.stopPropagation();
-              }}
-            />
-          ))}
+          {value.map((v) => {
+            const option = options.find((o) => o.value === v);
+            return (
+              <Chip
+                key={v}
+                variant={variant}
+                color={option?.color}
+                size={smallerSize(size)}
+                onDelete={(e) => {
+                  console.log("delete", v);
+                  onChange(value.filter((f) => f !== v) as T);
+                  e.stopPropagation();
+                }}
+              >
+                {option?.label || "Unknown"}
+              </Chip>
+            );
+          })}
         </div>
       )}
     </div>

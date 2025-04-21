@@ -10,10 +10,9 @@ import {
 } from "@radix-ui/react-context-menu";
 import { type CSSProperties, type ReactNode } from "react";
 import { IconCheck, IconPoint } from "@tabler/icons-react";
-import { alpha } from "@semio/utils";
+import { altColor } from "@semio/utils";
 import { clsx } from "clsx";
 import { NestedParent, Variant } from "../types";
-import { getItemSideStyle, getItemStyle } from "../style-functions";
 import { useNestedParent } from "./context";
 
 export interface NestedCheckboxProps {
@@ -64,9 +63,9 @@ export function NestedCheckbox({
         style={
           color
             ? ({
-                "--text-color-50": alpha(color, 0.5),
-                "--text-color-75": alpha(color, 0.75),
-                // "--text-color": option.color,
+                "--custom-color": color,
+                "--lighter-custom-color": altColor(color, 0.5),
+                "--darker-custom-color": altColor(color, -0.5),
               } as CSSProperties)
             : {}
         }
@@ -74,14 +73,15 @@ export function NestedCheckbox({
           "text-sm text-inherit/50 leading-none flex items-center",
           "h-8 px-[5px] relative pl-[30px] select-none outline-hidden",
           "data-disabled:pointer-events-none",
-          getItemStyle(color ? "custom" : variant),
+          "highlight-list-item",
+          color ? "custom-color" : variant,
         )}
       >
         <ItemIndicatorComponent
           forceMount
           className={clsx(
             "absolute left-0 w-[30px] inline-flex items-center justify-center",
-            getItemSideStyle(color ? "custom" : variant),
+            "check-indicator",
           )}
         >
           {icon || (value ? <IconCheck size="13px" /> : <IconPoint size="13px" />)}

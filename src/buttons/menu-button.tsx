@@ -78,13 +78,13 @@ export function MenuButton({
 const getSelectedStyles = (variant: Variant): string => {
   switch (variant) {
     case Variant.Primary:
-      return "dark:aria-selected:text-primary-100 aria-selected:text-primary-900 hover:dark:aria-selected:text-primary-100 hover:aria-selected:text-primary-900";
+      return "dark:aria-selected:text-primary-400 aria-selected:text-primary-600 hover:dark:aria-selected:text-primary-400 hover:aria-selected:text-primary-600";
     case Variant.Secondary:
-      return "dark:aria-selected:text-secondary-100 aria-selected:text-secondary-900 hover:dark:aria-selected:text-secondary-100 hover:aria-selected:text-secondary-900";
+      return "dark:aria-selected:text-secondary-400 aria-selected:text-secondary-600 hover:dark:aria-selected:text-secondary-400 hover:aria-selected:text-secondary-600";
     case Variant.Tertiary:
-      return "dark:aria-selected:text-tertiary-100 aria-selected:text-tertiary-900 hover:dark:aria-selected:text-tertiary-100 hover:aria-selected:text-tertiary-900";
+      return "dark:aria-selected:text-tertiary-400 aria-selected:text-tertiary-600 hover:dark:aria-selected:text-tertiary-400 hover:aria-selected:text-tertiary-600";
     case Variant.Default:
     default:
-      return "dark:aria-selected:text-neutral-100 aria-selected:text-neutral-900 hover:dark:aria-selected:text-neutral-100 hover:aria-selected:text-neutral-900";
+      return "dark:aria-selected:text-neutral-400 aria-selected:text-neutral-600 hover:dark:aria-selected:text-neutral-400 hover:aria-selected:text-neutral-600";
   }
 };

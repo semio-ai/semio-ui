@@ -4,6 +4,14 @@ import { IconUser } from "@tabler/icons-react";
 
 const meta: Meta<typeof Chip> = {
   component: Chip,
+  decorators: [
+    (Story) => (
+      <div className="grid place-items-center p-5 h-full">
+        {/* 👇 Decorators in Storybook also accept a function. Replace <Story/> with Story() to enable it  */}
+        <Story />
+      </div>
+    ),
+  ],
 };
 
 export default meta;
@@ -19,8 +27,8 @@ export const Primary: Story = {
   render: (props) => <Chip {...props} />,
   name: "Default Chip",
   args: {
-    value: "Hello World",
-    icon: <IconUser />,
+    children: "Hello World",
+    renderIcon: (cn) => <IconUser className={cn} />,
     variant: Variant.Primary,
     onDelete: () => {
       // eslint-disable-next-line no-console -- This is a demo
@@ -32,8 +40,8 @@ export const Primary: Story = {
 export const CustomColor: Story = {
   render: (props) => <Chip {...props} />,
   args: {
-    value: "Hello World",
-    icon: <IconUser />,
+    children: "Hello World",
+    renderIcon: (cn: string) => <IconUser className={cn} />,
     color: "#ee11ee",
     onDelete: () => {
       // eslint-disable-next-line no-console -- This is a demo
@@ -45,8 +53,8 @@ export const CustomColor: Story = {
 export const ExtraSmall: Story = {
   render: (props) => <Chip {...props} />,
   args: {
-    value: "Hello World",
-    icon: <IconUser />,
+    children: "Hello World",
+    renderIcon: (cn: string) => <IconUser className={cn} />,
     size: Size.Xs,
     variant: Variant.Info,
     onDelete: () => {
@@ -59,8 +67,8 @@ export const ExtraSmall: Story = {
 export const Small: Story = {
   render: (props) => <Chip {...props} />,
   args: {
-    value: "Hello World",
-    icon: <IconUser />,
+    children: "Hello World",
+    renderIcon: (cn: string) => <IconUser className={cn} />,
     size: Size.Sm,
     variant: Variant.Info,
     onDelete: () => {
@@ -73,9 +81,23 @@ export const Small: Story = {
 export const Large: Story = {
   render: (props) => <Chip {...props} />,
   args: {
-    value: "Hello World",
-    icon: <IconUser />,
+    children: "Hello World",
+    renderIcon: (cn: string) => <IconUser className={cn} />,
     size: Size.Lg,
+    variant: Variant.Info,
+    onDelete: () => {
+      // eslint-disable-next-line no-console -- This is a demo
+      console.log("Delete");
+    },
+  },
+};
+
+export const ExtraLarge: Story = {
+  render: (props) => <Chip {...props} />,
+  args: {
+    children: "Hello World",
+    renderIcon: (cn: string) => <IconUser className={cn} />,
+    size: Size.Xl,
     variant: Variant.Info,
     onDelete: () => {
       // eslint-disable-next-line no-console -- This is a demo
@@ -87,7 +109,7 @@ export const Large: Story = {
 export const NoIcon: Story = {
   render: (props) => <Chip {...props} />,
   args: {
-    value: "Hello World",
+    children: "Hello World",
     variant: Variant.Info,
     onDelete: () => {
       // eslint-disable-next-line no-console -- This is a demo

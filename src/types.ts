@@ -76,22 +76,27 @@ export enum Size {
   /**
    * Extra small size.
    */
-  Xs = "xs",
+  Xs = "size-xs",
 
   /**
    * Small size.
    */
-  Sm = "sm",
+  Sm = "size-sm",
 
   /**
    * Medium size (default).
    */
-  Md = "md",
+  Md = "size-md",
 
   /**
    * Large size.
    */
-  Lg = "lg",
+  Lg = "size-lg",
+
+  /**
+   * Extra large size.
+   */
+  Xl = "size-xl",
 }
 
 /**

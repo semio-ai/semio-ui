@@ -10,18 +10,26 @@ export interface StatusProps {
   children: ReactNode;
   text?: string;
   hidden?: boolean;
+  className?: string;
 }
 
 export const Status = forwardRef(
   (
-    { variant = Variant.Default, placement = "top-right", text, children, hidden }: StatusProps,
+    {
+      variant = Variant.Default,
+      placement = "top-right",
+      text,
+      children,
+      hidden,
+      className,
+    }: StatusProps,
     ref: ForwardedRef<HTMLDivElement>,
   ) => {
     if (hidden) {
       return children;
     }
     return (
-      <div ref={ref} className="relative">
+      <div ref={ref} className={clsx("relative", className)}>
         {children}
         <div
           className={clsx(

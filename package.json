@@ -69,7 +69,6 @@
   },
   "devDependencies": {
     "@semio/eslint-config": "*",
-    "@semio/tailwind-config": "*",
     "@semio/typescript-config": "*",
     "@types/lodash": "^4.17.0",
     "@types/react": "^18.3.1",

@@ -1,13 +1,24 @@
-import type { MutableRefObject, ReactNode, CSSProperties, MouseEvent } from "react";
-import { memo, useCallback, useEffect, useRef, useState } from "react";
+import type {
+  MutableRefObject,
+  ReactNode,
+  CSSProperties,
+  MouseEvent,
+  MouseEventHandler,
+} from "react";
+import { memo, useCallback, useEffect, useRef } from "react";
 import { clsx } from "clsx";
 import { motion, AnimatePresence, TargetAndTransition } from "motion/react";
 import { useGesture } from "@use-gesture/react";
 import { atom, useAtom, useAtomValue, useSetAtom } from "jotai";
 import { observe } from "jotai-effect";
-import { IconChevronLeftPipe, IconChevronRightPipe, IconSquare } from "@tabler/icons-react";
+import { IconChevronRightPipe, IconSquare } from "@tabler/icons-react";
 import { Button } from "./buttons/button";
 import { IconHome } from "./icons/home";
+import { Select } from "./select";
+import { Size, Variant } from "./types";
+import { Status } from "./status";
+import { Tooltip } from "./tooltip";
+import { ToggleGroupProps } from "./toggle-group";
 
 export type MenuItemClickFn = (id: string, event: MouseEvent) => Promise<void> | void;
 
@@ -32,18 +43,10 @@ export interface PaneSpec {
 }
 
 export interface LayoutNewProps {
-  menu: ReactNode;
-  leftSidebar?: ReactNode;
-  rightSidebar?: ReactNode;
-  bottomPanel?: ReactNode;
-  children: ReactNode;
-  menuRef?: MutableRefObject<HTMLDivElement | null>;
-  leftSidebarRef?: MutableRefObject<HTMLDivElement | null>;
-  rightSidebarRef?: MutableRefObject<HTMLDivElement | null>;
-  bottomPanelRef?: MutableRefObject<HTMLDivElement | null>;
-  style?: CSSProperties;
-  gradient?: boolean;
   className?: string;
+  children?: ReactNode;
+  homeIcon?: ReactNode;
+  homeText?: string;
 }
 
 function TestPane() {
@@ -65,39 +68,24 @@ function TestPane() {
  *
  * TODO: Update with resizeable panes and pop out windows.
  *
- * @param menu - The menu component.
- * @param leftSidebar - The left sidebar component.
- * @param rightSidebar - The right sidebar component.
- * @param bottomPanel - The bottom panel component.
- * @param children - The content to be rendered in the main body.
+ * @param className - The class name applied to the root element.
  */
-export function InnerLayoutNew({
-  menu,
-  leftSidebar,
-  rightSidebar,
-  bottomPanel,
-  children,
-  menuRef,
-  leftSidebarRef,
-  rightSidebarRef,
-  bottomPanelRef,
-  style,
-  gradient,
-  className,
-}: LayoutNewProps) {
+export function InnerLayoutNew({ className, homeIcon, homeText }: LayoutNewProps) {
   const root = useRef<HTMLDivElement>();
 
   const { contentWidth, leftWidth, rightWidth, leftMenuItems, rightMenuItems, menuExpanded } =
     useLayoutState();
 
+  const desktop = useAtomValue(desktopAtom);
   const leftRegionActive = useAtomValue(leftRegionActiveAtom);
   const rightRegionActive = useAtomValue(rightRegionActiveAtom);
   const footerRegionActive = useAtomValue(footerRegionActiveAtom);
 
   const { setPanes, toggleMenu, togglePaneRegion } = useLayoutActions();
 
+  const activeLeftPaneId = useAtomValue(activeLeftPaneAtom);
+
   useEffect(() => {
-    console.log("running layout effect");
     setPanes([
       {
         id: "one",
@@ -117,6 +105,14 @@ export function InnerLayoutNew({
         id: "inspect",
         name: "Inspector",
         content: <div className="w-[250px] h-full bg-info-500/30">Inspector Content</div>,
+        size: "auto",
+        inRightMenu: true,
+        inLeftMenu: false,
+      },
+      {
+        id: "details",
+        name: "Details",
+        content: <div className="w-[250px] h-full bg-violet-500/30">Details Content</div>,
         size: "auto",
         inRightMenu: true,
         inLeftMenu: false,
@@ -181,35 +177,34 @@ export function InnerLayoutNew({
             "desktop:w-10 desktop:group-data-expanded/menu:w-48 desktop:flex-col desktop:justify-start",
           )}
         >
-          <button
-            type="button"
-            role="tab"
-            className={clsx(
-              "hidden desktop:grid w-10 h-10 place-items-center",
-              "desktop:group-data-expanded/menu:w-48 transition-[width]",
-            )}
-            onClick={() => {
-              toggleMenu();
-            }}
-          >
-            <IconHome />
-          </button>
+          {desktop && (
+            <MenuBarButton
+              key="menu-home-toggle"
+              onClick={() => {
+                toggleMenu();
+              }}
+              icon={homeIcon ?? <IconHome />}
+            >
+              {homeText ?? "Home"}
+            </MenuBarButton>
+          )}
           {leftMenuItems.map((leftMenuItem) => (
-            <button
-              type="button"
-              role="tab"
-              className="w-10 h-10 grid place-items-center"
+            <MenuBarButton
               key={leftMenuItem.id}
-              onClick={(event) => {
-                const callFn = async () => {
+              onClick={(e) => {
+                const callFn = async (event: MouseEvent) => {
                   await leftMenuItem.clickFn?.(leftMenuItem.id, event);
                   togglePaneRegion(PaneRegion.Left, leftMenuItem.id);
                 };
-                void callFn();
+                void callFn(e);
               }}
+              hoverable
+              variant={Variant.Primary}
+              icon={leftMenuItem.icon}
+              active={leftMenuItem.id === activeLeftPaneId}
             >
-              {leftMenuItem.icon}
-            </button>
+              {leftMenuItem.name}
+            </MenuBarButton>
           ))}
         </div>
       </div>
@@ -225,9 +220,9 @@ export function InnerLayoutNew({
               toggleMenu();
             }}
           >
-            <IconHome />
+            {homeIcon ?? <IconHome />}
           </button>
-          Header
+          <p className="desktop:hidden">{homeText ?? "Home"}</p>
         </div>
       </div>
 
@@ -243,41 +238,52 @@ export function InnerLayoutNew({
       </div>
 
       {/* Right Sidebar */}
-      <div className="grid-area-right bg-cyan-500 w-full h-full hidden desktop:flex overflow-hidden">
-        {rightRegionActive && (
-          <div className="grid grid-cols-1 grid-rows-[40px_auto]">
-            <div className="flex flex-row h-full justify-between items-center">
-              TABS
-              <button
-                type="button"
-                role="tab"
-                className="w-10 h-10 grid place-items-center"
-                disabled={
-                  rightMenuItems.length === 0 ||
-                  rightMenuItems.filter((item) => !item.disabled).length === 0
-                }
-                onClick={() => togglePaneRegion(PaneRegion.Right, rightMenuItems[0]?.id)}
-              >
-                <IconChevronRightPipe />
-              </button>
+      <div className="grid-area-right w-full h-full hidden desktop:flex overflow-hidden">
+        <div
+          data-ui={rightRegionActive ? "expanded" : ""}
+          className="card overflow-clip grid grid-cols-1 grid-rows-[40px_0fr] data-expanded:h-auto h-10 data-expanded:grid-rows-[40px_auto] transition-[height] group/right"
+        >
+          <div className="flex flex-row h-10 group-data-expanded/right:h-full justify-between items-center">
+            <div className="hidden group-data-expanded/right:flex flex-row h-10 w-full items-center justify-center p-2">
+              {rightMenuItems.length === 1 && rightMenuItems[0]?.name}
+              {rightMenuItems.length > 1 && (
+                <Select
+                  size={Size.Sm}
+                  options={rightMenuItems.map((item) => ({
+                    label: item.name,
+                    value: item.id,
+                  }))}
+                  onChange={(value) => {
+                    const selected = rightMenuItems.find((item) => item.id === value);
+                    if (selected) {
+                      togglePaneRegion(PaneRegion.Right, selected.id);
+                    }
+                  }}
+                  value={rightMenuItems.find((item) => item.region === PaneRegion.Right)?.id}
+                />
+              )}
             </div>
-            <PanelContent region={PaneRegion.Left} />
+            <button
+              type="button"
+              role="tab"
+              className="w-10 h-10 grid place-items-center"
+              disabled={
+                rightMenuItems.length === 0 ||
+                rightMenuItems.filter((item) => !item.disabled).length === 0
+              }
+              onClick={() => togglePaneRegion(PaneRegion.Right, rightMenuItems[0]?.id)}
+            >
+              <IconChevronRightPipe
+                className={clsx(
+                  "transition-transform",
+                  "rotate-180 group-data-expanded/right:rotate-360",
+                  // "-scale-x-100 group-data-expanded/right:scale-x-100",
+                )}
+              />
+            </button>
           </div>
-        )}
-        {!rightRegionActive && (
-          <button
-            type="button"
-            role="tab"
-            className="w-10 h-10"
-            disabled={
-              rightMenuItems.length === 0 ||
-              rightMenuItems.filter((item) => !item.disabled).length === 0
-            }
-            onClick={() => togglePaneRegion(PaneRegion.Right, rightMenuItems[0]?.id)}
-          >
-            <IconChevronLeftPipe />
-          </button>
-        )}
+          <PanelContent region={PaneRegion.Right} />
+        </div>
       </div>
 
       {/* Content */}
@@ -291,16 +297,89 @@ export function InnerLayoutNew({
       </div>
 
       {/* Footer */}
-      <div
-        className={clsx(
-          "grid-area-footer w-full h-full overflow-hidden",
-
-          // footerRegionActive && "pb-1 pt-0.5",
-        )}
-      >
+      <div className={clsx("grid-area-footer w-full h-full overflow-hidden")}>
         <PanelContent region={PaneRegion.Footer} />
       </div>
     </div>
+  );
+}
+
+interface MenuBarButtonProps {
+  children: string;
+  altText?: string;
+  icon: ReactNode;
+  onClick?: MouseEventHandler;
+  active?: boolean;
+  hoverable?: boolean;
+  variant?: Variant;
+  status?: {
+    variant?: Variant;
+    placement?: "top-left" | "top-right" | "bottom-left" | "bottom-right";
+    text?: string;
+  };
+}
+
+function MenuBarButton({
+  children,
+  altText,
+  icon,
+  onClick,
+  active,
+  hoverable,
+  status,
+  variant,
+}: MenuBarButtonProps) {
+  const menuOpen = useAtomValue(menuStateAtom);
+  const desktop = useAtomValue(desktopAtom);
+  const Wrapper = status ? Status : "div";
+  const wrapperProps = status
+    ? {
+        variant: status.variant,
+        placement: status.placement,
+        text: status.text,
+        className: clsx("variant-responsive-selectable-text", variant),
+      }
+    : {
+        className: clsx("variant-responsive-selectable-text", variant),
+      };
+
+  return (
+    <button
+      type="button"
+      role="tab"
+      aria-selected={active}
+      className={clsx(
+        variant,
+        "w-10 group/tab h-10 text-neutral-500 overflow-hidden",
+        desktop && "group-data-expanded/menu:w-48 group-data-expanded/menu:origin-[20px_50%] ",
+        hoverable && "dark:hover:text-neutral-400 hover:text-neutral-600",
+        hoverable && "hover:scale-105 scale-100",
+        "origin-center overflow-hidden transition-all",
+        "grid place-items-center grid-cols-[40px_1fr] grid-rows-1 gap-[6px]",
+        "",
+      )}
+      onClick={onClick}
+    >
+      <Tooltip
+        invert
+        variant={active ? variant : Variant.Default}
+        controlledState={menuOpen ? [false, () => {}] : undefined}
+        content={altText ?? children}
+        side={desktop ? "right" : "top"}
+      >
+        <Wrapper {...wrapperProps}>{icon}</Wrapper>
+      </Tooltip>
+      <span
+        className={clsx(
+          desktop && "group-data-expanded/menu:opacity-100",
+          "opacity-0 text-left w-[150px]",
+          "variant-responsive-selectable-text",
+          variant,
+        )}
+      >
+        {children}
+      </span>
+    </button>
   );
 }
 
@@ -308,6 +387,20 @@ export interface ActivePaneState {
   left?: string;
   right?: string;
   footer?: string;
+}
+
+export interface FieldToolbarItem {
+  type: "field-toolbar";
+  component: ReactNode;
+}
+
+export interface ToggleGroupItem extends ToggleGroupProps {
+  type: "toggle-group";
+}
+
+export interface ButtonGroupItem {
+  type: "button-group";
+  component: ReactNode;
 }
 
 export interface LayoutState {
@@ -333,6 +426,12 @@ export interface LayoutActions {
 const menuStateAtom = atom<boolean>(false);
 const panesAtom = atom<PaneSpec[]>([]);
 const desktopAtom = atom<boolean>(false);
+
+const activeLeftPaneAtom = atom<string | undefined>((get) => {
+  const panes = get(panesAtom);
+  const active = panes.find((p) => p.region === PaneRegion.Left && !p.shouldClose);
+  return active?.id;
+});
 
 const leftRegionActiveAtom = atom<boolean>((get) => {
   const panes = get(panesAtom);
@@ -444,11 +543,11 @@ export function useLayoutActions(): LayoutActions {
   }, [setMenuExpanded, menuExpandedRef]);
 
   const togglePaneRegion = useCallback(
-    (region: PaneRegion, id: string) => {
+    (region: PaneRegion, id: string, preventSameClose = false) => {
       // First, find if the current pane id is currently in that region;
       const currentPaneInRegion = panesRef.current.find((p) => p.id === id && p.region === region);
       // Don't close the pane directly, but set the flag so that it knows it should close
-      if (currentPaneInRegion) {
+      if (currentPaneInRegion && !preventSameClose) {
         const newPanes = panesRef.current.map((p) =>
           p.id === id ? { ...p, shouldClose: true } : p,
         );
@@ -561,12 +660,15 @@ export function PanelContent({ region }: { region: PaneRegion }) {
               animate={variants[1]}
               exit={variants[0]}
               transition={{ duration: 0.15, ease: "anticipate" }}
-              className="card h-full w-full overflow-clip"
+              className={clsx(
+                "w-full overflow-clip",
+                pane.region !== PaneRegion.Right && "card h-full",
+              )}
             >
               {pane.content}
             </motion.div>
           );
-        }
+        } else return null;
       })}
     </AnimatePresence>
   );
@@ -590,8 +692,8 @@ function getVariants(
       ];
     case PaneRegion.Right:
       return [
-        { opacity: 0, translateX: 50 },
-        { opacity: 1, translateX: 0 },
+        { opacity: 0, translateX: 50, height: 0 },
+        { opacity: 1, translateX: 0, height: "auto" },
       ];
     case PaneRegion.Footer:
       return [

@@ -4,7 +4,7 @@ import { clsx } from "clsx";
 import { IconX } from "@tabler/icons-react";
 import { ScrollArea } from "./scroll-area";
 import { Variant } from "./types";
-import { getBasicTextColor, getBorder } from "./style-functions";
+import { getBasicTextColor } from "./style-functions";
 import { Button } from "./buttons/button";
 
 export interface ModalProps {
@@ -48,32 +48,24 @@ export function Modal({
           className={clsx(
             "transition-opacity data-[state=open]:animate-fadeIn data-[state=closed]:animate-fadeOut",
             "fixed top-0 bottom-0 left-0 right-0 grid place-items-center",
-            "backdrop-blur-[2px] p-0",
+            "bg-white/30 dark:bg-black/30 p-0",
           )}
         >
           <Dialog.Content
             forceMount
             className={clsx(
               "flex flex-col focus:outline-hidden",
-              "data-[state=open]:animate-modalAppear data-[state=closed]:animate-modalDisappear",
-              "bg-neutral-50/50 dark:bg-neutral-950/50 backdrop-blur-lg shadow-md",
-              "border-t-2 border-solid",
-              "w-screen md:w-3/5 md:max-w-[750px]",
+              "card animated-modal",
+              variant,
+              "w-screen md:w-3/5 md:max-w-[750px] p-[0.5px]",
               "max-h-screen h-[100dvh] md:max-h-[85vh] md:h-fit",
-              getBorder(variant),
             )}
           >
             {!scrollDisabled && (
               <ScrollArea
-                className="md:max-h-[85dvh] max-h-[100dvh]"
+                className="md:max-h-[calc(85dvh-1px)] max-h-[calc(100dvh-1px)]"
                 header={
-                  <div
-                    className={clsx(
-                      "bg-neutral-50/50 dark:bg-neutral-950/50",
-                      "flex flex-col gap-1",
-                      !showHeader && "hidden",
-                    )}
-                  >
+                  <div className={clsx("flex flex-col gap-1", !showHeader && "hidden")}>
                     <div
                       className={clsx(
                         headerBottom ? "px-3 pt-3 pb-0" : "p-3",
@@ -123,16 +115,16 @@ export function Modal({
                   )
                 }
               >
-                <div className="flex-1 md:flex-none dark:text-white text-black bg-neutral-50/50 dark:bg-neutral-950/50">
+                <div className="flex-1 md:flex-none dark:text-white text-black p-[1px]">
                   {children}
                 </div>
               </ScrollArea>
             )}
             {scrollDisabled && (
-              <div className="backdrop-blur-md md:max-h-[85dvh] max-h-[100dvh] bg-neutral-50/50 dark:bg-neutral-950/50 flex flex-col">
+              <div className="md:max-h-[85dvh] max-h-[100dvh] flex flex-col p-[1px]">
                 <div
                   className={clsx(
-                    "bg-neutral-50/50 dark:bg-neutral-950/50",
+                    "text-black dark:text-white",
                     "flex flex-col gap-1",
                     !showHeader && "hidden",
                   )}

@@ -45,7 +45,7 @@ export function Dropzone<T extends BasicRowData>({
         "grid-cols-1 grid-rows-[2fr_3fr]",
         "focus:outline-hidden",
         "relative",
-        !(isDragActive && data.length === 0) && "backdrop-blur-md",
+        // !(isDragActive && data.length === 0) && "backdrop-blur-md",
         className,
       )}
     >

@@ -23,14 +23,13 @@ function Popover({ title, trigger, content, open, onStateChange, variant }: Popo
             align="center"
             sideOffset={4}
             className={clsx(
-              "PopoverContent",
+              "popover-content",
+              "colored-text card",
+              "rounded-sm",
               "w-96 p-4 shadow-md",
-              "bg-neutral-50/50 dark:bg-neutral-950/50 backdrop-blur-lg shadow-md",
-              "border-t-2 border-solid",
-              getBorder(variant),
             )}
           >
-            <PopoverPrimitive.Arrow className={clsx("fill-current", getBasicTextColor(variant))} />
+            <PopoverPrimitive.Arrow className={clsx("fill-current", "colored-carrot", variant)} />
 
             {title ?? (
               <div className="flex justify-between">

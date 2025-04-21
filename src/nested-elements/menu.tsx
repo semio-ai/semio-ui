@@ -14,7 +14,6 @@ import {
 import { IconChevronRight } from "@tabler/icons-react";
 import { clsx } from "clsx";
 import { NestedParent, Variant } from "../types";
-import { getItemSideStyle, getItemStyle, getBorder } from "../style-functions";
 import { useNestedParent } from "./context";
 
 export interface NestedMenuProps {
@@ -22,18 +21,10 @@ export interface NestedMenuProps {
   children: ReactNode;
   label?: string;
   variant?: Variant;
-  labelVariant?: Variant;
   disabled?: boolean;
 }
 
-export function NestedMenu({
-  left,
-  children,
-  label,
-  variant,
-  labelVariant,
-  disabled,
-}: NestedMenuProps) {
+export function NestedMenu({ left, children, label, variant, disabled }: NestedMenuProps) {
   const parent = useNestedParent();
 
   const SubComponent = parent === NestedParent.Dropdown ? DropdownMenuSub : ContextMenuSub;
@@ -51,14 +42,15 @@ export function NestedMenu({
           "text-sm leading-none flex items-center",
           "h-8 px-[5px] relative pl-[30px] select-none outline-hidden",
           "data-disabled:pointer-events-none",
-          getItemStyle(labelVariant),
+          "highlight-list-item",
+          variant,
         )}
       >
         {left && (
           <div
             className={clsx(
               "absolute left-0 w-[30px] inline-flex items-center justify-center",
-              getItemSideStyle(labelVariant),
+              "check-indicator",
             )}
           >
             {left}
@@ -66,7 +58,7 @@ export function NestedMenu({
         )}
         {label}
 
-        <div className={clsx("ml-auto pl-[20px]", getItemSideStyle(labelVariant))}>
+        <div className={clsx("ml-auto pl-[20px]", "check-indicator")}>
           <IconChevronRight size="13px" />
         </div>
       </SubTriggerComponent>
@@ -82,7 +74,8 @@ export function NestedMenu({
               "min-w-[220px] p-[5px] shadow-md",
               "bg-neutral-50/50 dark:bg-neutral-950/50 backdrop-blur-lg",
               "border-t-2 border-solid",
-              getBorder(variant),
+              variant,
+              "border-static",
             )}
           >
             {children}

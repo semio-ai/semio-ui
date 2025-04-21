@@ -259,4 +259,5 @@ const sizeLookup: Record<Size, number> = {
   [Size.Sm]: 384,
   [Size.Md]: 448,
   [Size.Lg]: 512,
+  [Size.Xl]: 576,
 };

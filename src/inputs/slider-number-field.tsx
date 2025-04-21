@@ -17,7 +17,6 @@ import { clsx } from "clsx";
 import { useGesture } from "@use-gesture/react";
 import { useNumeric } from "../hooks/use-numeric";
 import { Size } from "../types";
-import { getHeight, getFontSize } from "../style-functions";
 import { StyledInput } from "./styled-input";
 
 enableBoundaryChecking(false);
@@ -68,8 +67,8 @@ const InputWrapper = forwardRef(
         {...(forwardedProps as any)}
         className={clsx(
           "flex flex-row w-full touch-none p-0 overflow-hidden rounded-none items-baseline",
-          getHeight(size),
-          "outline outline-1 outline-offset-2 transition-[outline-color,background]",
+          "outline outline-offset-2 transition-[outline-color,background]",
+          "sized-height sized-text",
         )}
         // Tailwind does not support truly dynamic styles, so we have to use inline styles here
         style={{
@@ -304,7 +303,6 @@ function InnerSliderNumberField({
             sliderMode === SliderMode.Label
               ? "cursor-text select-none font-bold"
               : "cursor-ew-resize select-none font-normal selection:bg-transparent",
-            getFontSize(size),
           )}
           value={label}
           onDoubleClick={() => {
@@ -349,9 +347,7 @@ function InnerSliderNumberField({
           onFocusExternal?.(e as unknown as React.FocusEvent<HTMLInputElement>);
         }}
       />
-      <span className={clsx("w-fit font-mono pr-1 text-black dark:text-white", getFontSize(size))}>
-        {units}
-      </span>
+      <span className={clsx("w-fit font-mono pr-1 text-black dark:text-white")}>{units}</span>
     </InputWrapper>
   );
 }

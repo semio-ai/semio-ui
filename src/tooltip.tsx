@@ -3,6 +3,7 @@ import { clsx } from "clsx";
 import type { ReactNode } from "react";
 import { Variant } from "./types";
 import { getBasicTextColor, getBorder, getTooltipTextColor } from "./style-functions";
+import { AnimatePresence } from "motion/dist/react";
 
 export interface TooltipProps {
   content: ReactNode;
@@ -32,25 +33,24 @@ function Tooltip({
         <TooltipPrimitive.Portal>
           <TooltipPrimitive.Content
             side={side}
-            sideOffset={4}
+            sideOffset={6}
             className={clsx(
-              "data-[state=delayed-open]:data-[side=top]:animate-slideDownAndFade",
-              "data-[state=delayed-open]:data-[side=right]:animate-slideLeftAndFade",
-              "data-[state=delayed-open]:data-[side=left]:animate-slideRightAndFade",
-              "data-[state=delayed-open]:data-[side=bottom]:animate-slideUpAndFade",
+              "tooltip-content",
               "select-none inline-flex items-center px-2 py-0.5",
-              !invert && "bg-neutral-50/50 dark:bg-neutral-950/50 backdrop-blur-lg shadow-md",
-              invert && "bg-neutral-500/50 dark:bg-neutral-500/50 backdrop-blur-lg shadow-md",
-              "data-[side=bottom]:border-t-2 border-solid",
-              "data-[side=top]:border-b-2 border-solid",
-              "data-[side=right]:border-l-2 border-solid",
-              "data-[side=left]:border-r-2 border-solid",
+              invert ? "text-black card-invert" : "colored-text card",
+              variant,
               "z-10",
-              getBorder(variant),
-              getTooltipTextColor(variant, invert),
             )}
           >
-            <TooltipPrimitive.Arrow className={clsx("fill-current", getBasicTextColor(variant))} />
+            <TooltipPrimitive.Arrow
+              width={12}
+              height={6}
+              className={clsx(
+                "fill-current",
+                invert ? "colored-carrot-invert" : "colored-carrot",
+                variant,
+              )}
+            />
             {content}
           </TooltipPrimitive.Content>
         </TooltipPrimitive.Portal>

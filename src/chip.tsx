@@ -1,72 +1,83 @@
-import { CSSProperties, ReactNode, type MouseEventHandler } from "react";
+import { CSSProperties, ReactNode, type MouseEventHandler, cloneElement } from "react";
 import { IconX } from "@tabler/icons-react";
 import { clsx } from "clsx";
 import { Size, Variant } from "./types";
-import {
-  getBasicTextColor,
-  getChipColor,
-  getChipInsertSize,
-  getFontSize,
-  getHeight,
-} from "./style-functions";
 import { Button } from "./buttons/button";
+import { alpha, altColor } from "@semio/utils";
+import { StaticIcon } from "./icons/static-icon";
 
 export interface ChipProps {
-  value: string;
+  children: string;
   variant?: Variant;
   size?: Size;
   color?: string;
-  icon?: ReactNode;
+  renderIcon?: (className: string) => ReactNode;
   onDelete?: MouseEventHandler<HTMLButtonElement>;
 }
 
-export function Chip({ value, variant, size = Size.Md, color, icon, onDelete }: ChipProps) {
+export function Chip({
+  children,
+  variant,
+  size = Size.Md,
+  color,
+  renderIcon,
+  onDelete,
+}: ChipProps) {
   return (
     <div
       className={clsx(
-        getChipColor(color ? "custom" : variant),
-        "flex items-center gap-1 py-1 rounded-xs",
-        size === Size.Xs && "px-[4px]",
-        size === Size.Sm && "px-[5px]",
-        size === Size.Md && "px-[6px]",
-        size === Size.Lg && "px-[7px]",
-        getFontSize(size),
-        "dark:text-white text-black",
-        "drop-shadow-xs",
-        getHeight(size),
+        "variant-responsive-bg variant-responsive-text sized-text sized-height",
+        "grid grid-rows-1 place-items-center",
+        "px-2 gap-2",
+        "xs:px-1 xs:gap-1 sm:px-[6px] sm:gap-[6px]",
+        "xl:px-[10px] xl:gap-[10px]",
+        renderIcon && children && onDelete && "grid-cols-[auto_1fr_auto]",
+        renderIcon && children && !onDelete && "grid-cols-[auto_1fr]",
+        !renderIcon && children && onDelete && "grid-cols-[1fr_auto]",
+        renderIcon && !children && onDelete && "grid-cols-[auto_auto]",
+        renderIcon && !children && !onDelete && "grid-cols-[auto]",
+        color ? "custom-color" : variant,
+        size,
       )}
-      style={color ? ({ "--bg-color": color } as CSSProperties) : {}}
+      style={
+        color
+          ? ({
+              "--custom-color": color,
+              "--darker-custom-color": altColor(color, -0.1),
+              "--lighter-custom-color": altColor(color, 0.2),
+              "--deemphasized-custom-color": alpha(color, 0.5),
+            } as CSSProperties)
+          : undefined
+      }
     >
-      {icon && (
+      {renderIcon && (
         <div
-          style={color ? ({ "--text-color": color } as CSSProperties) : {}}
           className={clsx(
-            "dark:bg-white/50 bg-black/50 rounded-xs flex justify-between items-center p-0.5",
-            getBasicTextColor(color ? "custom" : variant),
-            getChipInsertSize(size),
+            size,
+            "sized-chip-insert",
+            "dark:bg-black/50 bg-white/50 rounded-xs grid place-items-center",
           )}
         >
-          {icon}
+          {renderIcon("w-4/5 h-4/5")}
         </div>
       )}
-      {value}
+      <div className="dark:text-black/75 text-white/75">{children}</div>
       {onDelete && (
-        <Button
+        <button
+          type="button"
           onClick={(e) => {
             onDelete(e);
             e.stopPropagation();
           }}
-          color={color}
-          variant={variant}
           className={clsx(
-            "dark:bg-white/50 bg-black/50 rounded-xs justify-between items-center",
-            "dark:hover:bg-white/75 hover:bg-black/75",
-            getChipInsertSize(size),
+            size,
+            "sized-chip-insert",
+            "dark:bg-black/50 bg-white/50 rounded-xs grid place-items-center",
+            "dark:hover:bg-black/75 hover:bg-white/75",
           )}
-          size="fit"
-          leftIcon={<IconX className={getChipInsertSize(size)} />}
-          invert
-        />
+        >
+          <IconX className="w-4/5 h-4/5" />
+        </button>
       )}
     </div>
   );

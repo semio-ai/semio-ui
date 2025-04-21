@@ -88,18 +88,12 @@ export function InnerScrollArea({
         <RadixScrollArea.Corner className="bg-black/5" />
       </RadixScrollArea.Root>
       {header && (
-        <div
-          ref={headerRef}
-          className="absolute top-0 left-0 right-0 backdrop-blur-md background-transparent"
-        >
+        <div ref={headerRef} className="absolute top-0 left-0 right-0">
           {header}
         </div>
       )}
       {footer && (
-        <div
-          ref={footerRef}
-          className="absolute bottom-0 left-0 right-0 backdrop-blur-md background-transparent"
-        >
+        <div ref={footerRef} className="absolute bottom-0 left-0 right-0">
           {footer}
         </div>
       )}

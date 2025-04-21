@@ -19,7 +19,7 @@ const Dropdown = forwardRef(
       <div className="text-left group flex flex-1">
         <NestedParentProvider value={NestedParent.Dropdown}>
           <DropdownPrimitive.Root>
-            <DropdownPrimitive.Trigger ref={ref} asChild>
+            <DropdownPrimitive.Trigger ref={ref} asChild className="focus:outline-none">
               {trigger}
             </DropdownPrimitive.Trigger>
             <DropdownPrimitive.Portal>
@@ -27,17 +27,14 @@ const Dropdown = forwardRef(
                 align="center"
                 sideOffset={3}
                 className={clsx(
+                  variant,
+                  "card",
                   "will-change-[opacity,transform]",
                   "data-[side=top]:animate-slideDownAndFade",
                   "data-[side=right]:animate-slideLeftAndFade",
                   "data-[side=bottom]:animate-slideUpAndFade",
                   "data-[side=left]:animate-slideRightAndFade",
-                  "min-w-[220px] shadow-md",
-                  "bg-neutral-50/50 dark:bg-neutral-950/50 backdrop-blur-lg shadow-md",
-                  "data-[side=bottom]:border-t-2 border-solid",
-                  "data-[side=top]:border-b-2 border-solid",
-                  "data-[side=right]:border-l-2 border-solid",
-                  "data-[side=left]:border-r-2 border-solid",
+                  "min-w-[220px]",
                   "max-h-(--radix-dropdown-menu-content-available-height)",
                   "w-[calc(var(--radix-dropdown-menu-trigger-width)+10px)]",
                   getBorder(variant),
