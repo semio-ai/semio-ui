@@ -10,7 +10,7 @@ import {
 } from "@radix-ui/react-context-menu";
 import { type CSSProperties, type ReactNode } from "react";
 import { IconCheck, IconPoint } from "@tabler/icons-react";
-import { altColor } from "@semio/utils";
+import { alpha, altColor } from "@semio/utils";
 import { clsx } from "clsx";
 import { NestedParent, Variant } from "../types";
 import { useNestedParent } from "./context";
@@ -24,6 +24,7 @@ export interface NestedSelectProps {
     label: string;
     value: string;
     disabled?: boolean;
+    variant?: Variant;
     color?: string;
     icon?: ReactNode;
   }[];
@@ -67,24 +68,27 @@ export function NestedSelect({ variant, disabled, onChange, values, options }: N
             option.color
               ? ({
                   "--custom-color": option.color,
-                  "--lighter-custom-color": altColor(option.color, 0.5),
-                  "--darker-custom-color": altColor(option.color, -0.5),
+                  "--darker-custom-color": altColor(option.color, -0.1),
+                  "--lighter-custom-color": altColor(option.color, 0.2),
+                  "--deemphasized-custom-color": alpha(option.color, 0.5),
+                  // "--text-color": option.color,
                 } as CSSProperties)
               : {}
           }
           className={clsx(
-            "text-sm text-inherit/50 leading-none flex items-center",
-            "h-8 px-[5px] relative pl-[30px] select-none outline-hidden",
+            "leading-none flex items-center rounded-xs group/item",
+            "h-7 text-sm px-[5px] relative pl-[30px] select-none outline-hidden",
             "data-disabled:pointer-events-none",
             "highlight-list-item",
-            option.color ? "custom-color" : variant,
+            option.color ? "custom-color" : (option.variant ?? variant),
           )}
         >
           <ItemIndicatorComponent
             forceMount
             className={clsx(
-              "absolute left-0 w-[30px] inline-flex items-center justify-center",
-              "check-indicator",
+              "absolute left-1 inline-flex items-center justify-center",
+              "check-indicator p-1",
+              option.color ? "custom-color" : (option.variant ?? variant),
             )}
           >
             {option.icon ||

@@ -19,8 +19,8 @@ import {
   useCallback,
   useState,
 } from "react";
-import { Variant } from "./types";
-import { getBasicTextColor } from "./style-functions";
+import { Variant } from "../types";
+import { getBasicTextColor } from "../style-functions";
 
 type FloatingResults = ReturnType<typeof useFloating>;
 interface ElementRefs {
@@ -100,10 +100,10 @@ const TrackedTooltip = forwardRef(
             ...containerStyles,
           }}
           className={clsx(
-            "select-none inline-flex items-center",
+            variant,
+            "card select-none inline-flex items-center",
             "pointer-events-none",
-            "bg-neutral-50/50 dark:bg-neutral-950/50 backdrop-blur-lg shadow-md",
-            getBasicTextColor(variant),
+            "colored-text overflow-clip",
           )}
         >
           {children}

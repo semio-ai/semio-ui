@@ -1,9 +1,8 @@
 import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 import { clsx } from "clsx";
-import type { ReactNode } from "react";
-import { Variant } from "./types";
-import { getBasicTextColor, getBorder, getTooltipTextColor } from "./style-functions";
-import { AnimatePresence } from "motion/dist/react";
+import { type ReactNode } from "react";
+import { Size, Variant } from "../types";
+import { Arrow } from "./arrow";
 
 export interface TooltipProps {
   content: ReactNode;
@@ -35,6 +34,8 @@ function Tooltip({
             side={side}
             sideOffset={6}
             className={clsx(
+              Size.Sm as string,
+              "sized-text",
               "tooltip-content",
               "select-none inline-flex items-center px-2 py-0.5",
               invert ? "text-black card-invert" : "colored-text card",
@@ -42,15 +43,9 @@ function Tooltip({
               "z-10",
             )}
           >
-            <TooltipPrimitive.Arrow
-              width={12}
-              height={6}
-              className={clsx(
-                "fill-current",
-                invert ? "colored-carrot-invert" : "colored-carrot",
-                variant,
-              )}
-            />
+            <TooltipPrimitive.Arrow asChild width={12} height={6}>
+              <Arrow filled={invert ?? false} variant={variant ?? Variant.Default} />
+            </TooltipPrimitive.Arrow>
             {content}
           </TooltipPrimitive.Content>
         </TooltipPrimitive.Portal>

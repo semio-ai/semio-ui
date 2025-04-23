@@ -4,7 +4,7 @@ import { atomOneDark, atomOneLight } from "react-syntax-highlighter/dist/esm/sty
 import { clsx } from "clsx";
 import { IconClipboardCheck, IconClipboardPlus } from "@tabler/icons-react";
 import { useTheme } from "./hooks/use-theme";
-import { Tooltip } from "./tooltip";
+import { Tooltip } from "./floating/tooltip";
 import { Button } from "./buttons/button";
 import { Variant, Theme } from "./types";
 
@@ -28,7 +28,12 @@ export function Snippet({ text, language, className }: SnippetProps) {
   }, [isCopied, setIsCopied]);
 
   return (
-    <div className={clsx("w-full bg-neutral-200 dark:bg-neutral-800", className)}>
+    <div
+      className={clsx(
+        "rounded-sm w-full bg-neutral-200 dark:bg-neutral-800 overflow-clip",
+        className,
+      )}
+    >
       {language && (
         <div className={clsx("py-1 px-4 w-full italic bg-neutral-300 dark:bg-neutral-700")}>
           {language}

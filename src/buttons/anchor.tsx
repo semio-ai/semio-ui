@@ -1,6 +1,5 @@
 import { clsx } from "clsx";
 import { Variant } from "../types";
-import { getHoverTextStyles } from "../style-functions";
 
 export interface AnchorProps {
   onClick: () => void;
@@ -13,7 +12,7 @@ export function Anchor({ onClick, variant, children }: AnchorProps) {
     <button
       type="button"
       onClick={onClick}
-      className={clsx(getHoverTextStyles(variant), "focus:outline-hidden")}
+      className={clsx(variant, "variant-responsive-text focus:outline-hidden")}
     >
       {children}
     </button>

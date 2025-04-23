@@ -1,10 +1,10 @@
 import * as DropdownPrimitive from "@radix-ui/react-dropdown-menu";
 import { clsx } from "clsx";
 import { ReactNode, ForwardedRef, forwardRef } from "react";
-import { NestedParent, Variant } from "./types";
-import { getBorder, getBasicTextColor } from "./style-functions";
-import { NestedParentProvider } from "./nested-elements/context";
-import { ScrollArea } from "./scroll-area";
+import { NestedParent, Variant } from "../types";
+import { NestedParentProvider } from "../nested-elements/context";
+import { ScrollArea } from "../scroll-area";
+import { Arrow } from "./arrow";
 
 export interface DropdownProps {
   trigger: ReactNode;
@@ -25,28 +25,25 @@ const Dropdown = forwardRef(
             <DropdownPrimitive.Portal>
               <DropdownPrimitive.Content
                 align="center"
+                collisionPadding={2}
                 sideOffset={3}
+                arrowPadding={2}
                 className={clsx(
                   variant,
-                  "card",
-                  "will-change-[opacity,transform]",
-                  "data-[side=top]:animate-slideDownAndFade",
-                  "data-[side=right]:animate-slideLeftAndFade",
-                  "data-[side=bottom]:animate-slideUpAndFade",
-                  "data-[side=left]:animate-slideRightAndFade",
-                  "min-w-[220px]",
+                  "card dropdown-content",
+                  "min-w-[220px] m-0.5",
                   "max-h-(--radix-dropdown-menu-content-available-height)",
                   "w-[calc(var(--radix-dropdown-menu-trigger-width)+10px)]",
-                  getBorder(variant),
                 )}
               >
-                <DropdownPrimitive.Arrow
-                  className={clsx("relative fill-current", getBasicTextColor(variant))}
-                />
+                <DropdownPrimitive.Arrow asChild width={12} height={6}>
+                  <Arrow filled={false} variant={variant ?? Variant.Default} />
+                </DropdownPrimitive.Arrow>
+
                 <ScrollArea
                   header={header}
                   shrink
-                  className={clsx("max-h-(--radix-dropdown-menu-content-available-height)")}
+                  className={clsx("max-h-(--radix-dropdown-menu-content-available-height) p-0.5")}
                 >
                   {children}
                 </ScrollArea>

@@ -4,6 +4,14 @@ import { useState } from "react";
 
 const meta: Meta<typeof TextField> = {
   component: TextField,
+  decorators: [
+    (Story) => (
+      <div className="grid place-items-center p-5 h-full">
+        {/* 👇 Decorators in Storybook also accept a function. Replace <Story/> with Story() to enable it  */}
+        <Story />
+      </div>
+    ),
+  ],
 };
 
 export default meta;
@@ -22,9 +30,9 @@ function TextFieldWithHooks(props: TextFieldProps): JSX.Element {
       <TextField
         {...props}
         value={t}
-        onChange={(v) => {
+        onChange={(v: string, e) => {
           setT(v);
-          props.onChange?.(v);
+          props.onChange?.(v, e);
         }}
       />
     </div>

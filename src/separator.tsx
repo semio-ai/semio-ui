@@ -29,7 +29,7 @@ export function Separator({
         )}
         style={
           {
-            "--separator-color": variant === "custom" && color ? color : undefined,
+            "--custom-color": variant === "custom" && color ? color : undefined,
           } as CSSProperties
         }
       >
@@ -37,9 +37,9 @@ export function Separator({
           orientation={orientation}
           className={clsx(
             "flex flex-1 data-[orientation=horizontal]:h-px data-[orientation=vertical]:w-px",
-            variant === "layout"
-              ? "dark:bg-layout-dark-separator/50 bg-layout-light-separator/50"
-              : getSeparatorStyle(variant),
+            variant === "layout" && "dark:bg-layout-dark-separator/50 bg-layout-light-separator/50",
+            color ? "custom-color" : variant,
+            "variant-separator-fill",
           )}
         />
         {children}
@@ -47,9 +47,9 @@ export function Separator({
           orientation={orientation}
           className={clsx(
             "flex flex-1 data-[orientation=horizontal]:h-px data-[orientation=vertical]:w-px",
-            variant === "layout"
-              ? "dark:bg-layout-dark-separator/50 bg-layout-light-separator/50"
-              : getSeparatorStyle(variant),
+            variant === "layout" && "dark:bg-layout-dark-separator/50 bg-layout-light-separator/50",
+            color ? "custom-color" : variant,
+            "variant-separator-fill",
           )}
         />
       </div>
@@ -57,12 +57,17 @@ export function Separator({
   } else {
     return (
       <RadixSeparator.Root
+        style={
+          {
+            "--custom-color": variant === "custom" && color ? color : undefined,
+          } as CSSProperties
+        }
         orientation={orientation}
         className={clsx(
           "flex data-[orientation=horizontal]:h-px data-[orientation=vertical]:w-px",
-          variant === "layout"
-            ? "dark:bg-layout-dark-separator/50 bg-layout-light-separator/50"
-            : getSeparatorStyle(variant),
+          variant === "layout" && "dark:bg-layout-dark-separator/50 bg-layout-light-separator/50",
+          color ? "custom-color" : variant,
+          "variant-separator-fill",
         )}
       />
     );

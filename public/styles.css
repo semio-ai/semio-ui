@@ -39,6 +39,42 @@
 } */
 
 @layer components {
+  .variant-text-carent-color {
+    @apply caret-default-500 selection:bg-default-500/50;
+
+    @variant custom-color {
+      @apply caret-(--custom-color) selection:bg-(--deemphasized-custom-color);
+    }
+
+    @variant primary {
+      @apply caret-primary-500 selection:bg-primary-500/50;
+    }
+
+    @variant secondary {
+      @apply caret-secondary-500 selection:bg-secondary-500/50;
+    }
+
+    @variant tertiary {
+      @apply caret-tertiary-500 selection:bg-tertiary-500/50;
+    }
+
+    @variant error {
+      @apply caret-error-500 selection:bg-error-500/50;
+    }
+
+    @variant warning {
+      @apply caret-warning-500 selection:bg-warning-500/50;
+    }
+
+    @variant success {
+      @apply caret-success-500 selection:bg-success-500/50;
+    }
+
+    @variant info {
+      @apply caret-info-500 selection:bg-info-500/50;
+    }
+  }
+
   .variant-responsive-bg {
     @apply transition-colors duration-100 ease-in-out rounded-xs;
     @apply hover:bg-default-600 dark:hover:bg-default-400 bg-default-500;
@@ -95,39 +131,39 @@
   }
 
   .variant-responsive-appearing-outline {
-    @apply focus:outline-solid hover:outline-solid outline-1 outline-offset-2 outline-transparent;
-    @apply hover:outline-default-600 dark:hover:outline-default-400;
+    @apply outline-0 focus:outline-2 hover:outline outline-offset-2 focus-within:outline;
+    @apply outline-default-600 dark:outline-default-400;
 
     @variant custom-color {
-      @apply hover:outline-(--darker-custom-color) dark:hover:outline-(--lighter-custom-color);
+      @apply outline-(--darker-custom-color) dark:outline-(--lighter-custom-color);
     }
 
     @variant primary {
-      @apply hover:outline-primary-600 dark:hover:outline-primary-400;
+      @apply outline-primary-600 dark:outline-primary-400;
     }
 
     @variant secondary {
-      @apply hover:outline-secondary-600 dark:hover:outline-secondary-400;
+      @apply outline-secondary-600 dark:outline-secondary-400;
     }
 
     @variant tertiary {
-      @apply hover:outline-tertiary-600 dark:hover:outline-tertiary-400;
+      @apply outline-tertiary-600 dark:outline-tertiary-400;
     }
 
     @variant info {
-      @apply hover:outline-info-600 dark:hover:outline-info-400;
+      @apply outline-info-600 dark:outline-info-400;
     }
 
     @variant success {
-      @apply hover:outline-success-600 dark:hover:outline-success-400;
+      @apply outline-success-600 dark:outline-success-400;
     }
 
     @variant warning {
-      @apply hover:outline-warning-600 dark:hover:outline-warning-400;
+      @apply outline-warning-600 dark:outline-warning-400;
     }
 
     @variant error {
-      @apply hover:outline-error-600 dark:hover:outline-error-400;
+      @apply outline-error-600 dark:outline-error-400 aria-invalid:outline;
     }
   }
 
@@ -201,43 +237,43 @@
 
     @variant primary {
       @apply hover:outline-primary-600 dark:hover:outline-primary-400 outline-primary-500;
-      @apply disabled:cursor-not-allowed disabled:outline-primary-500/50 disabled:hover:outline-primary-500/50;
+      @apply disabled:outline-primary-500/50 disabled:hover:outline-primary-500/50;
       @apply data-[deemphasized=true]:outline-primary-500/50 data-[deemphasized=true]:hover:outline-primary-500/50;
     }
 
     @variant secondary {
       @apply hover:outline-secondary-600 dark:hover:outline-secondary-400 outline-secondary-500;
-      @apply disabled:cursor-not-allowed disabled:outline-secondary-500/50 disabled:hover:outline-secondary-500/50;
+      @apply disabled:outline-secondary-500/50 disabled:hover:outline-secondary-500/50;
       @apply data-[deemphasized=true]:outline-secondary-500/50 data-[deemphasized=true]:hover:outline-secondary-500/50;
     }
 
     @variant tertiary {
       @apply hover:outline-tertiary-600 dark:hover:outline-tertiary-400 outline-tertiary-500;
-      @apply disabled:cursor-not-allowed disabled:outline-tertiary-500/50 disabled:hover:outline-tertiary-500/50;
+      @apply disabled:outline-tertiary-500/50 disabled:hover:outline-tertiary-500/50;
       @apply data-[deemphasized=true]:outline-tertiary-500/50 data-[deemphasized=true]:hover:outline-tertiary-500/50;
     }
 
     @variant info {
       @apply hover:outline-info-600 dark:hover:outline-info-400 outline-info-500;
-      @apply disabled:cursor-not-allowed disabled:outline-info-500/50 disabled:hover:outline-info-500/50;
+      @apply disabled:outline-info-500/50 disabled:hover:outline-info-500/50;
       @apply data-[deemphasized=true]:outline-info-500/50 data-[deemphasized=true]:hover:outline-info-500/50;
     }
 
     @variant success {
       @apply hover:outline-success-600 dark:hover:outline-success-400 outline-success-500;
-      @apply disabled:cursor-not-allowed disabled:outline-success-500/50 disabled:hover:outline-success-500/50;
+      @apply disabled:outline-success-500/50 disabled:hover:outline-success-500/50;
       @apply data-[deemphasized=true]:outline-success-500/50 data-[deemphasized=true]:hover:outline-success-500/50;
     }
 
     @variant warning {
       @apply hover:outline-warning-600 dark:hover:outline-warning-400 outline-warning-500;
-      @apply disabled:cursor-not-allowed disabled:outline-warning-500/50 disabled:hover:outline-warning-500/50;
+      @apply disabled:outline-warning-500/50 disabled:hover:outline-warning-500/50;
       @apply data-[deemphasized=true]:outline-warning-500/50 data-[deemphasized=true]:hover:outline-warning-500/50;
     }
 
     @variant error {
       @apply hover:outline-error-600 dark:hover:outline-error-400 outline-error-500;
-      @apply disabled:cursor-not-allowed disabled:outline-error-500/50 disabled:hover:outline-error-500/50;
+      @apply disabled:outline-error-500/50 disabled:hover:outline-error-500/50;
       @apply data-[deemphasized=true]:outline-error-500/50 data-[deemphasized=true]:hover:outline-error-500/50;
     }
   }
@@ -284,9 +320,68 @@
     }
   }
 
+  .variant-static-fill {
+    @apply bg-neutral-500;
+
+    @variant primary {
+      @apply bg-primary-500;
+    }
+
+    @variant secondary {
+      @apply bg-secondary-500;
+    }
+
+    @variant success {
+      @apply bg-success-500;
+    }
+
+    @variant warning {
+      @apply bg-warning-500;
+    }
+
+    @variant error {
+      @apply bg-error-500;
+    }
+
+    @variant info {
+      @apply bg-info-500;
+    }
+  }
+
+  .variant-separator-fill {
+    @apply dark:bg-neutral-600 bg-neutral-400;
+
+    @variant custom-color {
+      @apply bg-(--custom-color);
+    }
+
+    @variant primary {
+      @apply dark:bg-primary-600 bg-primary-400;
+    }
+
+    @variant secondary {
+      @apply dark:bg-secondary-600 bg-secondary-400;
+    }
+
+    @variant success {
+      @apply dark:bg-success-600 bg-success-400;
+    }
+
+    @variant warning {
+      @apply dark:bg-warning-600 bg-warning-400;
+    }
+
+    @variant error {
+      @apply dark:bg-error-600 bg-error-400;
+    }
+
+    @variant info {
+      @apply dark:bg-info-600 bg-info-400;
+    }
+  }
+
   .cta-button {
     @apply transition-colors duration-100 ease-in-out rounded-xs outline-1;
-
     @apply dark:text-white text-black;
     @apply bg-neutral-500/25 hover:bg-neutral-500 disabled:bg-neutral-500/25;
     @apply outline-neutral-500;
@@ -408,30 +503,6 @@
     }
   }
 
-  .sized-chip-insert {
-    @apply h-5 w-5;
-
-    @variant size-xs {
-      @apply h-3 w-3;
-    }
-
-    @variant size-sm {
-      @apply h-4 w-4;
-    }
-
-    @variant size-md {
-      @apply h-5 w-5;
-    }
-
-    @variant size-lg {
-      @apply h-7 w-7;
-    }
-
-    @variant size-xl {
-      @apply h-9 w-9;
-    }
-  }
-
   .sized-inner-group-item {
     @apply h-[28px] w-[28px];
 
@@ -480,99 +551,195 @@
     }
   }
 
-  .check-indicator {
-    @apply transition-colors duration-70 ease-in-out;
-    @apply dark:group-data-highlighted:text-black group-data-highlighted:text-white;
-    @apply group-data-disabled:text-neutral-500/50;
+  .sized-progress-height {
+    @apply h-3;
 
-    @variant custom-color {
-      @apply data-[state=checked]:text-(--custom-color);
-      @apply data-[state=unchecked]:text-(--lighter-custom-color);
-      @apply dark:data-[state=unchecked]:text-(--darker-custom-color);
+    @variant size-xs {
+      @apply h-1;
     }
 
-    @variant primary {
-      @apply dark:data-[state=checked]:text-primary-400 data-[state=checked]:text-primary-600;
-      @apply dark:data-[state=unchecked]:text-primary-950 data-[state=unchecked]:text-primary-50;
+    @variant size-sm {
+      @apply h-2;
     }
 
-    @variant secondary {
-      @apply dark:data-[state=checked]:text-secondary-400 data-[state=checked]:text-secondary-600;
-      @apply dark:data-[state=unchecked]:text-secondary-950 data-[state=unchecked]:text-secondary-50;
+    @variant size-md {
+      @apply h-3;
     }
 
-    @variant tertiary {
-      @apply dark:data-[state=checked]:text-tertiary-400 data-[state=checked]:text-tertiary-600;
-      @apply dark:data-[state=unchecked]:text-tertiary-950 data-[state=unchecked]:text-tertiary-50;
+    @variant size-lg {
+      @apply h-4;
     }
 
-    @variant info {
-      @apply dark:data-[state=checked]:text-info-400 data-[state=checked]:text-info-600;
-      @apply dark:data-[state=unchecked]:text-info-950 data-[state=unchecked]:text-info-50;
-    }
-
-    @variant success {
-      @apply dark:data-[state=checked]:text-success-400 data-[state=checked]:text-success-600;
-      @apply dark:data-[state=unchecked]:text-success-950 data-[state=unchecked]:text-success-50;
-    }
-
-    @variant warning {
-      @apply dark:data-[state=checked]:text-warning-400 data-[state=checked]:text-warning-600;
-      @apply dark:data-[state=unchecked]:text-warning-950 data-[state=unchecked]:text-warning-50;
-    }
-
-    @variant error {
-      @apply dark:data-[state=checked]:text-error-400 data-[state=checked]:text-error-600;
-      @apply dark:data-[state=unchecked]:text-error-950 data-[state=unchecked]:text-error-50;
+    @variant size-xl {
+      @apply h-5;
     }
   }
 
-  .highlight-list-item {
-    @apply cursor-pointer dark:data-highlighted:text-black data-highlighted:text-white;
-    @apply data-disabled:text-neutral-500/50;
-    @apply dark:text-default-300 text-default-700;
-    @apply dark:data-highlighted:bg-default-400/50 data-highlighted:bg-default-600/50;
+  .check-indicator {
+    @apply rounded-xs;
+    @apply w-5 h-5 bg-transparent;
+
+    @apply group-data-disabled/item:text-neutral-500/50;
+    @apply dark:text-default-400 text-default-600;
+    @apply dark:group-data-[highlighted]/item:text-black group-data-[highlighted]/item:text-white;
+    @apply dark:group-data-[state=checked]/item:text-black group-data-[state=checked]/item:text-white;
+    @apply group-data-[highlighted]/item:group-data-[state=unchecked]/item:text-white;
+    @apply dark:group-data-[highlighted]/item:group-data-[state=unchecked]/item:text-black;
+
+    @apply dark:group-data-[state=checked]/item:bg-layout-light-base group-data-[state=checked]/item:bg-layout-dark-base;
 
     @variant custom-color {
-      @apply dark:data-highlighted:text-(--custom-color);
-      @apply text-(--lighter-custom-color);
-      @apply dark:text-(--darker-custom-color);
+      @apply dark:group-data-[state=unchecked]/item:text-(--lighter-custom-color) group-data-[state=unchecked]/item:text-(--darker-custom-color);
+      @apply dark:group-data-[state=checked]/item:bg-(--lighter-custom-color) group-data-[state=checked]/item:bg-(--darker-custom-color);
     }
 
     @variant primary {
-      @apply dark:data-highlighted:text-primary-400 data-highlighted:text-primary-600;
-      @apply dark:text-primary-950 text-primary-50;
-      @apply dark:data-highlighted:bg-primary-400/50 data-highlighted:bg-primary-600/50;
+      @apply dark:group-data-[state=unchecked]/item:text-primary-400 group-data-[state=unchecked]/item:text-primary-600;
+      @apply dark:group-data-[state=checked]/item:bg-primary-400 group-data-[state=checked]/item:bg-primary-600;
     }
 
     @variant secondary {
-      @apply dark:data-highlighted:text-secondary-400 data-highlighted:text-secondary-600;
-      @apply dark:text-secondary-950 text-secondary-50;
-      @apply dark:data-highlighted:bg-secondary-400/50 data-highlighted:bg-secondary-600/50;
+      @apply dark:group-data-[state=unchecked]/item:text-secondary-400 group-data-[state=unchecked]/item:text-secondary-600;
+      @apply dark:group-data-[state=checked]/item:bg-secondary-400 group-data-[state=checked]/item:bg-secondary-600;
     }
 
-    @variant success {
-      @apply dark:data-highlighted:text-success-400 data-highlighted:text-success-600;
-      @apply dark:text-success-950 text-success-50;
-      @apply dark:data-highlighted:bg-success-400/50 data-highlighted:bg-success-600/50;
-    }
-
-    @variant warning {
-      @apply dark:data-highlighted:text-warning-400 data-highlighted:text-warning-600;
-      @apply dark:text-warning-950 text-warning-50;
-      @apply dark:data-highlighted:bg-warning-400/50 data-highlighted:bg-warning-600/50;
-    }
-
-    @variant error {
-      @apply dark:data-highlighted:text-error-400 data-highlighted:text-error-600;
-      @apply dark:text-error-950 text-error-50;
-      @apply dark:data-highlighted:bg-error-400/50 data-highlighted:bg-error-600/50;
+    @variant tertiary {
+      @apply dark:group-data-[state=unchecked]/item:text-tertiary-500 group-data-[state=unchecked]/item:text-tertiary-500;
+      @apply dark:group-data-[state=checked]/item:bg-tertiary-400 group-data-[state=checked]/item:bg-tertiary-600;
     }
 
     @variant info {
-      @apply dark:data-highlighted:text-info-400 data-highlighted:text-info-600;
-      @apply dark:text-info-950 text-info-50;
-      @apply dark:data-highlighted:bg-info-400/50 data-highlighted:bg-info-600/50;
+      @apply dark:group-data-[state=unchecked]/item:text-info-400 group-data-[state=unchecked]/item:text-info-600;
+      @apply dark:group-data-[state=checked]/item:bg-info-400 group-data-[state=checked]/item:bg-info-600;
+    }
+
+    @variant success {
+      @apply dark:group-data-[state=unchecked]/item:text-success-400 group-data-[state=unchecked]/item:text-success-600;
+      @apply dark:group-data-[state=checked]/item:bg-success-400 group-data-[state=checked]/item:bg-success-600;
+    }
+
+    @variant warning {
+      @apply dark:group-data-[state=unchecked]/item:text-warning-400 group-data-[state=unchecked]/item:text-warning-600;
+      @apply dark:group-data-[state=checked]/item:bg-warning-400 group-data-[state=checked]/item:bg-warning-600;
+    }
+
+    @variant error {
+      @apply dark:group-data-[state=unchecked]/item:text-error-400 group-data-[state=unchecked]/item:text-error-600;
+      @apply dark:group-data-[state=checked]/item:bg-error-400 group-data-[state=checked]/item:bg-error-600;
+    }
+  }
+
+  .list-item-extra {
+    @apply w-fit h-5 gap-0 flex flex-row items-center justify-end;
+
+    @apply group-data-disabled/item:text-neutral-500/25;
+    @apply dark:text-default-600 text-default-400;
+    @apply dark:group-data-[highlighted]/item:text-black group-data-[highlighted]/item:text-white;
+    @apply dark:group-data-[state=checked]/item:text-black group-data-[state=checked]/item:text-white;
+    @apply group-data-[highlighted]/item:group-data-[state=unchecked]/item:text-white;
+    @apply dark:group-data-[highlighted]/item:group-data-[state=unchecked]/item:text-black;
+
+    /* @variant custom-color {
+      @apply dark:group-data-[state=unchecked]/item:text-(--lighter-custom-color) group-data-[state=unchecked]/item:text-(--darker-custom-color);
+
+    @variant primary {
+      @apply dark:group-data-[state=unchecked]/item:text-primary-400 group-data-[state=unchecked]/item:text-primary-600;
+      @apply dark:group-data-[state=checked]/item:bg-primary-400 group-data-[state=checked]/item:bg-primary-600;
+    }
+
+    @variant secondary {
+      @apply dark:group-data-[state=unchecked]/item:text-secondary-400 group-data-[state=unchecked]/item:text-secondary-600;
+      @apply dark:group-data-[state=checked]/item:bg-secondary-400 group-data-[state=checked]/item:bg-secondary-600;
+    }
+
+    @variant tertiary {
+      @apply dark:group-data-[state=unchecked]/item:text-tertiary-400 group-data-[state=unchecked]/item:text-tertiary-600;
+      @apply dark:group-data-[state=checked]/item:bg-tertiary-400 group-data-[state=checked]/item:bg-tertiary-600;
+    }
+
+    @variant info {
+      @apply dark:group-data-[state=unchecked]/item:text-info-400 group-data-[state=unchecked]/item:text-info-600;
+      @apply dark:group-data-[state=checked]/item:bg-info-400 group-data-[state=checked]/item:bg-info-600;
+    }
+
+    @variant success {
+      @apply dark:group-data-[state=unchecked]/item:text-success-400 group-data-[state=unchecked]/item:text-success-600;
+      @apply dark:group-data-[state=checked]/item:bg-success-400 group-data-[state=checked]/item:bg-success-600;
+    }
+
+    @variant warning {
+      @apply dark:group-data-[state=unchecked]/item:text-warning-400 group-data-[state=unchecked]/item:text-warning-600;
+      @apply dark:group-data-[state=checked]/item:bg-warning-400 group-data-[state=checked]/item:bg-warning-600;
+    }
+
+    @variant error {
+      @apply dark:group-data-[state=unchecked]/item:text-error-400 group-data-[state=unchecked]/item:text-error-600;
+      @apply dark:group-data-[state=checked]/item:bg-error-400 group-data-[state=checked]/item:bg-error-600;
+    } */
+  }
+
+  .highlight-list-item {
+    @apply cursor-pointer;
+    @apply data-disabled:text-neutral-500/50;
+    @apply dark:text-default-400 text-default-600;
+    @apply dark:data-[highlighted]:text-black data-[highlighted]:text-white;
+    @apply dark:data-[highlighted]:bg-neutral-400/50 data-[highlighted]:bg-neutral-600/50;
+    @apply dark:data-[state=open]:bg-neutral-400/25 data-[state=open]:bg-neutral-600/25;
+    @apply dark:data-[highlighted]:data-[state=open]:bg-neutral-400/50 data-[highlighted]:data-[state=open]:bg-neutral-600/50;
+
+    @variant custom-color {
+      @apply dark:text-(--lighter-custom-color) text-(--darker-custom-color);
+      @apply dark:data-[highlighted]:bg-(--deemphasized-custom-color) data-[highlighted]:bg-(--deemphasized-custom-color);
+      /* Menus that have a state=open don't support custom colors */
+    }
+
+    @variant primary {
+      @apply dark:text-primary-400 text-primary-600;
+      @apply dark:data-[highlighted]:bg-primary-400/50 data-[highlighted]:bg-primary-600/50;
+      @apply dark:data-[state=open]:bg-primary-400/25 data-[state=open]:bg-primary-600/25;
+      @apply dark:data-[highlighted]:data-[state=open]:bg-primary-400/50 data-[highlighted]:data-[state=open]:bg-primary-600/50;
+    }
+
+    @variant secondary {
+      @apply dark:text-secondary-400 text-secondary-600;
+      @apply dark:data-[highlighted]:bg-secondary-400/50 data-[highlighted]:bg-secondary-600/50;
+      @apply dark:data-[state=open]:bg-secondary-400/25 data-[state=open]:bg-secondary-600/25;
+      @apply dark:data-[highlighted]:data-[state=open]:bg-secondary-400/50 data-[highlighted]:data-[state=open]:bg-secondary-600/50;
+    }
+
+    @variant tertiary {
+      @apply dark:text-tertiary-400 text-tertiary-600;
+      @apply dark:data-[highlighted]:bg-tertiary-400/50 data-[highlighted]:bg-tertiary-600/50;
+      @apply dark:data-[state=open]:bg-tertiary-400/25 data-[state=open]:bg-tertiary-600/25;
+      @apply dark:data-[highlighted]:data-[state=open]:bg-tertiary-400/50 data-[highlighted]:data-[state=open]:bg-tertiary-600/50;
+    }
+
+    @variant success {
+      @apply dark:text-success-400 text-success-600;
+      @apply dark:data-[highlighted]:bg-success-400/50 data-[highlighted]:bg-success-600/50;
+      @apply dark:data-[state=open]:bg-success-400/25 data-[state=open]:bg-success-600/25;
+      @apply dark:data-[highlighted]:data-[state=open]:bg-success-400/50 data-[highlighted]:data-[state=open]:bg-success-600/50;
+    }
+
+    @variant warning {
+      @apply dark:text-warning-400 text-warning-600;
+      @apply dark:data-[highlighted]:bg-warning-400/50 data-[highlighted]:bg-warning-600/50;
+      @apply dark:data-[state=open]:bg-warning-400/25 data-[state=open]:bg-warning-600/25;
+      @apply dark:data-[highlighted]:data-[state=open]:bg-warning-400/50 data-[highlighted]:data-[state=open]:bg-warning-600/50;
+    }
+
+    @variant error {
+      @apply dark:text-error-400 text-error-600;
+      @apply dark:data-[highlighted]:bg-error-400/50 data-[highlighted]:bg-error-600/50;
+      @apply dark:data-[state=open]:bg-error-400/25 data-[state=open]:bg-error-600/25;
+      @apply dark:data-[highlighted]:data-[state=open]:bg-error-400/50 data-[highlighted]:data-[state=open]:bg-error-600/50;
+    }
+
+    @variant info {
+      @apply dark:text-info-400 text-info-600;
+      @apply dark:data-[highlighted]:bg-info-400/50 data-[highlighted]:bg-info-600/50;
+      @apply dark:data-[state=open]:bg-info-400/25 data-[state=open]:bg-info-600/25;
+      @apply dark:data-[highlighted]:data-[state=open]:bg-info-400/50 data-[highlighted]:data-[state=open]:bg-info-600/50;
     }
   }
 
@@ -608,142 +775,134 @@
     }
   }
 
-  .colored-carrot {
-    @apply dark:text-layout-light-inset/40 text-layout-dark-inset/40;
-
-    @variant custom-color {
-      @apply dark:text-(--custom-color) text-(--custom-color);
-    }
+  .colored-carrot-stroke {
+    @apply dark:stroke-neutral-600 stroke-neutral-400;
 
     @variant primary {
-      @apply dark:text-primary-300/40 text-primary-300/40;
+      @apply dark:stroke-primary-700 stroke-primary-300;
     }
 
     @variant secondary {
-      @apply dark:text-secondary-300/40 text-secondary-300/40;
+      @apply dark:stroke-secondary-700 stroke-secondary-300;
     }
 
     @variant tertiary {
-      @apply dark:text-tertiary-300/40 text-tertiary-300/40;
+      @apply dark:stroke-tertiary-700 stroke-tertiary-300;
     }
 
     @variant info {
-      @apply dark:text-info-300/40 text-info-300/40;
+      @apply dark:stroke-info-700 stroke-info-300;
     }
 
     @variant success {
-      @apply dark:text-success-300/40 text-success-300/40;
+      @apply dark:stroke-success-700 stroke-success-300;
     }
 
     @variant warning {
-      @apply dark:text-warning-300/40 text-warning-300/40;
+      @apply dark:stroke-warning-700 stroke-warning-300;
     }
 
     @variant error {
-      @apply dark:text-error-300/40 text-error-300/40;
+      @apply dark:stroke-error-700 stroke-error-300;
     }
   }
 
-  .colored-carrot-invert {
-    @apply dark:text-layout-light-inset/60 text-layout-dark-inset/60;
-
-    @variant custom-color {
-      @apply dark:text-(--custom-color) text-(--custom-color);
-    }
+  .colored-carrot-invert-fill {
+    @apply dark:fill-layout-light-inset fill-layout-dark-inset;
 
     @variant primary {
-      @apply dark:text-primary-300/60 text-primary-300/60;
+      @apply dark:fill-primary-800 fill-primary-200;
     }
 
     @variant secondary {
-      @apply dark:text-secondary-300/60 text-secondary-300/60;
+      @apply dark:fill-secondary-800 fill-secondary-200;
     }
 
     @variant tertiary {
-      @apply dark:text-tertiary-300/60 text-tertiary-300/60;
+      @apply dark:fill-tertiary-800 fill-tertiary-200;
     }
 
     @variant info {
-      @apply dark:text-info-300/60 text-info-300/60;
+      @apply dark:fill-info-800 fill-info-200;
     }
 
     @variant success {
-      @apply dark:text-success-300/60 text-success-300/60;
+      @apply dark:fill-success-800 fill-success-200;
     }
 
     @variant warning {
-      @apply dark:text-warning-300/60 text-warning-300/60;
+      @apply dark:fill-warning-800 fill-warning-200;
     }
 
     @variant error {
-      @apply dark:text-error-300/60 text-error-300/60;
+      @apply dark:fill-error-800 fill-error-200;
     }
   }
 
   .card {
-    @apply rounded-sm backdrop-blur-lg shadow-md;
-    @apply dark:bg-layout-dark-base/25 bg-layout-light-base/25;
-    @apply inset-ring-1 dark:inset-ring-layout-light-inset/40 inset-ring-layout-dark-inset/40;
+    @apply rounded-sm;
+    @apply dark:bg-layout-dark-base bg-layout-light-base;
+    @apply border dark:border-neutral-600 border-neutral-400;
 
     @variant primary {
-      @apply dark:inset-ring-primary-300/40 inset-ring-primary-300/40;
+      @apply dark:border-primary-700 border-primary-300;
     }
 
     @variant secondary {
-      @apply dark:inset-ring-secondary-300/40 inset-ring-secondary-300/40;
+      @apply dark:border-secondary-700 border-secondary-300;
     }
 
     @variant tertiary {
-      @apply dark:inset-ring-tertiary-300/40 inset-ring-tertiary-300/40;
+      @apply dark:border-tertiary-700 border-tertiary-300;
     }
 
     @variant info {
-      @apply dark:inset-ring-info-300/40 inset-ring-info-300/40;
+      @apply dark:border-info-700 border-info-300;
     }
 
     @variant success {
-      @apply dark:inset-ring-success-300/40 inset-ring-success-300/40;
+      @apply dark:border-success-700 border-success-300;
     }
 
     @variant warning {
-      @apply dark:inset-ring-warning-300/40 inset-ring-warning-300/40;
+      @apply dark:border-warning-700 border-warning-300;
     }
 
     @variant error {
-      @apply dark:inset-ring-error-300/20 inset-ring-error-300/20;
+      @apply dark:border-error-700 border-error-300;
     }
   }
 
   .card-invert {
-    @apply rounded-sm backdrop-blur-lg shadow-md;
-    @apply dark:bg-layout-light-inset/60 bg-layout-dark-inset/60;
+    @apply rounded-sm shadow-lg;
+    @apply dark:bg-layout-light-inset bg-layout-dark-inset;
 
     @variant primary {
-      @apply dark:bg-primary-300/60 bg-primary-300/60;
+      @apply dark:bg-primary-800 bg-primary-200;
     }
 
     @variant secondary {
-      @apply dark:bg-secondary-300/60 bg-secondary-300/60;
+      @apply dark:bg-secondary-800 bg-secondary-200;
     }
 
     @variant tertiary {
-      @apply dark:bg-tertiary-300/60 bg-tertiary-300/60;
+      @apply dark:bg-tertiary-800 bg-tertiary-200;
     }
 
     @variant info {
-      @apply dark:bg-info-300/60 bg-info-300/60;
+      @apply dark:bg-info-800 bg-info-200;
     }
 
     @variant success {
-      @apply dark:bg-success-300/60 bg-success-300/60;
+      @apply dark:bg-success-800 bg-success-200;
     }
 
     @variant warning {
-      @apply dark:bg-warning-300/60 bg-warning-300/60;
+      @apply dark:bg-warning-800 bg-warning-200;
     }
 
     @variant error {
-      @apply dark:bg-error-300/60 bg-error-300/60;
+      @apply dark:bg-error-800 bg-error-200;
     }
   }
 
@@ -934,6 +1093,26 @@
     animation-name: slideUpAndFade;
   }
   .popover-content[data-state="open"][data-side="left"] {
+    animation-name: slideRightAndFade;
+  }
+
+  .dropdown-content {
+    will-change: transform, opacity;
+    animation-duration: 300ms;
+    animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+    transform-origin: var(--radix-dropdown-content-transform-origin);
+  }
+
+  .dropdown-content[data-state="open"][data-side="top"] {
+    animation-name: slideDownAndFade;
+  }
+  .dropdown-content[data-state="open"][data-side="right"] {
+    animation-name: slideLeftAndFade;
+  }
+  .dropdown-content[data-state="open"][data-side="bottom"] {
+    animation-name: slideUpAndFade;
+  }
+  .dropdown-content[data-state="open"][data-side="left"] {
     animation-name: slideRightAndFade;
   }
 

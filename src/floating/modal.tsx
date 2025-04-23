@@ -2,10 +2,10 @@ import { type ReactNode, type MouseEvent } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import { clsx } from "clsx";
 import { IconX } from "@tabler/icons-react";
-import { ScrollArea } from "./scroll-area";
-import { Variant } from "./types";
-import { getBasicTextColor } from "./style-functions";
-import { Button } from "./buttons/button";
+import { ScrollArea } from "../scroll-area";
+import { Variant } from "../types";
+import { getBasicTextColor } from "../style-functions";
+import { Button } from "../buttons/button";
 
 export interface ModalProps {
   children: ReactNode;
@@ -48,7 +48,7 @@ export function Modal({
           className={clsx(
             "transition-opacity data-[state=open]:animate-fadeIn data-[state=closed]:animate-fadeOut",
             "fixed top-0 bottom-0 left-0 right-0 grid place-items-center",
-            "bg-white/30 dark:bg-black/30 p-0",
+            "backdrop-blur-[2px] p-0",
           )}
         >
           <Dialog.Content
@@ -92,10 +92,11 @@ export function Modal({
                 }
                 footer={
                   showFooter && (
-                    <div className="p-2 flex gap-3 justify-end">
+                    <div className="py-2 px-3 flex gap-3 justify-end">
                       {onCancel && (
                         <Dialog.Close asChild>
                           <Button
+                            tabIndex={0}
                             variant={Variant.Default}
                             onClick={onCancel}
                             disabled={submitDisabled}
@@ -106,7 +107,12 @@ export function Modal({
                       )}
                       {onSubmit && (
                         <Dialog.Close asChild>
-                          <Button variant={variant} onClick={onSubmit} disabled={submitDisabled}>
+                          <Button
+                            tabIndex={0}
+                            variant={variant}
+                            onClick={onSubmit}
+                            disabled={submitDisabled}
+                          >
                             {submitText}
                           </Button>
                         </Dialog.Close>
@@ -142,7 +148,7 @@ export function Modal({
                       </Dialog.Title>
                       {!dismissDisabled && (
                         <Dialog.Close asChild>
-                          <Button variant={variant} leftIcon={<IconX />} />
+                          <Button tabIndex={0} variant={variant} leftIcon={<IconX />} />
                         </Dialog.Close>
                       )}
                     </div>
@@ -156,10 +162,11 @@ export function Modal({
                   {children}
                 </div>
                 {showFooter && (
-                  <div className="p-2 flex gap-3 justify-end">
+                  <div className="py-2 px-3 flex gap-3 justify-end">
                     {onCancel && (
                       <Dialog.Close asChild>
                         <Button
+                          tabIndex={0}
                           variant={Variant.Default}
                           onClick={onCancel}
                           disabled={submitDisabled}
@@ -170,7 +177,12 @@ export function Modal({
                     )}
                     {onSubmit && (
                       <Dialog.Close asChild>
-                        <Button variant={variant} onClick={onSubmit} disabled={submitDisabled}>
+                        <Button
+                          tabIndex={0}
+                          variant={variant}
+                          onClick={onSubmit}
+                          disabled={submitDisabled}
+                        >
                           {submitText}
                         </Button>
                       </Dialog.Close>

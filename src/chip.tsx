@@ -1,10 +1,8 @@
-import { CSSProperties, ReactNode, type MouseEventHandler, cloneElement } from "react";
+import { CSSProperties, ReactNode, type MouseEventHandler } from "react";
 import { IconX } from "@tabler/icons-react";
 import { clsx } from "clsx";
-import { Size, Variant } from "./types";
-import { Button } from "./buttons/button";
 import { alpha, altColor } from "@semio/utils";
-import { StaticIcon } from "./icons/static-icon";
+import { Size, Variant } from "./types";
 
 export interface ChipProps {
   children: string;
@@ -28,9 +26,7 @@ export function Chip({
       className={clsx(
         "variant-responsive-bg variant-responsive-text sized-text sized-height",
         "grid grid-rows-1 place-items-center",
-        "px-2 gap-2",
-        "xs:px-1 xs:gap-1 sm:px-[6px] sm:gap-[6px]",
-        "xl:px-[10px] xl:gap-[10px]",
+        "p-[2px] gap-2",
         renderIcon && children && onDelete && "grid-cols-[auto_1fr_auto]",
         renderIcon && children && !onDelete && "grid-cols-[auto_1fr]",
         !renderIcon && children && onDelete && "grid-cols-[1fr_auto]",
@@ -54,14 +50,14 @@ export function Chip({
         <div
           className={clsx(
             size,
-            "sized-chip-insert",
-            "dark:bg-black/50 bg-white/50 rounded-xs grid place-items-center",
+            "sized-inner-group-item",
+            "dark:bg-black/50 bg-white/50 rounded-[1px] grid place-items-center",
           )}
         >
-          {renderIcon("w-4/5 h-4/5")}
+          {renderIcon("w-3/5 h-3/5")}
         </div>
       )}
-      <div className="dark:text-black/75 text-white/75">{children}</div>
+      <div className="dark:text-black/75 text-white/75 px-2">{children}</div>
       {onDelete && (
         <button
           type="button"
@@ -71,12 +67,11 @@ export function Chip({
           }}
           className={clsx(
             size,
-            "sized-chip-insert",
-            "dark:bg-black/50 bg-white/50 rounded-xs grid place-items-center",
-            "dark:hover:bg-black/75 hover:bg-white/75",
+            "sized-inner-group-item",
+            "dark:bg-black/50 bg-white/50 rounded-[1px] grid place-items-center",
           )}
         >
-          <IconX className="w-4/5 h-4/5" />
+          <IconX className="w-3/5 h-3/5" />
         </button>
       )}
     </div>

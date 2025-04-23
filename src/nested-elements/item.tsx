@@ -24,25 +24,26 @@ export function NestedItem({ left, children, right, variant, disabled, onClick }
       disabled={disabled}
       onClick={onClick}
       className={clsx(
-        "text-sm leading-none flex items-center",
-        "h-8 px-[5px] relative pl-[30px] select-none outline-hidden",
+        "leading-none flex items-center rounded-xs group/item",
+        "h-7 text-sm px-[5px] relative pl-[30px] select-none outline-hidden",
         "data-disabled:pointer-events-none",
-        "hover-list-item",
+        "highlight-list-item",
         variant,
       )}
     >
       {left && (
         <div
           className={clsx(
-            "absolute left-0 w-[30px] inline-flex items-center justify-center",
+            "absolute left-1 inline-flex items-center justify-center",
             "check-indicator",
+            variant,
           )}
         >
           {left}
         </div>
       )}
       {children}
-      {right && <div className={clsx("ml-auto pl-[20px]", "check-indicator")}>{right}</div>}
+      {right && <div className={clsx("absolute right-1", "list-item-extra", variant)}>{right}</div>}
     </ItemComponent>
   );
 }

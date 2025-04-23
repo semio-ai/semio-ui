@@ -1,56 +1,65 @@
 import { InputHTMLAttributes, ForwardedRef, forwardRef } from "react";
-import { clsx } from "clsx";
-import { getHeight, getOutline, getTextCaretColor } from "../../style-functions";
-import { Size, Variant } from "../../types";
-import { StyledInput } from "../styled-input";
+import { Size, Variant } from "../types";
+import { TextField } from "./text-field";
 
-export interface PasswordInputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, "size"> {
+export interface EmailInputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, "size"> {
   invalid?: boolean;
   message?: string;
   size?: Size;
   variant?: Variant;
-  showPassword?: boolean;
 }
 
-export const PasswordInput = forwardRef(
+export const EmailInput = forwardRef(
   (
     {
       invalid = false,
-      message = "",
       variant = Variant.Default,
       size = Size.Md,
-      showPassword = false,
+      message = "",
       ...props
-    }: PasswordInputProps,
+    }: EmailInputProps,
     ref: ForwardedRef<HTMLInputElement>,
   ) => {
     const isEmpty = checkIsEmpty(ref);
     const usedVariant = invalid && !isEmpty ? Variant.Error : variant;
 
     return (
-      <label className="capitalize">
+      <label>
         <div className="flex flex-row justify-between items-center p-0.5">
-          <span className="capitalize text-md text-neutral-500">{props.name ?? "Password"}</span>
+          <span className="capitalize text-md text-neutral-500">{props.name ?? "Email"}</span>
           {invalid && <span className="text-xs text-error-500">{message}</span>}
         </div>
-        <div
+        <TextField
+          bg
+          ref={ref}
+          size={size}
+          variant={usedVariant}
+          {...props}
+          onChange={(_, event) => props.onChange?.(event)}
+          outline="interact"
+          className="w-full"
+          aria-invalid={invalid}
+        />
+
+        {/* <div
           className={clsx(
             "dark:bg-neutral-800/80 bg-neutral-200/80",
-            "focus-within:outline focus-within:outline-1 focus-within:outline-offset-2",
-            usedVariant === Variant.Error && "outline outline-1 outline-offset-2",
+            "dark:autofill:bg-neutral-800/80 autofill:bg-neutral-200/80",
+            "focus-within:outline focus-within:outline-offset-2",
+            usedVariant === Variant.Error && "outline outline-offset-2",
             getOutline(usedVariant),
             getTextCaretColor(usedVariant),
             getHeight(size),
           )}
         >
-          <StyledInput ref={ref} size={size} {...props} type={showPassword ? "text" : "password"} />
-        </div>
+          <StyledInput ref={ref} size={size} {...props} />
+        </div> */}
       </label>
     );
   },
 );
 
-PasswordInput.displayName = "PasswordInput";
+EmailInput.displayName = "EmailInput";
 
 function checkIsEmpty(ref: ForwardedRef<HTMLInputElement>): boolean {
   if (typeof ref === "object") {

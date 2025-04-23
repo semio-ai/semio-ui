@@ -5,7 +5,7 @@ import { clsx } from "clsx";
 import { Size, Variant } from "./types";
 import { getHeight, getFontSize } from "./style-functions";
 import { TableList } from "./table-list";
-import { SelectProps } from "./select";
+import { SelectProps } from "./floating/select";
 
 export function SelectList<T extends string | string[]>({
   value,

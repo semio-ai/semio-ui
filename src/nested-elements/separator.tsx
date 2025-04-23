@@ -2,7 +2,6 @@ import { DropdownMenuSeparator } from "@radix-ui/react-dropdown-menu";
 import { ContextMenuSeparator } from "@radix-ui/react-context-menu";
 import { clsx } from "clsx";
 import { NestedParent, Variant } from "../types";
-import { getSeparatorStyle } from "../style-functions";
 import { useNestedParent } from "./context";
 
 export interface NestedSeparatorProps {
@@ -15,5 +14,5 @@ export function NestedSeparator({ variant }: NestedSeparatorProps) {
   const ItemComponent =
     parent === NestedParent.Dropdown ? DropdownMenuSeparator : ContextMenuSeparator;
 
-  return <ItemComponent className={clsx("h-[1px] m-[5px]", getSeparatorStyle(variant))} />;
+  return <ItemComponent className={clsx("h-[1px] m-[5px]", variant, "variant-separator-fill")} />;
 }

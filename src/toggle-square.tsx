@@ -3,7 +3,7 @@ import * as RadixToggle from "@radix-ui/react-toggle";
 import { clsx } from "clsx";
 import { Variant, Size } from "./types";
 import { getToggleButtonStyles, getHeight, getWidth } from "./style-functions";
-import { Tooltip } from "./tooltip";
+import { Tooltip } from "./floating/tooltip";
 
 export interface ToggleSquareProps {
   variant?: Variant;
@@ -30,8 +30,9 @@ export function ToggleSquare({
         disabled={disabled}
         data-state={value ? "on" : "off"}
         className={clsx(
-          getHeight(size),
-          getWidth(size),
+          size,
+          variant,
+          "sized-height sized-width",
           getToggleButtonStyles(variant ?? Variant.Default),
           "p-1",
         )}

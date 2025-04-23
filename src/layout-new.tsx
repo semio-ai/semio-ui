@@ -14,10 +14,10 @@ import { observe } from "jotai-effect";
 import { IconChevronRightPipe, IconSquare } from "@tabler/icons-react";
 import { Button } from "./buttons/button";
 import { IconHome } from "./icons/home";
-import { Select } from "./select";
+import { Select } from "./floating/select";
 import { Size, Variant } from "./types";
 import { Status } from "./status";
-import { Tooltip } from "./tooltip";
+import { Tooltip } from "./floating/tooltip";
 import { ToggleGroupProps } from "./toggle-group";
 
 export type MenuItemClickFn = (id: string, event: MouseEvent) => Promise<void> | void;
@@ -351,10 +351,9 @@ function MenuBarButton({
       className={clsx(
         variant,
         "w-10 group/tab h-10 text-neutral-500 overflow-hidden",
-        desktop && "group-data-expanded/menu:w-48 group-data-expanded/menu:origin-[20px_50%] ",
+        desktop && "group-data-expanded/menu:w-48",
         hoverable && "dark:hover:text-neutral-400 hover:text-neutral-600",
-        hoverable && "hover:scale-105 scale-100",
-        "origin-center overflow-hidden transition-all",
+        "overflow-hidden transition-all",
         "grid place-items-center grid-cols-[40px_1fr] grid-rows-1 gap-[6px]",
         "",
       )}

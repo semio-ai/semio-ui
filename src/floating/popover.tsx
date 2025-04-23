@@ -1,8 +1,8 @@
 import * as PopoverPrimitive from "@radix-ui/react-popover";
 import { clsx } from "clsx";
 import { ReactNode } from "react";
-import { Variant } from "./types";
-import { getBasicTextColor, getBorder } from "./style-functions";
+import { Variant } from "../types";
+import { Arrow } from "./arrow";
 
 export interface PopoverProps {
   title?: string;
@@ -25,11 +25,13 @@ function Popover({ title, trigger, content, open, onStateChange, variant }: Popo
             className={clsx(
               "popover-content",
               "colored-text card",
-              "rounded-sm",
+              "rounded-sm min-w-[220px] m-0.5",
               "w-96 p-4 shadow-md",
             )}
           >
-            <PopoverPrimitive.Arrow className={clsx("fill-current", "colored-carrot", variant)} />
+            <PopoverPrimitive.Arrow asChild width={12} height={6}>
+              <Arrow filled={false} variant={variant ?? Variant.Default} />
+            </PopoverPrimitive.Arrow>
 
             {title ?? (
               <div className="flex justify-between">

@@ -14,6 +14,7 @@ import {
 import { IconChevronRight } from "@tabler/icons-react";
 import { clsx } from "clsx";
 import { NestedParent, Variant } from "../types";
+import { ScrollArea } from "../scroll-area";
 import { useNestedParent } from "./context";
 
 export interface NestedMenuProps {
@@ -39,8 +40,8 @@ export function NestedMenu({ left, children, label, variant, disabled }: NestedM
       <SubTriggerComponent
         disabled={disabled}
         className={clsx(
-          "text-sm leading-none flex items-center",
-          "h-8 px-[5px] relative pl-[30px] select-none outline-hidden",
+          "leading-none flex items-center rounded-xs group/item",
+          "h-7 text-sm px-[5px] relative pl-[30px] select-none outline-hidden",
           "data-disabled:pointer-events-none",
           "highlight-list-item",
           variant,
@@ -51,6 +52,7 @@ export function NestedMenu({ left, children, label, variant, disabled }: NestedM
             className={clsx(
               "absolute left-0 w-[30px] inline-flex items-center justify-center",
               "check-indicator",
+              variant,
             )}
           >
             {left}
@@ -58,27 +60,36 @@ export function NestedMenu({ left, children, label, variant, disabled }: NestedM
         )}
         {label}
 
-        <div className={clsx("ml-auto pl-[20px]", "check-indicator")}>
-          <IconChevronRight size="13px" />
+        <div className={clsx("absolute right-1", "check-indicator", variant)}>
+          <IconChevronRight size="h-3/5 w-3/5" />
         </div>
       </SubTriggerComponent>
       <PortalComponent>
         <SubContentComponent>
           <div
             className={clsx(
-              "will-change-[opacity,transform]",
-              "data-[side=top]:animate-slideDownAndFade",
-              "data-[side=right]:animate-slideLeftAndFade",
-              "data-[side=bottom]:animate-slideUpAndFade",
-              "data-[side=left]:animate-slideRightAndFade",
-              "min-w-[220px] p-[5px] shadow-md",
-              "bg-neutral-50/50 dark:bg-neutral-950/50 backdrop-blur-lg",
-              "border-t-2 border-solid",
               variant,
-              "border-static",
+              "card dropdown-content",
+              "min-w-[220px]",
+              parent === NestedParent.Dropdown
+                ? "max-h-(--radix-dropdown-menu-content-available-height)"
+                : "max-h-(--radix-context-menu-content-available-height)",
+              parent === NestedParent.Dropdown
+                ? "w-[calc(var(--radix-dropdown-menu-trigger-width)+10px)]"
+                : "w-[calc(var(--radix-context-menu-trigger-width)+10px)]",
             )}
           >
-            {children}
+            <ScrollArea
+              shrink
+              className={clsx(
+                "p-0.5",
+                parent === NestedParent.Dropdown
+                  ? "max-h-(--radix-dropdown-menu-content-available-height)"
+                  : "max-h-(--radix-context-menu-content-available-height)",
+              )}
+            >
+              {children}
+            </ScrollArea>
           </div>
         </SubContentComponent>
       </PortalComponent>

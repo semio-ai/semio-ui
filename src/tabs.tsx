@@ -2,9 +2,9 @@ import * as TabsPrimitive from "@radix-ui/react-tabs";
 import { type ReactNode } from "react";
 import useMeasure from "react-use-measure";
 import { clsx } from "clsx";
-import { Select } from "./select";
+import { Select } from "./floating/select";
 import { Size } from "./types";
-import { Tooltip } from "./tooltip";
+import { Tooltip } from "./floating/tooltip";
 
 export interface TabChild {
   title: string;

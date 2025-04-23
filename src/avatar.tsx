@@ -77,9 +77,9 @@ export const Avatar = forwardRef(
               getHeight(size),
               getWidth(size),
               "object-cover",
-              border && "outline outline-offset-1 outline-1",
+              border && "outline outline-offset-1",
               border && getOutline(border),
-              rounded && "rounded-full",
+              rounded ? "rounded-full" : "rounded-[1px]",
               className,
             )}
           />
@@ -90,8 +90,8 @@ export const Avatar = forwardRef(
               "bg-neutral-500 dark:group-hover:bg-neutral-800 group-hover:bg-neutral-200",
               "dark:group-hover:text-neutral-200 group-hover:bg-neutral-800",
               !noHover && "dark:group-hover:text-white group-hover:text-black",
-              rounded && "rounded-full",
-              border && "outline outline-offset-1 outline-1",
+              rounded ? "rounded-full" : "rounded-[1px]",
+              border && "outline outline-offset-1",
               border && getOutline(border),
               getHeight(size),
               getWidth(size),

@@ -28,7 +28,7 @@ export const Primary: Story = {
   name: "Default Chip",
   args: {
     children: "Hello World",
-    renderIcon: (cn) => <IconUser className={cn} />,
+    renderIcon: (cn: string) => <IconUser className={cn} />,
     variant: Variant.Primary,
     onDelete: () => {
       // eslint-disable-next-line no-console -- This is a demo
@@ -115,5 +115,14 @@ export const NoIcon: Story = {
       // eslint-disable-next-line no-console -- This is a demo
       console.log("Delete");
     },
+  },
+};
+
+export const NoDelete: Story = {
+  render: (props) => <Chip {...props} />,
+  args: {
+    children: "Hello World",
+    renderIcon: (cn: string) => <IconUser className={cn} />,
+    variant: Variant.Info,
   },
 };

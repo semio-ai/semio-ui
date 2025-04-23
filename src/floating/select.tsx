@@ -1,15 +1,16 @@
 import { CSSProperties, ReactNode } from "react";
 import { IconPointFilled, IconSelector } from "@tabler/icons-react";
 import { clsx } from "clsx";
+// Will hopefully use later once we can search in the select.
 // import { matchSorter } from "match-sorter";
-import { Size, Variant } from "./types";
-import { getOutline } from "./style-functions";
+import { Size, Variant } from "../types";
+import { getOutline } from "../style-functions";
+import { StaticIcon } from "../icons/static-icon";
+import { NestedSelect } from "../nested-elements/select";
+import { NestedRadio } from "../nested-elements/radio";
+import { Chip } from "../chip";
+import { NestedLabel } from "../nested-elements/label";
 import { Dropdown } from "./dropdown";
-import { StaticIcon } from "./icons/static-icon";
-import { NestedSelect } from "./nested-elements/select";
-import { NestedRadio } from "./nested-elements/radio";
-import { Chip } from "./chip";
-import { NestedLabel } from "./nested-elements/label";
 
 /**
  * @param {string} label - The text to display in the option
@@ -73,7 +74,9 @@ export function Select<T extends string | string[]>({
         trigger={
           <div
             className={clsx(
-              "rounded-[1px]",
+              variant,
+              "variant-responsive-text variant-responsive-persistent-outline",
+              "rounded-xs",
               "w-full flex flex-row flex-1 items-center",
               "focus:outline focus:outline-offset-2",
               "data-[state=open]:outline data-[state=open]:outline-offset-2",

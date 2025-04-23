@@ -76,8 +76,9 @@ export const Button = forwardRef(
           !invert &&
             !border &&
             !callToAction &&
-            "variant-responsive-bg variant-responsive-appearing-outline text-black",
+            "variant-responsive-bg variant-responsive-appearing-outline text-white dark:text-black",
           invert && !callToAction && "variant-responsive-text",
+          invert && !border && "outline-hidden",
           invert && border && !callToAction && "variant-responsive-persistent-outline",
           callToAction && "cta-button",
           "grid grid-rows-1 place-items-center",

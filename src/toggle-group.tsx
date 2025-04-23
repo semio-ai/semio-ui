@@ -4,7 +4,7 @@ import { altColor } from "@semio/utils";
 import { motion } from "motion/react";
 import { clsx } from "clsx";
 import { Variant, Size } from "./types";
-import { Tooltip } from "./tooltip";
+import { Tooltip } from "./floating/tooltip";
 
 export interface ToggleGroupProps {
   visuals: "icons" | "labels" | "both";
@@ -55,7 +55,7 @@ export function ToggleGroup({
     <RadixToggleGroup.Root
       className={clsx(
         "transition-all relative inline-flex items-center overflow-hidden",
-        "rounded-sm dark:bg-layout-dark-deep-inset bg-layout-light-deep-inset",
+        "rounded-xs dark:bg-layout-dark-deep-inset bg-layout-light-deep-inset",
       )}
       type="single"
       value={value}
@@ -65,7 +65,7 @@ export function ToggleGroup({
       aria-label={label ?? "Toggle Group"}
     >
       <motion.div
-        className={clsx("absolute", "rounded-xs sized-inner-group-item", size)}
+        className={clsx("absolute", "rounded-[1px] sized-inner-group-item", size)}
         animate={{
           x: left,
           width,

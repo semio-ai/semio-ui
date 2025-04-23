@@ -4,28 +4,18 @@ import {
   type ReactNode,
   type InputHTMLAttributes,
   type ForwardedRef,
+  type ChangeEvent,
 } from "react";
 import { clsx } from "clsx";
 import { Size, Variant } from "../types";
-import { getHeight, getOutline, getTextCaretColor } from "../style-functions";
-import { StyledInput } from "./styled-input";
-
-// interface TextFieldAdditionalProps {
-//   onChange?: (value: string) => void;
-//   variant?: Variant;
-//   size?: Size;
-//   bg?: boolean;
-//   outline?: boolean;
-//   subtle?: boolean;
-// }
 
 export interface TextFieldProps
   extends Omit<InputHTMLAttributes<HTMLInputElement>, "size" | "onChange"> {
-  onChange?: (value: string) => void;
+  onChange?: (value: string, event: ChangeEvent<HTMLInputElement>) => void;
   variant?: Variant;
   size?: Size;
   bg?: boolean;
-  outline?: boolean;
+  outline?: "hidden" | "interact" | "always";
   subtle?: boolean;
 }
 
@@ -45,7 +35,7 @@ const InnerTextField = forwardRef(
       onChange,
       variant = Variant.Default,
       bg = false,
-      outline = true,
+      outline = "interact",
       className,
       subtle,
       ...forwardedProps
@@ -53,26 +43,25 @@ const InnerTextField = forwardRef(
     ref: ForwardedRef<HTMLInputElement>,
   ): ReactNode => {
     return (
-      <div
+      <input
+        ref={ref}
+        {...forwardedProps}
+        onChange={(event) => onChange?.(event.target.value, event)}
         className={clsx(
           bg && "dark:bg-neutral-950/20 bg-neutral-50/20",
-          "relative flex w-full items-baseline",
-          outline && "focus-within:outline focus-within:outline-1 focus-within:outline-offset-2",
-          getOutline(variant),
-          getHeight(size),
-          getTextCaretColor(variant),
+          "rounded-xs",
+          outline === "interact" && "variant-responsive-appearing-outline",
+          outline === "always" && "variant-responsive-persistent-outline",
+          size,
+          variant,
+          "disabled:cursor-not-allowed cursor-text",
+          "sized-text sized-height px-1",
+          "variant-text-carent-color",
+          subtle && "dark:focus:text-white focus:text-black text-neutral-600 dark:text-neutral-400",
+          !subtle && "text-black dark:text-white",
+          className,
         )}
-      >
-        <StyledInput
-          {...forwardedProps}
-          ref={ref}
-          cursor="cursor-text"
-          subtle={subtle}
-          className={clsx("text-left absolute focus:placeholder-transparent", className)}
-          size={size}
-          onChange={onChange ? (e) => onChange(e.target.value) : () => {}}
-        />
-      </div>
+      />
     );
   },
 );

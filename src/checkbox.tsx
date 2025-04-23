@@ -2,13 +2,7 @@ import * as RadixCheckbox from "@radix-ui/react-checkbox";
 import { IconCheck } from "@tabler/icons-react";
 import { clsx } from "clsx";
 import { Size, Variant } from "./types";
-import {
-  getBasicBgColor,
-  getHeight,
-  getHoverBorder,
-  getHoverTextStyles,
-  getWidth,
-} from "./style-functions";
+import { getBasicBgColor, getHoverBorder, getHoverTextStyles } from "./style-functions";
 
 export interface CheckboxProps {
   id?: string;
@@ -36,8 +30,9 @@ export function Checkbox({
       checked={checked}
       onCheckedChange={onCheckedChange}
       className={clsx(
-        getWidth(size),
-        getHeight(size),
+        size,
+        variant,
+        "sized-height sized-width",
         "flex items-center justify-center",
         !invert && "dark:bg-black bg-white",
         invert && getBasicBgColor(variant),
@@ -45,24 +40,11 @@ export function Checkbox({
         "appearance-none outline-hidden",
       )}
     >
-      <RadixCheckbox.Indicator className={invert ? "text-black" : getHoverTextStyles(variant)}>
-        <IconCheck size={getIconSize(size)} />
+      <RadixCheckbox.Indicator
+        className={clsx(variant, invert ? "text-black" : getHoverTextStyles(variant))}
+      >
+        <IconCheck className="w-full h-full" />
       </RadixCheckbox.Indicator>
     </RadixCheckbox.Root>
   );
-}
-
-function getIconSize(size: Size): string {
-  switch (size) {
-    case Size.Xs:
-      return "16px";
-    case Size.Sm:
-      return "24px";
-    case Size.Md:
-      return "28px";
-    case Size.Lg:
-      return "36px";
-    default:
-      return "28px";
-  }
 }

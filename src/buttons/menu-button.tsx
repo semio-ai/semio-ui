@@ -3,7 +3,7 @@ import { clsx } from "clsx";
 import { Variant } from "../types";
 import { Status } from "../status";
 import { useMenu } from "../menu";
-import { Tooltip } from "../tooltip";
+import { Tooltip } from "../floating/tooltip";
 
 export interface MenuButtonProps {
   id: string;

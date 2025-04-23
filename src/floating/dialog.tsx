@@ -2,9 +2,8 @@ import { type ReactNode, type MouseEvent } from "react";
 import * as AlertDialog from "@radix-ui/react-alert-dialog";
 import { clsx } from "clsx";
 import { IconX } from "@tabler/icons-react";
-import { Variant } from "./types";
-import { getBorder, getBasicTextColor } from "./style-functions";
-import { Button } from "./buttons/button";
+import { Variant } from "../types";
+import { Button } from "../buttons/button";
 
 export interface DialogProps {
   children: ReactNode;
@@ -14,8 +13,8 @@ export interface DialogProps {
   submitDisabled?: boolean;
   submitText?: string;
   onStateChange: (open: boolean) => void;
-  onSubmit?: (event: MouseEvent) => void;
-  onCancel?: (event: MouseEvent) => void;
+  onSubmit?: (event: MouseEvent | KeyboardEvent) => void;
+  onCancel?: (event: MouseEvent | KeyboardEvent) => void;
   variant?: Variant;
 }
 
@@ -39,7 +38,7 @@ export function Dialog({
           className={clsx(
             "transition-opacity data-[state=open]:animate-fadeIn data-[state=closed]:animate-fadeOut",
             "fixed top-0 bottom-0 left-0 right-0 grid place-items-center",
-            "dark:bg-black/30 bg-white/30 backdrop-blur-[2px] p-0",
+            "backdrop-blur-[2px] p-0",
           )}
         >
           {/* </Transition> */}
@@ -47,27 +46,19 @@ export function Dialog({
           <AlertDialog.Content
             forceMount
             className={clsx(
+              variant,
               "flex flex-col focus:outline-hidden",
-              "h-fit w-fit",
-              "data-[state=open]:animate-modalAppear data-[state=closed]:animate-modalDisappear",
-              "bg-neutral-50/50 dark:bg-neutral-950/50 backdrop-blur-lg",
-              "border-t-2 border-solid",
-              getBorder(variant),
+              "card animated-modal",
+              "max-h-screen w-fit h-fit",
             )}
           >
-            <div
-              className={clsx(
-                "bg-neutral-50/50 dark:bg-neutral-950/50",
-                "flex flex-col gap-1 p-3",
-                getBasicTextColor(variant),
-              )}
-            >
+            <div className={clsx("flex flex-col gap-1 p-3", variant, "colored-text")}>
               <div className="flex flex-row items-center justify-between">
                 <AlertDialog.Title className="text-base/7 font-medium flex align-center justify-between">
                   {title}
                 </AlertDialog.Title>
                 <AlertDialog.Cancel asChild>
-                  <Button variant={variant} leftIcon={<IconX />} />
+                  <Button tabIndex={0} variant={variant} leftIcon={<IconX />} />
                 </AlertDialog.Cancel>
               </div>
               <AlertDialog.Description className="text-sm/6 dark:text-white/50 text-black/50">
@@ -77,17 +68,27 @@ export function Dialog({
 
             <div className="flex-1 md:flex-none p-3 dark:text-white text-black">{children}</div>
 
-            <div className="p-2 flex gap-3 justify-end">
+            <div className="py-2 px-3 flex flex-row gap-3 justify-end">
               {onCancel && (
                 <AlertDialog.Cancel asChild>
-                  <Button variant={Variant.Default} onClick={onCancel} disabled={submitDisabled}>
+                  <Button
+                    tabIndex={0}
+                    variant={Variant.Default}
+                    onClick={onCancel}
+                    disabled={submitDisabled}
+                  >
                     Cancel
                   </Button>
                 </AlertDialog.Cancel>
               )}
               {onSubmit && (
                 <AlertDialog.Action asChild>
-                  <Button variant={variant} onClick={onSubmit} disabled={submitDisabled}>
+                  <Button
+                    tabIndex={0}
+                    variant={variant}
+                    onClick={onSubmit}
+                    disabled={submitDisabled}
+                  >
                     {submitText}
                   </Button>
                 </AlertDialog.Action>
