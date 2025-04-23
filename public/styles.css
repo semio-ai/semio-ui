@@ -585,7 +585,7 @@
     @apply dark:group-data-[state=checked]/item:text-black group-data-[state=checked]/item:text-white;
     @apply group-data-[highlighted]/item:group-data-[state=unchecked]/item:text-white;
     @apply dark:group-data-[highlighted]/item:group-data-[state=unchecked]/item:text-black;
-
+    @apply group-data-[state=unchecked]/item:opacity-50;
     @apply dark:group-data-[state=checked]/item:bg-layout-light-base group-data-[state=checked]/item:bg-layout-dark-base;
 
     @variant custom-color {

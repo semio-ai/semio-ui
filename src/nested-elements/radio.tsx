@@ -81,7 +81,7 @@ export function NestedRadio({ variant, disabled, onChange, value, options }: Nes
             forceMount
             className={clsx(
               "absolute left-1 inline-flex items-center justify-center",
-              "check-indicator p-1",
+              "check-indicator",
               option.color ? "custom-color" : (option.variant ?? variant),
             )}
           >

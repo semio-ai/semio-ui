@@ -21,12 +21,13 @@ export default meta;
 
 type Story = StoryObj<typeof Dropdown>;
 
-function DropdownRenderer(_props: DropdownProps): ReactNode {
+function DropdownRenderer(props: DropdownProps): ReactNode {
   return (
     <Dropdown
+      {...props}
       trigger={
         <Button
-          variant={Variant.Primary}
+          variant={props.variant}
           rightIcon={<IconChevronDown className="h-3/5 w-3/5" />}
           size={Size.Sm}
         >
@@ -50,5 +51,68 @@ export const Default: Story = {
     children: "See Example Code",
     trigger: "See Example Code",
     variant: Variant.Default,
+  },
+};
+
+export const Primary: Story = {
+  render: DropdownRenderer as ArgsStoryFn<ReactRenderer, DropdownProps>,
+  args: {
+    children: "See Example Code",
+    trigger: "See Example Code",
+    variant: Variant.Primary,
+  },
+};
+
+export const Secondary: Story = {
+  render: DropdownRenderer as ArgsStoryFn<ReactRenderer, DropdownProps>,
+  args: {
+    children: "See Example Code",
+    trigger: "See Example Code",
+    variant: Variant.Secondary,
+  },
+};
+
+export const Tertiary: Story = {
+  render: DropdownRenderer as ArgsStoryFn<ReactRenderer, DropdownProps>,
+  args: {
+    children: "See Example Code",
+    trigger: "See Example Code",
+    variant: Variant.Tertiary,
+  },
+};
+
+export const Info: Story = {
+  render: DropdownRenderer as ArgsStoryFn<ReactRenderer, DropdownProps>,
+  args: {
+    children: "See Example Code",
+    trigger: "See Example Code",
+    variant: Variant.Info,
+  },
+};
+
+export const Success: Story = {
+  render: DropdownRenderer as ArgsStoryFn<ReactRenderer, DropdownProps>,
+  args: {
+    children: "See Example Code",
+    trigger: "See Example Code",
+    variant: Variant.Success,
+  },
+};
+
+export const Warning: Story = {
+  render: DropdownRenderer as ArgsStoryFn<ReactRenderer, DropdownProps>,
+  args: {
+    children: "See Example Code",
+    trigger: "See Example Code",
+    variant: Variant.Warning,
+  },
+};
+
+export const Error: Story = {
+  render: DropdownRenderer as ArgsStoryFn<ReactRenderer, DropdownProps>,
+  args: {
+    children: "See Example Code",
+    trigger: "See Example Code",
+    variant: Variant.Error,
   },
 };

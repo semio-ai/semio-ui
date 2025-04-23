@@ -4,7 +4,6 @@ import { ReactNode } from "react";
 import { NestedParent, Variant } from "../types";
 import { NestedParentProvider } from "../nested-elements/context";
 import { ScrollArea } from "../scroll-area";
-import { Arrow } from "./arrow";
 
 export interface ContextMenuProps {
   trigger: ReactNode;
@@ -13,6 +12,7 @@ export interface ContextMenuProps {
 }
 
 function ContextMenu({ trigger, children, variant }: ContextMenuProps) {
+  console.log("variant", variant);
   return (
     <div className="relative inline-block text-left">
       <NestedParentProvider value={NestedParent.Context}>
@@ -26,6 +26,7 @@ function ContextMenu({ trigger, children, variant }: ContextMenuProps) {
               collisionPadding={2}
               className={clsx(
                 "card dropdown-content group/menu",
+                variant,
                 "min-w-[220px] m-0.5",
                 "max-h-(--radix-context-menu-content-available-height)",
                 "w-[calc(var(--radix-context-menu-trigger-width)+10px)]",

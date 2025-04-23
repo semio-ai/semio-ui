@@ -60,8 +60,10 @@ export function NestedMenu({ left, children, label, variant, disabled }: NestedM
         )}
         {label}
 
-        <div className={clsx("absolute right-1", "check-indicator", variant)}>
-          <IconChevronRight size="h-3/5 w-3/5" />
+        <div
+          className={clsx("absolute right-1 grid place-items-center", "check-indicator", variant)}
+        >
+          <IconChevronRight className="h-4/5 w-4/5" />
         </div>
       </SubTriggerComponent>
       <PortalComponent>

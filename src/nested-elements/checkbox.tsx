@@ -81,10 +81,10 @@ export function NestedCheckbox({
         <ItemIndicatorComponent
           className={clsx(
             "absolute left-1 inline-flex items-center justify-center",
-            "w-5 h-5 bg-transparent p-1",
+            "w-5 h-5 bg-transparent",
           )}
         >
-          {icon ?? <IconCheck className="w-full h-full" />}
+          {icon ?? <IconCheck className="w-3/5 h-3/5" />}
         </ItemIndicatorComponent>
         {label}
       </ItemComponent>

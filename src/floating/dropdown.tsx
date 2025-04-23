@@ -11,10 +11,14 @@ export interface DropdownProps {
   children: ReactNode;
   variant?: Variant;
   header?: ReactNode;
+  side?: "left" | "right" | "top" | "bottom";
 }
 
 const Dropdown = forwardRef(
-  ({ header, trigger, children, variant }: DropdownProps, ref: ForwardedRef<HTMLButtonElement>) => {
+  (
+    { header, trigger, children, variant, side }: DropdownProps,
+    ref: ForwardedRef<HTMLButtonElement>,
+  ) => {
     return (
       <div className="text-left group flex flex-1">
         <NestedParentProvider value={NestedParent.Dropdown}>
@@ -25,6 +29,7 @@ const Dropdown = forwardRef(
             <DropdownPrimitive.Portal>
               <DropdownPrimitive.Content
                 align="center"
+                side={side}
                 collisionPadding={2}
                 sideOffset={3}
                 arrowPadding={2}

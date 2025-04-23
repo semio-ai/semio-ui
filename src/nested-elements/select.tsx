@@ -87,7 +87,7 @@ export function NestedSelect({ variant, disabled, onChange, values, options }: N
             forceMount
             className={clsx(
               "absolute left-1 inline-flex items-center justify-center",
-              "check-indicator p-1",
+              "check-indicator",
               option.color ? "custom-color" : (option.variant ?? variant),
             )}
           >

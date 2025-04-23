@@ -12,8 +12,6 @@ export const Arrow = forwardRef(
     }: { filled: boolean; variant: Variant; className?: string },
     ref,
   ) => {
-    console.log("Arrow component rendered", variant, filled);
-
     return (
       <svg
         width="10"
