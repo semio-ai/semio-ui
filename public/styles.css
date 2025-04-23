@@ -604,7 +604,7 @@
     }
 
     @variant tertiary {
-      @apply dark:group-data-[state=unchecked]/item:text-tertiary-500 group-data-[state=unchecked]/item:text-tertiary-500;
+      @apply dark:group-data-[state=unchecked]/item:text-tertiary-400 group-data-[state=unchecked]/item:text-tertiary-600;
       @apply dark:group-data-[state=checked]/item:bg-tertiary-400 group-data-[state=checked]/item:bg-tertiary-600;
     }
 
