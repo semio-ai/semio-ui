@@ -3,7 +3,6 @@ import { IconPointFilled } from "@tabler/icons-react";
 import { clsx } from "clsx";
 // import { matchSorter } from "match-sorter";
 import { Size, Variant } from "./types";
-import { getHeight, getFontSize } from "./style-functions";
 import { TableList } from "./table-list";
 import { SelectProps } from "./floating/select";
 
@@ -45,11 +44,12 @@ export function SelectList<T extends string | string[]>({
       notFound={notFound}
       selection={selection as string[]}
       rowClassName={clsx(
+        size,
         "dark:bg-transparent bg-transparent hover:bg-neutral-500/10",
         "focus:outline outline-[1.5px] outline-offset-[-2px]",
         "has-focus:outline flex flex-row items-center",
         "aria-selected:focus:outline-black/50 aria-selected:has-focus:outline-black/50",
-        getHeight(size),
+        "sized-height",
         rowClassName,
       )}
       data={options.map((option) => ({ id: option.value, ...option }))}
@@ -72,9 +72,10 @@ export function SelectList<T extends string | string[]>({
               </div>
               <div
                 className={clsx(
+                  size,
                   "dark:group-aria-selected/row:text-neutral-950 group-aria-selected/row:text-neutral-50 text-neutral-500",
                   "select-none cursor-pointer",
-                  getFontSize(size),
+                  "sized-text",
                 )}
               >
                 {item.label}

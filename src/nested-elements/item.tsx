@@ -27,7 +27,7 @@ export function NestedItem({ left, children, right, variant, disabled, onClick }
         "leading-none flex items-center rounded-xs group/item",
         "h-7 text-sm px-[5px] relative pl-[30px] select-none outline-hidden",
         "data-disabled:pointer-events-none",
-        "highlight-list-item",
+        "responsive highlight-list-item",
         variant,
       )}
     >
@@ -35,7 +35,7 @@ export function NestedItem({ left, children, right, variant, disabled, onClick }
         <div
           className={clsx(
             "absolute left-1 inline-flex items-center justify-center",
-            "check-indicator",
+            "responsive check-indicator",
             variant,
           )}
         >
@@ -43,7 +43,11 @@ export function NestedItem({ left, children, right, variant, disabled, onClick }
         </div>
       )}
       {children}
-      {right && <div className={clsx("absolute right-1", "list-item-extra", variant)}>{right}</div>}
+      {right && (
+        <div className={clsx("absolute right-1", "responsive list-item-extra", variant)}>
+          {right}
+        </div>
+      )}
     </ItemComponent>
   );
 }

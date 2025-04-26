@@ -2,7 +2,6 @@ import { clsx } from "clsx";
 import { CSSProperties, ReactNode } from "react";
 import { alpha, altColor } from "@semio/utils";
 import { Variant, Size } from "../types";
-import { getBasicTextColor, getHeight } from "../style-functions";
 
 export interface StaticIconProps {
   children: ReactNode;
@@ -24,13 +23,13 @@ export function StaticIcon({
     <span
       className={clsx(
         "transition-all",
-        // "hover:scale-[101%]",
+        size,
+        variant,
         color && !deemphasize && "text-(--text-color)",
         color && deemphasize && "text-(--text-deemphasized-color)",
-        !color && getBasicTextColor(variant),
+        !color && "variant-static-text",
         "place-items-center",
-        size === "fit" ? "h-fit w-fit" : getHeight(size),
-        // getFontSize(size),
+        size === "fit" ? "h-fit w-fit" : "sized-height",
         className ?? "",
       )}
       style={

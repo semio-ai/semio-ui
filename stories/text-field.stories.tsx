@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { TextField, Variant, Size, type TextFieldProps } from "@semio/ui";
 import { useState } from "react";
+import { IconSearch } from "@tabler/icons-react";
 
 const meta: Meta<typeof TextField> = {
   component: TextField,
@@ -34,6 +35,14 @@ function TextFieldWithHooks(props: TextFieldProps): JSX.Element {
           setT(v);
           props.onChange?.(v, e);
         }}
+        onClear={
+          props.onClear
+            ? (e) => {
+                setT("");
+                props.onClear?.(e);
+              }
+            : undefined
+        }
       />
     </div>
   );
@@ -52,10 +61,8 @@ export const Primary: Story = {
       </div>
     );
   },
-  name: "Text Field",
   args: {
     value: "I am text",
-    // variant: Variant.PRIMARY,
     onChange: (): void => {
       // eslint-disable-next-line no-console -- log for demo
       console.log("Hello World!");
@@ -64,5 +71,101 @@ export const Primary: Story = {
     variant: Variant.Primary,
     disabled: false,
     bg: true,
+  },
+};
+
+export const PrimaryNoBg: Story = {
+  render: (props) => {
+    return (
+      <div className="w-96">
+        <TextFieldWithHooks {...props} />
+      </div>
+    );
+  },
+  args: {
+    value: "I am text",
+    onChange: (): void => {
+      // eslint-disable-next-line no-console -- log for demo
+      console.log("Hello World!");
+    },
+    size: Size.Sm,
+    variant: Variant.Primary,
+    disabled: false,
+    bg: false,
+  },
+};
+
+export const PrimaryIcon: Story = {
+  render: (props) => {
+    return (
+      <div className="w-96">
+        <TextFieldWithHooks {...props} />
+      </div>
+    );
+  },
+  args: {
+    value: "I am text",
+    icon: <IconSearch className="w-3/5 h-3/5" />,
+    onChange: (): void => {
+      // eslint-disable-next-line no-console -- log for demo
+      console.log("Hello World!");
+    },
+    size: Size.Sm,
+    variant: Variant.Primary,
+    disabled: false,
+    bg: true,
+  },
+};
+
+export const PrimaryIconClearable: Story = {
+  render: (props) => {
+    return (
+      <div className="w-96">
+        <TextFieldWithHooks {...props} />
+      </div>
+    );
+  },
+  args: {
+    value: "I am text",
+    icon: <IconSearch className="w-3/5 h-3/5" />,
+    onChange: (): void => {
+      // eslint-disable-next-line no-console -- log for demo
+      console.log("Hello World!");
+    },
+    onClear: (): void => {
+      // eslint-disable-next-line no-console -- log for demo
+      console.log("Clear");
+    },
+    size: Size.Sm,
+    variant: Variant.Primary,
+    disabled: false,
+    bg: true,
+  },
+};
+
+export const SubtleIconClearable: Story = {
+  render: (props) => {
+    return (
+      <div className="w-96">
+        <TextFieldWithHooks {...props} />
+      </div>
+    );
+  },
+  args: {
+    value: "I am text",
+    icon: <IconSearch className="w-3/5 h-3/5" />,
+    onChange: (): void => {
+      // eslint-disable-next-line no-console -- log for demo
+      console.log("Hello World!");
+    },
+    onClear: (): void => {
+      // eslint-disable-next-line no-console -- log for demo
+      console.log("Clear");
+    },
+    size: Size.Sm,
+    variant: Variant.Default,
+    disabled: false,
+    bg: true,
+    subtle: true,
   },
 };

@@ -43,7 +43,7 @@ export function NestedMenu({ left, children, label, variant, disabled }: NestedM
           "leading-none flex items-center rounded-xs group/item",
           "h-7 text-sm px-[5px] relative pl-[30px] select-none outline-hidden",
           "data-disabled:pointer-events-none",
-          "highlight-list-item",
+          "responsive highlight-list-item",
           variant,
         )}
       >
@@ -51,7 +51,7 @@ export function NestedMenu({ left, children, label, variant, disabled }: NestedM
           <div
             className={clsx(
               "absolute left-0 w-[30px] inline-flex items-center justify-center",
-              "check-indicator",
+              "responsive check-indicator",
               variant,
             )}
           >
@@ -61,7 +61,11 @@ export function NestedMenu({ left, children, label, variant, disabled }: NestedM
         {label}
 
         <div
-          className={clsx("absolute right-1 grid place-items-center", "check-indicator", variant)}
+          className={clsx(
+            "absolute right-1 grid place-items-center",
+            "responsive check-indicator",
+            variant,
+          )}
         >
           <IconChevronRight className="h-4/5 w-4/5" />
         </div>
@@ -71,7 +75,7 @@ export function NestedMenu({ left, children, label, variant, disabled }: NestedM
           <div
             className={clsx(
               variant,
-              "card dropdown-content",
+              "responsive card dropdown-content",
               "min-w-[220px]",
               parent === NestedParent.Dropdown
                 ? "max-h-(--radix-dropdown-menu-content-available-height)"

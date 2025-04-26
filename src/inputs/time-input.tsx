@@ -1,10 +1,10 @@
 import { useState, useEffect, useRef } from "react";
 import { clsx } from "clsx";
 import { Size, TimeDisplay, Variant } from "../types";
-import { getFontSize, getHeight, getOutline, getTextCaretColor } from "../style-functions";
 import { useTemporal } from "../hooks/use-temporal";
 import { useNumeric } from "../hooks/use-numeric";
 import { StyledInput } from "./styled-input";
+import { TextField } from "./text-field";
 
 export interface TimeInputProps extends Omit<React.HTMLAttributes<HTMLInputElement>, "onChange"> {
   value: number | undefined;
@@ -73,6 +73,22 @@ export function TimeInput({
 
   const actionPrevented = disabled || value === undefined;
 
+  if (display === TimeDisplay.Frames) {
+    return (
+      <FramesInput
+        variant={variant}
+        disabled={actionPrevented}
+        size={size}
+        onFocus={() => setEditing("frames")}
+        onBlur={() => setEditing(null)}
+        min={min}
+        max={max}
+        value={temporal.frames}
+        onChange={(v) => temporal.onChangeFrames(v.toString())}
+      />
+    );
+  }
+
   const renderTimeInput = () => {
     return (
       <>
@@ -136,71 +152,41 @@ export function TimeInput({
     );
   };
 
-  // const renderFramesInput = () => {
-  //   return (
-  //     <StyledInput
-  //       flex={false}
-  //       disabled={actionPrevented}
-  //       readOnly={actionPrevented}
-  //       type="text"
-  //       sizeVariant={size}
-  //       value={temporal.framesDisplay}
-  //       onFocus={() => {
-  //         if (!actionPrevented) {
-  //           setEditing("frames");
-  //         }
-  //       }}
-  //       onBlur={() => setEditing(null)}
-  //       onChange={(e) => temporal.onChangeFrames(e.target.value)}
-  //       className={clsx("text-center", getWidth(4, size))}
-  //     />
-  //   );
-  // };
-
   return (
     <label
       className={clsx(
-        bg ? "dark:bg-neutral-950/20 bg-neutral-50/20" : "bg:transparent",
+        "responsive",
+        bg ? "dark:bg-neutral-950/20 bg-neutral-50/20" : "bg-transparent",
         "dark:focus-within:bg-neutral-950/20 focus-within:bg-neutral-50/20",
         "relative flex justify-between w-full items-baseline gap-1",
         "text-black dark:text-white",
-        "focus-within:outline focus-within:outline-1 focus-within:outline-offset-2",
+        "focus-within:outline focus-within:outline-offset-2",
         "px-1",
         hidden && "hidden",
-        getOutline(variant),
-        getHeight(size),
-        getTextCaretColor(variant),
+        size,
+        "sized-height",
+        variant,
+        "variant-responsive-appearing-outline",
+        "variant-text-caret-color",
       )}
     >
       {label && (
         <span
           id={label}
           aria-label={label}
-          className={clsx(getFontSize(size), "font-mono font-thin px-1 select-none")}
+          className={clsx(size, "sized-text font-mono font-thin px-1 select-none")}
         >
           {label}
         </span>
       )}
-      {display === TimeDisplay.Frames ? (
-        <FramesInput
-          disabled={actionPrevented}
-          size={size}
-          onFocus={() => setEditing("frames")}
-          onBlur={() => setEditing(null)}
-          min={min}
-          max={max}
-          value={temporal.frames}
-          onChange={(v) => temporal.onChangeFrames(v.toString())}
-        />
-      ) : (
-        renderTimeInput()
-      )}
+      {renderTimeInput()}
     </label>
   );
 }
 
 interface FramesInputProps {
   value: number | undefined;
+  variant?: Variant;
   onChange: (value: number) => void;
   disabled?: boolean;
   label?: string;
@@ -214,6 +200,7 @@ interface FramesInputProps {
 
 function FramesInput({
   value,
+  variant,
   onChange,
   disabled,
   onBlur,
@@ -234,7 +221,6 @@ function FramesInput({
     max,
   });
 
-  // const [focused, setFocused] = useState(false);
   const focusedRef = useRef(false);
 
   useEffect(() => {
@@ -244,10 +230,11 @@ function FramesInput({
   }, [value, onChangeHeadless]);
 
   return (
-    <StyledInput
-      flex={false}
+    <TextField
       disabled={disabled}
+      variant={variant}
       readOnly={disabled}
+      icon={<span className={clsx(size, "sized-text")}>f</span>}
       type="text"
       size={size}
       value={textValue}
@@ -255,13 +242,13 @@ function FramesInput({
         focusedRef.current = true;
         onFocus && onFocus();
       }}
-      onBlur={() => {
+      onBlur={(e) => {
         focusedRef.current = false;
-        onBlurInner();
+        onBlurInner(e);
         onBlur && onBlur();
       }}
-      onChange={onChangeInner}
-      className={clsx("text-right flex-1", getWidth(4, size))}
+      className="text-right"
+      onChange={(_, event) => onChangeInner(event)}
     />
   );
 }

@@ -88,13 +88,13 @@ function InnerToast({ data }: { data: ToastData }) {
       <motion.li
         layout
         className={clsx(
-          "overflow-hidden items-center shadow-md",
+          "overflow-hidden items-center",
           "box-border relative w-[30ch] pointer-events-auto select-none",
           "data-[swipe=cancel]:translate-x-0 data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)]",
           "data-[swipe=end]:animate-toastSwipeOut",
           "data-[swipe=cancel]:transition-[transform_200ms_ease-out]",
           data.variant,
-          "card overflow-clip",
+          "card",
         )}
         initial={{ x: width + margin }}
         animate={{ x: 0 }}
@@ -120,7 +120,7 @@ function InnerToast({ data }: { data: ToastData }) {
             className={clsx(
               "text-[15px] flex-row flex items-center gap-3",
               data.variant,
-              "colored-text",
+              "variant-static-text",
             )}
           >
             <ProgressCircle

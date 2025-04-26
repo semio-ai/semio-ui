@@ -1,4 +1,4 @@
-import { CSSProperties, ReactNode } from "react";
+import { CSSProperties, ForwardedRef, forwardRef, ReactNode } from "react";
 import { IconPointFilled, IconSelector } from "@tabler/icons-react";
 import { clsx } from "clsx";
 // Will hopefully use later once we can search in the select.
@@ -11,6 +11,7 @@ import { NestedRadio } from "../nested-elements/radio";
 import { Chip } from "../chip";
 import { NestedLabel } from "../nested-elements/label";
 import { Dropdown } from "./dropdown";
+import { Button } from "../buttons/button";
 
 /**
  * @param {string} label - The text to display in the option
@@ -24,6 +25,7 @@ export interface SelectOption {
   value: string;
   disabled?: boolean;
   color?: string;
+  variant?: Variant;
   icon?: ReactNode;
 }
 
@@ -36,18 +38,13 @@ export interface SelectOption {
  * @param {string} label - The label of the select
  */
 export interface SelectProps<T extends string | string[]> {
-  variant?: Variant;
   value?: T;
   onChange: (value: T) => void;
-  options: {
-    label: string;
-    value: string;
-    disabled?: boolean;
-    color?: string;
-    icon?: ReactNode;
-  }[];
+  options: SelectOption[];
   size?: Size;
   label?: string;
+  variant?: Variant;
+  className?: string;
 }
 
 /**
@@ -63,68 +60,79 @@ export function Select<T extends string | string[]>({
   value,
   onChange,
   options,
-  variant,
   size = Size.Md,
   label,
+  variant,
+  className,
 }: SelectProps<T>) {
   const multiple = Array.isArray(value);
+
+  const renderSingleOption = (selectOption?: SelectOption) => (
+    <div
+      style={
+        {
+          "--custom-color": selectOption?.color,
+        } as CSSProperties
+      }
+      className={clsx(
+        "responsive rounded-xs variant-mock-item-bg",
+        "variant-responsive-text variant-responsive-appearing-outline",
+        "flex flex-row flex-1 px-1 items-center",
+        "sized-height",
+        size,
+        selectOption?.color ? "custom-color" : (selectOption?.variant ?? Variant.Default),
+        className,
+      )}
+    >
+      {/* {typeof value === "string" && value ? ( */}
+      <div
+        className={clsx("flex flex-1 flex-row items-center justify-center", "sized-height", size)}
+      >
+        <div
+          className={clsx(
+            size,
+            selectOption?.color ? "custom-color" : (selectOption?.variant ?? Variant.Default),
+            "responsive sized-mock-inner-item",
+            "grid place-items-center",
+            "variant-mock-inner-item",
+          )}
+        >
+          {selectOption?.icon || <IconPointFilled className="w-3/5 h-3/5" />}
+        </div>
+        <span
+          style={
+            {
+              "--custom-color": selectOption?.color,
+            } as CSSProperties
+          }
+          className={clsx(
+            "flex flex-1 flex-row px-3 items-center text-ellipsis text-nowrap",
+            "responsive highlight-list-item",
+            "sized-height",
+            "sized-text",
+            selectOption?.color ? "custom-color" : Variant.Default,
+          )}
+        >
+          {selectOption?.label ?? label}
+        </span>
+
+        <StaticIcon
+          size="fit"
+          className="pr-0.5 items-center justify-around"
+          variant={selectOption?.variant}
+        >
+          <IconSelector size="13px" />
+        </StaticIcon>
+      </div>
+    </div>
+  );
+
   return (
     <div className="flex flex-row w-full">
       <Dropdown
-        trigger={
-          <div
-            className={clsx(
-              variant,
-              "variant-responsive-text variant-responsive-persistent-outline",
-              "rounded-xs",
-              "w-full flex flex-row flex-1 items-center",
-              "focus:outline focus:outline-offset-2",
-              "data-[state=open]:outline data-[state=open]:outline-offset-2",
-              "px-1",
-              size,
-              "sized-height",
-              getOutline(variant),
-            )}
-          >
-            {/* {typeof value === "string" && value ? ( */}
-            <div
-              className={clsx("flex flex-1 flex-row items-center justify-center", "sized-height")}
-            >
-              <StaticIcon
-                size="fit"
-                className="w-3 h-3 pl-0"
-                color={options.find((o) => o.value === value)?.color}
-              >
-                {options.find((o) => o.value === value)?.icon || <IconPointFilled size="13px" />}
-              </StaticIcon>
-              <span
-                style={
-                  {
-                    "--text-color": options.find((o) => o.value === value)?.color,
-                  } as CSSProperties
-                }
-                className={clsx(
-                  "flex flex-1 flex-row px-3 items-center text-ellipsis text-nowrap",
-                  "highlight-list-item",
-                  "sized-height",
-                  "sized-text",
-                  options.find((o) => o.value === value)?.color ? "custom-color" : Variant.Default,
-                )}
-              >
-                {value ? options.find((o) => o.value === value)?.label : label}
-              </span>
-
-              <StaticIcon
-                size="fit"
-                className="pr-0.5 items-center justify-around"
-                variant={variant}
-              >
-                <IconSelector size="13px" />
-              </StaticIcon>
-            </div>
-          </div>
-        }
-        variant={variant}
+        trigger={renderSingleOption(options.find((o) => o.value === value))}
+        variant={options.find((o) => o.value === value)?.variant ?? Variant.Default}
+        color={options.find((o) => o.value === value)?.color ?? undefined}
       >
         {label && <NestedLabel>{label}</NestedLabel>}
         {multiple && options.length > 0 && (
@@ -186,3 +194,20 @@ function smallerSize(size: Size): Size {
   if (size === Size.Lg) return Size.Md;
   return Size.Sm;
 }
+
+// interface SingleIndicatorProps {
+//   selectOption?: SelectOption;
+//   size?: Size;
+//   placeholder?: string;
+// }
+
+// function InnerSingleIndicator(
+//   { selectOption, placeholder, size }: SingleIndicatorProps,
+//   ref: ForwardedRef<HTMLDivElement>,
+// ) {
+//   return (
+
+//   );
+// }
+
+// const SingleIndicator = forwardRef(InnerSingleIndicator);

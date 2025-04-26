@@ -62,6 +62,38 @@ export const Tertiary: Story = {
   },
 };
 
+export const Info: Story = {
+  render: ProgressAnimator as ArgsStoryFn<ReactRenderer, ProgressProps>,
+  args: {
+    variant: Variant.Info,
+    size: Size.Md,
+  },
+};
+
+export const Warning: Story = {
+  render: ProgressAnimator as ArgsStoryFn<ReactRenderer, ProgressProps>,
+  args: {
+    variant: Variant.Warning,
+    size: Size.Md,
+  },
+};
+
+export const Success: Story = {
+  render: ProgressAnimator as ArgsStoryFn<ReactRenderer, ProgressProps>,
+  args: {
+    variant: Variant.Success,
+    size: Size.Md,
+  },
+};
+
+export const Error: Story = {
+  render: ProgressAnimator as ArgsStoryFn<ReactRenderer, ProgressProps>,
+  args: {
+    variant: Variant.Error,
+    size: Size.Md,
+  },
+};
+
 export const ExtraSmall: Story = {
   render: ProgressAnimator as ArgsStoryFn<ReactRenderer, ProgressProps>,
   args: {
@@ -73,7 +105,7 @@ export const ExtraSmall: Story = {
 export const Small: Story = {
   render: ProgressAnimator as ArgsStoryFn<ReactRenderer, ProgressProps>,
   args: {
-    variant: Variant.Success,
+    variant: Variant.Default,
     size: Size.Sm,
   },
 };
@@ -81,7 +113,7 @@ export const Small: Story = {
 export const Medium: Story = {
   render: ProgressAnimator as ArgsStoryFn<ReactRenderer, ProgressProps>,
   args: {
-    variant: Variant.Success,
+    variant: Variant.Default,
     size: Size.Md,
   },
 };
@@ -89,7 +121,7 @@ export const Medium: Story = {
 export const Large: Story = {
   render: ProgressAnimator as ArgsStoryFn<ReactRenderer, ProgressProps>,
   args: {
-    variant: Variant.Success,
+    variant: Variant.Default,
     size: Size.Lg,
   },
 };
@@ -97,7 +129,7 @@ export const Large: Story = {
 export const ExtraLarge: Story = {
   render: ProgressAnimator as ArgsStoryFn<ReactRenderer, ProgressProps>,
   args: {
-    variant: Variant.Success,
+    variant: Variant.Default,
     size: Size.Xl,
   },
 };

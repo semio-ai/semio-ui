@@ -2,7 +2,6 @@ import { CSSProperties, ReactNode } from "react";
 import * as RadixSeparator from "@radix-ui/react-separator";
 import { clsx } from "clsx";
 import { Variant } from "./types";
-import { getSeparatorStyle } from "./style-functions";
 
 export interface SeparatorProps {
   children?: ReactNode;
@@ -39,7 +38,7 @@ export function Separator({
             "flex flex-1 data-[orientation=horizontal]:h-px data-[orientation=vertical]:w-px",
             variant === "layout" && "dark:bg-layout-dark-separator/50 bg-layout-light-separator/50",
             color ? "custom-color" : variant,
-            "variant-separator-fill",
+            "responsive variant-separator-fill",
           )}
         />
         {children}
@@ -49,7 +48,7 @@ export function Separator({
             "flex flex-1 data-[orientation=horizontal]:h-px data-[orientation=vertical]:w-px",
             variant === "layout" && "dark:bg-layout-dark-separator/50 bg-layout-light-separator/50",
             color ? "custom-color" : variant,
-            "variant-separator-fill",
+            "responsive variant-separator-fill",
           )}
         />
       </div>

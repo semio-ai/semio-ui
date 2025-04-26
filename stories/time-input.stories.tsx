@@ -4,6 +4,14 @@ import { useState } from "react";
 
 const meta: Meta<typeof TimeInput> = {
   component: TimeInput,
+  decorators: [
+    (Story) => (
+      <div className="grid place-items-center p-5 h-full">
+        {/* 👇 Decorators in Storybook also accept a function. Replace <Story/> with Story() to enable it  */}
+        <Story />
+      </div>
+    ),
+  ],
 };
 
 export default meta;

@@ -38,3 +38,14 @@ export const DefaultPrimary: Story = {
     disabled: false,
   },
 };
+
+export const DefaultPrimaryInvert: Story = {
+  render: CheckboxRenderer as ArgsStoryFn<ReactRenderer, CheckboxProps>,
+  args: {
+    checked: true,
+    variant: Variant.Primary,
+    size: Size.Md,
+    disabled: false,
+    invert: true,
+  },
+};

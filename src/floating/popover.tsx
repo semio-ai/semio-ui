@@ -26,15 +26,13 @@ function Popover({ trigger, children, open, onStateChange, variant }: PopoverPro
             className={clsx(
               variant,
               "popover-content focus:outline-none",
-              "card",
+              "responsive card",
               "rounded-sm min-w-[220px] m-0.5",
-              "w-96 shadow-md",
             )}
           >
             <PopoverPrimitive.Arrow asChild width={12} height={6}>
               <Arrow filled={false} variant={variant ?? Variant.Default} />
             </PopoverPrimitive.Arrow>
-
             {children}
           </PopoverPrimitive.Content>
         </PopoverPrimitive.Portal>

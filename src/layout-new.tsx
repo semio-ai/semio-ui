@@ -5,7 +5,7 @@ import type {
   MouseEvent,
   MouseEventHandler,
 } from "react";
-import { memo, useCallback, useEffect, useRef } from "react";
+import { isValidElement, memo, useCallback, useEffect, useRef } from "react";
 import { clsx } from "clsx";
 import { motion, AnimatePresence, TargetAndTransition } from "motion/react";
 import { useGesture } from "@use-gesture/react";
@@ -19,6 +19,7 @@ import { Size, Variant } from "./types";
 import { Status } from "./status";
 import { Tooltip } from "./floating/tooltip";
 import { ToggleGroupProps } from "./toggle-group";
+import useMeasure, { RectReadOnly } from "react-use-measure";
 
 export type MenuItemClickFn = (id: string, event: MouseEvent) => Promise<void> | void;
 
@@ -44,9 +45,10 @@ export interface PaneSpec {
 
 export interface LayoutNewProps {
   className?: string;
-  children?: ReactNode;
+  children?: ReactNode | ((contentBounds: RectReadOnly) => ReactNode);
   homeIcon?: ReactNode;
   homeText?: string;
+  homeClassName?: string;
 }
 
 function TestPane() {
@@ -70,8 +72,15 @@ function TestPane() {
  *
  * @param className - The class name applied to the root element.
  */
-export function InnerLayoutNew({ className, homeIcon, homeText }: LayoutNewProps) {
+export function InnerLayoutNew({
+  className,
+  homeIcon,
+  homeText,
+  children,
+  homeClassName,
+}: LayoutNewProps) {
   const root = useRef<HTMLDivElement>();
+  const [contentRef, contentBounds] = useMeasure();
 
   const { contentWidth, leftWidth, rightWidth, leftMenuItems, rightMenuItems, menuExpanded } =
     useLayoutState();
@@ -155,24 +164,25 @@ export function InnerLayoutNew({ className, homeIcon, homeText }: LayoutNewProps
       ref={root as MutableRefObject<HTMLDivElement>}
       className={clsx(
         "relative top-0 left-0 h-dvh w-dvw flex select-none",
-        "bg-[url(https://imageplaceholder.net/400x600/eeeeee/ffffff?theme=Spring)] bg-cover bg-center",
-        // "dark:bg-layout-dark-inset bg-layout-light-inset touch-none",
+        "bg-layout-light-base dark:bg-layout-dark-base",
         "app-layout",
         className,
       )}
     >
+      {children && (
+        <div className="absolute top-0 left-0 bottom-0 right-0 z-0">
+          {isValidElement(children) && children}
+          {!isValidElement(children) && typeof children === "function" && children(contentBounds)}
+        </div>
+      )}
       {/* Menu (thin left bar)*/}
       <div
         data-ui={menuExpanded ? "expanded" : ""}
-        className={clsx(
-          "grid-area-menu h-full w-full",
-          "group/menu",
-          // footerRegionActive ? "pb-0.5 desktop:pb-0" : "pb-1",
-        )}
+        className={clsx("grid-area-menu h-full w-full", "group/menu")}
       >
         <div
           className={clsx(
-            "card h-full flex items-center",
+            "responsive card-transparent h-full flex items-center",
             "flex-row justify-center desktop:justify-start w-full desktop:transition-[width]",
             "desktop:w-10 desktop:group-data-expanded/menu:w-48 desktop:flex-col desktop:justify-start",
           )}
@@ -184,6 +194,8 @@ export function InnerLayoutNew({ className, homeIcon, homeText }: LayoutNewProps
                 toggleMenu();
               }}
               icon={homeIcon ?? <IconHome />}
+              className="font-bold"
+              textClassName={homeClassName}
             >
               {homeText ?? "Home"}
             </MenuBarButton>
@@ -211,7 +223,12 @@ export function InnerLayoutNew({ className, homeIcon, homeText }: LayoutNewProps
 
       {/* Header */}
       <div className="grid-area-header w-full h-full">
-        <div className={clsx("card h-10 flex items-center", "flex-row justify-start")}>
+        <div
+          className={clsx(
+            "responsive card-transparent h-10 flex items-center",
+            "flex-row justify-start",
+          )}
+        >
           <button
             type="button"
             role="tab"
@@ -222,7 +239,14 @@ export function InnerLayoutNew({ className, homeIcon, homeText }: LayoutNewProps
           >
             {homeIcon ?? <IconHome />}
           </button>
-          <p className="desktop:hidden">{homeText ?? "Home"}</p>
+          <p
+            className={clsx(
+              "desktop:hidden responsive default font-bold variant-static-text",
+              homeClassName,
+            )}
+          >
+            {homeText ?? "Home"}
+          </p>
         </div>
       </div>
 
@@ -241,7 +265,11 @@ export function InnerLayoutNew({ className, homeIcon, homeText }: LayoutNewProps
       <div className="grid-area-right w-full h-full hidden desktop:flex overflow-hidden">
         <div
           data-ui={rightRegionActive ? "expanded" : ""}
-          className="card overflow-clip grid grid-cols-1 grid-rows-[40px_0fr] data-expanded:h-auto h-10 data-expanded:grid-rows-[40px_auto] transition-[height] group/right"
+          className={clsx(
+            "responsive card-transparent overflow-clip group/right",
+            "grid grid-cols-1 grid-rows-[40px_0fr]",
+            "data-expanded:h-auto h-10 data-expanded:grid-rows-[40px_auto] transition-[height]",
+          )}
         >
           <div className="flex flex-row h-10 group-data-expanded/right:h-full justify-between items-center">
             <div className="hidden group-data-expanded/right:flex flex-row h-10 w-full items-center justify-center p-2">
@@ -263,37 +291,35 @@ export function InnerLayoutNew({ className, homeIcon, homeText }: LayoutNewProps
                 />
               )}
             </div>
-            <button
-              type="button"
+            <Button
+              invert
               role="tab"
+              leftIcon={
+                <IconChevronRightPipe
+                  className={clsx(
+                    "transition-transform w-3/5 h-3/5 ease-in-out duration-100",
+                    "rotate-180 group-data-expanded/right:rotate-360",
+                  )}
+                />
+              }
               className="w-10 h-10 grid place-items-center"
               disabled={
                 rightMenuItems.length === 0 ||
                 rightMenuItems.filter((item) => !item.disabled).length === 0
               }
               onClick={() => togglePaneRegion(PaneRegion.Right, rightMenuItems[0]?.id)}
-            >
-              <IconChevronRightPipe
-                className={clsx(
-                  "transition-transform",
-                  "rotate-180 group-data-expanded/right:rotate-360",
-                  // "-scale-x-100 group-data-expanded/right:scale-x-100",
-                )}
-              />
-            </button>
+            />
           </div>
           <PanelContent region={PaneRegion.Right} />
         </div>
       </div>
 
       {/* Content */}
-      <div className={clsx("grid-area-content w-full h-full overflow-hidden")}>
-        <div
-          className={clsx(
-            "card h-full w-full bg-transparent backdrop-blur-none dark:bg-transparent",
-            "outline-2 -outline-offset-2 outline-dashed outline-white",
-          )}
-        />
+      <div
+        ref={contentRef}
+        className={clsx("grid-area-content w-full h-full overflow-hidden -z-1")}
+      >
+        <div className={clsx("h-full w-full bg-transparent pointer-events-none")} />
       </div>
 
       {/* Footer */}
@@ -317,6 +343,8 @@ interface MenuBarButtonProps {
     placement?: "top-left" | "top-right" | "bottom-left" | "bottom-right";
     text?: string;
   };
+  className?: string;
+  textClassName?: string;
 }
 
 function MenuBarButton({
@@ -328,6 +356,8 @@ function MenuBarButton({
   hoverable,
   status,
   variant,
+  className,
+  textClassName,
 }: MenuBarButtonProps) {
   const menuOpen = useAtomValue(menuStateAtom);
   const desktop = useAtomValue(desktopAtom);
@@ -337,10 +367,18 @@ function MenuBarButton({
         variant: status.variant,
         placement: status.placement,
         text: status.text,
-        className: clsx("variant-responsive-selectable-text", variant),
+        className: clsx(
+          "responsive",
+          hoverable ? "variant-responsive-selectable-text" : "variant-static-text",
+          variant,
+        ),
       }
     : {
-        className: clsx("variant-responsive-selectable-text", variant),
+        className: clsx(
+          "responsive",
+          hoverable ? "variant-responsive-selectable-text" : "variant-static-text",
+          variant,
+        ),
       };
 
   return (
@@ -350,12 +388,11 @@ function MenuBarButton({
       aria-selected={active}
       className={clsx(
         variant,
-        "w-10 group/tab h-10 text-neutral-500 overflow-hidden",
+        "w-10 group/tab h-10 overflow-hidden",
         desktop && "group-data-expanded/menu:w-48",
-        hoverable && "dark:hover:text-neutral-400 hover:text-neutral-600",
         "overflow-hidden transition-all",
         "grid place-items-center grid-cols-[40px_1fr] grid-rows-1 gap-[6px]",
-        "",
+        className,
       )}
       onClick={onClick}
     >
@@ -370,10 +407,12 @@ function MenuBarButton({
       </Tooltip>
       <span
         className={clsx(
+          "responsive",
           desktop && "group-data-expanded/menu:opacity-100",
           "opacity-0 text-left w-[150px]",
-          "variant-responsive-selectable-text",
+          hoverable ? "variant-responsive-selectable-text" : "variant-static-text",
           variant,
+          textClassName,
         )}
       >
         {children}
@@ -622,22 +661,6 @@ function createPane(): PaneSpec {
 
 export const LayoutNew = memo(InnerLayoutNew);
 
-const rootStyle = clsx(
-  "relative top-0 left-0 h-dvh w-dvw flex select-none",
-  // "dark:bg-layout-dark-base bg-layout-light-base touch-none",
-  "grid desktop:app-layout-desktop",
-);
-
-const mainContainerStyle = clsx(
-  "flex flex-col grow min-w-0 min-h-0 overflow-hidden",
-  "divide-y divide-solid dark:divide-layout-dark-separator/50 divide-layout-light-separator/50",
-);
-
-const mainBodyStyle = clsx(
-  "flex grow min-h-0 overflow-hidden",
-  "dark:bg-layout-dark-inset bg-layout-light-inset",
-);
-
 export function PanelContent({ region }: { region: PaneRegion }) {
   const panes = useAtomValue(panesAtom);
   const desktop = useAtomValue(desktopAtom);
@@ -661,7 +684,7 @@ export function PanelContent({ region }: { region: PaneRegion }) {
               transition={{ duration: 0.15, ease: "anticipate" }}
               className={clsx(
                 "w-full overflow-clip",
-                pane.region !== PaneRegion.Right && "card h-full",
+                pane.region !== PaneRegion.Right && "responsive card-transparent h-full",
               )}
             >
               {pane.content}

@@ -12,14 +12,11 @@ export interface ContextMenuProps {
 }
 
 function ContextMenu({ trigger, children, variant }: ContextMenuProps) {
-  console.log("variant", variant);
   return (
     <div className="relative inline-block text-left">
       <NestedParentProvider value={NestedParent.Context}>
         <ContextMenuPrimitive.Root>
-          <ContextMenuPrimitive.Trigger asChild className="select-none">
-            {trigger}
-          </ContextMenuPrimitive.Trigger>
+          <ContextMenuPrimitive.Trigger asChild>{trigger}</ContextMenuPrimitive.Trigger>
           <ContextMenuPrimitive.Portal>
             <ContextMenuPrimitive.Content
               alignOffset={3}

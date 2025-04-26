@@ -74,7 +74,7 @@ export function NestedCheckbox({
           "leading-none flex items-center rounded-xs group/item",
           "h-7 text-sm px-[5px] relative pl-[30px] select-none outline-hidden",
           "data-disabled:pointer-events-none",
-          "highlight-list-item",
+          "responsive highlight-list-item",
           color ? "custom-color" : variant,
         )}
       >

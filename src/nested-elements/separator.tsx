@@ -14,5 +14,9 @@ export function NestedSeparator({ variant }: NestedSeparatorProps) {
   const ItemComponent =
     parent === NestedParent.Dropdown ? DropdownMenuSeparator : ContextMenuSeparator;
 
-  return <ItemComponent className={clsx("h-[1px] m-[5px]", variant, "variant-separator-fill")} />;
+  return (
+    <ItemComponent
+      className={clsx("h-[1px] m-[5px]", variant, "responsive variant-separator-fill")}
+    />
+  );
 }

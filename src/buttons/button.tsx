@@ -73,6 +73,7 @@ export const Button = forwardRef(
         aria-label={altText}
         data-deemphasized={deemphasize}
         className={clsx(
+          "responsive select-none",
           !invert &&
             !border &&
             !callToAction &&

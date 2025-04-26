@@ -15,13 +15,14 @@ export function Progress({ progress, variant, size }: ProgressProps) {
     <RadixProgress.Root
       className={clsx(
         size,
-        "sized-progress-height relative overflow-hidden dark:bg-neutral-200 bg-neutral-800 w-full translate-z-0 rounded-sm",
+        variant,
+        "responsive sized-progress-height relative overflow-hidden variant-static-bg-50 w-full translate-z-0 rounded-sm",
       )}
       value={progress}
     >
       <RadixProgress.Indicator
         style={{ width: `${(progress * 100).toString()}%` }}
-        className={clsx(variant, "variant-static-fill h-full duration-200 ease-in-out")}
+        className={clsx(variant, "variant-static-bg h-full duration-200 ease-in-out")}
       />
     </RadixProgress.Root>
   );
@@ -49,7 +50,15 @@ export function ProgressCircle({ size, progress, variant, icon }: ProgressCircle
   const strokeDashoffset: MotionValue<number> = useTransform(progressValue, progressToOffset);
 
   return (
-    <div className={clsx(size, variant, "sized-height sized-width", "colored-text", "relative")}>
+    <div
+      className={clsx(
+        size,
+        variant,
+        "sized-height sized-width",
+        "variant-static-text",
+        "relative responsive",
+      )}
+    >
       <svg width="100%" height="100%" viewBox="0 0 10 10">
         <g transform="translate(5,5) rotate(-90)">
           <circle

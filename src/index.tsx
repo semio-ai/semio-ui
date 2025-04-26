@@ -61,7 +61,7 @@ export * from "./icons/static-icon";
 export * from "./icons/world-element-icons";
 
 // Inputs
-export * from "./inputs/basic-number-field";
+export * from "./inputs/number-field";
 export * from "./inputs/slider-number-field";
 export * from "./inputs/email";
 export * from "./inputs/password";

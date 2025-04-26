@@ -2,13 +2,6 @@ import * as AvatarPrimitive from "@radix-ui/react-avatar";
 import { clsx } from "clsx";
 import { ForwardedRef, MouseEventHandler, forwardRef } from "react";
 import { Variant, Size } from "./types";
-import {
-  getHeight,
-  getWidth,
-  getHoverButtonStyles,
-  getBasicBgColor,
-  getOutline,
-} from "./style-functions";
 import { Status } from "./status";
 
 export interface AvatarProps {
@@ -16,11 +9,10 @@ export interface AvatarProps {
   icon?: React.ReactNode;
   alt: string;
   size?: Size;
-  rounded?: boolean;
   onClick?: MouseEventHandler<HTMLSpanElement>;
   variant?: Variant;
-  border?: Variant;
-  noHover?: boolean;
+  border?: boolean;
+  invert?: boolean;
   status?: {
     variant?: Variant;
     placement?: "top-left" | "top-right" | "bottom-left" | "bottom-right";
@@ -38,10 +30,9 @@ export const Avatar = forwardRef(
       size = Size.Md,
       onClick,
       status,
-      rounded = true,
       variant = Variant.Default,
-      border,
-      noHover = false,
+      invert = false,
+      border = false,
       className,
     }: AvatarProps,
     ref: ForwardedRef<HTMLSpanElement>,
@@ -62,40 +53,52 @@ export const Avatar = forwardRef(
         <AvatarPrimitive.Root
           ref={ref}
           onClick={onClick}
-          className={clsx(
-            !noHover && "hover:outline outline-2 outline-neutral-500",
-            rounded && "rounded-full",
-            getHeight(size),
-            getWidth(size),
-            className,
-          )}
+          className={clsx(variant, "rounded-sm", size, "sized-height sized-width", className)}
         >
           <AvatarPrimitive.Image
             src={src}
             alt={alt}
             className={clsx(
-              getHeight(size),
-              getWidth(size),
+              "responsive",
+              size,
+              variant,
+              onClick ? "cursor-pointer" : "cursor-default",
+              border && onClick && "variant-responsive-persistent-outline",
+              border && !onClick && "variant-static-persistent-outline",
+              "sized-height sized-width",
               "object-cover",
-              border && "outline outline-offset-1",
-              border && getOutline(border),
-              rounded ? "rounded-full" : "rounded-[1px]",
+              "rounded-sm",
               className,
             )}
           />
           <AvatarPrimitive.Fallback
             className={clsx(
-              "flex items-center justify-center",
-              "dark:text-black text-white font-bold",
-              "bg-neutral-500 dark:group-hover:bg-neutral-800 group-hover:bg-neutral-200",
-              "dark:group-hover:text-neutral-200 group-hover:bg-neutral-800",
-              !noHover && "dark:group-hover:text-white group-hover:text-black",
-              rounded ? "rounded-full" : "rounded-[1px]",
-              border && "outline outline-offset-1",
-              border && getOutline(border),
-              getHeight(size),
-              getWidth(size),
-              noHover ? getBasicBgColor(variant) : getHoverButtonStyles(variant),
+              "responsive",
+              variant,
+              size,
+              onClick ? "cursor-pointer" : "cursor-default",
+              "flex items-center justify-center rounded-sm select-none",
+              !border && !invert && onClick && "variant-responsive-bg",
+              !border && !invert && !onClick && "variant-static-bg",
+              border &&
+                !invert &&
+                onClick &&
+                "variant-responsive-bg variant-responsive-appearing-outline",
+              border &&
+                !invert &&
+                !onClick &&
+                "variant-static-bg outline -outline-offset-1 dark:outline-black/25 outline-white/25",
+              !border && invert && onClick && "variant-responsive-text",
+              !border && invert && !onClick && "variant-static-text",
+              border &&
+                invert &&
+                onClick &&
+                "variant-responsive-text variant-responsive-persistent-outline",
+              border &&
+                invert &&
+                !onClick &&
+                "variant-static-text variant-static-persistent-outline",
+              "sized-height sized-width",
               className,
             )}
           >

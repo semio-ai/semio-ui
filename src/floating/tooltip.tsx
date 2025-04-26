@@ -35,10 +35,11 @@ function Tooltip({
             sideOffset={6}
             className={clsx(
               Size.Sm as string,
+              "responsive",
               "sized-text",
               "tooltip-content",
               "select-none inline-flex items-center px-2 py-0.5",
-              invert ? "text-black card-invert" : "colored-text card",
+              invert ? "text-black card-invert" : "variant-static-text card",
               variant,
               "z-10",
             )}

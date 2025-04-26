@@ -39,448 +39,239 @@
 } */
 
 @layer components {
-  .variant-text-carent-color {
-    @apply caret-default-500 selection:bg-default-500/50;
-
-    @variant custom-color {
-      @apply caret-(--custom-color) selection:bg-(--deemphasized-custom-color);
-    }
-
-    @variant primary {
-      @apply caret-primary-500 selection:bg-primary-500/50;
-    }
-
-    @variant secondary {
-      @apply caret-secondary-500 selection:bg-secondary-500/50;
-    }
-
-    @variant tertiary {
-      @apply caret-tertiary-500 selection:bg-tertiary-500/50;
-    }
-
-    @variant error {
-      @apply caret-error-500 selection:bg-error-500/50;
-    }
-
-    @variant warning {
-      @apply caret-warning-500 selection:bg-warning-500/50;
-    }
-
-    @variant success {
-      @apply caret-success-500 selection:bg-success-500/50;
-    }
-
-    @variant info {
-      @apply caret-info-500 selection:bg-info-500/50;
+  .variant-text-caret-color {
+    caret-color: var(--standard-color);
+    &::selection {
+      background-color: color-mix(in oklab, var(--standard-color) 50%, transparent);
     }
   }
 
   .variant-responsive-bg {
     @apply transition-colors duration-100 ease-in-out rounded-xs;
-    @apply hover:bg-default-600 dark:hover:bg-default-400 bg-default-500;
-    @apply disabled:cursor-not-allowed disabled:bg-default-500/50 disabled:hover:bg-default-500/50;
-    @apply data-[deemphasized=true]:bg-default-500/50 data-[deemphasized=true]:hover:bg-default-500/50;
+    @apply disabled:cursor-not-allowed;
 
-    @variant custom-color {
-      @apply hover:bg-(--darker-custom-color) dark:hover:bg-(--lighter-custom-color) bg-(--custom-color);
-      @apply disabled:bg-(--deemphasized-custom-color) disabled:hover:bg-(--deemphasized-custom-color);
-      @apply data-[deemphasized=true]:bg-(--deemphasized-custom-color) data-[deemphasized=true]:hover:bg-(--deemphasized-custom-color);
+    background-color: var(--standard-color);
+    &:hover {
+      @media (hover: hover) {
+        background-color: var(--accent-color);
+
+        &:disabled {
+          background-color: color-mix(in oklab, var(--color-primary-500) 50%, transparent);
+        }
+
+        &[data-deemphasized="true"] {
+          background-color: color-mix(in oklab, var(--standard-color) 50%, transparent);
+        }
+      }
     }
 
-    @variant primary {
-      @apply hover:bg-primary-600 dark:hover:bg-primary-400 bg-primary-500;
-      @apply disabled:bg-primary-500/50 disabled:hover:bg-primary-500/50;
-      @apply data-[deemphasized=true]:bg-primary-500/50 data-[deemphasized=true]:hover:bg-primary-500/50;
+    &:disabled {
+      background-color: color-mix(in oklab, var(--color-primary-500) 50%, transparent);
     }
 
-    @variant secondary {
-      @apply hover:bg-secondary-600 dark:hover:bg-secondary-400 bg-secondary-500;
-      @apply disabled:bg-secondary-500/50 disabled:hover:bg-secondary-500/50;
-      @apply data-[deemphasized=true]:bg-secondary-500/50 data-[deemphasized=true]:hover:bg-secondary-500/50;
-    }
-
-    @variant tertiary {
-      @apply hover:bg-tertiary-600 dark:hover:bg-tertiary-400 bg-tertiary-500;
-      @apply disabled:bg-tertiary-500/50 disabled:hover:bg-tertiary-500/50;
-      @apply data-[deemphasized=true]:bg-tertiary-500/50 data-[deemphasized=true]:hover:bg-tertiary-500/50;
-    }
-
-    @variant info {
-      @apply hover:bg-info-600 dark:hover:bg-info-400 bg-info-500;
-      @apply disabled:bg-info-500/50 disabled:hover:bg-info-500/50;
-      @apply data-[deemphasized=true]:bg-info-500/50 data-[deemphasized=true]:hover:bg-info-500/50;
-    }
-
-    @variant success {
-      @apply hover:bg-success-600 dark:hover:bg-success-400 bg-success-500;
-      @apply disabled:bg-success-500/50 disabled:hover:bg-success-500/50;
-      @apply data-[deemphasized=true]:bg-success-500/50 data-[deemphasized=true]:hover:bg-success-500/50;
-    }
-
-    @variant warning {
-      @apply hover:bg-warning-600 dark:hover:bg-warning-400 bg-warning-500;
-      @apply disabled:bg-warning-500/50 disabled:hover:bg-warning-500/50;
-      @apply data-[deemphasized=true]:bg-warning-500/50 data-[deemphasized=true]:hover:bg-warning-500/50;
-    }
-
-    @variant error {
-      @apply hover:bg-error-600 dark:hover:bg-error-400 bg-error-500;
-      @apply disabled:bg-error-500/50 disabled:hover:bg-error-500/50;
-      @apply data-[deemphasized=true]:bg-error-500/50 data-[deemphasized=true]:hover:bg-error-500/50;
+    &[data-deemphasized="true"] {
+      background-color: color-mix(in oklab, var(--standard-color) 50%, transparent);
     }
   }
 
   .variant-responsive-appearing-outline {
-    @apply outline-0 focus:outline-2 hover:outline outline-offset-2 focus-within:outline;
-    @apply outline-default-600 dark:outline-default-400;
-
-    @variant custom-color {
-      @apply outline-(--darker-custom-color) dark:outline-(--lighter-custom-color);
-    }
-
-    @variant primary {
-      @apply outline-primary-600 dark:outline-primary-400;
-    }
-
-    @variant secondary {
-      @apply outline-secondary-600 dark:outline-secondary-400;
-    }
-
-    @variant tertiary {
-      @apply outline-tertiary-600 dark:outline-tertiary-400;
-    }
-
-    @variant info {
-      @apply outline-info-600 dark:outline-info-400;
-    }
-
-    @variant success {
-      @apply outline-success-600 dark:outline-success-400;
-    }
-
-    @variant warning {
-      @apply outline-warning-600 dark:outline-warning-400;
-    }
-
-    @variant error {
-      @apply outline-error-600 dark:outline-error-400 aria-invalid:outline;
-    }
+    @apply transition-[outline-width,outline-color] duration-100 ease-in-out;
+    outline-color: var(--accent-color);
+    @apply outline-0 outline-offset-2 hover:outline focus:outline-2 focus-within:outline-2;
+    @apply focus:hover:outline-2 hover:focus-within:outline-2 focus:group-data-[state=open]/trigger:outline-2;
+    @apply focus:data-[state=closed]:outline-0;
+    @apply data-[state=open]:outline-2;
   }
 
   .variant-responsive-text {
-    @apply transition-colors duration-100 ease-in-out rounded-xs;
-    @apply hover:text-default-600 dark:hover:text-default-400 text-default-500;
-    @apply disabled:cursor-not-allowed disabled:text-default-500/50 disabled:hover:text-default-500/50;
-    @apply data-[deemphasized=true]:text-default-500/50 data-[deemphasized=true]:hover:text-default-500/50;
-
-    @variant custom-color {
-      @apply hover:text-(--darker-custom-color) dark:hover:text-(--lighter-custom-color) text-(--custom-color);
-      @apply disabled:text-(--deemphasized-custom-color) disabled:hover:text-(--deemphasized-custom-color);
-      @apply data-[deemphasized=true]:text-(--deemphasized-custom-color) data-[deemphasized=true]:hover:text-(--deemphasized-custom-color);
-    }
-
-    @variant primary {
-      @apply hover:text-primary-600 dark:hover:text-primary-400 text-primary-500;
-      @apply disabled:cursor-not-allowed disabled:text-primary-500/50 disabled:hover:text-primary-500/50;
-      @apply data-[deemphasized=true]:text-primary-500/50 data-[deemphasized=true]:hover:text-primary-500/50;
-    }
-
-    @variant secondary {
-      @apply hover:text-secondary-600 dark:hover:text-secondary-400 text-secondary-500;
-      @apply disabled:cursor-not-allowed disabled:text-secondary-500/50 disabled:hover:text-secondary-500/50;
-      @apply data-[deemphasized=true]:text-secondary-500/50 data-[deemphasized=true]:hover:text-secondary-500/50;
-    }
-
-    @variant tertiary {
-      @apply hover:text-tertiary-600 dark:hover:text-tertiary-400 text-tertiary-500;
-      @apply disabled:cursor-not-allowed disabled:text-tertiary-500/50 disabled:hover:text-tertiary-500/50;
-      @apply data-[deemphasized=true]:text-tertiary-500/50 data-[deemphasized=true]:hover:text-tertiary-500/50;
-    }
-
-    @variant info {
-      @apply hover:text-info-600 dark:hover:text-info-400 text-info-500;
-      @apply disabled:cursor-not-allowed disabled:text-info-500/50 disabled:hover:text-info-500/50;
-      @apply data-[deemphasized=true]:text-info-500/50 data-[deemphasized=true]:hover:text-info-500/50;
-    }
-
-    @variant success {
-      @apply hover:text-success-600 dark:hover:text-success-400 text-success-500;
-      @apply disabled:cursor-not-allowed disabled:text-success-500/50 disabled:hover:text-success-500/50;
-      @apply data-[deemphasized=true]:text-success-500/50 data-[deemphasized=true]:hover:text-success-500/50;
-    }
-
-    @variant warning {
-      @apply hover:text-warning-600 dark:hover:text-warning-400 text-warning-500;
-      @apply disabled:cursor-not-allowed disabled:text-warning-500/50 disabled:hover:text-warning-500/50;
-      @apply data-[deemphasized=true]:text-warning-500/50 data-[deemphasized=true]:hover:text-warning-500/50;
-    }
-
-    @variant error {
-      @apply hover:text-error-600 dark:hover:text-error-400 text-error-500;
-      @apply disabled:cursor-not-allowed disabled:text-error-500/50 disabled:hover:text-error-500/50;
-      @apply data-[deemphasized=true]:text-error-500/50 data-[deemphasized=true]:hover:text-error-500/50;
+    @apply transition-colors duration-100 ease-in-out;
+    color: var(--weak-accent-text-color);
+    &:hover {
+      @media (hover: hover) {
+        color: var(--accent-color);
+      }
     }
   }
 
-  .variant-responsive-persistent-outline {
-    @apply transition-colors duration-100 ease-in-out rounded-xs;
+  .variant-responsive-input-extra-text {
+    @apply transition-colors duration-100 ease-in-out;
+    @apply text-default-500;
+    @apply peer-disabled:text-default-500/50 peer-disabled:peer-hover:text-default-500/50;
+    @apply not-peer-disabled:text-default-500/50;
+
+    &:not(*:is(:where(.peer):disabled ~ *)) {
+      &:is(:where(.peer):hover ~ *) {
+        @media (hover: hover) {
+          color: var(--accent-color);
+        }
+      }
+      &[data-deemphasized="true"] {
+        color: color-mix(in oklab, var(--accent-color) 50%, transparent);
+      }
+    }
+  }
+
+  .variant-responsive-input-extra-button-text {
+    @apply transition-[color,background-color,outline-width] duration-100 ease-in-out;
+    @apply text-default-500/0 bg-transparent;
+    @apply peer-focus:hover:bg-default-600/20 dark:peer-focus:hover:bg-default-400/20;
+    @apply peer-focus:text-default-600 dark:peer-focus:text-default-400;
+    @apply peer-focus:peer-disabled:text-default-500/50;
+
+    &:is(:where(.peer):focus ~ *) {
+      color: var(--accent-color);
+    }
+  }
+
+  .variant-static-persistent-outline {
+    @apply transition-[outline-color,outline-width] duration-100 ease-in-out;
     @apply outline-1;
-    @apply hover:outline-default-600 dark:hover:outline-default-400 outline-default-500;
-    @apply disabled:cursor-not-allowed disabled:outline-default-500/50 disabled:hover:outline-default-500/50;
-    @apply data-[deemphasized=true]:outline-default-500/50 data-[deemphasized=true]:hover:outline-default-500/50;
+    outline-color: var(--standard-color);
+  }
 
-    @variant custom-color {
-      @apply hover:outline-(--darker-custom-color) dark:hover:outline-(--lighter-custom-color) outline-(--custom-color);
-      @apply disabled:outline-(--deemphasized-custom-color) disabled:hover:outline-(--deemphasized-custom-color);
-      @apply data-[deemphasized=true]:outline-(--deemphasized-custom-color) data-[deemphasized=true]:hover:outline-(--deemphasized-custom-color);
+  .variant-responsive-persistent-outline {
+    @apply transition-[outline-color,outline-width] rounded-xs;
+    @apply outline-1 disabled:cursor-not-allowed focus:outline-2;
+
+    &:disabled {
+      outline-color: color-mix(in oklab, var(--standard-color) 50%, transparent);
     }
 
-    @variant primary {
-      @apply hover:outline-primary-600 dark:hover:outline-primary-400 outline-primary-500;
-      @apply disabled:outline-primary-500/50 disabled:hover:outline-primary-500/50;
-      @apply data-[deemphasized=true]:outline-primary-500/50 data-[deemphasized=true]:hover:outline-primary-500/50;
+    &[data-deemphasized="true"] {
+      outline-color: color-mix(in oklab, var(--standard-color) 50%, transparent);
     }
 
-    @variant secondary {
-      @apply hover:outline-secondary-600 dark:hover:outline-secondary-400 outline-secondary-500;
-      @apply disabled:outline-secondary-500/50 disabled:hover:outline-secondary-500/50;
-      @apply data-[deemphasized=true]:outline-secondary-500/50 data-[deemphasized=true]:hover:outline-secondary-500/50;
-    }
-
-    @variant tertiary {
-      @apply hover:outline-tertiary-600 dark:hover:outline-tertiary-400 outline-tertiary-500;
-      @apply disabled:outline-tertiary-500/50 disabled:hover:outline-tertiary-500/50;
-      @apply data-[deemphasized=true]:outline-tertiary-500/50 data-[deemphasized=true]:hover:outline-tertiary-500/50;
-    }
-
-    @variant info {
-      @apply hover:outline-info-600 dark:hover:outline-info-400 outline-info-500;
-      @apply disabled:outline-info-500/50 disabled:hover:outline-info-500/50;
-      @apply data-[deemphasized=true]:outline-info-500/50 data-[deemphasized=true]:hover:outline-info-500/50;
-    }
-
-    @variant success {
-      @apply hover:outline-success-600 dark:hover:outline-success-400 outline-success-500;
-      @apply disabled:outline-success-500/50 disabled:hover:outline-success-500/50;
-      @apply data-[deemphasized=true]:outline-success-500/50 data-[deemphasized=true]:hover:outline-success-500/50;
-    }
-
-    @variant warning {
-      @apply hover:outline-warning-600 dark:hover:outline-warning-400 outline-warning-500;
-      @apply disabled:outline-warning-500/50 disabled:hover:outline-warning-500/50;
-      @apply data-[deemphasized=true]:outline-warning-500/50 data-[deemphasized=true]:hover:outline-warning-500/50;
-    }
-
-    @variant error {
-      @apply hover:outline-error-600 dark:hover:outline-error-400 outline-error-500;
-      @apply disabled:outline-error-500/50 disabled:hover:outline-error-500/50;
-      @apply data-[deemphasized=true]:outline-error-500/50 data-[deemphasized=true]:hover:outline-error-500/50;
+    &:hover {
+      @media (hover: hover) {
+        &:not(*:disabled) {
+          &:not(*[data-deemphasized="true"]) {
+            outline-color: var(--accent-color);
+          }
+        }
+      }
     }
   }
 
   .variant-responsive-selectable-text {
+    @apply transition-colors duration-100 ease-in-out;
     @apply text-default-500;
-    @apply dark:group-aria-selected/tab:text-neutral-400 group-aria-selected/tab:text-neutral-600;
-    @apply dark:group-aria-selected/tab:hover:text-neutral-400 group-aria-selected/tab:hover:text-neutral-600;
-    @apply transition-colors;
 
-    @variant primary {
-      @apply dark:group-aria-selected/tab:text-primary-400 group-aria-selected/tab:text-primary-600;
-      @apply dark:group-aria-selected/tab:hover:text-primary-400 group-aria-selected/tab:hover:text-primary-600;
+    &:is(:where(.group\/tab):hover *) {
+      @media (hover: hover) {
+        color: var(--color-default-600);
+        &:where(.dark, .dark *) {
+          color: var(--color-default-400);
+        }
+      }
     }
 
-    @variant secondary {
-      @apply dark:group-aria-selected/tab:text-secondary-400 group-aria-selected/tab:text-secondary-600;
-      @apply dark:group-aria-selected/tab:hover:text-secondary-400 group-aria-selected/tab:hover:text-secondary-600;
+    &:hover {
+      color: var(--color-default-600);
+      &:where(.dark, .dark *) {
+        color: var(--color-default-400);
+      }
     }
-
-    @variant tertiary {
-      @apply dark:group-aria-selected/tab:text-tertiary-400 group-aria-selected/tab:text-tertiary-600;
-      @apply dark:group-aria-selected/tab:hover:text-tertiary-400 group-aria-selected/tab:hover:text-tertiary-600;
-    }
-
-    @variant success {
-      @apply dark:group-aria-selected/tab:text-success-400 group-aria-selected/tab:text-success-600;
-      @apply dark:group-aria-selected/tab:hover:text-success-400 group-aria-selected/tab:hover:text-success-600;
-    }
-
-    @variant warning {
-      @apply dark:group-aria-selected/tab:text-warning-400 group-aria-selected/tab:text-warning-600;
-      @apply dark:group-aria-selected/tab:hover:text-warning-400 group-aria-selected/tab:hover:text-warning-600;
-    }
-
-    @variant error {
-      @apply dark:group-aria-selected/tab:text-error-400 group-aria-selected/tab:text-error-600;
-      @apply dark:group-aria-selected/tab:hover:text-error-400 group-aria-selected/tab:hover:text-error-600;
-    }
-
-    @variant info {
-      @apply dark:group-aria-selected/tab:text-info-400 group-aria-selected/tab:text-info-600;
-      @apply dark:group-aria-selected/tab:hover:text-info-400 group-aria-selected/tab:hover:text-info-600;
+    &:is(:where(.group\/tab)[aria-selected="true"] *) {
+      color: var(--accent-color);
     }
   }
 
-  .variant-static-fill {
-    @apply bg-neutral-500;
+  .variant-static-bg {
+    background-color: var(--standard-color);
+  }
 
-    @variant primary {
-      @apply bg-primary-500;
-    }
-
-    @variant secondary {
-      @apply bg-secondary-500;
-    }
-
-    @variant success {
-      @apply bg-success-500;
-    }
-
-    @variant warning {
-      @apply bg-warning-500;
-    }
-
-    @variant error {
-      @apply bg-error-500;
-    }
-
-    @variant info {
-      @apply bg-info-500;
-    }
+  .variant-static-bg-50 {
+    background-color: color-mix(in oklab, var(--standard-color) 50%, transparent);
   }
 
   .variant-separator-fill {
-    @apply dark:bg-neutral-600 bg-neutral-400;
+    background-color: var(--accent-color);
+  }
 
-    @variant custom-color {
-      @apply bg-(--custom-color);
+  .variant-input-solid-bg {
+    @apply transition-colors duration-100 ease-in-out;
+    background-color: color-mix(in oklab, var(--standard-color) 35%, transparent);
+
+    &:not(*[data-highlighted]) {
+      &:hover {
+        background-color: color-mix(in oklab, var(--accent-color) 40%, transparent);
+      }
     }
 
-    @variant primary {
-      @apply dark:bg-primary-600 bg-primary-400;
+    &[data-highlighted] {
+      background-color: color-mix(in oklab, var(--accent-color) 50%, transparent);
+    }
+  }
+
+  .variant-input-gradient-bg {
+    @apply transition-colors duration-100 ease-in-out;
+    background: linear-gradient(
+      90deg,
+      var(--standard-color) 0%,
+      var(--standard-color) var(--progress),
+      color-mix(in oklab, var(--standard-color) 20%, transparent) var(--progress),
+      color-mix(in oklab, var(--standard-color) 20%, transparent) 100%
+    );
+
+    &:not(*[data-highlighted]) {
+      &:hover {
+        background: linear-gradient(
+          90deg,
+          var(--accent-color) 0%,
+          var(--accent-color) var(--progress),
+          color-mix(in oklab, var(--accent-color) 30%, transparent) var(--progress),
+          color-mix(in oklab, var(--accent-color) 30%, transparent) 100%
+        );
+      }
     }
 
-    @variant secondary {
-      @apply dark:bg-secondary-600 bg-secondary-400;
-    }
-
-    @variant success {
-      @apply dark:bg-success-600 bg-success-400;
-    }
-
-    @variant warning {
-      @apply dark:bg-warning-600 bg-warning-400;
-    }
-
-    @variant error {
-      @apply dark:bg-error-600 bg-error-400;
-    }
-
-    @variant info {
-      @apply dark:bg-info-600 bg-info-400;
+    &[data-highlighted] {
+      background: linear-gradient(
+        90deg,
+        var(--accent-color) 0%,
+        var(--accent-color) var(--progress),
+        color-mix(in oklab, var(--accent-color) 35%, transparent) var(--progress),
+        color-mix(in oklab, var(--accent-color) 35%, transparent) 100%
+      );
     }
   }
 
   .cta-button {
-    @apply transition-colors duration-100 ease-in-out rounded-xs outline-1;
-    @apply dark:text-white text-black;
+    @apply transition-[color,outline-color,background-color] duration-100 ease-in-out rounded-xs outline-1;
+    @apply dark:text-white text-black backdrop-blur-lg;
     @apply bg-neutral-500/25 hover:bg-neutral-500 disabled:bg-neutral-500/25;
     @apply outline-neutral-500;
     @apply disabled:outline-neutral-500/50 data-[deemphasized=true]:outline-neutral-500/50;
     @apply disabled:cursor-not-allowed;
 
-    @variant custom-color {
-      @apply bg-neutral-500/25 hover:bg-(--custom-color) disabled:bg-neutral-500/25;
-      @apply outline-(--custom-color);
-      @apply disabled:outline-(--deemphasized-custom-color);
-      @apply data-[deemphasized=true]:outline-(--deemphasized-custom-color);
+    outline-color: var(--standard-color);
+
+    &:not(*:disabled) {
+      &:hover,
+      &:focus {
+        @media (hover: hover) {
+          background-color: var(--standard-color);
+        }
+      }
+
+      &[data-deemphasized="true"] {
+        outline-color: color-mix(in oklab, var(--standard-color) 50%, transparent);
+      }
     }
 
-    @variant primary {
-      @apply bg-neutral-500/25 hover:bg-primary-500 disabled:bg-neutral-500/25;
-      @apply outline-primary-500;
-      @apply disabled:outline-primary-500/50 data-[deemphasized=true]:outline-primary-500/50;
-    }
-
-    @variant secondary {
-      @apply bg-neutral-500/25 hover:bg-secondary-500 disabled:bg-neutral-500/25;
-      @apply outline-secondary-500;
-      @apply disabled:outline-secondary-500/50 data-[deemphasized=true]:outline-secondary-500/50;
-    }
-
-    @variant tertiary {
-      @apply bg-neutral-500/25 hover:bg-tertiary-500 disabled:bg-neutral-500/25;
-      @apply outline-tertiary-500;
-      @apply disabled:outline-tertiary-500/50 data-[deemphasized=true]:outline-tertiary-500/50;
-    }
-
-    @variant info {
-      @apply bg-neutral-500/25 hover:bg-info-500 disabled:bg-neutral-500/25;
-      @apply outline-info-500;
-      @apply disabled:outline-info-500/50 data-[deemphasized=true]:outline-info-500/50;
-    }
-
-    @variant success {
-      @apply bg-neutral-500/25 hover:bg-success-500 disabled:bg-neutral-500/25;
-      @apply outline-success-500;
-      @apply disabled:outline-success-500/50 data-[deemphasized=true]:outline-success-500/50;
-    }
-
-    @variant warning {
-      @apply bg-neutral-500/25 hover:bg-warning-500 disabled:bg-neutral-500/25;
-      @apply outline-warning-500;
-      @apply disabled:outline-warning-500/50 data-[deemphasized=true]:outline-warning-500/50;
-    }
-
-    @variant error {
-      @apply bg-neutral-500/25 hover:bg-error-500 disabled:bg-neutral-500/25;
-      @apply outline-error-500;
-      @apply disabled:outline-error-500/50 data-[deemphasized=true]:outline-error-500/50;
+    &:disabled {
+      outline-color: color-mix(in oklab, var(--standard-color) 50%, transparent);
     }
   }
 
-  .colored-text {
-    @apply text-neutral-800 dark:text-neutral-200;
-
-    @variant custom-color {
-      @apply text-(--custom-color);
-    }
-
-    @variant primary {
-      @apply text-primary-500;
-    }
-
-    @variant secondary {
-      @apply text-secondary-500;
-    }
-
-    @variant tertiary {
-      @apply text-tertiary-500;
-    }
-
-    @variant info {
-      @apply text-info-500;
-    }
-
-    @variant warning {
-      @apply text-warning-500;
-    }
-
-    @variant success {
-      @apply text-success-500;
-    }
-
-    @variant error {
-      @apply text-error-500;
-    }
+  .variant-static-text {
+    color: var(--strong-accent-text-color);
   }
 
   .chip {
     @apply dark:text-white text-black;
     @apply drop-shadow-xs;
     @apply flex items-center gap-1 py-1 rounded-xs;
-
-    @variant custom-color {
-    }
 
     @variant size-xs {
       @apply px-[1.5px];
@@ -500,6 +291,54 @@
 
     @variant size-xl {
       @apply px-3;
+    }
+  }
+
+  .sized-inner-group-left-padding {
+    @apply pl-[34px];
+
+    @variant size-xs {
+      @apply pl-[22px];
+    }
+
+    @variant size-sm {
+      @apply pl-[30px];
+    }
+
+    @variant size-md {
+      @apply pl-[34px];
+    }
+
+    @variant size-lg {
+      @apply pl-[42px];
+    }
+
+    @variant size-xl {
+      @apply pl-[50px];
+    }
+  }
+
+  .sized-inner-group-right-padding {
+    @apply pr-[34px];
+
+    @variant size-xs {
+      @apply pr-[22px];
+    }
+
+    @variant size-sm {
+      @apply pr-[30px];
+    }
+
+    @variant size-md {
+      @apply pr-[34px];
+    }
+
+    @variant size-lg {
+      @apply pr-[42px];
+    }
+
+    @variant size-xl {
+      @apply pr-[50px];
     }
   }
 
@@ -524,6 +363,30 @@
 
     @variant size-xl {
       @apply h-[44px] w-[44px];
+    }
+  }
+
+  .sized-mock-inner-item {
+    @apply h-6 w-6;
+
+    @variant size-xs {
+      @apply h-3 w-3;
+    }
+
+    @variant size-sm {
+      @apply h-5 w-5;
+    }
+
+    @variant size-md {
+      @apply h-6 w-6;
+    }
+
+    @variant size-lg {
+      @apply h-8 w-8;
+    }
+
+    @variant size-xl {
+      @apply h-10 w-10;
     }
   }
 
@@ -576,8 +439,8 @@
   }
 
   .check-indicator {
-    @apply rounded-xs;
-    @apply w-5 h-5 bg-transparent;
+    @apply transition-[color,background-color] duration-100 ease-in-out;
+    @apply rounded-xs w-5 h-5 bg-transparent;
 
     @apply group-data-disabled/item:text-neutral-500/50;
     @apply dark:text-default-400 text-default-600;
@@ -588,322 +451,91 @@
     @apply group-data-[state=unchecked]/item:opacity-50;
     @apply dark:group-data-[state=checked]/item:bg-layout-light-base group-data-[state=checked]/item:bg-layout-dark-base;
 
-    @variant custom-color {
-      @apply dark:group-data-[state=unchecked]/item:text-(--lighter-custom-color) group-data-[state=unchecked]/item:text-(--darker-custom-color);
-      @apply dark:group-data-[state=checked]/item:bg-(--lighter-custom-color) group-data-[state=checked]/item:bg-(--darker-custom-color);
+    &:is(:where(.group\/item)[data-state="unchecked"] *) {
+      color: var(--accent-color);
     }
 
-    @variant primary {
-      @apply dark:group-data-[state=unchecked]/item:text-primary-400 group-data-[state=unchecked]/item:text-primary-600;
-      @apply dark:group-data-[state=checked]/item:bg-primary-400 group-data-[state=checked]/item:bg-primary-600;
-    }
-
-    @variant secondary {
-      @apply dark:group-data-[state=unchecked]/item:text-secondary-400 group-data-[state=unchecked]/item:text-secondary-600;
-      @apply dark:group-data-[state=checked]/item:bg-secondary-400 group-data-[state=checked]/item:bg-secondary-600;
-    }
-
-    @variant tertiary {
-      @apply dark:group-data-[state=unchecked]/item:text-tertiary-400 group-data-[state=unchecked]/item:text-tertiary-600;
-      @apply dark:group-data-[state=checked]/item:bg-tertiary-400 group-data-[state=checked]/item:bg-tertiary-600;
-    }
-
-    @variant info {
-      @apply dark:group-data-[state=unchecked]/item:text-info-400 group-data-[state=unchecked]/item:text-info-600;
-      @apply dark:group-data-[state=checked]/item:bg-info-400 group-data-[state=checked]/item:bg-info-600;
-    }
-
-    @variant success {
-      @apply dark:group-data-[state=unchecked]/item:text-success-400 group-data-[state=unchecked]/item:text-success-600;
-      @apply dark:group-data-[state=checked]/item:bg-success-400 group-data-[state=checked]/item:bg-success-600;
-    }
-
-    @variant warning {
-      @apply dark:group-data-[state=unchecked]/item:text-warning-400 group-data-[state=unchecked]/item:text-warning-600;
-      @apply dark:group-data-[state=checked]/item:bg-warning-400 group-data-[state=checked]/item:bg-warning-600;
-    }
-
-    @variant error {
-      @apply dark:group-data-[state=unchecked]/item:text-error-400 group-data-[state=unchecked]/item:text-error-600;
-      @apply dark:group-data-[state=checked]/item:bg-error-400 group-data-[state=checked]/item:bg-error-600;
+    &:is(:where(.group\/item)[data-state="checked"] *) {
+      background-color: var(--accent-color);
     }
   }
 
   .list-item-extra {
+    @apply transition-colors duration-100 ease-in-out;
     @apply w-fit h-5 gap-0 flex flex-row items-center justify-end;
-
     @apply group-data-disabled/item:text-neutral-500/25;
     @apply dark:text-default-600 text-default-400;
     @apply dark:group-data-[highlighted]/item:text-black group-data-[highlighted]/item:text-white;
     @apply dark:group-data-[state=checked]/item:text-black group-data-[state=checked]/item:text-white;
     @apply group-data-[highlighted]/item:group-data-[state=unchecked]/item:text-white;
     @apply dark:group-data-[highlighted]/item:group-data-[state=unchecked]/item:text-black;
-
-    /* @variant custom-color {
-      @apply dark:group-data-[state=unchecked]/item:text-(--lighter-custom-color) group-data-[state=unchecked]/item:text-(--darker-custom-color);
-
-    @variant primary {
-      @apply dark:group-data-[state=unchecked]/item:text-primary-400 group-data-[state=unchecked]/item:text-primary-600;
-      @apply dark:group-data-[state=checked]/item:bg-primary-400 group-data-[state=checked]/item:bg-primary-600;
-    }
-
-    @variant secondary {
-      @apply dark:group-data-[state=unchecked]/item:text-secondary-400 group-data-[state=unchecked]/item:text-secondary-600;
-      @apply dark:group-data-[state=checked]/item:bg-secondary-400 group-data-[state=checked]/item:bg-secondary-600;
-    }
-
-    @variant tertiary {
-      @apply dark:group-data-[state=unchecked]/item:text-tertiary-400 group-data-[state=unchecked]/item:text-tertiary-600;
-      @apply dark:group-data-[state=checked]/item:bg-tertiary-400 group-data-[state=checked]/item:bg-tertiary-600;
-    }
-
-    @variant info {
-      @apply dark:group-data-[state=unchecked]/item:text-info-400 group-data-[state=unchecked]/item:text-info-600;
-      @apply dark:group-data-[state=checked]/item:bg-info-400 group-data-[state=checked]/item:bg-info-600;
-    }
-
-    @variant success {
-      @apply dark:group-data-[state=unchecked]/item:text-success-400 group-data-[state=unchecked]/item:text-success-600;
-      @apply dark:group-data-[state=checked]/item:bg-success-400 group-data-[state=checked]/item:bg-success-600;
-    }
-
-    @variant warning {
-      @apply dark:group-data-[state=unchecked]/item:text-warning-400 group-data-[state=unchecked]/item:text-warning-600;
-      @apply dark:group-data-[state=checked]/item:bg-warning-400 group-data-[state=checked]/item:bg-warning-600;
-    }
-
-    @variant error {
-      @apply dark:group-data-[state=unchecked]/item:text-error-400 group-data-[state=unchecked]/item:text-error-600;
-      @apply dark:group-data-[state=checked]/item:bg-error-400 group-data-[state=checked]/item:bg-error-600;
-    } */
   }
 
   .highlight-list-item {
+    @apply transition-colors duration-100 ease-in-out;
     @apply cursor-pointer;
     @apply data-disabled:text-neutral-500/50;
-    @apply dark:text-default-400 text-default-600;
     @apply dark:data-[highlighted]:text-black data-[highlighted]:text-white;
-    @apply dark:data-[highlighted]:bg-neutral-400/50 data-[highlighted]:bg-neutral-600/50;
-    @apply dark:data-[state=open]:bg-neutral-400/25 data-[state=open]:bg-neutral-600/25;
-    @apply dark:data-[highlighted]:data-[state=open]:bg-neutral-400/50 data-[highlighted]:data-[state=open]:bg-neutral-600/50;
-
-    @variant custom-color {
-      @apply dark:text-(--lighter-custom-color) text-(--darker-custom-color);
-      @apply dark:data-[highlighted]:bg-(--deemphasized-custom-color) data-[highlighted]:bg-(--deemphasized-custom-color);
-      /* Menus that have a state=open don't support custom colors */
+    color: var(--accent-color);
+    &[data-highlighted] {
+      background-color: color-mix(in oklab, var(--accent-color) 50%, transparent);
     }
 
-    @variant primary {
-      @apply dark:text-primary-400 text-primary-600;
-      @apply dark:data-[highlighted]:bg-primary-400/50 data-[highlighted]:bg-primary-600/50;
-      @apply dark:data-[state=open]:bg-primary-400/25 data-[state=open]:bg-primary-600/25;
-      @apply dark:data-[highlighted]:data-[state=open]:bg-primary-400/50 data-[highlighted]:data-[state=open]:bg-primary-600/50;
-    }
-
-    @variant secondary {
-      @apply dark:text-secondary-400 text-secondary-600;
-      @apply dark:data-[highlighted]:bg-secondary-400/50 data-[highlighted]:bg-secondary-600/50;
-      @apply dark:data-[state=open]:bg-secondary-400/25 data-[state=open]:bg-secondary-600/25;
-      @apply dark:data-[highlighted]:data-[state=open]:bg-secondary-400/50 data-[highlighted]:data-[state=open]:bg-secondary-600/50;
-    }
-
-    @variant tertiary {
-      @apply dark:text-tertiary-400 text-tertiary-600;
-      @apply dark:data-[highlighted]:bg-tertiary-400/50 data-[highlighted]:bg-tertiary-600/50;
-      @apply dark:data-[state=open]:bg-tertiary-400/25 data-[state=open]:bg-tertiary-600/25;
-      @apply dark:data-[highlighted]:data-[state=open]:bg-tertiary-400/50 data-[highlighted]:data-[state=open]:bg-tertiary-600/50;
-    }
-
-    @variant success {
-      @apply dark:text-success-400 text-success-600;
-      @apply dark:data-[highlighted]:bg-success-400/50 data-[highlighted]:bg-success-600/50;
-      @apply dark:data-[state=open]:bg-success-400/25 data-[state=open]:bg-success-600/25;
-      @apply dark:data-[highlighted]:data-[state=open]:bg-success-400/50 data-[highlighted]:data-[state=open]:bg-success-600/50;
-    }
-
-    @variant warning {
-      @apply dark:text-warning-400 text-warning-600;
-      @apply dark:data-[highlighted]:bg-warning-400/50 data-[highlighted]:bg-warning-600/50;
-      @apply dark:data-[state=open]:bg-warning-400/25 data-[state=open]:bg-warning-600/25;
-      @apply dark:data-[highlighted]:data-[state=open]:bg-warning-400/50 data-[highlighted]:data-[state=open]:bg-warning-600/50;
-    }
-
-    @variant error {
-      @apply dark:text-error-400 text-error-600;
-      @apply dark:data-[highlighted]:bg-error-400/50 data-[highlighted]:bg-error-600/50;
-      @apply dark:data-[state=open]:bg-error-400/25 data-[state=open]:bg-error-600/25;
-      @apply dark:data-[highlighted]:data-[state=open]:bg-error-400/50 data-[highlighted]:data-[state=open]:bg-error-600/50;
-    }
-
-    @variant info {
-      @apply dark:text-info-400 text-info-600;
-      @apply dark:data-[highlighted]:bg-info-400/50 data-[highlighted]:bg-info-600/50;
-      @apply dark:data-[state=open]:bg-info-400/25 data-[state=open]:bg-info-600/25;
-      @apply dark:data-[highlighted]:data-[state=open]:bg-info-400/50 data-[highlighted]:data-[state=open]:bg-info-600/50;
+    &[data-state="open"] {
+      background-color: color-mix(in oklab, var(--accent-color) 25%, transparent);
+      &[data-highlighted] {
+        background-color: color-mix(in oklab, var(--accent-color) 50%, transparent);
+      }
     }
   }
 
-  .border-static {
-    @apply border-default-500;
+  .variant-mock-inner-item {
+    @apply transition-colors duration-100 ease-in-out;
+    @apply rounded-[1px];
+    @apply dark:text-black text-white;
 
-    @variant primary {
-      @apply border-primary-500;
+    background-color: var(--accent-color);
+  }
+
+  .variant-mock-item-bg {
+    @apply transition-colors duration-100 ease-in-out;
+    background-color: color-mix(in oklab, var(--accent-color) 20%, transparent);
+
+    &:hover {
+      @media (hover: hover) {
+        background-color: color-mix(in oklab, var(--accent-color) 30%, transparent);
+      }
     }
 
-    @variant secondary {
-      @apply border-secondary-500;
-    }
-
-    @variant tertiary {
-      @apply border-tertiary-500;
-    }
-
-    @variant info {
-      @apply border-info-500;
-    }
-
-    @variant success {
-      @apply border-success-500;
-    }
-
-    @variant warning {
-      @apply border-warning-500;
-    }
-
-    @variant error {
-      @apply border-error-500;
+    &:focus,
+    &[data-state="open"] {
+      background-color: color-mix(in oklab, var(--accent-color) 40%, transparent);
     }
   }
 
   .colored-carrot-stroke {
-    @apply dark:stroke-neutral-600 stroke-neutral-400;
-
-    @variant primary {
-      @apply dark:stroke-primary-700 stroke-primary-300;
-    }
-
-    @variant secondary {
-      @apply dark:stroke-secondary-700 stroke-secondary-300;
-    }
-
-    @variant tertiary {
-      @apply dark:stroke-tertiary-700 stroke-tertiary-300;
-    }
-
-    @variant info {
-      @apply dark:stroke-info-700 stroke-info-300;
-    }
-
-    @variant success {
-      @apply dark:stroke-success-700 stroke-success-300;
-    }
-
-    @variant warning {
-      @apply dark:stroke-warning-700 stroke-warning-300;
-    }
-
-    @variant error {
-      @apply dark:stroke-error-700 stroke-error-300;
-    }
+    stroke: var(--card-border-color);
   }
 
   .colored-carrot-invert-fill {
-    @apply dark:fill-layout-light-inset fill-layout-dark-inset;
-
-    @variant primary {
-      @apply dark:fill-primary-800 fill-primary-200;
-    }
-
-    @variant secondary {
-      @apply dark:fill-secondary-800 fill-secondary-200;
-    }
-
-    @variant tertiary {
-      @apply dark:fill-tertiary-800 fill-tertiary-200;
-    }
-
-    @variant info {
-      @apply dark:fill-info-800 fill-info-200;
-    }
-
-    @variant success {
-      @apply dark:fill-success-800 fill-success-200;
-    }
-
-    @variant warning {
-      @apply dark:fill-warning-800 fill-warning-200;
-    }
-
-    @variant error {
-      @apply dark:fill-error-800 fill-error-200;
-    }
+    fill: var(--strong-accent-text-color);
   }
 
   .card {
-    @apply rounded-sm;
+    @apply rounded-sm shadow-lg border;
+    border-color: var(--card-border-color);
     @apply dark:bg-layout-dark-base bg-layout-light-base;
-    @apply border dark:border-neutral-600 border-neutral-400;
+  }
 
-    @variant primary {
-      @apply dark:border-primary-700 border-primary-300;
-    }
-
-    @variant secondary {
-      @apply dark:border-secondary-700 border-secondary-300;
-    }
-
-    @variant tertiary {
-      @apply dark:border-tertiary-700 border-tertiary-300;
-    }
-
-    @variant info {
-      @apply dark:border-info-700 border-info-300;
-    }
-
-    @variant success {
-      @apply dark:border-success-700 border-success-300;
-    }
-
-    @variant warning {
-      @apply dark:border-warning-700 border-warning-300;
-    }
-
-    @variant error {
-      @apply dark:border-error-700 border-error-300;
-    }
+  .card-transparent {
+    @apply rounded-sm shadow-lg border;
+    border-color: var(--card-border-color);
+    @apply dark:bg-layout-dark-base/70 bg-layout-light-base/70 backdrop-blur-lg;
   }
 
   .card-invert {
     @apply rounded-sm shadow-lg;
-    @apply dark:bg-layout-light-inset bg-layout-dark-inset;
-
-    @variant primary {
-      @apply dark:bg-primary-800 bg-primary-200;
-    }
-
-    @variant secondary {
-      @apply dark:bg-secondary-800 bg-secondary-200;
-    }
-
-    @variant tertiary {
-      @apply dark:bg-tertiary-800 bg-tertiary-200;
-    }
-
-    @variant info {
-      @apply dark:bg-info-800 bg-info-200;
-    }
-
-    @variant success {
-      @apply dark:bg-success-800 bg-success-200;
-    }
-
-    @variant warning {
-      @apply dark:bg-warning-800 bg-warning-200;
-    }
-
-    @variant error {
-      @apply dark:bg-error-800 bg-error-200;
-    }
+    background-color: var(--strong-accent-text-color);
   }
 
   .sized-height {
@@ -980,6 +612,149 @@
 }
 
 @layer utilities {
+  .responsive {
+    --standard-color: var(--color-default-500);
+    --light-color: var(--color-default-400);
+    --dark-color: var(--color-default-600);
+    --opacity: 100%;
+    --accent-color: var(--dark-color);
+    --responsive-color: var(--standard-color);
+    --lightest-accent-text-color: var(--color-default-200);
+    --darkest-accent-text-color: var(--color-default-800);
+    --light-accent-text-color: var(--color-default-400);
+    --dark-accent-text-color: var(--color-default-600);
+    --card-border-color: var(--light-accent-text-color);
+    --strong-accent-text-color: var(--darkest-accent-text-color);
+    --weak-accent-text-color: var(--dark-accent-text-color);
+
+    &:where(.dark, .dark *) {
+      --accent-color: var(--light-color);
+      --strong-accent-text-color: var(--lightest-accent-text-color);
+      --weak-accent-text-color: var(--light-accent-text-color);
+      --card-border-color: var(--dark-accent-text-color);
+    }
+
+    @variant custom-color {
+      --standard-color: var(--custom-color);
+      --light-color: color-mix(in oklab, var(--custom-color) 80%, white);
+      --dark-color: color-mix(in oklab, var(--custom-color) 80%, black);
+      --lightest-accent-text-color: var(--custom-color);
+      --darkest-accent-text-color: var(--custom-color);
+      --light-accent-text-color: var(--custom-color);
+      --dark-accent-text-color: var(--custom-color);
+    }
+
+    @variant primary {
+      --standard-color: var(--color-primary-500);
+      --light-color: var(--color-primary-400);
+      --dark-color: var(--color-primary-600);
+      --lightest-accent-text-color: var(--color-primary-500);
+      --darkest-accent-text-color: var(--color-primary-500);
+      --light-accent-text-color: var(--color-primary-500);
+      --dark-accent-text-color: var(--color-primary-500);
+    }
+
+    @variant secondary {
+      --standard-color: var(--color-secondary-500);
+      --light-color: var(--color-secondary-400);
+      --dark-color: var(--color-secondary-600);
+      --lightest-accent-text-color: var(--color-secondary-500);
+      --darkest-accent-text-color: var(--color-secondary-500);
+      --light-accent-text-color: var(--color-secondary-500);
+      --dark-accent-text-color: var(--color-secondary-500);
+    }
+
+    @variant tertiary {
+      --standard-color: var(--color-tertiary-500);
+      --light-color: var(--color-tertiary-400);
+      --dark-color: var(--color-tertiary-600);
+      --lightest-accent-text-color: var(--color-tertiary-500);
+      --darkest-accent-text-color: var(--color-tertiary-500);
+      --light-accent-text-color: var(--color-tertiary-500);
+      --dark-accent-text-color: var(--color-tertiary-500);
+    }
+
+    @variant success {
+      --standard-color: var(--color-success-500);
+      --light-color: var(--color-success-400);
+      --dark-color: var(--color-success-600);
+      --lightest-accent-text-color: var(--color-success-500);
+      --darkest-accent-text-color: var(--color-success-500);
+      --light-accent-text-color: var(--color-success-500);
+      --dark-accent-text-color: var(--color-success-500);
+    }
+
+    @variant warning {
+      --standard-color: var(--color-warning-500);
+      --light-color: var(--color-warning-400);
+      --dark-color: var(--color-warning-600);
+      --lightest-accent-text-color: var(--color-warning-500);
+      --darkest-accent-text-color: var(--color-warning-500);
+      --light-accent-text-color: var(--color-warning-500);
+      --dark-accent-text-color: var(--color-warning-500);
+    }
+
+    @variant error {
+      --standard-color: var(--color-error-500);
+      --light-color: var(--color-error-400);
+      --dark-color: var(--color-error-600);
+      --lightest-accent-text-color: var(--color-error-500);
+      --darkest-accent-text-color: var(--color-error-500);
+      --light-accent-text-color: var(--color-error-500);
+      --dark-accent-text-color: var(--color-error-500);
+    }
+
+    @variant info {
+      --standard-color: var(--color-info-500);
+      --light-color: var(--color-info-400);
+      --dark-color: var(--color-info-600);
+      --lightest-accent-text-color: var(--color-info-500);
+      --darkest-accent-text-color: var(--color-info-500);
+      --light-accent-text-color: var(--color-info-500);
+      --dark-accent-text-color: var(--color-info-500);
+    }
+  }
+
+  .input-label-field-units-grid {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    grid-template-areas: "label input units";
+    grid-template-rows: auto;
+  }
+
+  .input-field-units-grid {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-areas: "input units";
+    grid-template-rows: auto;
+  }
+
+  .input-label-field-grid {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-template-areas: "label input";
+    grid-template-rows: auto;
+  }
+
+  .input-field-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-areas: "input";
+    grid-template-rows: auto;
+  }
+
+  .grid-area-input-label {
+    grid-area: label;
+  }
+
+  .grid-area-input-field {
+    grid-area: input;
+  }
+
+  .grid-area-input-units {
+    grid-area: units;
+  }
+
   .app-layout {
     display: grid;
     padding: 4px;

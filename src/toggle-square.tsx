@@ -2,7 +2,7 @@ import { type ReactNode } from "react";
 import * as RadixToggle from "@radix-ui/react-toggle";
 import { clsx } from "clsx";
 import { Variant, Size } from "./types";
-import { getToggleButtonStyles, getHeight, getWidth } from "./style-functions";
+import { getToggleButtonStyles } from "./style-functions";
 import { Tooltip } from "./floating/tooltip";
 
 export interface ToggleSquareProps {

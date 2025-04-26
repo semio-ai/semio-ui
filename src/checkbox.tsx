@@ -2,7 +2,6 @@ import * as RadixCheckbox from "@radix-ui/react-checkbox";
 import { IconCheck } from "@tabler/icons-react";
 import { clsx } from "clsx";
 import { Size, Variant } from "./types";
-import { getBasicBgColor, getHoverBorder, getHoverTextStyles } from "./style-functions";
 
 export interface CheckboxProps {
   id?: string;
@@ -30,20 +29,21 @@ export function Checkbox({
       checked={checked}
       onCheckedChange={onCheckedChange}
       className={clsx(
+        "responsive",
         size,
         variant,
-        "sized-height sized-width",
+        "sized-height sized-width rounded-xs",
         "flex items-center justify-center",
-        !invert && "dark:bg-black bg-white",
-        invert && getBasicBgColor(variant),
-        getHoverBorder(variant),
-        "appearance-none outline-hidden",
+        invert && "dark:bg-black bg-white",
+        !invert && "variant-responsive-bg",
+        "variant-responsive-appearing-outline",
+        "appearance-none",
       )}
     >
       <RadixCheckbox.Indicator
-        className={clsx(variant, invert ? "text-black" : getHoverTextStyles(variant))}
+        className={clsx(variant, invert ? "variant-responsive-text" : "text-black")}
       >
-        <IconCheck className="w-full h-full" />
+        <IconCheck className="w-full h-full transtion-colors" />
       </RadixCheckbox.Indicator>
     </RadixCheckbox.Root>
   );

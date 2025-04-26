@@ -55,7 +55,7 @@ export function Modal({
             forceMount
             className={clsx(
               "flex flex-col focus:outline-hidden",
-              "card animated-modal",
+              "card animated-modal overflow-clip",
               variant,
               "w-screen md:w-3/5 md:max-w-[750px] p-[0.5px]",
               "max-h-screen h-[100dvh] md:max-h-[85vh] md:h-fit",
@@ -65,7 +65,13 @@ export function Modal({
               <ScrollArea
                 className="md:max-h-[calc(85dvh-1px)] max-h-[calc(100dvh-1px)]"
                 header={
-                  <div className={clsx("flex flex-col gap-1", !showHeader && "hidden")}>
+                  <div
+                    className={clsx(
+                      "flex flex-col gap-1 ",
+                      !showHeader && "hidden",
+                      "bg-neutral-50/50 dark:bg-neutral-950/50",
+                    )}
+                  >
                     <div
                       className={clsx(
                         headerBottom ? "px-3 pt-3 pb-0" : "p-3",
@@ -92,7 +98,7 @@ export function Modal({
                 }
                 footer={
                   showFooter && (
-                    <div className="py-2 px-3 flex gap-3 justify-end">
+                    <div className="p-3 flex gap-3 justify-end">
                       {onCancel && (
                         <Dialog.Close asChild>
                           <Button
@@ -133,13 +139,15 @@ export function Modal({
                     "text-black dark:text-white",
                     "flex flex-col gap-1",
                     !showHeader && "hidden",
+                    "bg-neutral-50/50 dark:bg-neutral-950/50",
                   )}
                 >
                   <div
                     className={clsx(
+                      variant,
                       headerBottom ? "px-3 pt-3 pb-0" : "p-3",
                       "flex flex-col gap-1",
-                      getBasicTextColor(variant),
+                      "variant-static-text",
                     )}
                   >
                     <div className="flex flex-row items-center justify-between">
@@ -162,7 +170,7 @@ export function Modal({
                   {children}
                 </div>
                 {showFooter && (
-                  <div className="py-2 px-3 flex gap-3 justify-end">
+                  <div className="p-3 flex gap-3 justify-end">
                     {onCancel && (
                       <Dialog.Close asChild>
                         <Button

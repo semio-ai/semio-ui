@@ -47,12 +47,18 @@ export function Dialog({
             forceMount
             className={clsx(
               variant,
-              "flex flex-col focus:outline-hidden",
+              "flex flex-col focus:outline-hidden overflow-clip",
               "card animated-modal",
               "max-h-screen w-fit h-fit",
             )}
           >
-            <div className={clsx("flex flex-col gap-1 p-3", variant, "colored-text")}>
+            <div
+              className={clsx(
+                "flex flex-col gap-1 p-3 bg-neutral-50/50 dark:bg-neutral-950/50",
+                variant,
+                "variant-static-text",
+              )}
+            >
               <div className="flex flex-row items-center justify-between">
                 <AlertDialog.Title className="text-base/7 font-medium flex align-center justify-between">
                   {title}
@@ -68,11 +74,12 @@ export function Dialog({
 
             <div className="flex-1 md:flex-none p-3 dark:text-white text-black">{children}</div>
 
-            <div className="py-2 px-3 flex flex-row gap-3 justify-end">
+            <div className="p-3 flex flex-row gap-3 justify-end">
               {onCancel && (
                 <AlertDialog.Cancel asChild>
                   <Button
                     tabIndex={0}
+                    className="flex-1"
                     variant={Variant.Default}
                     onClick={onCancel}
                     disabled={submitDisabled}
@@ -85,6 +92,7 @@ export function Dialog({
                 <AlertDialog.Action asChild>
                   <Button
                     tabIndex={0}
+                    className="flex-1"
                     variant={variant}
                     onClick={onSubmit}
                     disabled={submitDisabled}

@@ -1,4 +1,4 @@
-import { forwardRef } from "react";
+import { CSSProperties, forwardRef } from "react";
 import { clsx } from "clsx";
 import { Variant } from "../types";
 
@@ -8,8 +8,9 @@ export const Arrow = forwardRef(
       variant,
       filled,
       className,
+      color,
       ...props
-    }: { filled: boolean; variant: Variant; className?: string },
+    }: { filled: boolean; variant: Variant; className?: string; color?: string },
     ref,
   ) => {
     return (
@@ -32,8 +33,10 @@ export const Arrow = forwardRef(
         )}
         <path
           d="M30 0 L15 10 L0 0"
+          style={{ "--custom-color": color } as CSSProperties}
           className={clsx(
-            variant,
+            "responsive",
+            color ? "custom-color" : variant,
             filled
               ? "colored-carrot-invert-fill"
               : "colored-carrot-stroke dark:fill-layout-dark-base fill-layout-light-base stroke-2",

@@ -25,14 +25,14 @@ function PopoverRenderer(props: PopoverProps): ReactNode {
       {...props}
       trigger={
         <div
-          className={`p-5 w-96 h-24 card grid place-items-center ${props.variant ?? "default"} colored-text`}
+          className={`p-5 w-96 h-24 card grid place-items-center ${props.variant ?? "default"} responsive variant-static-text`}
         >
           Click Me
         </div>
       }
     >
       <div className="p-2 w-96 h-24 grid grid-cols-1 grid-rows-[40px_1fr]">
-        <p className={`text-lg font-bold ${props.variant ?? "default"} colored-text`}>
+        <p className={`text-lg font-bold ${props.variant ?? "default"} variant-static-text`}>
           Header Text
         </p>
         <div className="dark:bg-layout-dark-inset bg-layout-light-inset rounded-xs w-full dark:text-white text-black p-1">

@@ -73,7 +73,7 @@ export function NestedRadio({ variant, disabled, onChange, value, options }: Nes
             "leading-none flex items-center rounded-xs group/item",
             "h-7 text-sm px-[5px] relative pl-[30px] select-none outline-hidden",
             "data-disabled:pointer-events-none",
-            "highlight-list-item",
+            "responsive highlight-list-item",
             option.color ? "custom-color" : (option.variant ?? variant),
           )}
         >
@@ -81,7 +81,7 @@ export function NestedRadio({ variant, disabled, onChange, value, options }: Nes
             forceMount
             className={clsx(
               "absolute left-1 inline-flex items-center justify-center",
-              "check-indicator",
+              "responsive check-indicator",
               option.color ? "custom-color" : (option.variant ?? variant),
             )}
           >

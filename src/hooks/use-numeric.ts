@@ -1,4 +1,12 @@
-import { useState, useCallback, type ChangeEvent } from "react";
+import {
+  useState,
+  useCallback,
+  type ChangeEvent,
+  type FocusEvent,
+  TouchEvent,
+  DragEvent,
+  KeyboardEvent,
+} from "react";
 import { isNumber, isNaN } from "lodash";
 import { strip } from "number-precision";
 
@@ -19,20 +27,40 @@ export const PassableNumericStatuses = [
   NumericStatus.UpperBound,
 ];
 
+export type ValidChangeEvent =
+  | ChangeEvent<HTMLInputElement>
+  | PointerEvent
+  | MouseEvent
+  | TouchEvent
+  | DragEvent
+  | KeyboardEvent
+  | FocusEvent<HTMLInputElement>;
+
 interface NumericProps {
   initial?: number;
   stepSize?: number;
   min?: number;
   max?: number;
-  onValidChange?: (value: number) => void;
+  onValidChange?: (value: number, event: ValidChangeEvent) => void;
   sigFigs?: number;
   enforceLimits?: boolean;
 }
 
 interface NumericState {
   numeric: number;
-  status: string;
+  status: NumericStatus;
   textValue: string;
+}
+
+export interface NumericInterface {
+  textValue: string;
+  status: NumericStatus;
+  onChange: (event: ChangeEvent<HTMLInputElement>) => void;
+  onChangeDirect: (value: number, event: MouseEvent) => void;
+  onChangeHeadless: (value: number) => void;
+  onBlur: (event: FocusEvent<HTMLInputElement> | KeyboardEvent<HTMLInputElement>) => void;
+  onStepUp: (event: MouseEvent) => void;
+  onStepDown: (event: MouseEvent) => void;
 }
 
 export const useNumeric = ({
@@ -43,7 +71,7 @@ export const useNumeric = ({
   sigFigs = 2,
   onValidChange = () => {},
   enforceLimits = true,
-}: NumericProps) => {
+}: NumericProps): NumericInterface => {
   const [state, setState] = useState<NumericState>(parse(initial, min, max, sigFigs));
 
   const onChange = useCallback(
@@ -88,24 +116,24 @@ export const useNumeric = ({
         }));
       } else if (!enforceLimits || PassableNumericStatuses.includes(newState.status)) {
         setState(newState);
-        onValidChange(newState.numeric);
+        onValidChange(newState.numeric, event);
       } else if (newState.status === NumericStatus.Below) {
         setState(newState);
-        onValidChange(min);
+        onValidChange(min, event);
       } else if (newState.status === NumericStatus.Above) {
         setState(newState);
-        onValidChange(max);
+        onValidChange(max, event);
       }
     },
     [min, max, onValidChange, sigFigs, enforceLimits],
   );
 
   const onChangeDirect = useCallback(
-    (value: number) => {
+    (value: number, event: MouseEvent) => {
       const newState = parse(value, min, max, sigFigs);
       setState(newState);
       if (!enforceLimits || PassableNumericStatuses.includes(newState.status)) {
-        onValidChange(newState.numeric);
+        onValidChange(newState.numeric, event);
       }
     },
     [min, max, onValidChange, sigFigs, enforceLimits],
@@ -119,31 +147,40 @@ export const useNumeric = ({
     [min, max, sigFigs],
   );
 
-  const onStepUp = useCallback(() => {
-    const newState = parse(strip(state.numeric + stepSize), min, max, sigFigs);
-    setState(newState);
-    if (!enforceLimits || PassableNumericStatuses.includes(newState.status)) {
-      onValidChange(newState.numeric);
-    }
-  }, [min, max, onValidChange, state.numeric, stepSize, sigFigs, enforceLimits]);
+  const onStepUp = useCallback(
+    (event: MouseEvent) => {
+      const newState = parse(strip(state.numeric + stepSize), min, max, sigFigs);
+      setState(newState);
+      if (!enforceLimits || PassableNumericStatuses.includes(newState.status)) {
+        onValidChange(newState.numeric, event);
+      }
+    },
+    [min, max, onValidChange, state.numeric, stepSize, sigFigs, enforceLimits],
+  );
 
-  const onStepDown = useCallback(() => {
-    const newState = parse(strip(state.numeric - stepSize), min, max, sigFigs);
-    setState(newState);
-    if (!enforceLimits || PassableNumericStatuses.includes(newState.status)) {
-      onValidChange(newState.numeric);
-    }
-  }, [min, max, onValidChange, state.numeric, stepSize, sigFigs, enforceLimits]);
+  const onStepDown = useCallback(
+    (event: MouseEvent) => {
+      const newState = parse(strip(state.numeric - stepSize), min, max, sigFigs);
+      setState(newState);
+      if (!enforceLimits || PassableNumericStatuses.includes(newState.status)) {
+        onValidChange(newState.numeric, event);
+      }
+    },
+    [min, max, onValidChange, state.numeric, stepSize, sigFigs, enforceLimits],
+  );
 
-  const onBlur = useCallback(() => {
-    const strVersion = state.numeric.toFixed(sigFigs);
-    setState({
-      numeric: state.numeric,
-      status: getStatus(state.numeric, min, max),
-      textValue: strVersion,
-    });
-    onValidChange(state.numeric);
-  }, [min, max, state.numeric, onValidChange, sigFigs]);
+  const onBlur = useCallback(
+    (event: FocusEvent<HTMLInputElement> | KeyboardEvent<HTMLInputElement>) => {
+      const strVersion = state.numeric.toFixed(sigFigs);
+      setState({
+        numeric: state.numeric,
+        status: getStatus(state.numeric, min, max),
+        textValue: strVersion,
+      });
+      onValidChange(state.numeric, event);
+    },
+    [min, max, state.numeric, onValidChange, sigFigs],
+  );
 
   return {
     textValue: state.textValue,

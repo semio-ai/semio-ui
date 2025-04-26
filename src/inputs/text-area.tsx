@@ -45,6 +45,7 @@ const InnerTextArea = forwardRef(
         {...forwardedProps}
         onChange={(event) => onChange?.(event.target.value, event)}
         className={clsx(
+          "responsive",
           bg && "dark:bg-neutral-950/20 bg-neutral-50/20",
           "rounded-xs",
           outline === "interact" && "variant-responsive-appearing-outline",
@@ -52,7 +53,7 @@ const InnerTextArea = forwardRef(
           variant,
           "disabled:cursor-not-allowed cursor-text",
           "p-1",
-          "variant-text-carent-color",
+          "variant-text-caret-color",
           subtle && "dark:focus:text-white focus:text-black text-neutral-600 dark:text-neutral-400",
           !subtle && "text-black dark:text-white",
           className,

@@ -1,357 +1,364 @@
 import {
   memo,
-  useRef,
   useState,
   useEffect,
   type ReactNode,
-  type HTMLAttributes,
   forwardRef,
   ForwardedRef,
-  FocusEventHandler,
+  useRef,
+  CSSProperties,
+  useMemo,
 } from "react";
-import { motion, useMotionValue, useTransform, type MotionValue } from "motion/react";
-import { round, enableBoundaryChecking } from "number-precision";
-import { clamp } from "lodash";
-import { alpha } from "@semio/utils";
-import { clsx } from "clsx";
+import { enableBoundaryChecking, round } from "number-precision";
 import { useGesture } from "@use-gesture/react";
+import { mergeRefs } from "react-merge-refs";
+import { clamp } from "lodash";
+import { clsx } from "clsx";
 import { useNumeric } from "../hooks/use-numeric";
 import { Size } from "../types";
-import { StyledInput } from "./styled-input";
+import { NumberFieldProps } from "./number-field";
 
 enableBoundaryChecking(false);
 
-interface InputProps {
-  percent: MotionValue<number>;
-  color: string;
-  size: Size;
-  focused?: boolean;
-  inactive?: boolean;
-  showFill?: boolean;
-  emphasis?: boolean;
+const coerceModuloResult = (num: number) => (num < 0 ? num + 1 : num);
+
+enum FocusState {
+  Focused, // The main input is focused
+  Blurred, // Nothing is focused
+  FocusedLabel, // The label is focused
+  Dragging, // The slider is being dragged
 }
 
-enum SliderMode {
-  Drag,
-  Manual,
-  Blurred,
-  Label,
-}
-
-const InputWrapper = forwardRef(
-  (props: InputProps & HTMLAttributes<HTMLDivElement>, ref: ForwardedRef<HTMLDivElement>) => {
-    const {
-      size,
-      color,
-      percent,
-      inactive,
-      children,
-      focused,
-      showFill,
-      emphasis,
-      ...forwardedProps
-    } = props;
-
-    const gradient = useTransform(
-      percent,
-      [0, 1],
-      [
-        `linear-gradient(90deg, ${alpha(color, inactive ? 0.6 : 1)} 0%, ${alpha(color, inactive ? 0.6 : 1)} 0%, ${alpha(color, emphasis ? 0.35 : 0.2)} 0%, ${alpha(color, emphasis ? 0.35 : 0.2)} 100%)`,
-        `linear-gradient(90deg, ${alpha(color, inactive ? 0.6 : 1)} 0%, ${alpha(color, inactive ? 0.6 : 1)} 100%, ${alpha(color, emphasis ? 0.35 : 0.2)} 100%, ${alpha(color, emphasis ? 0.35 : 0.2)} 100%)`,
-      ],
-    );
-
-    return (
-      <motion.div
-        ref={ref}
-        {...(forwardedProps as any)}
-        className={clsx(
-          "flex flex-row w-full touch-none p-0 overflow-hidden rounded-none items-baseline",
-          "outline outline-offset-2 transition-[outline-color,background]",
-          "sized-height sized-text",
-        )}
-        // Tailwind does not support truly dynamic styles, so we have to use inline styles here
-        style={{
-          outlineColor: alpha(color, focused ? 1 : 0),
-          background: !showFill ? alpha(color, emphasis ? 0.5 : 0.35) : gradient,
-        }}
-      >
-        {children}
-      </motion.div>
-    );
-  },
-);
-
-InputWrapper.displayName = "InputWrapper";
-
-export interface SliderNumberFieldProps {
-  value: number;
-  onChange: (value: number) => void;
-  min?: number;
-  max?: number;
+export interface SliderNumberFieldProps extends Omit<NumberFieldProps, "strict"> {
   visualMin?: number;
   visualMax?: number;
-  units?: string;
-  color?: string;
   strictSlider?: boolean;
   strictText?: boolean;
-  emphasis?: boolean;
-  size?: Size;
-  inactive?: boolean;
-  disabled?: boolean;
-  label?: string;
-  onLabelChange?: (label: string) => void;
-  onEmphasisChange?: (emphasis: boolean) => void;
-  onFocus?: FocusEventHandler;
-  onBlur?: FocusEventHandler;
 }
 
 /**
  * SliderNumberField
- * @param {number} value:  - the value of the field
- * @param onChange: (value: number) => void - the function to call when the value changes
- * @param min?: number - the minimum value
- * @param max?: number - the maximum value
- * @param visualMin?: number - the minimum visual value
- * @param visualMax?: number - the maximum visual value
- * @param units?: string - the units to display
- * @param color?: string - the color of the slider
- * @param strictSlider?: boolean - whether to enforce the slider bounds
- * @param strictText?: boolean - whether to enforce the text bounds
- * @param emphasis?: boolean - whether the field is emphasized
- * @param size?: Size - the size of the field
- * @param inactive?: boolean - whether the field is inactive
- * @param disabled?: boolean - whether the field is disabled
- * @param label?: string - the label of the field
- * @param onLabelChange?: (label: string) => void - the function to call when the label changes
- * @param onEmphasisChange?: (emphasis: boolean) => void - the function to call when the emphasis changes
- * @param onFocus?: FocusEventHandler;
- * @param onBlur?: FocusEventHandler;
+ * {@link TextFieldProps}
+ * @param value - the value of the field
+ * @param onChange - the function to call when the value changes
+ * @param min - the minimum value
+ * @param max - the maximum value
+ * @param units - the units to display
+ * @param strict - whether to enforce the min/max bounds
+ * @param highlighted - whether the field is emphasized
+ * @param label - the label of the field
+ * @param onLabelChange - the function to call when the label changes
+ * @param onHighlightChange - the function to call when the emphasis changes
+ * @param visualMin - the visual minimum (for wrap-around values);
+ * @param visualMax - the visual maximum (for wrap-around values);
+ * @param strictSlider - whether to enforce the min/max bounds on the slider
+ * @param strictText - whether to enforce the min/max bounds
  */
-function InnerSliderNumberField({
-  value,
-  onChange,
-  min,
-  max,
-  visualMin,
-  visualMax,
-  units,
-  color,
-  strictText = false,
-  strictSlider = false,
-  emphasis,
-  size = Size.Md,
-  inactive,
-  disabled,
-  label,
-  onLabelChange,
-  onEmphasisChange,
-  onBlur: onBlurExternal,
-  onFocus: onFocusExternal,
-}: SliderNumberFieldProps): ReactNode {
-  const boundsRef = useRef<HTMLDivElement>(null);
-  const sliderColor = color || "#737373";
-
-  const [sliderMode, setSliderMode] = useState(SliderMode.Blurred);
-
-  const percentSpring = useMotionValue<number>(value);
-
-  const {
-    textValue,
-    onChange: onChangeInner,
-    onChangeDirect,
-    onChangeHeadless,
-    onBlur,
-  } = useNumeric({
-    initial: value,
-    onValidChange: onChange,
-    min,
-    max,
-    enforceLimits: strictText,
-  });
-
-  useEffect(() => {
-    if (sliderMode !== SliderMode.Manual) {
-      onChangeHeadless(value);
-    }
-  }, [value, sliderMode, onChangeHeadless]);
-
-  useEffect(() => {
-    if (min !== undefined && max !== undefined) {
-      percentSpring.jump((value - min) / (max - min));
-    } else if (visualMin !== undefined && visualMax !== undefined) {
-      percentSpring.jump(coerceModuloResult(((value - visualMin) / (visualMax - visualMin)) % 1));
-    }
-  }, [value, min, max, percentSpring, visualMin, visualMax]);
-
-  useGesture(
+const InnerSliderNumberField = forwardRef(
+  (
     {
-      onDrag: ({
-        xy: [x],
-        intentional,
-        tap,
-        dragging = false,
-        hovering = false,
-        wheeling = false,
-        event,
-        delta: [dx],
-      }) => {
-        if (disabled) return;
-        if (!intentional) return;
-        if (tap) return;
-        if (sliderMode === SliderMode.Manual || sliderMode === SliderMode.Label) return;
-        if (!boundsRef.current) return;
-        const bounds = boundsRef.current.getBoundingClientRect();
-        if ((wheeling || dragging) && sliderMode !== SliderMode.Drag) {
-          setSliderMode(SliderMode.Drag);
-        } else if (!wheeling && !dragging && sliderMode === SliderMode.Drag) {
-          setSliderMode(SliderMode.Blurred);
-        }
-        let v = value;
-        if (min !== undefined && max !== undefined) {
-          v = (max - min) * ((x - bounds.left) / bounds.width) + min;
-          if (strictSlider) {
-            v = clamp(v, min, max);
-          }
-        } else if (visualMin !== undefined && visualMax !== undefined) {
-          v = (visualMax - visualMin) * ((x - bounds.left) / bounds.width) + visualMin;
-        } else {
-          v += dx / 100;
-        }
-        onChangeDirect(round(v, 2));
-        if (!dragging && !wheeling) {
-          onBlurExternal?.(event as unknown as React.FocusEvent<HTMLInputElement>);
-        }
-        onEmphasisChange?.(dragging || hovering || wheeling);
-        event.preventDefault();
-        event.stopPropagation();
-      },
-      onWheel: ({ delta: [, dy], event, dragging = false, hovering = false, wheeling = false }) => {
-        if (disabled) return;
-        if (sliderMode === SliderMode.Blurred) return;
-        if (dy === 0) return;
-        let v = value;
-        if (min !== undefined && max !== undefined) {
-          const step = (max - min) / 100;
-          v = value + step * (dy > 0 ? 1 : -1);
-          if (strictSlider) {
-            v = clamp(v, min, max);
-          }
-        } else if (visualMin !== undefined && visualMax !== undefined) {
-          const step = (visualMax - visualMin) / 100;
-          v = value + step * (dy > 0 ? 1 : -1);
-        } else {
-          v += dy / 100;
-        }
-        onChangeDirect(round(v, 2));
-        onEmphasisChange?.(dragging || hovering || wheeling);
-        if ((wheeling || dragging) && sliderMode !== SliderMode.Drag) {
-          setSliderMode(SliderMode.Drag);
-        } else if (!wheeling && !dragging && sliderMode === SliderMode.Drag) {
-          setSliderMode(SliderMode.Blurred);
-        }
-        if (!dragging && !wheeling) {
-          onBlurExternal?.(event as unknown as React.FocusEvent<HTMLInputElement>);
-        }
-        event.preventDefault();
-        event.stopPropagation();
-      },
-      onHover: ({ hovering = false, dragging = false, wheeling = false }) => {
-        if (disabled) return;
-        onEmphasisChange?.(hovering || dragging || wheeling);
-        if (!hovering && !dragging && !wheeling && sliderMode === SliderMode.Drag) {
-          setSliderMode(SliderMode.Blurred);
-        }
-      },
-    },
-    {
-      target: boundsRef,
-      eventOptions: { passive: false },
-      drag: {
-        filterTaps: true,
-      },
-    },
-  );
+      bg = true,
+      outline = "interact",
+      value,
+      variant,
+      onChange,
+      min,
+      max,
+      visualMin,
+      visualMax,
+      units,
+      color,
+      strictSlider = false,
+      strictText = false,
+      subtle = false,
+      size = Size.Md,
+      disabled = false,
+      highlight = false,
+      onHighlightChange,
+      label,
+      onLabelChange,
+      onBlur: onBlurExternal,
+      onFocus: onFocusExternal,
+      className,
+      ...forwardedProps
+    }: SliderNumberFieldProps,
+    ref: ForwardedRef<HTMLInputElement>,
+  ): ReactNode => {
+    const boundsRef = useRef<HTMLLabelElement>(null);
+    const labelRef = useRef<HTMLInputElement>(null);
+    const defaultInputRef = useRef<HTMLInputElement>(null);
 
-  return (
-    <InputWrapper
-      ref={boundsRef}
-      color={sliderColor}
-      size={size}
-      showFill={
-        (min !== undefined && max !== undefined) ||
-        (visualMin !== undefined && visualMax !== undefined)
+    const inputRef = mergeRefs<HTMLInputElement>([defaultInputRef, ref]);
+
+    const [focusState, setFocusState] = useState(FocusState.Blurred);
+
+    const id = useMemo(() => {
+      return forwardedProps.id ?? crypto.randomUUID();
+    }, [forwardedProps.id]);
+
+    const {
+      textValue,
+      onChange: onChangeInner,
+      onChangeDirect,
+      onChangeHeadless,
+      onBlur,
+    } = useNumeric({
+      initial: value,
+      onValidChange: onChange,
+      min,
+      max,
+      enforceLimits: strictText,
+    });
+
+    useEffect(() => {
+      if (focusState !== FocusState.Focused) {
+        onChangeHeadless(value);
       }
-      inactive={inactive || disabled}
-      percent={percentSpring}
-      focused={sliderMode !== SliderMode.Blurred}
-      emphasis={sliderMode !== SliderMode.Blurred || emphasis}
-      onBlur={(event) => {
-        if (disabled) return;
-        setSliderMode(SliderMode.Blurred);
-        onBlur();
-        event.stopPropagation();
-      }}
-    >
-      {label !== undefined && (
+    }, [value, focusState, onChangeHeadless]);
+
+    useGesture(
+      {
+        onDrag: ({
+          xy: [x],
+          intentional,
+          tap,
+          dragging = false,
+          hovering = false,
+          wheeling = false,
+          event,
+          delta: [dx],
+        }) => {
+          if (disabled) return;
+          if (!intentional) return;
+          if (tap) return;
+          if (focusState === FocusState.Focused || focusState === FocusState.FocusedLabel) return;
+          if (!boundsRef.current) return;
+          const bounds = boundsRef.current.getBoundingClientRect();
+          if ((wheeling || dragging) && focusState !== FocusState.Dragging) {
+            setFocusState(FocusState.Dragging);
+          } else if (!wheeling && !dragging && focusState === FocusState.Dragging) {
+            setFocusState(FocusState.Blurred);
+          }
+          let v = value;
+          if (min !== undefined && max !== undefined) {
+            v = (max - min) * ((x - bounds.left) / bounds.width) + min;
+            if (strictSlider) {
+              v = clamp(v, min, max);
+            }
+          } else if (visualMin !== undefined && visualMax !== undefined) {
+            v = (visualMax - visualMin) * ((x - bounds.left) / bounds.width) + visualMin;
+          } else {
+            v += dx / 100;
+          }
+          onChangeDirect(round(v, 2), event as MouseEvent);
+          if (!dragging && !wheeling) {
+            onBlurExternal?.(event as unknown as React.FocusEvent<HTMLInputElement>);
+          }
+          onHighlightChange?.(dragging || hovering || wheeling);
+          event.preventDefault();
+          event.stopPropagation();
+        },
+        onWheel: ({
+          delta: [, dy],
+          event,
+          dragging = false,
+          hovering = false,
+          wheeling = false,
+        }) => {
+          if (disabled) return;
+          if (focusState === FocusState.Blurred) return;
+          if (dy === 0) return;
+          let v = value;
+          if (min !== undefined && max !== undefined) {
+            const step = (max - min) / 100;
+            v = value + step * (dy > 0 ? 1 : -1);
+            if (strictSlider) {
+              v = clamp(v, min, max);
+            }
+          } else if (visualMin !== undefined && visualMax !== undefined) {
+            const step = (visualMax - visualMin) / 100;
+            v = value + step * (dy > 0 ? 1 : -1);
+          } else {
+            v += dy / 100;
+          }
+          onChangeDirect(round(v, 2), event as MouseEvent);
+          onHighlightChange?.(dragging || hovering || wheeling);
+          if ((wheeling || dragging) && focusState !== FocusState.Dragging) {
+            setFocusState(FocusState.Dragging);
+          } else if (!wheeling && !dragging && focusState === FocusState.Dragging) {
+            setFocusState(FocusState.Blurred);
+          }
+          if (!dragging && !wheeling) {
+            onBlurExternal?.(event as unknown as React.FocusEvent<HTMLInputElement>);
+          }
+          event.preventDefault();
+          event.stopPropagation();
+        },
+        onHover: ({ hovering = false, dragging = false, wheeling = false }) => {
+          if (disabled) return;
+          onHighlightChange?.(hovering || dragging || wheeling);
+          if (!hovering && !dragging && !wheeling && focusState === FocusState.Dragging) {
+            setFocusState(FocusState.Blurred);
+          }
+        },
+      },
+      {
+        target: boundsRef,
+        eventOptions: { passive: false },
+        drag: {
+          filterTaps: true,
+        },
+      },
+    );
+
+    const percent: number | undefined = useMemo(() => {
+      if (min !== undefined && max !== undefined) {
+        return (value - min) / (max - min);
+      } else if (visualMin !== undefined && visualMax !== undefined) {
+        return coerceModuloResult(((value - visualMin) / (visualMax - visualMin)) % 1);
+      } else {
+        return undefined;
+      }
+    }, [value, visualMin, visualMax, min, max]);
+
+    return (
+      <label
+        ref={boundsRef}
+        htmlFor={id}
+        data-highlighted={highlight || focusState !== FocusState.Blurred ? "" : undefined}
+        style={
+          {
+            "--custom-color": color,
+            "--progress": percent ? `${(percent * 100).toFixed(2).toString()}%` : "0%",
+          } as CSSProperties
+        }
+        className={clsx(
+          "responsive",
+          color ? "custom-color" : variant,
+          "py-0 px-0.5 group/input-wrapper select-none",
+          label && units && "input-label-field-units-grid",
+          label && !units && "input-label-field-grid",
+          !label && units && "input-field-units-grid",
+          !label && !units && "input-field-grid",
+          "sized-height rounded-xs place-items-center",
+          bg && "variant-input-gradient-bg",
+          outline === "interact" && "variant-responsive-appearing-outline",
+          outline === "always" && "variant-responsive-persistent-outline",
+          size,
+          className,
+        )}
+      >
+        {label && (
+          <input
+            ref={labelRef}
+            value={label}
+            onChange={(e) => onLabelChange?.(e.target.value)}
+            readOnly={!onLabelChange || focusState === FocusState.Dragging}
+            style={{ width: `${(label.length + 1).toString()}ch` }}
+            onKeyDown={(e) => {
+              if (!disabled && e.key === "Enter") {
+                setFocusState(FocusState.Blurred);
+                onBlurExternal?.(e as unknown as React.FocusEvent<HTMLInputElement>);
+                labelRef.current?.blur();
+              }
+            }}
+            onBlur={(e) => {
+              if (!disabled) {
+                setFocusState(FocusState.Blurred);
+                onBlurExternal?.(e as unknown as React.FocusEvent<HTMLInputElement>);
+              }
+            }}
+            onClick={(e) => {
+              if (disabled) return;
+              if (focusState !== FocusState.FocusedLabel) {
+                onFocusExternal?.(e as unknown as React.FocusEvent<HTMLInputElement>);
+                setFocusState(FocusState.FocusedLabel);
+              }
+              e.stopPropagation();
+            }}
+            className={clsx(
+              color ? "custom-color" : variant,
+              size,
+              focusState === FocusState.Dragging && "select-none pointer-events-none",
+              focusState !== FocusState.Dragging &&
+                "group-has-focus/input-wrapper:bg-neutral-900/20",
+              focusState !== FocusState.FocusedLabel ? "cursor-ew-resize" : "cursor-text",
+              "responsive grid-area-label sized-text place-items-center text-center rounded-[1px]",
+              "sized-inner-group-item font-mono variant-text-caret-color",
+              "text-white/50 focus:outline-none focus:text-white/75 dark:focus:text-white/75",
+              "pointer-events-none select-none group-has-focus/input-wrapper:pointer-events-auto group-has-focus/input-wrapper:select-auto",
+              "transition-discrete transition-all delay-75",
+            )}
+          />
+        )}
+
         <input
-          readOnly={!onLabelChange || inactive || sliderMode !== SliderMode.Label}
-          onChange={(e) => onLabelChange?.(e.target.value || "")}
+          ref={inputRef}
+          {...forwardedProps}
+          id={id}
+          value={textValue}
+          readOnly={focusState !== FocusState.Focused}
+          onChange={onChangeInner}
           className={clsx(
-            "outline-hidden text-ellipsis focus:outline-hidden",
-            "flex-1 bg-transparent dark:text-white/75 text-black/75 text-left pl-1 max-w-[60%] touch-none",
-            sliderMode === SliderMode.Label
-              ? "cursor-text select-none font-bold"
-              : "cursor-ew-resize select-none font-normal selection:bg-transparent",
+            "responsive grid-area-field",
+            "focus:outline-hidden",
+            "min-w-0 max-w-[100%]",
+            "disabled:cursor-not-allowed",
+            focusState !== FocusState.Focused ? "cursor-ew-resize" : "cursor-text",
+            "sized-text sized-height text-right px-0.5",
+            "variant-text-caret-color font-mono",
+            focusState === FocusState.Dragging && "select-none pointer-events-none",
+            size,
+            color ? "custom-color" : variant,
+            subtle &&
+              "dark:focus:text-white focus:text-black text-neutral-600 dark:text-neutral-400",
+            !subtle && "text-black dark:text-white",
+            className,
           )}
-          value={label}
-          onDoubleClick={() => {
-            if (disabled) return;
-            setSliderMode(SliderMode.Label);
+          onKeyDown={(e) => {
+            if (!disabled && e.key === "Enter") {
+              setFocusState(FocusState.Blurred);
+              onBlur(e);
+              onBlurExternal?.(e as unknown as React.FocusEvent<HTMLInputElement>);
+              defaultInputRef.current?.blur();
+            }
           }}
-          onBlur={() => {
-            setSliderMode(SliderMode.Blurred);
+          onBlur={(e) => {
+            if (!disabled) {
+              setFocusState(FocusState.Blurred);
+              onBlur(e);
+              onBlurExternal?.(e as unknown as React.FocusEvent<HTMLInputElement>);
+            }
+          }}
+          onClick={(e) => {
+            if (disabled) return;
+            if (focusState !== FocusState.Focused) {
+              onFocusExternal?.(e as unknown as React.FocusEvent<HTMLInputElement>);
+              setFocusState(FocusState.Focused);
+            }
+            e.stopPropagation();
           }}
         />
-      )}
 
-      <StyledInput
-        flex
-        readOnly={inactive || (sliderMode !== SliderMode.Manual && sliderMode !== SliderMode.Label)}
-        disabled={disabled}
-        type="text"
-        color={sliderColor}
-        bold={sliderMode === SliderMode.Manual}
-        cursor={sliderMode === SliderMode.Manual ? "cursor-text" : "cursor-ew-resize"}
-        className="text-right flex-1 font-mono"
-        size={size}
-        value={textValue}
-        onChange={onChangeInner}
-        onKeyDown={(e) => {
-          if (!disabled && e.key === "Enter") {
-            setSliderMode(SliderMode.Blurred);
-            onBlur();
-            onBlurExternal?.(e as unknown as React.FocusEvent<HTMLInputElement>);
-          }
-        }}
-        onBlur={(e) => {
-          if (!disabled) {
-            setSliderMode(SliderMode.Blurred);
-            onBlur();
-            onBlurExternal?.(e as unknown as React.FocusEvent<HTMLInputElement>);
-          }
-        }}
-        onDoubleClick={(e) => {
-          if (disabled) return;
-          setSliderMode(SliderMode.Manual);
-          onFocusExternal?.(e as unknown as React.FocusEvent<HTMLInputElement>);
-        }}
-      />
-      <span className={clsx("w-fit font-mono pr-1 text-black dark:text-white")}>{units}</span>
-    </InputWrapper>
-  );
-}
+        {units && (
+          <input
+            value={units}
+            readOnly
+            style={{ width: `${(units.length + 1).toString()}ch` }}
+            className={clsx(
+              variant,
+              size,
+              "grid-area-units text-right select-none px-0.5",
+              "grid place-items-center pointer-events-none w-fit sized-text",
+              "sized-height text-white/50 font-mono",
+            )}
+          />
+        )}
+      </label>
+    );
+  },
+);
+
+InnerSliderNumberField.displayName = "SliderNumberField";
 
 export const SliderNumberField = memo(InnerSliderNumberField);
-
-const coerceModuloResult = (num: number) => (num < 0 ? num + 1 : num);
