@@ -61,6 +61,7 @@ export * from "./icons/static-icon";
 export * from "./icons/world-element-icons";
 
 // Inputs
+export * from "./inputs/color-picker-input";
 export * from "./inputs/number-field";
 export * from "./inputs/slider-number-field";
 export * from "./inputs/email";
@@ -70,6 +71,17 @@ export * from "./inputs/search";
 export * from "./inputs/time-input";
 export * from "./inputs/text-field";
 export * from "./inputs/text-area";
+export * from "./inputs/toggle-group";
+export * from "./inputs/toggle-square";
+
+// Layouts
+export * from "./layouts/accordion";
+export * from "./layouts/collapse";
+export * from "./layouts/layout";
+export * from "./layouts/layout-new";
+export * from "./layouts/menu";
+export * from "./layouts/scroll-area";
+export * from "./layouts/separator";
 
 // Nested-Elements
 export * from "./nested-elements/checkbox";
@@ -80,36 +92,25 @@ export * from "./nested-elements/menu";
 export * from "./nested-elements/radio";
 export * from "./nested-elements/select";
 export * from "./nested-elements/separator";
+export * from "./layouts/sidebar";
+export * from "./layouts/stepper";
+export * from "./layouts/table-list";
+export * from "./layouts/tabs";
 
 export * from "./avatar";
-export * from "./collapse";
-export * from "./accordion";
-export * from "./tabs";
-export * from "./table-list";
-export * from "./toggle-group";
-export * from "./toggle-square";
-export * from "./separator";
 
-export * from "./inputs/color-picker-input";
 export * from "./inputs/color-picker-popover";
 export * from "./inputs/number-or-list";
 
-export * from "./inputs/styled-input";
 export * from "./dropzone";
-export * from "./scroll-area";
 export * from "./chip";
 export * from "./select-list";
 export * from "./form-base";
 
 export * from "./progress";
 
-export * from "./layout";
-export * from "./layout-new";
-export * from "./stepper";
-export * from "./menu";
 export * from "./spinner";
 export * from "./status";
-export * from "./sidebar";
 export * from "./checkbox";
 export * from "./buttons/image-button";
 

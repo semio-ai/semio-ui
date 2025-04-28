@@ -2,7 +2,7 @@ import { type ReactNode, type MouseEvent } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import { clsx } from "clsx";
 import { IconX } from "@tabler/icons-react";
-import { ScrollArea } from "../scroll-area";
+import { ScrollArea } from "../layouts/scroll-area";
 import { Variant } from "../types";
 import { getBasicTextColor } from "../style-functions";
 import { Button } from "../buttons/button";
@@ -54,10 +54,10 @@ export function Modal({
           <Dialog.Content
             forceMount
             className={clsx(
-              "flex flex-col focus:outline-hidden",
+              "responsive flex flex-col focus:outline-hidden",
               "card animated-modal overflow-clip",
               variant,
-              "w-screen md:w-3/5 md:max-w-[750px] p-[0.5px]",
+              "w-screen md:w-3/5 md:max-w-[750px] p-0",
               "max-h-screen h-[100dvh] md:max-h-[85vh] md:h-fit",
             )}
           >
@@ -127,9 +127,7 @@ export function Modal({
                   )
                 }
               >
-                <div className="flex-1 md:flex-none dark:text-white text-black p-[1px]">
-                  {children}
-                </div>
+                <div className="flex-1 md:flex-none dark:text-white text-black p-0">{children}</div>
               </ScrollArea>
             )}
             {scrollDisabled && (

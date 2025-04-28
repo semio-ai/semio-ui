@@ -14,7 +14,7 @@ import {
 import { IconChevronRight } from "@tabler/icons-react";
 import { clsx } from "clsx";
 import { NestedParent, Variant } from "../types";
-import { ScrollArea } from "../scroll-area";
+import { ScrollArea } from "../layouts/scroll-area";
 import { useNestedParent } from "./context";
 
 export interface NestedMenuProps {

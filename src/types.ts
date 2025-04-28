@@ -111,24 +111,19 @@ export enum TimeDisplay {
   Frames = "frames",
 
   /**
-   * Display time in seconds and milliseconds format.
+   * Display time in milliseconds only.
    */
-  SecondsPlusMilliseconds = "seconds+milliseconds",
+  Milliseconds = "milliseconds",
 
   /**
-   * Display time in minutes, seconds, and milliseconds format.
+   * Display time in seconds (milliseconds are decimals).
    */
-  MinutesPlusSecondsPlusMilliseconds = "minutes+seconds+milliseconds",
+  Seconds = "seconds",
 
   /**
    * Display time in seconds and frames format.
    */
   SecondsPlusFrames = "seconds+frames",
-
-  /**
-   * Display time in seconds only.
-   */
-  Seconds = "seconds",
 }
 
 /**

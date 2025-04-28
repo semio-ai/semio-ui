@@ -5,21 +5,32 @@ import type {
   MouseEvent,
   MouseEventHandler,
 } from "react";
-import { isValidElement, memo, useCallback, useEffect, useRef } from "react";
+import { isValidElement, memo, useCallback, useEffect, useRef, useState } from "react";
 import { clsx } from "clsx";
 import { motion, AnimatePresence, TargetAndTransition } from "motion/react";
 import { useGesture } from "@use-gesture/react";
 import { atom, useAtom, useAtomValue, useSetAtom } from "jotai";
 import { observe } from "jotai-effect";
-import { IconChevronRightPipe, IconSquare } from "@tabler/icons-react";
-import { Button } from "./buttons/button";
-import { IconHome } from "./icons/home";
-import { Select } from "./floating/select";
-import { Size, Variant } from "./types";
-import { Status } from "./status";
-import { Tooltip } from "./floating/tooltip";
-import { ToggleGroupProps } from "./toggle-group";
+import {
+  IconArrowBackUp,
+  IconArrowForwardUp,
+  IconChevronRightPipe,
+  IconDashboard,
+  IconDeviceFloppy,
+  IconShoppingBag,
+  IconSquare,
+} from "@tabler/icons-react";
 import useMeasure, { RectReadOnly } from "react-use-measure";
+import { Button } from "../buttons/button";
+import { IconHome } from "../icons/home";
+import { Select } from "../floating/select";
+import { Size, Variant } from "../types";
+import { Status } from "../status";
+import { Tooltip } from "../floating/tooltip";
+import { Search } from "../inputs/search";
+import { ToggleGroup } from "../inputs/toggle-group";
+import { Avatar } from "../avatar";
+import { IconProject } from "../icons/project";
 
 export type MenuItemClickFn = (id: string, event: MouseEvent) => Promise<void> | void;
 
@@ -65,6 +76,52 @@ function TestPane() {
   );
 }
 
+function TestToggleGroup() {
+  const [value, setValue] = useState<"mode 1" | "mode 2" | "mode 3">("mode 1");
+
+  return (
+    <div className="flex flex-row items-center gap-2 pr-1">
+      <ToggleGroup
+        bg={false}
+        size={Size.Md}
+        visuals="icons"
+        value={value}
+        onChange={(v) => setValue(v as "mode 1" | "mode 2" | "mode 3")}
+        options={[
+          {
+            label: "Studio",
+            value: "mode 1",
+            icon: <IconProject className="w-3/5 h-3/5" />,
+            // variant: Variant.Primary,
+          },
+          {
+            label: "Dashboard",
+            value: "mode 2",
+            icon: <IconDashboard className="w-3/5 h-3/5" />,
+            // variant: Variant.Secondary,
+          },
+          {
+            label: "Marketplace",
+            value: "mode 3",
+            icon: <IconShoppingBag className="w-3/5 h-3/5" />,
+            // variant: Variant.Tertiary,
+          },
+        ]}
+        className="backdrop-blur-lg dark:bg-layout-dark-inset/40 bg-layout-light-inset/40"
+      />
+      <Avatar
+        src="https://avatars.githubusercontent.com/u/5341396?v=4&size=64"
+        alt="Andy"
+        size={Size.Md}
+        status={{
+          variant: Variant.Success,
+          placement: "bottom-right",
+        }}
+      />
+    </div>
+  );
+}
+
 /**
  * Renders the inner layout of the application.
  *
@@ -89,10 +146,12 @@ export function InnerLayoutNew({
   const leftRegionActive = useAtomValue(leftRegionActiveAtom);
   const rightRegionActive = useAtomValue(rightRegionActiveAtom);
   const footerRegionActive = useAtomValue(footerRegionActiveAtom);
+  const toolbarItems = useAtomValue(toolbarItemsAtom);
 
-  const { setPanes, toggleMenu, togglePaneRegion } = useLayoutActions();
+  const { setPanes, toggleMenu, togglePaneRegion, setToolbarItems } = useLayoutActions();
 
   const activeLeftPaneId = useAtomValue(activeLeftPaneAtom);
+  const activeRightPaneId = useAtomValue(activeRightPaneAtom);
 
   useEffect(() => {
     setPanes([
@@ -135,7 +194,59 @@ export function InnerLayoutNew({
         inLeftMenu: false,
       },
     ]);
-  }, [setPanes]);
+    setToolbarItems([
+      {
+        id: "search",
+        type: "toolbar-widget",
+        component: (
+          <div className="pl-1">
+            <Search placeholder="Search..." size={Size.Md} bg className="backdrop-blur-lg" />
+          </div>
+        ),
+        desktopSizing: "fit",
+      },
+      {
+        id: "studio-actions",
+        type: "toolbar-widget",
+        component: (
+          <div className="flex flex-row gap-1 px-1 z-0">
+            <Button
+              invert
+              size={Size.Md}
+              leftIcon={<IconArrowBackUp className="w-3/5 h-3/5" />}
+              className="backdrop-blur-lg"
+              // variant={Variant.Info}
+            />
+            <Button
+              invert
+              disabled
+              size={Size.Md}
+              leftIcon={<IconArrowForwardUp className="w-3/5 h-3/5" />}
+              className="backdrop-blur-lg"
+            />
+            <Button
+              invert
+              size={Size.Md}
+              leftIcon={<IconDeviceFloppy className="w-3/5 h-3/5" />}
+              className="backdrop-blur-lg"
+            />
+          </div>
+        ),
+        desktopSizing: "fit",
+      },
+      {
+        id: "spacer-1",
+        type: "toolbar-spacer",
+        desktopSizing: "flex",
+      },
+      {
+        id: "nav",
+        type: "toolbar-widget",
+        component: <TestToggleGroup />,
+        desktopSizing: "fit",
+      },
+    ]);
+  }, [setPanes, setToolbarItems]);
 
   useGesture(
     {
@@ -223,12 +334,7 @@ export function InnerLayoutNew({
 
       {/* Header */}
       <div className="grid-area-header w-full h-full">
-        <div
-          className={clsx(
-            "responsive card-transparent h-10 flex items-center",
-            "flex-row justify-start",
-          )}
-        >
+        <div className={clsx("h-10 flex items-center gap-1", "flex-row justify-start")}>
           <button
             type="button"
             role="tab"
@@ -247,13 +353,31 @@ export function InnerLayoutNew({
           >
             {homeText ?? "Home"}
           </p>
+          {desktop && (
+            <>
+              {toolbarItems.map((item) => {
+                return (
+                  <div
+                    key={item.id}
+                    className={clsx(
+                      "h-10 flex items-center",
+                      item.type === "toolbar-widget" ? "responsive" : "pointer-events-none",
+                      item.desktopSizing === "flex" ? "flex flex-1" : "w-auto",
+                    )}
+                  >
+                    {item.type === "toolbar-widget" && item.component}
+                  </div>
+                );
+              })}
+            </>
+          )}
         </div>
       </div>
 
       {/* Left Sidebar */}
       <div
         className={clsx(
-          "grid-area-left w-full h-full overflow-hidden",
+          "grid-area-left w-full h-full overflow-clip transition-[width,height]",
 
           // footerRegionActive ? "pt-0.5 pb-0.5" : "pt-0.5 pb-0.5 desktop:pb-0",
         )}
@@ -262,36 +386,55 @@ export function InnerLayoutNew({
       </div>
 
       {/* Right Sidebar */}
-      <div className="grid-area-right w-full h-full hidden desktop:flex overflow-hidden">
+      <div className="grid-area-right w-full h-full min-h-10 min-w-10 hidden desktop:flex">
         <div
           data-ui={rightRegionActive ? "expanded" : ""}
           className={clsx(
-            "responsive card-transparent overflow-clip group/right",
-            "grid grid-cols-1 grid-rows-[40px_0fr]",
-            "data-expanded:h-auto h-10 data-expanded:grid-rows-[40px_auto] transition-[height]",
+            "responsive card-transparent group/right overflow-clip",
+            "min-h-[40px] min-w-[40px]",
+            "place-items-center grid",
+            // "grid grid-rows-2 grid-columns-2",
+
+            "h-[36px] data-expanded:h-auto grid-rows-[36px_0fr] data-expanded:grid-rows-[36px_auto]",
+            "grid-cols-[0fr_36px] data-expanded:grid-cols-[1fr_36px]",
+            // "grid-rows-[40px_0fr] data-expanded:h-auto data-expanded:grid-rows-[40px_auto]",
+            // "min-h-10 min-w-10 h-auto transition-[height] place-items-center",
           )}
         >
-          <div className="flex flex-row h-10 group-data-expanded/right:h-full justify-between items-center">
-            <div className="hidden group-data-expanded/right:flex flex-row h-10 w-full items-center justify-center p-2">
-              {rightMenuItems.length === 1 && rightMenuItems[0]?.name}
-              {rightMenuItems.length > 1 && (
-                <Select
-                  size={Size.Sm}
-                  options={rightMenuItems.map((item) => ({
-                    label: item.name,
-                    value: item.id,
-                  }))}
-                  onChange={(value) => {
-                    const selected = rightMenuItems.find((item) => item.id === value);
-                    if (selected) {
-                      togglePaneRegion(PaneRegion.Right, selected.id);
-                    }
-                  }}
-                  value={rightMenuItems.find((item) => item.region === PaneRegion.Right)?.id}
-                />
-              )}
-            </div>
+          <div
+            className={clsx(
+              "p-1 w-0 h-0 group-data-expanded/right:h-[36px] group-data-expanded/right:flex hidden",
+              "flex-row group-data-expanded/right:w-full grid align-middle justify-start",
+              "bg-transparent group-data-expanded/right:bg-neutral-50/20 dark:group-data-expanded/right:bg-neutral-950/20",
+            )}
+          >
+            {rightMenuItems.length === 1 && rightMenuItems[0]?.name}
+            {rightMenuItems.length > 1 && (
+              <Select
+                size={Size.Sm}
+                options={rightMenuItems.map((item) => ({
+                  label: item.name,
+                  value: item.id,
+                }))}
+                onChange={(value) => {
+                  const selected = rightMenuItems.find((item) => item.id === value);
+                  if (selected) {
+                    togglePaneRegion(PaneRegion.Right, selected.id, true);
+                  }
+                }}
+                value={rightMenuItems.find((item) => item.region === PaneRegion.Right)?.id}
+              />
+            )}
+          </div>
+          <div
+            className={clsx(
+              "h-[36px] w-[36px] grid place-items-center transition-colors",
+              "bg-transparent group-data-expanded/right:bg-neutral-50/20 dark:group-data-expanded/right:bg-neutral-950/20",
+            )}
+          >
             <Button
+              variant={Variant.Default}
+              size={Size.Md}
               invert
               role="tab"
               leftIcon={
@@ -302,15 +445,19 @@ export function InnerLayoutNew({
                   )}
                 />
               }
-              className="w-10 h-10 grid place-items-center"
               disabled={
                 rightMenuItems.length === 0 ||
                 rightMenuItems.filter((item) => !item.disabled).length === 0
               }
-              onClick={() => togglePaneRegion(PaneRegion.Right, rightMenuItems[0]?.id)}
+              onClick={() =>
+                togglePaneRegion(PaneRegion.Right, activeRightPaneId ?? rightMenuItems[0]?.id)
+              }
             />
           </div>
-          <PanelContent region={PaneRegion.Right} />
+
+          <div className="col-span-2 h-0 group-data-expanded/right:h-full group-data-expanded/right:flex hidden">
+            <PanelContent region={PaneRegion.Right} />
+          </div>
         </div>
       </div>
 
@@ -421,25 +568,21 @@ function MenuBarButton({
   );
 }
 
-export interface ActivePaneState {
-  left?: string;
-  right?: string;
-  footer?: string;
-}
-
-export interface FieldToolbarItem {
-  type: "field-toolbar";
+export interface ToolbarWidget {
+  id: string;
+  type: "toolbar-widget";
   component: ReactNode;
+  mobile?: ReactNode;
+  desktopSizing: "fit" | "flex";
 }
 
-export interface ToggleGroupItem extends ToggleGroupProps {
-  type: "toggle-group";
+export interface ToolbarSpacer {
+  id: string;
+  type: "toolbar-spacer";
+  desktopSizing: "fit" | "flex";
 }
 
-export interface ButtonGroupItem {
-  type: "button-group";
-  component: ReactNode;
-}
+export type ToolbarItem = ToolbarWidget | ToolbarSpacer;
 
 export interface LayoutState {
   desktop: boolean;
@@ -456,18 +599,32 @@ export interface LayoutActions {
   setPane: (pane: PaneSpec | Partial<PaneSpec>) => void;
   setPanes: (panes: (PaneSpec | Partial<PaneSpec>)[]) => void;
   removePane: (id: string) => void;
+  setToolbarItem: (
+    item: Partial<ToolbarItem> & { id: string; type: "toolbar-widget" | "toolbar-spacer" },
+  ) => void;
+  setToolbarItems: (
+    items: (Partial<ToolbarItem> & { id: string; type: "toolbar-widget" | "toolbar-spacer" })[],
+  ) => void;
+  removeToolbarItem: (id: string) => void;
   toggleMenu: () => void;
-  togglePaneRegion: (pane: PaneRegion, id: string) => void;
+  togglePaneRegion: (pane: PaneRegion, id: string, preventSameClose?: boolean) => void;
   completePanesClose: () => void;
 }
 
 const menuStateAtom = atom<boolean>(false);
 const panesAtom = atom<PaneSpec[]>([]);
+const toolbarItemsAtom = atom<ToolbarItem[]>([]);
 const desktopAtom = atom<boolean>(false);
 
 const activeLeftPaneAtom = atom<string | undefined>((get) => {
   const panes = get(panesAtom);
   const active = panes.find((p) => p.region === PaneRegion.Left && !p.shouldClose);
+  return active?.id;
+});
+
+const activeRightPaneAtom = atom<string | undefined>((get) => {
+  const panes = get(panesAtom);
+  const active = panes.find((p) => p.region === PaneRegion.Right && !p.shouldClose);
   return active?.id;
 });
 
@@ -527,8 +684,10 @@ const rightMenuItemsAtom = atom<PaneSpec[]>((get) => get(panesAtom).filter((p) =
 export function useLayoutActions(): LayoutActions {
   const menuExpandedRef = useRef<boolean>(false);
   const panesRef = useRef<PaneSpec[]>([]);
+  const toolbarItemsRef = useRef<ToolbarItem[]>([]);
   const setMenuExpanded = useSetAtom(menuStateAtom);
   const setPanes = useSetAtom(panesAtom);
+  const setToolbarItems = useSetAtom(toolbarItemsAtom);
 
   useEffect(() => {
     const expandedUnsub = observe((get) => {
@@ -537,9 +696,13 @@ export function useLayoutActions(): LayoutActions {
     const panesUnsub = observe((get) => {
       panesRef.current = get(panesAtom);
     });
+    const toolbarItemsUnsub = observe((get) => {
+      toolbarItemsRef.current = get(toolbarItemsAtom);
+    });
     return () => {
       expandedUnsub();
       panesUnsub();
+      toolbarItemsUnsub();
     };
   });
 
@@ -567,6 +730,43 @@ export function useLayoutActions(): LayoutActions {
       setPanes(newPanes);
     },
     [setPanes, panesRef],
+  );
+
+  const setToolbarItem = useCallback(
+    (item: Partial<ToolbarItem> & { id: string; type: "toolbar-widget" | "toolbar-spacer" }) => {
+      const existingItem = toolbarItemsRef.current.find((i) => i.id === item.id);
+      if (existingItem) {
+        const newItems: ToolbarItem[] = toolbarItemsRef.current.map((i) =>
+          i.id === item.id && item.type === i.type ? { ...i, ...item } : (i as ToolbarItem),
+        ) as ToolbarItem[];
+        setToolbarItems(newItems);
+      } else if (item.type === "toolbar-spacer") {
+        setToolbarItems([...toolbarItemsRef.current, { desktopSizing: "fit", ...item }]);
+      } else if (item.type === "toolbar-widget") {
+        setToolbarItems([
+          ...toolbarItemsRef.current,
+          { desktopSizing: "fit", component: "null", ...item },
+        ]);
+      }
+    },
+    [setToolbarItems, toolbarItemsRef],
+  );
+
+  const setToolbarItemsNice = useCallback(
+    (
+      items: (Partial<ToolbarItem> & { id: string; type: "toolbar-widget" | "toolbar-spacer" })[],
+    ) => {
+      items.forEach(setToolbarItem);
+    },
+    [setToolbarItem],
+  );
+
+  const removeToolbarItem = useCallback(
+    (id: string) => {
+      const newItems = toolbarItemsRef.current.filter((i) => i.id !== id);
+      setToolbarItems(newItems);
+    },
+    [setToolbarItems, toolbarItemsRef],
   );
 
   const completePanesClose = useCallback(() => {
@@ -606,6 +806,9 @@ export function useLayoutActions(): LayoutActions {
     setPane,
     setPanes: setPanesNice,
     removePane,
+    setToolbarItem,
+    setToolbarItems: setToolbarItemsNice,
+    removeToolbarItem,
     toggleMenu,
     togglePaneRegion,
     completePanesClose,
@@ -681,7 +884,7 @@ export function PanelContent({ region }: { region: PaneRegion }) {
               initial={variants[0]}
               animate={variants[1]}
               exit={variants[0]}
-              transition={{ duration: 0.15, ease: "anticipate" }}
+              transition={{ duration: 0.15, ease: "easeInOut" }}
               className={clsx(
                 "w-full overflow-clip",
                 pane.region !== PaneRegion.Right && "responsive card-transparent h-full",

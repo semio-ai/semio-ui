@@ -3,7 +3,7 @@ import { IconPointFilled } from "@tabler/icons-react";
 import { clsx } from "clsx";
 // import { matchSorter } from "match-sorter";
 import { Size, Variant } from "./types";
-import { TableList } from "./table-list";
+import { TableList } from "./layouts/table-list";
 import { SelectProps } from "./floating/select";
 
 export function SelectList<T extends string | string[]>({

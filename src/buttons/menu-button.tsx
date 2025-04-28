@@ -2,7 +2,7 @@ import { MouseEventHandler, ReactNode } from "react";
 import { clsx } from "clsx";
 import { Variant } from "../types";
 import { Status } from "../status";
-import { useMenu } from "../menu";
+import { useMenu } from "../layouts/menu";
 import { Tooltip } from "../floating/tooltip";
 
 export interface MenuButtonProps {

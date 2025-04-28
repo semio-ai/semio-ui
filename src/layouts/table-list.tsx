@@ -2,8 +2,8 @@ import { type ReactNode, type RefObject, useState, useRef, useEffect, useMemo, m
 import { clsx } from "clsx";
 import useMeasure from "react-use-measure";
 import { mergeRefs } from "react-merge-refs";
-import { Size } from "./types";
-import { useClickAway } from "./hooks/use-click-away";
+import { useClickAway } from "../hooks/use-click-away";
+import { Size } from "../types";
 
 export interface BasicRowData {
   id: string;

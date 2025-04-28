@@ -58,6 +58,7 @@ export const Button = forwardRef(
       invert = false,
       border = false,
       submit = false,
+      className,
       ...props
     }: ButtonProps,
     ref: ForwardedRef<HTMLButtonElement>,
@@ -92,7 +93,7 @@ export const Button = forwardRef(
           size !== "fit" && "sized-text sized-height",
           size !== "fit" && iconOnly && "sized-width",
           color ? "custom-color" : variant,
-          props.className ?? "",
+          className,
         )}
         disabled={disabled}
         onClick={onClick}

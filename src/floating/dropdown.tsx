@@ -3,7 +3,7 @@ import { clsx } from "clsx";
 import { ReactNode, ForwardedRef, forwardRef, CSSProperties } from "react";
 import { NestedParent, Variant } from "../types";
 import { NestedParentProvider } from "../nested-elements/context";
-import { ScrollArea } from "../scroll-area";
+import { ScrollArea } from "../layouts/scroll-area";
 import { Arrow } from "./arrow";
 
 export interface DropdownProps {
@@ -40,7 +40,7 @@ const Dropdown = forwardRef(
                   "responsive card dropdown-content",
                   "min-w-[220px] m-0.5",
                   "max-h-(--radix-dropdown-menu-content-available-height)",
-                  "w-[calc(var(--radix-dropdown-menu-trigger-width)+12px)]",
+                  "w-[calc(var(--radix-dropdown-menu-trigger-width)+10px)]",
                 )}
               >
                 <DropdownPrimitive.Arrow asChild width={12} height={6}>

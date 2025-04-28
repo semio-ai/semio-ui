@@ -1,17 +1,15 @@
-import { CSSProperties, ForwardedRef, forwardRef, ReactNode } from "react";
+import { CSSProperties, ReactNode } from "react";
 import { IconPointFilled, IconSelector } from "@tabler/icons-react";
 import { clsx } from "clsx";
 // Will hopefully use later once we can search in the select.
 // import { matchSorter } from "match-sorter";
 import { Size, Variant } from "../types";
-import { getOutline } from "../style-functions";
 import { StaticIcon } from "../icons/static-icon";
 import { NestedSelect } from "../nested-elements/select";
 import { NestedRadio } from "../nested-elements/radio";
 import { Chip } from "../chip";
 import { NestedLabel } from "../nested-elements/label";
 import { Dropdown } from "./dropdown";
-import { Button } from "../buttons/button";
 
 /**
  * @param {string} label - The text to display in the option

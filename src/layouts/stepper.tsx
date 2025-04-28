@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
 import { clsx } from "clsx";
 import { IconCheck, IconCircle } from "@tabler/icons-react";
-import { Button } from "./buttons/button";
+import { Button } from "../buttons/button";
 
 export interface Step {
   label: string;

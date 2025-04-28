@@ -64,6 +64,7 @@ const InnerTextField = forwardRef(
             "rounded-xs",
             outline === "interact" && "variant-responsive-appearing-outline",
             outline === "always" && "variant-responsive-persistent-outline",
+            outline === "hidden" && "outline-hidden focus:outline-hidden",
             size,
             variant,
             "disabled:cursor-not-allowed cursor-text peer",

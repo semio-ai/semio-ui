@@ -32,14 +32,14 @@ export const Arrow = forwardRef(
           />
         )}
         <path
-          d="M30 0 L15 10 L0 0"
+          d="M30 0 L15 9 L0 0"
           style={{ "--custom-color": color } as CSSProperties}
           className={clsx(
             "responsive",
             color ? "custom-color" : variant,
             filled
               ? "colored-carrot-invert-fill"
-              : "colored-carrot-stroke dark:fill-layout-dark-base fill-layout-light-base stroke-2",
+              : "colored-carrot-stroke dark:fill-layout-dark-base fill-layout-light-base stroke-3",
           )}
           strokeLinejoin="round"
           strokeWidth="2"

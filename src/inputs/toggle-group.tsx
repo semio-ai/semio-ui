@@ -3,11 +3,12 @@ import * as RadixToggleGroup from "@radix-ui/react-toggle-group";
 import { altColor } from "@semio/utils";
 import { motion } from "motion/react";
 import { clsx } from "clsx";
-import { Variant, Size } from "./types";
-import { Tooltip } from "./floating/tooltip";
+import { Tooltip } from "../floating/tooltip";
+import { Variant, Size } from "../types";
 
 export interface ToggleGroupProps {
   visuals: "icons" | "labels" | "both";
+  bg?: boolean;
   value: string;
   onChange: (value: string) => void;
   label?: string;
@@ -20,6 +21,7 @@ export interface ToggleGroupProps {
     icon?: ReactNode;
   }[];
   size?: Size;
+  className?: string;
 }
 
 export function ToggleGroup({
@@ -28,7 +30,9 @@ export function ToggleGroup({
   options,
   size,
   label,
+  bg = true,
   visuals = "icons",
+  className,
 }: ToggleGroupProps) {
   const itemIndex = options.findIndex((option) => option.value === value);
   const activeOption = options[itemIndex];
@@ -54,8 +58,9 @@ export function ToggleGroup({
   return (
     <RadixToggleGroup.Root
       className={clsx(
-        "transition-all relative inline-flex items-center overflow-hidden",
-        "rounded-xs dark:bg-layout-dark-deep-inset bg-layout-light-deep-inset",
+        "transition-all relative inline-flex items-center overflow-hidden rounded-sm ",
+        bg && "dark:bg-layout-dark-inset bg-layout-light-inset",
+        className,
       )}
       type="single"
       value={value}
@@ -65,7 +70,7 @@ export function ToggleGroup({
       aria-label={label ?? "Toggle Group"}
     >
       <motion.div
-        className={clsx("absolute", "rounded-[1px] sized-inner-group-item", size)}
+        className={clsx("absolute", "rounded-xs sized-inner-group-item", size)}
         animate={{
           x: left,
           width,
@@ -89,6 +94,7 @@ export function ToggleGroup({
               }}
               data-state={value === option.value ? "on" : "off"}
               className={clsx(
+                "responsive",
                 size,
                 option.color ? "custom-color" : option.variant,
                 visuals === "icons" && "sized-inner-group-item",

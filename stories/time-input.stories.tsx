@@ -40,14 +40,11 @@ function TimeInputWithHooks(props: TimeInputProps): JSX.Element {
  * See https://storybook.js.org/docs/react/api/csf
  * to learn how to use render functions.
  */
-export const Primary: Story = {
-  render: (props) => {
-    return <TimeInputWithHooks {...props} />;
-  },
-  name: "Sec + Msec",
+export const Seconds: Story = {
+  render: (props) => <TimeInputWithHooks {...props} />,
   args: {
-    value: 25030,
-    label: "s",
+    value: 5000,
+    label: "Current",
     onChange: (): void => {
       // eslint-disable-next-line no-console -- log for demo
       console.log("Hello World!");
@@ -55,33 +52,20 @@ export const Primary: Story = {
     framerate: 24,
     size: Size.Sm,
     variant: Variant.Primary,
-    display: TimeDisplay.SecondsPlusMilliseconds,
+    display: TimeDisplay.Seconds,
     disabled: false,
   },
 };
 
 export const Frames: Story = {
-  render: (props) => {
-    const [t, setT] = useState(props.value);
-
-    return (
-      <TimeInput
-        {...props}
-        value={t}
-        onChange={(v) => {
-          setT(v);
-          props.onChange(v);
-        }}
-      />
-    );
-  },
+  render: (props) => <TimeInputWithHooks {...props} />,
   args: {
-    value: 25030,
+    value: 5000,
     onChange: (): void => {
       // eslint-disable-next-line no-console -- log for demo
       console.log("Hello World!");
     },
-    label: "f",
+    label: "Current",
     framerate: 24,
     size: Size.Sm,
     variant: Variant.Primary,

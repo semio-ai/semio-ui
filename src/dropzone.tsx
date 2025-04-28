@@ -2,8 +2,8 @@ import { clsx } from "clsx";
 import { ReactNode } from "react";
 import { useDropzone, type Accept } from "react-dropzone";
 import { IconArrowBigDownLines } from "@tabler/icons-react";
-import { ScrollArea } from "./scroll-area";
-import { BasicRowData, ColumnDefinition, TableList } from "./table-list";
+import { ScrollArea } from "./layouts/scroll-area";
+import { BasicRowData, ColumnDefinition, TableList } from "./layouts/table-list";
 
 export interface DropzoneProps<T extends BasicRowData> {
   onDrop: (files: File[]) => void;

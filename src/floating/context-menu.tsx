@@ -3,7 +3,7 @@ import { clsx } from "clsx";
 import { ReactNode } from "react";
 import { NestedParent, Variant } from "../types";
 import { NestedParentProvider } from "../nested-elements/context";
-import { ScrollArea } from "../scroll-area";
+import { ScrollArea } from "../layouts/scroll-area";
 
 export interface ContextMenuProps {
   trigger: ReactNode;
