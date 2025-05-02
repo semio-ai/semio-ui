@@ -1,39 +1,52 @@
-import { ReactNode } from "react";
-import {
-  DropdownMenuSub,
-  DropdownMenuSubTrigger,
-  DropdownMenuPortal,
-  DropdownMenuSubContent,
-} from "@radix-ui/react-dropdown-menu";
-import {
-  ContextMenuSub,
-  ContextMenuSubTrigger,
-  ContextMenuPortal,
-  ContextMenuSubContent,
-} from "@radix-ui/react-context-menu";
+import { Fragment, useMemo } from "react";
+import { DropdownMenu, ContextMenu, Collapsible } from "radix-ui";
 import { IconChevronRight } from "@tabler/icons-react";
 import { clsx } from "clsx";
-import { NestedParent, Variant } from "../types";
 import { ScrollArea } from "../layouts/scroll-area";
+import { useLayoutState } from "../hooks/use-layout-state";
+import { NestedParent, type NestedMenuProps } from "./types";
 import { useNestedParent } from "./context";
+import { NestedLabel } from "./label";
 
-export interface NestedMenuProps {
-  left?: ReactNode;
-  children: ReactNode;
-  label?: string;
-  variant?: Variant;
-  disabled?: boolean;
-}
-
-export function NestedMenu({ left, children, label, variant, disabled }: NestedMenuProps) {
+export function NestedMenu({
+  left,
+  children,
+  label,
+  variant,
+  disabled,
+  hideHeader,
+}: NestedMenuProps) {
   const parent = useNestedParent();
+  const { desktop } = useLayoutState();
 
-  const SubComponent = parent === NestedParent.Dropdown ? DropdownMenuSub : ContextMenuSub;
-  const SubTriggerComponent =
-    parent === NestedParent.Dropdown ? DropdownMenuSubTrigger : ContextMenuSubTrigger;
-  const PortalComponent = parent === NestedParent.Dropdown ? DropdownMenuPortal : ContextMenuPortal;
-  const SubContentComponent =
-    parent === NestedParent.Dropdown ? DropdownMenuSubContent : ContextMenuSubContent;
+  const heightClass =
+    parent === NestedParent.Dropdown
+      ? "max-h-[calc(var(--radix-dropdown-menu-content-available-height)-4px)]"
+      : "max-h-[calc(var(--radix-context-menu-content-available-height)-4px)]";
+
+  const [SubComponent, SubTriggerComponent, PortalComponent, SubContentComponent, props] =
+    useMemo(() => {
+      // In the case of a mobile device, render the sub-menu as a collapsible element
+      console.log(desktop, parent);
+      if (!desktop)
+        return [Collapsible.Root, Collapsible.Trigger, Fragment, Collapsible.Content, {}];
+      else if (parent === NestedParent.Dropdown)
+        return [
+          DropdownMenu.Sub,
+          DropdownMenu.SubTrigger,
+          DropdownMenu.Portal,
+          DropdownMenu.SubContent,
+          { side: "right" },
+        ];
+      else
+        return [
+          ContextMenu.Sub,
+          ContextMenu.SubTrigger,
+          ContextMenu.Portal,
+          ContextMenu.SubContent,
+          { side: "right" },
+        ];
+    }, [desktop, parent]);
 
   return (
     <SubComponent>
@@ -41,7 +54,7 @@ export function NestedMenu({ left, children, label, variant, disabled }: NestedM
         disabled={disabled}
         className={clsx(
           "leading-none flex items-center rounded-xs group/item",
-          "h-7 text-sm px-[5px] relative pl-[30px] select-none outline-hidden",
+          "h-7 w-full text-sm px-[5px] relative pl-[30px] select-none outline-hidden",
           "data-disabled:pointer-events-none",
           "responsive highlight-list-item",
           variant,
@@ -58,6 +71,7 @@ export function NestedMenu({ left, children, label, variant, disabled }: NestedM
             {left}
           </div>
         )}
+
         {label}
 
         <div
@@ -67,35 +81,49 @@ export function NestedMenu({ left, children, label, variant, disabled }: NestedM
             variant,
           )}
         >
-          <IconChevronRight className="h-4/5 w-4/5" />
+          <IconChevronRight
+            className={clsx(
+              "h-4/5 w-4/5 rotate-0 transition-transform",
+              !desktop && "group-data-[state=open]/item:rotate-90",
+            )}
+          />
         </div>
       </SubTriggerComponent>
       <PortalComponent>
-        <SubContentComponent>
+        <SubContentComponent {...props}>
           <div
             className={clsx(
               variant,
-              "responsive card dropdown-content",
+              !desktop &&
+                "w-full pl-2 py-0.5 pr-0.5 mb-0.5 rounded-b-xs dark:bg-black/30 bg-neutral-400/30",
+              desktop && "responsive card dropdown-content",
               "min-w-[220px]",
-              parent === NestedParent.Dropdown
-                ? "max-h-(--radix-dropdown-menu-content-available-height)"
-                : "max-h-(--radix-context-menu-content-available-height)",
-              parent === NestedParent.Dropdown
+              desktop && heightClass,
+              desktop && parent === NestedParent.Dropdown
                 ? "w-[calc(var(--radix-dropdown-menu-trigger-width)+10px)]"
                 : "w-[calc(var(--radix-context-menu-trigger-width)+10px)]",
             )}
           >
-            <ScrollArea
-              shrink
-              className={clsx(
-                "p-0.5",
-                parent === NestedParent.Dropdown
-                  ? "max-h-(--radix-dropdown-menu-content-available-height)"
-                  : "max-h-(--radix-context-menu-content-available-height)",
-              )}
-            >
-              {children}
-            </ScrollArea>
+            {!desktop && (
+              <>
+                {!hideHeader && desktop && (
+                  <NestedLabel key={`header-${label || ""}`}>{label}</NestedLabel>
+                )}
+                {children}
+              </>
+            )}
+            {desktop && (
+              <ScrollArea
+                shrinkHeight
+                wrapperClassName={heightClass}
+                className={clsx("p-0.5", heightClass)}
+              >
+                {!hideHeader && desktop && (
+                  <NestedLabel key={`header-${label || ""}`}>{label}</NestedLabel>
+                )}
+                {children}
+              </ScrollArea>
+            )}
           </div>
         </SubContentComponent>
       </PortalComponent>

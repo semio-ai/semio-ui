@@ -1,45 +1,19 @@
-import {
-  DropdownMenuRadioItem,
-  DropdownMenuRadioGroup,
-  DropdownMenuItemIndicator,
-} from "@radix-ui/react-dropdown-menu";
-import {
-  ContextMenuRadioItem,
-  ContextMenuRadioGroup,
-  ContextMenuItemIndicator,
-} from "@radix-ui/react-context-menu";
-import { CSSProperties, type ReactNode } from "react";
-import { alpha, altColor } from "@semio/utils";
+import { DropdownMenu, ContextMenu } from "radix-ui";
+import { CSSProperties } from "react";
 import { IconPointFilled } from "@tabler/icons-react";
 import { clsx } from "clsx";
-import { NestedParent, Variant } from "../types";
-// import { ScrollArea } from "../scroll-area";
+import { NestedParent, type NestedRadioProps } from "./types";
 import { useNestedParent } from "./context";
-
-export interface NestedRadioProps {
-  variant?: Variant;
-  disabled?: boolean;
-  onChange?: (value: string) => void;
-  value?: string;
-  options: {
-    label: string;
-    value: string;
-    disabled?: boolean;
-    variant?: Variant;
-    color?: string;
-    icon?: ReactNode;
-  }[];
-}
 
 export function NestedRadio({ variant, disabled, onChange, value, options }: NestedRadioProps) {
   const parent = useNestedParent();
 
   const ItemComponent =
-    parent === NestedParent.Dropdown ? DropdownMenuRadioItem : ContextMenuRadioItem;
+    parent === NestedParent.Dropdown ? DropdownMenu.RadioItem : ContextMenu.RadioItem;
   const GroupComponent =
-    parent === NestedParent.Dropdown ? DropdownMenuRadioGroup : ContextMenuRadioGroup;
+    parent === NestedParent.Dropdown ? DropdownMenu.RadioGroup : ContextMenu.RadioGroup;
   const ItemIndicatorComponent =
-    parent === NestedParent.Dropdown ? DropdownMenuItemIndicator : ContextMenuItemIndicator;
+    parent === NestedParent.Dropdown ? DropdownMenu.ItemIndicator : ContextMenu.ItemIndicator;
   return (
     <GroupComponent
       value={value}
@@ -62,10 +36,6 @@ export function NestedRadio({ variant, disabled, onChange, value, options }: Nes
             option.color
               ? ({
                   "--custom-color": option.color,
-                  "--darker-custom-color": altColor(option.color, -0.1),
-                  "--lighter-custom-color": altColor(option.color, 0.2),
-                  "--deemphasized-custom-color": alpha(option.color, 0.5),
-                  // "--text-color": option.color,
                 } as CSSProperties)
               : {}
           }

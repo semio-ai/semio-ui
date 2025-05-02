@@ -21,6 +21,7 @@ export interface TextFieldProps
   bg?: boolean;
   outline?: "hidden" | "interact" | "always";
   subtle?: boolean;
+  wrapperClassName?: string;
 }
 
 /**
@@ -33,6 +34,8 @@ export interface TextFieldProps
  * @param icon - [optional] the icon to show on the left side of the field
  * @param bg - whether to show the field with a background
  * @param outline - whether to show the field with an outline on focus
+ * @param subtle - whether to make the text field subtle when not focused
+ * @param wrapperClassName - [optional] the class name to apply to the wrapper element
  */
 const InnerTextField = forwardRef(
   (
@@ -45,6 +48,7 @@ const InnerTextField = forwardRef(
       bg = false,
       outline = "interact",
       className,
+      wrapperClassName,
       subtle,
       ...forwardedProps
     }: TextFieldProps,
@@ -52,7 +56,12 @@ const InnerTextField = forwardRef(
   ): ReactNode => {
     return (
       <div
-        className={clsx("relative outline-hidden flex flex-row", "sized-height", size, className)}
+        className={clsx(
+          "relative outline-hidden flex flex-row",
+          "sized-height",
+          size,
+          wrapperClassName,
+        )}
       >
         <input
           ref={ref}
@@ -68,7 +77,7 @@ const InnerTextField = forwardRef(
             size,
             variant,
             "disabled:cursor-not-allowed cursor-text peer",
-            "sized-text sized-height flex flex-1",
+            "sized-text sized-height flex flex-1 min-w-10",
             icon ? "sized-inner-group-left-padding" : "pl-1",
             onClear ? "sized-inner-group-right-padding" : "pr-1",
             "variant-text-caret-color",

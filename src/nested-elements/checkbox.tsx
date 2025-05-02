@@ -1,29 +1,11 @@
-import {
-  DropdownMenuCheckboxItem,
-  DropdownMenuGroup,
-  DropdownMenuItemIndicator,
-} from "@radix-ui/react-dropdown-menu";
-import {
-  ContextMenuCheckboxItem,
-  ContextMenuGroup,
-  ContextMenuItemIndicator,
-} from "@radix-ui/react-context-menu";
-import { type CSSProperties, type ReactNode } from "react";
+import { DropdownMenu, ContextMenu } from "radix-ui";
+import { type CSSProperties } from "react";
 import { IconCheck } from "@tabler/icons-react";
 import { alpha, altColor } from "@semio/utils";
 import { clsx } from "clsx";
-import { NestedParent, Variant } from "../types";
 import { useNestedParent } from "./context";
-
-export interface NestedCheckboxProps {
-  variant?: Variant;
-  onChange?: (value: boolean) => void;
-  value: boolean;
-  label: string;
-  color?: string;
-  disabled?: boolean;
-  icon?: ReactNode;
-}
+import { NestedParent } from "./types";
+import type { NestedCheckboxProps } from "./types";
 
 export function NestedCheckbox({
   variant,
@@ -37,12 +19,12 @@ export function NestedCheckbox({
   const parent = useNestedParent();
 
   const ItemComponent =
-    parent === NestedParent.Dropdown ? DropdownMenuCheckboxItem : ContextMenuCheckboxItem;
+    parent === NestedParent.Dropdown ? DropdownMenu.CheckboxItem : ContextMenu.CheckboxItem;
 
   const ItemIndicatorComponent =
-    parent === NestedParent.Dropdown ? DropdownMenuItemIndicator : ContextMenuItemIndicator;
+    parent === NestedParent.Dropdown ? DropdownMenu.ItemIndicator : ContextMenu.ItemIndicator;
 
-  const GroupComponent = parent === NestedParent.Dropdown ? DropdownMenuGroup : ContextMenuGroup;
+  const GroupComponent = parent === NestedParent.Dropdown ? DropdownMenu.Group : ContextMenu.Group;
 
   return (
     <GroupComponent

@@ -1,6 +1,6 @@
 import { ReactNode, createContext, useContext, useState, useCallback, memo, useRef } from "react";
 import { AnimatePresence, useAnimationFrame, motion, useSpring } from "motion/react";
-import * as RadixToast from "@radix-ui/react-toast";
+import { Toast as RadixToast } from "radix-ui";
 import { clsx } from "clsx";
 import { IconPlayerPause, IconX } from "@tabler/icons-react";
 import { Button } from "../buttons/button";

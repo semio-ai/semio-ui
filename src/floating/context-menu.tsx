@@ -1,7 +1,8 @@
-import * as ContextMenuPrimitive from "@radix-ui/react-context-menu";
+import { ContextMenu as ContextMenuPrimitive } from "radix-ui";
 import { clsx } from "clsx";
 import { ReactNode } from "react";
-import { NestedParent, Variant } from "../types";
+import { Variant } from "../types";
+import { NestedParent } from "../nested-elements/types";
 import { NestedParentProvider } from "../nested-elements/context";
 import { ScrollArea } from "../layouts/scroll-area";
 
@@ -9,9 +10,10 @@ export interface ContextMenuProps {
   trigger: ReactNode;
   children: ReactNode;
   variant?: Variant;
+  color?: string;
 }
 
-function ContextMenu({ trigger, children, variant }: ContextMenuProps) {
+function ContextMenu({ trigger, children, variant, color }: ContextMenuProps) {
   return (
     <div className="relative inline-block text-left">
       <NestedParentProvider value={NestedParent.Context}>
@@ -22,11 +24,11 @@ function ContextMenu({ trigger, children, variant }: ContextMenuProps) {
               alignOffset={3}
               collisionPadding={2}
               className={clsx(
-                "card dropdown-content group/menu",
-                variant,
-                "min-w-[220px] m-0.5",
-                "max-h-(--radix-context-menu-content-available-height)",
-                "w-[calc(var(--radix-context-menu-trigger-width)+10px)]",
+                color ? "custom-color" : variant,
+                "responsive card dropdown-content m-0.5 min-w-[220px]",
+                "max-h-[calc(var(--radix-context-menu-content-available-height)-4px)]",
+                "desktop:w-[calc(var(--radix-context-menu-trigger-width)+10px)]",
+                "w-[calc(var(--radix-context-menu-content-available-width)-4px)]",
               )}
             >
               {/* For now, disabling the arrow because we can't position it in the same way we can with dropdowns */}
@@ -38,8 +40,10 @@ function ContextMenu({ trigger, children, variant }: ContextMenuProps) {
               </ContextMenuPrimitive.Arrow> */}
 
               <ScrollArea
-                shrink
-                className={clsx("max-h-(--radix-context-menu-content-available-height) p-0.5")}
+                shrinkHeight
+                className={clsx(
+                  "max-h-[calc(var(--radix-context-menu-content-available-height)-4px)] p-0.5",
+                )}
               >
                 {children}
               </ScrollArea>

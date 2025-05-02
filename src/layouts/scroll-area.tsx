@@ -1,6 +1,6 @@
 import { memo, type ReactNode, type CSSProperties } from "react";
 import { clsx } from "clsx";
-import * as RadixScrollArea from "@radix-ui/react-scroll-area";
+import { ScrollArea as RadixScrollArea } from "radix-ui";
 import useMeasure from "react-use-measure";
 
 /**
@@ -24,80 +24,135 @@ export function InnerScrollArea({
   children,
   header,
   footer,
+  wrapperClassName,
   className,
+  headerClassName,
+  footerClassName,
   style,
-  shrink = false,
+  shrinkHeight = false,
+  shrinkWidth = false,
   orientation = "both",
 }: {
   children: ReactNode;
   header?: ReactNode;
   footer?: ReactNode;
+  wrapperClassName?: string;
   className?: string;
+  headerClassName?: string;
+  footerClassName?: string;
   style?: CSSProperties;
-  shrink?: boolean;
+  shrinkHeight?: boolean;
+  shrinkWidth?: boolean;
   orientation?: "vertical" | "horizontal" | "both";
 }) {
   const [headerRef, headerBounds] = useMeasure();
   const [footerRef, footerBounds] = useMeasure();
 
   return (
-    <div
+    <RadixScrollArea.Root
+      type="hover"
       className={clsx(
         "relative",
-        "overflow-hidden overscroll-contain w-full",
-        shrink ? "h-fit" : "h-full",
-        className,
+        "overflow-hidden overscroll-contain",
+        shrinkHeight ? "h-fit" : "h-full",
+        shrinkWidth ? "w-fit" : "w-full",
+        wrapperClassName,
       )}
       style={style}
     >
-      <RadixScrollArea.Root
-        type="auto"
+      <RadixScrollArea.Viewport
         className={clsx(
-          "overflow-hidden overscroll-contain w-full",
-          shrink ? "h-fit" : "h-full",
+          shrinkHeight ? "h-fit" : "h-full",
+          shrinkWidth ? "w-fit" : "w-full",
           className,
         )}
       >
-        <RadixScrollArea.Viewport
-          className={clsx("w-full", shrink ? "h-fit" : "h-full", className)}
+        {header && orientation === "vertical" && (
+          <div className="w-full" style={{ height: headerBounds.height }} />
+        )}
+        {header && orientation === "horizontal" && (
+          <div className="h-full" style={{ width: headerBounds.width }} />
+        )}
+        {children}
+        {footer && orientation === "vertical" && (
+          <div className="w-full" style={{ height: footerBounds.height }} />
+        )}
+        {footer && orientation === "horizontal" && (
+          <div className="h-full" style={{ width: footerBounds.width }} />
+        )}
+      </RadixScrollArea.Viewport>
+      {(orientation === "both" || orientation === "vertical") && (
+        <RadixScrollArea.Scrollbar
+          className={clsx(
+            "flex select-none touch-none py-1 px-0.5",
+            "bg-black/5 dark:bg-white/5 transition-colors duration-[160ms]",
+            "ease-out dark:hover:bg-white/25 hover:bg-black/25",
+            "data-[orientation=vertical]:w-2.5 data-[orientation=horizontal]:flex-col data-[orientation=horizontal]:h-2.5",
+          )}
+          orientation="vertical"
+          style={{
+            marginTop: headerBounds.height > 0 ? headerBounds.height + 2 : 0,
+            marginBottom: footerBounds.height > 0 ? footerBounds.height + 2 : 0,
+          }}
         >
-          {header && <div className="w-full" style={{ height: headerBounds.height }} />}
-          {children}
-          {footer && <div className="w-full" style={{ height: footerBounds.height }} />}
-        </RadixScrollArea.Viewport>
-        {(orientation === "both" || orientation === "vertical") && (
-          <RadixScrollArea.Scrollbar
-            className="flex select-none touch-none py-1 px-0.5 bg-black/5 dark:bg-white/5 transition-colors duration-[160ms] ease-out dark:hover:bg-white/25 hover:bg-black/25 data-[orientation=vertical]:w-2.5 data-[orientation=horizontal]:flex-col data-[orientation=horizontal]:h-2.5"
-            orientation="vertical"
-            style={{
-              paddingTop: headerBounds.height + 2,
-              paddingBottom: footerBounds.height + 2,
-            }}
-          >
-            <RadixScrollArea.Thumb className="flex-1 bg-default-500/75 rounded-none relative before:content-[''] before:absolute before:top-1/2 before:left-1/2 before:-translate-x-1/2 before:-translate-y-1/2 before:w-full before:h-full before:min-w-[22px] before:min-h-[22px]" />
-          </RadixScrollArea.Scrollbar>
-        )}
-        {(orientation === "both" || orientation === "horizontal") && (
-          <RadixScrollArea.Scrollbar
-            className="flex select-none touch-none py-0.5 px-1 bg-black/5 dark:bg-white/5 transition-colors duration-[160ms] ease-out dark:hover:bg-white/25 hover:bg-black/25 data-[orientation=vertical]:w-2.5 data-[orientation=horizontal]:flex-col data-[orientation=horizontal]:h-2.5"
-            orientation="horizontal"
-          >
-            <RadixScrollArea.Thumb className="flex-1 bg-default-500/75 rounded-none relative before:content-[''] before:absolute before:top-1/2 before:left-1/2 before:-translate-x-1/2 before:-translate-y-1/2 before:w-full before:h-full before:min-w-[22px] before:min-h-[22px]" />
-          </RadixScrollArea.Scrollbar>
-        )}
-        <RadixScrollArea.Corner className="bg-black/5" />
-      </RadixScrollArea.Root>
+          <RadixScrollArea.Thumb
+            className={clsx(
+              "flex-1 bg-default-500/75 rounded-sm relative",
+              "before:content-[''] before:absolute before:top-1/2 before:left-1/2 before:-translate-x-1/2",
+              "before:-translate-y-1/2 before:w-full before:h-full before:min-w-[22px] before:min-h-[22px]",
+            )}
+          />
+        </RadixScrollArea.Scrollbar>
+      )}
+      {(orientation === "both" || orientation === "horizontal") && (
+        <RadixScrollArea.Scrollbar
+          className={clsx(
+            "flex select-none touch-none py-0.5 px-1",
+            "bg-black/5 dark:bg-white/5 transition-colors duration-[160ms]",
+            "ease-out dark:hover:bg-white/25 hover:bg-black/25",
+            "data-[orientation=vertical]:w-2.5 data-[orientation=horizontal]:flex-col data-[orientation=horizontal]:h-2.5",
+          )}
+          orientation="horizontal"
+          style={{
+            marginLeft: headerBounds.width > 0 ? headerBounds.width + 2 : 0,
+            marginRight: footerBounds.width > 0 ? footerBounds.width + 2 : 0,
+          }}
+        >
+          <RadixScrollArea.Thumb
+            className={clsx(
+              "flex-1 bg-default-500/75 rounded-sm relative",
+              "before:content-[''] before:absolute before:top-1/2 before:left-1/2 before:-translate-x-1/2",
+              "before:-translate-y-1/2 before:w-full before:h-full before:min-w-[22px] before:min-h-[22px]",
+            )}
+          />
+        </RadixScrollArea.Scrollbar>
+      )}
+      <RadixScrollArea.Corner className="bg-black/5" />
       {header && (
-        <div ref={headerRef} className="absolute top-0 left-0 right-0">
+        <div
+          ref={headerRef}
+          className={clsx(
+            "absolute top-0 left-0",
+            orientation === "horizontal" ? "bottom-0" : "right-0",
+            headerClassName,
+          )}
+        >
           {header}
         </div>
       )}
       {footer && (
-        <div ref={footerRef} className="absolute bottom-0 left-0 right-0">
+        <div
+          ref={footerRef}
+          className={clsx(
+            "absolute bottom-0 right-0",
+            orientation === "horizontal" ? "top-0" : "left-0",
+            footerClassName,
+          )}
+        >
           {footer}
         </div>
       )}
-    </div>
+    </RadixScrollArea.Root>
   );
 }
 

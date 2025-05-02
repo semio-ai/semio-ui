@@ -1,4 +1,4 @@
-import * as RadixCheckbox from "@radix-ui/react-checkbox";
+import { Checkbox as RadixCheckbox } from "radix-ui";
 import { IconCheck } from "@tabler/icons-react";
 import { clsx } from "clsx";
 import { Size, Variant } from "./types";

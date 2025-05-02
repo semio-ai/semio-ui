@@ -1,5 +1,5 @@
 import { CSSProperties, ReactNode } from "react";
-import * as RadixSeparator from "@radix-ui/react-separator";
+import { Separator as RadixSeparator } from "radix-ui";
 import { clsx } from "clsx";
 import { Variant } from "../types";
 

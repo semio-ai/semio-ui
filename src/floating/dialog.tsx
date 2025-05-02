@@ -1,5 +1,5 @@
 import { type ReactNode, type MouseEvent } from "react";
-import * as AlertDialog from "@radix-ui/react-alert-dialog";
+import { AlertDialog } from "radix-ui";
 import { clsx } from "clsx";
 import { IconX } from "@tabler/icons-react";
 import { Variant } from "../types";
@@ -60,14 +60,20 @@ export function Dialog({
               )}
             >
               <div className="flex flex-row items-center justify-between">
-                <AlertDialog.Title className="text-base/7 font-medium flex align-center justify-between">
+                <AlertDialog.Title
+                  className={clsx(
+                    variant,
+                    "text-base/7 font-medium flex align-center",
+                    "justify-between responsive variant-static-text",
+                  )}
+                >
                   {title}
                 </AlertDialog.Title>
                 <AlertDialog.Cancel asChild>
                   <Button tabIndex={0} variant={variant} leftIcon={<IconX />} />
                 </AlertDialog.Cancel>
               </div>
-              <AlertDialog.Description className="text-sm/6 dark:text-white/50 text-black/50">
+              <AlertDialog.Description className="text-sm/6 dark:text-neutral-400 text-neutral-600">
                 {description ?? ""}
               </AlertDialog.Description>
             </div>

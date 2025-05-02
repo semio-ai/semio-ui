@@ -1,5 +1,5 @@
 import { type ReactNode } from "react";
-import * as RadixToggle from "@radix-ui/react-toggle";
+import { Toggle as RadixToggle } from "radix-ui";
 import { clsx } from "clsx";
 import { Variant, Size } from "../types";
 import { getToggleButtonStyles } from "../style-functions";

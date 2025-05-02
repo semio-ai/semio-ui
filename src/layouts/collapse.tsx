@@ -1,10 +1,5 @@
 import { ReactNode } from "react";
-import * as Collapsible from "@radix-ui/react-collapsible";
-import type {
-  CollapsibleContentProps,
-  CollapsibleTriggerProps,
-  CollapsibleProps,
-} from "@radix-ui/react-collapsible";
+import { Collapsible } from "radix-ui";
 import { IconChevronDown, IconChevronLeft } from "@tabler/icons-react";
 import { clsx } from "clsx";
 
@@ -63,26 +58,6 @@ export function Collapse({
   );
 }
 
-export function CollapsibleContent(props: CollapsibleContentProps) {
-  return (
-    <Collapsible.Content {...props} className={clsx("CollapsibleVerticalContent", props.className)}>
-      <div className="h-auto">{props.children}</div>
-    </Collapsible.Content>
-  );
-}
-
-export function CollapsibleTrigger(props: CollapsibleTriggerProps) {
-  return (
-    <Collapsible.Trigger {...props} className={props.className}>
-      {props.children}
-    </Collapsible.Trigger>
-  );
-}
-
-export function CollapsibleRoot(props: CollapsibleProps) {
-  return (
-    <Collapsible.Root {...props} className={props.className}>
-      {props.children}
-    </Collapsible.Root>
-  );
-}
+export const CollapsibleContent = Collapsible.Content;
+export const CollapsibleTrigger = Collapsible.Trigger;
+export const CollapsibleRoot = Collapsible.Root;

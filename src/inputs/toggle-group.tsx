@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import * as RadixToggleGroup from "@radix-ui/react-toggle-group";
+import { ToggleGroup as RadixToggleGroup } from "radix-ui";
 import { altColor } from "@semio/utils";
 import { motion } from "motion/react";
 import { clsx } from "clsx";

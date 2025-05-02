@@ -1,5 +1,5 @@
 import { type ReactNode, type MouseEvent } from "react";
-import * as Dialog from "@radix-ui/react-dialog";
+import { Dialog } from "radix-ui";
 import { clsx } from "clsx";
 import { IconX } from "@tabler/icons-react";
 import { ScrollArea } from "../layouts/scroll-area";
@@ -36,7 +36,6 @@ export function Modal({
   onSubmit,
   onCancel,
   variant,
-  scrollDisabled,
 }: ModalProps) {
   const showFooter = onSubmit || onCancel;
   const showHeader = title || description;
@@ -57,80 +56,86 @@ export function Modal({
               "responsive flex flex-col focus:outline-hidden",
               "card animated-modal overflow-clip",
               variant,
-              "w-screen md:w-3/5 md:max-w-[750px] p-0",
-              "max-h-screen h-[100dvh] md:max-h-[85vh] md:h-fit",
+              "w-[calc(100vw-4px)] h-[calc(100dvh-4px)]",
+              "desktop:max-w-[calc(100vw-4px)] desktop:max-h-[calc(100dvh-4px)]",
+              "desktop:min-h-72 desktop:min-w-96",
+              "desktop:h-fit desktop:w-fit",
             )}
           >
-            {!scrollDisabled && (
-              <ScrollArea
-                className="md:max-h-[calc(85dvh-1px)] max-h-[calc(100dvh-1px)]"
-                header={
+            <ScrollArea
+              orientation="vertical"
+              className={clsx(
+                "w-[calc(100vw-4px)] h-[calc(100dvh-4px)]",
+                "desktop:max-w-[calc(100vw-4px)] desktop:max-h-[calc(100dvh-4px)]",
+                "desktop:min-h-72 desktop:min-w-96",
+                "desktop:h-fit desktop:w-fit",
+              )}
+              header={
+                <div
+                  className={clsx(
+                    "flex flex-col gap-1 ",
+                    !showHeader && "hidden",
+                    "bg-neutral-50/50 dark:bg-neutral-950/50",
+                  )}
+                >
                   <div
                     className={clsx(
-                      "flex flex-col gap-1 ",
-                      !showHeader && "hidden",
-                      "bg-neutral-50/50 dark:bg-neutral-950/50",
+                      headerBottom ? "px-3 pt-3 pb-0" : "p-3",
+                      "flex flex-col gap-1",
+                      getBasicTextColor(variant),
                     )}
                   >
-                    <div
-                      className={clsx(
-                        headerBottom ? "px-3 pt-3 pb-0" : "p-3",
-                        "flex flex-col gap-1",
-                        getBasicTextColor(variant),
+                    <div className="flex flex-row items-center justify-between">
+                      <Dialog.Title className="text-base/7 font-medium flex align-center justify-between">
+                        {title}
+                      </Dialog.Title>
+                      {!dismissDisabled && (
+                        <Dialog.Close asChild>
+                          <Button variant={variant} leftIcon={<IconX />} />
+                        </Dialog.Close>
                       )}
-                    >
-                      <div className="flex flex-row items-center justify-between">
-                        <Dialog.Title className="text-base/7 font-medium flex align-center justify-between">
-                          {title}
-                        </Dialog.Title>
-                        {!dismissDisabled && (
-                          <Dialog.Close asChild>
-                            <Button variant={variant} leftIcon={<IconX />} />
-                          </Dialog.Close>
-                        )}
-                      </div>
-                      <Dialog.Description className="text-sm/6 dark:text-white/50 text-black/50">
-                        {description ?? ""}
-                      </Dialog.Description>
                     </div>
-                    {headerBottom}
+                    <Dialog.Description className="text-sm/6 dark:text-white/50 text-black/50">
+                      {description ?? ""}
+                    </Dialog.Description>
                   </div>
-                }
-                footer={
-                  showFooter && (
-                    <div className="p-3 flex gap-3 justify-end">
-                      {onCancel && (
-                        <Dialog.Close asChild>
-                          <Button
-                            tabIndex={0}
-                            variant={Variant.Default}
-                            onClick={onCancel}
-                            disabled={submitDisabled}
-                          >
-                            Cancel
-                          </Button>
-                        </Dialog.Close>
-                      )}
-                      {onSubmit && (
-                        <Dialog.Close asChild>
-                          <Button
-                            tabIndex={0}
-                            variant={variant}
-                            onClick={onSubmit}
-                            disabled={submitDisabled}
-                          >
-                            {submitText}
-                          </Button>
-                        </Dialog.Close>
-                      )}
-                    </div>
-                  )
-                }
-              >
-                <div className="flex-1 md:flex-none dark:text-white text-black p-0">{children}</div>
-              </ScrollArea>
-            )}
-            {scrollDisabled && (
+                  {headerBottom}
+                </div>
+              }
+              footer={
+                showFooter && (
+                  <div className="p-3 flex gap-3 justify-end">
+                    {onCancel && (
+                      <Dialog.Close asChild>
+                        <Button
+                          tabIndex={0}
+                          variant={Variant.Default}
+                          onClick={onCancel}
+                          disabled={submitDisabled}
+                        >
+                          Cancel
+                        </Button>
+                      </Dialog.Close>
+                    )}
+                    {onSubmit && (
+                      <Dialog.Close asChild>
+                        <Button
+                          tabIndex={0}
+                          variant={variant}
+                          onClick={onSubmit}
+                          disabled={submitDisabled}
+                        >
+                          {submitText}
+                        </Button>
+                      </Dialog.Close>
+                    )}
+                  </div>
+                )
+              }
+            >
+              <div className="flex-1 md:flex-none dark:text-white text-black p-0">{children}</div>
+            </ScrollArea>
+            {/* {scrollDisabled && (
               <div className="md:max-h-[85dvh] max-h-[100dvh] flex flex-col p-[1px]">
                 <div
                   className={clsx(
@@ -196,7 +201,7 @@ export function Modal({
                   </div>
                 )}
               </div>
-            )}
+            )} */}
           </Dialog.Content>
         </Dialog.Overlay>
       </Dialog.Portal>

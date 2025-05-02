@@ -1,3 +1,5 @@
+import { ReactNode, MouseEvent } from "react";
+
 /**
  * Theme options for the application's appearance.
  *
@@ -126,19 +128,44 @@ export enum TimeDisplay {
   SecondsPlusFrames = "seconds+frames",
 }
 
-/**
- * Types of nested parent components.
- *
- * Includes Context and Dropdown parents
- */
-export enum NestedParent {
-  /**
-   * Parent is a context component.
-   */
-  Context = "context",
+export interface ToolbarWidget {
+  id: string;
+  type: "toolbar-widget";
+  component: ReactNode;
+  mobileConfig?: {
+    location: "header" | "menu";
+    component?: ReactNode;
+  };
+}
 
-  /**
-   * Parent is a dropdown component.
-   */
-  Dropdown = "dropdown",
+export interface ToolbarSpacer {
+  id: string;
+  type: "toolbar-spacer";
+}
+
+export type ToolbarItem = ToolbarWidget | ToolbarSpacer;
+
+export type MenuItemClickFn = (
+  id: string,
+  event: MouseEvent<HTMLButtonElement>,
+) => Promise<void> | void;
+
+export enum PaneRegion {
+  Footer = "footer",
+  Left = "left",
+  Right = "Right",
+}
+
+export interface PaneSpec {
+  id: string;
+  name: string;
+  icon: ReactNode;
+  size: string | number;
+  clickFn?: MenuItemClickFn;
+  content: ReactNode;
+  inLeftMenu: boolean;
+  inRightMenu: boolean;
+  disabled?: boolean;
+  region?: PaneRegion;
+  shouldClose?: boolean;
 }

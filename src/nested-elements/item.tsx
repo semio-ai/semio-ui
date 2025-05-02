@@ -1,23 +1,12 @@
-import { ReactNode } from "react";
-import { DropdownMenuItem } from "@radix-ui/react-dropdown-menu";
-import { ContextMenuItem } from "@radix-ui/react-context-menu";
+import { DropdownMenu, ContextMenu } from "radix-ui";
 import { clsx } from "clsx";
-import { NestedParent, Variant } from "../types";
+import { NestedParent, type NestedItemProps } from "./types";
 import { useNestedParent } from "./context";
-
-export interface NestedItemProps {
-  left?: ReactNode;
-  children: ReactNode;
-  right?: ReactNode;
-  variant?: Variant;
-  disabled?: boolean;
-  onClick?: (event: React.MouseEvent) => void;
-}
 
 export function NestedItem({ left, children, right, variant, disabled, onClick }: NestedItemProps) {
   const parent = useNestedParent();
 
-  const ItemComponent = parent === NestedParent.Dropdown ? DropdownMenuItem : ContextMenuItem;
+  const ItemComponent = parent === NestedParent.Dropdown ? DropdownMenu.Item : ContextMenu.Item;
 
   return (
     <ItemComponent

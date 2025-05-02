@@ -74,6 +74,16 @@
     }
   }
 
+  .variant-responsive-header-button-bg {
+    @apply transition-colors duration-100 ease-in-out rounded-xs;
+    @apply disabled:cursor-not-allowed;
+    @apply backdrop-blur-lg;
+    @apply dark:bg-layout-dark-deep-inset/30 bg-layout-light-deep-inset/30;
+    @apply dark:hover:not-disabled:bg-layout-dark-deep-inset/70 hover:not-disabled:bg-layout-light-deep-inset/70;
+    @apply dark:focus:not-disabled:bg-layout-dark-deep-inset/70 focus:not-disabled:bg-layout-light-deep-inset/70;
+    @apply dark:data-[state=open]:bg-layout-dark-deep-inset/70 data-[state=open]:bg-layout-light-deep-inset/70;
+  }
+
   .variant-responsive-appearing-outline {
     @apply transition-[outline-width,outline-color] duration-100 ease-in-out;
     outline-color: var(--accent-color);
@@ -543,9 +553,10 @@
   }
 
   .card-transparent {
-    @apply rounded-md shadow-lg border-2;
-    border-color: var(--card-border-color);
-    @apply dark:bg-layout-dark-base/70 bg-layout-light-base/70 backdrop-blur-lg;
+    @apply rounded-md shadow-lg;
+    /* @apply border-2;
+    border-color: var(--card-border-color); */
+    @apply dark:bg-layout-dark-deep-inset/50 bg-layout-light-deep-inset/50 backdrop-blur-lg;
   }
 
   .card-invert {
@@ -785,7 +796,7 @@
       "menu"
       "."
       "footer";
-    grid-template-columns: 1fr;
+    grid-template-columns: calc(100vw - 2 * var(--padding-width));
     grid-template-rows:
       auto var(--padding-width) minmax(0, var(--content-size))
       var(--content-left-gap) minmax(0, var(--left-size)) var(--padding-width)
@@ -793,9 +804,9 @@
 
     @variant desktop {
       grid-template-areas:
-        "menu . header header header  header header"
-        "menu . .      .      .       .      .     "
-        "menu . left   .      content .      right"
+        "menu . header header header  .      right "
+        "menu . .      .      .       .      right "
+        "menu . left   .      content .      right "
         "menu . .      .      .       .      .     "
         "menu . footer footer footer  footer footer";
       grid-template-columns:
@@ -804,7 +815,7 @@
           var(--content-size)
         )
         var(--padding-width)
-        minmax(auto, var(--right-size));
+        var(--right-size);
       grid-template-rows: auto var(--padding-width) 1fr var(--content-footer-gap) minmax(0, auto);
     }
 

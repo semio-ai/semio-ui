@@ -1,15 +1,7 @@
 import { RawColor } from "@semio/utils";
 import { ColorPickerInput } from "../inputs/color-picker-input";
-import { Variant } from "../types";
 import { NestedMenu } from "./menu";
-
-export interface NestedColorPickerProps<T extends string | RawColor> {
-  value: T;
-  onChange: (value: T) => void;
-  disabled?: boolean;
-  label?: string;
-  variant?: Variant;
-}
+import { NestedColorPickerProps } from "./types";
 
 export function NestedColorPicker<T extends string | RawColor>({
   value,

@@ -1,7 +1,8 @@
-import * as DropdownPrimitive from "@radix-ui/react-dropdown-menu";
+import { DropdownMenu as DropdownPrimitive } from "radix-ui";
 import { clsx } from "clsx";
 import { ReactNode, ForwardedRef, forwardRef, CSSProperties } from "react";
-import { NestedParent, Variant } from "../types";
+import { Variant } from "../types";
+import { NestedParent } from "../nested-elements/types";
 import { NestedParentProvider } from "../nested-elements/context";
 import { ScrollArea } from "../layouts/scroll-area";
 import { Arrow } from "./arrow";
@@ -21,44 +22,45 @@ const Dropdown = forwardRef(
     ref: ForwardedRef<HTMLButtonElement>,
   ) => {
     return (
-      <div className="text-left group flex flex-1">
-        <NestedParentProvider value={NestedParent.Dropdown}>
-          <DropdownPrimitive.Root>
-            <DropdownPrimitive.Trigger ref={ref} asChild className="group/trigger">
-              {trigger}
-            </DropdownPrimitive.Trigger>
-            <DropdownPrimitive.Portal>
-              <DropdownPrimitive.Content
-                align="center"
-                side={side}
-                collisionPadding={2}
-                sideOffset={3}
-                arrowPadding={2}
-                style={color ? ({ "--custom-color": color } as CSSProperties) : {}}
+      <NestedParentProvider value={NestedParent.Dropdown}>
+        <DropdownPrimitive.Root>
+          <DropdownPrimitive.Trigger ref={ref} asChild className="group/trigger">
+            {trigger}
+          </DropdownPrimitive.Trigger>
+          <DropdownPrimitive.Portal>
+            <DropdownPrimitive.Content
+              align="center"
+              side={side}
+              collisionPadding={2}
+              sideOffset={3}
+              arrowPadding={2}
+              style={color ? ({ "--custom-color": color } as CSSProperties) : {}}
+              className={clsx(
+                color ? "custom-color" : variant,
+                "responsive card dropdown-content m-0.5 min-w-[220px]",
+                "max-h-[calc(var(--radix-dropdown-menu-content-available-height)-4px)]",
+                "desktop:w-[calc(var(--radix-dropdown-menu-trigger-width)+10px)]",
+                "w-[calc(var(--radix-dropdown-menu-content-available-width)-4px)]",
+              )}
+            >
+              <DropdownPrimitive.Arrow asChild width={12} height={6}>
+                <Arrow filled={false} variant={variant ?? Variant.Default} color={color} />
+              </DropdownPrimitive.Arrow>
+
+              <ScrollArea
+                header={header}
+                shrinkHeight
+                wrapperClassName="max-h-[calc(var(--radix-dropdown-menu-content-available-height)-4px)]"
                 className={clsx(
-                  color ? "custom-color" : variant,
-                  "responsive card dropdown-content",
-                  "min-w-[220px] m-0.5",
-                  "max-h-(--radix-dropdown-menu-content-available-height)",
-                  "w-[calc(var(--radix-dropdown-menu-trigger-width)+10px)]",
+                  "max-h-[calc(var(--radix-dropdown-menu-content-available-height)-6px)] p-0.5 gap-0.5 flex-col flex",
                 )}
               >
-                <DropdownPrimitive.Arrow asChild width={12} height={6}>
-                  <Arrow filled={false} variant={variant ?? Variant.Default} color={color} />
-                </DropdownPrimitive.Arrow>
-
-                <ScrollArea
-                  header={header}
-                  shrink
-                  className={clsx("max-h-(--radix-dropdown-menu-content-available-height) p-0.5")}
-                >
-                  {children}
-                </ScrollArea>
-              </DropdownPrimitive.Content>
-            </DropdownPrimitive.Portal>
-          </DropdownPrimitive.Root>
-        </NestedParentProvider>
-      </div>
+                {children}
+              </ScrollArea>
+            </DropdownPrimitive.Content>
+          </DropdownPrimitive.Portal>
+        </DropdownPrimitive.Root>
+      </NestedParentProvider>
     );
   },
 );

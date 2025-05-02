@@ -1,5 +1,5 @@
 import React from "react";
-import * as RadixAccordion from "@radix-ui/react-accordion";
+import { Accordion as RadixAccordion } from "radix-ui";
 import { IconChevronDown } from "@tabler/icons-react";
 import { clsx } from "clsx";
 

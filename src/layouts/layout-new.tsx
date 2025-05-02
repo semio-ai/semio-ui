@@ -4,55 +4,69 @@ import type {
   CSSProperties,
   MouseEvent,
   MouseEventHandler,
+  ForwardedRef,
 } from "react";
-import { isValidElement, memo, useCallback, useEffect, useRef, useState } from "react";
+import { forwardRef, isValidElement, memo, useEffect, useRef } from "react";
 import { clsx } from "clsx";
 import { motion, AnimatePresence, TargetAndTransition } from "motion/react";
 import { useGesture } from "@use-gesture/react";
-import { atom, useAtom, useAtomValue, useSetAtom } from "jotai";
-import { observe } from "jotai-effect";
 import {
   IconArrowBackUp,
+  IconArrowBigUp,
   IconArrowForwardUp,
+  IconBuildingStore,
   IconChevronRightPipe,
-  IconDashboard,
+  IconCommand,
   IconDeviceFloppy,
+  IconEdit,
+  IconExternalLink,
+  IconEye,
+  IconFile,
+  IconLayoutDashboard,
+  IconLetterZ,
+  IconLogout,
+  IconMenu2,
+  IconMoon,
+  IconRotate,
   IconShoppingBag,
   IconSquare,
+  IconSun,
+  IconSunMoon,
+  IconUserEdit,
 } from "@tabler/icons-react";
 import useMeasure, { RectReadOnly } from "react-use-measure";
 import { Button } from "../buttons/button";
 import { IconHome } from "../icons/home";
-import { Select } from "../floating/select";
-import { Size, Variant } from "../types";
+import { MenuItemClickFn, PaneRegion, Size, Theme, ToolbarWidget, Variant } from "../types";
 import { Status } from "../status";
 import { Tooltip } from "../floating/tooltip";
 import { Search } from "../inputs/search";
-import { ToggleGroup } from "../inputs/toggle-group";
 import { Avatar } from "../avatar";
-import { IconProject } from "../icons/project";
-
-export type MenuItemClickFn = (id: string, event: MouseEvent) => Promise<void> | void;
-
-export enum PaneRegion {
-  Footer = "footer",
-  Left = "left",
-  Right = "Right",
-}
-
-export interface PaneSpec {
-  id: string;
-  name: string;
-  icon: ReactNode;
-  size: string | number;
-  clickFn?: MenuItemClickFn;
-  content: ReactNode;
-  inLeftMenu: boolean;
-  inRightMenu: boolean;
-  disabled?: boolean;
-  region?: PaneRegion;
-  shouldClose?: boolean;
-}
+import { Dropdown } from "../floating/dropdown";
+import { NestedLabel } from "../nested-elements/label";
+import { NestedChild } from "../nested-elements/configured-render";
+import { HeaderButton } from "../buttons/header-button";
+import { IconFileTypeMod } from "../icons/file-type-mod";
+import { IconFileTypeVizij } from "../icons/file-type-vizij";
+import { useTheme } from "../hooks/use-theme";
+import { IconFileTypeAni } from "../icons/file-type-ani";
+import { NestedItem } from "../nested-elements/item";
+import { useLayoutState } from "../hooks/use-layout-state";
+import { useLayoutActions } from "../hooks/use-layout-actions";
+import {
+  useActionItems,
+  useActiveLeftPane,
+  useActiveRightPane,
+  useDesktopState,
+  useFooterRegionActive,
+  useHomeActionItem,
+  useLeftMenuItems,
+  useMenuState,
+  usePanes,
+  useRightMenuItems,
+  useToolbarItems,
+} from "../hooks/layout-atoms";
+import { ScrollArea } from "./scroll-area";
 
 export interface LayoutNewProps {
   className?: string;
@@ -63,7 +77,7 @@ export interface LayoutNewProps {
 }
 
 function TestPane() {
-  const footerRegionActive = useAtomValue(footerRegionActiveAtom);
+  const footerRegionActive = useFooterRegionActive();
   const { togglePaneRegion } = useLayoutActions();
 
   return (
@@ -72,52 +86,6 @@ function TestPane() {
       <Button onClick={() => togglePaneRegion(PaneRegion.Footer, "footer")}>
         {footerRegionActive ? "Close Footer" : "Open Footer"}
       </Button>
-    </div>
-  );
-}
-
-function TestToggleGroup() {
-  const [value, setValue] = useState<"mode 1" | "mode 2" | "mode 3">("mode 1");
-
-  return (
-    <div className="flex flex-row items-center gap-2 pr-1">
-      <ToggleGroup
-        bg={false}
-        size={Size.Md}
-        visuals="icons"
-        value={value}
-        onChange={(v) => setValue(v as "mode 1" | "mode 2" | "mode 3")}
-        options={[
-          {
-            label: "Studio",
-            value: "mode 1",
-            icon: <IconProject className="w-3/5 h-3/5" />,
-            // variant: Variant.Primary,
-          },
-          {
-            label: "Dashboard",
-            value: "mode 2",
-            icon: <IconDashboard className="w-3/5 h-3/5" />,
-            // variant: Variant.Secondary,
-          },
-          {
-            label: "Marketplace",
-            value: "mode 3",
-            icon: <IconShoppingBag className="w-3/5 h-3/5" />,
-            // variant: Variant.Tertiary,
-          },
-        ]}
-        className="backdrop-blur-lg dark:bg-layout-dark-inset/40 bg-layout-light-inset/40"
-      />
-      <Avatar
-        src="https://avatars.githubusercontent.com/u/5341396?v=4&size=64"
-        alt="Andy"
-        size={Size.Md}
-        status={{
-          variant: Variant.Success,
-          placement: "bottom-right",
-        }}
-      />
     </div>
   );
 }
@@ -139,19 +107,37 @@ export function InnerLayoutNew({
   const root = useRef<HTMLDivElement>();
   const [contentRef, contentBounds] = useMeasure();
 
-  const { contentWidth, leftWidth, rightWidth, leftMenuItems, rightMenuItems, menuExpanded } =
-    useLayoutState();
+  const {
+    desktop,
+    contentWidth,
+    leftWidth,
+    rightWidth,
+    menuExpanded,
+    leftRegionActive,
+    rightRegionActive,
+    footerRegionActive,
+  } = useLayoutState();
 
-  const desktop = useAtomValue(desktopAtom);
-  const leftRegionActive = useAtomValue(leftRegionActiveAtom);
-  const rightRegionActive = useAtomValue(rightRegionActiveAtom);
-  const footerRegionActive = useAtomValue(footerRegionActiveAtom);
-  const toolbarItems = useAtomValue(toolbarItemsAtom);
+  const leftMenuItems = useLeftMenuItems();
+  const rightMenuItems = useRightMenuItems();
 
-  const { setPanes, toggleMenu, togglePaneRegion, setToolbarItems } = useLayoutActions();
+  const toolbarItems = useToolbarItems();
+  const actionItems = useActionItems();
+  const homeActionItem = useHomeActionItem();
 
-  const activeLeftPaneId = useAtomValue(activeLeftPaneAtom);
-  const activeRightPaneId = useAtomValue(activeRightPaneAtom);
+  const {
+    setPanes,
+    toggleMenu,
+    togglePaneRegion,
+    setToolbarItems,
+    setActionItems,
+    setHomeActionItem,
+  } = useLayoutActions();
+
+  const activeLeftPaneId = useActiveLeftPane();
+  const activeRightPaneId = useActiveRightPane();
+
+  const { explicitTheme, setExplicitTheme } = useTheme();
 
   useEffect(() => {
     setPanes([
@@ -199,54 +185,307 @@ export function InnerLayoutNew({
         id: "search",
         type: "toolbar-widget",
         component: (
-          <div className="pl-1">
-            <Search placeholder="Search..." size={Size.Md} bg className="backdrop-blur-lg" />
-          </div>
+          <Search
+            key="search"
+            placeholder="Search..."
+            size={Size.Md}
+            bg
+            wrapperClassName="backdrop-blur-lg"
+          />
         ),
-        desktopSizing: "fit",
+        mobileConfig: {
+          location: "header",
+          component: (
+            <Search
+              key="search"
+              placeholder="Search..."
+              size={Size.Sm}
+              bg
+              wrapperClassName="backdrop-blur-lg flex-1 min-w-10"
+            />
+          ),
+        },
+      },
+      {
+        id: "save",
+        type: "toolbar-widget",
+        component: (
+          <HeaderButton
+            key="save"
+            label="Save"
+            size={Size.Md}
+            icon={<IconDeviceFloppy className="w-3/5 h-3/5" />}
+          />
+        ),
+        mobileConfig: {
+          location: "header",
+          component: (
+            <HeaderButton
+              key="save"
+              label="Save"
+              size={Size.Sm}
+              icon={<IconDeviceFloppy className="w-3/5 h-3/5" />}
+              className="flex-none"
+            />
+          ),
+        },
       },
       {
         id: "studio-actions",
         type: "toolbar-widget",
         component: (
-          <div className="flex flex-row gap-1 px-1 z-0">
-            <Button
-              invert
+          <div key="actions" className="flex flex-row gap-1 z-0">
+            <HeaderButton
+              label="Undo"
               size={Size.Md}
-              leftIcon={<IconArrowBackUp className="w-3/5 h-3/5" />}
-              className="backdrop-blur-lg"
-              // variant={Variant.Info}
+              icon={<IconArrowBackUp className="w-3/5 h-3/5" />}
             />
-            <Button
-              invert
+            <HeaderButton
               disabled
+              label="Redo"
               size={Size.Md}
-              leftIcon={<IconArrowForwardUp className="w-3/5 h-3/5" />}
-              className="backdrop-blur-lg"
-            />
-            <Button
-              invert
-              size={Size.Md}
-              leftIcon={<IconDeviceFloppy className="w-3/5 h-3/5" />}
-              className="backdrop-blur-lg"
+              icon={<IconArrowForwardUp className="w-3/5 h-3/5" />}
             />
           </div>
         ),
-        desktopSizing: "fit",
+        mobileConfig: {
+          location: "menu",
+          component: (
+            <>
+              <NestedItem
+                key="undo"
+                left={<IconArrowBackUp className="w-3/5 h-3/5" />}
+                right={
+                  <div className="flex flex-row items-center justify-end gap-0 h-5">
+                    <IconCommand className="w-3 h-3" />
+                    <IconLetterZ className="w-3 h-3" />
+                  </div>
+                }
+              >
+                Undo
+              </NestedItem>
+              <NestedItem
+                key="redo"
+                left={<IconArrowForwardUp className="w-3/5 h-3/5" />}
+                right={
+                  <div className="flex flex-row items-center justify-end gap-0 h-5">
+                    <IconArrowBigUp className="w-3 h-3" />
+                    <IconCommand className="w-3 h-3" />
+                    <IconLetterZ className="w-3 h-3" />
+                  </div>
+                }
+              >
+                Redo
+              </NestedItem>
+            </>
+          ),
+        },
       },
       {
         id: "spacer-1",
         type: "toolbar-spacer",
-        desktopSizing: "flex",
-      },
-      {
-        id: "nav",
-        type: "toolbar-widget",
-        component: <TestToggleGroup />,
-        desktopSizing: "fit",
       },
     ]);
-  }, [setPanes, setToolbarItems]);
+    setHomeActionItem({
+      id: "home",
+      children: [
+        {
+          id: "file",
+          type: "menu",
+          label: "File",
+          left: <IconFile className="w-3/5 h-3/5" />,
+          children: [],
+        },
+        {
+          id: "edit",
+          type: "menu",
+          label: "Edit",
+          left: <IconEdit className="w-3/5 h-3/5" />,
+          children: [],
+        },
+        {
+          id: "view",
+          type: "menu",
+          label: "View",
+          left: <IconEye className="w-3/5 h-3/5" />,
+          children: [],
+        },
+        {
+          id: "versions",
+          type: "menu",
+          label: "Versions",
+          left: <IconRotate className="w-3/5 h-3/5" />,
+          children: [],
+        },
+        {
+          id: "exit",
+          type: "menu",
+          label: "Exit",
+          left: <IconExternalLink className="w-3/5 h-3/5" />,
+          children: [],
+        },
+      ],
+    });
+    setActionItems([
+      {
+        id: "home",
+        label: "Home",
+        left: <IconHome className="w-3/5 h-3/5" />,
+        children: [
+          {
+            id: "go-to-dashboard",
+            type: "item",
+            children: "Go to Dashboard",
+            onClick: () => console.log("go-to-dashboard clicked"),
+            right: <IconExternalLink className="w-3/5 h-3/5" />,
+          },
+          {
+            id: "home",
+            type: "item",
+            children: "Dashboard Home",
+            left: <IconLayoutDashboard className="w-3/5 h-3/5" />,
+            onClick: () => console.log("home clicked"),
+          },
+          {
+            id: "home/models",
+            type: "item",
+            children: "Models",
+            left: <IconFileTypeMod className="w-3/5 h-3/5" />,
+            onClick: () => console.log("home/models clicked"),
+          },
+          {
+            id: "home/vizij",
+            type: "item",
+            children: "Faces",
+            left: <IconFileTypeVizij className="w-3/5 h-3/5" />,
+            onClick: () => console.log("home/vizij clicked"),
+          },
+          {
+            id: "home/animations",
+            type: "item",
+            children: "Animations",
+            left: <IconFileTypeAni className="w-3/5 h-3/5" />,
+            onClick: () => console.log("home/animations clicked"),
+          },
+        ],
+      },
+      {
+        id: "marketplace",
+        label: "Marketplace",
+        left: <IconShoppingBag className="w-3/5 h-3/5" />,
+        children: [
+          {
+            id: "go-to-marketplace",
+            type: "item",
+            children: "Go to Marketplace",
+            onClick: () => console.log("go-to-marketplace clicked"),
+            right: <IconExternalLink className="w-3/5 h-3/5" />,
+          },
+          {
+            id: "marketplace",
+            type: "item",
+            children: "Marketplace Home",
+            left: <IconBuildingStore className="w-3/5 h-3/5" />,
+            onClick: () => console.log("marketplace clicked"),
+          },
+          {
+            id: "marketplace/models",
+            type: "item",
+            children: "Models",
+            left: <IconFileTypeMod className="w-3/5 h-3/5" />,
+            onClick: () => console.log("marketplace/models clicked"),
+          },
+          {
+            id: "marketplace/vizij",
+            type: "item",
+            children: "Faces",
+            left: <IconFileTypeVizij className="w-3/5 h-3/5" />,
+            onClick: () => console.log("marketplace/vizij clicked"),
+          },
+          {
+            id: "marketplace/animations",
+            type: "item",
+            children: "Animations",
+            left: <IconFileTypeAni className="w-3/5 h-3/5" />,
+            onClick: () => console.log("marketplace/animations clicked"),
+          },
+        ],
+      },
+      {
+        id: "settings",
+        label: "Settings",
+        left: (
+          <Avatar
+            src="https://avatars.githubusercontent.com/u/5341396?v=4&size=64"
+            alt="Andy"
+            size={Size.Xs}
+            status={{
+              variant: Variant.Success,
+              placement: "bottom-right",
+            }}
+            onClick={() => {}}
+          />
+        ),
+        children: [
+          {
+            id: "settings/profile",
+            type: "item",
+            children: "Edit Profile",
+            left: <IconUserEdit className="w-3/5 h-3/5" />,
+            onClick: () => console.log("settings/profile clicked"),
+          },
+          {
+            id: "settings/signinout",
+            type: "item",
+            children: "Sign Out",
+            left: <IconLogout className="w-3/5 h-3/5" />,
+            onClick: () => console.log("settings/signinout clicked"),
+          },
+          {
+            id: "settings/sep1",
+            type: "separator",
+          },
+          {
+            id: "settings/theme-label",
+            type: "label",
+            children: "Theme",
+          },
+          {
+            id: "settings/theme-selector",
+            type: "radio",
+            value: explicitTheme as string,
+            options: [
+              {
+                value: "light",
+                label: "Light",
+                icon: <IconSun size="13px" />,
+                color: "#F99600",
+              },
+              {
+                value: "dark",
+                label: "Dark",
+                icon: <IconMoon size="13px" />,
+                color: "#34B9AB",
+              },
+              {
+                value: "system",
+                label: "System",
+                icon: <IconSunMoon size="13px" />,
+              },
+            ],
+            onChange: (value) => setExplicitTheme(value as Theme),
+          },
+        ],
+      },
+    ]);
+  }, [
+    setPanes,
+    setToolbarItems,
+    setActionItems,
+    setHomeActionItem,
+    setExplicitTheme,
+    explicitTheme,
+  ]);
 
   useGesture(
     {
@@ -261,6 +500,10 @@ export function InnerLayoutNew({
     },
   );
 
+  const mobileMenuItems = toolbarItems.filter(
+    (item) => item.type === "toolbar-widget" && item.mobileConfig?.location === "menu",
+  ) as ToolbarWidget[];
+
   return (
     <div
       style={
@@ -274,191 +517,260 @@ export function InnerLayoutNew({
       }
       ref={root as MutableRefObject<HTMLDivElement>}
       className={clsx(
-        "relative top-0 left-0 h-dvh w-dvw flex select-none",
+        "relative top-0 left-0 h-dvh right-0 flex select-none",
         "bg-layout-light-base dark:bg-layout-dark-base",
         "app-layout",
         className,
       )}
     >
+      {/* The backdrop/background element is a child of the layout component */}
       {children && (
-        <div className="absolute top-0 left-0 bottom-0 right-0 z-0">
+        <div className="absolute top-0 left-0 bottom-0 right-0">
           {isValidElement(children) && children}
           {!isValidElement(children) && typeof children === "function" && children(contentBounds)}
         </div>
       )}
+
       {/* Menu (thin left bar)*/}
       <div
         data-ui={menuExpanded ? "expanded" : ""}
-        className={clsx("grid-area-menu h-full w-full", "group/menu")}
+        className={clsx("grid-area-menu h-full w-full z-0", "group/menu")}
       >
-        <div
-          className={clsx(
-            "responsive card-transparent h-full flex items-center",
-            "flex-row justify-center desktop:justify-start w-full desktop:transition-[width]",
-            "desktop:w-10 desktop:group-data-expanded/menu:w-48 desktop:flex-col desktop:justify-start",
+        <ScrollArea
+          wrapperClassName={clsx(
+            "responsive card-transparent flex",
+            "h-10 w-full justify-center align-middle",
+            "desktop:h-full desktop:w-10 desktop:group-data-expanded/menu:w-fit desktop:justify-start",
           )}
+          className="desktop:pl-0.5"
+          orientation={desktop ? "vertical" : "horizontal"}
+          headerClassName="dark:bg-layout-dark-inset bg-layout-light-inset pl-0.5"
+          footerClassName="dark:bg-layout-dark-inset bg-layout-light-inset pl-0.5"
+          header={
+            desktop ? (
+              <div className="flex flex-col">
+                <Dropdown
+                  side="right"
+                  trigger={
+                    <span>
+                      <MenuBarButton
+                        key="menu-home-toggle"
+                        icon={homeIcon ?? <IconHome />}
+                        className="font-bold"
+                        textClassName={homeClassName}
+                      >
+                        {homeText ?? "Home"}
+                      </MenuBarButton>
+                    </span>
+                  }
+                >
+                  <NestedLabel key="menu-home-toggle">Home</NestedLabel>
+                  {homeActionItem?.children.map((child) => (
+                    <NestedChild key={child.id} {...child} />
+                  ))}
+                  <NestedItem
+                    left={
+                      <IconChevronRightPipe
+                        className={clsx(
+                          "transition-transform w-3/5 h-3/5 ease-in-out duration-100",
+                          menuExpanded ? "rotate-180" : "rotate-360",
+                        )}
+                      />
+                    }
+                    onClick={(e) => {
+                      toggleMenu();
+                      e.stopPropagation();
+                    }}
+                  >
+                    {menuExpanded ? "Collapse" : "Expand"}
+                  </NestedItem>
+                </Dropdown>
+              </div>
+            ) : undefined
+          }
+          footer={
+            desktop && actionItems.length > 0 ? (
+              <div className="flex flex-col">
+                {actionItems.map((actionItem) => (
+                  <Dropdown
+                    side="right"
+                    key={actionItem.id}
+                    variant={actionItem.variant}
+                    trigger={
+                      <span>
+                        <MenuBarButton
+                          key={actionItem.id}
+                          variant={actionItem.variant}
+                          icon={actionItem.left}
+                          hoverable
+                        >
+                          {actionItem.label ?? "Action"}
+                        </MenuBarButton>
+                      </span>
+                    }
+                  >
+                    <NestedLabel key={actionItem.id}>{actionItem.label ?? "Action"}</NestedLabel>
+                    {actionItem.children.map((child) => (
+                      <NestedChild key={child.id} {...child} />
+                    ))}
+                  </Dropdown>
+                ))}
+              </div>
+            ) : undefined
+          }
         >
-          {desktop && (
-            <MenuBarButton
-              key="menu-home-toggle"
-              onClick={() => {
-                toggleMenu();
-              }}
-              icon={homeIcon ?? <IconHome />}
-              className="font-bold"
-              textClassName={homeClassName}
-            >
-              {homeText ?? "Home"}
-            </MenuBarButton>
-          )}
-          {leftMenuItems.map((leftMenuItem) => (
-            <MenuBarButton
-              key={leftMenuItem.id}
-              onClick={(e) => {
-                const callFn = async (event: MouseEvent) => {
-                  await leftMenuItem.clickFn?.(leftMenuItem.id, event);
-                  togglePaneRegion(PaneRegion.Left, leftMenuItem.id);
-                };
-                void callFn(e);
-              }}
-              hoverable
-              variant={Variant.Primary}
-              icon={leftMenuItem.icon}
-              active={leftMenuItem.id === activeLeftPaneId}
-            >
-              {leftMenuItem.name}
-            </MenuBarButton>
-          ))}
-        </div>
+          <div className="w-full h-full flex flex-row justify-center desktop:justify-start desktop:flex-col">
+            {leftMenuItems.map((leftMenuItem) => (
+              <MenuBarButton
+                key={leftMenuItem.id}
+                onClick={(e: MouseEvent<HTMLButtonElement>) => {
+                  const callFn = async (event: MouseEvent<HTMLButtonElement>) => {
+                    await (leftMenuItem.clickFn as MenuItemClickFn | undefined)?.(
+                      leftMenuItem.id,
+                      event,
+                    );
+                    togglePaneRegion(PaneRegion.Left, leftMenuItem.id);
+                  };
+                  void callFn(e);
+                }}
+                hoverable
+                variant={Variant.Primary}
+                icon={leftMenuItem.icon}
+                active={leftMenuItem.id === activeLeftPaneId}
+              >
+                {leftMenuItem.name}
+              </MenuBarButton>
+            ))}
+            {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15].map((item) => (
+              <MenuBarButton
+                key={item}
+                hoverable
+                variant={Variant.Primary}
+                icon={<IconSquare className="w-3/5 h-3/5" />}
+              >
+                {`Pane ${item.toString()}`}
+              </MenuBarButton>
+            ))}
+          </div>
+        </ScrollArea>
       </div>
 
       {/* Header */}
-      <div className="grid-area-header w-full h-full">
-        <div className={clsx("h-10 flex items-center gap-1", "flex-row justify-start")}>
-          <button
-            type="button"
-            role="tab"
-            className={clsx("grid desktop:hidden w-10 h-10 place-items-center")}
-            onClick={() => {
-              toggleMenu();
-            }}
-          >
-            {homeIcon ?? <IconHome />}
-          </button>
-          <p
-            className={clsx(
-              "desktop:hidden responsive default font-bold variant-static-text",
-              homeClassName,
-            )}
-          >
-            {homeText ?? "Home"}
-          </p>
-          {desktop && (
-            <>
-              {toolbarItems.map((item) => {
-                return (
-                  <div
-                    key={item.id}
-                    className={clsx(
-                      "h-10 flex items-center",
-                      item.type === "toolbar-widget" ? "responsive" : "pointer-events-none",
-                      item.desktopSizing === "flex" ? "flex flex-1" : "w-auto",
-                    )}
-                  >
-                    {item.type === "toolbar-widget" && item.component}
-                  </div>
-                );
-              })}
-            </>
+      <div className="grid-area-header w-full h-full z-0">
+        <div
+          className={clsx(
+            "h-10 flex items-center justify-stretch",
+            "flex-row w-full gap-2 desktop:gap-1 pl-1 pr-1 desktop:pr-0",
           )}
+        >
+          <span className="grid desktop:hidden place-items-center flex-none">
+            <Dropdown
+              side="bottom"
+              trigger={
+                <span>
+                  <button
+                    type="button"
+                    role="tab"
+                    className={clsx("w-9 h-9 grid place-items-center")}
+                    onClick={() => {
+                      toggleMenu();
+                    }}
+                  >
+                    {homeIcon ?? <IconHome />}
+                  </button>
+                </span>
+              }
+            >
+              <NestedItem
+                left={
+                  <IconChevronRightPipe
+                    className={clsx(
+                      "transition-transform w-3/5 h-3/5 ease-in-out duration-100",
+                      menuExpanded ? "rotate-180" : "rotate-360",
+                    )}
+                  />
+                }
+                onClick={(e) => {
+                  toggleMenu();
+                  e.stopPropagation();
+                }}
+              >
+                {menuExpanded ? "Collapse" : "Expand"}
+              </NestedItem>
+            </Dropdown>
+          </span>
+
+          {toolbarItems.map((item) => {
+            const showMobile =
+              item.type === "toolbar-widget" && item.mobileConfig?.location === "header";
+            if (item.type === "toolbar-spacer" && desktop)
+              return <div key={item.id} className="flex-1" />;
+            else if (!desktop && showMobile) return item.mobileConfig?.component ?? item.component;
+            else if (desktop && item.type === "toolbar-widget") return item.component;
+            return null;
+          })}
+
+          <Dropdown
+            trigger={
+              <HeaderButton
+                className="grid desktop:hidden flex-none"
+                variant={Variant.Default}
+                size={Size.Sm}
+                label="Toggle Menu"
+                icon={<IconMenu2 className={clsx("w-3/5 h-3/5")} />}
+              />
+            }
+          >
+            {mobileMenuItems.length > 0 && (
+              <>
+                <NestedLabel className="flex sm:hidden">Actions</NestedLabel>
+                {mobileMenuItems.map(
+                  (item: ToolbarWidget) =>
+                    (item as ToolbarWidget).mobileConfig?.component ?? item.component,
+                )}
+              </>
+            )}
+            {actionItems.map((item) => (
+              <NestedChild key={item.id} type="menu" {...item} />
+            ))}
+          </Dropdown>
+
+          <div className="h-9 hidden desktop:flex flex-1" />
+
+          <HeaderButton
+            className={clsx("flex-none", !desktop || rightRegionActive ? "hidden" : "grid")}
+            variant={Variant.Default}
+            size={Size.Md}
+            label="Toggle Menu"
+            icon={
+              <IconChevronRightPipe
+                className={clsx(
+                  "transition-transform w-3/5 h-3/5 ease-in-out duration-100",
+                  rightRegionActive ? "rotate-360" : "rotate-180",
+                )}
+              />
+            }
+            disabled={
+              rightMenuItems.length === 0 ||
+              rightMenuItems.filter((item) => !item.disabled).length === 0
+            }
+            onClick={() =>
+              togglePaneRegion(PaneRegion.Right, activeRightPaneId ?? rightMenuItems[0]?.id)
+            }
+          />
         </div>
       </div>
 
       {/* Left Sidebar */}
-      <div
-        className={clsx(
-          "grid-area-left w-full h-full overflow-clip transition-[width,height]",
-
-          // footerRegionActive ? "pt-0.5 pb-0.5" : "pt-0.5 pb-0.5 desktop:pb-0",
-        )}
-      >
+      <div className={clsx("grid-area-left w-full h-full overflow-clip transition-[width,height]")}>
         <PanelContent region={PaneRegion.Left} />
       </div>
 
       {/* Right Sidebar */}
-      <div className="grid-area-right w-full h-full min-h-10 min-w-10 hidden desktop:flex">
-        <div
-          data-ui={rightRegionActive ? "expanded" : ""}
-          className={clsx(
-            "responsive card-transparent group/right overflow-clip",
-            "min-h-[40px] min-w-[40px]",
-            "place-items-center grid",
-            // "grid grid-rows-2 grid-columns-2",
-
-            "h-[36px] data-expanded:h-auto grid-rows-[36px_0fr] data-expanded:grid-rows-[36px_auto]",
-            "grid-cols-[0fr_36px] data-expanded:grid-cols-[1fr_36px]",
-            // "grid-rows-[40px_0fr] data-expanded:h-auto data-expanded:grid-rows-[40px_auto]",
-            // "min-h-10 min-w-10 h-auto transition-[height] place-items-center",
-          )}
-        >
-          <div
-            className={clsx(
-              "p-1 w-0 h-0 group-data-expanded/right:h-[36px] group-data-expanded/right:flex hidden",
-              "flex-row group-data-expanded/right:w-full grid align-middle justify-start",
-              "bg-transparent group-data-expanded/right:bg-neutral-50/20 dark:group-data-expanded/right:bg-neutral-950/20",
-            )}
-          >
-            {rightMenuItems.length === 1 && rightMenuItems[0]?.name}
-            {rightMenuItems.length > 1 && (
-              <Select
-                size={Size.Sm}
-                options={rightMenuItems.map((item) => ({
-                  label: item.name,
-                  value: item.id,
-                }))}
-                onChange={(value) => {
-                  const selected = rightMenuItems.find((item) => item.id === value);
-                  if (selected) {
-                    togglePaneRegion(PaneRegion.Right, selected.id, true);
-                  }
-                }}
-                value={rightMenuItems.find((item) => item.region === PaneRegion.Right)?.id}
-              />
-            )}
-          </div>
-          <div
-            className={clsx(
-              "h-[36px] w-[36px] grid place-items-center transition-colors",
-              "bg-transparent group-data-expanded/right:bg-neutral-50/20 dark:group-data-expanded/right:bg-neutral-950/20",
-            )}
-          >
-            <Button
-              variant={Variant.Default}
-              size={Size.Md}
-              invert
-              role="tab"
-              leftIcon={
-                <IconChevronRightPipe
-                  className={clsx(
-                    "transition-transform w-3/5 h-3/5 ease-in-out duration-100",
-                    "rotate-180 group-data-expanded/right:rotate-360",
-                  )}
-                />
-              }
-              disabled={
-                rightMenuItems.length === 0 ||
-                rightMenuItems.filter((item) => !item.disabled).length === 0
-              }
-              onClick={() =>
-                togglePaneRegion(PaneRegion.Right, activeRightPaneId ?? rightMenuItems[0]?.id)
-              }
-            />
-          </div>
-
-          <div className="col-span-2 h-0 group-data-expanded/right:h-full group-data-expanded/right:flex hidden">
-            <PanelContent region={PaneRegion.Right} />
-          </div>
-        </div>
+      <div
+        className={clsx("grid-area-right w-full h-full overflow-clip transition-[width,height]")}
+      >
+        <PanelContent region={PaneRegion.Right} />
       </div>
 
       {/* Content */}
@@ -494,20 +806,23 @@ interface MenuBarButtonProps {
   textClassName?: string;
 }
 
-function MenuBarButton({
-  children,
-  altText,
-  icon,
-  onClick,
-  active,
-  hoverable,
-  status,
-  variant,
-  className,
-  textClassName,
-}: MenuBarButtonProps) {
-  const menuOpen = useAtomValue(menuStateAtom);
-  const desktop = useAtomValue(desktopAtom);
+function InnerMenuBarButton(
+  {
+    children,
+    altText,
+    icon,
+    onClick,
+    active,
+    hoverable,
+    status,
+    variant,
+    className,
+    textClassName,
+  }: MenuBarButtonProps,
+  ref: ForwardedRef<HTMLButtonElement>,
+) {
+  const menuOpen = useMenuState();
+  const desktop = useDesktopState();
   const Wrapper = status ? Status : "div";
   const wrapperProps = status
     ? {
@@ -525,20 +840,22 @@ function MenuBarButton({
           "responsive",
           hoverable ? "variant-responsive-selectable-text" : "variant-static-text",
           variant,
+          "w-9 h-9 grid place-items-center",
         ),
       };
 
   return (
     <button
+      ref={ref}
       type="button"
       role="tab"
       aria-selected={active}
       className={clsx(
         variant,
-        "w-10 group/tab h-10 overflow-hidden",
-        desktop && "group-data-expanded/menu:w-48",
+        "w-9 group/tab h-9 overflow-hidden",
+        desktop && "group-data-expanded/menu:w-[188px]",
         "overflow-hidden transition-all",
-        "grid place-items-center grid-cols-[40px_1fr] grid-rows-1 gap-[6px]",
+        "grid place-items-center grid-cols-[36px_1fr] grid-rows-1 gap-[6px]",
         className,
       )}
       onClick={onClick}
@@ -568,306 +885,14 @@ function MenuBarButton({
   );
 }
 
-export interface ToolbarWidget {
-  id: string;
-  type: "toolbar-widget";
-  component: ReactNode;
-  mobile?: ReactNode;
-  desktopSizing: "fit" | "flex";
-}
-
-export interface ToolbarSpacer {
-  id: string;
-  type: "toolbar-spacer";
-  desktopSizing: "fit" | "flex";
-}
-
-export type ToolbarItem = ToolbarWidget | ToolbarSpacer;
-
-export interface LayoutState {
-  desktop: boolean;
-  menuExpanded: boolean;
-  panes: PaneSpec[];
-  leftWidth: string;
-  rightWidth: string;
-  contentWidth: string;
-  leftMenuItems: PaneSpec[];
-  rightMenuItems: PaneSpec[];
-}
-
-export interface LayoutActions {
-  setPane: (pane: PaneSpec | Partial<PaneSpec>) => void;
-  setPanes: (panes: (PaneSpec | Partial<PaneSpec>)[]) => void;
-  removePane: (id: string) => void;
-  setToolbarItem: (
-    item: Partial<ToolbarItem> & { id: string; type: "toolbar-widget" | "toolbar-spacer" },
-  ) => void;
-  setToolbarItems: (
-    items: (Partial<ToolbarItem> & { id: string; type: "toolbar-widget" | "toolbar-spacer" })[],
-  ) => void;
-  removeToolbarItem: (id: string) => void;
-  toggleMenu: () => void;
-  togglePaneRegion: (pane: PaneRegion, id: string, preventSameClose?: boolean) => void;
-  completePanesClose: () => void;
-}
-
-const menuStateAtom = atom<boolean>(false);
-const panesAtom = atom<PaneSpec[]>([]);
-const toolbarItemsAtom = atom<ToolbarItem[]>([]);
-const desktopAtom = atom<boolean>(false);
-
-const activeLeftPaneAtom = atom<string | undefined>((get) => {
-  const panes = get(panesAtom);
-  const active = panes.find((p) => p.region === PaneRegion.Left && !p.shouldClose);
-  return active?.id;
-});
-
-const activeRightPaneAtom = atom<string | undefined>((get) => {
-  const panes = get(panesAtom);
-  const active = panes.find((p) => p.region === PaneRegion.Right && !p.shouldClose);
-  return active?.id;
-});
-
-const leftRegionActiveAtom = atom<boolean>((get) => {
-  const panes = get(panesAtom);
-  return panes.find((p) => p.region === PaneRegion.Left) !== undefined;
-});
-
-const rightRegionActiveAtom = atom<boolean>((get) => {
-  const panes = get(panesAtom);
-  return panes.find((p) => p.region === PaneRegion.Right) !== undefined;
-});
-
-const footerRegionActiveAtom = atom<boolean>((get) => {
-  const panes = get(panesAtom);
-  return panes.find((p) => p.region === PaneRegion.Footer) !== undefined;
-});
-
-function formatSize(val: string | number): string {
-  if (typeof val === "string") return val;
-  return `${val.toString()}px`;
-}
-
-const leftWidthAtom = atom<string>((get) => {
-  const panes = get(panesAtom);
-  const left = panes.filter((pane) => pane.region === PaneRegion.Left);
-  if (left.length === 0) return "0fr";
-  if (left.find((l) => l.size === "full")) return "1fr";
-  if (left.length === 1) {
-    return formatSize(left[0].size);
-  }
-  return `max(${left.map((l) => formatSize(l.size)).join(",")})`;
-});
-
-const rightWidthAtom = atom<string>((get) => {
-  const panes = get(panesAtom);
-  const right = panes.filter((pane) => pane.region === PaneRegion.Right);
-  if (right.length === 0) return "0fr";
-  if (right.find((l) => l.size === "full")) return "1fr";
-  if (right.length === 1) {
-    return formatSize(right[0].size);
-  }
-  return `max(${right.map((l) => formatSize(l.size)).join(",")})`;
-});
-
-const contentWidthAtom = atom<string>((get) => {
-  const panes = get(panesAtom);
-  const leftFull = panes.find((pane) => pane.region === PaneRegion.Left && pane.size === "full");
-  const rightFull = panes.find((pane) => pane.region === PaneRegion.Right && pane.size === "full");
-  if (leftFull || rightFull) return "0fr";
-  return `1fr`;
-});
-
-const leftMenuItemsAtom = atom<PaneSpec[]>((get) => get(panesAtom).filter((p) => p.inLeftMenu));
-const rightMenuItemsAtom = atom<PaneSpec[]>((get) => get(panesAtom).filter((p) => p.inRightMenu));
-
-export function useLayoutActions(): LayoutActions {
-  const menuExpandedRef = useRef<boolean>(false);
-  const panesRef = useRef<PaneSpec[]>([]);
-  const toolbarItemsRef = useRef<ToolbarItem[]>([]);
-  const setMenuExpanded = useSetAtom(menuStateAtom);
-  const setPanes = useSetAtom(panesAtom);
-  const setToolbarItems = useSetAtom(toolbarItemsAtom);
-
-  useEffect(() => {
-    const expandedUnsub = observe((get) => {
-      menuExpandedRef.current = get(menuStateAtom);
-    });
-    const panesUnsub = observe((get) => {
-      panesRef.current = get(panesAtom);
-    });
-    const toolbarItemsUnsub = observe((get) => {
-      toolbarItemsRef.current = get(toolbarItemsAtom);
-    });
-    return () => {
-      expandedUnsub();
-      panesUnsub();
-      toolbarItemsUnsub();
-    };
-  });
-
-  const setPane = useCallback(
-    (pane: PaneSpec | Partial<PaneSpec>) => {
-      const existingPane = panesRef.current.find((p) => p.id === pane.id);
-      const newPanes = existingPane
-        ? panesRef.current.map((p) => (p.id === pane.id ? { ...p, ...pane } : p))
-        : [...panesRef.current, { ...createPane(), ...pane }];
-      setPanes(newPanes);
-    },
-    [panesRef, setPanes],
-  );
-
-  const setPanesNice = useCallback(
-    (panes: (PaneSpec | Partial<PaneSpec>)[]) => {
-      panes.forEach(setPane);
-    },
-    [setPane],
-  );
-
-  const removePane = useCallback(
-    (id: string) => {
-      const newPanes = panesRef.current.filter((p) => p.id !== id);
-      setPanes(newPanes);
-    },
-    [setPanes, panesRef],
-  );
-
-  const setToolbarItem = useCallback(
-    (item: Partial<ToolbarItem> & { id: string; type: "toolbar-widget" | "toolbar-spacer" }) => {
-      const existingItem = toolbarItemsRef.current.find((i) => i.id === item.id);
-      if (existingItem) {
-        const newItems: ToolbarItem[] = toolbarItemsRef.current.map((i) =>
-          i.id === item.id && item.type === i.type ? { ...i, ...item } : (i as ToolbarItem),
-        ) as ToolbarItem[];
-        setToolbarItems(newItems);
-      } else if (item.type === "toolbar-spacer") {
-        setToolbarItems([...toolbarItemsRef.current, { desktopSizing: "fit", ...item }]);
-      } else if (item.type === "toolbar-widget") {
-        setToolbarItems([
-          ...toolbarItemsRef.current,
-          { desktopSizing: "fit", component: "null", ...item },
-        ]);
-      }
-    },
-    [setToolbarItems, toolbarItemsRef],
-  );
-
-  const setToolbarItemsNice = useCallback(
-    (
-      items: (Partial<ToolbarItem> & { id: string; type: "toolbar-widget" | "toolbar-spacer" })[],
-    ) => {
-      items.forEach(setToolbarItem);
-    },
-    [setToolbarItem],
-  );
-
-  const removeToolbarItem = useCallback(
-    (id: string) => {
-      const newItems = toolbarItemsRef.current.filter((i) => i.id !== id);
-      setToolbarItems(newItems);
-    },
-    [setToolbarItems, toolbarItemsRef],
-  );
-
-  const completePanesClose = useCallback(() => {
-    const newPanes = panesRef.current.map((p) =>
-      p.shouldClose ? { ...p, shouldClose: undefined, region: undefined } : p,
-    );
-    setPanes(newPanes);
-  }, [panesRef, setPanes]);
-
-  const toggleMenu = useCallback(() => {
-    setMenuExpanded(!menuExpandedRef.current);
-  }, [setMenuExpanded, menuExpandedRef]);
-
-  const togglePaneRegion = useCallback(
-    (region: PaneRegion, id: string, preventSameClose = false) => {
-      // First, find if the current pane id is currently in that region;
-      const currentPaneInRegion = panesRef.current.find((p) => p.id === id && p.region === region);
-      // Don't close the pane directly, but set the flag so that it knows it should close
-      if (currentPaneInRegion && !preventSameClose) {
-        const newPanes = panesRef.current.map((p) =>
-          p.id === id ? { ...p, shouldClose: true } : p,
-        );
-        setPanes(newPanes);
-      } else {
-        const newPanes = panesRef.current.map((p) =>
-          p.id === id
-            ? { ...p, region }
-            : { ...p, region: p.region === region ? undefined : p.region },
-        );
-        setPanes(newPanes);
-      }
-    },
-    [panesRef, setPanes],
-  );
-
-  return {
-    setPane,
-    setPanes: setPanesNice,
-    removePane,
-    setToolbarItem,
-    setToolbarItems: setToolbarItemsNice,
-    removeToolbarItem,
-    toggleMenu,
-    togglePaneRegion,
-    completePanesClose,
-  };
-}
-
-export function useLayoutState(): LayoutState {
-  const desktopMatcher = window.matchMedia("((width >= 48rem) and (height >= 48rem))");
-  const menuExpanded = useAtomValue(menuStateAtom);
-  const panes = useAtomValue(panesAtom);
-  const leftWidth = useAtomValue(leftWidthAtom);
-  const rightWidth = useAtomValue(rightWidthAtom);
-  const contentWidth = useAtomValue(contentWidthAtom);
-  const leftMenuItems = useAtomValue(leftMenuItemsAtom);
-  const rightMenuItems = useAtomValue(rightMenuItemsAtom);
-  const [desktop, setDesktop] = useAtom(desktopAtom);
-
-  useEffect(() => {
-    setDesktop(desktopMatcher.matches);
-    const listener = (e: MediaQueryListEvent) => {
-      console.log("desktop changed", e.matches);
-      setDesktop(e.matches);
-    };
-    desktopMatcher.addEventListener("change", listener);
-    return () => {
-      desktopMatcher.removeEventListener("change", listener);
-    };
-  }, [desktopMatcher, setDesktop]);
-
-  return {
-    desktop,
-    menuExpanded,
-    panes,
-    leftWidth,
-    rightWidth,
-    contentWidth,
-    leftMenuItems,
-    rightMenuItems,
-  };
-}
-
-function createPane(): PaneSpec {
-  return {
-    id: crypto.randomUUID(),
-    name: "New Pane",
-    icon: <IconSquare />,
-    size: "240px",
-    content: <div className="w-full h-full bg-primary-500">New Pane Content</div>,
-    inLeftMenu: true,
-    inRightMenu: false,
-  };
-}
+export const MenuBarButton = forwardRef(InnerMenuBarButton);
 
 export const LayoutNew = memo(InnerLayoutNew);
 
 export function PanelContent({ region }: { region: PaneRegion }) {
-  const panes = useAtomValue(panesAtom);
-  const desktop = useAtomValue(desktopAtom);
-  const { completePanesClose } = useLayoutActions();
+  const panes = usePanes();
+  const desktop = useDesktopState();
+  const { completePanesClose, togglePaneRegion } = useLayoutActions();
 
   return (
     <AnimatePresence mode="wait" onExitComplete={completePanesClose}>
@@ -886,10 +911,27 @@ export function PanelContent({ region }: { region: PaneRegion }) {
               exit={variants[0]}
               transition={{ duration: 0.15, ease: "easeInOut" }}
               className={clsx(
-                "w-full overflow-clip",
-                pane.region !== PaneRegion.Right && "responsive card-transparent h-full",
+                "relative w-full overflow-clip",
+                "responsive card-transparent h-full",
               )}
             >
+              {pane.region === PaneRegion.Right && (
+                <HeaderButton
+                  className={clsx("absolute top-1 right-1")}
+                  variant={Variant.Default}
+                  size={Size.Md}
+                  label="Toggle Menu"
+                  icon={
+                    <IconChevronRightPipe
+                      className={clsx(
+                        "transition-transform w-3/5 h-3/5 ease-in-out duration-100",
+                        !pane.shouldClose ? "rotate-360" : "rotate-180",
+                      )}
+                    />
+                  }
+                  onClick={() => togglePaneRegion(PaneRegion.Right, pane.id)}
+                />
+              )}
               {pane.content}
             </motion.div>
           );
@@ -917,8 +959,8 @@ function getVariants(
       ];
     case PaneRegion.Right:
       return [
-        { opacity: 0, translateX: 50, height: 0 },
-        { opacity: 1, translateX: 0, height: "auto" },
+        { opacity: 0, translateX: 50 },
+        { opacity: 1, translateX: 0 },
       ];
     case PaneRegion.Footer:
       return [

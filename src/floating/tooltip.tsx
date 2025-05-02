@@ -1,4 +1,4 @@
-import * as TooltipPrimitive from "@radix-ui/react-tooltip";
+import { Tooltip as TooltipPrimitive } from "radix-ui";
 import { clsx } from "clsx";
 import { type ReactNode } from "react";
 import { Size, Variant } from "../types";
@@ -39,7 +39,7 @@ function Tooltip({
               "sized-text",
               "tooltip-content",
               "select-none inline-flex items-center px-2 py-0.5",
-              invert ? "text-black card-invert" : "variant-static-text card",
+              invert ? "dark:text-black text-white card-invert" : "variant-static-text card",
               variant,
               "z-10",
             )}

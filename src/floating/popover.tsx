@@ -1,4 +1,4 @@
-import * as PopoverPrimitive from "@radix-ui/react-popover";
+import { Popover as PopoverPrimitive } from "radix-ui";
 import { clsx } from "clsx";
 import { ReactNode } from "react";
 import { Variant } from "../types";

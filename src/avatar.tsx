@@ -1,4 +1,4 @@
-import * as AvatarPrimitive from "@radix-ui/react-avatar";
+import { Avatar as AvatarPrimitive } from "radix-ui";
 import { clsx } from "clsx";
 import { ForwardedRef, MouseEventHandler, forwardRef } from "react";
 import { Variant, Size } from "./types";
