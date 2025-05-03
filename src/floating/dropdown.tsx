@@ -14,17 +14,23 @@ export interface DropdownProps {
   color?: string;
   header?: ReactNode;
   side?: "left" | "right" | "top" | "bottom";
+  disabled?: boolean;
 }
 
 const Dropdown = forwardRef(
   (
-    { header, trigger, children, variant, color, side }: DropdownProps,
+    { header, trigger, children, variant, color, side, disabled }: DropdownProps,
     ref: ForwardedRef<HTMLButtonElement>,
   ) => {
     return (
       <NestedParentProvider value={NestedParent.Dropdown}>
         <DropdownPrimitive.Root>
-          <DropdownPrimitive.Trigger ref={ref} asChild className="group/trigger">
+          <DropdownPrimitive.Trigger
+            ref={ref}
+            asChild
+            disabled={disabled}
+            className="group/trigger"
+          >
             {trigger}
           </DropdownPrimitive.Trigger>
           <DropdownPrimitive.Portal>

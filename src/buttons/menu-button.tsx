@@ -1,90 +1,104 @@
-import { MouseEventHandler, ReactNode } from "react";
+import { ForwardedRef, forwardRef, MouseEventHandler, ReactNode } from "react";
 import { clsx } from "clsx";
 import { Variant } from "../types";
 import { Status } from "../status";
-import { useMenu } from "../layouts/menu";
 import { Tooltip } from "../floating/tooltip";
+import { useDesktopState, useMenuState } from "../hooks/layout-atoms";
 
-export interface MenuButtonProps {
-  id: string;
-  children: ReactNode;
-  title: ReactNode;
-  altLabel?: string;
-  variant?: Variant.Primary | Variant.Secondary | Variant.Tertiary | Variant.Default;
+interface MenuButtonProps {
+  children: string;
+  altText?: string;
+  icon: ReactNode;
   onClick?: MouseEventHandler;
   active?: boolean;
+  hoverable?: boolean;
+  variant?: Variant;
   status?: {
     variant?: Variant;
     placement?: "top-left" | "top-right" | "bottom-left" | "bottom-right";
     text?: string;
   };
-  hoverable?: boolean;
+  className?: string;
+  textClassName?: string;
 }
 
-export function MenuButton({
-  id,
-  children,
-  title,
-  altLabel,
-  variant = Variant.Primary,
-  onClick,
-  active,
-  status,
-  hoverable = true,
-}: MenuButtonProps) {
-  const { open } = useMenu();
+function InnerMenuButton(
+  {
+    children,
+    altText,
+    icon,
+    onClick,
+    active,
+    hoverable,
+    status,
+    variant,
+    className,
+    textClassName,
+  }: MenuButtonProps,
+  ref: ForwardedRef<HTMLButtonElement>,
+) {
+  const menuOpen = useMenuState();
+  const desktop = useDesktopState();
   const Wrapper = status ? Status : "div";
   const wrapperProps = status
     ? {
         variant: status.variant,
         placement: status.placement,
         text: status.text,
+        className: clsx(
+          "responsive",
+          hoverable ? "variant-responsive-selectable-text" : "variant-static-text",
+          variant,
+        ),
       }
-    : {};
+    : {
+        className: clsx(
+          "responsive",
+          hoverable ? "variant-responsive-selectable-text" : "variant-static-text",
+          variant,
+          "w-9 h-9 grid place-items-center",
+        ),
+      };
 
   return (
     <button
+      ref={ref}
       type="button"
       role="tab"
       aria-selected={active}
-      id={id}
       className={clsx(
-        "w-10 group-data-expanded/menu:w-48 h-10 group/button p-2 transition-all duration-100",
-        hoverable && "dark:hover:text-neutral-400 hover:text-neutral-600",
-        hoverable && "hover:scale-105 scale-100",
-        "group-data-expanded/menu:origin-[20px_50%] origin-center",
-        "flex flex-row gap-[6px]",
-        "text-neutral-500 overflow-hidden",
-        getSelectedStyles(variant),
+        variant,
+        "w-9 group/tab h-9 overflow-hidden",
+        "desktop:group-data-expanded/menu:w-[188px]",
+        "overflow-hidden transition-all",
+        "grid place-items-center grid-cols-[36px_1fr] grid-rows-1 gap-[6px]",
+        className,
       )}
       onClick={onClick}
     >
       <Tooltip
         invert
         variant={active ? variant : Variant.Default}
-        controlledState={open ? [false, () => {}] : undefined}
-        content={altLabel ?? title}
-        side="right"
+        controlledState={menuOpen ? [false, () => {}] : undefined}
+        content={altText ?? children}
+        side={desktop ? "right" : "top"}
       >
-        <Wrapper {...wrapperProps}>{children}</Wrapper>
+        <Wrapper {...wrapperProps}>{icon}</Wrapper>
       </Tooltip>
-      <span className="transition-colors group-data-expanded/menu:opacity-100 opacity-0">
-        {title}
+      <span
+        className={clsx(
+          "responsive",
+          "desktop:group-data-expanded/menu:opacity-100",
+          "opacity-0 text-left w-[150px]",
+          hoverable ? "variant-responsive-selectable-text" : "variant-static-text",
+          variant,
+          textClassName,
+        )}
+      >
+        {children}
       </span>
     </button>
   );
 }
 
-const getSelectedStyles = (variant: Variant): string => {
-  switch (variant) {
-    case Variant.Primary:
-      return "dark:aria-selected:text-primary-400 aria-selected:text-primary-600 hover:dark:aria-selected:text-primary-400 hover:aria-selected:text-primary-600";
-    case Variant.Secondary:
-      return "dark:aria-selected:text-secondary-400 aria-selected:text-secondary-600 hover:dark:aria-selected:text-secondary-400 hover:aria-selected:text-secondary-600";
-    case Variant.Tertiary:
-      return "dark:aria-selected:text-tertiary-400 aria-selected:text-tertiary-600 hover:dark:aria-selected:text-tertiary-400 hover:aria-selected:text-tertiary-600";
-    case Variant.Default:
-    default:
-      return "dark:aria-selected:text-neutral-400 aria-selected:text-neutral-600 hover:dark:aria-selected:text-neutral-400 hover:aria-selected:text-neutral-600";
-  }
-};
+export const MenuButton = forwardRef(InnerMenuButton);
