@@ -1,8 +1,8 @@
 import { ReactNode, useMemo } from "react";
-import * as RadixProgress from "@radix-ui/react-progress";
+import { Progress as RadixProgress } from "radix-ui";
 import { MotionValue, motion, useTransform } from "motion/react";
 import { clsx } from "clsx";
-import { Size, Variant } from "./types";
+import { Size, Variant } from "../types";
 
 export interface ProgressProps {
   progress: number;

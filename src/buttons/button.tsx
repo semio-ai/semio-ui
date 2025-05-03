@@ -6,7 +6,6 @@ import {
   type ForwardedRef,
 } from "react";
 import { clsx } from "clsx";
-import { alpha, altColor } from "@semio/utils";
 import { Variant, Size } from "../types";
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -101,9 +100,6 @@ export const Button = forwardRef(
           color
             ? ({
                 "--custom-color": color,
-                "--darker-custom-color": altColor(color, -0.1),
-                "--lighter-custom-color": altColor(color, 0.2),
-                "--deemphasized-custom-color": alpha(color, 0.5),
               } as CSSProperties)
             : undefined
         }

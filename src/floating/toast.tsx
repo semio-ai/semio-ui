@@ -5,7 +5,7 @@ import { clsx } from "clsx";
 import { IconPlayerPause, IconX } from "@tabler/icons-react";
 import { Button } from "../buttons/button";
 import { Size, Variant } from "../types";
-import { ProgressCircle } from "../progress";
+import { ProgressCircle } from "../feedback/progress";
 import { IconVariant } from "../icons/variant";
 
 export interface ToastState {

@@ -1,8 +1,7 @@
 import type { ReactNode, ForwardedRef } from "react";
 import { forwardRef } from "react";
 import { clsx } from "clsx";
-import { Variant } from "./types";
-import { getBasicBgColor } from "./style-functions";
+import { Variant } from "../types";
 
 export interface StatusProps {
   variant?: Variant;
@@ -33,13 +32,13 @@ export const Status = forwardRef(
         {children}
         <div
           className={clsx(
+            variant,
+            "responsive",
             "rounded-full absolute ring-2 dark:ring-neutral-800 ring-neutral-200",
             text
               ? "h-[10px] min-w-[10px] text-[7px] p-1 dark:text-black text-white font-bold flex flex-row items-center justify-center"
               : "h-[10px] w-[10px]",
-            variant === Variant.Default
-              ? "dark:bg-neutral-50 bg-neutral-950"
-              : getBasicBgColor(variant),
+            "variant-static-bg",
             getPlacement(placement),
           )}
           style={text ? { width: text.length * 6 } : undefined}

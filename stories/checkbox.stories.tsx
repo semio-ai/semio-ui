@@ -29,7 +29,7 @@ function CheckboxRenderer({ ...props }: CheckboxProps): ReactNode {
  * See https://storybook.js.org/docs/react/api/csf
  * to learn how to use render functions.
  */
-export const DefaultPrimary: Story = {
+export const Primary: Story = {
   render: CheckboxRenderer as ArgsStoryFn<ReactRenderer, CheckboxProps>,
   args: {
     checked: true,
@@ -39,13 +39,122 @@ export const DefaultPrimary: Story = {
   },
 };
 
-export const DefaultPrimaryInvert: Story = {
+export const Secondary: Story = {
+  render: CheckboxRenderer as ArgsStoryFn<ReactRenderer, CheckboxProps>,
+  args: {
+    checked: true,
+    variant: Variant.Secondary,
+    size: Size.Md,
+    disabled: false,
+  },
+};
+
+export const Tertiary: Story = {
+  render: CheckboxRenderer as ArgsStoryFn<ReactRenderer, CheckboxProps>,
+  args: {
+    checked: true,
+    variant: Variant.Tertiary,
+    size: Size.Md,
+    disabled: false,
+  },
+};
+
+export const Success: Story = {
+  render: CheckboxRenderer as ArgsStoryFn<ReactRenderer, CheckboxProps>,
+  args: {
+    checked: true,
+    variant: Variant.Success,
+    size: Size.Md,
+    disabled: false,
+  },
+};
+
+export const Warning: Story = {
+  render: CheckboxRenderer as ArgsStoryFn<ReactRenderer, CheckboxProps>,
+  args: {
+    checked: true,
+    variant: Variant.Warning,
+    size: Size.Md,
+    disabled: false,
+  },
+};
+
+export const Error: Story = {
+  render: CheckboxRenderer as ArgsStoryFn<ReactRenderer, CheckboxProps>,
+  args: {
+    checked: true,
+    variant: Variant.Error,
+    size: Size.Md,
+    disabled: false,
+  },
+};
+
+export const Info: Story = {
+  render: CheckboxRenderer as ArgsStoryFn<ReactRenderer, CheckboxProps>,
+  args: {
+    checked: true,
+    variant: Variant.Info,
+    size: Size.Md,
+    disabled: false,
+  },
+};
+
+export const ExtraSmall: Story = {
+  render: CheckboxRenderer as ArgsStoryFn<ReactRenderer, CheckboxProps>,
+  args: {
+    checked: true,
+    variant: Variant.Primary,
+    size: Size.Xs,
+    disabled: false,
+  },
+};
+
+export const Small: Story = {
+  render: CheckboxRenderer as ArgsStoryFn<ReactRenderer, CheckboxProps>,
+  args: {
+    checked: true,
+    variant: Variant.Primary,
+    size: Size.Sm,
+    disabled: false,
+  },
+};
+
+export const Medium: Story = {
   render: CheckboxRenderer as ArgsStoryFn<ReactRenderer, CheckboxProps>,
   args: {
     checked: true,
     variant: Variant.Primary,
     size: Size.Md,
     disabled: false,
-    invert: true,
+  },
+};
+
+export const Large: Story = {
+  render: CheckboxRenderer as ArgsStoryFn<ReactRenderer, CheckboxProps>,
+  args: {
+    checked: true,
+    variant: Variant.Primary,
+    size: Size.Lg,
+    disabled: false,
+  },
+};
+
+export const ExtraLarge: Story = {
+  render: CheckboxRenderer as ArgsStoryFn<ReactRenderer, CheckboxProps>,
+  args: {
+    checked: true,
+    variant: Variant.Primary,
+    size: Size.Xl,
+    disabled: false,
+  },
+};
+
+export const Disabled: Story = {
+  render: CheckboxRenderer as ArgsStoryFn<ReactRenderer, CheckboxProps>,
+  args: {
+    checked: true,
+    variant: Variant.Primary,
+    size: Size.Md,
+    disabled: true,
   },
 };

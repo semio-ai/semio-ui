@@ -1,10 +1,3 @@
-/* These are old/outdated components. We should remove them. */
-export * from "./inputs/basic-form-input/text";
-export * from "./inputs/basic-form-input/file";
-export * from "./inputs/basic-form-input/emails";
-export * from "./inputs/basic-form-input/image";
-export * from "./inputs/basic-form-input/strings";
-
 export * from "./buttons/copy-link-button";
 /* Old components above */
 
@@ -13,7 +6,11 @@ export * from "./buttons/anchor";
 export * from "./buttons/button";
 export * from "./buttons/header-button";
 export * from "./buttons/menu-button";
-export * from "./buttons/theme-toggle-button";
+
+// Feedback
+export * from "./feedback/progress";
+export * from "./feedback/spinner";
+export * from "./feedback/status";
 
 // Floating
 export * from "./floating/context-menu";
@@ -65,12 +62,12 @@ export * from "./icons/static-icon";
 export * from "./icons/world-element-icons";
 
 // Inputs
+export * from "./inputs/checkbox";
 export * from "./inputs/color-picker-input";
 export * from "./inputs/number-field";
 export * from "./inputs/slider-number-field";
 export * from "./inputs/email";
 export * from "./inputs/password";
-export * from "./inputs/switch";
 export * from "./inputs/search";
 export * from "./inputs/time-input";
 export * from "./inputs/text-field";
@@ -101,29 +98,17 @@ export * from "./layouts/stepper";
 export * from "./layouts/table-list";
 export * from "./layouts/tabs";
 
+// Uncategorized or Not Updated
 export * from "./avatar";
-
 export * from "./inputs/color-picker-popover";
 export * from "./inputs/number-or-list";
-
 export * from "./dropzone";
 export * from "./chip";
 export * from "./select-list";
 export * from "./form-base";
-
-export * from "./progress";
-
-export * from "./spinner";
-export * from "./status";
-export * from "./checkbox";
 export * from "./buttons/image-button";
-
 export * from "./context";
 export * from "./types";
 export * from "./node-tree";
-
 export * from "./menu-item";
-
 export * from "./snippet";
-
-export * from "./style-functions";

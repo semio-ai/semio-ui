@@ -87,10 +87,10 @@
   .variant-responsive-appearing-outline {
     @apply transition-[outline-width,outline-color] duration-100 ease-in-out;
     outline-color: var(--accent-color);
-    @apply outline-0 outline-offset-2 hover:outline focus:outline-2 focus-within:outline-2;
-    @apply focus:hover:outline-2 hover:focus-within:outline-2 focus:group-data-[state=open]/trigger:outline-2;
+    @apply outline-0 outline-offset-2 hover:not-disabled:outline focus:not-disabled:outline-2 focus-within:not-disabled:outline-2;
+    @apply focus:hover:not-disabled:outline-2 hover:focus-within:not-disabled:outline-2 focus:group-data-[state=open]/trigger:not-disabled:outline-2;
     @apply focus:data-[state=closed]:outline-0;
-    @apply data-[state=open]:outline-2;
+    @apply data-[state=open]:not-disabled:outline-2;
   }
 
   .variant-responsive-text {
@@ -460,6 +460,30 @@
 
     @variant size-xl {
       @apply h-5;
+    }
+  }
+
+  .variant-checkbox-bg {
+    @apply dark:bg-black bg-white transition-colors;
+    @apply disabled:bg-red-500;
+    &:not(*:disabled) {
+      &[data-state="checked"],
+      &[data-state="on"] {
+        background-color: var(--standard-color);
+        &:hover {
+          @media (hover: hover) {
+            background-color: var(--accent-color) /* oklch(62.3% 0.214 259.815) */;
+          }
+        }
+      }
+    }
+
+    &:disabled {
+      @apply dark:bg-black/50 bg-white/50;
+      &[data-state="checked"],
+      &[data-state="on"] {
+        background-color: color-mix(in oklab, var(--standard-color) 50%, transparent);
+      }
     }
   }
 

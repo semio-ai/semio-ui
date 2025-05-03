@@ -1,8 +1,8 @@
 import { Avatar as AvatarPrimitive } from "radix-ui";
 import { clsx } from "clsx";
 import { ForwardedRef, MouseEventHandler, forwardRef } from "react";
+import { Status } from "./feedback/status";
 import { Variant, Size } from "./types";
-import { Status } from "./status";
 
 export interface AvatarProps {
   src?: string;

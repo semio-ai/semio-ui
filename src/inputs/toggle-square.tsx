@@ -2,7 +2,6 @@ import { type ReactNode } from "react";
 import { Toggle as RadixToggle } from "radix-ui";
 import { clsx } from "clsx";
 import { Variant, Size } from "../types";
-import { getToggleButtonStyles } from "../style-functions";
 import { Tooltip } from "../floating/tooltip";
 
 export interface ToggleSquareProps {
@@ -30,11 +29,14 @@ export function ToggleSquare({
         disabled={disabled}
         data-state={value ? "on" : "off"}
         className={clsx(
+          "responsive",
           size,
           variant,
-          "sized-height sized-width",
-          getToggleButtonStyles(variant ?? Variant.Default),
-          "p-1",
+          "sized-height sized-width rounded-xs",
+          "flex items-center justify-center",
+          "variant-checkbox-bg",
+          "variant-responsive-appearing-outline",
+          "appearance-none dark:text-black text-white",
         )}
         pressed={value}
         onPressedChange={onChange}

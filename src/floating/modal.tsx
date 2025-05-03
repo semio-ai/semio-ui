@@ -4,7 +4,6 @@ import { clsx } from "clsx";
 import { IconX } from "@tabler/icons-react";
 import { ScrollArea } from "../layouts/scroll-area";
 import { Variant } from "../types";
-import { getBasicTextColor } from "../style-functions";
 import { Button } from "../buttons/button";
 
 export interface ModalProps {
@@ -79,14 +78,16 @@ export function Modal({
                   )}
                 >
                   <div
-                    className={clsx(
-                      headerBottom ? "px-3 pt-3 pb-0" : "p-3",
-                      "flex flex-col gap-1",
-                      getBasicTextColor(variant),
-                    )}
+                    className={clsx(headerBottom ? "px-3 pt-3 pb-0" : "p-3", "flex flex-col gap-1")}
                   >
                     <div className="flex flex-row items-center justify-between">
-                      <Dialog.Title className="text-base/7 font-medium flex align-center justify-between">
+                      <Dialog.Title
+                        className={clsx(
+                          variant,
+                          "text-base/7 font-medium flex align-center",
+                          "justify-between responsive variant-static-text",
+                        )}
+                      >
                         {title}
                       </Dialog.Title>
                       {!dismissDisabled && (

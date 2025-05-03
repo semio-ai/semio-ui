@@ -1,7 +1,7 @@
 import { Checkbox as RadixCheckbox } from "radix-ui";
 import { IconCheck } from "@tabler/icons-react";
 import { clsx } from "clsx";
-import { Size, Variant } from "./types";
+import { Size, Variant } from "../types";
 
 export interface CheckboxProps {
   id?: string;
@@ -10,7 +10,6 @@ export interface CheckboxProps {
   variant?: Variant;
   size?: Size;
   disabled?: boolean;
-  invert?: boolean;
 }
 
 export function Checkbox({
@@ -20,7 +19,6 @@ export function Checkbox({
   variant = Variant.Default,
   size = Size.Md,
   disabled = false,
-  invert = false,
 }: CheckboxProps) {
   return (
     <RadixCheckbox.Root
@@ -34,16 +32,13 @@ export function Checkbox({
         variant,
         "sized-height sized-width rounded-xs",
         "flex items-center justify-center",
-        invert && "dark:bg-black bg-white",
-        !invert && "variant-responsive-bg",
+        "variant-checkbox-bg",
         "variant-responsive-appearing-outline",
         "appearance-none",
       )}
     >
-      <RadixCheckbox.Indicator
-        className={clsx(variant, invert ? "variant-responsive-text" : "text-black")}
-      >
-        <IconCheck className="w-full h-full transtion-colors" />
+      <RadixCheckbox.Indicator className={clsx(variant, "dark:text-black text-white")}>
+        <IconCheck className="w-full h-full" />
       </RadixCheckbox.Indicator>
     </RadixCheckbox.Root>
   );

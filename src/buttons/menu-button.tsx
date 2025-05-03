@@ -1,7 +1,7 @@
 import { ForwardedRef, forwardRef, MouseEventHandler, ReactNode } from "react";
 import { clsx } from "clsx";
 import { Variant } from "../types";
-import { Status } from "../status";
+import { Status } from "../feedback/status";
 import { Tooltip } from "../floating/tooltip";
 import { useDesktopState, useMenuState } from "../hooks/layout-atoms";
 

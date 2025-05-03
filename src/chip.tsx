@@ -1,7 +1,6 @@
 import { CSSProperties, ReactNode, type MouseEventHandler } from "react";
 import { IconX } from "@tabler/icons-react";
 import { clsx } from "clsx";
-import { alpha, altColor } from "@semio/utils";
 import { Size, Variant } from "./types";
 
 export interface ChipProps {
@@ -24,8 +23,9 @@ export function Chip({
   return (
     <div
       className={clsx(
-        "variant-responsive-bg variant-responsive-text sized-text sized-height",
-        "grid grid-rows-1 place-items-center",
+        "variant-responsive-bg variant-responsive-text",
+        "sized-text sized-height",
+        "responsive grid grid-rows-1 place-items-center",
         "p-[2px] gap-2",
         renderIcon && children && onDelete && "grid-cols-[auto_1fr_auto]",
         renderIcon && children && !onDelete && "grid-cols-[auto_1fr]",
@@ -39,9 +39,6 @@ export function Chip({
         color
           ? ({
               "--custom-color": color,
-              "--darker-custom-color": altColor(color, -0.1),
-              "--lighter-custom-color": altColor(color, 0.2),
-              "--deemphasized-custom-color": alpha(color, 0.5),
             } as CSSProperties)
           : undefined
       }
@@ -49,6 +46,7 @@ export function Chip({
       {renderIcon && (
         <div
           className={clsx(
+            "responsive",
             size,
             "sized-inner-group-item",
             "dark:bg-black/50 bg-white/50 rounded-[1px] grid place-items-center",
@@ -57,7 +55,7 @@ export function Chip({
           {renderIcon("w-3/5 h-3/5")}
         </div>
       )}
-      <div className="dark:text-black/75 text-white/75 px-2">{children}</div>
+      <div className="dark:text-red/75 text-white/75 px-2">{children}</div>
       {onDelete && (
         <button
           type="button"
