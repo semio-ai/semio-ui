@@ -1,6 +1,7 @@
 import { InputHTMLAttributes, ForwardedRef, forwardRef } from "react";
 import { Size, Variant } from "../types";
 import { TextField } from "./text-field";
+import { Label } from "./label";
 
 export interface PasswordInputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, "size"> {
   invalid?: boolean;
@@ -26,11 +27,11 @@ export const PasswordInput = forwardRef(
     const usedVariant = invalid && !isEmpty ? Variant.Error : variant;
 
     return (
-      <label className="capitalize">
-        <div className="flex flex-row justify-between items-center p-0.5">
-          <span className="capitalize text-md text-neutral-500">{props.name ?? "Password"}</span>
-          {invalid && <span className="text-xs text-error-500">{message}</span>}
-        </div>
+      <Label
+        label={props.name ?? "Email"}
+        message={invalid ? message : undefined}
+        variant={usedVariant}
+      >
         <TextField
           bg
           ref={ref}
@@ -43,7 +44,7 @@ export const PasswordInput = forwardRef(
           className="w-full"
           aria-invalid={invalid}
         />
-      </label>
+      </Label>
     );
   },
 );

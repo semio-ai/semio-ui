@@ -67,6 +67,8 @@ export * from "./inputs/color-picker-input";
 export * from "./inputs/number-field";
 export * from "./inputs/slider-number-field";
 export * from "./inputs/email";
+export * from "./inputs/image-input";
+export * from "./inputs/label";
 export * from "./inputs/password";
 export * from "./inputs/search";
 export * from "./inputs/time-input";
@@ -108,7 +110,10 @@ export * from "./select-list";
 export * from "./form-base";
 export * from "./buttons/image-button";
 export * from "./context";
-export * from "./types";
+
 export * from "./node-tree";
 export * from "./menu-item";
 export * from "./snippet";
+
+export * from "./types";
+export * from "./nested-elements/types";

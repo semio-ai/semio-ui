@@ -212,19 +212,18 @@ export const useImageInput = (onChange: (file: File | null) => void, projectImag
     console.log("(useImageInput) handleChange called:", event.target.files);
     const file = event.target.files?.[0] || null;
     if (file) {
+      console.log("(useImageInput) handleChange called:", file);
       onChange(file);
       const reader = new FileReader();
       reader.onloadend = () => {
         setLocalImageURL(reader.result as string);
       };
       reader.readAsDataURL(file);
-    } else {
-      setLocalImageURL(null);
     }
   };
 
   const handleRemove = () => {
-    setLocalImageURL("");
+    setLocalImageURL(null);
     onChange(null);
   };
 

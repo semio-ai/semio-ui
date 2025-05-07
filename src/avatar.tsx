@@ -45,6 +45,7 @@ export const Avatar = forwardRef(
           variant: status.variant,
           placement: status.placement,
           text: status.text,
+          size,
         }
       : {};
 
@@ -77,7 +78,10 @@ export const Avatar = forwardRef(
               variant,
               size,
               onClick ? "cursor-pointer" : "cursor-default",
-              "flex items-center justify-center rounded-sm select-none",
+              !invert && "text-white dark:text-black",
+              invert && onClick && "variant-responsive-text",
+              invert && !onClick && "variant-static-text",
+              "grid place-items-center rounded-sm select-none",
               !border && !invert && onClick && "variant-responsive-bg",
               !border && !invert && !onClick && "variant-static-bg",
               border &&
@@ -88,17 +92,9 @@ export const Avatar = forwardRef(
                 !invert &&
                 !onClick &&
                 "variant-static-bg outline -outline-offset-1 dark:outline-black/25 outline-white/25",
-              !border && invert && onClick && "variant-responsive-text",
-              !border && invert && !onClick && "variant-static-text",
-              border &&
-                invert &&
-                onClick &&
-                "variant-responsive-text variant-responsive-persistent-outline",
-              border &&
-                invert &&
-                !onClick &&
-                "variant-static-text variant-static-persistent-outline",
-              "sized-height sized-width",
+              border && invert && onClick && "variant-responsive-persistent-outline",
+              border && invert && !onClick && "variant-static-persistent-outline",
+              "sized-height sized-width sized-text",
               className,
             )}
           >

@@ -162,6 +162,7 @@ export interface PaneSpec {
   icon: ReactNode;
   size: string | number;
   clickFn?: MenuItemClickFn;
+  preventClose?: boolean;
   content: ReactNode;
   inLeftMenu: boolean;
   inRightMenu: boolean;

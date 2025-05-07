@@ -1,12 +1,7 @@
 import { DropdownMenu, ContextMenu } from "radix-ui";
 import { clsx } from "clsx";
-import { Variant } from "../types";
-import { NestedParent } from "./types";
+import { NestedParent, NestedSeparatorProps } from "./types";
 import { useNestedParent } from "./context";
-
-export interface NestedSeparatorProps {
-  variant?: Variant;
-}
 
 export function NestedSeparator({ variant }: NestedSeparatorProps) {
   const parent = useNestedParent();

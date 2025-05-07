@@ -71,8 +71,12 @@ const InnerTextField = forwardRef(
             "responsive",
             bg && "dark:bg-neutral-950/20 bg-neutral-50/20",
             "rounded-xs",
-            outline === "interact" && "variant-responsive-appearing-outline",
-            outline === "always" && "variant-responsive-persistent-outline",
+            outline === "interact" &&
+              !forwardedProps.readOnly &&
+              "variant-responsive-appearing-outline",
+            outline === "always" &&
+              !forwardedProps.readOnly &&
+              "variant-responsive-persistent-outline",
             outline === "hidden" && "outline-hidden focus:outline-hidden",
             size,
             variant,

@@ -1,10 +1,11 @@
 import type { ReactNode, ForwardedRef } from "react";
 import { forwardRef } from "react";
 import { clsx } from "clsx";
-import { Variant } from "../types";
+import { Size, Variant } from "../types";
 
 export interface StatusProps {
   variant?: Variant;
+  size?: Size;
   placement?: "top-left" | "top-right" | "bottom-left" | "bottom-right";
   children: ReactNode;
   text?: string;
@@ -16,6 +17,7 @@ export const Status = forwardRef(
   (
     {
       variant = Variant.Default,
+      size = Size.Md,
       placement = "top-right",
       text,
       children,
@@ -33,11 +35,12 @@ export const Status = forwardRef(
         <div
           className={clsx(
             variant,
+            size,
             "responsive",
             "rounded-full absolute ring-2 dark:ring-neutral-800 ring-neutral-200",
             text
               ? "h-[10px] min-w-[10px] text-[7px] p-1 dark:text-black text-white font-bold flex flex-row items-center justify-center"
-              : "h-[10px] w-[10px]",
+              : "sized-status",
             "variant-static-bg",
             getPlacement(placement),
           )}

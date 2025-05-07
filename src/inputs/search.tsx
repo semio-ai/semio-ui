@@ -3,7 +3,7 @@ import { IconSearch } from "@tabler/icons-react";
 import { Size, Variant } from "../types";
 import { TextField, TextFieldProps } from "./text-field";
 
-interface SearchProps extends TextFieldProps {
+export interface SearchProps extends TextFieldProps {
   onChange?: (value: string, event: ChangeEvent<HTMLInputElement>) => void;
   onSearch?: (value: string, event: KeyboardEvent) => void;
   variant?: Variant;

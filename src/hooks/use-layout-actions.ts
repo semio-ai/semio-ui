@@ -13,6 +13,22 @@ import {
   homeActionItemAtom,
 } from "./layout-atoms";
 
+/**
+ * LayoutActions interface defines the actions that can be performed on the layout.
+ * @param setPane - Function to set a single pane's data.
+ * @param setPanes - Function to set multiple panes' data.
+ * @param removePane - Function to remove a single pane.
+ * @param setToolbarItem - Function to set a single toolbar item.
+ * @param setToolbarItems - Function to set multiple toolbar items.
+ * @param removeToolbarItem - Function to remove a single toolbar item.
+ * @param setActionItem - Function to set a single action item.
+ * @param setActionItems - Function to set multiple action items.
+ * @param removeActionItem - Function to remove a single action item.
+ * @param setHomeActionItem - Function to set the home action item.
+ * @param toggleMenu - Function to toggle the menu's width.
+ * @param togglePaneRegion - Function to toggle a pane region.
+ * @param completePanesClose - [INTERNAL ONLY] Function to complete the panes close.
+ */
 export interface LayoutActions {
   setPane: (pane: PaneSpec | Partial<PaneSpec>) => void;
   setPanes: (panes: (PaneSpec | Partial<PaneSpec>)[]) => void;
@@ -33,6 +49,9 @@ export interface LayoutActions {
   completePanesClose: () => void;
 }
 
+/**
+ * Returns {@link LayoutActions}
+ */
 export function useLayoutActions(): LayoutActions {
   const menuExpandedRef = useRef<boolean>(false);
   const panesRef = useRef<PaneSpec[]>([]);

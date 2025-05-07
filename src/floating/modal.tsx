@@ -112,7 +112,7 @@ export function Modal({
                           tabIndex={0}
                           variant={Variant.Default}
                           onClick={onCancel}
-                          disabled={submitDisabled}
+                          disabled={dismissDisabled}
                         >
                           Cancel
                         </Button>

@@ -115,7 +115,7 @@ function InnerMenu({
                     leftMenuItem.id,
                     event,
                   );
-                  togglePaneRegion(PaneRegion.Left, leftMenuItem.id);
+                  togglePaneRegion(PaneRegion.Left, leftMenuItem.id, leftMenuItem.preventClose);
                 };
                 void callFn(e);
               }}

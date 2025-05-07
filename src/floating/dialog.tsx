@@ -46,6 +46,7 @@ export function Dialog({
           <AlertDialog.Content
             forceMount
             className={clsx(
+              "responsive",
               variant,
               "flex flex-col focus:outline-hidden overflow-clip",
               "card animated-modal",

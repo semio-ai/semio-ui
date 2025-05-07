@@ -94,7 +94,7 @@ function InnerToast({ data }: { data: ToastData }) {
           "data-[swipe=end]:animate-toastSwipeOut",
           "data-[swipe=cancel]:transition-[transform_200ms_ease-out]",
           data.variant,
-          "card",
+          "card responsive",
         )}
         initial={{ x: width + margin }}
         animate={{ x: 0 }}
@@ -120,7 +120,7 @@ function InnerToast({ data }: { data: ToastData }) {
             className={clsx(
               "text-[15px] flex-row flex items-center gap-3",
               data.variant,
-              "variant-static-text",
+              "variant-static-text responsive",
             )}
           >
             <ProgressCircle

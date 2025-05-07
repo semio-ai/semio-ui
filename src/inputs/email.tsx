@@ -1,6 +1,7 @@
 import { InputHTMLAttributes, ForwardedRef, forwardRef } from "react";
 import { Size, Variant } from "../types";
 import { TextField } from "./text-field";
+import { Label } from "./label";
 
 export interface EmailInputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, "size"> {
   invalid?: boolean;
@@ -24,11 +25,11 @@ export const EmailInput = forwardRef(
     const usedVariant = invalid && !isEmpty ? Variant.Error : variant;
 
     return (
-      <label>
-        <div className="flex flex-row justify-between items-center p-0.5">
-          <span className="capitalize text-md text-neutral-500">{props.name ?? "Email"}</span>
-          {invalid && <span className="text-xs text-error-500">{message}</span>}
-        </div>
+      <Label
+        label={props.name ?? "Email"}
+        message={invalid ? message : undefined}
+        variant={usedVariant}
+      >
         <TextField
           bg
           ref={ref}
@@ -40,21 +41,7 @@ export const EmailInput = forwardRef(
           className="w-full"
           aria-invalid={invalid}
         />
-
-        {/* <div
-          className={clsx(
-            "dark:bg-neutral-800/80 bg-neutral-200/80",
-            "dark:autofill:bg-neutral-800/80 autofill:bg-neutral-200/80",
-            "focus-within:outline focus-within:outline-offset-2",
-            usedVariant === Variant.Error && "outline outline-offset-2",
-            getOutline(usedVariant),
-            getTextCaretColor(usedVariant),
-            getHeight(size),
-          )}
-        >
-          <StyledInput ref={ref} size={size} {...props} />
-        </div> */}
-      </label>
+      </Label>
     );
   },
 );
