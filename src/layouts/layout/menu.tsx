@@ -19,7 +19,6 @@ import { useLayoutActions } from "../../hooks/use-layout-actions";
 import { MenuItemClickFn, PaneRegion, Variant } from "../../types";
 import { ContextMenu } from "../../floating/context-menu";
 import { NestedSelect } from "../../nested-elements/select";
-import { NestedItem } from "../../nested-elements/item";
 import { NestedRadio } from "../../nested-elements/radio";
 
 function InnerMenu({
