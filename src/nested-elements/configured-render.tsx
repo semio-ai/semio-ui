@@ -7,7 +7,14 @@ import { NestedMenu } from "./menu";
 import { NestedRadio } from "./radio";
 import { NestedSelect } from "./select";
 import { NestedSeparator } from "./separator";
+import { NestedStatic } from "./static";
 
+/**
+ * A component that renders any of the major nested elements in an abstracted way.
+ *
+ * @param props - The props for the NestedChild component ({@link ConfiguredNestedChild}).
+ * @returns The rendered NestedChild component.
+ */
 export function NestedChild(props: ConfiguredNestedChild): ReactNode {
   if (props.type === "menu") {
     const { children, ...nestedMenuProps } = props;
@@ -33,5 +40,7 @@ export function NestedChild(props: ConfiguredNestedChild): ReactNode {
       return <NestedSelect {...props} />;
     case "separator":
       return <NestedSeparator {...props} />;
+    case "static":
+      return <NestedStatic {...props} />;
   }
 }

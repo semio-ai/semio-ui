@@ -7,6 +7,12 @@ import { useNestedParent } from "./context";
 import { NestedParent } from "./types";
 import type { NestedCheckboxProps } from "./types";
 
+/**
+ * A component that renders a nested checkbox with optional child checkboxes.
+ *
+ * @param props - The props for the NestedCheckbox component ({@link NestedCheckboxProps}).
+ * @returns The rendered NestedCheckbox component.
+ */
 export function NestedCheckbox({
   variant,
   disabled,

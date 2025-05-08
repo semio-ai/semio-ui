@@ -24,7 +24,7 @@ export function NestedItem({ left, children, right, variant, disabled, onClick }
         <div
           className={clsx(
             "absolute left-1 inline-flex items-center justify-center",
-            "responsive check-indicator",
+            "responsive check-indicator list-item-extra highlight-list-item",
             variant,
           )}
         >

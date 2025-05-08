@@ -8,6 +8,12 @@ import { NestedParent, type NestedMenuProps } from "./types";
 import { useNestedParent } from "./context";
 import { NestedLabel } from "./label";
 
+/**
+ * A component that renders a nested menu with optional sub-menus.
+ *
+ * @param props - The props for the NestedMenu component ({@link NestedMenuProps}).
+ * @returns The rendered NestedMenu component.
+ */
 export function NestedMenu({
   left,
   children,
@@ -27,7 +33,6 @@ export function NestedMenu({
   const [SubComponent, SubTriggerComponent, PortalComponent, SubContentComponent, props] =
     useMemo(() => {
       // In the case of a mobile device, render the sub-menu as a collapsible element
-      console.log(desktop, parent);
       if (!desktop)
         return [Collapsible.Root, Collapsible.Trigger, Fragment, Collapsible.Content, {}];
       else if (parent === NestedParent.Dropdown)

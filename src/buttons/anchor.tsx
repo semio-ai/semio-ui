@@ -12,7 +12,12 @@ export function Anchor({ onClick, variant, children }: AnchorProps) {
     <button
       type="button"
       onClick={onClick}
-      className={clsx(variant, "variant-responsive-text focus:outline-hidden")}
+      className={clsx(
+        variant,
+        "responsive",
+        "variant-responsive-text focus:outline-hidden",
+        "cursor-pointer disabled:cursor-default",
+      )}
     >
       {children}
     </button>

@@ -82,7 +82,6 @@ export * from "./layouts/accordion";
 export * from "./layouts/collapse";
 export * from "./layouts/layout";
 export * from "./layouts/layout/root";
-export * from "./layouts/menu";
 export * from "./layouts/scroll-area";
 export * from "./layouts/separator";
 

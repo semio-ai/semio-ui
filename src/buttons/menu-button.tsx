@@ -68,6 +68,7 @@ function InnerMenuButton(
       aria-selected={active}
       className={clsx(
         variant,
+        "cursor-pointer disabled:cursor-default",
         "w-9 group/tab h-9 overflow-hidden",
         "desktop:group-data-expanded/menu:w-[188px]",
         "overflow-hidden transition-all",

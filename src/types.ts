@@ -147,7 +147,7 @@ export type ToolbarItem = ToolbarWidget | ToolbarSpacer;
 
 export type MenuItemClickFn = (
   id: string,
-  event: MouseEvent<HTMLButtonElement>,
+  event?: MouseEvent<HTMLButtonElement>,
 ) => Promise<void> | void;
 
 export enum PaneRegion {

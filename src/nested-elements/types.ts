@@ -19,16 +19,32 @@ export enum NestedParent {
   Dropdown = "dropdown",
 }
 
+/**
+ * @prop value: The value of the checkbox.
+ * @prop label: The label for the checkbox.
+ * @prop variant: The variant of the checkbox. Defaults to {@link Variant.Default}
+ * @prop onChange: The function to call when the checkbox changes.
+ * @prop color: The color of the checkbox. Overridees styling from variants.
+ * @prop disabled: Whether the checkbox is disabled.
+ * @prop icon: The icon to display next to the checkbox.
+ */
 export interface NestedCheckboxProps {
-  variant?: Variant;
-  onChange?: (value: boolean) => void;
   value: boolean;
   label: string;
+  variant?: Variant;
+  onChange?: (value: boolean) => void;
   color?: string;
   disabled?: boolean;
   icon?: ReactNode;
 }
 
+/**
+ * @prop value: The color in either {@link RawColor or string format}.
+ * @prop onChange: The function to call when the color changes.
+ * @prop disabled: Whether the color picker is disabled.
+ * @prop label: The label for the color picker.
+ * @prop variant: The variant of the color picker. Defaults to {@link Variant.Default}
+ */
 export interface NestedColorPickerProps<T extends string | RawColor> {
   value: T;
   onChange: (value: T) => void;
@@ -37,6 +53,14 @@ export interface NestedColorPickerProps<T extends string | RawColor> {
   variant?: Variant;
 }
 
+/**
+ * @prop left: The left-side icon or element.
+ * @prop children: The content of the item (usually text).
+ * @prop right: The right-side icon or element.
+ * @prop variant: The variant of the menu item. Defaults to {@link Variant.Default}
+ * @prop disabled: Whether the menu is disabled.
+ * @prop onClick: The function to call when the item is clicked.
+ */
 export interface NestedItemProps {
   left?: ReactNode;
   children: ReactNode;
@@ -46,11 +70,32 @@ export interface NestedItemProps {
   onClick?: (event: MouseEvent) => void;
 }
 
+/**
+ * @prop children: The content of the element.
+ * @prop className: The class name for the wrapper of the element.
+ */
+export interface NestedStaticProps {
+  children: ReactNode;
+  className?: string;
+}
+
+/**
+ * @prop children: The content of the label.
+ * @prop className: The class name for the label.
+ */
 export interface NestedLabelProps {
   children: ReactNode;
   className?: string;
 }
 
+/**
+ * @prop left: The left-side icon or element.
+ * @prop children: The content of the menu item.
+ * @prop label: The label for the menu.
+ * @prop variant: The variant of the menu item. Defaults to {@link Variant.Default}
+ * @prop disabled: Whether the menu is disabled.
+ * @prop hideHeader: Whether to hide the header of the menu.
+ */
 export interface NestedMenuProps {
   left?: ReactNode;
   children: ReactNode;
@@ -60,6 +105,14 @@ export interface NestedMenuProps {
   hideHeader?: boolean;
 }
 
+/**
+ * @prop label: The label for the option
+ * @prop value: The value for the option. This should match the value specified.
+ * @prop disabled: Whether the option is disabled.
+ * @prop variant: The variant of the option. Defaults to {@link Variant.Default}
+ * @prop color: The color of the option. Overridees styling from variants.
+ * @prop icon: The icon to display next to the option.
+ */
 export interface NestedOption {
   label: string;
   value: string;
@@ -69,6 +122,13 @@ export interface NestedOption {
   icon?: ReactNode;
 }
 
+/**
+ * @prop variant: The variant of the radio collection. Defaults to {@link Variant.Default}
+ * @prop disabled: Whether the radio collection is disabled.
+ * @prop onChange: The function to call when the radio collection changes.
+ * @prop value: The value of the radio collection.
+ * @prop options: The options for the radio collection (see {@link NestedOption}).
+ */
 export interface NestedRadioProps {
   variant?: Variant;
   disabled?: boolean;
@@ -77,6 +137,13 @@ export interface NestedRadioProps {
   options: NestedOption[];
 }
 
+/**
+ * @prop variant: The variant of the select collection. Defaults to {@link Variant.Default}
+ * @prop disabled: Whether the select collection is disabled.
+ * @prop onChange: The function to call when the select collection changes.
+ * @prop values: The values of the select collection.
+ * @prop options: The options for the select collection (see {@link NestedOption}).
+ */
 export interface NestedSelectProps {
   variant?: Variant;
   disabled?: boolean;
@@ -85,6 +152,9 @@ export interface NestedSelectProps {
   options: NestedOption[];
 }
 
+/**
+ * @prop variant: The variant of the separator. Defaults to {@link Variant.Default}
+ */
 export interface NestedSeparatorProps {
   variant?: Variant;
 }
@@ -103,4 +173,5 @@ export type ConfiguredNestedChild =
   | (ConfiguredNestedMenu & { type: "menu"; children: ConfiguredNestedChild[] })
   | (NestedRadioProps & { type: "radio"; id: string })
   | (NestedSelectProps & { type: "select"; id: string })
-  | (NestedSeparatorProps & { type: "separator"; id: string });
+  | (NestedSeparatorProps & { type: "separator"; id: string })
+  | (NestedStaticProps & { type: "static"; id: string });

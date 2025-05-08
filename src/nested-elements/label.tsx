@@ -3,6 +3,12 @@ import { clsx } from "clsx";
 import { NestedParent, type NestedLabelProps } from "./types";
 import { useNestedParent } from "./context";
 
+/**
+ * A component that renders a nested label with optional child labels.
+ *
+ * @param props - The props for the NestedLabel component ({@link NestedLabelProps}).
+ * @returns The rendered NestedLabel component.
+ */
 export function NestedLabel({ children, className }: NestedLabelProps) {
   const parent = useNestedParent();
 

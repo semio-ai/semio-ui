@@ -58,6 +58,12 @@ export const rightWidthAtom = atom<string>((get) => {
   return `max(${right.map((l) => formatSize(l.size)).join(",")})`;
 });
 
+export const rightPaneIdsAtom = atom<string[]>((get) => {
+  const panes = get(panesAtom);
+  const right = panes.filter((pane) => pane.region === PaneRegion.Right && !pane.disabled);
+  return right.map((v) => v.id);
+});
+
 export const contentWidthAtom = atom<string>((get) => {
   const panes = get(panesAtom);
   const leftFull = panes.find((pane) => pane.region === PaneRegion.Left && pane.size === "full");
@@ -111,6 +117,11 @@ export function useLeftMenuItems() {
 export function useRightMenuItems() {
   const rightMenuItems = useAtomValue(rightMenuItemsAtom);
   return rightMenuItems;
+}
+
+export function useRightPaneIds() {
+  const rightPaneIds = useAtomValue(rightPaneIdsAtom);
+  return rightPaneIds;
 }
 
 export function useLeftWidth() {

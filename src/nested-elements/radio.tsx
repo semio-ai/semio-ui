@@ -5,6 +5,12 @@ import { clsx } from "clsx";
 import { NestedParent, type NestedRadioProps } from "./types";
 import { useNestedParent } from "./context";
 
+/**
+ * A component that renders a nested radio button with optional child radio buttons.
+ *
+ * @param props - The props for the NestedRadio component ({@link NestedRadioProps}).
+ * @returns The rendered NestedRadio component.
+ */
 export function NestedRadio({ variant, disabled, onChange, value, options }: NestedRadioProps) {
   const parent = useNestedParent();
 
@@ -22,7 +28,6 @@ export function NestedRadio({ variant, disabled, onChange, value, options }: Nes
         e.stopPropagation();
       }}
     >
-      {/* <ScrollArea> */}
       {options.map((option) => (
         <ItemComponent
           key={option.value}
@@ -60,7 +65,6 @@ export function NestedRadio({ variant, disabled, onChange, value, options }: Nes
           {option.label}
         </ItemComponent>
       ))}
-      {/* </ScrollArea> */}
     </GroupComponent>
   );
 }

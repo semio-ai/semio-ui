@@ -43,7 +43,7 @@ function InnerHeader({ homeIcon }: { homeIcon?: ReactNode }) {
         <span className="grid desktop:hidden place-items-center flex-none">
           <Dropdown
             side="bottom"
-            disabled={!homeActionItem || homeActionItem.children.length === 0}
+            disabled={!homeActionItem || homeActionItem.children.length + actionItems.length === 0}
             trigger={
               <span>
                 <button
@@ -74,7 +74,7 @@ function InnerHeader({ homeIcon }: { homeIcon?: ReactNode }) {
         })}
 
         <Dropdown
-          disabled={mobileMenuItems.length === 0}
+          disabled={mobileMenuItems.length + actionItems.length === 0}
           trigger={
             <HeaderButton
               className="grid desktop:hidden flex-none"

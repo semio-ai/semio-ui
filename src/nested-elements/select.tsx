@@ -1,11 +1,16 @@
 import { DropdownMenu, ContextMenu } from "radix-ui";
 import { type CSSProperties } from "react";
 import { IconCheck, IconPoint } from "@tabler/icons-react";
-import { alpha, altColor } from "@semio/utils";
 import { clsx } from "clsx";
 import { NestedParent, type NestedSelectProps } from "./types";
 import { useNestedParent } from "./context";
 
+/**
+ * A component that renders a select section in a nested menu.
+ *
+ * @param props - The props for the Select component ({@link NestedSelectProps}).
+ * @returns The rendered NestedSelect section component.
+ */
 export function NestedSelect({ variant, disabled, onChange, values, options }: NestedSelectProps) {
   const parent = useNestedParent();
 
@@ -44,9 +49,6 @@ export function NestedSelect({ variant, disabled, onChange, values, options }: N
             option.color
               ? ({
                   "--custom-color": option.color,
-                  "--darker-custom-color": altColor(option.color, -0.1),
-                  "--lighter-custom-color": altColor(option.color, 0.2),
-                  "--deemphasized-custom-color": alpha(option.color, 0.5),
                   // "--text-color": option.color,
                 } as CSSProperties)
               : {}
