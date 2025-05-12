@@ -14,7 +14,7 @@ export function PanelContent({ region }: { region: PaneRegion }) {
   return (
     <AnimatePresence mode="wait" onExitComplete={completePanesClose}>
       {panes.map((pane) => {
-        if (pane.region === region && !pane.shouldClose) {
+        if (pane.region === region && pane.content && !pane.shouldClose) {
           const variants = getVariants(
             !desktop ? PaneRegion.Footer : region,
             pane?.size === "full",

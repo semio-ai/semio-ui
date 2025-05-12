@@ -37,7 +37,7 @@ function InnerHeader({ homeIcon }: { homeIcon?: ReactNode }) {
       <div
         className={clsx(
           "h-10 flex items-center justify-stretch",
-          "flex-row w-full gap-2 desktop:gap-1 px-1 desktop:pr-0 desktop:px-0",
+          "flex-row w-full gap-2 desktop:gap-1 pl-1 pr-1 desktop:pl-0",
         )}
       >
         <span className="grid desktop:hidden place-items-center flex-none">

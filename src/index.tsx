@@ -79,6 +79,7 @@ export * from "./inputs/toggle-square";
 
 // Layouts
 export * from "./layouts/accordion";
+export * from "./layouts/breadcrumbs";
 export * from "./layouts/collapse";
 export * from "./layouts/layout";
 export * from "./layouts/layout/root";

@@ -38,7 +38,9 @@ export const footerRegionActiveAtom = atom<boolean>((get) => {
 
 export const leftWidthAtom = atom<string>((get) => {
   const panes = get(panesAtom);
-  const left = panes.filter((pane) => pane.region === PaneRegion.Left);
+  const left = panes.filter(
+    (pane) => pane.region === PaneRegion.Left && pane.content !== undefined,
+  );
   if (left.length === 0) return "0fr";
   if (left.find((l) => l.size === "full")) return "1fr";
   if (left.length === 1) {
@@ -49,7 +51,9 @@ export const leftWidthAtom = atom<string>((get) => {
 
 export const rightWidthAtom = atom<string>((get) => {
   const panes = get(panesAtom);
-  const right = panes.filter((pane) => pane.region === PaneRegion.Right);
+  const right = panes.filter(
+    (pane) => pane.region === PaneRegion.Right && pane.content !== undefined,
+  );
   if (right.length === 0) return "0fr";
   if (right.find((l) => l.size === "full")) return "1fr";
   if (right.length === 1) {
@@ -66,8 +70,12 @@ export const rightPaneIdsAtom = atom<string[]>((get) => {
 
 export const contentWidthAtom = atom<string>((get) => {
   const panes = get(panesAtom);
-  const leftFull = panes.find((pane) => pane.region === PaneRegion.Left && pane.size === "full");
-  const rightFull = panes.find((pane) => pane.region === PaneRegion.Right && pane.size === "full");
+  const leftFull = panes.find(
+    (pane) => pane.region === PaneRegion.Left && pane.content && pane.size === "full",
+  );
+  const rightFull = panes.find(
+    (pane) => pane.region === PaneRegion.Right && pane.content && pane.size === "full",
+  );
   if (leftFull || rightFull) return "0fr";
   return `1fr`;
 });

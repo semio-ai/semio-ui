@@ -74,6 +74,34 @@
     }
   }
 
+  .variant-responsive-appearing-bg {
+    @apply transition-colors duration-[50ms] ease-in-out rounded-xs;
+    @apply disabled:cursor-not-allowed;
+
+    background-color: transparent;
+    &:hover {
+      @media (hover: hover) {
+        background-color: color-mix(in oklab, var(--accent-color) 25%, transparent);
+
+        &:disabled {
+          background-color: transparent;
+        }
+
+        &[data-deemphasized="true"] {
+          background-color: transparent;
+        }
+      }
+    }
+
+    &:disabled {
+      background-color: transparent;
+    }
+
+    &[data-deemphasized="true"] {
+      background-color: transparent;
+    }
+  }
+
   .variant-responsive-header-button-bg {
     @apply transition-colors duration-[50ms] ease-in-out rounded-xs;
     @apply disabled:cursor-not-allowed;
@@ -894,7 +922,7 @@
           0,
           var(--content-size)
         )
-        var(--padding-width)
+        var(--content-right-gap)
         var(--right-size);
       grid-template-rows: auto var(--padding-width) 1fr var(--content-footer-gap) minmax(0, auto);
     }

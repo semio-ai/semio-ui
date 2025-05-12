@@ -34,8 +34,14 @@ function InnerLayoutRoot({
   const root = useRef<HTMLDivElement>();
   const [contentRef, contentBounds] = useMeasure();
 
-  const { contentWidth, leftWidth, rightWidth, leftRegionActive, footerRegionActive } =
-    useLayoutState();
+  const {
+    contentWidth,
+    leftWidth,
+    rightWidth,
+    leftRegionActive,
+    footerRegionActive,
+    rightRegionActive,
+  } = useLayoutState();
 
   useGesture(
     {
@@ -58,7 +64,11 @@ function InnerLayoutRoot({
           "--content-size": contentWidth,
           "--left-size": leftWidth,
           "--right-size": rightWidth,
-          "--content-left-gap": leftRegionActive && !leftWidth.includes("1fr") ? "4px" : "0px",
+          "--content-right-gap": rightRegionActive ? "4px" : "0px",
+          "--content-left-gap":
+            leftRegionActive && !leftWidth.includes("1fr") && !leftWidth.includes("0fr")
+              ? "4px"
+              : "0px",
           "--content-footer-gap": footerRegionActive ? "4px" : "0px",
         } as CSSProperties
       }

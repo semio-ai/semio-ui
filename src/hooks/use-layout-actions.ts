@@ -31,17 +31,22 @@ import {
  */
 export interface LayoutActions {
   setPane: (pane: PaneSpec | Partial<PaneSpec>) => void;
-  setPanes: (panes: (PaneSpec | Partial<PaneSpec>)[]) => void;
+  setPanes: (panes: (PaneSpec | Partial<PaneSpec>)[], replace?: boolean) => void;
   removePane: (id: string) => void;
+  removePanes: (ids: string[]) => void;
   setToolbarItem: (
     item: Partial<ToolbarItem> & { id: string; type: "toolbar-widget" | "toolbar-spacer" },
   ) => void;
   setToolbarItems: (
     items: (Partial<ToolbarItem> & { id: string; type: "toolbar-widget" | "toolbar-spacer" })[],
+    replace?: boolean,
   ) => void;
   removeToolbarItem: (id: string) => void;
   setActionItem: (item: ActionItem | (Partial<ActionItem> & { id: string })) => void;
-  setActionItems: (panes: (ActionItem | (Partial<ActionItem> & { id: string }))[]) => void;
+  setActionItems: (
+    panes: (ActionItem | (Partial<ActionItem> & { id: string }))[],
+    replace?: boolean,
+  ) => void;
   removeActionItem: (id: string) => void;
   setHomeActionItem: (item: ActionItem | undefined) => void;
   toggleMenu: () => void;
@@ -96,15 +101,27 @@ export function useLayoutActions(): LayoutActions {
   );
 
   const setPanesNice = useCallback(
-    (panes: (PaneSpec | Partial<PaneSpec>)[]) => {
-      panes.forEach(setPane);
+    (panes: (PaneSpec | Partial<PaneSpec>)[], replace?: boolean) => {
+      if (replace) {
+        setPanes(panes.map((pane) => ({ ...createPane(), ...pane })));
+      } else {
+        panes.forEach(setPane);
+      }
     },
-    [setPane],
+    [setPane, setPanes],
   );
 
   const removePane = useCallback(
     (id: string) => {
       const newPanes = panesRef.current.filter((p) => p.id !== id);
+      setPanes(newPanes);
+    },
+    [setPanes, panesRef],
+  );
+
+  const removePanes = useCallback(
+    (ids: string[]) => {
+      const newPanes = panesRef.current.filter((p) => !ids.includes(p.id));
       setPanes(newPanes);
     },
     [setPanes, panesRef],
@@ -130,10 +147,19 @@ export function useLayoutActions(): LayoutActions {
   const setToolbarItemsNice = useCallback(
     (
       items: (Partial<ToolbarItem> & { id: string; type: "toolbar-widget" | "toolbar-spacer" })[],
+      replace?: boolean,
     ) => {
-      items.forEach(setToolbarItem);
+      if (replace) {
+        setToolbarItems(
+          items.map((item) =>
+            item.type === "toolbar-spacer" ? item : { component: null, ...item },
+          ),
+        );
+      } else {
+        items.forEach(setToolbarItem);
+      }
     },
-    [setToolbarItem],
+    [setToolbarItems, setToolbarItem],
   );
 
   const removeToolbarItem = useCallback(
@@ -156,10 +182,14 @@ export function useLayoutActions(): LayoutActions {
   );
 
   const setActionItemsNice = useCallback(
-    (items: (ActionItem | (Partial<ActionItem> & { id: string }))[]) => {
-      items.forEach(setActionItem);
+    (items: (ActionItem | (Partial<ActionItem> & { id: string }))[], replace?: boolean) => {
+      if (replace) {
+        setActionItems(items.map((item) => ({ ...createActionItem(), ...item })));
+      } else {
+        items.forEach(setActionItem);
+      }
     },
-    [setActionItem],
+    [setActionItem, setActionItems],
   );
 
   const removeActionItem = useCallback(
@@ -188,10 +218,17 @@ export function useLayoutActions(): LayoutActions {
       // Don't close the pane directly, but set the flag so that it knows it should close
       if (currentPaneInRegion && !preventSameClose) {
         const newPanes = panesRef.current.map((p) =>
-          p.id === id ? { ...p, shouldClose: true } : p,
+          // If the pane has content, set it to close. Otherwise, set the region to undefined directly
+          p.id === id
+            ? {
+                ...p,
+                shouldClose: p.content !== undefined,
+                region: p.content ? p.region : undefined,
+              }
+            : p,
         );
         setPanes(newPanes);
-      } else {
+      } else if (!currentPaneInRegion) {
         const newPanes = panesRef.current.map((p) =>
           p.id === id
             ? { ...p, region }
@@ -207,6 +244,7 @@ export function useLayoutActions(): LayoutActions {
     setPane,
     setPanes: setPanesNice,
     removePane,
+    removePanes,
     setToolbarItem,
     setToolbarItems: setToolbarItemsNice,
     removeToolbarItem,
