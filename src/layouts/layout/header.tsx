@@ -73,6 +73,8 @@ function InnerHeader({ homeIcon }: { homeIcon?: ReactNode }) {
           return null;
         })}
 
+        <div className="h-9 flex desktop:hidden flex-1" />
+
         <Dropdown
           disabled={mobileMenuItems.length + actionItems.length === 0}
           trigger={

@@ -74,6 +74,13 @@
     }
   }
 
+  .variant-static-bg-25 {
+    @apply transition-colors duration-[50ms] ease-in-out rounded-xs;
+    @apply disabled:cursor-not-allowed;
+
+    background-color: color-mix(in oklab, var(--standard-color) 25%, transparent);
+  }
+
   .variant-responsive-appearing-bg {
     @apply transition-colors duration-[50ms] ease-in-out rounded-xs;
     @apply disabled:cursor-not-allowed;

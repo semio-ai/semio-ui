@@ -1,18 +1,22 @@
 import { Tabs as TabsPrimitive } from "radix-ui";
-import { type ReactNode } from "react";
-import useMeasure from "react-use-measure";
+import { useCallback, useEffect, useMemo, useRef, type ReactNode } from "react";
+import { motion, useSpring } from "motion/react";
+import { IconHexagon } from "@tabler/icons-react";
 import { clsx } from "clsx";
-import { Select } from "../floating/select";
 import { Tooltip } from "../floating/tooltip";
-import { Size } from "../types";
+import { Size, Variant } from "../types";
 
 export interface TabChild {
   title: string;
   key: string;
+  variant?: Variant;
+  icon?: ReactNode;
   content: ReactNode;
 }
 
 export interface TabsProps {
+  visuals?: "icons" | "labels" | "both";
+  size?: Size;
   children: TabChild[];
   selected?: string;
   onTabChange: (key: string) => void;
@@ -23,6 +27,8 @@ export interface TabsProps {
 }
 
 export function Tabs({
+  visuals = "both",
+  size,
   children,
   selected,
   onTabChange,
@@ -31,110 +37,134 @@ export function Tabs({
   defaultContent,
   emptyTabText = "No tabs",
 }: TabsProps): ReactNode {
-  const [mainRef, mainBounds] = useMeasure();
-  const [leftRef, leftBounds] = useMeasure();
-  const [rightRef, rightBounds] = useMeasure();
+  const childrenTabs: TabChild[] = useMemo(
+    () =>
+      children.length > 0
+        ? children
+        : [
+            {
+              key: "default",
+              title: emptyTabText,
+              variant: Variant.Default,
+              content: defaultContent ?? <div className="w-full h-72">No Contents</div>,
+            },
+          ],
+    [children, defaultContent, emptyTabText],
+  );
 
-  const childrenTabs =
-    children.length > 0
-      ? children
-      : [{ key: "default", title: emptyTabText, content: defaultContent ?? "No Contents" }];
+  const itemIndex = childrenTabs.findIndex((tab) => tab.key === selected);
+  const activeIndex = itemIndex === -1 ? 0 : itemIndex;
+  const activeOption = childrenTabs[activeIndex];
 
-  const neededWidth = MIN_OPEN_TAB_WIDTH + MIN_CLOSED_TAB_WIDTH * (childrenTabs.length - 1);
-  const rootWidth = mainBounds.width ?? 0;
-  const leftWidth = leftBounds?.width ?? 0;
-  const rightWidth = rightBounds?.width ?? 0;
-  const mini = rootWidth - leftWidth - rightWidth < neededWidth;
+  const leftSpring = useSpring(0, { bounce: 0, visualDuration: 0.2 });
+  const widthSpring = useSpring(0, { bounce: 0, visualDuration: 0.2 });
+
+  const tabsRef = useRef<HTMLButtonElement[]>([]);
+
+  const updateTabPositions = useCallback(
+    (idx: number, immediate?: boolean) => {
+      const currentTab = tabsRef.current[idx];
+      if (immediate) {
+        leftSpring.jump((currentTab?.offsetLeft ?? 0) - 2);
+        widthSpring.jump(currentTab?.clientWidth ?? 0);
+      } else {
+        leftSpring.set((currentTab?.offsetLeft ?? 0) - 2);
+        widthSpring.set(currentTab?.clientWidth ?? 0);
+      }
+    },
+    [leftSpring, widthSpring],
+  );
+
+  useEffect(() => {
+    updateTabPositions(activeIndex, false);
+    const setTabPositionOnResize = () => updateTabPositions(activeIndex, true);
+    window.addEventListener("resize", setTabPositionOnResize);
+
+    return () => window.removeEventListener("resize", setTabPositionOnResize);
+  }, [activeIndex, updateTabPositions, childrenTabs]);
 
   return (
-    <div ref={mainRef}>
-      {mini && (
-        <div
+    <TabsPrimitive.Root
+      className={clsx("@container flex flex-col w-full gap-0.5", "cursor-pointer rounded-sm")}
+      value={selected ?? childrenTabs[0].key}
+      onValueChange={onTabChange}
+    >
+      <div className="flex items-center gap-1">
+        {leftWidget}
+        <TabsPrimitive.List
           className={clsx(
-            "flex flex-row",
-            "divide-x divide-solid dark:divide-layout-dark-separator/50 divide-layout-light-separator/50",
-            "border-b dark:border-layout-dark-separator/50 border-layout-light-separator/50",
+            "relative inline-flex flex-1 items-center rounded-sm overflow-clip",
+            "dark:bg-layout-dark-deep-inset bg-layout-light-deep-inset p-0.5 group/list",
           )}
         >
-          {leftWidget && (
-            <div ref={leftRef} className="flex flex-1 items-center">
-              {leftWidget}
-            </div>
-          )}
-          <div className="flex-1 p-[0.3rem]">
-            <Select
-              size={Size.Xs}
-              value={selected ?? childrenTabs[0].key}
-              onChange={(v) => onTabChange(v as string)}
-              options={childrenTabs.map((child) => ({ value: child.key, label: child.title }))}
-            />
-          </div>
-          {rightWidget && (
-            <div ref={rightRef} className="flex flex-1 items-center">
-              {rightWidget}
-            </div>
-          )}
-        </div>
-      )}
-      {!mini && (
-        <TabsPrimitive.Root
-          className={clsx("flex flex-col w-full", "cursor-pointer")}
-          value={selected ?? childrenTabs[0].key}
-          onValueChange={onTabChange}
-        >
-          <TabsPrimitive.List
+          <motion.div
+            layout
             className={clsx(
-              "flex flex-row items-center",
-              "dark:bg-layout-dark-base bg-layout-light-base",
-              "dark:text-neutral-200 text-neutral-800",
-              "divide-x divide-solid dark:divide-layout-dark-separator/50 divide-layout-light-separator/50",
-              "border-b dark:border-layout-dark-separator/50 border-layout-light-separator/50",
+              "absolute responsive",
+              "rounded-xs sized-inner-group-item",
+              "variant-static-bg-25",
+              "variant-static-persistent-outline",
+              size,
+              activeOption?.variant ?? Variant.Default,
             )}
-          >
-            {leftWidget && <div ref={leftRef}>{leftWidget}</div>}
-            {childrenTabs.map((tabChild) => (
-              <Tooltip key={tabChild.key} content={tabChild.title}>
-                <TabsPrimitive.Trigger
-                  className={clsx(
-                    "flex-1 text-nowrap px-2 h-[30px] transition-all",
-                    "dark:aria-selected:bg-layout-dark-inset",
-                    "aria-selected:bg-layout-light-inset",
-                    "dark:hover:bg-[#2D2D2D]",
-                    "hover:bg-[#d9d9d9]",
-                    "text-neutral-500 aria-selected:text-neutral-900 dark:aria-selected:text-neutral-100",
-                    "ring-[1px] ring-transparent aria-selected:ring-neutral-500/50 ring-inset",
-                    "aria-selected:min-w-[140px] min-w-10",
-                    "overflow-hidden text-ellipsis",
-                    "text-xs",
-                  )}
-                  value={tabChild.key}
-                  key={tabChild.key}
-                >
-                  {tabChild.title}
-                </TabsPrimitive.Trigger>
-              </Tooltip>
-            ))}
-            {rightWidget && <div ref={rightRef}>{rightWidget}</div>}
-          </TabsPrimitive.List>
-          {childrenTabs.map((tabChild) => (
-            <TabsPrimitive.Content key={tabChild.key} value={tabChild.key}>
-              <div
+            style={{
+              x: leftSpring,
+              width: widthSpring,
+            }}
+          />
+
+          {childrenTabs.map((tabChild, tabIdx) => (
+            <Tooltip key={tabChild.key} content={tabChild.title}>
+              <TabsPrimitive.Trigger
+                data-state={tabIdx === activeIndex ? "on" : "off"}
+                ref={(el) => {
+                  if (el) {
+                    tabsRef.current[tabIdx] = el;
+                  }
+                }}
                 className={clsx(
-                  "cursor-default",
-                  // `border-${rootVariant[variant ?? Variant.WARNING]}-500`,
-                  // getBorder(variant),
+                  "responsive z-1",
+                  size,
+                  tabChild.variant,
+                  "sized-inner-group-item-height",
+                  "grid place-items-center transition-colors",
+                  selected ? "variant-responsive-text" : "variant-static-text",
+                  "flex-1 cursor-pointer",
                 )}
+                value={tabChild.key}
+                key={tabChild.key}
               >
-                {tabChild.content}
-              </div>
-            </TabsPrimitive.Content>
+                <div
+                  className={clsx(
+                    "responsive grid place-items-center",
+                    size,
+                    (visuals === "icons" || visuals === "labels") && "grid-cols-1 grid-rows-1",
+                    visuals === "both" && "grid-cols-[auto_auto] grid-rows-1",
+                    visuals === "icons" && "sized-inner-group-item",
+                  )}
+                >
+                  {(visuals === "icons" || visuals === "both") && (
+                    <p className="sized-inner-group-item grid place-items-center">
+                      {tabChild.icon ?? <IconHexagon className="size-2/5" />}
+                    </p>
+                  )}
+                  {(visuals === "labels" || visuals === "both") && (
+                    <p className={clsx("text-nowrap", visuals === "both" ? "pr-2" : "px-2")}>
+                      {tabChild.title}
+                    </p>
+                  )}
+                </div>
+              </TabsPrimitive.Trigger>
+            </Tooltip>
           ))}
-        </TabsPrimitive.Root>
-      )}
-      {mini && (childrenTabs.find((child) => child.key === selected)?.content ?? null)}
-    </div>
+        </TabsPrimitive.List>
+        {rightWidget}
+      </div>
+      {childrenTabs.map((tabChild) => (
+        <TabsPrimitive.Content key={tabChild.key} value={tabChild.key}>
+          <div className={clsx("cursor-default")}>{tabChild.content}</div>
+        </TabsPrimitive.Content>
+      ))}
+    </TabsPrimitive.Root>
   );
 }
-
-const MIN_OPEN_TAB_WIDTH = 140;
-const MIN_CLOSED_TAB_WIDTH = 40;

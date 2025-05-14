@@ -29,6 +29,7 @@ export interface BreadcrumbsProps {
   onChange?: (value: Record<string, string | undefined>) => void;
   showIcons?: boolean;
   elementClassName?: string;
+  separator?: ReactNode;
 }
 
 export function InnerBreadcrumbs({
@@ -39,6 +40,7 @@ export function InnerBreadcrumbs({
   onChange,
   showIcons = true,
   elementClassName,
+  separator,
 }: BreadcrumbsProps) {
   const renderedElements = useMemo(() => {
     return findRenderedElements(elements, values);
@@ -59,7 +61,7 @@ export function InnerBreadcrumbs({
   return (
     <div className={clsx(variant, "responsive flex items-center gap-2 variant-static-text")}>
       {renderedElements.map((element, idx) => (
-        <>
+        <div key={element.id} className="flex items-center gap-2">
           {element.type === "option" ? (
             <Dropdown
               key={element.id}
@@ -83,7 +85,7 @@ export function InnerBreadcrumbs({
                   {showIcons &&
                     element.options.find((option) => option.value === element.value)?.icon &&
                     (element.options.find((option) => option.value === element.value)?.icon ?? (
-                      <IconHexagon className="h-3/5 aspect-square" />
+                      <IconHexagon key="icon" className="h-3/5 aspect-square" />
                     ))}
                   {element.options.find((option) => option.value === element.value)?.label ??
                     element.value}
@@ -111,8 +113,15 @@ export function InnerBreadcrumbs({
               {element.render ? element.render(element.value) : element.value}
             </div>
           )}
-          {idx < renderedElements.length - 1 && <span className="opacity-25"> / </span>}
-        </>
+          {idx < renderedElements.length - 1 && !separator && (
+            <span key={`${element.id}-slash`} className="opacity-25">
+              /
+            </span>
+          )}
+          {idx < renderedElements.length - 1 && separator && (
+            <span key={`${element.id}-slash`}>{separator}</span>
+          )}
+        </div>
       ))}
     </div>
   );

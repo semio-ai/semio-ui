@@ -5,7 +5,7 @@ import { Variant } from "../types";
 
 export interface SeparatorProps {
   children?: ReactNode;
-  variant?: Variant | "custom" | "layout";
+  variant?: Variant;
   color?: string;
   orientation?: "horizontal" | "vertical";
   className?: string;
@@ -28,7 +28,7 @@ export function Separator({
         )}
         style={
           {
-            "--custom-color": variant === "custom" && color ? color : undefined,
+            "--custom-color": color,
           } as CSSProperties
         }
       >
@@ -36,9 +36,8 @@ export function Separator({
           orientation={orientation}
           className={clsx(
             "flex flex-1 data-[orientation=horizontal]:h-px data-[orientation=vertical]:w-px",
-            variant === "layout" && "dark:bg-layout-dark-separator/50 bg-layout-light-separator/50",
             color ? "custom-color" : variant,
-            "responsive variant-separator-fill",
+            "variant-separator-fill responsive",
           )}
         />
         {children}
@@ -46,9 +45,8 @@ export function Separator({
           orientation={orientation}
           className={clsx(
             "flex flex-1 data-[orientation=horizontal]:h-px data-[orientation=vertical]:w-px",
-            variant === "layout" && "dark:bg-layout-dark-separator/50 bg-layout-light-separator/50",
             color ? "custom-color" : variant,
-            "responsive variant-separator-fill",
+            "variant-separator-fill responsive",
           )}
         />
       </div>
@@ -58,15 +56,16 @@ export function Separator({
       <RadixSeparator.Root
         style={
           {
-            "--custom-color": variant === "custom" && color ? color : undefined,
+            "--custom-color": color,
           } as CSSProperties
         }
         orientation={orientation}
         className={clsx(
-          "flex data-[orientation=horizontal]:h-px data-[orientation=vertical]:w-px",
-          variant === "layout" && "dark:bg-layout-dark-separator/50 bg-layout-light-separator/50",
+          "data-[orientation=horizontal]:h-[1px] data-[orientation=vertical]:w-[1px]",
+          // "data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full",
           color ? "custom-color" : variant,
-          "variant-separator-fill",
+          "variant-separator-fill responsive",
+          className,
         )}
       />
     );

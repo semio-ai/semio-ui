@@ -34,7 +34,7 @@ export function PanelContent({ region }: { region: PaneRegion }) {
             >
               {pane.region === PaneRegion.Right && (
                 <HeaderButton
-                  className={clsx("absolute top-1 right-1")}
+                  className={clsx("absolute top-1 right-1 z-1")}
                   variant={Variant.Default}
                   size={Size.Md}
                   label="Toggle Menu"
@@ -46,7 +46,9 @@ export function PanelContent({ region }: { region: PaneRegion }) {
                       )}
                     />
                   }
-                  onClick={() => togglePaneRegion(PaneRegion.Right, pane.id)}
+                  onClick={() => {
+                    togglePaneRegion(PaneRegion.Right, pane.id, pane.preventClose);
+                  }}
                 />
               )}
               {pane.content}

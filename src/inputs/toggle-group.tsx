@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { ToggleGroup as RadixToggleGroup } from "radix-ui";
-import { altColor } from "@semio/utils";
 import { motion } from "motion/react";
 import { clsx } from "clsx";
 import { Tooltip } from "../floating/tooltip";
@@ -108,8 +107,6 @@ export function ToggleGroup({
                 option.color
                   ? ({
                       "--custom-color": option.color,
-                      "--darker-custom-color": altColor(option.color, -0.1),
-                      "--lighter-custom-color": altColor(option.color, 0.2),
                     } as any)
                   : {}
               }

@@ -64,7 +64,9 @@ export const rightWidthAtom = atom<string>((get) => {
 
 export const rightPaneIdsAtom = atom<string[]>((get) => {
   const panes = get(panesAtom);
-  const right = panes.filter((pane) => pane.region === PaneRegion.Right && !pane.disabled);
+  const right = panes.filter(
+    (pane) => pane.inRightMenu && !pane.disabled && pane.content !== undefined,
+  );
   return right.map((v) => v.id);
 });
 
