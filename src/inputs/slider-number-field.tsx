@@ -80,6 +80,7 @@ const InnerSliderNumberField = forwardRef(
       onBlur: onBlurExternal,
       onFocus: onFocusExternal,
       className,
+      wrapperClassName,
       ...forwardedProps
     }: SliderNumberFieldProps,
     ref: ForwardedRef<HTMLInputElement>,
@@ -245,7 +246,7 @@ const InnerSliderNumberField = forwardRef(
           outline === "interact" && "variant-responsive-appearing-outline",
           outline === "always" && "variant-responsive-persistent-outline",
           size,
-          className,
+          wrapperClassName,
         )}
       >
         {label && (
@@ -254,7 +255,7 @@ const InnerSliderNumberField = forwardRef(
             value={label}
             onChange={(e) => onLabelChange?.(e.target.value)}
             readOnly={!onLabelChange || focusState === FocusState.Dragging}
-            style={{ width: `${(label.length + 1).toString()}ch` }}
+            style={{ width: `min(100px,${(label.length + 2).toString()}ch)` }}
             onKeyDown={(e) => {
               if (!disabled && e.key === "Enter") {
                 setFocusState(FocusState.Blurred);
@@ -288,6 +289,8 @@ const InnerSliderNumberField = forwardRef(
               "text-white/50 focus:outline-none focus:text-white/75 dark:focus:text-white/75",
               "pointer-events-none select-none group-has-focus/input-wrapper:pointer-events-auto group-has-focus/input-wrapper:select-auto",
               "transition-discrete transition-all delay-75",
+              // Show ellipsis when the text gets too long
+              "truncate px-1 flex-none",
             )}
           />
         )}
@@ -300,9 +303,8 @@ const InnerSliderNumberField = forwardRef(
           readOnly={focusState !== FocusState.Focused}
           onChange={onChangeInner}
           className={clsx(
-            "responsive grid-area-field",
+            "responsive grid-area-field w-full min-w-0",
             "focus:outline-hidden",
-            "min-w-0 max-w-[100%]",
             "disabled:cursor-not-allowed",
             focusState !== FocusState.Focused ? "cursor-ew-resize" : "cursor-text",
             "sized-text sized-height text-right px-0.5",
@@ -344,13 +346,13 @@ const InnerSliderNumberField = forwardRef(
           <input
             value={units}
             readOnly
-            style={{ width: `${(units.length + 1).toString()}ch` }}
+            style={{ width: `${(units.length + 2).toString()}ch` }}
             className={clsx(
               variant,
               size,
-              "grid-area-units text-right select-none px-0.5",
-              "grid place-items-center pointer-events-none w-fit sized-text",
-              "sized-height text-white/50 font-mono",
+              "grid-area-units text-right select-none pl-0.5 pr-2",
+              "grid place-items-center pointer-events-none sized-text",
+              "sized-height text-white/50 font-mono flex-none",
             )}
           />
         )}

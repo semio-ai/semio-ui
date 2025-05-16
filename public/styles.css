@@ -531,8 +531,8 @@
   }
 
   .variant-checkbox-bg {
-    @apply dark:bg-black bg-white transition-colors;
-    @apply disabled:bg-red-500;
+    @apply dark:bg-layout-dark-base bg-layout-light-base transition-colors;
+
     &:not(*:disabled) {
       &[data-state="checked"],
       &[data-state="on"] {
@@ -546,7 +546,7 @@
     }
 
     &:disabled {
-      @apply dark:bg-black/50 bg-white/50;
+      @apply dark:bg-layout-dark-base/50 bg-layout-light-base/50;
       &[data-state="checked"],
       &[data-state="on"] {
         background-color: color-mix(in oklab, var(--standard-color) 50%, transparent);
@@ -585,6 +585,10 @@
     @apply dark:group-data-[state=checked]/item:text-black group-data-[state=checked]/item:text-white;
     @apply group-data-[highlighted]/item:group-data-[state=unchecked]/item:text-white;
     @apply dark:group-data-[highlighted]/item:group-data-[state=unchecked]/item:text-black;
+  }
+
+  .responsive-accent-bg {
+    background-color: color-mix(in oklab, var(--accent-color) 80%, transparent);
   }
 
   .highlight-list-item {

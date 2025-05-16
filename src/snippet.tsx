@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import SyntaxHighlighter from "react-syntax-highlighter";
-import { atomOneDark, atomOneLight } from "react-syntax-highlighter/dist/esm/styles/hljs";
+import { Highlight, themes } from "prism-react-renderer";
+import { omit } from "lodash";
 import { clsx } from "clsx";
 import { IconClipboardCheck, IconClipboardPlus } from "@tabler/icons-react";
 import { useTheme } from "./hooks/use-theme";
@@ -39,15 +39,25 @@ export function Snippet({ text, language, className }: SnippetProps) {
           {language}
         </div>
       )}
-      <div className="relative dark:bg-neutral-800 bg-neutral-200">
-        <SyntaxHighlighter
-          customStyle={{ margin: 0, padding: "1rem", overflow: "auto", background: "transparent" }}
+      <div className="relative dark:bg-neutral-800 bg-neutral-200 p-1 min-h-12">
+        <Highlight
+          theme={resolvedTheme === Theme.Dark ? themes.vsDark : themes.vsLight}
+          code={text}
           language={language ?? "plaintext"}
-          style={resolvedTheme === Theme.Dark ? atomOneDark : atomOneLight}
-          codeTagProps={{ className: "bg-transparent" }}
         >
-          {text}
-        </SyntaxHighlighter>
+          {({ style, tokens, getLineProps, getTokenProps }) => (
+            <pre style={omit(style, "backgroundColor")} className="p-2">
+              {tokens.map((line, i) => (
+                <div key={i} {...getLineProps({ line })}>
+                  <span>{i + 1}</span>
+                  {line.map((token, key) => (
+                    <span key={key} {...getTokenProps({ token })} />
+                  ))}
+                </div>
+              ))}
+            </pre>
+          )}
+        </Highlight>
         <Tooltip
           variant={isCopied ? Variant.Success : Variant.Default}
           content={isCopied ? "Copied!" : "Copy"}
@@ -69,7 +79,7 @@ export function Snippet({ text, language, className }: SnippetProps) {
                 });
             }}
             leftIcon={isCopied ? <IconClipboardCheck /> : <IconClipboardPlus />}
-            className="absolute top-3 right-3"
+            className="absolute top-2 right-2"
           />
         </Tooltip>
       </div>

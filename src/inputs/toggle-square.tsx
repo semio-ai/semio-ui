@@ -32,11 +32,15 @@ export function ToggleSquare({
           "responsive",
           size,
           variant,
-          "sized-height sized-width rounded-xs",
+          "sized-inner-group-item rounded-xs",
           "flex items-center justify-center",
           "variant-checkbox-bg",
           "variant-responsive-appearing-outline",
-          "appearance-none dark:text-black text-white",
+          "appearance-none",
+          "dark:data-[state=on]:text-neutral-800",
+          "data-[state=on]:text-neutral-200",
+          "dark:data-[state=off]:text-neutral-200",
+          "data-[state=off]:text-neutral-800",
         )}
         pressed={value}
         onPressedChange={onChange}

@@ -152,7 +152,7 @@ const InnerNumberField = forwardRef(
             value={label}
             onChange={(e) => onLabelChange?.(e.target.value)}
             readOnly={!onLabelChange}
-            style={{ width: `${(label.length + 1).toString()}ch` }}
+            style={{ width: `min(100px,${(label.length + 2).toString()}ch)` }}
             onKeyDown={(e) => {
               if (!disabled && e.key === "Enter") {
                 setFocusState(FocusState.Blurred);
@@ -177,11 +177,13 @@ const InnerNumberField = forwardRef(
             className={clsx(
               color ? "custom-color" : variant,
               size,
-              "responsive grid-area-label sized-text place-items-center text-center rounded-[1px]",
+              "responsive grid-area-label sized-text place-items-center text-left px-0.5 rounded-[1px]",
               "sized-inner-group-item font-mono variant-text-caret-color group-has-focus/input-wrapper:bg-neutral-900/20",
               "text-white/50 focus:outline-none focus:text-white/75 dark:focus:text-white/75",
-              "pointer-events-none select-none group-has-focus/input-wrapper:pointer-events-auto group-has-focus/input-wrapper:select-auto",
-              "transition-discrete transition-all delay-75",
+              "select-none group-has-focus/input-wrapper:pointer-events-auto group-has-focus/input-wrapper:select-auto",
+              "pointer-events-none transition-discrete transition-all delay-75",
+              // Show ellipsis when the text gets too long
+              "truncate px-1 flex-none",
             )}
           />
         )}
@@ -193,9 +195,8 @@ const InnerNumberField = forwardRef(
           value={textValue}
           onChange={onChangeInner}
           className={clsx(
-            "responsive grid-area-field",
+            "responsive grid-area-field w-full min-w-0",
             "focus:outline-hidden",
-            "min-w-0 max-w-[100%]",
             "disabled:cursor-not-allowed cursor-text",
             "sized-text sized-height text-right px-0.5",
             "variant-text-caret-color font-mono",
@@ -235,13 +236,13 @@ const InnerNumberField = forwardRef(
           <input
             value={units}
             readOnly
-            style={{ width: `${(units.length + 1).toString()}ch` }}
+            style={{ width: `${(units.length + 2).toString()}ch` }}
             className={clsx(
               variant,
               size,
-              "grid-area-units text-right select-none px-0.5",
-              "grid place-items-center pointer-events-none w-fit sized-text",
-              "sized-height text-white/50 font-mono",
+              "grid-area-units text-right select-none pl-0.5 pr-2",
+              "grid place-items-center pointer-events-none sized-text",
+              "sized-height text-white/50 font-mono flex-none",
             )}
           />
         )}

@@ -58,7 +58,7 @@ export function ToggleGroup({
     <RadixToggleGroup.Root
       className={clsx(
         "transition-all relative inline-flex items-center overflow-hidden rounded-sm ",
-        bg && "dark:bg-layout-dark-inset bg-layout-light-inset",
+        bg && "dark:bg-layout-dark-base bg-layout-light-base",
         className,
       )}
       type="single"
@@ -69,12 +69,25 @@ export function ToggleGroup({
       aria-label={label ?? "Toggle Group"}
     >
       <motion.div
-        className={clsx("absolute", "rounded-xs sized-inner-group-item", size)}
+        style={
+          activeOption?.color
+            ? ({
+                "--custom-color": activeOption.color,
+              } as any)
+            : undefined
+        }
+        className={clsx(
+          activeOption?.color ? "custom-color" : activeOption?.variant,
+          size,
+          "absolute",
+          "rounded-xs sized-inner-group-item",
+          "responsive bg-(--accent-color)",
+        )}
         animate={{
           x: left,
           width,
-          backgroundColor:
-            activeOption?.color ?? variantToVar(activeOption?.variant ?? Variant.Default),
+          // backgroundColor:
+          //   activeOption?.color ?? variantToVar(activeOption?.variant ?? Variant.Default),
         }}
         transition={{ type: "tween", duration: 0.2, ease: "easeInOut" }}
       />
@@ -128,25 +141,4 @@ export function ToggleGroup({
       </div>
     </RadixToggleGroup.Root>
   );
-}
-
-function variantToVar(variant: Variant): string {
-  switch (variant) {
-    case Variant.Primary:
-      return "var(--color-primary-500)";
-    case Variant.Secondary:
-      return "var(--color-secondary-500)";
-    case Variant.Tertiary:
-      return "var(--color-tertiary-500)";
-    case Variant.Error:
-      return "var(--color-error-500)";
-    case Variant.Warning:
-      return "var(--color-warning-500)";
-    case Variant.Info:
-      return "var(--color-info-500)";
-    case Variant.Success:
-      return "var(--color-success-500)";
-    default:
-      return "var(--color-default-500)";
-  }
 }

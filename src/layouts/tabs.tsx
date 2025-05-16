@@ -24,6 +24,7 @@ export interface TabsProps {
   rightWidget?: ReactNode;
   defaultContent?: ReactNode;
   emptyTabText?: string;
+  tabsContainerClassName?: string;
 }
 
 export function Tabs({
@@ -36,6 +37,7 @@ export function Tabs({
   rightWidget,
   defaultContent,
   emptyTabText = "No tabs",
+  tabsContainerClassName,
 }: TabsProps): ReactNode {
   const childrenTabs: TabChild[] = useMemo(
     () =>
@@ -89,7 +91,7 @@ export function Tabs({
       value={selected ?? childrenTabs[0].key}
       onValueChange={onTabChange}
     >
-      <div className="flex items-center gap-1">
+      <div className={clsx("flex items-center gap-1", tabsContainerClassName)}>
         {leftWidget}
         <TabsPrimitive.List
           className={clsx(

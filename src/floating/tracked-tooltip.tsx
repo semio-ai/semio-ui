@@ -99,9 +99,9 @@ const TrackedTooltip = forwardRef(
             ...containerStyles,
           }}
           className={clsx(
-            "responsive",
+            "responsive overflow-clip",
             variant,
-            "card-transparent select-none inline-flex items-center",
+            "card select-none inline-flex items-center",
             "pointer-events-none",
             "variant-static-text",
           )}

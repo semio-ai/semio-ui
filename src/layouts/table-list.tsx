@@ -84,7 +84,7 @@ export function TableList<T extends BasicRowData>({
       {!noHeader && (
         <header
           className={clsx(
-            "h-10 grid grid-cols-subgrid sticky w-full z-1",
+            "h-10 grid grid-cols-subgrid sticky w-full",
             "dark:text-neutral-600 text-neutral-400",
             transparentHeader ? "dark:bg-black/50 bg-white/50" : "bg-white dark:bg-black",
             headerClassName,
