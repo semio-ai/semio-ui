@@ -100,7 +100,7 @@ export function Tabs({
           )}
         >
           <motion.div
-            layout
+            // layout
             className={clsx(
               "absolute responsive",
               "rounded-xs sized-inner-group-item",

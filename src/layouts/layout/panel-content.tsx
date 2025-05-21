@@ -21,7 +21,7 @@ export function PanelContent({ region }: { region: PaneRegion }) {
           );
           return (
             <motion.div
-              layout
+              // layout
               key={pane.id}
               initial={variants[0]}
               animate={variants[1]}
