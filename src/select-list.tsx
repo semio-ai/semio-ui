@@ -84,7 +84,11 @@ export function SelectList<T extends string | string[]>({
           ),
         },
       ]}
-      onRowEnter={handleToggle}
+      onRowKeydown={(row, key) => {
+        if (key === "Enter") {
+          handleToggle(row);
+        }
+      }}
       onRowClick={handleToggle}
     />
   );

@@ -1,4 +1,13 @@
-import { type ReactNode, type RefObject, useState, useRef, useEffect, useMemo, memo } from "react";
+import {
+  type ReactNode,
+  type RefObject,
+  useState,
+  useRef,
+  useEffect,
+  useMemo,
+  memo,
+  KeyboardEventHandler,
+} from "react";
 import { clsx } from "clsx";
 import useMeasure from "react-use-measure";
 import { mergeRefs } from "react-merge-refs";
@@ -29,7 +38,8 @@ export interface TableListProps<T extends BasicRowData> {
   backgroundClassName?: string;
   notFound?: ReactNode;
   onFocusChange?: (focusedRow?: string) => void;
-  onRowEnter?: (row: string) => void;
+  onSelectionChange?: (selectedRows: string[]) => void;
+  onRowKeydown?: (row: string, key: string, event: KeyboardEvent) => void;
   onRowClick?: (row: string) => void;
   selection?: string[];
   transparentHeader?: boolean;
@@ -45,7 +55,7 @@ export function TableList<T extends BasicRowData>({
   backgroundClassName,
   notFound,
   onFocusChange,
-  onRowEnter,
+  onRowKeydown,
   onRowClick,
   selection,
   transparentHeader = true,
@@ -137,8 +147,8 @@ export function TableList<T extends BasicRowData>({
               setFocusIndex(0);
             }
           }}
-          onEnter={() => {
-            onRowEnter?.(row.id);
+          onKeydown={(e) => {
+            onRowKeydown?.(row.id, e.key, e as any as KeyboardEvent);
           }}
           onClick={onRowClick ? () => onRowClick?.(row.id) : undefined}
           selected={selection?.includes(row.id)}
@@ -167,7 +177,7 @@ interface RowProps<T extends BasicRowData> {
   focused?: boolean;
   onShiftUp?: () => void;
   onShiftDown?: () => void;
-  onEnter?: () => void;
+  onKeydown?: KeyboardEventHandler<HTMLDivElement>;
   onClick?: () => void;
   selected?: boolean;
 }
@@ -181,7 +191,7 @@ function InnerRow<T extends BasicRowData>({
   focused,
   onShiftUp,
   onShiftDown,
-  onEnter,
+  onKeydown,
   onClick,
   selected,
 }: RowProps<T>) {
@@ -198,7 +208,7 @@ function InnerRow<T extends BasicRowData>({
     <div
       role="option"
       ref={ref}
-      className={clsx("group/row grid grid-cols-subgrid", rowClassName)}
+      className={clsx("group/row grid grid-cols-subgrid text-black dark:text-white", rowClassName)}
       style={{
         gridColumn: `span ${columns.length.toString()} / span ${columns.length.toString()}`,
       }}
@@ -213,9 +223,9 @@ function InnerRow<T extends BasicRowData>({
         } else if (event.key === "ArrowUp" && focused) {
           event.preventDefault();
           onShiftUp?.();
-        } else if (event.key === "Enter" && focused && onEnter) {
+        } else if (event.key === "Enter" && focused && onKeydown) {
           event.stopPropagation();
-          onEnter();
+          onKeydown(event);
         }
       }}
       onClick={() => {
