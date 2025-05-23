@@ -1,24 +1,26 @@
 import {
   type ReactNode,
   type RefObject,
-  useState,
   useRef,
   useEffect,
   useMemo,
   memo,
   KeyboardEventHandler,
+  MouseEventHandler,
 } from "react";
 import { clsx } from "clsx";
 import useMeasure from "react-use-measure";
 import { mergeRefs } from "react-merge-refs";
 import { useClickAway } from "../hooks/use-click-away";
+import {
+  useTableListState,
+  type TableListItem,
+  type SelectionMode,
+  type SelectionBehavior,
+} from "../hooks/use-table-list-state";
 import { Size } from "../types";
 
-export interface BasicRowData {
-  id: string;
-}
-
-export interface ColumnDefinition<T extends BasicRowData> {
+export interface ColumnDefinition<T extends TableListItem> {
   key: string;
   header: ReactNode;
   align?: "left" | "center" | "right";
@@ -27,7 +29,7 @@ export interface ColumnDefinition<T extends BasicRowData> {
   render: (value: T) => ReactNode;
 }
 
-export interface TableListProps<T extends BasicRowData> {
+export interface TableListProps<T extends TableListItem> {
   data: T[];
   columns: ColumnDefinition<T>[];
   headerOffset?: number;
@@ -37,15 +39,39 @@ export interface TableListProps<T extends BasicRowData> {
   headerClassName?: string;
   backgroundClassName?: string;
   notFound?: ReactNode;
-  onFocusChange?: (focusedRow?: string) => void;
-  onSelectionChange?: (selectedRows: string[]) => void;
-  onRowKeydown?: (row: string, key: string, event: KeyboardEvent) => void;
-  onRowClick?: (row: string) => void;
-  selection?: string[];
+
+  // Selection configuration
+  selectionMode?: SelectionMode;
+  selectionBehavior?: SelectionBehavior;
+
+  // Selection state (controlled)
+  selectedKeys?: Set<string>;
+  onSelectionChange?: (keys: Set<string>) => void;
+
+  // Selection state (uncontrolled)
+  defaultSelectedKeys?: Set<string>;
+
+  // Focus state
+  focusedKey?: string | null;
+  onFocusChange?: (key: string | null) => void;
+  defaultFocusedKey?: string | null;
+
+  // Selection constraints
+  disallowEmptySelection?: boolean;
+
+  // Navigation options
+  allowTypeAhead?: boolean;
+  allowWrapNavigation?: boolean;
+  getSearchText?: (item: T) => string;
+
+  // Event handlers
+  onAction?: (key: string, event: KeyboardEvent | MouseEvent) => void;
+  onKeyDown?: (key: string, event: KeyboardEvent) => void;
+
   transparentHeader?: boolean;
 }
 
-export function TableList<T extends BasicRowData>({
+export function TableList<T extends TableListItem>({
   data,
   columns,
   headerOffset = 0,
@@ -54,18 +80,49 @@ export function TableList<T extends BasicRowData>({
   headerClassName,
   backgroundClassName,
   notFound,
+
+  // Selection props
+  selectionMode = "none",
+  selectionBehavior = "toggle",
+  selectedKeys,
+  onSelectionChange,
+  defaultSelectedKeys,
+  focusedKey,
   onFocusChange,
-  onRowKeydown,
-  onRowClick,
-  selection,
+  defaultFocusedKey,
+  disallowEmptySelection,
+  allowTypeAhead,
+  allowWrapNavigation,
+  getSearchText,
+  onAction,
+  onKeyDown,
+
   transparentHeader = true,
 }: TableListProps<T>) {
   const [containerRef, containerBounds] = useMeasure();
   const clickAwayDetectorRef = useRef<HTMLDivElement>(null);
-  const [focusIndex, setFocusIndex] = useState<number | null>(null);
+
+  // Initialize the table list state hook
+  const tableState = useTableListState({
+    items: data,
+    selectionMode,
+    selectionBehavior,
+    selectedKeys,
+    onSelectionChange,
+    defaultSelectedKeys,
+    focusedKey,
+    onFocusChange,
+    defaultFocusedKey,
+    disallowEmptySelection,
+    allowTypeAhead,
+    allowWrapNavigation,
+    getSearchText,
+    onAction,
+    onKeyDown,
+  });
+
   useClickAway(clickAwayDetectorRef as RefObject<HTMLElement | null>, () => {
-    setFocusIndex(null);
-    onFocusChange?.(undefined);
+    tableState.setFocusedKey(null);
   });
   const activeColumns = useMemo(() => {
     return columns.filter((column) => {
@@ -81,6 +138,7 @@ export function TableList<T extends BasicRowData>({
   }, [activeColumns]);
 
   const gridTemplateAreas = `'${activeColumns.map((c) => c.key).join(" ")}'`;
+  const navigationProps = tableState.getNavigationProps();
 
   return (
     <div
@@ -90,6 +148,7 @@ export function TableList<T extends BasicRowData>({
         gridTemplateColumns: templateColumns,
         gridTemplateAreas,
       }}
+      {...navigationProps}
     >
       {!noHeader && (
         <header
@@ -121,39 +180,24 @@ export function TableList<T extends BasicRowData>({
           ))}
         </header>
       )}
-      {data.map((row, idx) => (
-        <Row
-          key={row.id}
-          row={row}
-          columns={activeColumns as ColumnDefinition<BasicRowData>[]}
-          idx={idx}
-          onFocusChange={(focused) => {
-            setFocusIndex(focused ? idx : null);
-            onFocusChange?.(focused ? row.id : undefined);
-          }}
-          focused={focusIndex === idx}
-          rowClassName={rowClassName}
-          onShiftUp={() => {
-            if (idx > 0) {
-              setFocusIndex(idx - 1);
-            } else {
-              setFocusIndex(data.length - 1);
-            }
-          }}
-          onShiftDown={() => {
-            if (idx < data.length - 1) {
-              setFocusIndex(idx + 1);
-            } else {
-              setFocusIndex(0);
-            }
-          }}
-          onKeydown={(e) => {
-            onRowKeydown?.(row.id, e.key, e as any as KeyboardEvent);
-          }}
-          onClick={onRowClick ? () => onRowClick?.(row.id) : undefined}
-          selected={selection?.includes(row.id)}
-        />
-      ))}
+      {data.map((row, idx) => {
+        const itemProps = tableState.getItemProps(row.key);
+
+        return (
+          <Row
+            key={row.key}
+            row={row}
+            columns={activeColumns as ColumnDefinition<TableListItem>[]}
+            idx={idx}
+            focused={tableState.isFocused(row.key)}
+            selected={tableState.isSelected(row.key)}
+            disabled={tableState.isDisabled(row.key)}
+            rowClassName={rowClassName}
+            selectionMode={selectionMode}
+            {...itemProps}
+          />
+        );
+      })}
       {data.length === 0 && notFound && (
         <div
           className={clsx("group/row grid grid-cols-subgrid")}
@@ -168,72 +212,71 @@ export function TableList<T extends BasicRowData>({
   );
 }
 
-interface RowProps<T extends BasicRowData> {
+interface RowProps<T extends TableListItem> {
   rowClassName?: string;
   row: T;
   columns: ColumnDefinition<T>[];
   idx: number;
-  onFocusChange: (focused: boolean) => void;
   focused?: boolean;
-  onShiftUp?: () => void;
-  onShiftDown?: () => void;
-  onKeydown?: KeyboardEventHandler<HTMLDivElement>;
-  onClick?: () => void;
   selected?: boolean;
+  disabled?: boolean;
+  selectionMode?: SelectionMode;
+
+  // Event handlers from useTableListState
+  role?: string;
+  "aria-selected"?: boolean;
+  "aria-disabled"?: boolean;
+  tabIndex?: number;
+  onClick?: (event: MouseEvent) => void;
+  onKeyDown?: (event: KeyboardEvent) => void;
+  onFocus?: () => void;
+  onBlur?: () => void;
 }
 
-function InnerRow<T extends BasicRowData>({
+function InnerRow<T extends TableListItem>({
   rowClassName,
   row,
   columns,
-  idx,
-  onFocusChange,
   focused,
-  onShiftUp,
-  onShiftDown,
-  onKeydown,
-  onClick,
   selected,
+  disabled,
+  selectionMode,
+  role,
+  "aria-selected": ariaSelected,
+  "aria-disabled": ariaDisabled,
+  tabIndex,
+  onClick,
+  onKeyDown,
+  onFocus,
+  onBlur,
 }: RowProps<T>) {
   const ref = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     if (focused && ref.current) {
       ref.current.focus();
-    } else if (!focused && ref.current) {
-      ref.current.blur();
     }
-  });
-  // eslint-ignore-next-line non-interactive-element-interactions
+  }, [focused]);
+
   return (
     <div
-      role="option"
+      role={role}
       ref={ref}
-      className={clsx("group/row grid grid-cols-subgrid text-black dark:text-white", rowClassName)}
+      className={clsx("group/row grid grid-cols-subgrid text-black dark:text-white", rowClassName, {
+        "bg-blue-50 dark:bg-blue-900/20": selected && selectionMode !== "none",
+        "ring-2 ring-blue-500": focused,
+        "opacity-50 cursor-not-allowed": disabled,
+      })}
       style={{
         gridColumn: `span ${columns.length.toString()} / span ${columns.length.toString()}`,
       }}
-      aria-selected={selected}
-      // data-ui={selected ? "selected" : ""}
-      key={row.id}
-      tabIndex={idx}
-      onKeyDown={(event) => {
-        if (event.key === "ArrowDown" && focused) {
-          event.preventDefault();
-          onShiftDown?.();
-        } else if (event.key === "ArrowUp" && focused) {
-          event.preventDefault();
-          onShiftUp?.();
-        } else if (event.key === "Enter" && focused && onKeydown) {
-          event.stopPropagation();
-          onKeydown(event);
-        }
-      }}
-      onClick={() => {
-        if (onClick) {
-          onFocusChange(true);
-          onClick?.();
-        }
-      }}
+      aria-selected={ariaSelected}
+      aria-disabled={ariaDisabled}
+      tabIndex={tabIndex}
+      onKeyDown={onKeyDown as any as KeyboardEventHandler<HTMLDivElement>}
+      onClick={onClick as any as MouseEventHandler<HTMLDivElement>}
+      onFocus={onFocus}
+      onBlur={onBlur}
     >
       {columns.map((column, columnIndex) => (
         <div
@@ -256,7 +299,7 @@ function InnerRow<T extends BasicRowData>({
 const Row = memo(InnerRow) as typeof InnerRow;
 
 // const Row = memo(InnerRow);
-function getTemplateColumns<T extends BasicRowData>(columns: ColumnDefinition<T>[]) {
+function getTemplateColumns<T extends TableListItem>(columns: ColumnDefinition<T>[]) {
   return columns
     .map((column) => {
       return column.flex ? "1fr" : "auto";

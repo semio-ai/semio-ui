@@ -27,22 +27,34 @@ export function SelectList<T extends string | string[]>({
     }
   };
 
-  const selection: T[] = useMemo(() => {
+  const selectedKeys = useMemo(() => {
     if (Array.isArray(value)) {
-      return value;
+      return new Set(value);
     } else if (value) {
-      return [value];
+      return new Set([value]);
     } else {
-      return [];
+      return new Set<string>();
     }
   }, [value]);
+
+  const handleSelectionChange = (keys: Set<string>) => {
+    const keysArray = Array.from(keys);
+    if (multiple) {
+      onChange(keysArray as T);
+    } else {
+      onChange(keysArray[0] as T);
+    }
+  };
 
   const [rowClassName, iconClassName] = getFocusAndSelectStyles(variant);
   return (
     <TableList
       noHeader
       notFound={notFound}
-      selection={selection as string[]}
+      selectionMode={multiple ? "multiple" : "single"}
+      selectionBehavior="toggle"
+      selectedKeys={selectedKeys}
+      onSelectionChange={handleSelectionChange}
       rowClassName={clsx(
         size,
         "dark:bg-transparent bg-transparent hover:bg-neutral-500/10",
@@ -52,7 +64,7 @@ export function SelectList<T extends string | string[]>({
         "sized-height",
         rowClassName,
       )}
-      data={options.map((option) => ({ id: option.value, ...option }))}
+      data={options.map((option) => ({ key: option.value, ...option }))}
       columns={[
         {
           key: "item",
@@ -84,12 +96,9 @@ export function SelectList<T extends string | string[]>({
           ),
         },
       ]}
-      onRowKeydown={(row, key) => {
-        if (key === "Enter") {
-          handleToggle(row);
-        }
+      onAction={(key, _event) => {
+        handleToggle(key);
       }}
-      onRowClick={handleToggle}
     />
   );
 }
