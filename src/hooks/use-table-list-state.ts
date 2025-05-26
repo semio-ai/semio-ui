@@ -1,7 +1,6 @@
 import { useState, useCallback, useMemo, useRef, useEffect } from "react";
 
 export type SelectionMode = "none" | "single" | "multiple";
-export type SelectionBehavior = "toggle" | "replace";
 
 export interface TableListItem {
   key: string;
@@ -15,7 +14,6 @@ export interface UseTableListStateOptions<T extends TableListItem> {
 
   // Selection configuration
   selectionMode?: SelectionMode;
-  selectionBehavior?: SelectionBehavior;
 
   // Selection state (controlled)
   selectedKeys?: Set<string>;
@@ -50,7 +48,6 @@ export interface TableListState<T extends TableListItem> {
   // Selection state
   selectedKeys: Set<string>;
   selectionMode: SelectionMode;
-  selectionBehavior: SelectionBehavior;
 
   // Focus state
   focusedKey: string | null;
@@ -90,7 +87,6 @@ export function useTableListState<T extends TableListItem>({
   items,
   getSearchText,
   selectionMode = "none",
-  selectionBehavior = "toggle",
   selectedKeys: controlledSelectedKeys,
   onSelectionChange,
   defaultSelectedKeys = new Set(),
@@ -106,7 +102,7 @@ export function useTableListState<T extends TableListItem>({
   // Internal state for uncontrolled mode
   const [uncontrolledSelectedKeys, setUncontrolledSelectedKeys] = useState(defaultSelectedKeys);
   const [uncontrolledFocusedKey, setUncontrolledFocusedKey] = useState(defaultFocusedKey);
-  const [lastInteractionKey, setLastInteractionKey] = useState<string | null>(null);
+  const [anchorKey, setAnchorKey] = useState<string | null>(null);
 
   // Type-ahead state
   const [typeAheadQuery, setTypeAheadQuery] = useState("");
@@ -209,7 +205,7 @@ export function useTableListState<T extends TableListItem>({
       }
 
       updateSelection(newKeys);
-      setLastInteractionKey(key);
+      setAnchorKey(key);
     },
     [isDisabled, selectionMode, selectedKeys, updateSelection],
   );
@@ -249,11 +245,11 @@ export function useTableListState<T extends TableListItem>({
       const end = Math.max(fromIndex, toIndex);
       const rangeKeys = enabledKeys.slice(start, end + 1);
 
-      const newKeys = new Set([...selectedKeys, ...rangeKeys]);
+      // For Finder-style behavior, replace selection with range
+      const newKeys = new Set(rangeKeys);
       updateSelection(newKeys);
-      setLastInteractionKey(toKey);
     },
-    [selectionMode, enabledKeys, selectedKeys, updateSelection],
+    [selectionMode, enabledKeys, updateSelection],
   );
 
   const selectAll = useCallback(() => {
@@ -349,7 +345,7 @@ export function useTableListState<T extends TableListItem>({
     [allowTypeAhead, typeAheadQuery, enabledKeys, itemMap, getSearchText, setFocusedKey],
   );
 
-  // Mouse click handler
+  // Mouse click handler - desktop finder/file style
   const handleItemClick = useCallback(
     (key: string, event: MouseEvent) => {
       if (isDisabled(key)) return;
@@ -364,124 +360,175 @@ export function useTableListState<T extends TableListItem>({
       }
 
       if (selectionMode === "single") {
-        if (selectionBehavior === "toggle" && isSelected(key)) {
-          deselect(key);
-        } else {
-          select(key);
-        }
+        // In single mode, always select the clicked item
+        select(key);
         return;
       }
 
-      // Multi-select mode
-      if (selectionBehavior === "toggle") {
-        if (event.shiftKey && lastInteractionKey) {
-          selectRange(lastInteractionKey, key);
-        } else if (event.ctrlKey || event.metaKey) {
-          toggle(key);
-        } else {
-          toggle(key);
-        }
+      // Multi-select mode - desktop finder/file behavior
+      if (event.shiftKey && anchorKey && selectionMode === "multiple") {
+        // Shift+Click: Extend selection from anchor to clicked item (only in multiple mode)
+        selectRange(anchorKey, key);
       } else if (event.ctrlKey || event.metaKey) {
+        // Cmd+Click: Toggle selection of clicked item
         toggle(key);
-      } else if (event.shiftKey && lastInteractionKey) {
-        selectRange(lastInteractionKey, key);
+        setAnchorKey(key);
       } else {
+        // Regular click: Select only this item
+        // If clicking on already selected item when multiple are selected, select only that item
         updateSelection(new Set([key]));
-        setLastInteractionKey(key);
+        setAnchorKey(key);
       }
     },
     [
       isDisabled,
       setFocusedKey,
       selectionMode,
-      selectionBehavior,
-      isSelected,
       select,
-      deselect,
       toggle,
       selectRange,
-      lastInteractionKey,
+      anchorKey,
       updateSelection,
       onAction,
     ],
   );
 
-  // Keyboard handler
+  // Keyboard handler - desktop finder/file style
   const handleItemKeyDown = useCallback(
     (key: string, event: KeyboardEvent) => {
       if (isDisabled(key)) return;
 
       // Call custom keydown handler first
       onKeyDown?.(key, event);
-      console.log("focus/key", focusedKey, key, event.key, event);
 
       switch (event.key) {
         case "ArrowDown":
           event.preventDefault();
-          if (event.shiftKey && selectionMode === "multiple" && selectionBehavior === "replace") {
+          if (event.ctrlKey || event.metaKey) {
+            // Cmd+Arrow: Move focus without changing selection
+            focusNext();
+          } else if (event.shiftKey && selectionMode === "multiple") {
+            // Shift+Arrow: Extend selection from anchor
             const nextKey = getNextKey(key);
             if (!nextKey) return;
-            selectRange(key, nextKey);
+            const anchor = anchorKey || key;
+            selectRange(anchor, nextKey);
             setFocusedKey(nextKey);
           } else {
-            focusNext();
+            // Regular Arrow: Move focus and select only that item
+            const nextKey = getNextKey(key);
+            if (!nextKey) return;
+            setFocusedKey(nextKey);
+            if (selectionMode !== "none") {
+              updateSelection(new Set([nextKey]));
+              setAnchorKey(nextKey);
+            }
           }
           break;
 
         case "ArrowUp":
           event.preventDefault();
-          if (event.shiftKey && selectionMode === "multiple" && selectionBehavior === "replace") {
+          if (event.ctrlKey || event.metaKey) {
+            // Cmd+Arrow: Move focus without changing selection
+            focusPrevious();
+          } else if (event.shiftKey && selectionMode === "multiple") {
+            // Shift+Arrow: Extend selection from anchor
             const prevKey = getPreviousKey(key);
             if (!prevKey) return;
-            selectRange(key, prevKey);
+            const anchor = anchorKey || key;
+            selectRange(anchor, prevKey);
             setFocusedKey(prevKey);
           } else {
-            focusPrevious();
+            // Regular Arrow: Move focus and select only that item
+            const prevKey = getPreviousKey(key);
+            if (!prevKey) return;
+            setFocusedKey(prevKey);
+            if (selectionMode !== "none") {
+              updateSelection(new Set([prevKey]));
+              setAnchorKey(prevKey);
+            }
           }
           break;
 
         case "Home":
           event.preventDefault();
-          if (event.shiftKey && selectionMode === "multiple" && selectionBehavior === "replace") {
+          if (event.ctrlKey || event.metaKey) {
+            focusFirst();
+          } else if (event.shiftKey && selectionMode === "multiple") {
             const firstKey = enabledKeys[0];
             if (!firstKey) return;
-            selectRange(key, firstKey);
+            const anchor = anchorKey || key;
+            selectRange(anchor, firstKey);
             setFocusedKey(firstKey);
           } else {
-            focusFirst();
+            const firstKey = enabledKeys[0];
+            if (!firstKey) return;
+            setFocusedKey(firstKey);
+            if (selectionMode !== "none") {
+              updateSelection(new Set([firstKey]));
+              setAnchorKey(firstKey);
+            }
           }
           break;
 
         case "End":
           event.preventDefault();
-          if (event.shiftKey && selectionMode === "multiple" && selectionBehavior === "replace") {
+          if (event.ctrlKey || event.metaKey) {
+            focusLast();
+          } else if (event.shiftKey && selectionMode === "multiple") {
             const lastKey = enabledKeys[enabledKeys.length - 1];
             if (!lastKey) return;
-            selectRange(key, lastKey);
+            const anchor = anchorKey || key;
+            selectRange(anchor, lastKey);
             setFocusedKey(lastKey);
           } else {
-            focusLast();
+            const lastKey = enabledKeys[enabledKeys.length - 1];
+            if (!lastKey) return;
+            setFocusedKey(lastKey);
+            if (selectionMode !== "none") {
+              updateSelection(new Set([lastKey]));
+              setAnchorKey(lastKey);
+            }
           }
           break;
 
         case " ":
-        case "Enter":
           event.preventDefault();
           if (selectionMode === "none") {
             onAction?.(key, event);
-          } else if (selectionMode === "single") {
-            toggle(key);
-          } else if (selectionBehavior === "toggle") {
-            toggle(key);
-          } else if (event.key === " ") {
-            toggle(key);
           } else {
-            onAction?.(key, event);
+            // Space: Toggle selection of focused item
+            toggle(key);
+            setAnchorKey(key);
+          }
+          break;
+
+        case "Enter":
+          event.preventDefault();
+          if (onAction) {
+            onAction(key, event);
+          } else if (selectionMode !== "none") {
+            // If no onAction, behave like click with current modifiers
+            if (event.shiftKey && anchorKey && selectionMode === "multiple") {
+              selectRange(anchorKey, key);
+            } else if ((event.ctrlKey || event.metaKey) && selectionMode === "multiple") {
+              toggle(key);
+              setAnchorKey(key);
+            } else {
+              updateSelection(new Set([key]));
+              setAnchorKey(key);
+            }
           }
           break;
 
         case "a":
           if (!(event.ctrlKey || event.metaKey) || selectionMode !== "multiple") {
+            // Allow type-ahead for 'a' if not Cmd+A or not in multiple mode
+            event.key.length === 1 &&
+              !event.ctrlKey &&
+              !event.metaKey &&
+              !event.altKey &&
+              performTypeAhead(event.key);
             break;
           }
           event.preventDefault();
@@ -491,6 +538,7 @@ export function useTableListState<T extends TableListItem>({
         case "Escape":
           event.preventDefault();
           clearSelection();
+          setAnchorKey(null);
           break;
 
         default:
@@ -507,7 +555,6 @@ export function useTableListState<T extends TableListItem>({
       isDisabled,
       onKeyDown,
       selectionMode,
-      selectionBehavior,
       getNextKey,
       getPreviousKey,
       focusNext,
@@ -522,7 +569,8 @@ export function useTableListState<T extends TableListItem>({
       clearSelection,
       performTypeAhead,
       onAction,
-      focusedKey,
+      anchorKey,
+      updateSelection,
     ],
   );
 
@@ -592,7 +640,6 @@ export function useTableListState<T extends TableListItem>({
     // Selection state
     selectedKeys,
     selectionMode,
-    selectionBehavior,
 
     // Focus state
     focusedKey,

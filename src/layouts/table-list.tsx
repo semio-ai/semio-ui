@@ -16,7 +16,6 @@ import {
   useTableListState,
   type TableListItem,
   type SelectionMode,
-  type SelectionBehavior,
 } from "../hooks/use-table-list-state";
 import { Size, Variant } from "../types";
 
@@ -46,7 +45,6 @@ export interface TableListProps<T extends TableListItem> {
 
   // Selection configuration
   selectionMode?: SelectionMode;
-  selectionBehavior?: SelectionBehavior;
 
   // Selection state (controlled)
   selectedKeys?: Set<string>;
@@ -91,7 +89,6 @@ export function TableList<T extends TableListItem>({
 
   // Selection props
   selectionMode = "none",
-  selectionBehavior = "toggle",
   selectedKeys,
   onSelectionChange,
   defaultSelectedKeys,
@@ -114,7 +111,6 @@ export function TableList<T extends TableListItem>({
   const tableState = useTableListState({
     items: data,
     selectionMode,
-    selectionBehavior,
     selectedKeys,
     onSelectionChange,
     defaultSelectedKeys,
