@@ -18,7 +18,7 @@ import {
   type SelectionMode,
   type SelectionBehavior,
 } from "../hooks/use-table-list-state";
-import { Size } from "../types";
+import { Size, Variant } from "../types";
 
 export interface ColumnDefinition<T extends TableListItem> {
   key: string;
@@ -39,6 +39,10 @@ export interface TableListProps<T extends TableListItem> {
   headerClassName?: string;
   backgroundClassName?: string;
   notFound?: ReactNode;
+
+  // Visual Config
+  size?: Size;
+  variant?: Variant;
 
   // Selection configuration
   selectionMode?: SelectionMode;
@@ -80,6 +84,10 @@ export function TableList<T extends TableListItem>({
   headerClassName,
   backgroundClassName,
   notFound,
+
+  // Visual Config
+  size = Size.Md,
+  variant = Variant.Default,
 
   // Selection props
   selectionMode = "none",
@@ -143,7 +151,7 @@ export function TableList<T extends TableListItem>({
   return (
     <div
       ref={mergeRefs([clickAwayDetectorRef, containerRef])}
-      className={clsx("grid w-full scroll-mt-10 gap-x-4", backgroundClassName)}
+      className={clsx("grid w-full scroll-mt-10 gap-x-4 table-list", backgroundClassName)}
       style={{
         gridTemplateColumns: templateColumns,
         gridTemplateAreas,
@@ -153,9 +161,10 @@ export function TableList<T extends TableListItem>({
       {!noHeader && (
         <header
           className={clsx(
-            "h-10 grid grid-cols-subgrid sticky w-full",
-            "dark:text-neutral-600 text-neutral-400",
+            "sized-height grid grid-cols-subgrid sticky w-full",
+            "dark:text-neutral-600 text-neutral-400 responsive",
             transparentHeader ? "dark:bg-black/50 bg-white/50" : "bg-white dark:bg-black",
+            size,
             headerClassName,
           )}
           style={{
@@ -167,7 +176,8 @@ export function TableList<T extends TableListItem>({
             <div
               className={clsx(
                 "text-xs uppercase",
-                "h-10 w-full flex flex-row items-center",
+                "sized-height w-full flex flex-row items-center",
+                size,
                 (column.align === "left" || !column.align) && "justify-start",
                 column.align === "center" && "justify-center",
                 column.align === "right" && "justify-end",
@@ -194,6 +204,8 @@ export function TableList<T extends TableListItem>({
             disabled={tableState.isDisabled(row.key)}
             rowClassName={rowClassName}
             selectionMode={selectionMode}
+            size={size}
+            variant={variant}
             {...itemProps}
           />
         );
@@ -222,6 +234,10 @@ interface RowProps<T extends TableListItem> {
   disabled?: boolean;
   selectionMode?: SelectionMode;
 
+  // Visual Config
+  size?: Size;
+  variant?: Variant;
+
   // Event handlers from useTableListState
   role?: string;
   "aria-selected"?: boolean;
@@ -241,6 +257,8 @@ function InnerRow<T extends TableListItem>({
   selected,
   disabled,
   selectionMode,
+  size = Size.Md,
+  variant = Variant.Default,
   role,
   "aria-selected": ariaSelected,
   "aria-disabled": ariaDisabled,
@@ -252,6 +270,8 @@ function InnerRow<T extends TableListItem>({
 }: RowProps<T>) {
   const ref = useRef<HTMLDivElement>(null);
 
+  // console.log(row.key, selected, focused);
+
   useEffect(() => {
     if (focused && ref.current) {
       ref.current.focus();
@@ -262,14 +282,23 @@ function InnerRow<T extends TableListItem>({
     <div
       role={role}
       ref={ref}
-      className={clsx("group/row grid grid-cols-subgrid text-black dark:text-white", rowClassName, {
-        "bg-blue-50 dark:bg-blue-900/20": selected && selectionMode !== "none",
-        "ring-2 ring-blue-500": focused,
-        "opacity-50 cursor-not-allowed": disabled,
-      })}
+      className={clsx(
+        "group/row grid grid-cols-subgrid",
+        "leading-none rounded-sm responsive",
+        "sized-height sized-text select-none outline-hidden",
+        "items-center",
+        "responsive table-list-item",
+        "text-black dark:text-white",
+        size,
+        variant,
+        rowClassName,
+        disabled && "opacity-50 cursor-not-allowed pointer-events-none",
+      )}
       style={{
         gridColumn: `span ${columns.length.toString()} / span ${columns.length.toString()}`,
       }}
+      data-highlighted={focused ? "" : undefined}
+      data-state={selected && selectionMode !== "none" ? "checked" : "unchecked"}
       aria-selected={ariaSelected}
       aria-disabled={ariaDisabled}
       tabIndex={tabIndex}
@@ -277,6 +306,8 @@ function InnerRow<T extends TableListItem>({
       onClick={onClick as any as MouseEventHandler<HTMLDivElement>}
       onFocus={onFocus}
       onBlur={onBlur}
+      onMouseEnter={onFocus}
+      onMouseLeave={onBlur}
     >
       {columns.map((column, columnIndex) => (
         <div

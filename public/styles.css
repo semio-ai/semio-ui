@@ -587,6 +587,42 @@
     @apply dark:group-data-[highlighted]/item:group-data-[state=unchecked]/item:text-black;
   }
 
+  .table-list {
+    .table-list-item {
+      @apply transition-colors duration-[50ms] ease-in-out;
+      @apply cursor-pointer;
+      @apply data-disabled:text-neutral-500/50;
+      @apply dark:data-[highlighted]:text-black data-[highlighted]:text-white;
+      color: var(--accent-color);
+      &[data-highlighted] {
+        background-color: color-mix(in oklab, var(--accent-color) 40%, transparent);
+      }
+
+      &[data-state="checked"] {
+        @apply dark:text-black text-white;
+        background-color: color-mix(in oklab, var(--accent-color) 60%, transparent);
+        &[data-highlighted] {
+          background-color: color-mix(in oklab, var(--accent-color) 80%, transparent);
+          @apply outline-2 dark:outline-black outline-white outline-offset-[-3px];
+        }
+      }
+    }
+
+    @supports selector(:has(.foo)) {
+      .table-list-item[data-highlighted]:has(+ [data-highlighted]),
+      .table-list-item[data-state="checked"]:has(+ table-list-item[data-state="checked"]) {
+        border-end-start-radius: 0;
+        border-end-end-radius: 0;
+      }
+
+      .table-list-item[data-highlighted] + [data-highlighted],
+      .table-list-item[data-state="checked"]:has(+ table-list-item[data-state="checked"]) {
+        border-start-start-radius: 0;
+        border-start-end-radius: 0;
+      }
+    }
+  }
+
   .responsive-accent-bg {
     background-color: color-mix(in oklab, var(--accent-color) 80%, transparent);
   }

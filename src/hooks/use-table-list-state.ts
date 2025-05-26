@@ -413,6 +413,7 @@ export function useTableListState<T extends TableListItem>({
 
       // Call custom keydown handler first
       onKeyDown?.(key, event);
+      console.log("focus/key", focusedKey, key, event.key, event);
 
       switch (event.key) {
         case "ArrowDown":
@@ -521,6 +522,7 @@ export function useTableListState<T extends TableListItem>({
       clearSelection,
       performTypeAhead,
       onAction,
+      focusedKey,
     ],
   );
 
