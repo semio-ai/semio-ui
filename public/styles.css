@@ -130,6 +130,12 @@
     @apply data-[state=open]:not-disabled:outline-2;
   }
 
+  .parent-outline {
+    &:has(*[data-state="open"]) {
+      @apply outline-2;
+    }
+  }
+
   .variant-responsive-text {
     @apply transition-colors duration-[50ms] ease-in-out;
     color: var(--weak-accent-text-color);

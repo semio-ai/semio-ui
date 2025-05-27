@@ -61,6 +61,7 @@ export function Chip({
           type="button"
           onClick={(e) => {
             onDelete(e);
+            e.preventDefault();
             e.stopPropagation();
           }}
           className={clsx(

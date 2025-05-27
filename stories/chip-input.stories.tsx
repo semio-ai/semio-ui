@@ -1,0 +1,287 @@
+import { useState } from "react";
+import type { Meta, StoryObj } from "@storybook/react";
+import { ChipInput, type ChipInputProps, Variant, Size } from "@semio/ui";
+import { IconUser, IconStar, IconHeart } from "@tabler/icons-react";
+
+const meta: Meta<typeof ChipInput> = {
+  component: ChipInput,
+  decorators: [
+    (Story) => (
+      <div className="grid place-items-center p-5 h-full">
+        <div className="w-full max-w-md">
+          <Story />
+        </div>
+      </div>
+    ),
+  ],
+};
+
+export default meta;
+
+type Story = StoryObj<typeof ChipInput>;
+
+// Create a wrapped version of the story with hooks to
+// illustrate callback behavior
+function ChipInputWithHooks(props: ChipInputProps): JSX.Element {
+  const [selectedValues, setSelectedValues] = useState<string[]>(props.selectedValues);
+
+  return <ChipInput {...props} selectedValues={selectedValues} onChange={setSelectedValues} />;
+}
+
+const sampleOptions = [
+  { label: "React", value: "react" },
+  { label: "TypeScript", value: "typescript" },
+  { label: "JavaScript", value: "javascript" },
+  { label: "Node.js", value: "nodejs" },
+  { label: "Python", value: "python" },
+  { label: "Go", value: "go" },
+  { label: "Rust", value: "rust" },
+  { label: "Java", value: "java" },
+];
+
+const coloredOptions = [
+  { label: "React", value: "react", color: "#61DAFB" },
+  { label: "TypeScript", value: "typescript", color: "#3178C6" },
+  { label: "JavaScript", value: "javascript", color: "#F7DF1E" },
+  { label: "Python", value: "python", color: "#3776AB" },
+  { label: "Go", value: "go", color: "#00ADD8" },
+];
+
+const iconOptions = [
+  { label: "Users", value: "users", icon: <IconUser size={14} /> },
+  { label: "Favorites", value: "favorites", icon: <IconStar size={14} /> },
+  { label: "Liked", value: "liked", icon: <IconHeart size={14} /> },
+  { label: "Regular Option", value: "regular" },
+];
+
+export const Default: Story = {
+  render: (props) => {
+    return <ChipInputWithHooks {...props} />;
+  },
+  args: {
+    selectedValues: [],
+    options: sampleOptions,
+  },
+};
+
+export const WithSelectedValues: Story = {
+  render: (props) => {
+    return <ChipInputWithHooks {...props} />;
+  },
+  args: {
+    selectedValues: ["react", "typescript", "nodejs"],
+    options: sampleOptions,
+  },
+};
+
+export const WithBackground: Story = {
+  render: (props) => {
+    return <ChipInputWithHooks {...props} />;
+  },
+  args: {
+    selectedValues: ["react", "typescript"],
+    options: sampleOptions,
+    bg: true,
+  },
+};
+
+export const AlwaysOutline: Story = {
+  render: (props) => {
+    return <ChipInputWithHooks {...props} />;
+  },
+  args: {
+    selectedValues: ["react"],
+    options: sampleOptions,
+    outline: "always",
+  },
+};
+
+export const HiddenOutline: Story = {
+  render: (props) => {
+    return <ChipInputWithHooks {...props} />;
+  },
+  args: {
+    selectedValues: ["react", "typescript"],
+    options: sampleOptions,
+    outline: "hidden",
+  },
+};
+
+export const Subtle: Story = {
+  render: (props) => {
+    return <ChipInputWithHooks {...props} />;
+  },
+  args: {
+    selectedValues: ["react"],
+    options: sampleOptions,
+    subtle: true,
+  },
+};
+
+export const Disabled: Story = {
+  render: (props) => {
+    return <ChipInputWithHooks {...props} />;
+  },
+  args: {
+    selectedValues: ["react", "typescript"],
+    options: sampleOptions,
+    disabled: true,
+  },
+};
+
+export const CustomPlaceholder: Story = {
+  render: (props) => {
+    return <ChipInputWithHooks {...props} />;
+  },
+  args: {
+    selectedValues: [],
+    options: sampleOptions,
+    placeholder: "Choose your technologies...",
+  },
+};
+
+export const PrimaryVariant: Story = {
+  render: (props) => {
+    return <ChipInputWithHooks {...props} />;
+  },
+  args: {
+    selectedValues: ["react", "typescript"],
+    options: sampleOptions,
+    variant: Variant.Primary,
+  },
+};
+
+export const SecondaryVariant: Story = {
+  render: (props) => {
+    return <ChipInputWithHooks {...props} />;
+  },
+  args: {
+    selectedValues: ["react", "typescript"],
+    options: sampleOptions,
+    variant: Variant.Secondary,
+  },
+};
+
+export const WithCustomColors: Story = {
+  render: (props) => {
+    return <ChipInputWithHooks {...props} />;
+  },
+  args: {
+    selectedValues: ["react", "typescript", "python"],
+    options: coloredOptions,
+  },
+};
+
+export const WithIcons: Story = {
+  render: (props) => {
+    return <ChipInputWithHooks {...props} />;
+  },
+  args: {
+    selectedValues: ["users", "favorites"],
+    options: iconOptions,
+  },
+};
+
+export const MixedOptions: Story = {
+  render: (props) => {
+    return <ChipInputWithHooks {...props} />;
+  },
+  args: {
+    selectedValues: ["react", "users"],
+    options: [
+      ...coloredOptions.slice(0, 3),
+      ...iconOptions.slice(0, 2),
+      { label: "Disabled Option", value: "disabled", disabled: true },
+    ],
+  },
+};
+
+export const Interactive: Story = {
+  render: (props) => {
+    return <ChipInputWithHooks {...props} />;
+  },
+  args: {
+    selectedValues: ["react"],
+    options: sampleOptions,
+    placeholder: "Select technologies...",
+  },
+};
+
+export const InteractiveWithColors: Story = {
+  render: (props) => {
+    return <ChipInputWithHooks {...props} />;
+  },
+  args: {
+    selectedValues: ["react", "typescript"],
+    options: coloredOptions,
+    placeholder: "Select your stack...",
+    bg: true,
+  },
+};
+
+export const ExtraSmallSize: Story = {
+  render: (props) => {
+    return <ChipInputWithHooks {...props} />;
+  },
+  args: {
+    selectedValues: ["react", "typescript", "nodejs"],
+    options: sampleOptions,
+    size: Size.Xs,
+  },
+};
+
+export const SmallSize: Story = {
+  render: (props) => {
+    return <ChipInputWithHooks {...props} />;
+  },
+  args: {
+    selectedValues: ["react", "typescript", "nodejs"],
+    options: sampleOptions,
+    size: Size.Sm,
+  },
+};
+
+export const MediumSize: Story = {
+  render: (props) => {
+    return <ChipInputWithHooks {...props} />;
+  },
+  args: {
+    selectedValues: ["react", "typescript", "nodejs"],
+    options: sampleOptions,
+    size: Size.Md,
+  },
+};
+
+export const LargeSize: Story = {
+  render: (props) => {
+    return <ChipInputWithHooks {...props} />;
+  },
+  args: {
+    selectedValues: ["react", "typescript", "nodejs"],
+    options: sampleOptions,
+    size: Size.Lg,
+  },
+};
+
+export const ExtraLargeSize: Story = {
+  render: (props) => {
+    return <ChipInputWithHooks {...props} />;
+  },
+  args: {
+    selectedValues: ["react", "typescript", "nodejs"],
+    options: sampleOptions,
+    size: Size.Xl,
+  },
+};
+
+export const SizeWithIcons: Story = {
+  render: (props) => {
+    return <ChipInputWithHooks {...props} />;
+  },
+  args: {
+    selectedValues: ["users", "favorites", "liked"],
+    options: iconOptions,
+    size: Size.Lg,
+    variant: Variant.Primary,
+  },
+};

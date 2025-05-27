@@ -63,6 +63,7 @@ export * from "./icons/world-element-icons";
 
 // Inputs
 export * from "./inputs/checkbox";
+export * from "./inputs/chip-input";
 export * from "./inputs/color-picker-input";
 export * from "./inputs/number-field";
 export * from "./inputs/slider-number-field";
