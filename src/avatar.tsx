@@ -11,8 +11,7 @@ export interface AvatarProps {
   size?: Size;
   onClick?: MouseEventHandler<HTMLSpanElement>;
   variant?: Variant;
-  border?: boolean;
-  invert?: boolean;
+  visuals?: "default" | "border" | "inverted" | "inverted-border";
   status?: {
     variant?: Variant;
     placement?: "top-left" | "top-right" | "bottom-left" | "bottom-right";
@@ -21,6 +20,18 @@ export interface AvatarProps {
   className?: string;
 }
 
+/**
+ * An avatar component that displays user images, icons, or initials with various visual styles.
+ * @param src - Optional source URL for the avatar image
+ * @param icon - Optional icon to display in the avatar
+ * @param alt - Alt text for the avatar (required for accessibility)
+ * @param size - Optional size to apply to the avatar
+ * @param onClick - Optional click handler
+ * @param variant - Optional variant to apply to the avatar (default is "default")
+ * @param visuals - Visual style of the avatar: "default", "border", "inverted", or "inverted-border"
+ * @param status - Optional status indicator with variant, placement, and text
+ * @param className - Optional additional CSS classes
+ */
 export const Avatar = forwardRef(
   (
     {
@@ -31,8 +42,7 @@ export const Avatar = forwardRef(
       onClick,
       status,
       variant = Variant.Default,
-      invert = false,
-      border = false,
+      visuals = "default",
       className,
     }: AvatarProps,
     ref: ForwardedRef<HTMLSpanElement>,
@@ -64,8 +74,12 @@ export const Avatar = forwardRef(
               size,
               variant,
               onClick ? "cursor-pointer" : "cursor-default",
-              border && onClick && "variant-responsive-persistent-outline",
-              border && !onClick && "variant-static-persistent-outline",
+              (visuals === "border" || visuals === "inverted-border") &&
+                onClick &&
+                "variant-responsive-persistent-outline",
+              (visuals === "border" || visuals === "inverted-border") &&
+                !onClick &&
+                "variant-static-persistent-outline",
               "sized-height sized-width",
               "object-cover",
               "rounded-sm",
@@ -78,22 +92,24 @@ export const Avatar = forwardRef(
               variant,
               size,
               onClick ? "cursor-pointer" : "cursor-default",
-              !invert && "text-white dark:text-black",
-              invert && onClick && "variant-responsive-text",
-              invert && !onClick && "variant-static-text",
+              (visuals === "default" || visuals === "border") && "text-white dark:text-black",
+              (visuals === "inverted" || visuals === "inverted-border") &&
+                onClick &&
+                "variant-responsive-text",
+              (visuals === "inverted" || visuals === "inverted-border") &&
+                !onClick &&
+                "variant-static-text",
               "grid place-items-center rounded-sm select-none",
-              !border && !invert && onClick && "variant-responsive-bg",
-              !border && !invert && !onClick && "variant-static-bg",
-              border &&
-                !invert &&
+              visuals === "default" && onClick && "variant-responsive-bg",
+              visuals === "default" && !onClick && "variant-static-bg",
+              visuals === "border" &&
                 onClick &&
                 "variant-responsive-bg variant-responsive-appearing-outline",
-              border &&
-                !invert &&
+              visuals === "border" &&
                 !onClick &&
                 "variant-static-bg outline -outline-offset-1 dark:outline-black/25 outline-white/25",
-              border && invert && onClick && "variant-responsive-persistent-outline",
-              border && invert && !onClick && "variant-static-persistent-outline",
+              visuals === "inverted-border" && onClick && "variant-responsive-persistent-outline",
+              visuals === "inverted-border" && !onClick && "variant-static-persistent-outline",
               "sized-height sized-width sized-text",
               className,
             )}

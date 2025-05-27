@@ -411,26 +411,50 @@
   }
 
   .sized-list-item-indicator {
-    @apply h-[24px] w-[24px];
+    @apply size-[24px];
 
     @variant size-xs {
-      @apply h-[10px] w-[10px];
+      @apply size-[10px];
     }
 
     @variant size-sm {
-      @apply h-[16px] w-[16px];
+      @apply size-[16px];
     }
 
     @variant size-md {
-      @apply h-[22px] w-[22px];
+      @apply size-[22px];
     }
 
     @variant size-lg {
-      @apply h-[28px] w-[28px];
+      @apply size-[28px];
     }
 
     @variant size-xl {
-      @apply h-[34px] w-[34px];
+      @apply size-[34px];
+    }
+  }
+
+  .sized-list-item-indicator-height {
+    @apply h-[24px];
+
+    @variant size-xs {
+      @apply h-[10px];
+    }
+
+    @variant size-sm {
+      @apply h-[16px];
+    }
+
+    @variant size-md {
+      @apply h-[22px];
+    }
+
+    @variant size-lg {
+      @apply h-[28px];
+    }
+
+    @variant size-xl {
+      @apply h-[34px];
     }
   }
 
@@ -555,7 +579,7 @@
   }
 
   .variant-checkbox-bg {
-    @apply dark:bg-layout-dark-base bg-layout-light-base transition-colors;
+    @apply dark:bg-layout-dark-inset bg-layout-light-inset transition-colors;
 
     &:not(*:disabled) {
       &[data-state="checked"],
@@ -649,7 +673,6 @@
       }
 
       &[data-state="checked"] {
-        @apply dark:text-black text-white;
         background-color: color-mix(in oklab, var(--accent-color) 60%, transparent);
         &[data-highlighted] {
           background-color: color-mix(in oklab, var(--accent-color) 80%, transparent);

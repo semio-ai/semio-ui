@@ -10,7 +10,7 @@ export interface CheckboxProps {
   variant?: Variant;
   size?: Size;
   disabled?: boolean;
-  sizing: "default" | "inner" | "list-item";
+  sizing?: "default" | "inner" | "list-item";
   asIndicator?: boolean;
 }
 

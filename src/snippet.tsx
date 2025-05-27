@@ -65,7 +65,7 @@ export function Snippet({ text, language, className }: SnippetProps) {
           controlledState={isCopied ? [true, () => {}] : undefined}
         >
           <Button
-            invert
+            visuals="inverted"
             variant={isCopied ? Variant.Success : Variant.Default}
             onClick={() => {
               navigator.clipboard

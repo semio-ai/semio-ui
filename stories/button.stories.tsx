@@ -55,7 +55,7 @@ export const InvertedPrimary: Story = {
       // eslint-disable-next-line no-alert -- alert for demo
       alert("Hello From Semio!");
     },
-    invert: true,
+    visuals: "inverted",
     disabled: false,
   },
 };
@@ -68,8 +68,7 @@ export const InvertedSecondary: Story = {
       // eslint-disable-next-line no-alert -- alert for demo
       alert("Hello From Semio!");
     },
-    invert: true,
-    border: false,
+    visuals: "inverted",
     disabled: false,
   },
 };
@@ -82,8 +81,7 @@ export const BorderedPrimary: Story = {
       // eslint-disable-next-line no-alert -- alert for demo
       alert("Hello From Semio!");
     },
-    invert: true,
-    border: true,
+    visuals: "inverted-border",
     disabled: false,
   },
 };
@@ -96,8 +94,7 @@ export const BorderedSecondary: Story = {
       // eslint-disable-next-line no-alert -- alert for demo
       alert("Hello From Semio!");
     },
-    invert: true,
-    border: true,
+    visuals: "inverted-border",
     disabled: false,
   },
 };
@@ -110,8 +107,7 @@ export const PrimaryExtraSmall: Story = {
       // eslint-disable-next-line no-alert -- alert for demo
       alert("Hello From Semio!");
     },
-    invert: true,
-    border: true,
+    visuals: "inverted-border",
     size: Size.Xs,
     disabled: false,
   },
@@ -125,8 +121,7 @@ export const PrimarySmall: Story = {
       // eslint-disable-next-line no-alert -- alert for demo
       alert("Hello From Semio!");
     },
-    invert: true,
-    border: true,
+    visuals: "inverted-border",
     size: Size.Sm,
     disabled: false,
   },
@@ -140,8 +135,7 @@ export const PrimaryMedium: Story = {
       // eslint-disable-next-line no-alert -- alert for demo
       alert("Hello From Semio!");
     },
-    invert: true,
-    border: true,
+    visuals: "inverted-border",
     size: Size.Md,
     disabled: false,
   },
@@ -155,8 +149,7 @@ export const PrimaryLarge: Story = {
       // eslint-disable-next-line no-alert -- alert for demo
       alert("Hello From Semio!");
     },
-    invert: true,
-    border: true,
+    visuals: "inverted-border",
     size: Size.Lg,
     disabled: false,
   },
@@ -170,8 +163,7 @@ export const PrimaryExtraLarge: Story = {
       // eslint-disable-next-line no-alert -- alert for demo
       alert("Hello From Semio!");
     },
-    invert: true,
-    border: true,
+    visuals: "inverted-border",
     size: Size.Xl,
     disabled: false,
   },
@@ -197,8 +189,7 @@ export const CustomColorInvertedButton: Story = {
       // eslint-disable-next-line no-alert -- alert for demo
       alert("Hello From Semio!");
     },
-    invert: true,
-    border: false,
+    visuals: "inverted",
     size: Size.Md,
     disabled: false,
     color: "#FF00FF",
@@ -212,8 +203,7 @@ export const CustomColorBorderButton: Story = {
       // eslint-disable-next-line no-alert -- alert for demo
       alert("Hello From Semio!");
     },
-    invert: true,
-    border: true,
+    visuals: "inverted-border",
     size: Size.Md,
     disabled: false,
     color: "#FF00FF",
@@ -241,7 +231,7 @@ export const PrimaryInvertedIconButton: Story = {
       // eslint-disable-next-line no-alert -- alert for demo
       alert("Hello From Semio!");
     },
-    invert: true,
+    visuals: "inverted",
     size: Size.Md,
     disabled: false,
   },
@@ -255,8 +245,7 @@ export const PrimaryBorderedIconButton: Story = {
       // eslint-disable-next-line no-alert -- alert for demo
       alert("Hello From Semio!");
     },
-    invert: true,
-    border: true,
+    visuals: "inverted-border",
     size: Size.Md,
     disabled: false,
   },
@@ -271,8 +260,7 @@ export const PrimaryButtonIconText: Story = {
       // eslint-disable-next-line no-alert -- alert for demo
       alert("Hello From Semio!");
     },
-    invert: true,
-    border: true,
+    visuals: "inverted-border",
     size: Size.Md,
     disabled: false,
   },
@@ -287,7 +275,7 @@ export const PrimaryCallToActionButton: Story = {
       // eslint-disable-next-line no-alert -- alert for demo
       alert("Hello From Semio!");
     },
-    callToAction: true,
+    visuals: "call-to-action",
     size: Size.Md,
     disabled: false,
   },
@@ -301,7 +289,7 @@ export const CustomCallToActionButton: Story = {
       // eslint-disable-next-line no-alert -- alert for demo
       alert("Hello From Semio!");
     },
-    callToAction: true,
+    visuals: "call-to-action",
     size: Size.Md,
     disabled: false,
     color: "#FF33FF",

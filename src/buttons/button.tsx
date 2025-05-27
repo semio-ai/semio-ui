@@ -19,10 +19,11 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
   rightIcon?: ReactNode;
   size?: Size | "fit";
   deemphasize?: boolean;
-  invert?: boolean;
-  border?: boolean;
-  callToAction?: boolean;
+  // invert?: boolean;
+  // border?: boolean;
+  // callToAction?: boolean;
   submit?: boolean;
+  visuals?: "default" | "inverted" | "inverted-border" | "call-to-action" | "list-item";
 }
 
 /**
@@ -53,11 +54,12 @@ export const Button = forwardRef(
       rightIcon,
       size = Size.Md,
       deemphasize = false,
-      callToAction = false,
-      invert = false,
-      border = false,
+      // callToAction = false,
+      // invert = false,
+      // border = false,
       submit = false,
       className,
+      visuals = "default",
       ...props
     }: ButtonProps,
     ref: ForwardedRef<HTMLButtonElement>,
@@ -74,14 +76,14 @@ export const Button = forwardRef(
         data-deemphasized={deemphasize}
         className={clsx(
           "responsive select-none cursor-pointer disabled:cursor-default",
-          !invert &&
-            !border &&
-            !callToAction &&
+          visuals === "default" &&
             "variant-responsive-bg variant-responsive-appearing-outline text-white dark:text-black",
-          invert && !callToAction && "variant-responsive-text",
-          invert && !border && "outline-hidden",
-          invert && border && !callToAction && "variant-responsive-persistent-outline",
-          callToAction && "cta-button",
+          (visuals === "inverted" || visuals === "inverted-border") && "variant-responsive-text",
+          visuals === "inverted" && "outline-hidden",
+          visuals === "inverted-border" && "variant-responsive-persistent-outline",
+          visuals === "call-to-action" && "cta-button",
+          // For now we just inherit the parent styling in list items
+          visuals === "list-item" && "",
           "grid grid-rows-1 place-items-center",
           leftIcon && children && rightIcon && "grid-cols-[auto_1fr_auto]",
           leftIcon && children && !rightIcon && "grid-cols-[auto_1fr]",
@@ -89,8 +91,12 @@ export const Button = forwardRef(
           leftIcon && !children && rightIcon && "grid-cols-[auto_auto]",
           leftIcon && !children && !rightIcon && "grid-cols-[auto]",
           size !== "fit" && size,
-          size !== "fit" && "sized-text sized-height",
-          size !== "fit" && iconOnly && "sized-width",
+          size !== "fit" && visuals !== "list-item" && "sized-text sized-height",
+          size !== "fit" && iconOnly && visuals !== "list-item" && "sized-width",
+          size !== "fit" &&
+            visuals === "list-item" &&
+            "sized-text sized-list-item-indicator-height",
+          size !== "fit" && iconOnly && visuals === "list-item" && "sized-list-item-indicator",
           color ? "custom-color" : variant,
           className,
         )}
@@ -109,7 +115,8 @@ export const Button = forwardRef(
             className={clsx(
               "grid place-items-center",
               size === "fit" ? "h-fit w-fit" : size,
-              size !== "fit" && "sized-text sized-height sized-width",
+              size !== "fit" && visuals !== "list-item" && "sized-text sized-height sized-width",
+              size !== "fit" && visuals === "list-item" && "sized-text sized-list-item-indicator",
             )}
           >
             {leftIcon}
@@ -121,7 +128,8 @@ export const Button = forwardRef(
             className={clsx(
               "grid place-items-center",
               size === "fit" ? "h-fit w-fit" : size,
-              size !== "fit" && "sized-text sized-height sized-width",
+              size !== "fit" && visuals !== "list-item" && "sized-text sized-height sized-width",
+              size !== "fit" && visuals === "list-item" && "sized-text sized-list-item-indicator",
             )}
           >
             {rightIcon}

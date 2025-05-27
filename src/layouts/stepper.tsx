@@ -22,7 +22,7 @@ export function VerticalStepper({ steps, onStepChange, activeStep = 0 }: Vertica
       <div className="flex flex-col space-y-4 py-2">
         {steps.map((step, index) => (
           <Button
-            invert
+            visuals="inverted"
             aria-selected={index === activeStep}
             disabled={step.disabled}
             onClick={() => {

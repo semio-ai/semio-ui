@@ -29,7 +29,7 @@ function InnerHeaderButton(
       ref={ref}
       rightIcon={icon}
       className={clsx("variant-responsive-header-button-bg", className)}
-      invert
+      visuals="inverted"
       altText={label}
       {...forwardedProps}
     />

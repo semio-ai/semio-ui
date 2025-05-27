@@ -26,8 +26,7 @@ type Story = StoryObj<typeof Avatar>;
 export const Primary: Story = {
   args: {
     variant: Variant.Primary,
-    border: false,
-    invert: false,
+    visuals: "default",
     alt: "Fred",
     onClick: (): void => {
       // eslint-disable-next-line no-alert -- alert for demo
@@ -39,8 +38,7 @@ export const Primary: Story = {
 export const PrimaryNoClick: Story = {
   args: {
     variant: Variant.Primary,
-    border: false,
-    invert: false,
+    visuals: "default",
     alt: "Fred",
   },
 };
@@ -48,8 +46,7 @@ export const PrimaryNoClick: Story = {
 export const PrimaryBorder: Story = {
   args: {
     variant: Variant.Primary,
-    border: true,
-    invert: false,
+    visuals: "border",
     alt: "Fred",
     onClick: (): void => {
       // eslint-disable-next-line no-alert -- alert for demo
@@ -61,8 +58,7 @@ export const PrimaryBorder: Story = {
 export const PrimaryBorderNoClick: Story = {
   args: {
     variant: Variant.Primary,
-    border: true,
-    invert: false,
+    visuals: "border",
     alt: "Fred",
   },
 };
@@ -70,8 +66,7 @@ export const PrimaryBorderNoClick: Story = {
 export const PrimaryInverted: Story = {
   args: {
     variant: Variant.Primary,
-    border: false,
-    invert: true,
+    visuals: "inverted",
     alt: "Fred",
     onClick: (): void => {
       // eslint-disable-next-line no-alert -- alert for demo
@@ -83,8 +78,7 @@ export const PrimaryInverted: Story = {
 export const PrimaryInvertedNoClick: Story = {
   args: {
     variant: Variant.Primary,
-    border: false,
-    invert: true,
+    visuals: "inverted",
     alt: "Fred",
   },
 };
@@ -92,8 +86,7 @@ export const PrimaryInvertedNoClick: Story = {
 export const PrimaryInvertedBorder: Story = {
   args: {
     variant: Variant.Primary,
-    border: true,
-    invert: true,
+    visuals: "inverted-border",
     alt: "Fred",
     onClick: (): void => {
       // eslint-disable-next-line no-alert -- alert for demo
@@ -105,8 +98,7 @@ export const PrimaryInvertedBorder: Story = {
 export const PrimaryInvertedBorderNoClick: Story = {
   args: {
     variant: Variant.Primary,
-    border: true,
-    invert: true,
+    visuals: "inverted-border",
     alt: "Fred",
   },
 };
@@ -115,8 +107,7 @@ export const PrimarySrc: Story = {
   args: {
     variant: Variant.Primary,
     src: "https://avatars.githubusercontent.com/u/5341396?v=4&size=64",
-    border: false,
-    invert: false,
+    visuals: "default",
     alt: "Fred",
     onClick: (): void => {
       // eslint-disable-next-line no-alert -- alert for demo
@@ -129,8 +120,7 @@ export const PrimaryBorderSrc: Story = {
   args: {
     variant: Variant.Primary,
     src: "https://avatars.githubusercontent.com/u/5341396?v=4&size=64",
-    border: true,
-    invert: false,
+    visuals: "border",
     alt: "Fred",
     onClick: (): void => {
       // eslint-disable-next-line no-alert -- alert for demo
@@ -143,8 +133,7 @@ export const PrimaryStatusSrc: Story = {
   args: {
     variant: Variant.Primary,
     src: "https://avatars.githubusercontent.com/u/5341396?v=4&size=64",
-    border: false,
-    invert: false,
+    visuals: "default",
     alt: "Fred",
     onClick: (): void => {
       // eslint-disable-next-line no-alert -- alert for demo
@@ -160,8 +149,7 @@ export const PrimaryStatusSrc: Story = {
 export const PrimaryStatus: Story = {
   args: {
     variant: Variant.Primary,
-    border: false,
-    invert: false,
+    visuals: "default",
     alt: "Fred",
     onClick: (): void => {
       // eslint-disable-next-line no-alert -- alert for demo
@@ -178,8 +166,7 @@ export const PrimaryIconStatus: Story = {
   args: {
     variant: Variant.Primary,
     icon: <IconUser className="w-3/4 h-3/4" />,
-    border: false,
-    invert: false,
+    visuals: "default",
     alt: "Fred",
     onClick: (): void => {
       // eslint-disable-next-line no-alert -- alert for demo
@@ -196,8 +183,7 @@ export const PrimaryBorderStatusSrc: Story = {
   args: {
     variant: Variant.Primary,
     src: "https://avatars.githubusercontent.com/u/5341396?v=4&size=64",
-    border: true,
-    invert: false,
+    visuals: "border",
     alt: "Fred",
     onClick: (): void => {
       // eslint-disable-next-line no-alert -- alert for demo
@@ -213,8 +199,7 @@ export const PrimaryBorderStatusSrc: Story = {
 export const PrimaryIcon: Story = {
   args: {
     variant: Variant.Primary,
-    border: false,
-    invert: false,
+    visuals: "default",
     alt: "Fred",
     icon: <IconUser className="w-3/4 h-3/4" />,
     onClick: (): void => {
@@ -227,8 +212,7 @@ export const PrimaryIcon: Story = {
 export const DefaultExtraSmall: Story = {
   args: {
     variant: Variant.Default,
-    border: false,
-    invert: false,
+    visuals: "default",
     alt: "Fred",
     size: Size.Xs,
     onClick: (): void => {
@@ -241,8 +225,7 @@ export const DefaultExtraSmall: Story = {
 export const DefaultSmall: Story = {
   args: {
     variant: Variant.Default,
-    border: false,
-    invert: false,
+    visuals: "default",
     alt: "Fred",
     size: Size.Sm,
     onClick: (): void => {
@@ -255,8 +238,7 @@ export const DefaultSmall: Story = {
 export const DefaultMedium: Story = {
   args: {
     variant: Variant.Default,
-    border: false,
-    invert: false,
+    visuals: "default",
     alt: "Fred",
     size: Size.Md,
     onClick: (): void => {
@@ -269,8 +251,7 @@ export const DefaultMedium: Story = {
 export const DefaultLarge: Story = {
   args: {
     variant: Variant.Default,
-    border: false,
-    invert: false,
+    visuals: "default",
     alt: "Fred",
     size: Size.Lg,
     onClick: (): void => {
@@ -283,8 +264,7 @@ export const DefaultLarge: Story = {
 export const DefaultExtraLarge: Story = {
   args: {
     variant: Variant.Default,
-    border: false,
-    invert: false,
+    visuals: "default",
     alt: "Fred",
     size: Size.Xl,
     onClick: (): void => {
