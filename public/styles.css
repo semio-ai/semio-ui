@@ -593,6 +593,7 @@
       @apply cursor-pointer;
       @apply data-disabled:text-neutral-500/50;
       @apply dark:data-[highlighted]:text-black data-[highlighted]:text-white;
+      @apply dark:data-[state=checked]:text-black data-[state=checked]:text-white;
       color: var(--accent-color);
       &[data-highlighted] {
         background-color: color-mix(in oklab, var(--accent-color) 40%, transparent);
@@ -605,20 +606,6 @@
           background-color: color-mix(in oklab, var(--accent-color) 80%, transparent);
           @apply outline-2 dark:outline-black outline-white outline-offset-[-3px];
         }
-      }
-    }
-
-    @supports selector(:has(.foo)) {
-      .table-list-item[data-highlighted]:has(+ [data-highlighted]),
-      .table-list-item[data-state="checked"]:has(+ table-list-item[data-state="checked"]) {
-        border-end-start-radius: 0;
-        border-end-end-radius: 0;
-      }
-
-      .table-list-item[data-highlighted] + [data-highlighted],
-      .table-list-item[data-state="checked"]:has(+ table-list-item[data-state="checked"]) {
-        border-start-start-radius: 0;
-        border-start-end-radius: 0;
       }
     }
   }

@@ -52,7 +52,6 @@ export function SelectList<T extends string | string[]>({
       noHeader
       notFound={notFound}
       selectionMode={multiple ? "multiple" : "single"}
-      selectionBehavior="toggle"
       selectedKeys={selectedKeys}
       onSelectionChange={handleSelectionChange}
       rowClassName={clsx(

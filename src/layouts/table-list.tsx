@@ -19,15 +19,56 @@ import {
 } from "../hooks/use-table-list-state";
 import { Size, Variant } from "../types";
 
+/**
+ * Defines the structure and behavior of a table column.
+ *
+ * @template T - The type of table list items
+ * @property key - Unique identifier for the column, used for grid areas
+ * @property header - Content to display in the column header
+ * @property align - Text alignment within the column. Defaults to "left"
+ * @property flex - Whether the column should grow to fill available space
+ * @property requiredSize - Minimum screen size required to show this column
+ * @property render - Function to render the cell content for each row
+ */
 export interface ColumnDefinition<T extends TableListItem> {
   key: string;
   header: ReactNode;
   align?: "left" | "center" | "right";
   flex?: boolean;
   requiredSize?: Size;
-  render: (value: T) => ReactNode;
+  render: (value: T, elementFocused: boolean, elementSelected: boolean) => ReactNode;
 }
 
+/**
+ * Props for the TableList component.
+ *
+ * @template T - The type of table list items extending TableListItem
+ * @property data - Array of data items to display in the table
+ * @property columns - Column definitions that specify how to render each column
+ * @property headerOffset - Offset from top for sticky header positioning. Defaults to 0
+ * @property noHeader - Whether to hide the header row. Defaults to false
+ * @property rowClassName - Additional CSS class for table rows
+ * @property fullWidth - Whether the table should take full width. Defaults to false
+ * @property headerClassName - Additional CSS class for the header
+ * @property backgroundClassName - Additional CSS class for the table background
+ * @property notFound - Content to show when no data is available
+ * @property size - Size variant for the table rows and header. Defaults to Size.Md
+ * @property variant - Visual variant for styling. Defaults to Variant.Default
+ * @property selectionMode - Selection mode: "none", "single", or "multiple". Defaults to "none"
+ * @property selectedKeys - Currently selected item keys (controlled mode)
+ * @property onSelectionChange - Callback when selection changes (controlled mode)
+ * @property defaultSelectedKeys - Default selected keys for uncontrolled mode
+ * @property focusedKey - Currently focused item key (controlled mode)
+ * @property onFocusChange - Callback when focus changes (controlled mode)
+ * @property defaultFocusedKey - Default focused key for uncontrolled mode
+ * @property disallowEmptySelection - Whether to prevent clearing all selections. Defaults to false
+ * @property allowTypeAhead - Enable type-ahead search functionality. Defaults to true
+ * @property allowWrapNavigation - Allow wrapping navigation at list boundaries. Defaults to true
+ * @property getSearchText - Custom function to extract search text from items
+ * @property onAction - Callback for item activation (Enter key or double-click equivalent)
+ * @property onKeyDown - Custom keydown handler for items
+ * @property transparentHeader - Whether the header should have a transparent background. Defaults to true
+ */
 export interface TableListProps<T extends TableListItem> {
   data: T[];
   columns: ColumnDefinition<T>[];
@@ -73,6 +114,65 @@ export interface TableListProps<T extends TableListItem> {
   transparentHeader?: boolean;
 }
 
+/**
+ * A flexible, accessible table list component with built-in selection and keyboard navigation.
+ *
+ * Features:
+ * - Desktop-style selection behavior with CMD/CTRL+Click and Shift+Click support
+ * - Keyboard navigation with arrow keys, space, and enter
+ * - Type-ahead search functionality
+ * - Responsive column hiding based on screen size
+ * - Consecutive visual merging of selected/focused items
+ * - Controlled and uncontrolled selection modes
+ * - Customizable sizing and styling
+ *
+ * Selection Behavior:
+ * - Regular click: Select only clicked item
+ * - Cmd+Click: Toggle selection of clicked item
+ * - Shift+Click: Extend selection from anchor to clicked item (multiple mode only)
+ * - Arrow keys: Move focus and select item (single selection)
+ * - Cmd+Arrow: Move focus without changing selection
+ * - Shift+Arrow: Extend selection in direction (multiple mode only)
+ * - Space: Toggle selection of focused item
+ * - Enter: Activate item (calls onAction) or behaves like click if no onAction
+ * - Cmd+A: Select all items (multiple mode only)
+ * - Escape: Clear all selection
+ *
+ * @template T - The type of data items, must extend TableListItem
+ * @param props - Configuration props for the table list
+ * @returns Rendered table list component
+ *
+ * @example
+ * ```tsx
+ * interface User extends TableListItem {
+ *   key: string;
+ *   name: string;
+ *   email: string;
+ * }
+ *
+ * const columns: ColumnDefinition<User>[] = [
+ *   {
+ *     key: 'name',
+ *     header: 'Name',
+ *     render: (user) => user.name,
+ *     flex: true,
+ *   },
+ *   {
+ *     key: 'email',
+ *     header: 'Email',
+ *     render: (user) => user.email,
+ *   },
+ * ];
+ *
+ * <TableList
+ *   data={users}
+ *   columns={columns}
+ *   selectionMode="multiple"
+ *   onSelectionChange={setSelectedKeys}
+ *   onAction={(key) => openUser(key)}
+ * />
+ * ```
+ */
 export function TableList<T extends TableListItem>({
   data,
   columns,
@@ -152,6 +252,9 @@ export function TableList<T extends TableListItem>({
         gridTemplateColumns: templateColumns,
         gridTemplateAreas,
       }}
+      onMouseLeave={() => {
+        tableState.setFocusedKey(null);
+      }}
       {...navigationProps}
     >
       {!noHeader && (
@@ -188,6 +291,12 @@ export function TableList<T extends TableListItem>({
       )}
       {data.map((row, idx) => {
         const itemProps = tableState.getItemProps(row.key);
+        const consecutiveClass = getConsecutiveClasses(
+          data,
+          idx,
+          tableState.isSelected,
+          tableState.isFocused,
+        );
 
         return (
           <Row
@@ -202,6 +311,7 @@ export function TableList<T extends TableListItem>({
             selectionMode={selectionMode}
             size={size}
             variant={variant}
+            consecutiveClass={consecutiveClass}
             {...itemProps}
           />
         );
@@ -233,6 +343,7 @@ interface RowProps<T extends TableListItem> {
   // Visual Config
   size?: Size;
   variant?: Variant;
+  consecutiveClass?: string;
 
   // Event handlers from useTableListState
   role?: string;
@@ -255,6 +366,7 @@ function InnerRow<T extends TableListItem>({
   selectionMode,
   size = Size.Md,
   variant = Variant.Default,
+  consecutiveClass = "rounded-xs",
   role,
   "aria-selected": ariaSelected,
   "aria-disabled": ariaDisabled,
@@ -265,8 +377,6 @@ function InnerRow<T extends TableListItem>({
   onBlur,
 }: RowProps<T>) {
   const ref = useRef<HTMLDivElement>(null);
-
-  // console.log(row.key, selected, focused);
 
   useEffect(() => {
     if (focused && ref.current) {
@@ -280,11 +390,11 @@ function InnerRow<T extends TableListItem>({
       ref={ref}
       className={clsx(
         "group/row grid grid-cols-subgrid",
-        "leading-none rounded-sm responsive",
+        "leading-none responsive",
+        consecutiveClass,
         "sized-height sized-text select-none outline-hidden",
         "items-center",
         "responsive table-list-item",
-        "text-black dark:text-white",
         size,
         variant,
         rowClassName,
@@ -293,7 +403,7 @@ function InnerRow<T extends TableListItem>({
       style={{
         gridColumn: `span ${columns.length.toString()} / span ${columns.length.toString()}`,
       }}
-      data-highlighted={focused ? "" : undefined}
+      data-highlighted={focused ? "true" : undefined}
       data-state={selected && selectionMode !== "none" ? "checked" : "unchecked"}
       aria-selected={ariaSelected}
       aria-disabled={ariaDisabled}
@@ -316,7 +426,7 @@ function InnerRow<T extends TableListItem>({
           )}
           key={columnIndex}
         >
-          {column.render(row)}
+          {column.render(row, focused ?? false, selected ?? false)}
         </div>
       ))}
     </div>
@@ -341,3 +451,44 @@ const sizeLookup: Record<Size, number> = {
   [Size.Lg]: 512,
   [Size.Xl]: 576,
 };
+
+/**
+ * Helper function to determine consecutive element classes for visual merging.
+ * Analyzes neighboring elements to apply appropriate border radius classes.
+ *
+ * @template T - The type of table list items
+ * @param data - Array of all table items
+ * @param index - Current item index in the array
+ * @param isSelected - Function to check if an item is selected
+ * @param isFocused - Function to check if an item is focused
+ * @returns CSS class name for border radius styling
+ */
+function getConsecutiveClasses<T extends TableListItem>(
+  data: T[],
+  index: number,
+  isSelected: (key: string) => boolean,
+  isFocused: (key: string) => boolean,
+): string {
+  const current = data[index];
+  const prev = data[index - 1];
+  const next = data[index + 1];
+
+  const currentActive = isSelected(current.key) || isFocused(current.key);
+  const prevActive = prev && (isSelected(prev.key) || isFocused(prev.key));
+  const nextActive = next && (isSelected(next.key) || isFocused(next.key));
+
+  if (!currentActive) return "rounded-xs"; // Default rounding for non-active items
+
+  const hasActiveBefore = prevActive;
+  const hasActiveAfter = nextActive;
+
+  if (hasActiveBefore && hasActiveAfter) {
+    return "rounded-none"; // Middle of group
+  } else if (hasActiveBefore) {
+    return "rounded-b-xs rounded-t-none"; // End of group
+  } else if (hasActiveAfter) {
+    return "rounded-t-xs rounded-b-none"; // Start of group
+  } else {
+    return "rounded-xs"; // Standalone item
+  }
+}
