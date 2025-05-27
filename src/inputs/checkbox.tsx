@@ -10,6 +10,8 @@ export interface CheckboxProps {
   variant?: Variant;
   size?: Size;
   disabled?: boolean;
+  sizing: "default" | "inner" | "list-item";
+  asIndicator?: boolean;
 }
 
 export function Checkbox({
@@ -19,6 +21,8 @@ export function Checkbox({
   variant = Variant.Default,
   size = Size.Md,
   disabled = false,
+  sizing = "default",
+  asIndicator = false,
 }: CheckboxProps) {
   return (
     <RadixCheckbox.Root
@@ -30,15 +34,20 @@ export function Checkbox({
         "responsive",
         size,
         variant,
-        "sized-height sized-width rounded-xs",
+        sizing === "default" && "sized-height sized-width",
+        sizing === "inner" && "sized-inner-group-item",
+        sizing === "list-item" && "sized-list-item-indicator",
+        "rounded-xs",
         "flex items-center justify-center",
-        "variant-checkbox-bg",
-        "variant-responsive-appearing-outline",
+        asIndicator ? "grid-list-item-indicator" : "variant-checkbox-bg",
+        !asIndicator && "variant-responsive-appearing-outline",
         "appearance-none",
       )}
     >
-      <RadixCheckbox.Indicator className={clsx(variant, "dark:text-black text-white")}>
-        <IconCheck className="w-full h-full" />
+      <RadixCheckbox.Indicator
+        className={clsx(variant, "dark:text-black text-white", "grid place-items-center")}
+      >
+        <IconCheck className="w-4/5 h-4/5" />
       </RadixCheckbox.Indicator>
     </RadixCheckbox.Root>
   );

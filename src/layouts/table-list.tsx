@@ -11,6 +11,7 @@ import {
 import { clsx } from "clsx";
 import useMeasure from "react-use-measure";
 import { mergeRefs } from "react-merge-refs";
+import { IconPointFilled } from "@tabler/icons-react";
 import { useClickAway } from "../hooks/use-click-away";
 import {
   useTableListState,
@@ -18,6 +19,8 @@ import {
   type SelectionMode,
 } from "../hooks/use-table-list-state";
 import { Size, Variant } from "../types";
+import { Checkbox } from "../inputs/checkbox";
+import { ToggleSquare } from "../inputs/toggle-square";
 
 /**
  * Defines the structure and behavior of a table column.
@@ -68,6 +71,7 @@ export interface ColumnDefinition<T extends TableListItem> {
  * @property onAction - Callback for item activation (Enter key or double-click equivalent)
  * @property onKeyDown - Custom keydown handler for items
  * @property transparentHeader - Whether the header should have a transparent background. Defaults to true
+ * @property showIndicators - Whether to show selection indicators (radio/checkbox) in first column. Defaults to false
  */
 export interface TableListProps<T extends TableListItem> {
   data: T[];
@@ -111,7 +115,7 @@ export interface TableListProps<T extends TableListItem> {
   onAction?: (key: string, event: KeyboardEvent | MouseEvent) => void;
   onKeyDown?: (key: string, event: KeyboardEvent) => void;
 
-  transparentHeader?: boolean;
+  showIndicators?: boolean;
 }
 
 /**
@@ -202,7 +206,7 @@ export function TableList<T extends TableListItem>({
   onAction,
   onKeyDown,
 
-  transparentHeader = true,
+  showIndicators = false,
 }: TableListProps<T>) {
   const [containerRef, containerBounds] = useMeasure();
   const clickAwayDetectorRef = useRef<HTMLDivElement>(null);
@@ -229,14 +233,96 @@ export function TableList<T extends TableListItem>({
     tableState.setFocusedKey(null);
   });
   const activeColumns = useMemo(() => {
-    return columns.filter((column) => {
+    const filteredColumns = columns.filter((column) => {
       if (column.requiredSize) {
         return containerBounds.width >= sizeLookup[column.requiredSize];
       } else {
         return true;
       }
     });
-  }, [columns, containerBounds.width]);
+
+    // Add indicators column if showIndicators is true and selection mode is not "none"
+    if (showIndicators && selectionMode !== "none") {
+      return [
+        {
+          key: "_indicators",
+          header:
+            selectionMode === "multiple" ? (
+              <div className="pl-1">
+                <Checkbox
+                  sizing="list-item"
+                  checked={tableState.selectedKeys.size === data.length && data.length > 0}
+                  onCheckedChange={(checked) => {
+                    if (checked) {
+                      tableState.selectAll();
+                    } else {
+                      tableState.clearSelection();
+                    }
+                  }}
+                  size={size}
+                  variant={variant}
+                />
+              </div>
+            ) : null,
+          align: "center" as const,
+          render: (item: T) => {
+            if (selectionMode === "single") {
+              const selected = tableState.isSelected(item.key);
+              return (
+                <div className="pl-1">
+                  <ToggleSquare
+                    asIndicator
+                    sizing="list-item"
+                    value={selected}
+                    onChange={(checked) => {
+                      if (checked) {
+                        tableState.handleItemClick(item.key, {} as MouseEvent);
+                      }
+                    }}
+                    size={size}
+                    variant={variant}
+                  >
+                    {selected && <IconPointFilled className="w-3/5 h-3/5" />}
+                  </ToggleSquare>
+                </div>
+              );
+            } else {
+              return (
+                <div className="pl-1">
+                  <Checkbox
+                    asIndicator
+                    sizing="list-item"
+                    checked={tableState.isSelected(item.key)}
+                    onCheckedChange={(checked) => {
+                      if (checked) {
+                        tableState.select(item.key);
+                      } else {
+                        tableState.deselect(item.key);
+                      }
+                    }}
+                    size={size}
+                    variant={variant}
+                  />
+                </div>
+              );
+            }
+          },
+        },
+        ...filteredColumns,
+      ];
+    }
+
+    return filteredColumns;
+  }, [
+    columns,
+    containerBounds.width,
+    showIndicators,
+    selectionMode,
+    tableState,
+    data.length,
+    size,
+    variant,
+  ]);
   const templateColumns = useMemo(() => {
     return getTemplateColumns(activeColumns);
   }, [activeColumns]);
@@ -262,7 +348,8 @@ export function TableList<T extends TableListItem>({
           className={clsx(
             "sized-height grid grid-cols-subgrid sticky w-full",
             "dark:text-neutral-600 text-neutral-400 responsive",
-            transparentHeader ? "dark:bg-black/50 bg-white/50" : "bg-white dark:bg-black",
+            "border-b border-b-neutral-400 dark:border-b-neutral-600",
+            "backdrop-blur-lg",
             size,
             headerClassName,
           )}
@@ -439,6 +526,10 @@ const Row = memo(InnerRow) as typeof InnerRow;
 function getTemplateColumns<T extends TableListItem>(columns: ColumnDefinition<T>[]) {
   return columns
     .map((column) => {
+      // Indicators column should be auto-sized
+      if (column.key === "_indicators") {
+        return "auto";
+      }
       return column.flex ? "1fr" : "auto";
     })
     .join(" ");

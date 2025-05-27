@@ -68,7 +68,6 @@ export function Dropzone<T extends TableListItem>({
             columns={columns}
             rowClassName={rowClassName}
             headerClassName={headerClassName}
-            transparentHeader={false}
           />
         </ScrollArea>
       )}

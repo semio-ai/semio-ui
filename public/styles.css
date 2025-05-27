@@ -410,6 +410,30 @@
     }
   }
 
+  .sized-list-item-indicator {
+    @apply h-[24px] w-[24px];
+
+    @variant size-xs {
+      @apply h-[10px] w-[10px];
+    }
+
+    @variant size-sm {
+      @apply h-[16px] w-[16px];
+    }
+
+    @variant size-md {
+      @apply h-[22px] w-[22px];
+    }
+
+    @variant size-lg {
+      @apply h-[28px] w-[28px];
+    }
+
+    @variant size-xl {
+      @apply h-[34px] w-[34px];
+    }
+  }
+
   .sized-inner-group-item {
     @apply h-[28px] w-[28px];
 
@@ -572,6 +596,31 @@
     }
 
     &:is(:where(.group\/item)[data-state="checked"] *) {
+      background-color: var(--accent-color);
+    }
+  }
+
+  .grid-list-item-indicator {
+    @apply transition-[color,background-color] duration-[50ms] ease-in-out;
+    @apply rounded-xs bg-transparent;
+
+    @apply data-disabled:text-neutral-500/50;
+    @apply dark:text-default-400 text-default-600;
+    @apply dark:data-[highlighted]:text-black data-[highlighted]:text-white;
+    @apply dark:data-[state=checked]:text-black data-[state=checked]:text-white;
+    @apply dark:data-[state=on]:text-black data-[state=on]:text-white;
+    @apply data-[highlighted]:data-[state=unchecked]:text-white;
+    @apply dark:data-[highlighted]:data-[state=unchecked]:text-black;
+    @apply data-[state=unchecked]:opacity-50;
+    @apply dark:data-[state=checked]:bg-layout-light-base data-[state=checked]:bg-layout-dark-base;
+    @apply dark:data-[state=on]:bg-layout-light-base data-[state=on]:bg-layout-dark-base;
+
+    &:is(:where(.group\/item)[data-state="unchecked"] *) {
+      color: var(--accent-color);
+    }
+
+    &:is(:where(.group\/item)[data-state="checked"] *),
+    &:is(:where(.group\/item)[data-state="on"] *) {
       background-color: var(--accent-color);
     }
   }

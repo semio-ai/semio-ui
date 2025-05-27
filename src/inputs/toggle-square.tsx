@@ -12,6 +12,8 @@ export interface ToggleSquareProps {
   label?: string;
   children?: ReactNode;
   size?: Size;
+  sizing?: "default" | "inner" | "list-item";
+  asIndicator?: boolean;
 }
 
 export function ToggleSquare({
@@ -22,6 +24,8 @@ export function ToggleSquare({
   size,
   label,
   children,
+  sizing = "default",
+  asIndicator = false,
 }: ToggleSquareProps) {
   return (
     <Tooltip disabled={disabled} content={label ?? "Option"}>
@@ -32,10 +36,13 @@ export function ToggleSquare({
           "responsive",
           size,
           variant,
-          "sized-inner-group-item rounded-xs",
+          sizing === "default" && "sized-height sized-width",
+          sizing === "inner" && "sized-inner-group-item",
+          sizing === "list-item" && "sized-list-item-indicator",
+          "rounded-xs",
           "flex items-center justify-center",
-          "variant-checkbox-bg",
-          "variant-responsive-appearing-outline",
+          asIndicator ? "grid-list-item-indicator" : "variant-checkbox-bg",
+          !asIndicator && "variant-responsive-appearing-outline",
           "appearance-none",
           "dark:data-[state=on]:text-neutral-800",
           "data-[state=on]:text-neutral-200",
