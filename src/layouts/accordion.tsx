@@ -2,6 +2,7 @@ import React from "react";
 import { Accordion as RadixAccordion } from "radix-ui";
 import { IconChevronDown } from "@tabler/icons-react";
 import { clsx } from "clsx";
+import { Size } from "../types";
 
 export interface AccordionProps {
   sticky?: boolean;
@@ -32,14 +33,19 @@ export function Accordion({ items, defaultOpen = false, sticky, stickyOffset }: 
                 : {}
             }
           >
-            <RadixAccordion.Trigger className="w-full text-left p-1 text-sm group m-0">
-              <span className="text-neutral-700 dark:text-neutral-300 flex flex-row ">
-                <div className="p-1">
-                  <IconChevronDown
-                    size={12}
-                    className="transition-transform group-data-[state=open]:rotate-0 group-data-[state=closed]:-rotate-90"
-                  />
-                </div>
+            <RadixAccordion.Trigger className="w-full text-left grid grid-cols-[auto_1fr] p-1 gap-2 text-sm group items-center">
+              <div
+                className={clsx(
+                  Size.Sm,
+                  "sized-list-item-indicator rounded-xs grid-list-item-indicator grid place-items-center",
+                )}
+              >
+                <IconChevronDown
+                  size={12}
+                  className="transition-transform group-data-[state=open]:rotate-0 group-data-[state=closed]:-rotate-90"
+                />
+              </div>
+              <span className="text-neutral-700 dark:text-neutral-300 flex flex-row">
                 {item.header}
               </span>
             </RadixAccordion.Trigger>
