@@ -632,7 +632,7 @@
 
   .grid-list-item-indicator {
     @apply transition-[color,background-color] duration-[50ms] ease-in-out;
-    @apply rounded-xs bg-transparent;
+    @apply rounded-xs dark:bg-black/40 bg-white/40;
 
     @apply data-disabled:text-neutral-500/50;
     @apply dark:text-default-400 text-default-600;

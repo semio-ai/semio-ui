@@ -360,8 +360,12 @@ export function useTableListState<T extends TableListItem>({
       }
 
       if (selectionMode === "single") {
-        // In single mode, always select the clicked item
-        select(key);
+        // In single mode, allow deselecting if disallowEmptySelection is false
+        if (isSelected(key) && !disallowEmptySelection) {
+          updateSelection(new Set());
+        } else {
+          select(key);
+        }
         return;
       }
 
@@ -375,8 +379,13 @@ export function useTableListState<T extends TableListItem>({
         setAnchorKey(key);
       } else {
         // Regular click: Select only this item
-        // If clicking on already selected item when multiple are selected, select only that item
-        updateSelection(new Set([key]));
+        // If clicking on already selected item when multiple are selected, allow deselection
+        // if it's the only selected item and disallowEmptySelection is false
+        if (selectedKeys.size === 1 && isSelected(key) && !disallowEmptySelection) {
+          updateSelection(new Set());
+        } else {
+          updateSelection(new Set([key]));
+        }
         setAnchorKey(key);
       }
     },
@@ -390,6 +399,9 @@ export function useTableListState<T extends TableListItem>({
       anchorKey,
       updateSelection,
       onAction,
+      isSelected,
+      selectedKeys,
+      disallowEmptySelection,
     ],
   );
 
@@ -515,7 +527,12 @@ export function useTableListState<T extends TableListItem>({
               toggle(key);
               setAnchorKey(key);
             } else {
-              updateSelection(new Set([key]));
+              // Regular Enter: Allow deselection if it's the only selected item and disallowEmptySelection is false
+              if (selectedKeys.size === 1 && isSelected(key) && !disallowEmptySelection) {
+                updateSelection(new Set());
+              } else {
+                updateSelection(new Set([key]));
+              }
               setAnchorKey(key);
             }
           }
@@ -571,6 +588,9 @@ export function useTableListState<T extends TableListItem>({
       onAction,
       anchorKey,
       updateSelection,
+      isSelected,
+      selectedKeys,
+      disallowEmptySelection,
     ],
   );
 
