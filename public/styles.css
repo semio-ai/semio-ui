@@ -11,11 +11,11 @@
 @custom-variant data-expanded (&[data-ui~="expanded"]);
 @custom-variant data-checked (&[data-ui~="checked"]);
 
-@custom-variant size-xs (&:where(.size-xs, .size-xs *));
-@custom-variant size-sm (&:where(.size-sm, .size-sm *));
-@custom-variant size-md (&:where(.size-md, .size-md *));
-@custom-variant size-lg (&:where(.size-lg, .size-lg *));
-@custom-variant size-xl (&:where(.size-xl, .size-xl *));
+@custom-variant size-xs (&:where(.size-xs));
+@custom-variant size-sm (&:where(.size-sm));
+@custom-variant size-md (&:where(.size-md));
+@custom-variant size-lg (&:where(.size-lg));
+@custom-variant size-xl (&:where(.size-xl));
 
 @custom-variant primary (&:where(.primary));
 @custom-variant secondary (&:where(.secondary));
