@@ -64,12 +64,12 @@ function InnerLayoutRoot({
           "--content-size": contentWidth,
           "--left-size": leftWidth,
           "--right-size": rightWidth,
-          "--content-right-gap": rightRegionActive ? "4px" : "0px",
+          "--content-right-gap": rightRegionActive ? "var(--padding-width)" : "0px",
           "--content-left-gap":
             leftRegionActive && !leftWidth.includes("1fr") && !leftWidth.includes("0fr")
-              ? "4px"
+              ? "var(--padding-width)"
               : "0px",
-          "--content-footer-gap": footerRegionActive ? "4px" : "0px",
+          "--content-footer-gap": footerRegionActive ? "var(--padding-width)" : "0px",
         } as CSSProperties
       }
       ref={root as MutableRefObject<HTMLDivElement>}

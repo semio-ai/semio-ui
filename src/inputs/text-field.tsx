@@ -85,8 +85,6 @@ const InnerTextField = forwardRef(
             icon ? "sized-inner-group-left-padding" : "pl-1",
             onClear ? "sized-inner-group-right-padding" : "pr-1",
             "variant-text-caret-color",
-            subtle &&
-              "dark:focus:text-white focus:text-black text-neutral-600 dark:text-neutral-400",
             !subtle && "text-black dark:text-white",
             className,
           )}

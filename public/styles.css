@@ -667,6 +667,15 @@
   }
 
   .table-list {
+    .table-list-text {
+      @apply transition-colors duration-[50ms] ease-in-out;
+      @apply data-disabled:text-neutral-500/50;
+      @apply dark:group-data-[highlighted]/row:text-black group-data-[highlighted]/row:text-white;
+      @apply dark:group-data-[state=checked]/row:text-black group-data-[state=checked]/row:text-white;
+      @apply dark:focus:text-black focus:text-white;
+      color: var(--accent-color);
+    }
+
     .table-list-item {
       @apply transition-colors duration-[50ms] ease-in-out;
       @apply cursor-pointer;
@@ -1003,7 +1012,7 @@
 
   .app-layout {
     display: grid;
-    --padding-width: 4px;
+    --padding-width: 10px;
     padding: var(--padding-width);
 
     grid-template-areas:

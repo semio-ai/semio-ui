@@ -1,4 +1,5 @@
 import { memo, type ReactNode, type ChangeEvent, type KeyboardEvent, useRef } from "react";
+import { clsx } from "clsx";
 import { IconSearch } from "@tabler/icons-react";
 import { Size, Variant } from "../types";
 import { TextField, TextFieldProps } from "./text-field";
@@ -29,7 +30,10 @@ function InnerSearch({
   return (
     <TextField
       ref={inputRef}
-      subtle
+      className={clsx(
+        "dark:focus:text-white focus:text-black text-neutral-600 dark:text-neutral-400",
+        forwardedProps.className,
+      )}
       size={size}
       variant={variant}
       icon={<IconSearch className="h-3/5 w-3/5" />}

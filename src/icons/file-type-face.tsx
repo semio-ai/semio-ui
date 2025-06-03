@@ -2,12 +2,12 @@ import { forwardRef, type ForwardedRef } from "react";
 import { type TablerIconsProps } from "@tabler/icons-react";
 import { clsx } from "clsx";
 
-export interface IconFileTypeVizijProps extends TablerIconsProps {
+export interface IconFileTypeFaceProps extends TablerIconsProps {
   className?: string;
 }
 
-const IconFileTypeVizij = forwardRef(
-  ({ className, ...props }: IconFileTypeVizijProps, ref: ForwardedRef<SVGSVGElement>) => {
+const IconFileTypeFace = forwardRef(
+  ({ className, ...props }: IconFileTypeFaceProps, ref: ForwardedRef<SVGSVGElement>) => {
     return (
       <svg
         ref={ref}
@@ -30,6 +30,6 @@ const IconFileTypeVizij = forwardRef(
   },
 );
 
-IconFileTypeVizij.displayName = "IconFileTypeVizij";
+IconFileTypeFace.displayName = "IconFileTypeFace";
 
-export { IconFileTypeVizij };
+export { IconFileTypeFace };

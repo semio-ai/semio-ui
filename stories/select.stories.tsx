@@ -65,7 +65,7 @@ export const Primary: Story = {
 export const Multiple: Story = {
   render: (props) => {
     return (
-      <div className="w-[100%]">
+      <div className="w-full">
         <SelectWithHooks {...props} />
       </div>
     );

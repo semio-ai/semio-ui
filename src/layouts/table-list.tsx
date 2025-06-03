@@ -269,7 +269,9 @@ export function TableList<T extends TableListItem>({
                   variant={variant}
                 />
               </div>
-            ) : null,
+            ) : (
+              <div className="h-full aspect-square" />
+            ),
           align: "center" as const,
           render: (item: T) => {
             if (selectionMode === "single") {
@@ -355,7 +357,8 @@ export function TableList<T extends TableListItem>({
             "sized-height grid grid-cols-subgrid sticky w-full",
             "dark:text-neutral-600 text-neutral-400 responsive",
             "border-b border-b-neutral-400 dark:border-b-neutral-600",
-            "backdrop-blur-lg",
+            "bg-transparent backdrop-blur-lg",
+            "z-1",
             size,
             headerClassName,
           )}
@@ -411,7 +414,7 @@ export function TableList<T extends TableListItem>({
       })}
       {data.length === 0 && notFound && (
         <div
-          className={clsx("group/row grid")}
+          className={clsx("group/row grid nth-[2]:mt-1")}
           style={{
             gridColumn: `span ${activeColumns.length.toString()} / span ${activeColumns.length.toString()}`,
           }}
@@ -489,6 +492,7 @@ function InnerRow<T extends TableListItem>({
         "items-center",
         "responsive table-list-item",
         "nth-[2]:mt-1",
+        "z-0",
         size,
         variant,
         rowClassName,

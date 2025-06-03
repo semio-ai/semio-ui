@@ -32,6 +32,7 @@ export function InnerScrollArea({
   shrinkHeight = false,
   shrinkWidth = false,
   orientation = "both",
+  showGutter = true,
 }: {
   children: ReactNode;
   header?: ReactNode;
@@ -44,6 +45,7 @@ export function InnerScrollArea({
   shrinkHeight?: boolean;
   shrinkWidth?: boolean;
   orientation?: "vertical" | "horizontal" | "both";
+  showGutter?: boolean;
 }) {
   const [headerRef, headerBounds] = useMeasure();
   const [footerRef, footerBounds] = useMeasure();
@@ -85,8 +87,8 @@ export function InnerScrollArea({
         <RadixScrollArea.Scrollbar
           className={clsx(
             "flex select-none touch-none py-1 px-0.5",
-            "bg-black/5 dark:bg-white/5 transition-colors duration-[160ms]",
-            "ease-out dark:hover:bg-white/25 hover:bg-black/25",
+            "ease-out transition-colors duration-[160ms]",
+            showGutter && "dark:hover:bg-white/25 hover:bg-black/25 bg-black/5 dark:bg-white/5",
             "data-[orientation=vertical]:w-2.5 data-[orientation=horizontal]:flex-col data-[orientation=horizontal]:h-2.5",
           )}
           orientation="vertical"
@@ -108,8 +110,8 @@ export function InnerScrollArea({
         <RadixScrollArea.Scrollbar
           className={clsx(
             "flex select-none touch-none py-0.5 px-1",
-            "bg-black/5 dark:bg-white/5 transition-colors duration-[160ms]",
-            "ease-out dark:hover:bg-white/25 hover:bg-black/25",
+            "ease-out transition-colors duration-[160ms]",
+            showGutter && "dark:hover:bg-white/25 hover:bg-black/25 bg-black/5 dark:bg-white/5",
             "data-[orientation=vertical]:w-2.5 data-[orientation=horizontal]:flex-col data-[orientation=horizontal]:h-2.5",
           )}
           orientation="horizontal"

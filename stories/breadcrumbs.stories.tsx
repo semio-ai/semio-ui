@@ -6,7 +6,7 @@ import {
   Breadcrumbs,
   IconFileTypeAni,
   IconFileTypeMod,
-  IconFileTypeVizij,
+  IconFileTypeFace,
   IconHome,
   Size,
   Variant,
@@ -46,7 +46,7 @@ const STATIC_ELEMENTS: BreadcrumbElement[] = [
       {
         value: "dashboard",
         label: "Dashboard",
-        icon: <IconDashboard className="size-3/5" />,
+        icon: <IconDashboard className="h-3/5 aspect-square" />,
         children: [
           {
             id: "subRoot",
@@ -55,32 +55,32 @@ const STATIC_ELEMENTS: BreadcrumbElement[] = [
               {
                 value: "home",
                 label: "Home",
-                icon: <IconHome className="size-3/5" />,
+                icon: <IconHome className="h-3/5 aspect-square" />,
                 default: true,
                 children: [],
               },
               {
                 value: "projects",
                 label: "Projects",
-                icon: <IconCube className="size-3/5" />,
+                icon: <IconCube className="h-3/5 aspect-square" />,
                 children: [],
               },
               {
                 value: "animations",
                 label: "Animations",
-                icon: <IconFileTypeAni className="size-3/5" />,
+                icon: <IconFileTypeAni className="h-3/5 aspect-square" />,
                 children: [],
               },
               {
                 value: "faces",
                 label: "Faces",
-                icon: <IconFileTypeVizij className="size-3/5" />,
+                icon: <IconFileTypeFace className="h-3/5 aspect-square" />,
                 children: [],
               },
               {
                 value: "models",
                 label: "Models",
-                icon: <IconFileTypeMod className="size-3/5" />,
+                icon: <IconFileTypeMod className="h-3/5 aspect-square" />,
                 children: [],
               },
             ],
@@ -90,7 +90,7 @@ const STATIC_ELEMENTS: BreadcrumbElement[] = [
       {
         value: "marketplace",
         label: "Marketplace",
-        icon: <IconShoppingBag className="size-3/5" />,
+        icon: <IconShoppingBag className="h-3/5 aspect-square" />,
         children: [
           {
             id: "subRoot",
@@ -99,32 +99,32 @@ const STATIC_ELEMENTS: BreadcrumbElement[] = [
               {
                 value: "home",
                 label: "Home",
-                icon: <IconHome className="size-3/5" />,
+                icon: <IconHome className="h-3/5 aspect-square" />,
                 default: true,
                 children: [],
               },
               {
                 value: "projects",
                 label: "Projects",
-                icon: <IconCube className="size-3/5" />,
+                icon: <IconCube className="h-3/5 aspect-square" />,
                 children: [],
               },
               {
                 value: "animations",
                 label: "Animations",
-                icon: <IconFileTypeAni className="size-3/5" />,
+                icon: <IconFileTypeAni className="h-3/5 aspect-square" />,
                 children: [],
               },
               {
                 value: "faces",
                 label: "Faces",
-                icon: <IconFileTypeVizij className="size-3/5" />,
+                icon: <IconFileTypeFace className="h-3/5 aspect-square" />,
                 children: [],
               },
               {
                 value: "models",
                 label: "Models",
-                icon: <IconFileTypeMod className="size-3/5" />,
+                icon: <IconFileTypeMod className="h-3/5 aspect-square" />,
                 children: [],
               },
             ],
@@ -134,7 +134,7 @@ const STATIC_ELEMENTS: BreadcrumbElement[] = [
       {
         value: "studio",
         label: "Studio",
-        icon: <IconHexagonLetterS className="size-3/5" />,
+        icon: <IconHexagonLetterS className="h-3/5 aspect-square" />,
         children: [
           {
             id: "subRoot",
@@ -143,31 +143,31 @@ const STATIC_ELEMENTS: BreadcrumbElement[] = [
               {
                 value: "aljvnliea",
                 label: "Project 1",
-                icon: <IconCube className="size-3/5" />,
+                icon: <IconCube className="h-3/5 aspect-square" />,
                 children: [],
               },
               {
                 value: "sdafskue2",
                 label: "Project 2",
-                icon: <IconCube className="size-3/5" />,
+                icon: <IconCube className="h-3/5 aspect-square" />,
                 children: [],
               },
               {
                 value: "sdisd9311",
                 label: "Project 3",
-                icon: <IconCube className="size-3/5" />,
+                icon: <IconCube className="h-3/5 aspect-square" />,
                 children: [],
               },
               {
                 value: "lkdfhjweq",
                 label: "Project 4",
-                icon: <IconCube className="size-3/5" />,
+                icon: <IconCube className="h-3/5 aspect-square" />,
                 children: [],
               },
               {
                 value: "aseisdjcl",
                 label: "Project 5",
-                icon: <IconCube className="size-3/5" />,
+                icon: <IconCube className="h-3/5 aspect-square" />,
                 children: [],
               },
             ],

@@ -13,7 +13,7 @@ export interface DialogProps {
   submitDisabled?: boolean;
   submitText?: string;
   onStateChange: (open: boolean) => void;
-  onSubmit?: (event: MouseEvent | KeyboardEvent) => void;
+  onSubmit?: (event: MouseEvent | KeyboardEvent) => void | Promise<void>;
   onCancel?: (event: MouseEvent | KeyboardEvent) => void;
   variant?: Variant;
 }
@@ -41,8 +41,6 @@ export function Dialog({
             "backdrop-blur-[2px] p-0",
           )}
         >
-          {/* </Transition> */}
-
           <AlertDialog.Content
             forceMount
             className={clsx(
@@ -101,7 +99,14 @@ export function Dialog({
                     tabIndex={0}
                     className="flex-1"
                     variant={variant}
-                    onClick={onSubmit}
+                    onClick={(event) => {
+                      const fn = async (e: MouseEvent) => {
+                        if (typeof onSubmit === "function") {
+                          await onSubmit(e);
+                        }
+                      };
+                      void fn(event);
+                    }}
                     disabled={submitDisabled}
                   >
                     {submitText}

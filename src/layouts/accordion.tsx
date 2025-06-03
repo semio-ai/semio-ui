@@ -7,7 +7,7 @@ import { Size } from "../types";
 export interface AccordionProps {
   sticky?: boolean;
   stickyOffset?: number;
-  items: { header: string; content: React.ReactNode; key: string }[];
+  items: { header: string; content: React.ReactNode; key: string; disabled?: boolean }[];
   defaultOpen?: boolean;
 }
 
@@ -16,10 +16,10 @@ export function Accordion({ items, defaultOpen = false, sticky, stickyOffset }: 
     <RadixAccordion.Root
       className="relative"
       type="multiple"
-      defaultValue={defaultOpen ? items.map((i) => i.key) : []}
+      defaultValue={defaultOpen ? items.filter((i) => !i.disabled).map((i) => i.key) : []}
     >
       {items.map((item) => (
-        <RadixAccordion.Item key={item.key} value={item.key}>
+        <RadixAccordion.Item key={item.key} value={item.key} disabled={item.disabled}>
           <RadixAccordion.Header
             className={clsx(
               "h-7 dark:bg-neutral-700/50 bg-neutral-300/50 backdrop-blur-md",

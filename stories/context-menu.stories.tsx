@@ -24,15 +24,16 @@ function ContextMenuRenderer(props: ContextMenuProps): ReactNode {
   return (
     <ContextMenu
       {...props}
-      trigger={
-        <div
-          className={`p-5 w-96 h-52 card grid place-items-center ${props.variant ?? "default"} variant-static-text`}
-        >
-          Right Click Me
-        </div>
+      content={
+        <NestedExample />
       }
+
     >
-      <NestedExample />
+      <div
+        className={`p-5 w-96 h-52 card grid place-items-center ${props.variant ?? "default"} variant-static-text`}
+      >
+        Right Click Me
+      </div>
     </ContextMenu>
   );
 }

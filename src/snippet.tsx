@@ -49,7 +49,7 @@ export function Snippet({ text, language, className }: SnippetProps) {
             <pre style={omit(style, "backgroundColor")} className="p-2">
               {tokens.map((line, i) => (
                 <div key={i} {...getLineProps({ line })}>
-                  <span>{i + 1}</span>
+                  {/* <span>{i + 1}</span> */}
                   {line.map((token, key) => (
                     <span key={key} {...getTokenProps({ token })} />
                   ))}

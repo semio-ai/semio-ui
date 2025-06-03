@@ -1,6 +1,5 @@
 import type { Meta, ReactRenderer, StoryObj } from "@storybook/react";
 import { Progress, type ProgressProps, Size, Variant } from "@semio/ui";
-import { IconCheck } from "@tabler/icons-react";
 import { type ReactNode, useEffect, useState } from "react";
 import { type ArgsStoryFn } from "@storybook/core/csf";
 
