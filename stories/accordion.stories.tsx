@@ -41,7 +41,7 @@ const POKEMON_COLUMNS: ColumnDefinition<Pokemon>[] = [
 
 // Group Pokemon by their primary type
 const pokemonByType = TableData.reduce((acc: Record<string, typeof TableData>, pokemon) => {
-  const primaryType = pokemon.types[0] as "fire" | "water" | "grass";
+  const primaryType = pokemon.types[0].toLowerCase() as "fire" | "water" | "grass";
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- This is incorrectly flagged
   if (!acc[primaryType]) {
     acc[primaryType] = [];
