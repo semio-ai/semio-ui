@@ -5,6 +5,7 @@ import { IconMessageCircle2, IconWorld } from "@tabler/icons-react";
 
 const meta: Meta<typeof Select> = {
   component: Select,
+  title: "ui/Select",
   decorators: [
     (Story) => (
       <div className="grid place-items-center p-5 h-full">

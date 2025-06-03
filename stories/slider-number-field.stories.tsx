@@ -4,6 +4,7 @@ import { useState } from "react";
 
 const meta: Meta<typeof SliderNumberField> = {
   component: SliderNumberField,
+  title: "ui/SliderNumberField",
   decorators: [
     (Story) => (
       <div className="grid place-items-center p-5 h-full">

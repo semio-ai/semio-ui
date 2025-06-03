@@ -4,6 +4,7 @@ import { IconPlus } from "@tabler/icons-react";
 
 const meta: Meta<typeof Button> = {
   component: Button,
+  title: "ui/Button",
   decorators: [
     (Story) => (
       <div className="grid place-items-center p-5 h-full">

@@ -5,6 +5,7 @@ import { Button, Modal, Variant, type ModalProps } from "@semio/ui";
 
 const meta: Meta<typeof Modal> = {
   component: Modal,
+  title: "ui/Modal",
   decorators: [
     (Story) => (
       <div className="grid place-items-center p-5 h-full">

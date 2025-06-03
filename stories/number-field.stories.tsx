@@ -4,6 +4,7 @@ import { useState } from "react";
 
 const meta: Meta<typeof NumberField> = {
   component: NumberField,
+  title: "ui/NumberField",
   decorators: [
     (Story) => (
       <div className="grid place-items-center p-5 h-full">

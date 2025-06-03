@@ -5,6 +5,7 @@ import { IconSearch } from "@tabler/icons-react";
 
 const meta: Meta<typeof TextField> = {
   component: TextField,
+  title: "ui/TextField",
   decorators: [
     (Story) => (
       <div className="grid place-items-center p-5 h-full">

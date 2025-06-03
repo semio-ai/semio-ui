@@ -11,6 +11,7 @@ import {
 
 const meta: Meta<typeof ToggleGroup> = {
   component: ToggleGroup,
+  title: "ui/ToggleGroup",
   decorators: [
     (Story) => (
       <div className="grid place-items-center p-5 h-full bg-neutral-500">

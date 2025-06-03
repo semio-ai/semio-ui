@@ -5,6 +5,7 @@ import { IconUser, IconStar, IconHeart } from "@tabler/icons-react";
 
 const meta: Meta<typeof ChipInput> = {
   component: ChipInput,
+  title: "ui/ChipInput",
   decorators: [
     (Story) => (
       <div className="grid place-items-center p-5 h-full">

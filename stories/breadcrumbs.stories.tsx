@@ -18,6 +18,7 @@ import { IconCube, IconDashboard, IconHexagonLetterS, IconShoppingBag } from "@t
 
 const meta: Meta<typeof Breadcrumbs> = {
   component: Breadcrumbs,
+  title: "ui/Breadcrumbs",
   decorators: [
     (Story) => (
       <div className="grid place-items-center p-5 h-full">

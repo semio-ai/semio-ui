@@ -5,6 +5,7 @@ import { type RawColor } from "@semio/utils";
 
 const meta: Meta<typeof ColorPickerPopover> = {
   component: ColorPickerPopover,
+  title: "ui/ColorPickerPopover",
 };
 
 export default meta;

@@ -5,6 +5,7 @@ import { type ArgsStoryFn } from "@storybook/core/csf";
 
 const meta: Meta<typeof Checkbox> = {
   component: Checkbox,
+  title: "ui/Checkbox",
   decorators: [
     (Story) => (
       <div className="grid place-items-center p-5 h-full">

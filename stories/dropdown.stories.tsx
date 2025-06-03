@@ -7,6 +7,7 @@ import { NestedExample } from "./nested-example";
 
 const meta: Meta<typeof Dropdown> = {
   component: Dropdown,
+  title: "ui/Dropdown",
   decorators: [
     (Story) => (
       <div className="grid place-items-center p-5 h-full">

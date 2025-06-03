@@ -10,6 +10,7 @@ import { type ReactNode } from "react";
 
 const meta: Meta<typeof ToastManager> = {
   component: ToastManager,
+  title: "ui/ToastManager",
   decorators: [
     (Story) => (
       <div className="grid place-items-center p-5 h-full">

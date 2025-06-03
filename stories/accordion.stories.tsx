@@ -4,6 +4,7 @@ import { TableData } from "./prebuilt/table-data";
 
 const meta: Meta<typeof Accordion> = {
   component: Accordion,
+  title: "ui/Accordion",
   parameters: {
     layout: "fullscreen",
   },
