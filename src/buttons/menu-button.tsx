@@ -76,11 +76,14 @@ function InnerMenuButton(
         className,
       )}
       onClick={onClick}
+      onDoubleClick={(e) => {
+        e.stopPropagation();
+      }}
     >
       <Tooltip
         invert
         variant={active ? variant : Variant.Default}
-        controlledState={menuOpen ? [false, () => {}] : undefined}
+        disabled={menuOpen}
         content={altText ?? children}
         side={desktop ? "right" : "top"}
       >

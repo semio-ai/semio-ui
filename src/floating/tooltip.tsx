@@ -1,6 +1,6 @@
 import { Tooltip as TooltipPrimitive } from "radix-ui";
 import { clsx } from "clsx";
-import { type ReactNode } from "react";
+import { type ReactNode, useCallback, useEffect, useState } from "react";
 import { Size, Variant } from "../types";
 import { Arrow } from "./arrow";
 
@@ -23,9 +23,32 @@ function Tooltip({
   disabled,
   invert,
 }: TooltipProps) {
+  const [defaultOpen, setDefaultOpen] = useState(false);
+  const [open, setOpen] = useState(controlledState?.[0] ?? false);
+
+  const handleOpenChange = useCallback(
+    (value: boolean) => {
+      if (controlledState) {
+        controlledState[1](value);
+      } else {
+        setOpen(value);
+      }
+      setDefaultOpen(value);
+    },
+    [controlledState],
+  );
+
+  useEffect(() => {
+    if (controlledState) {
+      setOpen(controlledState[0]);
+    } else {
+      setOpen(defaultOpen);
+    }
+  }, [controlledState, defaultOpen]);
+
   return (
     <TooltipPrimitive.Provider>
-      <TooltipPrimitive.Root open={controlledState?.[0]} onOpenChange={controlledState?.[1]}>
+      <TooltipPrimitive.Root open={open} onOpenChange={handleOpenChange}>
         <TooltipPrimitive.Trigger disabled={disabled} asChild>
           {children}
         </TooltipPrimitive.Trigger>
