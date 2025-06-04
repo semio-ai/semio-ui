@@ -253,7 +253,7 @@ export function TableList<T extends TableListItem>({
           key: "_indicators",
           header:
             selectionMode === "multiple" ? (
-              <div className="h-full aspect-square grid place-items-center">
+              <div className={clsx(size, "sized-height sized-width grid place-items-center")}>
                 <Checkbox
                   asIndicator
                   sizing="list-item"
@@ -277,7 +277,7 @@ export function TableList<T extends TableListItem>({
             if (selectionMode === "single") {
               const selected = tableState.isSelected(item.key);
               return (
-                <div className="h-full aspect-square grid place-items-center">
+                <div className={clsx(size, "sized-height sized-width grid place-items-center")}>
                   <ToggleSquare
                     asIndicator
                     sizing="list-item"
@@ -296,7 +296,7 @@ export function TableList<T extends TableListItem>({
               );
             } else {
               return (
-                <div className="h-full aspect-square grid place-items-center">
+                <div className={clsx(size, "sized-height sized-width grid place-items-center")}>
                   <Checkbox
                     asIndicator
                     sizing="list-item"
@@ -341,7 +341,10 @@ export function TableList<T extends TableListItem>({
   return (
     <div
       ref={mergeRefs([clickAwayDetectorRef, containerRef])}
-      className={clsx("grid w-full scroll-mt-10 gap-x-4 table-list p-1", backgroundClassName)}
+      className={clsx(
+        "grid w-full scroll-mt-10 gap-x-4 gap-y-0 table-list p-1",
+        backgroundClassName,
+      )}
       style={{
         gridTemplateColumns: templateColumns,
         gridTemplateAreas,
@@ -398,6 +401,7 @@ export function TableList<T extends TableListItem>({
           <Row
             key={row.key}
             row={row}
+            noHeader={noHeader}
             columns={activeColumns as ColumnDefinition<TableListItem>[]}
             idx={idx}
             focused={tableState.isFocused(row.key)}
@@ -414,7 +418,7 @@ export function TableList<T extends TableListItem>({
       })}
       {data.length === 0 && notFound && (
         <div
-          className={clsx("group/row grid nth-[2]:mt-1")}
+          className={clsx("group/row grid", !noHeader && "nth-[2]:mt-1")}
           style={{
             gridColumn: `span ${activeColumns.length.toString()} / span ${activeColumns.length.toString()}`,
           }}
@@ -440,6 +444,7 @@ interface RowProps<T extends TableListItem> {
   size?: Size;
   variant?: Variant;
   consecutiveClass?: string;
+  noHeader?: boolean;
 
   // Event handlers from useTableListState
   role?: string;
@@ -471,6 +476,7 @@ function InnerRow<T extends TableListItem>({
   onKeyDown,
   onFocus,
   onBlur,
+  noHeader = false,
 }: RowProps<T>) {
   const ref = useRef<HTMLDivElement>(null);
 
@@ -491,7 +497,7 @@ function InnerRow<T extends TableListItem>({
         "sized-height sized-text select-none outline-hidden",
         "items-center",
         "responsive table-list-item",
-        "nth-[2]:mt-1",
+        !noHeader && "nth-[2]:mt-1",
         "z-0",
         size,
         variant,
