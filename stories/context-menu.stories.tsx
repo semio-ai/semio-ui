@@ -2,7 +2,7 @@ import { type ReactNode } from "react";
 import type { Meta, StoryObj, ReactRenderer } from "@storybook/react";
 import { type ArgsStoryFn } from "@storybook/core/csf";
 import { ContextMenu, Variant, type ContextMenuProps } from "@semio/ui";
-import { NestedExample } from "./nested-example";
+import { NestedExample } from "./prebuilt/nested-example";
 
 const meta: Meta<typeof ContextMenu> = {
   component: ContextMenu,
