@@ -12,6 +12,7 @@ export interface DialogProps {
   description?: string;
   submitDisabled?: boolean;
   submitText?: string;
+  cancelText?: string;
   onStateChange: (open: boolean) => void;
   onSubmit?: (event: MouseEvent | KeyboardEvent) => void | Promise<void>;
   onCancel?: (event: MouseEvent | KeyboardEvent) => void;
@@ -25,6 +26,7 @@ export function Dialog({
   description,
   submitDisabled,
   submitText = "Submit",
+  cancelText = "Cancel",
   onStateChange,
   onSubmit,
   onCancel,
@@ -69,7 +71,12 @@ export function Dialog({
                   {title}
                 </AlertDialog.Title>
                 <AlertDialog.Cancel asChild>
-                  <Button tabIndex={0} variant={variant} leftIcon={<IconX />} />
+                  <Button
+                    tabIndex={0}
+                    variant={variant}
+                    leftIcon={<IconX />}
+                    altText={cancelText}
+                  />
                 </AlertDialog.Cancel>
               </div>
               <AlertDialog.Description className="text-sm/6 dark:text-neutral-400 text-neutral-600">
@@ -87,9 +94,8 @@ export function Dialog({
                     className="flex-1"
                     variant={Variant.Default}
                     onClick={onCancel}
-                    disabled={submitDisabled}
                   >
-                    Cancel
+                    {cancelText ?? "Cancel"}
                   </Button>
                 </AlertDialog.Cancel>
               )}
