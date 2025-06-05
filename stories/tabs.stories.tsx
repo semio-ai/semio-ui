@@ -4,6 +4,7 @@ import { Tabs, type TabsProps } from "@semio/ui";
 
 const meta: Meta<typeof TabRenderer> = {
   component: TabRenderer,
+  title: "ui/Tabs",
 };
 
 export default meta;

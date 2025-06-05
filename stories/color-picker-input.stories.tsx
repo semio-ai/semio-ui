@@ -5,6 +5,7 @@ import { type RawColor } from "@semio/utils";
 
 const meta: Meta<typeof ColorPickerInput> = {
   component: ColorPickerInput,
+  title: "ui/ColorPickerInput",
 };
 
 export default meta;

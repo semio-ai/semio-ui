@@ -5,6 +5,7 @@ import { Popover, Variant, type PopoverProps } from "@semio/ui";
 
 const meta: Meta<typeof Popover> = {
   component: Popover,
+  title: "ui/Popover",
   decorators: [
     (Story) => (
       <div className="grid place-items-center p-5 h-full">

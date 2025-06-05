@@ -4,6 +4,7 @@ import { IconUser } from "@tabler/icons-react";
 
 const meta: Meta<typeof Avatar> = {
   component: Avatar,
+  title: "ui/Avatar",
   decorators: [
     (Story) => (
       <div className="grid place-items-center p-5 h-full">

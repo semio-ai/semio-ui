@@ -6,6 +6,7 @@ import { IconHandFinger } from "@tabler/icons-react";
 
 const meta: Meta<typeof Tooltip> = {
   component: Tooltip,
+  title: "ui/Tooltip",
   decorators: [
     (Story) => (
       <div className="grid place-items-center p-5 h-full">

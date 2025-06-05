@@ -4,6 +4,7 @@ import { useState } from "react";
 
 const meta: Meta<typeof TimeInput> = {
   component: TimeInput,
+  title: "ui/TimeInput",
   decorators: [
     (Story) => (
       <div className="grid place-items-center p-5 h-full">

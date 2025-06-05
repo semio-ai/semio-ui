@@ -3,10 +3,11 @@ import type { Meta, StoryObj, ReactRenderer } from "@storybook/react";
 import { type ArgsStoryFn } from "@storybook/core/csf";
 import { Button, Dropdown, Size, Variant, type DropdownProps } from "@semio/ui";
 import { IconChevronDown } from "@tabler/icons-react";
-import { NestedExample } from "./nested-example";
+import { NestedExample } from "./prebuilt/nested-example";
 
 const meta: Meta<typeof Dropdown> = {
   component: Dropdown,
+  title: "ui/Dropdown",
   decorators: [
     (Story) => (
       <div className="grid place-items-center p-5 h-full">
