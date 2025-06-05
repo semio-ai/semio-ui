@@ -3,9 +3,8 @@ import { IconPointFilled } from "@tabler/icons-react";
 import { clsx } from "clsx";
 // import { matchSorter } from "match-sorter";
 import { Size, Variant } from "./types";
-import { getHeight, getFontSize } from "./style-functions";
-import { TableList } from "./table-list";
-import { SelectProps } from "./select";
+import { TableList } from "./layouts/table-list";
+import { SelectProps } from "./floating/select";
 
 export function SelectList<T extends string | string[]>({
   value,
@@ -28,31 +27,43 @@ export function SelectList<T extends string | string[]>({
     }
   };
 
-  const selection: T[] = useMemo(() => {
+  const selectedKeys = useMemo(() => {
     if (Array.isArray(value)) {
-      return value;
+      return new Set(value);
     } else if (value) {
-      return [value];
+      return new Set([value]);
     } else {
-      return [];
+      return new Set<string>();
     }
   }, [value]);
+
+  const handleSelectionChange = (keys: Set<string>) => {
+    const keysArray = Array.from(keys);
+    if (multiple) {
+      onChange(keysArray as T);
+    } else {
+      onChange(keysArray[0] as T);
+    }
+  };
 
   const [rowClassName, iconClassName] = getFocusAndSelectStyles(variant);
   return (
     <TableList
       noHeader
       notFound={notFound}
-      selection={selection as string[]}
+      selectionMode={multiple ? "multiple" : "single"}
+      selectedKeys={selectedKeys}
+      onSelectionChange={handleSelectionChange}
       rowClassName={clsx(
+        size,
         "dark:bg-transparent bg-transparent hover:bg-neutral-500/10",
         "focus:outline outline-[1.5px] outline-offset-[-2px]",
-        "has-[:focus]:outline flex flex-row items-center",
-        "aria-selected:focus:outline-black/50 aria-selected:has-[:focus]:outline-black/50",
-        getHeight(size),
+        "has-focus:outline flex flex-row items-center",
+        "aria-selected:focus:outline-black/50 aria-selected:has-focus:outline-black/50",
+        "sized-height",
         rowClassName,
       )}
-      data={options.map((option) => ({ id: option.value, ...option }))}
+      data={options.map((option) => ({ key: option.value, ...option }))}
       columns={[
         {
           key: "item",
@@ -72,9 +83,10 @@ export function SelectList<T extends string | string[]>({
               </div>
               <div
                 className={clsx(
+                  size,
                   "dark:group-aria-selected/row:text-neutral-950 group-aria-selected/row:text-neutral-50 text-neutral-500",
                   "select-none cursor-pointer",
-                  getFontSize(size),
+                  "sized-text",
                 )}
               >
                 {item.label}
@@ -83,8 +95,9 @@ export function SelectList<T extends string | string[]>({
           ),
         },
       ]}
-      onRowEnter={handleToggle}
-      onRowClick={handleToggle}
+      onAction={(key, _event) => {
+        handleToggle(key);
+      }}
     />
   );
 }

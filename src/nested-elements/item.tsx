@@ -1,48 +1,42 @@
-import { ReactNode } from "react";
-import { DropdownMenuItem } from "@radix-ui/react-dropdown-menu";
-import { ContextMenuItem } from "@radix-ui/react-context-menu";
+import { DropdownMenu, ContextMenu } from "radix-ui";
 import { clsx } from "clsx";
-import { NestedParent, Variant } from "../types";
-import { getItemSideStyle, getItemStyle } from "../style-functions";
+import { NestedParent, type NestedItemProps } from "./types";
 import { useNestedParent } from "./context";
-
-export interface NestedItemProps {
-  left?: ReactNode;
-  children: ReactNode;
-  right?: ReactNode;
-  variant?: Variant;
-  disabled?: boolean;
-  onClick?: (event: React.MouseEvent) => void;
-}
 
 export function NestedItem({ left, children, right, variant, disabled, onClick }: NestedItemProps) {
   const parent = useNestedParent();
 
-  const ItemComponent = parent === NestedParent.Dropdown ? DropdownMenuItem : ContextMenuItem;
+  const ItemComponent = parent === NestedParent.Dropdown ? DropdownMenu.Item : ContextMenu.Item;
 
   return (
     <ItemComponent
       disabled={disabled}
       onClick={onClick}
       className={clsx(
-        "text-sm leading-none flex items-center",
-        "h-8 px-[5px] relative pl-[30px] select-none outline-none",
-        "data-[disabled]:pointer-events-none",
-        getItemStyle(variant),
+        "leading-none flex items-center rounded-xs group/item",
+        "h-7 text-sm px-[5px] relative pl-[30px] select-none outline-hidden",
+        "data-disabled:pointer-events-none",
+        "responsive highlight-list-item",
+        variant,
       )}
     >
       {left && (
         <div
           className={clsx(
-            "absolute left-0 w-[30px] inline-flex items-center justify-center",
-            getItemSideStyle(variant),
+            "absolute left-1 inline-flex items-center justify-center",
+            "responsive check-indicator list-item-extra highlight-list-item",
+            variant,
           )}
         >
           {left}
         </div>
       )}
       {children}
-      {right && <div className={clsx("ml-auto pl-[20px]", getItemSideStyle(variant))}>{right}</div>}
+      {right && (
+        <div className={clsx("absolute right-1", "responsive list-item-extra", variant)}>
+          {right}
+        </div>
+      )}
     </ItemComponent>
   );
 }

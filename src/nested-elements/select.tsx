@@ -1,45 +1,26 @@
-import {
-  DropdownMenuCheckboxItem,
-  DropdownMenuGroup,
-  DropdownMenuItemIndicator,
-} from "@radix-ui/react-dropdown-menu";
-import {
-  ContextMenuCheckboxItem,
-  ContextMenuGroup,
-  ContextMenuItemIndicator,
-} from "@radix-ui/react-context-menu";
-import { type CSSProperties, type ReactNode } from "react";
+import { DropdownMenu, ContextMenu } from "radix-ui";
+import { type CSSProperties } from "react";
 import { IconCheck, IconPoint } from "@tabler/icons-react";
-import { alpha } from "@semio/utils";
 import { clsx } from "clsx";
-import { NestedParent, Variant } from "../types";
-import { getItemSideStyle, getItemStyle } from "../style-functions";
+import { NestedParent, type NestedSelectProps } from "./types";
 import { useNestedParent } from "./context";
 
-export interface NestedSelectProps {
-  variant?: Variant;
-  disabled?: boolean;
-  onChange?: (value: string[]) => void;
-  values: string[];
-  options: {
-    label: string;
-    value: string;
-    disabled?: boolean;
-    color?: string;
-    icon?: ReactNode;
-  }[];
-}
-
+/**
+ * A component that renders a select section in a nested menu.
+ *
+ * @param props - The props for the Select component ({@link NestedSelectProps}).
+ * @returns The rendered NestedSelect section component.
+ */
 export function NestedSelect({ variant, disabled, onChange, values, options }: NestedSelectProps) {
   const parent = useNestedParent();
 
   const ItemComponent =
-    parent === NestedParent.Dropdown ? DropdownMenuCheckboxItem : ContextMenuCheckboxItem;
+    parent === NestedParent.Dropdown ? DropdownMenu.CheckboxItem : ContextMenu.CheckboxItem;
 
   const ItemIndicatorComponent =
-    parent === NestedParent.Dropdown ? DropdownMenuItemIndicator : ContextMenuItemIndicator;
+    parent === NestedParent.Dropdown ? DropdownMenu.ItemIndicator : ContextMenu.ItemIndicator;
 
-  const GroupComponent = parent === NestedParent.Dropdown ? DropdownMenuGroup : ContextMenuGroup;
+  const GroupComponent = parent === NestedParent.Dropdown ? DropdownMenu.Group : ContextMenu.Group;
 
   return (
     <GroupComponent
@@ -67,24 +48,25 @@ export function NestedSelect({ variant, disabled, onChange, values, options }: N
           style={
             option.color
               ? ({
-                  "--text-color-50": alpha(option.color, 0.5),
-                  "--text-color-75": alpha(option.color, 0.75),
+                  "--custom-color": option.color,
                   // "--text-color": option.color,
                 } as CSSProperties)
               : {}
           }
           className={clsx(
-            "text-sm text-inherit/50 leading-none flex items-center",
-            "h-8 px-[5px] relative pl-[30px] select-none outline-none",
-            "data-[disabled]:pointer-events-none",
-            getItemStyle(option.color ? "custom" : variant),
+            "leading-none flex items-center rounded-xs group/item",
+            "h-7 text-sm px-[5px] relative pl-[30px] select-none outline-hidden",
+            "data-disabled:pointer-events-none",
+            "responsive highlight-list-item",
+            option.color ? "custom-color" : (option.variant ?? variant),
           )}
         >
           <ItemIndicatorComponent
             forceMount
             className={clsx(
-              "absolute left-0 w-[30px] inline-flex items-center justify-center",
-              getItemSideStyle(option.color ? "custom" : variant),
+              "absolute left-1 inline-flex items-center justify-center",
+              "responsive check-indicator",
+              option.color ? "custom-color" : (option.variant ?? variant),
             )}
           >
             {option.icon ||

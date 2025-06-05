@@ -10,6 +10,14 @@ import { type ReactNode } from "react";
 
 const meta: Meta<typeof ToastManager> = {
   component: ToastManager,
+  decorators: [
+    (Story) => (
+      <div className="grid place-items-center p-5 h-full">
+        {/* 👇 Decorators in Storybook also accept a function. Replace <Story/> with Story() to enable it  */}
+        <Story />
+      </div>
+    ),
+  ],
 };
 
 export default meta;
@@ -91,13 +99,13 @@ function getRandomAction(): string {
   return actions[Math.floor(Math.random() * actions.length)];
 }
 
-function getRandomTitleContent(): [string, string] {
+function getRandomTitleContent(): [string, string | undefined] {
   const titles: string[] = ["Saved", "Error", "What?", "Just Title", "Long Description"];
-  const contents: string[] = [
+  const contents: (string | undefined)[] = [
     "The project was saved!",
     "There was an error saving the project. Please try again.",
     "I'm just as confused as you.",
-    "",
+    undefined,
     "This is a really long description. It's so long that it might not fit in the toast. I wonder what will happen if it doesn't fit. Will it wrap? Will it be cut off? Will it be truncated? I guess we'll find out soon enough.",
   ];
   const index = Math.floor(Math.random() * titles.length);

@@ -5,6 +5,14 @@ import { IconMessageCircle2, IconWorld } from "@tabler/icons-react";
 
 const meta: Meta<typeof Select> = {
   component: Select,
+  decorators: [
+    (Story) => (
+      <div className="grid place-items-center p-5 h-full">
+        {/* 👇 Decorators in Storybook also accept a function. Replace <Story/> with Story() to enable it  */}
+        <Story />
+      </div>
+    ),
+  ],
 };
 
 export default meta;
@@ -14,10 +22,10 @@ type Story = StoryObj<typeof Select>;
 // Create a wrapped version of the story with hooks to
 // illustrate callback behavior
 function SelectWithHooks(props: SelectProps<string | string[]>): JSX.Element {
-  const [value, setValue] = useState<string | string[]>(props.value);
+  const [value, setValue] = useState<string | string[]>(props.value ?? "");
 
   return (
-    <div className="w-[100%]">
+    <div className="w-96">
       <Select {...props} value={value} onChange={setValue} />
     </div>
   );
@@ -30,11 +38,7 @@ function SelectWithHooks(props: SelectProps<string | string[]>): JSX.Element {
  */
 export const Primary: Story = {
   render: (props) => {
-    return (
-      <div className="w-[100%]">
-        <SelectWithHooks {...props} />
-      </div>
-    );
+    return <SelectWithHooks {...props} />;
   },
   name: "Single",
   args: {
@@ -45,28 +49,27 @@ export const Primary: Story = {
         value: "hello",
         label: "Hello",
         color: "#33bbbb",
-        icon: <IconMessageCircle2 size="13" />,
+        icon: <IconMessageCircle2 className="w-3/5 h-3/5" />,
       },
       {
         value: "world",
         label: "World",
         color: "#737373",
-        icon: <IconWorld size="13px" />,
+        icon: <IconWorld className="w-3/5 h-3/5" />,
       },
     ],
     size: Size.Sm,
   },
 };
 
-export const Secondary: Story = {
+export const Multiple: Story = {
   render: (props) => {
     return (
-      <div className="w-[100%]">
+      <div className="w-full">
         <SelectWithHooks {...props} />
       </div>
     );
   },
-  name: "Multiple",
   args: {
     variant: Variant.Default,
     value: ["hello"],

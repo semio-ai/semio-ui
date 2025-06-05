@@ -1,5 +1,5 @@
 import { createContext, useContext } from "react";
-import { NestedParent } from "../types";
+import { NestedParent } from "./types";
 
 export const NestedParentContext = createContext<NestedParent>(NestedParent.Dropdown);
 

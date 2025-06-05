@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { ToastContext, ToastData } from "../toast";
+import { ToastContext, ToastData } from "../floating/toast";
 
 /**
  * A hook used to add a toast to the toast context. Must be used within a ToastManager context.

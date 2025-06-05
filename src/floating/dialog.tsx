@@ -1,0 +1,128 @@
+import { type ReactNode, type MouseEvent } from "react";
+import { AlertDialog } from "radix-ui";
+import { clsx } from "clsx";
+import { IconX } from "@tabler/icons-react";
+import { Variant } from "../types";
+import { Button } from "../buttons/button";
+
+export interface DialogProps {
+  children: ReactNode;
+  open: boolean;
+  title?: ReactNode;
+  description?: string;
+  submitDisabled?: boolean;
+  submitText?: string;
+  cancelText?: string;
+  onStateChange: (open: boolean) => void;
+  onSubmit?: (event: MouseEvent | KeyboardEvent) => void | Promise<void>;
+  onCancel?: (event: MouseEvent | KeyboardEvent) => void;
+  variant?: Variant;
+}
+
+export function Dialog({
+  children,
+  open,
+  title,
+  description,
+  submitDisabled,
+  submitText = "Submit",
+  cancelText = "Cancel",
+  onStateChange,
+  onSubmit,
+  onCancel,
+  variant,
+}: DialogProps) {
+  return (
+    <AlertDialog.Root open={open} onOpenChange={onStateChange}>
+      <AlertDialog.Portal>
+        <AlertDialog.Overlay
+          forceMount
+          className={clsx(
+            "transition-opacity data-[state=open]:animate-fadeIn data-[state=closed]:animate-fadeOut",
+            "fixed top-0 bottom-0 left-0 right-0 grid place-items-center",
+            "backdrop-blur-[2px] p-0",
+          )}
+        >
+          <AlertDialog.Content
+            forceMount
+            className={clsx(
+              "responsive",
+              variant,
+              "flex flex-col focus:outline-hidden overflow-clip",
+              "card animated-modal",
+              "max-h-screen w-fit h-fit",
+            )}
+          >
+            <div
+              className={clsx(
+                "flex flex-col gap-1 p-3 bg-neutral-50/50 dark:bg-neutral-950/50",
+                variant,
+                "variant-static-text",
+              )}
+            >
+              <div className="flex flex-row items-center justify-between">
+                <AlertDialog.Title
+                  className={clsx(
+                    variant,
+                    "text-base/7 font-medium flex align-center",
+                    "justify-between responsive variant-static-text",
+                  )}
+                >
+                  {title}
+                </AlertDialog.Title>
+                <AlertDialog.Cancel asChild>
+                  <Button
+                    tabIndex={0}
+                    variant={variant}
+                    leftIcon={<IconX />}
+                    altText={cancelText}
+                  />
+                </AlertDialog.Cancel>
+              </div>
+              <AlertDialog.Description className="text-sm/6 dark:text-neutral-400 text-neutral-600">
+                {description ?? ""}
+              </AlertDialog.Description>
+            </div>
+
+            <div className="flex-1 md:flex-none p-3 dark:text-white text-black">{children}</div>
+
+            <div className="p-3 flex flex-row gap-3 justify-end">
+              {onCancel && (
+                <AlertDialog.Cancel asChild>
+                  <Button
+                    tabIndex={0}
+                    className="flex-1"
+                    variant={Variant.Default}
+                    onClick={onCancel}
+                  >
+                    {cancelText ?? "Cancel"}
+                  </Button>
+                </AlertDialog.Cancel>
+              )}
+              {onSubmit && (
+                <AlertDialog.Action asChild>
+                  <Button
+                    tabIndex={0}
+                    className="flex-1"
+                    variant={variant}
+                    onClick={(event) => {
+                      const fn = async (e: MouseEvent) => {
+                        if (typeof onSubmit === "function") {
+                          await onSubmit(e);
+                        }
+                      };
+                      void fn(event);
+                    }}
+                    disabled={submitDisabled}
+                  >
+                    {submitText}
+                  </Button>
+                </AlertDialog.Action>
+              )}
+            </div>
+          </AlertDialog.Content>
+        </AlertDialog.Overlay>
+      </AlertDialog.Portal>
+    </AlertDialog.Root>
+  );
+}

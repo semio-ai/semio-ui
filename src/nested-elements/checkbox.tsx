@@ -1,31 +1,18 @@
-import {
-  DropdownMenuCheckboxItem,
-  DropdownMenuGroup,
-  DropdownMenuItemIndicator,
-} from "@radix-ui/react-dropdown-menu";
-import {
-  ContextMenuCheckboxItem,
-  ContextMenuGroup,
-  ContextMenuItemIndicator,
-} from "@radix-ui/react-context-menu";
-import { type CSSProperties, type ReactNode } from "react";
-import { IconCheck, IconPoint } from "@tabler/icons-react";
-import { alpha } from "@semio/utils";
+import { DropdownMenu, ContextMenu } from "radix-ui";
+import { type CSSProperties } from "react";
+import { IconCheck } from "@tabler/icons-react";
+import { alpha, altColor } from "@semio/utils";
 import { clsx } from "clsx";
-import { NestedParent, Variant } from "../types";
-import { getItemSideStyle, getItemStyle } from "../style-functions";
 import { useNestedParent } from "./context";
+import { NestedParent } from "./types";
+import type { NestedCheckboxProps } from "./types";
 
-export interface NestedCheckboxProps {
-  variant?: Variant;
-  onChange?: (value: boolean) => void;
-  value: boolean;
-  label: string;
-  color?: string;
-  disabled?: boolean;
-  icon?: ReactNode;
-}
-
+/**
+ * A component that renders a nested checkbox with optional child checkboxes.
+ *
+ * @param props - The props for the NestedCheckbox component ({@link NestedCheckboxProps}).
+ * @returns The rendered NestedCheckbox component.
+ */
 export function NestedCheckbox({
   variant,
   disabled,
@@ -38,12 +25,12 @@ export function NestedCheckbox({
   const parent = useNestedParent();
 
   const ItemComponent =
-    parent === NestedParent.Dropdown ? DropdownMenuCheckboxItem : ContextMenuCheckboxItem;
+    parent === NestedParent.Dropdown ? DropdownMenu.CheckboxItem : ContextMenu.CheckboxItem;
 
   const ItemIndicatorComponent =
-    parent === NestedParent.Dropdown ? DropdownMenuItemIndicator : ContextMenuItemIndicator;
+    parent === NestedParent.Dropdown ? DropdownMenu.ItemIndicator : ContextMenu.ItemIndicator;
 
-  const GroupComponent = parent === NestedParent.Dropdown ? DropdownMenuGroup : ContextMenuGroup;
+  const GroupComponent = parent === NestedParent.Dropdown ? DropdownMenu.Group : ContextMenu.Group;
 
   return (
     <GroupComponent
@@ -64,27 +51,28 @@ export function NestedCheckbox({
         style={
           color
             ? ({
-                "--text-color-50": alpha(color, 0.5),
-                "--text-color-75": alpha(color, 0.75),
-                // "--text-color": option.color,
+                "--custom-color": color,
+                "--darker-custom-color": altColor(color, -0.1),
+                "--lighter-custom-color": altColor(color, 0.2),
+                "--deemphasized-custom-color": alpha(color, 0.5),
               } as CSSProperties)
             : {}
         }
         className={clsx(
-          "text-sm text-inherit/50 leading-none flex items-center",
-          "h-8 px-[5px] relative pl-[30px] select-none outline-none",
-          "data-[disabled]:pointer-events-none",
-          getItemStyle(color ? "custom" : variant),
+          "leading-none flex items-center rounded-xs group/item",
+          "h-7 text-sm px-[5px] relative pl-[30px] select-none outline-hidden",
+          "data-disabled:pointer-events-none",
+          "responsive highlight-list-item",
+          color ? "custom-color" : variant,
         )}
       >
         <ItemIndicatorComponent
-          forceMount
           className={clsx(
-            "absolute left-0 w-[30px] inline-flex items-center justify-center",
-            getItemSideStyle(color ? "custom" : variant),
+            "absolute left-1 inline-flex items-center justify-center",
+            "w-5 h-5 bg-transparent",
           )}
         >
-          {icon || (value ? <IconCheck size="13px" /> : <IconPoint size="13px" />)}
+          {icon ?? <IconCheck className="w-3/5 h-3/5" />}
         </ItemIndicatorComponent>
         {label}
       </ItemComponent>

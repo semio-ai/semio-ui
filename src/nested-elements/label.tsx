@@ -1,24 +1,26 @@
-import { type ReactNode } from "react";
-import { DropdownMenuLabel } from "@radix-ui/react-dropdown-menu";
-import { ContextMenuLabel } from "@radix-ui/react-context-menu";
+import { DropdownMenu, ContextMenu } from "radix-ui";
 import { clsx } from "clsx";
-import { NestedParent } from "../types";
+import { NestedParent, type NestedLabelProps } from "./types";
 import { useNestedParent } from "./context";
 
-export interface NestedLabelProps {
-  children: ReactNode;
-}
-
-export function NestedLabel({ children }: NestedLabelProps) {
+/**
+ * A component that renders a nested label with optional child labels.
+ *
+ * @param props - The props for the NestedLabel component ({@link NestedLabelProps}).
+ * @returns The rendered NestedLabel component.
+ */
+export function NestedLabel({ children, className }: NestedLabelProps) {
   const parent = useNestedParent();
 
-  const ItemComponent = parent === NestedParent.Dropdown ? DropdownMenuLabel : ContextMenuLabel;
+  const ItemComponent = parent === NestedParent.Dropdown ? DropdownMenu.Label : ContextMenu.Label;
 
   return (
     <ItemComponent
       className={clsx(
-        "text-sm h-7 pl-[25px] leading-[25px] flex flex-row items-center",
+        "text-sm h-6 pl-[15px] leading-[15px] flex flex-row items-center",
         "text-neutral-800 dark:text-neutral-200 font-bold py-[5px]",
+        "responsive highlight-list-item",
+        className,
       )}
     >
       {children}

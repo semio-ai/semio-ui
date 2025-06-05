@@ -4,6 +4,14 @@ import { useState } from "react";
 
 const meta: Meta<typeof SliderNumberField> = {
   component: SliderNumberField,
+  decorators: [
+    (Story) => (
+      <div className="grid place-items-center p-5 h-full">
+        {/* 👇 Decorators in Storybook also accept a function. Replace <Story/> with Story() to enable it  */}
+        <Story />
+      </div>
+    ),
+  ],
 };
 
 export default meta;
@@ -16,18 +24,22 @@ function SliderNumberFieldWithHooks(props: SliderNumberFieldProps): JSX.Element 
   const [value, setValue] = useState<number>(props.value);
   const [label, setLabel] = useState<string>(props.label ?? "Slider Value");
   return (
-    <SliderNumberField
-      {...props}
-      value={value}
-      onChange={(v: number) => {
-        setValue(v);
-        props.onChange(v);
-      }}
-      label={label}
-      onLabelChange={(v: string) => {
-        setLabel(v);
-      }}
-    />
+    <div className="grid place-items-center grid-cols-[auto_1fr] grid-rows-1 gap-2 w-[50%]">
+      <p className="text-black dark:text-white w-40">{value}</p>
+      <SliderNumberField
+        {...props}
+        value={value}
+        onChange={(v: number, e) => {
+          setValue(v);
+          props.onChange(v, e);
+        }}
+        label={label}
+        onLabelChange={(v: string) => {
+          setLabel(v);
+        }}
+        className="w-full"
+      />
+    </div>
   );
 }
 
@@ -49,11 +61,10 @@ export const Primary: Story = {
     },
     min: 0,
     max: 1,
-    units: undefined,
-    color: "#ee11ee",
+    color: "#ee33ee",
     size: Size.Sm,
-    inactive: false,
     disabled: false,
     label: "Slider Value",
+    units: "units",
   },
 };

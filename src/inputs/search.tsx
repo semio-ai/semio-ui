@@ -1,19 +1,15 @@
-import { memo, type ReactNode, InputHTMLAttributes, useRef } from "react";
+import { memo, type ReactNode, type ChangeEvent, type KeyboardEvent, useRef } from "react";
 import { clsx } from "clsx";
 import { IconSearch } from "@tabler/icons-react";
 import { Size, Variant } from "../types";
-import { getHeight, getOutline, getTextCaretColor } from "../style-functions";
-import { StyledInput } from "./styled-input";
+import { TextField, TextFieldProps } from "./text-field";
 
-interface SearchAdditionalProps {
-  onChange?: (value: string) => void;
-  onSearch?: (value: string) => void;
+export interface SearchProps extends TextFieldProps {
+  onChange?: (value: string, event: ChangeEvent<HTMLInputElement>) => void;
+  onSearch?: (value: string, event: KeyboardEvent) => void;
   variant?: Variant;
   size?: Size;
 }
-
-export type SearchProps = SearchAdditionalProps &
-  Omit<InputHTMLAttributes<HTMLInputElement>, "size" | "onChange">;
 
 /**
  * Inherits from standard Input HTML element
@@ -30,33 +26,31 @@ function InnerSearch({
   ...forwardedProps
 }: SearchProps): ReactNode {
   const inputRef = useRef<HTMLInputElement>(null);
+
   return (
-    <div
+    <TextField
+      ref={inputRef}
       className={clsx(
-        "flex flex-row gap-2 w-full items-center dark:bg-neutral-950/10 bg-neutral-50/10",
-        "focus-within:dark:bg-neutral-950 focus-within:bg-neutral-50 transition-colors",
-        getOutline(variant),
-        getHeight(size),
-        getTextCaretColor(variant),
-        "dark:text-white text-black",
+        "dark:focus:text-white focus:text-black text-neutral-600 dark:text-neutral-400",
+        forwardedProps.className,
       )}
-    >
-      <IconSearch className="h-4 text-neutral-500" />
-      <StyledInput
-        ref={inputRef}
-        {...forwardedProps}
-        cursor="cursor-text"
-        className="text-left flex"
-        size={size}
-        onChange={onChange ? (e) => onChange(e.target.value) : () => {}}
-        onKeyDown={(event) => {
-          // If the keydown event is enter, call the onSearch;
-          if (event.key === "Enter" && inputRef?.current) {
-            onSearch && onSearch(inputRef?.current.value ?? "");
-          }
-        }}
-      />
-    </div>
+      size={size}
+      variant={variant}
+      icon={<IconSearch className="h-3/5 w-3/5" />}
+      onClear={() => {
+        if (inputRef.current) {
+          inputRef.current.value = "";
+        }
+      }}
+      onChange={onChange}
+      onKeyDown={(event) => {
+        // If the keydown event is enter, call the onSearch;
+        if (event.key === "Enter" && inputRef?.current) {
+          onSearch && onSearch(inputRef?.current.value ?? "", event);
+        }
+      }}
+      {...forwardedProps}
+    />
   );
 }
 

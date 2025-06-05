@@ -1,3 +1,5 @@
+import { ReactNode, MouseEvent } from "react";
+
 /**
  * Theme options for the application's appearance.
  *
@@ -76,22 +78,27 @@ export enum Size {
   /**
    * Extra small size.
    */
-  Xs = "xs",
+  Xs = "size-xs",
 
   /**
    * Small size.
    */
-  Sm = "sm",
+  Sm = "size-sm",
 
   /**
    * Medium size (default).
    */
-  Md = "md",
+  Md = "size-md",
 
   /**
    * Large size.
    */
-  Lg = "lg",
+  Lg = "size-lg",
+
+  /**
+   * Extra large size.
+   */
+  Xl = "size-xl",
 }
 
 /**
@@ -106,39 +113,60 @@ export enum TimeDisplay {
   Frames = "frames",
 
   /**
-   * Display time in seconds and milliseconds format.
+   * Display time in milliseconds only.
    */
-  SecondsPlusMilliseconds = "seconds+milliseconds",
+  Milliseconds = "milliseconds",
 
   /**
-   * Display time in minutes, seconds, and milliseconds format.
+   * Display time in seconds (milliseconds are decimals).
    */
-  MinutesPlusSecondsPlusMilliseconds = "minutes+seconds+milliseconds",
+  Seconds = "seconds",
 
   /**
    * Display time in seconds and frames format.
    */
   SecondsPlusFrames = "seconds+frames",
-
-  /**
-   * Display time in seconds only.
-   */
-  Seconds = "seconds",
 }
 
-/**
- * Types of nested parent components.
- *
- * Includes Context and Dropdown parents
- */
-export enum NestedParent {
-  /**
-   * Parent is a context component.
-   */
-  Context = "context",
+export interface ToolbarWidget {
+  id: string;
+  type: "toolbar-widget";
+  component: ReactNode;
+  mobileConfig?: {
+    location: "header" | "menu";
+    component?: ReactNode;
+  };
+}
 
-  /**
-   * Parent is a dropdown component.
-   */
-  Dropdown = "dropdown",
+export interface ToolbarSpacer {
+  id: string;
+  type: "toolbar-spacer";
+}
+
+export type ToolbarItem = ToolbarWidget | ToolbarSpacer;
+
+export type MenuItemClickFn = (
+  id: string,
+  event?: MouseEvent<HTMLButtonElement>,
+) => Promise<void> | void;
+
+export enum PaneRegion {
+  Footer = "footer",
+  Left = "left",
+  Right = "Right",
+}
+
+export interface PaneSpec {
+  id: string;
+  name: string;
+  icon: ReactNode;
+  size: string | number;
+  clickFn?: MenuItemClickFn;
+  preventClose?: boolean;
+  content?: ReactNode;
+  inLeftMenu: boolean;
+  inRightMenu: boolean;
+  disabled?: boolean;
+  region?: PaneRegion;
+  shouldClose?: boolean;
 }

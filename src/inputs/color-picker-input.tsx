@@ -6,7 +6,6 @@ import {
   RgbStringColorPicker,
   HslStringColorPicker,
 } from "react-colorful";
-import "./color-picker-input.css";
 
 export interface ColorPickerInputProps<T extends string | RawColor> {
   value: T;

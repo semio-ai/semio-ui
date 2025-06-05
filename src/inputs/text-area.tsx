@@ -4,28 +4,17 @@ import {
   type ReactNode,
   type ForwardedRef,
   type TextareaHTMLAttributes,
+  type ChangeEvent,
 } from "react";
 import { clsx } from "clsx";
-import { Size, Variant } from "../types";
-import { getOutline, getTextCaretColor, getInputStyles } from "../style-functions";
-import { InputProps } from "./styled-input";
-
-// interface TextFieldAdditionalProps {
-//   onChange?: (value: string) => void;
-//   variant?: Variant;
-//   size?: Size;
-//   bg?: boolean;
-//   outline?: boolean;
-//   subtle?: boolean;
-// }
+import { Variant } from "../types";
 
 export interface TextAreaProps
   extends Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, "size" | "onChange"> {
-  onChange?: (value: string) => void;
+  onChange?: (value: string, event: ChangeEvent<HTMLTextAreaElement>) => void;
   variant?: Variant;
-  size?: Size;
   bg?: boolean;
-  outline?: boolean;
+  outline?: "hidden" | "interact" | "always";
   subtle?: boolean;
 }
 
@@ -33,7 +22,6 @@ export interface TextAreaProps
  * Inherits from standard Input HTML element
  * @param value - the value of the field
  * @param onChange - the callback to call when the value changes
- * @param size - the size of the field
  * @param variant - the variant of the field
  * @param bg - whether to show the field with a background
  * @param outline - whether to show the field with an outline on focus
@@ -41,11 +29,10 @@ export interface TextAreaProps
 const InnerTextArea = forwardRef(
   (
     {
-      size = Size.Md,
       onChange,
       variant = Variant.Default,
       bg = false,
-      outline = true,
+      outline = "interact",
       className,
       subtle,
       ...forwardedProps
@@ -53,66 +40,29 @@ const InnerTextArea = forwardRef(
     ref: ForwardedRef<HTMLTextAreaElement>,
   ): ReactNode => {
     return (
-      <div
+      <textarea
+        ref={ref}
+        {...forwardedProps}
+        onChange={(event) => onChange?.(event.target.value, event)}
         className={clsx(
+          "responsive",
           bg && "dark:bg-neutral-950/20 bg-neutral-50/20",
-          "flex w-full items-baseline",
-          outline && "focus-within:outline focus-within:outline-1 focus-within:outline-offset-2",
-          getOutline(variant),
-          getTextCaretColor(variant),
+          "rounded-xs",
+          outline === "interact" && "variant-responsive-appearing-outline",
+          outline === "always" && "variant-responsive-persistent-outline",
+          variant,
+          "disabled:cursor-not-allowed cursor-text",
+          "p-1",
+          "variant-text-caret-color",
+          subtle && "dark:focus:text-white focus:text-black text-neutral-600 dark:text-neutral-400",
+          !subtle && "text-black dark:text-white",
+          className,
         )}
-      >
-        <StyledArea
-          {...forwardedProps}
-          ref={ref}
-          cursor="cursor-text"
-          subtle={subtle}
-          className={clsx("text-left focus:placeholder-transparent", className)}
-          size={size}
-          onChange={onChange ? (e) => onChange(e.target.value) : () => {}}
-        />
-      </div>
+      />
     );
   },
 );
 
-InnerTextArea.displayName = "TextField";
+InnerTextArea.displayName = "TextArea";
 
 export const TextArea = memo(InnerTextArea);
-
-export const StyledArea = memo(
-  forwardRef(
-    (
-      {
-        size = Size.Md,
-        cursor,
-        className,
-        flex = true,
-        bold,
-        subtle,
-        ...forwardedProps
-      }: InputProps & Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, "size">,
-      ref: ForwardedRef<HTMLTextAreaElement>,
-    ) => {
-      return (
-        <textarea
-          name={forwardedProps.name ?? "StyledInput"}
-          ref={ref}
-          {...forwardedProps}
-          className={getInputStyles(
-            flex,
-            subtle,
-            bold,
-            size,
-            forwardedProps.disabled,
-            className,
-            cursor,
-            false,
-          )}
-        />
-      );
-    },
-  ),
-);
-
-StyledArea.displayName = "StyledArea";

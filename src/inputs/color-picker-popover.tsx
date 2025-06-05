@@ -5,9 +5,8 @@ import {
   rawHSLToHex,
   rawRGBToHex,
 } from "@semio/utils";
-import { Dropdown } from "../dropdown";
+import { Dropdown } from "../floating/dropdown";
 import { ColorPickerInput } from "./color-picker-input";
-import "./color-picker-popover.css";
 
 export interface ColorPickerPopoverProps<T extends string | RawColor> {
   value: T;

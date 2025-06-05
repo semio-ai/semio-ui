@@ -2,10 +2,11 @@ import { clsx } from "clsx";
 import { ReactNode } from "react";
 import { useDropzone, type Accept } from "react-dropzone";
 import { IconArrowBigDownLines } from "@tabler/icons-react";
-import { ScrollArea } from "./scroll-area";
-import { BasicRowData, ColumnDefinition, TableList } from "./table-list";
+import { TableListItem } from "./hooks/use-table-list-state";
+import { ScrollArea } from "./layouts/scroll-area";
+import { ColumnDefinition, TableList } from "./layouts/table-list";
 
-export interface DropzoneProps<T extends BasicRowData> {
+export interface DropzoneProps<T extends TableListItem> {
   onDrop: (files: File[]) => void;
   data: T[];
   columns: ColumnDefinition<T>[];
@@ -18,7 +19,7 @@ export interface DropzoneProps<T extends BasicRowData> {
   className?: string;
 }
 
-export function Dropzone<T extends BasicRowData>({
+export function Dropzone<T extends TableListItem>({
   onDrop,
   data,
   columns,
@@ -43,9 +44,9 @@ export function Dropzone<T extends BasicRowData>({
         "cursor-pointer grid",
         "md:grid-cols-[1fr_1fr] md:grid-rows-1",
         "grid-cols-1 grid-rows-[2fr_3fr]",
-        "focus:outline-none",
+        "focus:outline-hidden",
         "relative",
-        !(isDragActive && data.length === 0) && "backdrop-blur-md",
+        // !(isDragActive && data.length === 0) && "backdrop-blur-md",
         className,
       )}
     >
@@ -67,7 +68,6 @@ export function Dropzone<T extends BasicRowData>({
             columns={columns}
             rowClassName={rowClassName}
             headerClassName={headerClassName}
-            transparentHeader={false}
           />
         </ScrollArea>
       )}
@@ -84,7 +84,7 @@ export function Dropzone<T extends BasicRowData>({
         </div>
       )}
       {isDragActive && data.length === 0 && (
-        <div className="absolute left-0 right-0 top-0 bottom-0 outline outline-info -outline-offset-4 grid place-items-center bg-white/50 dark:bg-black/50 backdrop-blur-sm">
+        <div className="absolute left-0 right-0 top-0 bottom-0 outline outline-info -outline-offset-4 grid place-items-center bg-white/50 dark:bg-black/50 backdrop-blur-xs">
           <div className="grid place-items-center grid-cols-1 gap-3 max-h-40">
             <div className="h-32 w-32">
               <IconArrowBigDownLines size="128px" className="text-info" />

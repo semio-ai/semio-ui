@@ -1,45 +1,25 @@
-import {
-  DropdownMenuRadioItem,
-  DropdownMenuRadioGroup,
-  DropdownMenuItemIndicator,
-} from "@radix-ui/react-dropdown-menu";
-import {
-  ContextMenuRadioItem,
-  ContextMenuRadioGroup,
-  ContextMenuItemIndicator,
-} from "@radix-ui/react-context-menu";
-import { CSSProperties, type ReactNode } from "react";
-import { alpha } from "@semio/utils";
+import { DropdownMenu, ContextMenu } from "radix-ui";
+import { CSSProperties } from "react";
 import { IconPointFilled } from "@tabler/icons-react";
 import { clsx } from "clsx";
-import { NestedParent, Variant } from "../types";
-import { getItemSideStyle, getItemStyle } from "../style-functions";
-import { ScrollArea } from "../scroll-area";
+import { NestedParent, type NestedRadioProps } from "./types";
 import { useNestedParent } from "./context";
 
-export interface NestedRadioProps {
-  variant?: Variant;
-  disabled?: boolean;
-  onChange?: (value: string) => void;
-  value?: string;
-  options: {
-    label: string;
-    value: string;
-    disabled?: boolean;
-    color?: string;
-    icon?: ReactNode;
-  }[];
-}
-
+/**
+ * A component that renders a nested radio button with optional child radio buttons.
+ *
+ * @param props - The props for the NestedRadio component ({@link NestedRadioProps}).
+ * @returns The rendered NestedRadio component.
+ */
 export function NestedRadio({ variant, disabled, onChange, value, options }: NestedRadioProps) {
   const parent = useNestedParent();
 
   const ItemComponent =
-    parent === NestedParent.Dropdown ? DropdownMenuRadioItem : ContextMenuRadioItem;
+    parent === NestedParent.Dropdown ? DropdownMenu.RadioItem : ContextMenu.RadioItem;
   const GroupComponent =
-    parent === NestedParent.Dropdown ? DropdownMenuRadioGroup : ContextMenuRadioGroup;
+    parent === NestedParent.Dropdown ? DropdownMenu.RadioGroup : ContextMenu.RadioGroup;
   const ItemIndicatorComponent =
-    parent === NestedParent.Dropdown ? DropdownMenuItemIndicator : ContextMenuItemIndicator;
+    parent === NestedParent.Dropdown ? DropdownMenu.ItemIndicator : ContextMenu.ItemIndicator;
   return (
     <GroupComponent
       value={value}
@@ -48,46 +28,43 @@ export function NestedRadio({ variant, disabled, onChange, value, options }: Nes
         e.stopPropagation();
       }}
     >
-      <ScrollArea>
-        {options.map((option) => (
-          <ItemComponent
-            key={option.value}
-            value={option.value}
-            disabled={option.disabled || disabled}
-            onSelect={(e) => {
-              e.preventDefault();
-            }}
-            textValue={option.label}
-            style={
-              option.color
-                ? ({
-                    "--text-color-10": alpha(option.color, 0.1),
-                    "--text-color-50": alpha(option.color, 0.5),
-                    "--text-color-75": alpha(option.color, 0.75),
-                    // "--text-color": option.color,
-                  } as CSSProperties)
-                : {}
-            }
+      {options.map((option) => (
+        <ItemComponent
+          key={option.value}
+          value={option.value}
+          disabled={option.disabled || disabled}
+          onSelect={(e) => {
+            e.preventDefault();
+          }}
+          textValue={option.label}
+          style={
+            option.color
+              ? ({
+                  "--custom-color": option.color,
+                } as CSSProperties)
+              : {}
+          }
+          className={clsx(
+            "leading-none flex items-center rounded-xs group/item",
+            "h-7 text-sm px-[5px] relative pl-[30px] select-none outline-hidden",
+            "data-disabled:pointer-events-none",
+            "responsive highlight-list-item",
+            option.color ? "custom-color" : (option.variant ?? variant),
+          )}
+        >
+          <ItemIndicatorComponent
+            forceMount
             className={clsx(
-              "leading-none flex items-center",
-              "h-8 text-sm px-[5px] relative pl-[30px] select-none outline-none",
-              "data-[disabled]:pointer-events-none",
-              getItemStyle(option.color ? "custom" : variant),
+              "absolute left-1 inline-flex items-center justify-center",
+              "responsive check-indicator",
+              option.color ? "custom-color" : (option.variant ?? variant),
             )}
           >
-            <ItemIndicatorComponent
-              forceMount
-              className={clsx(
-                "absolute left-0 w-[30px] inline-flex items-center justify-center",
-                getItemSideStyle(option.color ? "custom" : variant),
-              )}
-            >
-              {option.icon || <IconPointFilled size="13px" />}
-            </ItemIndicatorComponent>
-            {option.label}
-          </ItemComponent>
-        ))}
-      </ScrollArea>
+            {option.icon ?? <IconPointFilled className="w-3/5 h-3/5" />}
+          </ItemIndicatorComponent>
+          {option.label}
+        </ItemComponent>
+      ))}
     </GroupComponent>
   );
 }
