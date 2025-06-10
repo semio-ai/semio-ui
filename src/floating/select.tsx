@@ -82,7 +82,6 @@ export function Select<T extends string | string[]>({
         className,
       )}
     >
-      {/* {typeof value === "string" && value ? ( */}
       <div
         className={clsx("flex flex-1 flex-row items-center justify-center", "sized-height", size)}
       >
@@ -104,6 +103,7 @@ export function Select<T extends string | string[]>({
             } as CSSProperties
           }
           className={clsx(
+            size,
             "flex flex-1 flex-row px-3 items-center text-ellipsis text-nowrap",
             "responsive highlight-list-item",
             "sized-height",
@@ -192,20 +192,3 @@ function smallerSize(size: Size): Size {
   if (size === Size.Lg) return Size.Md;
   return Size.Sm;
 }
-
-// interface SingleIndicatorProps {
-//   selectOption?: SelectOption;
-//   size?: Size;
-//   placeholder?: string;
-// }
-
-// function InnerSingleIndicator(
-//   { selectOption, placeholder, size }: SingleIndicatorProps,
-//   ref: ForwardedRef<HTMLDivElement>,
-// ) {
-//   return (
-
-//   );
-// }
-
-// const SingleIndicator = forwardRef(InnerSingleIndicator);
