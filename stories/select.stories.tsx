@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { Meta, StoryObj } from "@storybook/react";
+import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Select, type SelectProps, Size, Variant } from "@semio/ui";
 import { IconMessageCircle2, IconWorld } from "@tabler/icons-react";
 
