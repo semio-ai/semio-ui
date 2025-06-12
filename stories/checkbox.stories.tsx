@@ -1,4 +1,4 @@
-import type { Meta, ReactRenderer, StoryObj } from "@storybook/react";
+import type { Meta, ReactRenderer, StoryObj } from "@storybook/react-vite";
 import { Checkbox, type CheckboxProps, Size, Variant } from "@semio/ui";
 import { useState, type ReactNode } from "react";
 import { type ArgsStoryFn } from "@storybook/core/csf";

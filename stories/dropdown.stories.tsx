@@ -1,5 +1,5 @@
 import { type ReactNode } from "react";
-import type { Meta, StoryObj, ReactRenderer } from "@storybook/react";
+import type { Meta, StoryObj, ReactRenderer } from "@storybook/react-vite";
 import { type ArgsStoryFn } from "@storybook/core/csf";
 import { Button, Dropdown, Size, Variant, type DropdownProps } from "@semio/ui";
 import { IconChevronDown } from "@tabler/icons-react";

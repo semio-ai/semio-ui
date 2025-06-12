@@ -1,5 +1,5 @@
 import { type ReactNode } from "react";
-import type { Meta, StoryObj, ReactRenderer } from "@storybook/react";
+import type { Meta, StoryObj, ReactRenderer } from "@storybook/react-vite";
 import { type ArgsStoryFn } from "@storybook/core/csf";
 import { Button, Tooltip, Size, Variant, type TooltipProps } from "@semio/ui";
 import { IconHandFinger } from "@tabler/icons-react";

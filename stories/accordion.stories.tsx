@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from "@storybook/react";
+import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Accordion, TableList, type ColumnDefinition } from "@semio/ui";
 import { TableData } from "./prebuilt/table-data";
 

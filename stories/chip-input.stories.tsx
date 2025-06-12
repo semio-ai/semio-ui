@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { Meta, StoryObj } from "@storybook/react";
+import type { Meta, StoryObj } from "@storybook/react-vite";
 import { ChipInput, type ChipInputProps, Variant, Size } from "@semio/ui";
 import { IconUser, IconStar, IconHeart } from "@tabler/icons-react";
 
