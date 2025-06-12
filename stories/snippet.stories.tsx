@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from "@storybook/react-vite";
+import type { Meta, StoryObj } from "@storybook/react";
 import { Snippet } from "@semio/ui";
 
 const meta: Meta<typeof Snippet> = {

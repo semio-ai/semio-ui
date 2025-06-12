@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from "@storybook/react-vite";
+import type { Meta, StoryObj } from "@storybook/react";
 import { ColorPickerPopover, type ColorPickerPopoverProps } from "@semio/ui";
 import { useState } from "react";
 import { type RawColor } from "@semio/utils";

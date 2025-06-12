@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from "@storybook/react-vite";
+import type { Meta, StoryObj } from "@storybook/react";
 import { Avatar, Size, Variant } from "@semio/ui";
 import { IconUser } from "@tabler/icons-react";
 

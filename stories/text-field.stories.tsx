@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from "@storybook/react-vite";
+import type { Meta, StoryObj } from "@storybook/react";
 import { TextField, Variant, Size, type TextFieldProps } from "@semio/ui";
 import { useState } from "react";
 import { IconSearch } from "@tabler/icons-react";
