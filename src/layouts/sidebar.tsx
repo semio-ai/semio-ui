@@ -24,9 +24,9 @@ export function Sidebar({ children, sidebar, side }: SidebarProps) {
           <motion.div
             layout
             key={child.key}
-            initial={{ opacity: 0, translateX: side === "left" ? -50 : 50 }}
-            animate={{ opacity: 1, translateX: 0 }}
-            exit={{ opacity: 0, translateX: side === "left" ? -50 : 50 }}
+            initial={{ opacity: 0, x: side === "left" ? -50 : 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: side === "left" ? -50 : 50 }}
             transition={{ duration: 0.1 }}
             className={clsx(
               "dark:bg-layout-dark-inset bg-layout-light-inset",
