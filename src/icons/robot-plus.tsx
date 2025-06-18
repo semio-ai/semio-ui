@@ -1,8 +1,8 @@
 import { forwardRef, type ForwardedRef } from "react";
-import { type TablerIconsProps } from "@tabler/icons-react";
+import { type IconProps } from "@tabler/icons-react";
 import { clsx } from "clsx";
 
-export interface IconRobotPlusProps extends TablerIconsProps {
+export interface IconRobotPlusProps extends IconProps {
   className?: string;
 }
 

@@ -1,13 +1,10 @@
 import { forwardRef, type ForwardedRef } from "react";
-import { type TablerIconsProps } from "@tabler/icons-react";
+import { type IconProps } from "@tabler/icons-react";
 import { clsx } from "clsx";
 
-export interface IconBoxProps extends TablerIconsProps {
-  className?: string;
-}
-
 const IconBox = forwardRef(
-  ({ className, ...props }: IconBoxProps, ref: ForwardedRef<SVGSVGElement>) => {
+  ({ className, ...props }: IconProps, ref: ForwardedRef<SVGSVGElement>) => {
+    <IconBox />;
     return (
       <svg
         ref={ref}

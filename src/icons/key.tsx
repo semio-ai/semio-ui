@@ -1,8 +1,8 @@
 import { forwardRef, type ForwardedRef } from "react";
-import { type TablerIconsProps } from "@tabler/icons-react";
+import { type IconProps } from "@tabler/icons-react";
 import { clsx } from "clsx";
 
-export interface IconKeyProps extends TablerIconsProps {
+export interface IconKeyProps extends IconProps {
   fillOpacity?: number;
   dashed?: boolean;
   center?: "plus" | "minus";
