@@ -1,4 +1,4 @@
-import type { Meta, ReactRenderer, StoryObj } from "@storybook/react";
+import type { Meta, ReactRenderer, StoryObj } from "@storybook/react-vite";
 import { Progress, type ProgressProps, Size, Variant } from "@semio/ui";
 import { type ReactNode, useEffect, useState } from "react";
 import { type ArgsStoryFn } from "@storybook/core/csf";

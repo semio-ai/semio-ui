@@ -1,4 +1,4 @@
-import type { Meta, ReactRenderer, StoryObj } from "@storybook/react";
+import type { Meta, ReactRenderer, StoryObj } from "@storybook/react-vite";
 import { type ReactNode, useEffect, useState } from "react";
 import { ProgressCircle, type ProgressCircleProps, Size, Variant } from "@semio/ui";
 import { IconCheck } from "@tabler/icons-react";

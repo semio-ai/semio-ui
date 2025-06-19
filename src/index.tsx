@@ -97,7 +97,6 @@ export * from "./nested-elements/menu";
 export * from "./nested-elements/radio";
 export * from "./nested-elements/select";
 export * from "./nested-elements/separator";
-export * from "./layouts/sidebar";
 export * from "./layouts/stepper";
 export * from "./layouts/table-list";
 export * from "./layouts/tabs";

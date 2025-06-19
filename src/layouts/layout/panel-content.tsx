@@ -14,7 +14,12 @@ export function PanelContent({ region }: { region: PaneRegion }) {
   return (
     <AnimatePresence mode="wait" onExitComplete={completePanesClose}>
       {panes.map((pane) => {
-        if (pane.region === region && pane.content && !pane.shouldClose) {
+        if (
+          pane.region === region &&
+          pane.content &&
+          !pane.shouldClose &&
+          !(!desktop && pane.region === PaneRegion.Right)
+        ) {
           const variants = getVariants(
             !desktop ? PaneRegion.Footer : region,
             pane?.size === "full",
@@ -73,18 +78,18 @@ function getVariants(
   switch (region) {
     case PaneRegion.Left:
       return [
-        { opacity: 0, translateX: -50 },
-        { opacity: 1, translateX: 0 },
+        { opacity: 0, x: -50 },
+        { opacity: 1, x: 0 },
       ];
     case PaneRegion.Right:
       return [
-        { opacity: 0, translateX: 50 },
-        { opacity: 1, translateX: 0 },
+        { opacity: 0, x: 50 },
+        { opacity: 1, x: 0 },
       ];
     case PaneRegion.Footer:
       return [
-        { opacity: 0, translateY: 50 },
-        { opacity: 1, translateY: 0 },
+        { opacity: 0, y: 50 },
+        { opacity: 1, y: 0 },
       ];
   }
 }
