@@ -137,7 +137,6 @@ const InnerNumberField = forwardRef(
     });
 
     // Auto-override variant for warning states
-    // Auto-override variant for warning states
     const [effectiveColor, effectiveVariant] = useMemo(() => {
       if (autoOverrideVariantOnWarning) {
         if (
