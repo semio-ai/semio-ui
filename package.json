@@ -19,6 +19,7 @@
     "dev": "tsup src/index.tsx --format esm,cjs --watch --dts --external react --publicDir",
     "lint": "eslint . --max-warnings 0",
     "lint:fix": "eslint . --fix",
+    "test": "vitest",
     "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist"
   },
   "dependencies": {
@@ -57,7 +58,8 @@
     "postcss": "^8.4.38",
     "react": "^18.3.1",
     "tsup": "^8.0.1",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "vitest": "^3.2.4"
   },
   "publishConfig": {
     "access": "public"

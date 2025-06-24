@@ -15,7 +15,8 @@ import { useHover } from "@use-gesture/react";
 import { clsx } from "clsx";
 import { mergeRefs } from "react-merge-refs";
 import { useNumeric, ValidChangeEvent } from "../hooks/use-numeric";
-import { Size } from "../types";
+import { NumericStatus } from "../hooks/numeric-utils";
+import { Size, Variant } from "../types";
 import { TextFieldProps } from "./text-field";
 
 enableBoundaryChecking(false);
@@ -38,6 +39,8 @@ export interface NumberFieldProps
   label?: string;
   onLabelChange?: (label: string) => void;
   onHighlightChange?: (isHighlighted: boolean) => void;
+  onStatusChange?: (status: NumericStatus) => void;
+  autoOverrideVariantOnWarning?: boolean;
 }
 
 /**
@@ -53,6 +56,8 @@ export interface NumberFieldProps
  * @param label - the label of the field
  * @param onLabelChange - the function to call when the label changes
  * @param onHighlightChange - the function to call when the emphasis changes
+ * @param onStatusChange - the function to call when the validation status changes
+ * @param autoOverrideVariantOnWarning - whether to automatically override variant for warning states
  */
 const InnerNumberField = forwardRef(
   (
@@ -74,6 +79,8 @@ const InnerNumberField = forwardRef(
       onHighlightChange,
       label,
       onLabelChange,
+      onStatusChange,
+      autoOverrideVariantOnWarning = false,
       onBlur: onBlurExternal,
       onFocus: onFocusExternal,
       className,
@@ -95,6 +102,7 @@ const InnerNumberField = forwardRef(
 
     const {
       textValue,
+      status,
       onChange: onChangeInner,
       onChangeHeadless,
       onBlur,
@@ -112,6 +120,10 @@ const InnerNumberField = forwardRef(
       }
     }, [value, focusState, onChangeHeadless]);
 
+    useEffect(() => {
+      onStatusChange?.(status);
+    }, [status, onStatusChange]);
+
     const bind = useHover((state) => {
       if (state.hovering) {
         hoverRef.current = true;
@@ -124,15 +136,30 @@ const InnerNumberField = forwardRef(
       }
     });
 
+    // Auto-override variant for warning states
+    // Auto-override variant for warning states
+    const [effectiveColor, effectiveVariant] = useMemo(() => {
+      if (autoOverrideVariantOnWarning) {
+        if (
+          status === NumericStatus.Above ||
+          status === NumericStatus.Below ||
+          status === NumericStatus.Invalid
+        ) {
+          return [undefined, Variant.Error];
+        }
+      }
+      return [color, variant];
+    }, [autoOverrideVariantOnWarning, status, variant, color]);
+
     return (
       <label
         htmlFor={id}
         {...bind}
         data-highlighted={highlight || focusState !== FocusState.Blurred ? "" : undefined}
-        style={{ "--custom-color": color, "--progress": "25%" } as CSSProperties}
+        style={{ "--custom-color": effectiveColor, "--progress": "25%" } as CSSProperties}
         className={clsx(
           "responsive",
-          color ? "custom-color" : variant,
+          effectiveColor ? "custom-color" : effectiveVariant,
           "py-0 px-0.5 group/input-wrapper select-none",
           label && units && "input-label-field-units-grid",
           label && !units && "input-label-field-grid",
@@ -175,7 +202,7 @@ const InnerNumberField = forwardRef(
               e.stopPropagation();
             }}
             className={clsx(
-              color ? "custom-color" : variant,
+              effectiveColor ? "custom-color" : effectiveVariant,
               size,
               "responsive grid-area-label sized-text place-items-center text-left px-0.5 rounded-[1px]",
               "sized-inner-group-item font-mono variant-text-caret-color group-has-focus/input-wrapper:bg-neutral-900/20",
@@ -201,7 +228,7 @@ const InnerNumberField = forwardRef(
             "sized-text sized-height text-right px-0.5",
             "variant-text-caret-color font-mono",
             size,
-            color ? "custom-color" : variant,
+            effectiveColor ? "custom-color" : effectiveVariant,
             subtle &&
               "dark:focus:text-white focus:text-black text-neutral-600 dark:text-neutral-400",
             !subtle && "text-black dark:text-white",
@@ -238,7 +265,7 @@ const InnerNumberField = forwardRef(
             readOnly
             style={{ width: `${(units.length + 2).toString()}ch` }}
             className={clsx(
-              variant,
+              effectiveVariant,
               size,
               "grid-area-units text-right select-none pl-0.5 pr-2",
               "grid place-items-center pointer-events-none sized-text",

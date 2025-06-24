@@ -15,7 +15,8 @@ import { mergeRefs } from "react-merge-refs";
 import { clamp } from "lodash";
 import { clsx } from "clsx";
 import { useNumeric } from "../hooks/use-numeric";
-import { Size } from "../types";
+import { NumericStatus } from "../hooks/numeric-utils";
+import { Size, Variant } from "../types";
 import { NumberFieldProps } from "./number-field";
 
 enableBoundaryChecking(false);
@@ -34,6 +35,8 @@ export interface SliderNumberFieldProps extends Omit<NumberFieldProps, "strict">
   visualMax?: number;
   strictSlider?: boolean;
   strictText?: boolean;
+  onStatusChange?: (status: NumericStatus) => void;
+  autoOverrideVariantOnWarning?: boolean;
 }
 
 /**
@@ -53,6 +56,8 @@ export interface SliderNumberFieldProps extends Omit<NumberFieldProps, "strict">
  * @param visualMax - the visual maximum (for wrap-around values);
  * @param strictSlider - whether to enforce the min/max bounds on the slider
  * @param strictText - whether to enforce the min/max bounds
+ * @param onStatusChange - the function to call when the validation status changes
+ * @param autoOverrideVariantOnWarning - whether to automatically override variant for warning states
  */
 const InnerSliderNumberField = forwardRef(
   (
@@ -81,6 +86,8 @@ const InnerSliderNumberField = forwardRef(
       onFocus: onFocusExternal,
       className,
       wrapperClassName,
+      onStatusChange,
+      autoOverrideVariantOnWarning = false,
       ...forwardedProps
     }: SliderNumberFieldProps,
     ref: ForwardedRef<HTMLInputElement>,
@@ -99,6 +106,7 @@ const InnerSliderNumberField = forwardRef(
 
     const {
       textValue,
+      status,
       onChange: onChangeInner,
       onChangeDirect,
       onChangeHeadless,
@@ -116,6 +124,10 @@ const InnerSliderNumberField = forwardRef(
         onChangeHeadless(value);
       }
     }, [value, focusState, onChangeHeadless]);
+
+    useEffect(() => {
+      onStatusChange?.(status);
+    }, [status, onStatusChange]);
 
     useGesture(
       {
@@ -222,6 +234,20 @@ const InnerSliderNumberField = forwardRef(
       }
     }, [value, visualMin, visualMax, min, max]);
 
+    // Auto-override variant for warning states
+    const [effectiveColor, effectiveVariant] = useMemo(() => {
+      if (autoOverrideVariantOnWarning) {
+        if (
+          status === NumericStatus.Above ||
+          status === NumericStatus.Below ||
+          status === NumericStatus.Invalid
+        ) {
+          return [undefined, Variant.Error];
+        }
+      }
+      return [color, variant];
+    }, [autoOverrideVariantOnWarning, status, variant, color]);
+
     return (
       <label
         ref={boundsRef}
@@ -229,13 +255,13 @@ const InnerSliderNumberField = forwardRef(
         data-highlighted={highlight || focusState !== FocusState.Blurred ? "" : undefined}
         style={
           {
-            "--custom-color": color,
+            "--custom-color": effectiveColor,
             "--progress": percent ? `${(percent * 100).toFixed(2).toString()}%` : "0%",
           } as CSSProperties
         }
         className={clsx(
-          "responsive",
-          color ? "custom-color" : variant,
+          "responsive touch-none",
+          effectiveColor ? "custom-color" : effectiveVariant,
           "py-0 px-0.5 group/input-wrapper select-none",
           label && units && "input-label-field-units-grid",
           label && !units && "input-label-field-grid",
@@ -278,7 +304,7 @@ const InnerSliderNumberField = forwardRef(
               e.stopPropagation();
             }}
             className={clsx(
-              color ? "custom-color" : variant,
+              effectiveColor ? "custom-color" : effectiveVariant,
               size,
               focusState === FocusState.Dragging && "select-none pointer-events-none",
               focusState !== FocusState.Dragging &&
@@ -311,7 +337,7 @@ const InnerSliderNumberField = forwardRef(
             "variant-text-caret-color font-mono",
             focusState === FocusState.Dragging && "select-none pointer-events-none",
             size,
-            color ? "custom-color" : variant,
+            effectiveColor ? "custom-color" : effectiveVariant,
             subtle &&
               "dark:focus:text-white focus:text-black text-neutral-600 dark:text-neutral-400",
             !subtle && "text-black dark:text-white",
@@ -348,7 +374,7 @@ const InnerSliderNumberField = forwardRef(
             readOnly
             style={{ width: `${(units.length + 2).toString()}ch` }}
             className={clsx(
-              variant,
+              effectiveVariant,
               size,
               "grid-area-units text-right select-none pl-0.5 pr-2",
               "grid place-items-center pointer-events-none sized-text",
