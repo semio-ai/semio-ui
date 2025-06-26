@@ -47,7 +47,7 @@ function InnerHeader({ homeIcon }: { homeIcon?: ReactNode }) {
             disabled={
               !homeActionItem ||
               isPlaceholder(homeActionItem) ||
-              homeActionItem.children.length === 0
+              (homeActionItem.children.length + actionItems.length === 0)
             }
             trigger={
               <span>
