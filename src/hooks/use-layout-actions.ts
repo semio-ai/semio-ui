@@ -176,11 +176,11 @@ export function useLayoutActions(): LayoutActions {
       const existingItem = actionItemsRef.current.find((a) => a.id === item.id);
       // If the item is a placeholder, do nothing;
       if (!isPlaceholder(item)) {
-        const newItems = existingItem
+        const newItems: ActionItem[] = existingItem
           ? actionItemsRef.current.map((a) => (a.id === item.id ? { ...a, ...item } : a))
           : (() => {
-              const newItem = { ...createActionItem(), ...item };
-              const items = [...actionItemsRef.current];
+              const newItem: ActionItem = { ...createActionItem(), ...item } as ActionItem;
+              const items: ActionItem[] = [...actionItemsRef.current];
               if (index !== undefined && index >= 0 && index <= items.length) {
                 items.splice(index, 0, newItem);
                 return items;
