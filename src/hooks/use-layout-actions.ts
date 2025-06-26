@@ -47,7 +47,7 @@ export interface LayoutActions {
     replace?: boolean,
   ) => void;
   removeToolbarItem: (id: string) => void;
-  setActionItem: (item: ActionItemInput) => void;
+  setActionItem: (item: ActionItemInput, index?: number) => void;
   setActionItems: (panes: ActionItemInput[], replace?: boolean) => void;
   removeActionItem: (id: string) => void;
   setHomeActionItem: (item: ActionItem | undefined) => void;
@@ -172,13 +172,22 @@ export function useLayoutActions(): LayoutActions {
   );
 
   const setActionItem = useCallback(
-    (item: ActionItemInput) => {
+    (item: ActionItemInput, index?: number) => {
       const existingItem = actionItemsRef.current.find((a) => a.id === item.id);
       // If the item is a placeholder, do nothing;
       if (!isPlaceholder(item)) {
         const newItems = existingItem
           ? actionItemsRef.current.map((a) => (a.id === item.id ? { ...a, ...item } : a))
-          : [...actionItemsRef.current, { ...createActionItem(), ...item }];
+          : (() => {
+              const newItem = { ...createActionItem(), ...item };
+              const items = [...actionItemsRef.current];
+              if (index !== undefined && index >= 0 && index <= items.length) {
+                items.splice(index, 0, newItem);
+                return items;
+              } else {
+                return [...items, newItem];
+              }
+            })();
         setActionItems(newItems);
       }
     },
@@ -195,7 +204,7 @@ export function useLayoutActions(): LayoutActions {
           ),
         );
       } else {
-        items.forEach(setActionItem);
+        items.forEach((item, index) => setActionItem(item, index));
       }
     },
     [setActionItem, setActionItems],
