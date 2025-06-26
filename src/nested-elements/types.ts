@@ -164,8 +164,6 @@ export type ConfiguredNestedMenu = Omit<NestedMenuProps, "children"> & {
   children: ConfiguredNestedChild[];
 };
 
-export type ActionItem = ConfiguredNestedMenu;
-
 export type ConfiguredNestedChild =
   | (NestedCheckboxProps & { type: "checkbox"; id: string })
   | (NestedItemProps & { type: "item"; id: string })

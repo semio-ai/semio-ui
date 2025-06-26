@@ -4,7 +4,7 @@ import { observe } from "jotai-effect";
 import { createPane } from "../functions/create-pane";
 import { createActionItem } from "../functions/create-action-item";
 import { PaneRegion, PaneSpec, ToolbarItem } from "../types";
-import { ActionItem } from "../nested-elements/types";
+import { ActionItem, ActionItemPlaceholder, isPlaceholder } from "../layouts/layout/types";
 import {
   menuStateAtom,
   panesAtom,
@@ -12,6 +12,11 @@ import {
   actionItemsAtom,
   homeActionItemAtom,
 } from "./layout-atoms";
+
+export type ActionItemInput =
+  | ActionItem // Full menu item
+  | ActionItemPlaceholder // Just { id, type: "placeholder" }
+  | (Partial<ActionItem> & { id: string }); // Partial item with required id
 
 /**
  * LayoutActions interface defines the actions that can be performed on the layout.
@@ -42,11 +47,8 @@ export interface LayoutActions {
     replace?: boolean,
   ) => void;
   removeToolbarItem: (id: string) => void;
-  setActionItem: (item: ActionItem | (Partial<ActionItem> & { id: string })) => void;
-  setActionItems: (
-    panes: (ActionItem | (Partial<ActionItem> & { id: string }))[],
-    replace?: boolean,
-  ) => void;
+  setActionItem: (item: ActionItemInput) => void;
+  setActionItems: (panes: ActionItemInput[], replace?: boolean) => void;
   removeActionItem: (id: string) => void;
   setHomeActionItem: (item: ActionItem | undefined) => void;
   toggleMenu: () => void;
@@ -88,7 +90,6 @@ export function useLayoutActions(): LayoutActions {
       actionItemsUnsub();
     };
   });
-
   const setPane = useCallback(
     (pane: PaneSpec | Partial<PaneSpec>) => {
       const existingPane = panesRef.current.find((p) => p.id === pane.id);
@@ -171,20 +172,28 @@ export function useLayoutActions(): LayoutActions {
   );
 
   const setActionItem = useCallback(
-    (item: ActionItem | (Partial<ActionItem> & { id: string })) => {
+    (item: ActionItemInput) => {
       const existingItem = actionItemsRef.current.find((a) => a.id === item.id);
-      const newItems = existingItem
-        ? actionItemsRef.current.map((a) => (a.id === item.id ? { ...a, ...item } : a))
-        : [...actionItemsRef.current, { ...createActionItem(), ...item }];
-      setActionItems(newItems);
+      // If the item is a placeholder, do nothing;
+      if (!isPlaceholder(item)) {
+        const newItems = existingItem
+          ? actionItemsRef.current.map((a) => (a.id === item.id ? { ...a, ...item } : a))
+          : [...actionItemsRef.current, { ...createActionItem(), ...item }];
+        setActionItems(newItems);
+      }
     },
     [setActionItems, actionItemsRef],
   );
 
   const setActionItemsNice = useCallback(
-    (items: (ActionItem | (Partial<ActionItem> & { id: string }))[], replace?: boolean) => {
+    (items: ActionItemInput[], replace?: boolean) => {
       if (replace) {
-        setActionItems(items.map((item) => ({ ...createActionItem(), ...item })));
+        setActionItems(
+          items.map(
+            (item) =>
+              (isPlaceholder(item) ? item : { ...createActionItem(), ...item }) as ActionItem,
+          ),
+        );
       } else {
         items.forEach(setActionItem);
       }
