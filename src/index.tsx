@@ -84,6 +84,7 @@ export * from "./layouts/breadcrumbs";
 export * from "./layouts/collapse";
 export * from "./layouts/resizer";
 export * from "./layouts/layout/root";
+export * from "./layouts/layout/types";
 export * from "./layouts/scroll-area";
 export * from "./layouts/separator";
 
