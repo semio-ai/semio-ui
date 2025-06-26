@@ -124,7 +124,7 @@ function InnerMenu({
                 >
                   {homeActionItem &&
                     !isPlaceholder(homeActionItem) &&
-                    homeActionItem?.children.map((child) => (
+                    homeActionItem.children.map((child) => (
                       <NestedChild key={child.id} {...child} />
                     ))}
                 </Dropdown>
