@@ -20,6 +20,7 @@ import { MenuItemClickFn, PaneRegion, Variant } from "../../types";
 import { ContextMenu } from "../../floating/context-menu";
 import { NestedSelect } from "../../nested-elements/select";
 import { NestedRadio } from "../../nested-elements/radio";
+import { isPlaceholder } from "./types";
 
 function InnerMenu({
   homeIcon,
@@ -102,7 +103,11 @@ function InnerMenu({
             desktop ? (
               <div className="flex flex-col">
                 <Dropdown
-                  disabled={!homeActionItem || homeActionItem.children.length === 0}
+                  disabled={
+                    !homeActionItem ||
+                    isPlaceholder(homeActionItem) ||
+                    homeActionItem.children.length === 0
+                  }
                   side="right"
                   trigger={
                     <span>
@@ -117,9 +122,11 @@ function InnerMenu({
                     </span>
                   }
                 >
-                  {homeActionItem?.children.map((child) => (
-                    <NestedChild key={child.id} {...child} />
-                  ))}
+                  {homeActionItem &&
+                    !isPlaceholder(homeActionItem) &&
+                    homeActionItem.children.map((child) => (
+                      <NestedChild key={child.id} {...child} />
+                    ))}
                 </Dropdown>
               </div>
             ) : undefined
@@ -127,30 +134,35 @@ function InnerMenu({
           footer={
             desktop && actionItems.length > 0 ? (
               <div className="flex flex-col">
-                {actionItems.map((actionItem) => (
-                  <Dropdown
-                    side="right"
-                    key={actionItem.id}
-                    variant={actionItem.variant}
-                    trigger={
-                      <span>
-                        <MenuButton
-                          key={actionItem.id}
-                          variant={actionItem.variant}
-                          icon={actionItem.left}
-                          hoverable
-                        >
+                {actionItems.map(
+                  (actionItem) =>
+                    !isPlaceholder(actionItem) && (
+                      <Dropdown
+                        side="right"
+                        key={actionItem.id}
+                        variant={actionItem.variant}
+                        trigger={
+                          <span>
+                            <MenuButton
+                              key={actionItem.id}
+                              variant={actionItem.variant}
+                              icon={actionItem.left}
+                              hoverable
+                            >
+                              {actionItem.label ?? "Action"}
+                            </MenuButton>
+                          </span>
+                        }
+                      >
+                        <NestedLabel key={actionItem.id}>
                           {actionItem.label ?? "Action"}
-                        </MenuButton>
-                      </span>
-                    }
-                  >
-                    <NestedLabel key={actionItem.id}>{actionItem.label ?? "Action"}</NestedLabel>
-                    {actionItem.children.map((child) => (
-                      <NestedChild key={child.id} {...child} />
-                    ))}
-                  </Dropdown>
-                ))}
+                        </NestedLabel>
+                        {actionItem.children.map((child) => (
+                          <NestedChild key={child.id} {...child} />
+                        ))}
+                      </Dropdown>
+                    ),
+                )}
               </div>
             ) : undefined
           }

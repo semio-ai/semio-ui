@@ -17,6 +17,7 @@ import { IconHome } from "../../icons/home";
 import { useLayoutActions } from "../../hooks/use-layout-actions";
 import { PaneRegion, Size, ToolbarWidget, Variant } from "../../types";
 import { HeaderButton } from "../../buttons/header-button";
+import { isPlaceholder } from "./types";
 
 function InnerHeader({ homeIcon }: { homeIcon?: ReactNode }) {
   const desktop = useDesktopState();
@@ -43,7 +44,11 @@ function InnerHeader({ homeIcon }: { homeIcon?: ReactNode }) {
         <span className="grid desktop:hidden place-items-center flex-none">
           <Dropdown
             side="bottom"
-            disabled={!homeActionItem || homeActionItem.children.length + actionItems.length === 0}
+            disabled={
+              !homeActionItem ||
+              isPlaceholder(homeActionItem) ||
+              (homeActionItem.children.length + actionItems.length === 0)
+            }
             trigger={
               <span>
                 <button
@@ -59,7 +64,9 @@ function InnerHeader({ homeIcon }: { homeIcon?: ReactNode }) {
               </span>
             }
           >
-            {homeActionItem?.children.map((child) => <NestedChild key={child.id} {...child} />)}
+            {homeActionItem &&
+              !isPlaceholder(homeActionItem) &&
+              homeActionItem?.children.map((child) => <NestedChild key={child.id} {...child} />)}
           </Dropdown>
         </span>
 
@@ -96,9 +103,9 @@ function InnerHeader({ homeIcon }: { homeIcon?: ReactNode }) {
               )}
             </>
           )}
-          {actionItems.map((item) => (
-            <NestedChild key={item.id} type="menu" {...item} />
-          ))}
+          {actionItems.map(
+            (item) => !isPlaceholder(item) && <NestedChild key={item.id} type="menu" {...item} />,
+          )}
         </Dropdown>
 
         <div className="h-9 hidden desktop:flex flex-1" />
