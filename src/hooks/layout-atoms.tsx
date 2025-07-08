@@ -1,5 +1,5 @@
 import { atom, useAtomValue } from "jotai";
-import { ActionItem } from "../nested-elements/types";
+import { ActionItem } from "../layouts/layout/types";
 import { PaneRegion, PaneSpec, ToolbarItem } from "../types";
 
 export const menuStateAtom = atom<boolean>(false);
