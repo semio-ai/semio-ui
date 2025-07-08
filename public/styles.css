@@ -40,9 +40,9 @@
 
 @layer components {
   .variant-text-caret-color {
-    caret-color: var(--standard-color);
+    caret-color: var(--accent-color);
     &::selection {
-      background-color: color-mix(in oklab, var(--standard-color) 50%, transparent);
+      background-color: color-mix(in oklab, var(--accent-color) 75%, transparent);
     }
   }
 
