@@ -19,7 +19,6 @@ export interface ModalProps {
   onSubmit?: (event: MouseEvent) => void;
   onCancel?: (event: MouseEvent) => void;
   variant?: Variant;
-  scrollDisabled?: boolean;
 }
 
 export function Modal({
@@ -136,73 +135,6 @@ export function Modal({
             >
               <div className="flex-1 md:flex-none dark:text-white text-black p-0">{children}</div>
             </ScrollArea>
-            {/* {scrollDisabled && (
-              <div className="md:max-h-[85dvh] max-h-[100dvh] flex flex-col p-[1px]">
-                <div
-                  className={clsx(
-                    "text-black dark:text-white",
-                    "flex flex-col gap-1",
-                    !showHeader && "hidden",
-                    "bg-neutral-50/50 dark:bg-neutral-950/50",
-                  )}
-                >
-                  <div
-                    className={clsx(
-                      variant,
-                      headerBottom ? "px-3 pt-3 pb-0" : "p-3",
-                      "flex flex-col gap-1",
-                      "variant-static-text",
-                    )}
-                  >
-                    <div className="flex flex-row items-center justify-between">
-                      <Dialog.Title className="text-base/7 font-medium flex align-center justify-between">
-                        {title}
-                      </Dialog.Title>
-                      {!dismissDisabled && (
-                        <Dialog.Close asChild>
-                          <Button tabIndex={0} variant={variant} leftIcon={<IconX />} />
-                        </Dialog.Close>
-                      )}
-                    </div>
-                    <Dialog.Description className="text-sm/6 dark:text-white/50 text-black/50">
-                      {description ?? ""}
-                    </Dialog.Description>
-                  </div>
-                  {headerBottom}
-                </div>
-                <div className="flex-1 md:flex-none dark:text-white text-black min-h-0">
-                  {children}
-                </div>
-                {showFooter && (
-                  <div className="p-3 flex gap-3 justify-end">
-                    {onCancel && (
-                      <Dialog.Close asChild>
-                        <Button
-                          tabIndex={0}
-                          variant={Variant.Default}
-                          onClick={onCancel}
-                          disabled={submitDisabled}
-                        >
-                          Cancel
-                        </Button>
-                      </Dialog.Close>
-                    )}
-                    {onSubmit && (
-                      <Dialog.Close asChild>
-                        <Button
-                          tabIndex={0}
-                          variant={variant}
-                          onClick={onSubmit}
-                          disabled={submitDisabled}
-                        >
-                          {submitText}
-                        </Button>
-                      </Dialog.Close>
-                    )}
-                  </div>
-                )}
-              </div>
-            )} */}
           </Dialog.Content>
         </Dialog.Overlay>
       </Dialog.Portal>
