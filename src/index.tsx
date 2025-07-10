@@ -19,6 +19,7 @@ export * from "./floating/dropdown";
 export * from "./floating/modal";
 export * from "./floating/popover";
 export * from "./floating/select";
+export * from "./floating/tabbed-modal";
 export * from "./floating/toast";
 export * from "./floating/tooltip";
 export * from "./floating/tracked-tooltip";

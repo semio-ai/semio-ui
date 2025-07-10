@@ -6,26 +6,19 @@ import {
   TouchEvent,
   DragEvent,
   KeyboardEvent,
+  useMemo,
 } from "react";
-import { isNumber, isNaN } from "lodash";
-import { strip } from "number-precision";
-
-const VALID_CHARS = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ".", "-"];
-
-export enum NumericStatus {
-  Below = "below",
-  LowerBound = "lower-bound",
-  Within = "within",
-  UpperBound = "upper-bound",
-  Above = "above",
-  Invalid = "invalid",
-}
-
-export const PassableNumericStatuses = [
-  NumericStatus.LowerBound,
-  NumericStatus.Within,
-  NumericStatus.UpperBound,
-];
+import {
+  NumericStatus,
+  NumericState,
+  NumericConfig,
+  parseNumericInput,
+  isValidNumericChar,
+  validateNumericChange,
+  validateOnBlur,
+  calculateSteppedValue,
+  revertToValue,
+} from "./numeric-utils";
 
 export type ValidChangeEvent =
   | ChangeEvent<HTMLInputElement>
@@ -44,12 +37,6 @@ interface NumericProps {
   onValidChange?: (value: number, event: ValidChangeEvent) => void;
   sigFigs?: number;
   enforceLimits?: boolean;
-}
-
-interface NumericState {
-  numeric: number;
-  status: NumericStatus;
-  textValue: string;
 }
 
 export interface NumericInterface {
@@ -72,114 +59,106 @@ export const useNumeric = ({
   onValidChange = () => {},
   enforceLimits = true,
 }: NumericProps): NumericInterface => {
-  const [state, setState] = useState<NumericState>(parse(initial, min, max, sigFigs));
+  const config: NumericConfig = useMemo(
+    () => ({
+      bounds: { min, max },
+      sigFigs,
+      enforceLimits,
+    }),
+    [min, max, sigFigs, enforceLimits],
+  );
+
+  const [state, setState] = useState<NumericState>(parseNumericInput(initial, min, max, sigFigs));
+  const [currentExternalValue, setCurrentExternalValue] = useState<number>(initial);
 
   const onChange = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
-      console.log("onChange w/ enforceLimits", enforceLimits);
+      // Check for invalid characters in the input data
       // @ts-expect-error React Type description is wrong (data is present)
       if (event?.nativeEvent?.data) {
         // @ts-expect-error React Type description is wrong (data is present)
-        if (!VALID_CHARS.includes(event.nativeEvent.data as string)) {
-          setState((prev) => ({
-            numeric: prev.numeric,
-            status: prev.status,
-            textValue: prev.textValue,
-          }));
+        if (!isValidNumericChar(event.nativeEvent.data as string)) {
+          // Don't update state, just ignore the invalid character
           return;
         }
       }
-      if (event.target?.value === "-") {
-        setState({
-          numeric: 0,
-          status: getStatus(0, min, max),
-          textValue: event.target.value,
-        });
-        return;
-      }
 
-      if (event.target.value === "") {
-        setState({
-          numeric: 0,
-          status: getStatus(0, min, max),
-          textValue: event.target.value,
-        });
-        return;
-      }
+      const inputValue = event.target.value;
+      const validationResult = validateNumericChange(inputValue, config);
 
-      const newState = parse(event.target.value, min, max, sigFigs);
-      if (!newState) {
-        setState((prev) => ({
-          numeric: prev.numeric,
-          status: NumericStatus.Invalid,
-          textValue: event.target.value,
-        }));
-      } else if (!enforceLimits || PassableNumericStatuses.includes(newState.status)) {
-        setState(newState);
-        onValidChange(newState.numeric, event);
-      } else if (newState.status === NumericStatus.Below) {
-        setState(newState);
-        onValidChange(min, event);
-      } else if (newState.status === NumericStatus.Above) {
-        setState(newState);
-        onValidChange(max, event);
+      // Always update the internal state to show what the user typed
+      setState(validationResult.newState);
+
+      // Only call onChange callback if the value should trigger it
+      if (validationResult.shouldCallOnChange && validationResult.valueToEmit !== undefined) {
+        onValidChange(validationResult.valueToEmit, event);
       }
     },
-    [min, max, onValidChange, sigFigs, enforceLimits],
+    [config, onValidChange],
   );
 
   const onChangeDirect = useCallback(
     (value: number, event: MouseEvent) => {
-      const newState = parse(value, min, max, sigFigs);
+      const newState = parseNumericInput(value, min, max, sigFigs);
       setState(newState);
-      if (!enforceLimits || PassableNumericStatuses.includes(newState.status)) {
-        onValidChange(newState.numeric, event);
+
+      const validationResult = validateNumericChange(value.toString(), config);
+      if (validationResult.shouldCallOnChange && validationResult.valueToEmit !== undefined) {
+        onValidChange(validationResult.valueToEmit, event);
       }
     },
-    [min, max, onValidChange, sigFigs, enforceLimits],
+    [min, max, sigFigs, config, onValidChange],
   );
 
   const onChangeHeadless = useCallback(
     (value: number) => {
-      const newState = parse(value, min, max, sigFigs);
+      const newState = parseNumericInput(value, min, max, sigFigs);
       setState(newState);
+      setCurrentExternalValue(value);
     },
     [min, max, sigFigs],
   );
 
   const onStepUp = useCallback(
     (event: MouseEvent) => {
-      const newState = parse(strip(state.numeric + stepSize), min, max, sigFigs);
+      const newState = calculateSteppedValue(state.numeric, stepSize, "up", min, max, sigFigs);
       setState(newState);
-      if (!enforceLimits || PassableNumericStatuses.includes(newState.status)) {
-        onValidChange(newState.numeric, event);
+
+      const validationResult = validateNumericChange(newState.numeric.toString(), config);
+      if (validationResult.shouldCallOnChange && validationResult.valueToEmit !== undefined) {
+        onValidChange(validationResult.valueToEmit, event);
       }
     },
-    [min, max, onValidChange, state.numeric, stepSize, sigFigs, enforceLimits],
+    [stepSize, min, max, sigFigs, config, onValidChange, state.numeric],
   );
 
   const onStepDown = useCallback(
     (event: MouseEvent) => {
-      const newState = parse(strip(state.numeric - stepSize), min, max, sigFigs);
+      const newState = calculateSteppedValue(state.numeric, stepSize, "down", min, max, sigFigs);
       setState(newState);
-      if (!enforceLimits || PassableNumericStatuses.includes(newState.status)) {
-        onValidChange(newState.numeric, event);
+
+      const validationResult = validateNumericChange(newState.numeric.toString(), config);
+      if (validationResult.shouldCallOnChange && validationResult.valueToEmit !== undefined) {
+        onValidChange(validationResult.valueToEmit, event);
       }
     },
-    [min, max, onValidChange, state.numeric, stepSize, sigFigs, enforceLimits],
+    [stepSize, min, max, sigFigs, config, onValidChange, state.numeric],
   );
 
   const onBlur = useCallback(
     (event: FocusEvent<HTMLInputElement> | KeyboardEvent<HTMLInputElement>) => {
-      const strVersion = state.numeric.toFixed(sigFigs);
-      setState({
-        numeric: state.numeric,
-        status: getStatus(state.numeric, min, max),
-        textValue: strVersion,
-      });
-      onValidChange(state.numeric, event);
+      // If current state is invalid, revert to the current external value
+      if (state.status === NumericStatus.Invalid) {
+        const revertedState = revertToValue(currentExternalValue, config);
+        setState(revertedState);
+        onValidChange(currentExternalValue, event);
+      } else {
+        const blurResult = validateOnBlur(state, config);
+        setState(blurResult.finalState);
+        onValidChange(blurResult.valueToEmit, event);
+      }
     },
-    [min, max, state.numeric, onValidChange, sigFigs],
+    [state, config, onValidChange, currentExternalValue],
   );
 
   return {
@@ -192,44 +171,4 @@ export const useNumeric = ({
     onStepUp,
     onStepDown,
   };
-};
-
-const getStatus = (v: number, min: number, max: number) => {
-  if (v < max && v > min) {
-    return NumericStatus.Within;
-  } else if (v > max) {
-    return NumericStatus.Above;
-  } else if (v === max) {
-    return NumericStatus.UpperBound;
-  } else if (v === min) {
-    return NumericStatus.LowerBound;
-  } else if (v < min) {
-    return NumericStatus.Below;
-  } else {
-    return NumericStatus.Invalid;
-  }
-};
-
-const parse = (v: number | string, min: number, max: number, sigFigs: number) => {
-  if (typeof v === "number") {
-    return {
-      numeric: v,
-      status: getStatus(v, min, max),
-      textValue: v.toFixed(sigFigs),
-    };
-  } else if (typeof v === "string") {
-    const parsed = Number(v);
-    if (v === "-") {
-      return { numeric: 0, status: getStatus(0, min, max), textValue: v };
-    }
-    if (isNumber(parsed) && !isNaN(parsed)) {
-      return {
-        numeric: parsed,
-        status: getStatus(parsed, min, max),
-        textValue: v,
-      };
-    }
-  }
-  // console.warn("failed with ", v, typeof v);
-  return { numeric: 0, status: NumericStatus.Invalid, textValue: v };
 };

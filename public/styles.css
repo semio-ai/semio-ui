@@ -40,9 +40,9 @@
 
 @layer components {
   .variant-text-caret-color {
-    caret-color: var(--standard-color);
+    caret-color: var(--accent-color);
     &::selection {
-      background-color: color-mix(in oklab, var(--standard-color) 50%, transparent);
+      background-color: color-mix(in oklab, var(--accent-color) 75%, transparent);
     }
   }
 
@@ -1288,20 +1288,20 @@
 }
 
 .react-colorful__saturation {
-  border-radius: 0px !important;
+  border-radius: 2px !important;
 }
 
 .react-colorful__hue {
-  border-radius: 0px !important;
+  border-radius: 2px !important;
 }
 
 .react-colorful__saturation-pointer {
   width: 16px !important;
   height: 16px !important;
-  border-radius: 0px !important;
+  border-radius: 2px !important;
 }
 
 .react-colorful__hue-pointer {
-  border-radius: 0px !important;
+  border-radius: 2px !important;
   width: 10px !important;
 }
