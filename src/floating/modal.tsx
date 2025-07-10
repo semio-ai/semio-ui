@@ -19,7 +19,6 @@ export interface ModalProps {
   onSubmit?: (event: MouseEvent) => void;
   onCancel?: (event: MouseEvent) => void;
   variant?: Variant;
-  scrollDisabled?: boolean;
 }
 
 /**
