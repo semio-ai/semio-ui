@@ -1,9 +1,9 @@
-import { ReactNode, useState, type MouseEvent } from "react";
+import { ReactNode, type MouseEvent } from "react";
 import { Tabs as TabsPrimitive } from "radix-ui";
 import { TabChild, useTabsState } from "../hooks/use-tabs-state";
+import { TabsRow, TabsContent } from "../layouts/tabs";
 import { Variant } from "../types";
 import { Modal } from "./modal";
-import { TabsRow, TabsContent } from "../layouts/tabs";
 
 export interface TabbedModalProps {
   children: TabChild[];
@@ -113,12 +113,9 @@ export function TabbedModal({
 
   const combinedHeaderBottom = (
     <>
-      <TabsRow
-        visuals="both"
-        children={childrenTabs}
-        selected={selected}
-        tabsContainerClassName="px-0.5 pb-0.5"
-      />
+      <TabsRow visuals="both" selected={selected} tabsContainerClassName="px-0.5 pb-0.5">
+        {childrenTabs}
+      </TabsRow>
       {headerBottom}
     </>
   );
