@@ -58,6 +58,9 @@ interface ScrollAreaProps {
   scrollLeft?: number;
   onScrollChange?: (scrollInfo: ScrollInfo) => void;
   onViewportChange?: (viewportInfo: ViewportInfo) => void;
+
+  // Simple overscroll visual effects
+  enableOverscrollEffect?: boolean;
 }
 
 /**
@@ -104,11 +107,12 @@ export const InnerScrollArea = forwardRef<ScrollAreaRef, ScrollAreaProps>(
       scrollLeft,
       onScrollChange,
       onViewportChange,
+      enableOverscrollEffect = false,
     },
     ref,
   ) => {
-    const [headerRef, headerBounds] = useMeasure();
-    const [footerRef, footerBounds] = useMeasure();
+    const [headerRef] = useMeasure();
+    const [footerRef] = useMeasure();
 
     // Ref to access the Radix ScrollArea viewport
     const viewportRef = useRef<HTMLDivElement>(null);
@@ -205,22 +209,26 @@ export const InnerScrollArea = forwardRef<ScrollAreaRef, ScrollAreaProps>(
 
       const { scrollTop: targetScrollTop, scrollLeft: targetScrollLeft } = pendingSyncRef.current;
 
-      // Only sync if there's a meaningful difference (prevents micro-adjustments)
+      // Use smaller threshold to catch settling behavior
       const needsScrollTopSync =
-        targetScrollTop !== undefined && Math.abs(targetScrollTop - viewport.scrollTop) > 1;
+        targetScrollTop !== undefined && Math.abs(targetScrollTop - viewport.scrollTop) > 0.5;
       const needsScrollLeftSync =
-        targetScrollLeft !== undefined && Math.abs(targetScrollLeft - viewport.scrollLeft) > 1;
+        targetScrollLeft !== undefined && Math.abs(targetScrollLeft - viewport.scrollLeft) > 0.5;
 
       if (needsScrollTopSync || needsScrollLeftSync) {
         isUpdatingFromProps.current = true;
 
         if (needsScrollTopSync) {
-          viewport.scrollTop = targetScrollTop!;
-          lastDOMScrollTop.current = targetScrollTop!;
+          // Clamp to valid scroll range for DOM
+          const maxScroll = viewport.scrollHeight - viewport.clientHeight;
+          viewport.scrollTop = Math.max(0, Math.min(maxScroll, targetScrollTop!));
+          lastDOMScrollTop.current = viewport.scrollTop;
         }
         if (needsScrollLeftSync) {
-          viewport.scrollLeft = targetScrollLeft!;
-          lastDOMScrollLeft.current = targetScrollLeft!;
+          // Clamp to valid scroll range for DOM
+          const maxScroll = viewport.scrollWidth - viewport.clientWidth;
+          viewport.scrollLeft = Math.max(0, Math.min(maxScroll, targetScrollLeft!));
+          lastDOMScrollLeft.current = viewport.scrollLeft;
         }
 
         // Brief cooldown to prevent immediate callback loops
@@ -256,7 +264,7 @@ export const InnerScrollArea = forwardRef<ScrollAreaRef, ScrollAreaProps>(
       };
     }, [scrollTop, scrollLeft, isControlled, debouncedSync]);
 
-    // Update DOM position tracking whenever controlled props change
+    // Update DOM position tracking and rubber-band bounds
     useEffect(() => {
       const viewport = viewportRef.current;
       if (!viewport) return;
@@ -335,102 +343,107 @@ export const InnerScrollArea = forwardRef<ScrollAreaRef, ScrollAreaProps>(
         className={clsx(
           "relative",
           "overflow-hidden overscroll-contain",
+          "flex",
+          orientation === "horizontal" ? "flex-row" : "flex-col",
           shrinkHeight ? "h-fit" : "h-full",
           shrinkWidth ? "w-fit" : "w-full",
           wrapperClassName,
         )}
         style={style}
       >
-        <RadixScrollArea.Viewport
-          ref={viewportRef}
-          className={clsx(
-            shrinkHeight ? "h-fit" : "h-full",
-            shrinkWidth ? "w-fit" : "w-full",
-            className,
-          )}
-        >
-          {header && orientation === "vertical" && (
-            <div className="w-full" style={{ height: headerBounds.height }} />
-          )}
-          {header && orientation === "horizontal" && (
-            <div className="h-full" style={{ width: headerBounds.width }} />
-          )}
-          {children}
-          {footer && orientation === "vertical" && (
-            <div className="w-full" style={{ height: footerBounds.height }} />
-          )}
-          {footer && orientation === "horizontal" && (
-            <div className="h-full" style={{ width: footerBounds.width }} />
-          )}
-        </RadixScrollArea.Viewport>
-        {(orientation === "both" || orientation === "vertical") && (
-          <RadixScrollArea.Scrollbar
-            className={clsx(
-              "flex select-none touch-none py-1 px-0.5",
-              "ease-out transition-colors duration-[160ms]",
-              showGutter && "dark:hover:bg-white/25 hover:bg-black/25 bg-black/5 dark:bg-white/5",
-              "data-[orientation=vertical]:w-2.5 data-[orientation=horizontal]:flex-col data-[orientation=horizontal]:h-2.5",
-            )}
-            orientation="vertical"
-            style={{
-              marginTop: headerBounds.height > 0 ? headerBounds.height + 2 : 0,
-              marginBottom: footerBounds.height > 0 ? footerBounds.height + 2 : 0,
-            }}
-          >
-            <RadixScrollArea.Thumb
-              className={clsx(
-                "flex-1 bg-default-500/75 rounded-sm relative",
-                "before:content-[''] before:absolute before:top-1/2 before:left-1/2 before:-translate-x-1/2",
-                "before:-translate-y-1/2 before:w-full before:h-full before:min-w-[22px] before:min-h-[22px]",
-              )}
-            />
-          </RadixScrollArea.Scrollbar>
-        )}
-        {(orientation === "both" || orientation === "horizontal") && (
-          <RadixScrollArea.Scrollbar
-            className={clsx(
-              "flex select-none touch-none py-0.5 px-1",
-              "ease-out transition-colors duration-[160ms]",
-              showGutter && "dark:hover:bg-white/25 hover:bg-black/25 bg-black/5 dark:bg-white/5",
-              "data-[orientation=vertical]:w-2.5 data-[orientation=horizontal]:flex-col data-[orientation=horizontal]:h-2.5",
-            )}
-            orientation="horizontal"
-            style={{
-              marginLeft: headerBounds.width > 0 ? headerBounds.width + 2 : 0,
-              marginRight: footerBounds.width > 0 ? footerBounds.width + 2 : 0,
-            }}
-          >
-            <RadixScrollArea.Thumb
-              className={clsx(
-                "flex-1 bg-default-500/75 rounded-sm relative",
-                "before:content-[''] before:absolute before:top-1/2 before:left-1/2 before:-translate-x-1/2",
-                "before:-translate-y-1/2 before:w-full before:h-full before:min-w-[22px] before:min-h-[22px]",
-              )}
-            />
-          </RadixScrollArea.Scrollbar>
-        )}
-        <RadixScrollArea.Corner className="bg-black/5" />
         {header && (
-          <div
-            ref={headerRef}
-            className={clsx(
-              "absolute top-0 left-0",
-              orientation === "horizontal" ? "bottom-0" : "right-0",
-              headerClassName,
-            )}
-          >
+          <div ref={headerRef} className={clsx("flex-shrink-0", headerClassName)}>
             {header}
           </div>
         )}
+
+        <div className="flex-1 relative min-h-0 min-w-0">
+          <RadixScrollArea.Viewport ref={viewportRef} className={clsx("h-full w-full", className)}>
+            <div
+              style={(() => {
+                // Calculate overscroll transform for controlled mode
+                if (!isControlled || !enableOverscrollEffect) return undefined;
+
+                const viewport = viewportRef.current;
+                if (!viewport) return undefined;
+
+                let transformY = 0;
+                let transformX = 0;
+
+                if (scrollTop !== undefined) {
+                  const maxScrollY = viewport.scrollHeight - viewport.clientHeight;
+                  if (scrollTop < 0) {
+                    transformY = -scrollTop; // Content moves down to show top overscroll
+                  } else if (scrollTop > maxScrollY) {
+                    transformY = -(scrollTop - maxScrollY); // Content moves up to show bottom overscroll
+                  }
+                }
+
+                if (scrollLeft !== undefined) {
+                  const maxScrollX = viewport.scrollWidth - viewport.clientWidth;
+                  if (scrollLeft < 0) {
+                    transformX = -scrollLeft; // Content moves right to show left overscroll
+                  } else if (scrollLeft > maxScrollX) {
+                    transformX = -(scrollLeft - maxScrollX); // Content moves left to show right overscroll
+                  }
+                }
+
+                if (transformY === 0 && transformX === 0) return undefined;
+
+                return {
+                  transform: `translate(${transformX.toString()}px, ${transformY.toString()}px)`,
+                  height: "100%",
+                  width: "100%",
+                };
+              })()}
+            >
+              {children}
+            </div>
+          </RadixScrollArea.Viewport>
+
+          {(orientation === "both" || orientation === "vertical") && (
+            <RadixScrollArea.Scrollbar
+              className={clsx(
+                "flex select-none touch-none py-1 px-0.5",
+                "ease-out transition-colors duration-[160ms]",
+                showGutter && "dark:hover:bg-white/25 hover:bg-black/25 bg-black/5 dark:bg-white/5",
+                "data-[orientation=vertical]:w-2.5 data-[orientation=horizontal]:flex-col data-[orientation=horizontal]:h-2.5",
+              )}
+              orientation="vertical"
+            >
+              <RadixScrollArea.Thumb
+                className={clsx(
+                  "flex-1 bg-default-500/75 rounded-sm relative",
+                  "before:content-[''] before:absolute before:top-1/2 before:left-1/2 before:-translate-x-1/2",
+                  "before:-translate-y-1/2 before:w-full before:h-full before:min-w-[22px] before:min-h-[22px]",
+                )}
+              />
+            </RadixScrollArea.Scrollbar>
+          )}
+          {(orientation === "both" || orientation === "horizontal") && (
+            <RadixScrollArea.Scrollbar
+              className={clsx(
+                "flex select-none touch-none py-0.5 px-1",
+                "ease-out transition-colors duration-[160ms]",
+                showGutter && "dark:hover:bg-white/25 hover:bg-black/25 bg-black/5 dark:bg-white/5",
+                "data-[orientation=vertical]:w-2.5 data-[orientation=horizontal]:flex-col data-[orientation=horizontal]:h-2.5",
+              )}
+              orientation="horizontal"
+            >
+              <RadixScrollArea.Thumb
+                className={clsx(
+                  "flex-1 bg-default-500/75 rounded-sm relative",
+                  "before:content-[''] before:absolute before:top-1/2 before:left-1/2 before:-translate-x-1/2",
+                  "before:-translate-y-1/2 before:w-full before:h-full before:min-w-[22px] before:min-h-[22px]",
+                )}
+              />
+            </RadixScrollArea.Scrollbar>
+          )}
+          <RadixScrollArea.Corner className="bg-black/5" />
+        </div>
+
         {footer && (
-          <div
-            ref={footerRef}
-            className={clsx(
-              "absolute bottom-0 right-0",
-              orientation === "horizontal" ? "top-0" : "left-0",
-              footerClassName,
-            )}
-          >
+          <div ref={footerRef} className={clsx("flex-shrink-0", footerClassName)}>
             {footer}
           </div>
         )}
