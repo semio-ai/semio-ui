@@ -332,4 +332,4 @@ export function InnerTabs(props: TabsProps): ReactNode {
 
 export const Tabs = memo(InnerTabs);
 
-const MotionTabsPrimitiveContent = motion(TabsPrimitive.Content);
+const MotionTabsPrimitiveContent = motion.create(TabsPrimitive.Content);

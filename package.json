@@ -23,8 +23,8 @@
     "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist"
   },
   "dependencies": {
-    "@semio/utils": "*",
     "@floating-ui/react": "^0.27.4",
+    "@semio/utils": "*",
     "@tabler/icons-react": "^3.34.0",
     "@use-gesture/react": "^10.3.0",
     "clsx": "^2.1.1",

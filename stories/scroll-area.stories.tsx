@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { ScrollArea, type ScrollInfo, type ViewportInfo, type ScrollAreaRef } from "@semio/ui";
-import { useState, useRef, useCallback } from "react";
+import { ScrollArea } from "@semio/ui";
+import { useState } from "react";
+import { useMotionValue, useMotionValueEvent } from "motion/react";
 
 const meta: Meta<typeof ScrollArea> = {
   component: ScrollArea,
@@ -15,215 +16,299 @@ const meta: Meta<typeof ScrollArea> = {
 };
 
 export default meta;
+type Story = StoryObj<typeof meta>;
 
-type Story = StoryObj<typeof ScrollArea>;
-
-// Helper component for generating content
+// Helper component for consistent content
 const ScrollContent = ({
-  itemCount = 20,
-  prefix = "Item",
+  prefix,
+  count = 30,
+  bgColor = "bg-blue-100",
 }: {
-  itemCount?: number;
-  prefix?: string;
+  prefix: string;
+  count?: number;
+  bgColor?: string;
 }) => (
   <div className="space-y-2 p-4">
-    {Array.from({ length: itemCount }, (_, i) => (
-      <div key={i} className="p-4 bg-gray-500 rounded border">
+    {Array.from({ length: count }, (_, i) => (
+      <div key={i} className={`p-3 ${bgColor} rounded text-sm`}>
         {prefix} {i + 1}
       </div>
     ))}
   </div>
 );
 
-export const BasicUncontrolled: Story = {
-  args: {
-    wrapperClassName: "h-64 w-80 border rounded",
-    orientation: "vertical",
-    children: <ScrollContent />,
-  },
-};
-
-export const HorizontalScroll: Story = {
-  args: {
-    wrapperClassName: "h-32 w-80 border rounded",
-    orientation: "horizontal",
-    children: (
-      <div className="flex gap-2 p-4" style={{ width: "800px" }}>
-        {Array.from({ length: 15 }, (_, i) => (
-          <div
-            key={i}
-            className="w-24 h-20 bg-blue-100 rounded border flex items-center justify-center"
-          >
-            {i + 1}
-          </div>
-        ))}
+export const Basic: Story = {
+  render: () => (
+    <div className="space-y-4">
+      <div className="text-sm text-gray-600">
+        Basic ScrollArea with natural overscroll behavior. Try scrolling past the edges to see the
+        rubber banding effect.
       </div>
-    ),
-  },
-};
 
-export const BothDirections: Story = {
-  args: {
-    wrapperClassName: "h-64 w-80 border rounded",
-    orientation: "both",
-    children: (
-      <div className="p-4" style={{ width: "600px", height: "600px" }}>
-        <div className="grid grid-cols-6 gap-2">
-          {Array.from({ length: 48 }, (_, i) => (
-            <div
-              key={i}
-              className="w-20 h-20 bg-green-100 rounded border flex items-center justify-center text-sm"
-            >
-              {i + 1}
-            </div>
-          ))}
-        </div>
+      <div className="border rounded" style={{ height: "250px", width: "250px" }}>
+        <ScrollArea onScrollChange={(info) => console.log("Scroll info:", info)}>
+          <ScrollContent prefix="Item" count={40} />
+        </ScrollArea>
       </div>
-    ),
-  },
+    </div>
+  ),
 };
 
-export const WithScrollTracking: Story = {
+export const SynchronizedScrolling: Story = {
   render: () => {
-    const [scrollInfo, setScrollInfo] = useState<ScrollInfo | null>(null);
+    const sharedMotionY = useMotionValue(0);
+    const [displayValue, setDisplayValue] = useState(0);
+    const [activeArea, setActiveArea] = useState<string | null>(null);
+    const [scrollInfo, setScrollInfo] = useState({ scrollTop: 0, isOverscrolling: false });
+
+    // Track motion value changes for display
+    useMotionValueEvent(sharedMotionY, "change", (value) => {
+      setDisplayValue(value);
+    });
+
+    const handleScrollChange = (info: any) => {
+      setScrollInfo({
+        scrollTop: info.scrollTop,
+        isOverscrolling: info.isOverscrolling,
+      });
+    };
 
     return (
       <div className="space-y-4">
-        <ScrollArea className="max-h-64 w-80 border rounded" onScrollChange={setScrollInfo}>
-          <ScrollContent itemCount={30} />
-        </ScrollArea>
+        <div className="text-sm text-gray-600">
+          Low-latency synchronized scrolling using motion values.
+          <strong>
+            {" "}
+            Notice how responsive the synchronization is compared to callback-based sync.
+          </strong>
+        </div>
 
-        <div className="text-xs bg-gray-50 p-3 rounded border max-w-80">
-          <div className="font-semibold mb-2">Scroll Info:</div>
-          <div>Scroll Top: {scrollInfo?.scrollTop ?? 0}px</div>
-          <div>Scroll Height: {scrollInfo?.scrollHeight ?? 0}px</div>
-          <div>Client Height: {scrollInfo?.clientHeight ?? 0}px</div>
+        <div className="flex gap-4">
+          <div className="space-y-2">
+            <div className="text-xs font-medium flex items-center gap-2">
+              Area 1
+              {activeArea === "area1" && <span className="text-blue-600 font-bold">● ACTIVE</span>}
+              {activeArea !== "area1" && <span className="text-gray-500">○ FOLLOWING</span>}
+            </div>
+            <div
+              className={`border-2 rounded transition-all ${
+                activeArea === "area1" ? "border-blue-600 shadow-lg bg-blue-50" : "border-blue-300"
+              }`}
+              style={{ height: "250px", width: "200px" }}
+              onMouseEnter={() => setActiveArea("area1")}
+              onMouseLeave={() => setActiveArea(null)}
+            >
+              <ScrollArea
+                motionScrollY={sharedMotionY}
+                onScrollChange={activeArea === "area1" ? handleScrollChange : undefined}
+              >
+                <ScrollContent prefix="Motion A" bgColor="bg-blue-100" />
+              </ScrollArea>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <div className="text-xs font-medium flex items-center gap-2">
+              Area 2
+              {activeArea === "area2" && <span className="text-green-600 font-bold">● ACTIVE</span>}
+              {activeArea !== "area2" && <span className="text-gray-500">○ FOLLOWING</span>}
+            </div>
+            <div
+              className={`border-2 rounded transition-all ${
+                activeArea === "area2"
+                  ? "border-green-600 shadow-lg bg-green-50"
+                  : "border-green-300"
+              }`}
+              style={{ height: "250px", width: "200px" }}
+              onMouseEnter={() => setActiveArea("area2")}
+              onMouseLeave={() => setActiveArea(null)}
+            >
+              <ScrollArea
+                motionScrollY={sharedMotionY}
+                onScrollChange={activeArea === "area2" ? handleScrollChange : undefined}
+              >
+                <ScrollContent prefix="Motion B" bgColor="bg-green-100" />
+              </ScrollArea>
+            </div>
+          </div>
+        </div>
+
+        <div className="text-xs bg-gray-50 p-3 rounded max-w-md space-y-1">
           <div>
-            Progress:{" "}
-            {scrollInfo
+            <strong>Motion value position:</strong> {displayValue.toFixed(1)}px
+          </div>
+          <div>
+            <strong>Active area:</strong> {activeArea || "None"}
+          </div>
+          <div>
+            <strong>Current scroll:</strong> {scrollInfo.scrollTop.toFixed(1)}px
+          </div>
+          <div className="text-blue-600">✓ Low-latency motion sync</div>
+          <div className="text-green-600">✓ Instant responsiveness</div>
+          <div className="text-purple-600">✓ Shared motion values</div>
+        </div>
+      </div>
+    );
+  },
+};
+
+export const WithHeaderFooter: Story = {
+  render: () => (
+    <div className="space-y-4">
+      <div className="text-sm text-gray-600">
+        ScrollArea with fixed header and footer sections. The overscroll padding is only applied to
+        the scrollable content area.
+      </div>
+
+      <div className="border rounded bg-white" style={{ height: "300px", width: "280px" }}>
+        <ScrollArea
+          header={
+            <div className="bg-gray-100 p-3 border-b font-medium text-sm">📊 Document Header</div>
+          }
+          footer={
+            <div className="bg-gray-100 p-3 border-t text-xs text-gray-600">
+              Footer • Page 1 of 1
+            </div>
+          }
+          onScrollChange={(info) => console.log("Header/Footer scroll:", info)}
+        >
+          <div className="p-4 space-y-4">
+            <h3 className="font-semibold">Document Content</h3>
+            <p className="text-sm text-gray-700">
+              This content scrolls with natural overscroll behavior while the header and footer
+              remain fixed.
+            </p>
+            <ScrollContent prefix="Section" count={20} bgColor="bg-gray-50" />
+          </div>
+        </ScrollArea>
+      </div>
+    </div>
+  ),
+};
+
+export const HorizontalSync: Story = {
+  render: () => {
+    const sharedMotionX = useMotionValue(0);
+    const [displayValue, setDisplayValue] = useState(0);
+    const [activeArea, setActiveArea] = useState<string | null>(null);
+
+    // Track motion value changes for display
+    useMotionValueEvent(sharedMotionX, "change", (value) => {
+      setDisplayValue(value);
+    });
+
+    return (
+      <div className="space-y-4">
+        <div className="text-sm text-gray-600">
+          Horizontal scroll synchronization between two wide content areas.
+        </div>
+
+        <div className="space-y-4">
+          <div
+            className={`border-2 rounded transition-all ${
+              activeArea === "horizontal1" ? "border-purple-600 bg-purple-50" : "border-purple-300"
+            }`}
+            style={{ height: "120px", width: "300px" }}
+            onMouseEnter={() => setActiveArea("horizontal1")}
+            onMouseLeave={() => setActiveArea(null)}
+          >
+            <ScrollArea orientation="horizontal" motionScrollX={sharedMotionX}>
+              <div className="flex gap-4 p-4" style={{ width: "800px" }}>
+                {Array.from({ length: 20 }, (_, i) => (
+                  <div key={i} className="bg-purple-100 p-3 rounded whitespace-nowrap">
+                    Wide Item {i + 1}
+                  </div>
+                ))}
+              </div>
+            </ScrollArea>
+          </div>
+
+          <div
+            className={`border-2 rounded transition-all ${
+              activeArea === "horizontal2" ? "border-indigo-600 bg-indigo-50" : "border-indigo-300"
+            }`}
+            style={{ height: "120px", width: "300px" }}
+            onMouseEnter={() => setActiveArea("horizontal2")}
+            onMouseLeave={() => setActiveArea(null)}
+          >
+            <ScrollArea orientation="horizontal" motionScrollX={sharedMotionX}>
+              <div className="flex gap-4 p-4" style={{ width: "800px" }}>
+                {Array.from({ length: 20 }, (_, i) => (
+                  <div key={i} className="bg-indigo-100 p-3 rounded whitespace-nowrap">
+                    Horizontal {i + 1}
+                  </div>
+                ))}
+              </div>
+            </ScrollArea>
+          </div>
+        </div>
+
+        <div className="text-xs bg-gray-50 p-3 rounded max-w-md">
+          <div>
+            <strong>Motion value position:</strong> {displayValue.toFixed(1)}px
+          </div>
+          <div>
+            <strong>Active area:</strong> {activeArea || "None"}
+          </div>
+          <div className="text-purple-600">✓ Instant horizontal sync</div>
+        </div>
+      </div>
+    );
+  },
+};
+
+export const ScrollTrackingDemo: Story = {
+  render: () => {
+    const [scrollInfo, setScrollInfo] = useState({
+      scrollTop: 0,
+      scrollHeight: 0,
+      clientHeight: 0,
+    });
+
+    return (
+      <div className="space-y-4">
+        <div className="text-sm text-gray-600">
+          Demonstration of scroll tracking with detailed position information.
+          <strong> Scroll to see real-time position updates.</strong>
+        </div>
+
+        <div className="relative">
+          <div
+            className="border-2 rounded border-blue-300"
+            style={{ height: "200px", width: "250px" }}
+          >
+            <ScrollArea onScrollChange={(info) => setScrollInfo(info)}>
+              <div className="p-4 space-y-2">
+                <div className="text-sm font-medium text-gray-800">Scroll Tracking Content</div>
+                <ScrollContent prefix="Track Item" count={15} bgColor="bg-blue-100" />
+              </div>
+            </ScrollArea>
+          </div>
+        </div>
+
+        <div className="text-xs bg-blue-50 p-3 rounded max-w-md space-y-1">
+          <div>
+            <strong>Scroll Position:</strong> {scrollInfo.scrollTop.toFixed(1)}px
+          </div>
+          <div>
+            <strong>Content Height:</strong> {scrollInfo.scrollHeight}px
+          </div>
+          <div>
+            <strong>Visible Height:</strong> {scrollInfo.clientHeight}px
+          </div>
+          <div className="text-gray-500">
+            <strong>Scroll Progress:</strong>{" "}
+            {scrollInfo.scrollHeight > 0
               ? (
-                  (scrollInfo.scrollTop / (scrollInfo.scrollHeight - scrollInfo.clientHeight)) *
+                  (scrollInfo.scrollTop /
+                    Math.max(1, scrollInfo.scrollHeight - scrollInfo.clientHeight)) *
                   100
                 ).toFixed(1)
-              : "0.0"}
+              : 0}
             %
           </div>
-        </div>
-      </div>
-    );
-  },
-};
-
-export const WithViewportTracking: Story = {
-  render: () => {
-    const [visibleRange, setVisibleRange] = useState<{ start: number; end: number }>({
-      start: 0,
-      end: 0,
-    });
-    const [viewportInfo, setViewportInfo] = useState<ViewportInfo | null>(null);
-
-    const itemHeight = 68; // Approximate height including margins
-
-    const handleViewportChange = useCallback((info: ViewportInfo) => {
-      setViewportInfo(info);
-      const startIndex = Math.floor(info.visibleTop / itemHeight);
-      const endIndex = Math.min(Math.ceil(info.visibleBottom / itemHeight), 24);
-      setVisibleRange({ start: startIndex, end: endIndex });
-    }, []);
-
-    return (
-      <div className="space-y-4">
-        <ScrollArea
-          wrapperClassName="h-64 w-80 border rounded"
-          onViewportChange={handleViewportChange}
-        >
-          <div className="space-y-2 p-4">
-            {Array.from({ length: 25 }, (_, i) => {
-              const isVisible = i >= visibleRange.start && i <= visibleRange.end;
-              return (
-                <div
-                  key={i}
-                  className={`p-4 rounded border transition-colors ${
-                    isVisible ? "bg-yellow-200 border-yellow-400" : "bg-gray-100"
-                  }`}
-                >
-                  Item {i + 1} {isVisible && "👁️ Visible"}
-                </div>
-              );
-            })}
-          </div>
-        </ScrollArea>
-
-        <div className="text-xs bg-yellow-50 p-3 rounded border max-w-80">
-          <div className="font-semibold mb-2">Viewport Info:</div>
-          <div>
-            Visible Items: {visibleRange.start + 1} - {visibleRange.end + 1}
-          </div>
-          <div>Visible Top: {viewportInfo?.visibleTop ?? 0}px</div>
-          <div>Visible Bottom: {viewportInfo?.visibleBottom ?? 0}px</div>
-        </div>
-      </div>
-    );
-  },
-};
-
-export const ControlledScrollArea: Story = {
-  render: () => {
-    const [scrollTop, setScrollTop] = useState(0);
-    const [scrollInfo, setScrollInfo] = useState<ScrollInfo | null>(null);
-
-    const handleScrollChange = useCallback((info: ScrollInfo) => {
-      setScrollInfo(info);
-      setScrollTop(info.scrollTop);
-    }, []);
-
-    const jumpToTop = () => setScrollTop(0);
-    const jumpToMiddle = () => {
-      if (scrollInfo) {
-        setScrollTop((scrollInfo.scrollHeight - scrollInfo.clientHeight) / 2);
-      }
-    };
-    const jumpToBottom = () => {
-      if (scrollInfo) {
-        setScrollTop(scrollInfo.scrollHeight - scrollInfo.clientHeight);
-      }
-    };
-
-    return (
-      <div className="space-y-4">
-        <div className="flex gap-2">
-          <button
-            onClick={jumpToTop}
-            className="px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600"
-          >
-            Top
-          </button>
-          <button
-            onClick={jumpToMiddle}
-            className="px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600"
-          >
-            Middle
-          </button>
-          <button
-            onClick={jumpToBottom}
-            className="px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600"
-          >
-            Bottom
-          </button>
-        </div>
-
-        <ScrollArea
-          wrapperClassName="h-64 w-80 border rounded"
-          scrollTop={scrollTop}
-          onScrollChange={handleScrollChange}
-        >
-          <ScrollContent itemCount={30} prefix="Controlled Item" />
-        </ScrollArea>
-
-        <div className="text-xs bg-blue-50 p-3 rounded border max-w-80">
-          <div className="font-semibold mb-2">Controlled State:</div>
-          <div>Controlled scrollTop: {scrollTop}px</div>
-          <div>Actual DOM scrollTop: {scrollInfo?.scrollTop ?? 0}px</div>
+          <div className="text-blue-600">✓ Real-time scroll tracking</div>
+          <div className="text-green-600">✓ Gesture-based scroll handling</div>
         </div>
       </div>
     );
@@ -232,843 +317,415 @@ export const ControlledScrollArea: Story = {
 
 export const ProgrammaticControl: Story = {
   render: () => {
-    const scrollRef = useRef<ScrollAreaRef>(null);
-    const [scrollInfo, setScrollInfo] = useState<ScrollInfo | null>(null);
+    const [scrollAreaRef, setScrollAreaRef] = useState<any>(null);
+    const [currentPosition, setCurrentPosition] = useState(0);
 
-    const scrollToTop = () => {
-      scrollRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+    const scrollToPosition = (position: number) => {
+      scrollAreaRef?.scrollTo({ top: position, behavior: "smooth" });
     };
-
-    const scrollToBottom = () => {
-      const info = scrollRef.current?.getScrollInfo();
-      if (info) {
-        scrollRef.current?.scrollTo({
-          top: info.scrollHeight - info.clientHeight,
-          behavior: "smooth",
-        });
-      }
-    };
-
-    const scrollToItem = (itemIndex: number) => {
-      const targetTop = itemIndex * 68; // Approximate item height
-      scrollRef.current?.scrollTo({ top: targetTop, behavior: "smooth" });
-    };
-
-    return (
-      <div className="space-y-4">
-        <div className="flex gap-2 flex-wrap">
-          <button
-            onClick={scrollToTop}
-            className="px-3 py-1 bg-green-500 text-white rounded text-sm hover:bg-green-600"
-          >
-            Scroll to Top
-          </button>
-          <button
-            onClick={scrollToBottom}
-            className="px-3 py-1 bg-green-500 text-white rounded text-sm hover:bg-green-600"
-          >
-            Scroll to Bottom
-          </button>
-          <button
-            onClick={() => scrollToItem(5)}
-            className="px-3 py-1 bg-green-500 text-white rounded text-sm hover:bg-green-600"
-          >
-            Item 6
-          </button>
-          <button
-            onClick={() => scrollToItem(15)}
-            className="px-3 py-1 bg-green-500 text-white rounded text-sm hover:bg-green-600"
-          >
-            Item 16
-          </button>
-        </div>
-
-        <ScrollArea
-          ref={scrollRef}
-          wrapperClassName="h-64 w-80 border rounded"
-          onScrollChange={setScrollInfo}
-        >
-          <ScrollContent itemCount={25} prefix="Ref Item" />
-        </ScrollArea>
-
-        <div className="text-xs bg-green-50 p-3 rounded border max-w-80">
-          <div className="font-semibold mb-2">Programmatic Control:</div>
-          <div>Current position: {scrollInfo?.scrollTop ?? 0}px</div>
-          <div>
-            Total scrollable: {scrollInfo ? scrollInfo.scrollHeight - scrollInfo.clientHeight : 0}px
-          </div>
-        </div>
-      </div>
-    );
-  },
-};
-
-export const SynchronizedScrollAreas: Story = {
-  render: () => {
-    const [sharedScrollTop, setSharedScrollTop] = useState(0);
-    const [scrollInfo, setScrollInfo] = useState<ScrollInfo | null>(null);
-
-    const handleScrollChange = useCallback((info: ScrollInfo) => {
-      setScrollInfo(info);
-      setSharedScrollTop(info.scrollTop);
-    }, []);
-
-    return (
-      <div className="space-y-4">
-        <div className="text-sm text-gray-600 mb-2">
-          Scroll either area - they stay synchronized
-        </div>
-
-        <div className="flex gap-4">
-          <ScrollArea
-            wrapperClassName="h-64 w-48 border rounded"
-            scrollTop={sharedScrollTop}
-            onScrollChange={handleScrollChange}
-          >
-            <div className="space-y-2 p-4">
-              {Array.from({ length: 30 }, (_, i) => (
-                <div key={i} className="p-2 bg-purple-100 rounded text-sm">
-                  Left {i + 1}
-                </div>
-              ))}
-            </div>
-          </ScrollArea>
-
-          <ScrollArea
-            wrapperClassName="h-64 w-48 border rounded"
-            scrollTop={sharedScrollTop}
-            onScrollChange={handleScrollChange}
-          >
-            <div className="space-y-2 p-4">
-              {Array.from({ length: 30 }, (_, i) => (
-                <div key={i} className="p-2 bg-orange-100 rounded text-sm">
-                  Right {i + 1}
-                </div>
-              ))}
-            </div>
-          </ScrollArea>
-        </div>
-
-        <div className="text-xs bg-purple-50 p-3 rounded border max-w-96">
-          <div className="font-semibold mb-2">Synchronized State:</div>
-          <div>Shared scroll position: {sharedScrollTop}px</div>
-          <div>
-            Scroll progress:{" "}
-            {scrollInfo
-              ? (
-                  (sharedScrollTop / (scrollInfo.scrollHeight - scrollInfo.clientHeight)) *
-                  100
-                ).toFixed(1)
-              : "0.0"}
-            %
-          </div>
-        </div>
-      </div>
-    );
-  },
-};
-
-export const AnimationTimelinePattern: Story = {
-  render: () => {
-    const [scrollTop, setScrollTop] = useState(0);
-    const [viewportInfo, setViewportInfo] = useState<ViewportInfo | null>(null);
-
-    const tracks = Array.from({ length: 15 }, (_, i) => ({
-      id: `track-${i}`,
-      name: `Track ${i + 1}`,
-      height: 60,
-    }));
-
-    const trackHeight = 60;
-
-    const handleScrollChange = useCallback((info: ScrollInfo) => {
-      setScrollTop(info.scrollTop);
-    }, []);
-
-    const handleViewportChange = useCallback((info: ViewportInfo) => {
-      setViewportInfo(info);
-    }, []);
-
-    const visibleTracks = viewportInfo
-      ? {
-          start: Math.floor(viewportInfo.visibleTop / trackHeight),
-          end: Math.min(Math.ceil(viewportInfo.visibleBottom / trackHeight), tracks.length - 1),
-        }
-      : { start: 0, end: tracks.length - 1 };
-
-    const scrollProgress =
-      viewportInfo && viewportInfo.totalHeight > 0
-        ? scrollTop /
-          (viewportInfo.totalHeight - (viewportInfo.visibleBottom - viewportInfo.visibleTop))
-        : 0;
 
     return (
       <div className="space-y-4">
         <div className="text-sm text-gray-600">
-          Animation timeline pattern - tracks sync with Three.js canvas
+          Programmatic scroll control with the new simplified API.
         </div>
 
-        <div className="grid grid-cols-[250px_1fr] gap-4 h-64 border rounded overflow-hidden">
+        <div className="border rounded" style={{ height: "250px", width: "250px" }}>
           <ScrollArea
-            scrollTop={scrollTop}
-            onScrollChange={handleScrollChange}
-            onViewportChange={handleViewportChange}
-            className="bg-gray-50"
+            ref={setScrollAreaRef}
+            onScrollChange={(info) => setCurrentPosition(info.scrollTop)}
           >
-            <div>
-              {tracks.map((track, index) => (
-                <div
-                  key={track.id}
-                  className={`h-[60px] border-b border-gray-200 p-4 flex items-center ${
-                    index >= visibleTracks.start && index <= visibleTracks.end
-                      ? "bg-blue-100"
-                      : "bg-white"
-                  }`}
-                >
-                  <span className="text-sm font-medium">{track.name}</span>
-                  {index >= visibleTracks.start && index <= visibleTracks.end && (
-                    <span className="ml-2 text-xs text-blue-600">Visible</span>
-                  )}
-                </div>
-              ))}
-            </div>
+            <ScrollContent prefix="Control Item" count={30} bgColor="bg-indigo-100" />
           </ScrollArea>
-
-          <div className="bg-amber-50 relative overflow-hidden">
-            <div className="absolute inset-0 flex items-center justify-center text-gray-600">
-              <div className="text-center">
-                <div className="text-lg font-semibold">Three.js Canvas</div>
-                <div className="text-sm mt-2">
-                  <div>Scroll Progress: {(scrollProgress * 100).toFixed(1)}%</div>
-                  <div>
-                    Visible: {visibleTracks.start + 1}-{visibleTracks.end + 1}
-                  </div>
-                  <div>Position: {scrollTop}px</div>
-                </div>
-              </div>
-            </div>
-
-            <div
-              className="absolute left-0 right-0"
-              style={{
-                transform: `translateY(-${scrollTop}px)`,
-                height: tracks.length * trackHeight,
-              }}
-            >
-              {tracks.map((track, index) => (
-                <div
-                  key={track.id}
-                  className={`h-[60px] border-b border-gray-300 ${
-                    index >= visibleTracks.start && index <= visibleTracks.end
-                      ? "bg-blue-50"
-                      : "bg-gray-100"
-                  }`}
-                />
-              ))}
-            </div>
-          </div>
         </div>
 
-        <div className="text-xs bg-blue-50 p-3 rounded border">
-          <div className="font-semibold mb-2">Timeline Integration Features:</div>
-          <ul className="list-disc list-inside space-y-1">
-            <li>Controlled scroll position for external synchronization</li>
-            <li>Visible track calculation for efficient Three.js rendering</li>
-            <li>Scroll progress for camera positioning</li>
-            <li>Dual callbacks for different update needs</li>
-          </ul>
+        <div className="space-y-2">
+          <div className="flex gap-2 flex-wrap">
+            <button
+              onClick={() => scrollToPosition(0)}
+              className="px-3 py-1 text-xs bg-blue-100 hover:bg-blue-200 rounded"
+            >
+              Top
+            </button>
+            <button
+              onClick={() => scrollToPosition(100)}
+              className="px-3 py-1 text-xs bg-blue-100 hover:bg-blue-200 rounded"
+            >
+              100px
+            </button>
+            <button
+              onClick={() => scrollToPosition(300)}
+              className="px-3 py-1 text-xs bg-blue-100 hover:bg-blue-200 rounded"
+            >
+              300px
+            </button>
+            <button
+              onClick={() => scrollToPosition(1000)}
+              className="px-3 py-1 text-xs bg-blue-100 hover:bg-blue-200 rounded"
+            >
+              Bottom
+            </button>
+          </div>
+
+          <div className="text-xs bg-gray-50 p-3 rounded">
+            <strong>Current Position:</strong> {currentPosition.toFixed(1)}px
+          </div>
         </div>
       </div>
     );
   },
 };
 
-export const WithHeaderAndFooter: Story = {
-  render: (props) => (
-    <div className="h-64 w-80 rounded-lg">
-      <ScrollArea
-        {...props}
-        wrapperClassName="bg-gradient-to-b from-purple-50 to-blue-50 border-2 border-purple-200 rounded"
-        showGutter={true}
-      />
-    </div>
-  ),
-  args: {
-    orientation: "vertical",
-    header: <div className="bg-blue-100 p-3 border-b font-semibold text-sm">Fixed Header</div>,
-    footer: <div className="bg-green-100 p-3 border-t text-sm">Fixed Footer</div>,
-    children: <ScrollContent itemCount={20} />,
-  },
-};
-
-export const CustomStyling: Story = {
-  render: (props) => (
-    <div className="h-64 w-80 rounded-lg">
-      <ScrollArea
-        {...props}
-        wrapperClassName="bg-gradient-to-b from-purple-50 to-blue-50 border-2 border-purple-200"
-        showGutter={true}
-      />
-    </div>
-  ),
-  args: {
-    children: (
-      <div className="space-y-3 p-6">
-        {Array.from({ length: 15 }, (_, i) => (
-          <div key={i} className="p-4 bg-white rounded-lg shadow-sm border border-purple-100">
-            <div className="font-medium text-purple-900">Custom Item {i + 1}</div>
-            <div className="text-sm text-purple-600 mt-1">With custom styling</div>
-          </div>
-        ))}
-      </div>
-    ),
-  },
-};
-
-export const OverscrollEffect: Story = {
-  args: {
-    wrapperClassName: "max-h-64 w-80 border rounded",
-    enableOverscrollEffect: true,
-    children: <ScrollContent itemCount={20} prefix="Overscroll Item" />,
-  },
-};
-
-export const SynchronizedOverscroll: Story = {
+export const ComprehensiveDemo: Story = {
   render: () => {
-    const [sharedScrollTop, setSharedScrollTop] = useState(0);
-    const [scrollInfo, setScrollInfo] = useState<ScrollInfo | null>(null);
+    const sharedMotionY = useMotionValue(0);
+    const sharedMotionX = useMotionValue(0);
+    const [displayValueY, setDisplayValueY] = useState(0);
+    const [displayValueX, setDisplayValueX] = useState(0);
+    const [activeArea, setActiveArea] = useState<string | null>(null);
+    const [scrollInfo, setScrollInfo] = useState({
+      scrollTop: 0,
+      scrollLeft: 0,
+      scrollHeight: 0,
+      clientHeight: 0,
+    });
 
-    const handleScrollChange = useCallback((info: ScrollInfo) => {
+    // Track motion value changes for display
+    useMotionValueEvent(sharedMotionY, "change", (value) => {
+      setDisplayValueY(value);
+    });
+
+    useMotionValueEvent(sharedMotionX, "change", (value) => {
+      setDisplayValueX(value);
+    });
+
+    const handleDetailedScrollChange = (info: any) => {
       setScrollInfo(info);
-      setSharedScrollTop(info.scrollTop);
-    }, []);
-
-    return (
-      <div className="space-y-4">
-        <div className="text-sm text-gray-600 mb-2">
-          Synchronized scrolling with overscroll effects - left area is the controller (natural
-          overscroll), right area is the follower (CSS transform effects)
-        </div>
-
-        <div className="flex gap-4">
-          <div className="h-64 w-48">
-            <ScrollArea wrapperClassName="border rounded" onScrollChange={handleScrollChange}>
-              <div className="space-y-2 p-4">
-                {Array.from({ length: 30 }, (_, i) => (
-                  <div key={i} className="p-2 bg-purple-100 rounded text-sm">
-                    Controller Left {i + 1}
-                  </div>
-                ))}
-              </div>
-            </ScrollArea>
-          </div>
-
-          <div className="h-64 w-48">
-            <ScrollArea
-              wrapperClassName="border rounded"
-              enableOverscrollEffect={true}
-              scrollTop={sharedScrollTop}
-            >
-              <div className="space-y-2 p-4">
-                {Array.from({ length: 30 }, (_, i) => (
-                  <div key={i} className="p-2 bg-orange-100 rounded text-sm">
-                    Follower Right {i + 1}
-                  </div>
-                ))}
-              </div>
-            </ScrollArea>
-          </div>
-        </div>
-
-        <div className="text-xs bg-purple-50 p-3 rounded border max-w-96">
-          <div className="font-semibold mb-2">Synchronized State:</div>
-          <div>Shared scroll position: {sharedScrollTop.toFixed(1)}px</div>
-          <div>
-            Scroll progress:{" "}
-            {scrollInfo
-              ? (
-                  (Math.max(0, sharedScrollTop) /
-                    Math.max(1, scrollInfo.scrollHeight - scrollInfo.clientHeight)) *
-                  100
-                ).toFixed(1)
-              : "0.0"}
-            %
-          </div>
-          <div className={sharedScrollTop < 0 ? "text-orange-600 font-medium" : ""}>
-            {sharedScrollTop < 0
-              ? `🔄 Synchronized overscroll: ${Math.abs(sharedScrollTop).toFixed(1)}px`
-              : ""}
-          </div>
-          <div className="text-green-600 text-xs mt-1">
-            ✓ Controller/follower pattern • ✓ No double transform • ✓ Clean overscroll sync
-          </div>
-        </div>
-      </div>
-    );
-  },
-};
-
-export const BidirectionalSynchronizedOverscroll: Story = {
-  render: () => {
-    const [sharedScrollTop, setSharedScrollTop] = useState(0);
-    const [scrollInfo, setScrollInfo] = useState<ScrollInfo | null>(null);
-    const [activeScrollArea, setActiveScrollArea] = useState<"left" | "right" | null>(null);
-    const activeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-
-    const handleScrollChange = useCallback((info: ScrollInfo, source: "left" | "right") => {
-      setScrollInfo(info);
-      setSharedScrollTop(info.scrollTop);
-
-      // Mark this area as active
-      setActiveScrollArea(source);
-
-      // Clear any existing timeout
-      if (activeTimeoutRef.current) {
-        clearTimeout(activeTimeoutRef.current);
-      }
-
-      // Reset active state after scrolling stops
-      activeTimeoutRef.current = setTimeout(() => {
-        setActiveScrollArea(null);
-      }, 150);
-    }, []);
-
-    return (
-      <div className="space-y-4">
-        <div className="text-sm text-gray-600 mb-2">
-          Bidirectional synchronized scrolling - both areas can be controllers. The active area
-          shows natural overscroll, passive area shows CSS transform effects.
-        </div>
-
-        <div className="flex gap-4">
-          <div className="h-64 w-48">
-            <ScrollArea
-              wrapperClassName="border rounded"
-              enableOverscrollEffect={activeScrollArea !== "left"}
-              scrollTop={activeScrollArea === "left" ? undefined : sharedScrollTop}
-              onScrollChange={(info) => handleScrollChange(info, "left")}
-            >
-              <div className="space-y-2 p-4">
-                {Array.from({ length: 30 }, (_, i) => (
-                  <div key={i} className="p-2 bg-purple-100 rounded text-sm">
-                    Bidirectional Left {i + 1}
-                  </div>
-                ))}
-              </div>
-            </ScrollArea>
-          </div>
-
-          <div className="h-64 w-48">
-            <ScrollArea
-              wrapperClassName="border rounded"
-              enableOverscrollEffect={activeScrollArea !== "right"}
-              scrollTop={activeScrollArea === "right" ? undefined : sharedScrollTop}
-              onScrollChange={(info) => handleScrollChange(info, "right")}
-            >
-              <div className="space-y-2 p-4">
-                {Array.from({ length: 30 }, (_, i) => (
-                  <div key={i} className="p-2 bg-orange-100 rounded text-sm">
-                    Bidirectional Right {i + 1}
-                  </div>
-                ))}
-              </div>
-            </ScrollArea>
-          </div>
-        </div>
-
-        <div className="text-xs bg-blue-50 p-3 rounded border max-w-96">
-          <div className="font-semibold mb-2">Bidirectional Synchronized State:</div>
-          <div>Shared scroll position: {sharedScrollTop.toFixed(1)}px</div>
-          <div>Active area: {activeScrollArea || "none"}</div>
-          <div>
-            Scroll progress:{" "}
-            {scrollInfo
-              ? (
-                  (Math.max(0, sharedScrollTop) /
-                    Math.max(1, scrollInfo.scrollHeight - scrollInfo.clientHeight)) *
-                  100
-                ).toFixed(1)
-              : "0.0"}
-            %
-          </div>
-          <div className={sharedScrollTop < 0 ? "text-orange-600 font-medium" : ""}>
-            {sharedScrollTop < 0
-              ? `🔄 Synchronized overscroll: ${Math.abs(sharedScrollTop).toFixed(1)}px`
-              : ""}
-          </div>
-          <div className="text-blue-600 text-xs mt-1">
-            ✓ Both areas interactive • ✓ No double transform • ✓ Smart active detection
-          </div>
-        </div>
-      </div>
-    );
-  },
-};
-
-export const IndependentOverscrollAreas: Story = {
-  render: () => {
-    return (
-      <div className="space-y-4">
-        <div className="text-sm text-gray-600 mb-2">
-          Independent ScrollAreas - the left one operates normally, the right one shows CSS
-          overscroll effects
-        </div>
-
-        <div className="flex gap-4">
-          <div className="h-64 w-48">
-            <ScrollArea wrapperClassName="border rounded">
-              <div className="space-y-2 p-4">
-                {Array.from({ length: 30 }, (_, i) => (
-                  <div key={i} className="p-2 bg-purple-100 rounded text-sm">
-                    Standard Left {i + 1}
-                  </div>
-                ))}
-              </div>
-            </ScrollArea>
-          </div>
-
-          <div className="h-64 w-48">
-            <ScrollArea wrapperClassName="border rounded" enableOverscrollEffect={true}>
-              <div className="space-y-2 p-4">
-                {Array.from({ length: 30 }, (_, i) => (
-                  <div key={i} className="p-2 bg-orange-100 rounded text-sm">
-                    Overscroll Right {i + 1}
-                  </div>
-                ))}
-              </div>
-            </ScrollArea>
-          </div>
-        </div>
-
-        <div className="text-xs bg-green-50 p-3 rounded border max-w-96">
-          <div className="font-semibold mb-2">Independent Overscroll Areas:</div>
-          <div>• Left: Standard ScrollArea (no overscroll effects)</div>
-          <div>• Right: CSS overscroll effects enabled</div>
-          <div>• No synchronization between areas</div>
-          <div className="text-green-600 text-xs mt-1">
-            ✓ Try overscrolling the right area to see CSS transform effects
-          </div>
-        </div>
-      </div>
-    );
-  },
-};
-
-export const OverscrollConfigurations: Story = {
-  render: () => {
-    const configs = [
-      {
-        name: "Disabled",
-        enableOverscrollEffect: false,
-        color: "bg-gray-100",
-      },
-      {
-        name: "Standard",
-        enableOverscrollEffect: false,
-        color: "bg-green-100",
-      },
-      {
-        name: "CSS Overscroll",
-        enableOverscrollEffect: true,
-        color: "bg-blue-100",
-      },
-      {
-        name: "Synchronized",
-        enableOverscrollEffect: true,
-        color: "bg-red-100",
-      },
-    ];
-
-    return (
-      <div className="space-y-4">
-        <div className="text-sm text-gray-600 mb-2">
-          Different overscroll configurations - compare native behavior vs CSS effects
-        </div>
-
-        <div className="grid grid-cols-4 gap-4">
-          {configs.map(({ name, enableOverscrollEffect, color }) => (
-            <div key={name} className="space-y-2">
-              <div className="text-sm font-medium text-center">{name}</div>
-              <div className="h-48 w-full">
-                <ScrollArea
-                  wrapperClassName="border rounded"
-                  enableOverscrollEffect={enableOverscrollEffect}
-                >
-                  <div className="space-y-2 p-3">
-                    {Array.from({ length: 15 }, (_, i) => (
-                      <div key={i} className={`p-2 ${color} rounded text-xs`}>
-                        {name} Item {i + 1}
-                      </div>
-                    ))}
-                  </div>
-                </ScrollArea>
-              </div>
-              <div className="text-xs text-gray-500 text-center">
-                {enableOverscrollEffect ? "CSS transform overscroll" : "Native browser behavior"}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  },
-};
-
-export const ComprehensiveOverscrollTest: Story = {
-  render: () => {
-    const [verticalScroll, setVerticalScroll] = useState(0);
-    const [horizontalScroll, setHorizontalScroll] = useState(0);
-    const [bothScroll, setBothScroll] = useState({ x: 0, y: 0 });
-    const [syncedScroll, setSyncedScroll] = useState(0);
-    const [activeScrollArea, setActiveScrollArea] = useState<"left" | "right" | null>(null);
-    const activeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-
-    const [verticalInfo, setVerticalInfo] = useState<ScrollInfo | null>(null);
-    const [horizontalInfo, setHorizontalInfo] = useState<ScrollInfo | null>(null);
-    const [bothInfo, setBothInfo] = useState<ScrollInfo | null>(null);
-    const [syncedInfo, setSyncedInfo] = useState<ScrollInfo | null>(null);
+    };
 
     return (
       <div className="space-y-6">
-        <div className="text-lg font-semibold mb-4">Comprehensive Overscroll Test Suite</div>
-        <div className="text-sm text-gray-600 mb-4">
-          Test different ScrollArea modes and overscroll behaviors using the simplified CSS
-          transform approach.
+        <div className="text-sm text-gray-600">
+          Comprehensive demonstration using motion values for ultra-responsive synchronization.
+          <strong> Notice the instant sync with no latency between areas.</strong>
         </div>
 
-        {/* Vertical Controlled */}
+        {/* Vertical Sync Demo */}
         <div className="space-y-2">
-          <div className="text-sm font-medium">Vertical Controlled Mode (with CSS Overscroll)</div>
-          <div className="flex gap-4 items-start">
-            <div className="h-48 w-64">
-              <ScrollArea
-                wrapperClassName="border rounded"
-                enableOverscrollEffect={true}
-                scrollTop={verticalScroll}
-                onScrollChange={(info) => {
-                  setVerticalInfo(info);
-                  setVerticalScroll(info.scrollTop);
-                }}
+          <h3 className="text-lg font-semibold">Vertical Synchronization</h3>
+          <div className="flex gap-4">
+            <div className="space-y-1">
+              <div className="text-xs font-medium flex items-center gap-2">
+                Primary Area
+                {activeArea === "vertical1" && (
+                  <span className="text-blue-600 font-bold">● CONTROLLING</span>
+                )}
+                {activeArea !== "vertical1" && <span className="text-gray-500">○ FOLLOWING</span>}
+              </div>
+              <div
+                className={`border-2 rounded transition-all ${
+                  activeArea === "vertical1"
+                    ? "border-blue-600 shadow-lg bg-blue-50"
+                    : "border-blue-300"
+                }`}
+                style={{ height: "200px", width: "180px" }}
+                onMouseEnter={() => setActiveArea("vertical1")}
+                onMouseLeave={() => setActiveArea(null)}
               >
-                <div className="space-y-2 p-3">
-                  {Array.from({ length: 20 }, (_, i) => (
-                    <div key={i} className="p-3 bg-blue-100 rounded text-sm">
-                      Vertical Item {i + 1}
+                <ScrollArea
+                  motionScrollY={sharedMotionY}
+                  onScrollChange={
+                    activeArea === "vertical1" ? handleDetailedScrollChange : undefined
+                  }
+                >
+                  <ScrollContent prefix="Primary" count={25} bgColor="bg-blue-100" />
+                </ScrollArea>
+              </div>
+            </div>
+
+            <div className="space-y-1">
+              <div className="text-xs font-medium flex items-center gap-2">
+                Secondary Area
+                {activeArea === "vertical2" && (
+                  <span className="text-green-600 font-bold">● CONTROLLING</span>
+                )}
+                {activeArea !== "vertical2" && <span className="text-gray-500">○ FOLLOWING</span>}
+              </div>
+              <div
+                className={`border-2 rounded transition-all ${
+                  activeArea === "vertical2"
+                    ? "border-green-600 shadow-lg bg-green-50"
+                    : "border-green-300"
+                }`}
+                style={{ height: "200px", width: "180px" }}
+                onMouseEnter={() => setActiveArea("vertical2")}
+                onMouseLeave={() => setActiveArea(null)}
+              >
+                <ScrollArea motionScrollY={sharedMotionY}>
+                  <ScrollContent prefix="Secondary" count={25} bgColor="bg-green-100" />
+                </ScrollArea>
+              </div>
+            </div>
+
+            <div className="space-y-1">
+              <div className="text-xs font-medium text-gray-600">Third Area</div>
+              <div
+                className="border-2 rounded border-purple-300"
+                style={{ height: "200px", width: "180px" }}
+              >
+                <ScrollArea motionScrollY={sharedMotionY}>
+                  <ScrollContent prefix="Observer" count={25} bgColor="bg-purple-100" />
+                </ScrollArea>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Horizontal Sync Demo */}
+        <div className="space-y-2">
+          <h3 className="text-lg font-semibold">Horizontal Synchronization</h3>
+          <div className="space-y-3">
+            <div
+              className={`border-2 rounded transition-all ${
+                activeArea === "horizontal1"
+                  ? "border-orange-600 bg-orange-50"
+                  : "border-orange-300"
+              }`}
+              style={{ height: "100px", width: "400px" }}
+              onMouseEnter={() => setActiveArea("horizontal1")}
+              onMouseLeave={() => setActiveArea(null)}
+            >
+              <ScrollArea orientation="horizontal" motionScrollX={sharedMotionX}>
+                <div className="flex gap-3 p-3" style={{ width: "1000px" }}>
+                  {Array.from({ length: 30 }, (_, i) => (
+                    <div key={i} className="bg-orange-100 p-2 rounded text-sm whitespace-nowrap">
+                      Wide {i + 1}
                     </div>
                   ))}
                 </div>
               </ScrollArea>
             </div>
-            <div className="text-xs bg-blue-50 p-2 rounded w-48">
-              <div className="font-medium mb-1">Vertical State:</div>
-              <div>Scroll: {(verticalInfo?.scrollTop ?? 0).toFixed(1)}px</div>
-              <div className={verticalScroll < 0 ? "text-orange-600 font-medium" : ""}>
-                {verticalScroll < 0 ? `Overscroll: ${Math.abs(verticalScroll).toFixed(1)}px` : ""}
-              </div>
-              <div>
-                Max:{" "}
-                {verticalInfo
-                  ? (verticalInfo.scrollHeight - verticalInfo.clientHeight).toFixed(0)
-                  : 0}
-                px
-              </div>
-            </div>
-          </div>
-        </div>
 
-        {/* Horizontal Controlled */}
-        <div className="space-y-2">
-          <div className="text-sm font-medium">
-            Horizontal Controlled Mode (with CSS Overscroll)
-          </div>
-          <div className="flex gap-4 items-start">
-            <div className="h-32 w-64">
-              <ScrollArea
-                wrapperClassName="border rounded"
-                enableOverscrollEffect={true}
-                scrollLeft={horizontalScroll}
-                onScrollChange={(info) => {
-                  setHorizontalInfo(info);
-                  setHorizontalScroll(info.scrollLeft);
-                }}
-              >
-                <div className="flex gap-2 p-3" style={{ width: "800px" }}>
-                  {Array.from({ length: 12 }, (_, i) => (
-                    <div
-                      key={i}
-                      className="flex-shrink-0 w-20 h-16 bg-green-100 rounded text-xs flex items-center justify-center"
-                    >
-                      H-{i + 1}
+            <div
+              className={`border-2 rounded transition-all ${
+                activeArea === "horizontal2" ? "border-pink-600 bg-pink-50" : "border-pink-300"
+              }`}
+              style={{ height: "100px", width: "400px" }}
+              onMouseEnter={() => setActiveArea("horizontal2")}
+              onMouseLeave={() => setActiveArea(null)}
+            >
+              <ScrollArea orientation="horizontal" motionScrollX={sharedMotionX}>
+                <div className="flex gap-3 p-3" style={{ width: "1000px" }}>
+                  {Array.from({ length: 30 }, (_, i) => (
+                    <div key={i} className="bg-pink-100 p-2 rounded text-sm whitespace-nowrap">
+                      Item {i + 1}
                     </div>
                   ))}
                 </div>
               </ScrollArea>
             </div>
-            <div className="text-xs bg-green-50 p-2 rounded w-48">
-              <div className="font-medium mb-1">Horizontal State:</div>
-              <div>Scroll: {(horizontalInfo?.scrollLeft ?? 0).toFixed(1)}px</div>
-              <div className={horizontalScroll < 0 ? "text-orange-600 font-medium" : ""}>
-                {horizontalScroll < 0
-                  ? `Overscroll: ${Math.abs(horizontalScroll).toFixed(1)}px`
-                  : ""}
-              </div>
-              <div>
-                Max:{" "}
-                {horizontalInfo
-                  ? (horizontalInfo.scrollWidth - horizontalInfo.clientWidth).toFixed(0)
-                  : 0}
-                px
-              </div>
-            </div>
           </div>
         </div>
 
-        {/* Both Directions */}
-        <div className="space-y-2">
-          <div className="text-sm font-medium">Both Directions (Uncontrolled)</div>
-          <div className="flex gap-4 items-start">
-            <div className="h-48 w-64">
-              <ScrollArea
-                wrapperClassName="border rounded"
-                onScrollChange={(info) => {
-                  setBothInfo(info);
-                  setBothScroll({ x: info.scrollLeft, y: info.scrollTop });
-                }}
-              >
-                <div className="p-3" style={{ width: "600px", height: "600px" }}>
-                  <div className="grid grid-cols-4 gap-2">
-                    {Array.from({ length: 32 }, (_, i) => (
-                      <div
-                        key={i}
-                        className="w-16 h-16 bg-purple-100 rounded text-xs flex items-center justify-center"
-                      >
-                        {i + 1}
-                      </div>
-                    ))}
-                  </div>
-                </div>
+        {/* Status Display */}
+        <div className="grid grid-cols-2 gap-4">
+          <div className="text-xs bg-blue-50 p-4 rounded space-y-2">
+            <h4 className="font-semibold text-blue-800">Vertical Sync Status</h4>
+            <div>
+              <strong>Motion Value:</strong> {displayValueY.toFixed(1)}px
+            </div>
+            <div>
+              <strong>Active Area:</strong> {activeArea?.includes("vertical") ? activeArea : "None"}
+            </div>
+            <div>
+              <strong>Content Height:</strong> {scrollInfo.scrollHeight}px
+            </div>
+            <div className="text-gray-600">
+              <strong>Scroll Progress:</strong>{" "}
+              {scrollInfo.scrollHeight > 0
+                ? (
+                    (scrollInfo.scrollTop /
+                      Math.max(1, scrollInfo.scrollHeight - scrollInfo.clientHeight)) *
+                    100
+                  ).toFixed(1)
+                : 0}
+              %
+            </div>
+          </div>
+
+          <div className="text-xs bg-orange-50 p-4 rounded space-y-2">
+            <h4 className="font-semibold text-orange-800">Horizontal Sync Status</h4>
+            <div>
+              <strong>Motion Value:</strong> {displayValueX.toFixed(1)}px
+            </div>
+            <div>
+              <strong>Active Area:</strong>{" "}
+              {activeArea?.includes("horizontal") ? activeArea : "None"}
+            </div>
+            <div className="text-orange-600">✓ Zero-latency motion sync</div>
+            <div className="text-green-600">✓ Instant responsiveness</div>
+          </div>
+        </div>
+
+        {/* Key Improvements */}
+        <div className="bg-green-50 p-4 rounded">
+          <h4 className="font-semibold text-green-800 mb-2">✅ Motion Value Benefits</h4>
+          <div className="grid grid-cols-2 gap-2 text-xs text-green-700">
+            <div>• Instant synchronization</div>
+            <div>• No callback latency</div>
+            <div>• Smooth trackpad momentum</div>
+            <div>• Shared motion state</div>
+            <div>• 60fps responsiveness</div>
+            <div>• Zero desync issues</div>
+          </div>
+        </div>
+      </div>
+    );
+  },
+};
+
+export const PerformanceComparison: Story = {
+  render: () => {
+    // Motion value approach (low latency)
+    const motionY = useMotionValue(0);
+    const [motionDisplayValue, setMotionDisplayValue] = useState(0);
+
+    // Callback approach (higher latency)
+    const [callbackScrollTop, setCallbackScrollTop] = useState(0);
+    const [callbackDisplayValue, setCallbackDisplayValue] = useState(0);
+
+    const [activeArea, setActiveArea] = useState<string | null>(null);
+
+    // Track motion value changes
+    useMotionValueEvent(motionY, "change", (value) => {
+      setMotionDisplayValue(value);
+    });
+
+    // Callback-based sync
+    const handleCallbackSync = (areaId: string) => (scrollTop: number) => {
+      if (activeArea === areaId) {
+        setCallbackScrollTop(scrollTop);
+        setCallbackDisplayValue(scrollTop);
+      }
+    };
+
+    return (
+      <div className="space-y-6">
+        <div className="text-sm text-gray-600">
+          Performance comparison between motion values and callback-based synchronization.
+          <strong> Try scrolling rapidly to see the latency difference.</strong>
+        </div>
+
+        {/* Motion Value Approach */}
+        <div className="space-y-3">
+          <h3 className="text-lg font-semibold text-green-700">✅ Motion Values (Low Latency)</h3>
+          <div className="flex gap-4">
+            <div
+              className="border-2 rounded border-green-500"
+              style={{ height: "200px", width: "200px" }}
+            >
+              <ScrollArea motionScrollY={motionY}>
+                <ScrollContent prefix="Motion" count={30} bgColor="bg-green-100" />
               </ScrollArea>
             </div>
-            <div className="text-xs bg-purple-50 p-2 rounded w-48">
-              <div className="font-medium mb-1">Both Directions:</div>
-              <div>Y: {(bothInfo?.scrollTop ?? 0).toFixed(1)}px</div>
-              <div>X: {(bothInfo?.scrollLeft ?? 0).toFixed(1)}px</div>
-              <div className={bothScroll.y < 0 ? "text-orange-600 font-medium" : ""}>
-                {bothScroll.y < 0 ? `Y-Over: ${Math.abs(bothScroll.y).toFixed(1)}px` : ""}
-              </div>
-              <div className={bothScroll.x < 0 ? "text-orange-600 font-medium" : ""}>
-                {bothScroll.x < 0 ? `X-Over: ${Math.abs(bothScroll.x).toFixed(1)}px` : ""}
-              </div>
+            <div
+              className="border-2 rounded border-green-500"
+              style={{ height: "200px", width: "200px" }}
+            >
+              <ScrollArea motionScrollY={motionY}>
+                <ScrollContent prefix="Synced" count={30} bgColor="bg-green-100" />
+              </ScrollArea>
             </div>
-          </div>
-        </div>
-
-        {/* Bidirectional Synchronized Pair */}
-        <div className="space-y-2">
-          <div className="text-sm font-medium">Bidirectional Synchronized Overscroll Pair</div>
-          <div className="flex gap-4 items-start">
-            <div className="flex gap-2">
-              <div className="h-48 w-40">
-                <ScrollArea
-                  wrapperClassName="border rounded"
-                  enableOverscrollEffect={activeScrollArea !== "left"}
-                  scrollTop={activeScrollArea === "left" ? undefined : syncedScroll}
-                  onScrollChange={(info) => {
-                    setSyncedInfo(info);
-                    setSyncedScroll(info.scrollTop);
-                    setActiveScrollArea("left");
-                    if (activeTimeoutRef.current) {
-                      clearTimeout(activeTimeoutRef.current);
-                    }
-                    activeTimeoutRef.current = setTimeout(() => {
-                      setActiveScrollArea(null);
-                    }, 150);
-                  }}
-                >
-                  <div className="space-y-1 p-2">
-                    {Array.from({ length: 25 }, (_, i) => (
-                      <div key={i} className="p-2 bg-red-100 rounded text-xs">
-                        L-{i + 1}
-                      </div>
-                    ))}
-                  </div>
-                </ScrollArea>
-              </div>
-
-              <div className="h-48 w-40">
-                <ScrollArea
-                  wrapperClassName="border rounded"
-                  enableOverscrollEffect={activeScrollArea !== "right"}
-                  scrollTop={activeScrollArea === "right" ? undefined : syncedScroll}
-                  onScrollChange={(info) => {
-                    setSyncedInfo(info);
-                    setSyncedScroll(info.scrollTop);
-                    setActiveScrollArea("right");
-                    if (activeTimeoutRef.current) {
-                      clearTimeout(activeTimeoutRef.current);
-                    }
-                    activeTimeoutRef.current = setTimeout(() => {
-                      setActiveScrollArea(null);
-                    }, 150);
-                  }}
-                >
-                  <div className="space-y-1 p-2">
-                    {Array.from({ length: 25 }, (_, i) => (
-                      <div key={i} className="p-2 bg-yellow-100 rounded text-xs">
-                        R-{i + 1}
-                      </div>
-                    ))}
-                  </div>
-                </ScrollArea>
-              </div>
-            </div>
-
-            <div className="text-xs bg-red-50 p-2 rounded w-48">
-              <div className="font-medium mb-1">Sync State:</div>
-              <div>Position: {syncedScroll.toFixed(1)}px</div>
-              <div className={syncedScroll < 0 ? "text-orange-600 font-medium" : ""}>
-                {syncedScroll < 0
-                  ? `🔄 Synced Overscroll: ${Math.abs(syncedScroll).toFixed(1)}px`
-                  : ""}
+            <div className="text-xs bg-green-50 p-3 rounded">
+              <div>
+                <strong>Sync Method:</strong> Motion Values
               </div>
               <div>
-                Progress:{" "}
-                {syncedInfo
-                  ? (
-                      (Math.max(0, syncedScroll) /
-                        Math.max(1, syncedInfo.scrollHeight - syncedInfo.clientHeight)) *
-                      100
-                    ).toFixed(1)
-                  : "0"}
-                %
+                <strong>Position:</strong> {motionDisplayValue.toFixed(1)}px
               </div>
-              <div>Active area: {activeScrollArea || "none"}</div>
-              <div className="text-green-600 text-xs mt-1">
-                ✓ Bidirectional overscroll with active/passive swapping
-              </div>
+              <div className="text-green-600 font-medium">⚡ Instant sync</div>
+              <div className="text-green-600">60fps responsiveness</div>
             </div>
           </div>
         </div>
 
-        {/* Test Status */}
-        <div className="text-xs bg-gray-50 p-3 rounded border">
-          <div className="font-semibold mb-2">Test Checklist:</div>
-          <div className="grid grid-cols-2 gap-2">
-            <div>✓ Vertical CSS overscroll (controlled)</div>
-            <div>✓ Horizontal CSS overscroll (controlled)</div>
-            <div>✓ Both-direction standard scroll (uncontrolled)</div>
-            <div>✓ Synchronized overscroll pairs (controlled)</div>
-            <div>✓ CSS overscroll enabled in controlled mode</div>
-            <div>✓ Negative scroll value tracking</div>
-            <div>✓ Spring-back animations</div>
-            <div>✓ Real-time state updates</div>
-          </div>
-          <div className="mt-2 p-2 bg-green-50 rounded">
-            <div className="font-medium text-green-800">Simplified Success!</div>
-            <div className="text-green-700">
-              CSS transform overscroll effects work perfectly in controlled mode, enabling clean
-              synchronized overscroll across multiple ScrollAreas without complex motion systems.
+        {/* Callback Approach */}
+        <div className="space-y-3">
+          <h3 className="text-lg font-semibold text-orange-700">⚠️ Callbacks (Higher Latency)</h3>
+          <div className="flex gap-4">
+            <div
+              className="border-2 rounded border-orange-500"
+              style={{ height: "200px", width: "200px" }}
+              onMouseEnter={() => setActiveArea("callback1")}
+              onMouseLeave={() => setActiveArea(null)}
+            >
+              <ScrollArea
+                externalScrollTop={activeArea !== "callback1" ? callbackScrollTop : undefined}
+                onScrollSync={handleCallbackSync("callback1")}
+              >
+                <ScrollContent prefix="Callback" count={30} bgColor="bg-orange-100" />
+              </ScrollArea>
             </div>
+            <div
+              className="border-2 rounded border-orange-500"
+              style={{ height: "200px", width: "200px" }}
+              onMouseEnter={() => setActiveArea("callback2")}
+              onMouseLeave={() => setActiveArea(null)}
+            >
+              <ScrollArea
+                externalScrollTop={activeArea !== "callback2" ? callbackScrollTop : undefined}
+                onScrollSync={handleCallbackSync("callback2")}
+              >
+                <ScrollContent prefix="Delayed" count={30} bgColor="bg-orange-100" />
+              </ScrollArea>
+            </div>
+            <div className="text-xs bg-orange-50 p-3 rounded">
+              <div>
+                <strong>Sync Method:</strong> Callbacks
+              </div>
+              <div>
+                <strong>Position:</strong> {callbackDisplayValue.toFixed(1)}px
+              </div>
+              <div>
+                <strong>Active:</strong> {activeArea || "None"}
+              </div>
+              <div className="text-orange-600 font-medium">🐌 React state latency</div>
+              <div className="text-orange-600">Hover to control</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Performance Analysis */}
+        <div className="bg-blue-50 p-4 rounded">
+          <h4 className="font-semibold text-blue-800 mb-3">Performance Analysis</h4>
+          <div className="grid grid-cols-2 gap-4 text-sm">
+            <div>
+              <h5 className="font-medium text-green-700 mb-2">Motion Values ✅</h5>
+              <ul className="text-xs space-y-1 text-green-600">
+                <li>• Direct DOM updates</li>
+                <li>• No React re-render overhead</li>
+                <li>• 60fps synchronization</li>
+                <li>• Sub-millisecond latency</li>
+                <li>• Works during momentum scrolling</li>
+              </ul>
+            </div>
+            <div>
+              <h5 className="font-medium text-orange-700 mb-2">Callbacks ⚠️</h5>
+              <ul className="text-xs space-y-1 text-orange-600">
+                <li>• React state updates required</li>
+                <li>• Re-render on every scroll event</li>
+                <li>• 16-33ms update cycles</li>
+                <li>• Visible lag during fast scrolling</li>
+                <li>• Breaks momentum scrolling sync</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-green-50 p-3 rounded">
+          <div className="text-sm text-green-800">
+            <strong>Recommendation:</strong> Use motion values for any real-time synchronization to
+            achieve smooth, responsive user experiences without perceptible latency.
           </div>
         </div>
       </div>

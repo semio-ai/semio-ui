@@ -3,14 +3,17 @@ import {
   type ReactNode,
   type CSSProperties,
   useRef,
-  useEffect,
   useCallback,
   forwardRef,
   useImperativeHandle,
+  useState,
+  useEffect,
 } from "react";
 import { clsx } from "clsx";
 import { ScrollArea as RadixScrollArea } from "radix-ui";
 import useMeasure from "react-use-measure";
+import { useGesture } from "@use-gesture/react";
+import { useMotionValue, useMotionValueEvent, type MotionValue } from "motion/react";
 
 // Types for scroll tracking
 export interface ScrollInfo {
@@ -20,6 +23,7 @@ export interface ScrollInfo {
   scrollWidth: number;
   clientHeight: number;
   clientWidth: number;
+  isOverscrolling: boolean;
 }
 
 export interface ViewportInfo {
@@ -53,36 +57,37 @@ interface ScrollAreaProps {
   orientation?: "vertical" | "horizontal" | "both";
   showGutter?: boolean;
 
-  // Controlled/Uncontrolled scroll props
-  scrollTop?: number;
-  scrollLeft?: number;
+  // Scroll tracking callbacks
   onScrollChange?: (scrollInfo: ScrollInfo) => void;
   onViewportChange?: (viewportInfo: ViewportInfo) => void;
 
-  // Simple overscroll visual effects
-  enableOverscrollEffect?: boolean;
+  // Motion-based scroll synchronization (low latency)
+  motionScrollY?: MotionValue<number>;
+  motionScrollX?: MotionValue<number>;
+
+  // Legacy synchronization (higher latency)
+  externalScrollTop?: number;
+  externalScrollLeft?: number;
+  onScrollSync?: (scrollTop: number, scrollLeft: number) => void;
 }
 
 /**
- * Renders a scrollable area with optional header and footer.
- * Supports both controlled and uncontrolled modes:
+ * Renders a scrollable area with natural overscroll behavior.
+ * Uses padding to create "real" overscroll space that can be synchronized between multiple areas.
  *
- * - Uncontrolled (default): Manages its own scroll state
- * - Controlled: scrollTop/scrollLeft props control the scroll position
- *
- * @example Uncontrolled
+ * @example Basic usage
  * ```tsx
  * <ScrollArea onScrollChange={(info) => console.log(info)}>
  *   <div>Content goes here</div>
  * </ScrollArea>
  * ```
  *
- * @example Controlled
+ * @example Synchronized scrolling
  * ```tsx
- * const [scrollTop, setScrollTop] = useState(0);
+ * const [sharedScrollTop, setSharedScrollTop] = useState(0);
  * <ScrollArea
- *   scrollTop={scrollTop}
- *   onScrollChange={(info) => setScrollTop(info.scrollTop)}
+ *   externalScrollTop={sharedScrollTop}
+ *   onScrollSync={(scrollTop) => setSharedScrollTop(scrollTop)}
  * >
  *   <div>Content goes here</div>
  * </ScrollArea>
@@ -103,11 +108,14 @@ export const InnerScrollArea = forwardRef<ScrollAreaRef, ScrollAreaProps>(
       shrinkWidth = false,
       orientation = "both",
       showGutter = true,
-      scrollTop,
-      scrollLeft,
+
       onScrollChange,
       onViewportChange,
-      enableOverscrollEffect = false,
+      motionScrollY,
+      motionScrollX,
+      externalScrollTop,
+      externalScrollLeft,
+      onScrollSync,
     },
     ref,
   ) => {
@@ -117,19 +125,22 @@ export const InnerScrollArea = forwardRef<ScrollAreaRef, ScrollAreaProps>(
     // Ref to access the Radix ScrollArea viewport
     const viewportRef = useRef<HTMLDivElement>(null);
 
-    // Track if we're in controlled mode
-    const isControlled = scrollTop !== undefined || scrollLeft !== undefined;
+    // Track user interaction state
+    const [isUserScrolling, setIsUserScrolling] = useState(false);
 
-    // Prevent infinite loops when syncing controlled props
-    const isUpdatingFromProps = useRef(false);
+    // Create internal motion values if not provided
+    const internalMotionY = useMotionValue(0);
+    const internalMotionX = useMotionValue(0);
 
-    // Track the last known DOM scroll position to detect external vs internal changes
-    const lastDOMScrollTop = useRef<number>(0);
-    const lastDOMScrollLeft = useRef<number>(0);
+    const overscrollDisabled = motionScrollY !== undefined || motionScrollX !== undefined;
 
-    // Debounced sync mechanism to prevent stuttering
-    const syncTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-    const pendingSyncRef = useRef<{ scrollTop?: number; scrollLeft?: number } | null>(null);
+    // Use provided motion values or create internal ones
+    const activeMotionY = motionScrollY || internalMotionY;
+    const activeMotionX = motionScrollX || internalMotionX;
+
+    // Prevent infinite loops during sync
+    const isUpdatingFromMotion = useRef(false);
+    const isUpdatingFromScroll = useRef(false);
 
     // Helper function to get current scroll info
     const getScrollInfo = useCallback((): ScrollInfo | null => {
@@ -143,6 +154,7 @@ export const InnerScrollArea = forwardRef<ScrollAreaRef, ScrollAreaProps>(
         scrollWidth: viewport.scrollWidth,
         clientHeight: viewport.clientHeight,
         clientWidth: viewport.clientWidth,
+        isOverscrolling: false,
       };
     }, []);
 
@@ -161,180 +173,151 @@ export const InnerScrollArea = forwardRef<ScrollAreaRef, ScrollAreaProps>(
       };
     }, []);
 
-    // Handle scroll events
-    const handleScroll = useCallback(
-      (event: Event) => {
-        // Don't emit events when we're updating from controlled props
-        if (isUpdatingFromProps.current) return;
+    // Handle scroll with rubber banding and synchronization
+    useGesture(
+      {
+        onScroll: ({ event }) => {
+          if (!isUserScrolling) return;
 
-        const target = event.target as HTMLElement;
-        if (!target) return;
+          const target = event.target as HTMLElement;
+          const scrollTop = target.scrollTop;
+          const scrollLeft = target.scrollLeft;
 
-        // Update our tracking of DOM scroll position
-        lastDOMScrollTop.current = target.scrollTop;
-        lastDOMScrollLeft.current = target.scrollLeft;
+          // Get scroll info for callbacks
+          const scrollInfo = getScrollInfo();
+          if (scrollInfo) {
+            onScrollChange?.(scrollInfo);
+          }
 
-        const scrollInfo: ScrollInfo = {
-          scrollTop: target.scrollTop,
-          scrollLeft: target.scrollLeft,
-          scrollHeight: target.scrollHeight,
-          scrollWidth: target.scrollWidth,
-          clientHeight: target.clientHeight,
-          clientWidth: target.clientWidth,
-        };
+          // Get viewport info if callback is provided
+          if (onViewportChange) {
+            const viewportInfo = getViewportInfo();
+            if (viewportInfo) {
+              onViewportChange(viewportInfo);
+            }
+          }
 
-        onScrollChange?.(scrollInfo);
+          // Update motion values immediately for low-latency sync
+          if (!isUpdatingFromMotion.current) {
+            isUpdatingFromScroll.current = true;
+            activeMotionY.set(scrollTop);
+            activeMotionX.set(scrollLeft);
+            isUpdatingFromScroll.current = false;
+          }
 
-        // Calculate viewport info if callback is provided
-        if (onViewportChange) {
-          const viewportInfo: ViewportInfo = {
-            visibleTop: target.scrollTop,
-            visibleBottom: target.scrollTop + target.clientHeight,
-            visibleLeft: target.scrollLeft,
-            visibleRight: target.scrollLeft + target.clientWidth,
-            totalHeight: target.scrollHeight,
-            totalWidth: target.scrollWidth,
-          };
-
-          onViewportChange(viewportInfo);
-        }
+          // Sync with other scroll areas (legacy callback)
+          onScrollSync?.(scrollTop, scrollLeft);
+        },
       },
-      [onScrollChange, onViewportChange],
+      {
+        target: viewportRef,
+        eventOptions: { passive: true },
+      },
     );
 
-    // Debounced sync function to prevent stuttering
-    const debouncedSync = useCallback(() => {
-      const viewport = viewportRef.current;
-      if (!viewport || !pendingSyncRef.current) return;
+    // Subscribe to motion value changes for low-latency sync
+    useMotionValueEvent(activeMotionY, "change", (value) => {
+      if (isUpdatingFromScroll.current) return;
 
-      const { scrollTop: targetScrollTop, scrollLeft: targetScrollLeft } = pendingSyncRef.current;
-
-      // Use smaller threshold to catch settling behavior
-      const needsScrollTopSync =
-        targetScrollTop !== undefined && Math.abs(targetScrollTop - viewport.scrollTop) > 0.5;
-      const needsScrollLeftSync =
-        targetScrollLeft !== undefined && Math.abs(targetScrollLeft - viewport.scrollLeft) > 0.5;
-
-      if (needsScrollTopSync || needsScrollLeftSync) {
-        isUpdatingFromProps.current = true;
-
-        if (needsScrollTopSync) {
-          // Clamp to valid scroll range for DOM
-          const maxScroll = viewport.scrollHeight - viewport.clientHeight;
-          viewport.scrollTop = Math.max(0, Math.min(maxScroll, targetScrollTop!));
-          lastDOMScrollTop.current = viewport.scrollTop;
-        }
-        if (needsScrollLeftSync) {
-          // Clamp to valid scroll range for DOM
-          const maxScroll = viewport.scrollWidth - viewport.clientWidth;
-          viewport.scrollLeft = Math.max(0, Math.min(maxScroll, targetScrollLeft!));
-          lastDOMScrollLeft.current = viewport.scrollLeft;
-        }
-
-        // Brief cooldown to prevent immediate callback loops
-        setTimeout(() => {
-          isUpdatingFromProps.current = false;
-        }, 16);
-      }
-
-      pendingSyncRef.current = null;
-    }, []);
-
-    // Sync controlled props to DOM with proper debouncing
-    useEffect(() => {
-      const viewport = viewportRef.current;
-      if (!viewport || !isControlled) return;
-
-      // Store the pending sync values
-      pendingSyncRef.current = { scrollTop, scrollLeft };
-
-      // Clear any existing timeout
-      if (syncTimeoutRef.current) {
-        clearTimeout(syncTimeoutRef.current);
-      }
-
-      // Schedule debounced sync
-      syncTimeoutRef.current = setTimeout(debouncedSync, 5);
-
-      // Cleanup timeout on unmount
-      return () => {
-        if (syncTimeoutRef.current) {
-          clearTimeout(syncTimeoutRef.current);
-        }
-      };
-    }, [scrollTop, scrollLeft, isControlled, debouncedSync]);
-
-    // Update DOM position tracking and rubber-band bounds
-    useEffect(() => {
       const viewport = viewportRef.current;
       if (!viewport) return;
 
-      // Keep tracking updated with current DOM state
-      lastDOMScrollTop.current = viewport.scrollTop;
-      lastDOMScrollLeft.current = viewport.scrollLeft;
+      if (Math.abs(value - viewport.scrollTop) > 0.5) {
+        isUpdatingFromMotion.current = true;
+        viewport.scrollTop = value;
+        setTimeout(() => {
+          isUpdatingFromMotion.current = false;
+        }, 16);
+      }
     });
 
-    // Attach scroll event listener to the viewport
-    useEffect(() => {
-      const viewport = viewportRef.current;
-      if (!viewport || (!onScrollChange && !onViewportChange)) return;
+    useMotionValueEvent(activeMotionX, "change", (value) => {
+      if (isUpdatingFromScroll.current) return;
 
-      viewport.addEventListener("scroll", handleScroll, { passive: true });
+      const viewport = viewportRef.current;
+      if (!viewport) return;
+
+      if (Math.abs(value - viewport.scrollLeft) > 0.5) {
+        isUpdatingFromMotion.current = true;
+        viewport.scrollLeft = value;
+        setTimeout(() => {
+          isUpdatingFromMotion.current = false;
+        }, 16);
+      }
+    });
+
+    // Sync from external scroll positions (legacy support)
+    useEffect(() => {
+      if (externalScrollTop !== undefined && !isUserScrolling && viewportRef.current) {
+        viewportRef.current.scrollTop = externalScrollTop;
+      }
+    }, [externalScrollTop, isUserScrolling]);
+
+    useEffect(() => {
+      if (externalScrollLeft !== undefined && !isUserScrolling && viewportRef.current) {
+        viewportRef.current.scrollLeft = externalScrollLeft;
+      }
+    }, [externalScrollLeft, isUserScrolling]);
+
+    // Track user scrolling state
+    useEffect(() => {
+      const element = viewportRef.current;
+      if (!element) return;
+
+      let scrollTimeout: NodeJS.Timeout;
+
+      const handleScrollStart = () => {
+        setIsUserScrolling(true);
+        clearTimeout(scrollTimeout);
+      };
+
+      const handleScrollEnd = () => {
+        clearTimeout(scrollTimeout);
+        scrollTimeout = setTimeout(() => {
+          setIsUserScrolling(false);
+        }, 150);
+      };
+
+      element.addEventListener("scroll", handleScrollStart);
+      element.addEventListener("scroll", handleScrollEnd);
 
       return () => {
-        viewport.removeEventListener("scroll", handleScroll);
+        element.removeEventListener("scroll", handleScrollStart);
+        element.removeEventListener("scroll", handleScrollEnd);
+        clearTimeout(scrollTimeout);
       };
-    }, [handleScroll, onScrollChange, onViewportChange]);
+    }, []);
 
     // Expose ref methods for programmatic control
     useImperativeHandle(
       ref,
       () => ({
         scrollTo: (options: { top?: number; left?: number; behavior?: ScrollBehavior }) => {
-          const viewport = viewportRef.current;
-          if (!viewport) return;
-
-          // In controlled mode, we don't directly scroll - the consumer should update their state
-          if (isControlled) {
-            console.warn(
-              "ScrollArea: scrollTo() called on controlled component. Update scrollTop/scrollLeft props instead.",
-            );
-            return;
+          // Update motion values directly for immediate sync
+          if (options.top !== undefined) {
+            activeMotionY.set(options.top);
           }
-
-          viewport.scrollTo({
-            top: options.top,
-            left: options.left,
-            behavior: options.behavior || "smooth",
-          });
+          if (options.left !== undefined) {
+            activeMotionX.set(options.left);
+          }
         },
 
         scrollIntoView: (element: Element, options?: ScrollIntoViewOptions) => {
           const viewport = viewportRef.current;
-          if (!viewport) return;
+          if (!viewport?.contains(element)) return;
 
-          if (isControlled) {
-            console.warn(
-              "ScrollArea: scrollIntoView() called on controlled component. Calculate and update scrollTop/scrollLeft props instead.",
-            );
-            return;
-          }
-
-          // Check if element is within our viewport
-          if (viewport.contains(element)) {
-            element.scrollIntoView({
-              behavior: "smooth",
-              block: "nearest",
-              inline: "nearest",
-              ...options,
-            });
-          }
+          element.scrollIntoView({
+            behavior: "smooth",
+            block: "nearest",
+            inline: "nearest",
+            ...options,
+          });
         },
 
         getScrollInfo,
         getViewportInfo,
       }),
-      [isControlled, getScrollInfo, getViewportInfo],
+      [activeMotionY, activeMotionX, getScrollInfo, getViewportInfo],
     );
 
     return (
@@ -342,7 +325,7 @@ export const InnerScrollArea = forwardRef<ScrollAreaRef, ScrollAreaProps>(
         type="hover"
         className={clsx(
           "relative",
-          "overflow-hidden overscroll-contain",
+          "overflow-hidden overscroll-none",
           "flex",
           orientation === "horizontal" ? "flex-row" : "flex-col",
           shrinkHeight ? "h-fit" : "h-full",
@@ -358,47 +341,15 @@ export const InnerScrollArea = forwardRef<ScrollAreaRef, ScrollAreaProps>(
         )}
 
         <div className="flex-1 relative min-h-0 min-w-0">
-          <RadixScrollArea.Viewport ref={viewportRef} className={clsx("h-full w-full", className)}>
-            <div
-              style={(() => {
-                // Calculate overscroll transform for controlled mode
-                if (!isControlled || !enableOverscrollEffect) return undefined;
-
-                const viewport = viewportRef.current;
-                if (!viewport) return undefined;
-
-                let transformY = 0;
-                let transformX = 0;
-
-                if (scrollTop !== undefined) {
-                  const maxScrollY = viewport.scrollHeight - viewport.clientHeight;
-                  if (scrollTop < 0) {
-                    transformY = -scrollTop; // Content moves down to show top overscroll
-                  } else if (scrollTop > maxScrollY) {
-                    transformY = -(scrollTop - maxScrollY); // Content moves up to show bottom overscroll
-                  }
-                }
-
-                if (scrollLeft !== undefined) {
-                  const maxScrollX = viewport.scrollWidth - viewport.clientWidth;
-                  if (scrollLeft < 0) {
-                    transformX = -scrollLeft; // Content moves right to show left overscroll
-                  } else if (scrollLeft > maxScrollX) {
-                    transformX = -(scrollLeft - maxScrollX); // Content moves left to show right overscroll
-                  }
-                }
-
-                if (transformY === 0 && transformX === 0) return undefined;
-
-                return {
-                  transform: `translate(${transformX.toString()}px, ${transformY.toString()}px)`,
-                  height: "100%",
-                  width: "100%",
-                };
-              })()}
-            >
-              {children}
-            </div>
+          <RadixScrollArea.Viewport
+            ref={viewportRef}
+            className={clsx(
+              "h-full w-full",
+              overscrollDisabled ? "overscroll-none" : "overscroll-contain",
+              className,
+            )}
+          >
+            {children}
           </RadixScrollArea.Viewport>
 
           {(orientation === "both" || orientation === "vertical") && (
