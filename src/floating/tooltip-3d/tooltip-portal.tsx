@@ -22,7 +22,7 @@ interface TooltipInstanceProps {
 function TooltipInstance({ anchor, position }: TooltipInstanceProps) {
   const hostContext = useTooltipHost();
 
-  // Create virtual element for floating-ui with actual bounding box dimensions
+  // Create virtual element for floating-ui with proper positioning
   const virtualElement = useMemo(() => {
     const width = position.width || 0;
     const height = position.height || 0;
@@ -36,24 +36,30 @@ function TooltipInstance({ anchor, position }: TooltipInstanceProps) {
     const left = adjustedX - width / 2;
     const top = adjustedY - height / 2;
 
-    return {
-      getBoundingClientRect: () => ({
-        x: left,
-        y: top,
-        top,
-        left,
-        bottom: top + height,
-        right: left + width,
-        width,
-        height,
-        toJSON: () => ({}),
-      }),
+    // Create a proper virtual element that floating-ui can use
+    const virtualEl = {
+      getBoundingClientRect: () => {
+        const rect = {
+          x: left,
+          y: top,
+          top,
+          left,
+          bottom: top + height,
+          right: left + width,
+          width,
+          height,
+          toJSON: () => ({}),
+        };
+        return rect;
+      },
     };
+
+    return virtualEl;
   }, [position.x, position.y, position.width, position.height, hostContext?.frameOffset]);
 
-  // Use floating-ui for positioning
+  // Use floating-ui for positioning with proper strategy
   const { refs, floatingStyles } = useFloating({
-    strategy: "absolute",
+    strategy: "fixed",
     placement: anchor.positioning?.side || "top",
     middleware: [
       offset(anchor.positioning?.offset || 6),
@@ -62,10 +68,8 @@ function TooltipInstance({ anchor, position }: TooltipInstanceProps) {
     ],
   });
 
-  // Set the virtual element as the reference
-  useMemo(() => {
-    refs.setReference(virtualElement);
-  }, [refs, virtualElement]);
+  // Set the virtual element as the reference immediately after floating setup
+  refs.setReference(virtualElement);
 
   // Render content
   const content = typeof anchor.content === "function" ? anchor.content() : anchor.content;
@@ -144,7 +148,6 @@ export function TooltipPortal() {
     }),
   );
 
-  // Use the host container as portal root in iframe scenarios
   const portalRoot = hostContext?.containerRef.current || undefined;
 
   if (visibleTooltips.length === 0) {

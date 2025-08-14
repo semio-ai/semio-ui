@@ -64,13 +64,21 @@ function BasicMesh({
 
   const { show, hide } = useTooltipTrigger(anchorId);
 
+  const handlePointerOver = () => {
+    show();
+  };
+
+  const handlePointerOut = () => {
+    hide();
+  };
+
   return (
     <Box
       ref={ref as any}
       args={[1, 1, 1]}
       position={position}
-      onPointerOver={show}
-      onPointerOut={hide}
+      onPointerOver={handlePointerOver}
+      onPointerOut={handlePointerOut}
     >
       <meshStandardMaterial color={color} />
     </Box>
@@ -205,10 +213,11 @@ export const Basic = {
     <TooltipProvider>
       <TooltipHost className="w-full h-full">
         <Canvas camera={{ position: [0, 5, 10], fov: 50 }}>
-          <ambientLight intensity={0.5} />
-          <pointLight position={[10, 10, 10]} />
+          <ambientLight intensity={0.8} />
+          <directionalLight position={[5, 10, 5]} intensity={1.2} castShadow />
+          <pointLight position={[10, 10, 10]} intensity={0.8} />
           <OrbitControls />
-          <Grid infiniteGrid />
+          <Grid infiniteGrid rotation={[Math.PI / 2, 0, 0]} />
 
           <BasicMesh
             position={[-3, 0, 0]}
@@ -284,10 +293,11 @@ export const SidePositioning = {
       <div className="flex h-full">
         <TooltipHost className="flex-1">
           <Canvas camera={{ position: [0, 5, 10], fov: 50 }}>
-            <ambientLight intensity={0.5} />
-            <pointLight position={[10, 10, 10]} />
+            <ambientLight intensity={0.8} />
+            <directionalLight position={[5, 10, 5]} intensity={1.2} castShadow />
+            <pointLight position={[10, 10, 10]} intensity={0.8} />
             <OrbitControls />
-            <Grid infiniteGrid />
+            <Grid infiniteGrid rotation={[Math.PI / 2, 0, 0]} />
 
             <SidePositionMesh position={[-3, 2, 0]} color="red" side="top" label="Red Cube" />
             <SidePositionMesh position={[3, 2, 0]} color="blue" side="right" label="Blue Cube" />
@@ -347,10 +357,11 @@ export const AxisTracking = {
       <div className="flex h-full">
         <TooltipHost className="flex-1">
           <Canvas camera={{ position: [0, 5, 10], fov: 50 }}>
-            <ambientLight intensity={0.5} />
-            <pointLight position={[10, 10, 10]} />
+            <ambientLight intensity={0.8} />
+            <directionalLight position={[5, 10, 5]} intensity={1.2} castShadow />
+            <pointLight position={[10, 10, 10]} intensity={0.8} />
             <OrbitControls />
-            <Grid infiniteGrid />
+            <Grid infiniteGrid rotation={[Math.PI / 2, 0, 0]} />
 
             <TrackingMesh position={[-3, 2, 0]} color="purple" axis="none" label="No tracking" />
             <TrackingMesh position={[3, 2, 0]} color="orange" axis="x" label="X-axis tracking" />
@@ -405,10 +416,11 @@ export const ExternalTriggers = {
       <div className="flex h-full">
         <TooltipHost className="flex-1">
           <Canvas camera={{ position: [0, 5, 10], fov: 50 }}>
-            <ambientLight intensity={0.5} />
-            <pointLight position={[10, 10, 10]} />
+            <ambientLight intensity={0.8} />
+            <directionalLight position={[5, 10, 5]} intensity={1.2} castShadow />
+            <pointLight position={[10, 10, 10]} intensity={0.8} />
             <OrbitControls />
-            <Grid infiniteGrid />
+            <Grid infiniteGrid rotation={[Math.PI / 2, 0, 0]} />
 
             <BasicMesh
               position={[-3, 0, 0]}
@@ -457,10 +469,11 @@ export const ProgrammaticControl = {
       <div className="flex h-full">
         <TooltipHost className="flex-1">
           <Canvas camera={{ position: [0, 5, 10], fov: 50 }}>
-            <ambientLight intensity={0.5} />
-            <pointLight position={[10, 10, 10]} />
+            <ambientLight intensity={0.8} />
+            <directionalLight position={[5, 10, 5]} intensity={1.2} castShadow />
+            <pointLight position={[10, 10, 10]} intensity={0.8} />
             <OrbitControls />
-            <Grid infiniteGrid />
+            <Grid infiniteGrid rotation={[Math.PI / 2, 0, 0]} />
 
             <BasicMesh
               position={[-3, 0, 0]}
@@ -593,10 +606,11 @@ export const ManualScreenPositioning = {
       <div className="flex h-full">
         <TooltipHost className="flex-1">
           <Canvas camera={{ position: [0, 5, 10], fov: 50 }}>
-            <ambientLight intensity={0.5} />
-            <pointLight position={[10, 10, 10]} />
+            <ambientLight intensity={0.8} />
+            <directionalLight position={[5, 10, 5]} intensity={1.2} castShadow />
+            <pointLight position={[10, 10, 10]} intensity={0.8} />
             <OrbitControls />
-            <Grid infiniteGrid />
+            <Grid infiniteGrid rotation={[Math.PI / 2, 0, 0]} />
 
             <ManualPositionMesh
               position={[-3, 0, 0]}
@@ -686,10 +700,11 @@ export const MultipleTriggers = {
         <div className="flex h-full">
           <TooltipHost className="flex-1">
             <Canvas camera={{ position: [0, 5, 10], fov: 50 }}>
-              <ambientLight intensity={0.5} />
-              <pointLight position={[10, 10, 10]} />
+              <ambientLight intensity={0.8} />
+              <directionalLight position={[5, 10, 5]} intensity={1.2} castShadow />
+              <pointLight position={[10, 10, 10]} intensity={0.8} />
               <OrbitControls />
-              <Grid infiniteGrid />
+              <Grid infiniteGrid rotation={[Math.PI / 2, 0, 0]} />
 
               <MultiTriggerMesh position={[0, 0, 0]} color="purple" />
             </Canvas>

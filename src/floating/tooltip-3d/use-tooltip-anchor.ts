@@ -86,15 +86,21 @@ export function useTooltipAnchor(options: UseTooltipAnchorOptions): UseTooltipAn
       return;
     }
 
-    // Project all corners to screen space
+    // Get actual canvas element for proper coordinate calculation
+    const canvas = document.querySelector("canvas");
+    if (!canvas) return;
+
+    const canvasRect = canvas.getBoundingClientRect();
+
+    // Project all corners to screen space relative to canvas
     const projectedCorners = corners.map((corner) => {
       const projected = corner.clone();
       // Cast needed because @react-three/fiber's camera type has additional properties
       projected.project(camera as unknown as THREE.Camera);
 
       return {
-        x: (projected.x * 0.5 + 0.5) * size.width,
-        y: (-projected.y * 0.5 + 0.5) * size.height,
+        x: (projected.x * 0.5 + 0.5) * canvasRect.width,
+        y: (-projected.y * 0.5 + 0.5) * canvasRect.height,
       };
     });
 
@@ -113,11 +119,11 @@ export function useTooltipAnchor(options: UseTooltipAnchorOptions): UseTooltipAn
     const x = (screenBounds.minX + screenBounds.maxX) / 2;
     const y = (screenBounds.minY + screenBounds.maxY) / 2;
 
-    // Check if position is within viewport
-    if (x >= 0 && x <= size.width && y >= 0 && y <= size.height) {
+    // Check if position is within canvas bounds
+    if (canvas && x >= 0 && x <= canvasRect.width && y >= 0 && y <= canvasRect.height) {
       updateAnchorPosition(id, {
-        x,
-        y,
+        x: x + canvasRect.left,
+        y: y + canvasRect.top,
         width: screenBounds.maxX - screenBounds.minX,
         height: screenBounds.maxY - screenBounds.minY,
       });

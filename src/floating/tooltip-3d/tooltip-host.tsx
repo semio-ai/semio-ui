@@ -26,6 +26,7 @@ export function TooltipHost({ children, className, style }: TooltipHostProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const frameOffsetRef = useRef({ x: 0, y: 0 });
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -40,12 +41,11 @@ export function TooltipHost({ children, className, style }: TooltipHostProps) {
     const updateFrameOffset = () => {
       if (!containerRef.current) return;
 
-      const rect = containerRef.current.getBoundingClientRect();
       const isInIframe = window !== window.top;
 
       if (isInIframe) {
-        // In iframe: coordinates need to be adjusted relative to the iframe's position
-        // in the parent document
+        // In iframe: use container's position relative to viewport
+        const rect = containerRef.current.getBoundingClientRect();
         frameOffsetRef.current = { x: rect.left, y: rect.top };
       } else {
         // Not in iframe: no offset needed
@@ -59,6 +59,9 @@ export function TooltipHost({ children, className, style }: TooltipHostProps) {
 
     return () => {
       window.removeEventListener("resize", updateFrameOffset);
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
     };
   }, []);
 
