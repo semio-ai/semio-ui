@@ -24,22 +24,25 @@ function TooltipInstance({ anchor, position }: TooltipInstanceProps) {
   // This ensures correct positioning when tooltips are nested
   const hostContext = useTooltipHost();
 
-  // Create virtual element for floating-ui with proper positioning
+  // Create virtual element for floating-ui with container-relative positioning
   const virtualElement = useMemo(() => {
     const width = position.width || 0;
     const height = position.height || 0;
 
-    // Apply frame offset for iframe positioning
-    // The frameOffset already includes parent offsets if nested
+    // Position coordinates are already container-relative from useTooltipAnchor
+    // No need to apply frame offset - only needed for iframe scenarios
     const frameOffset = hostContext?.frameOffset || { x: 0, y: 0 };
-    const adjustedX = position.x + frameOffset.x;
-    const adjustedY = position.y + frameOffset.y;
+    const isInIframe = window !== window.top;
 
-    // Center the bounding rect around the adjusted position
+    // Apply frame offset only for iframe positioning
+    const adjustedX = isInIframe ? position.x + frameOffset.x : position.x;
+    const adjustedY = isInIframe ? position.y + frameOffset.y : position.y;
+
+    // Center the bounding rect around the position
     const left = adjustedX - width / 2;
     const top = adjustedY - height / 2;
 
-    // Create a proper virtual element that floating-ui can use
+    // Create virtual element for floating-ui
     const virtualEl = {
       getBoundingClientRect: () => {
         const rect = {
@@ -60,9 +63,10 @@ function TooltipInstance({ anchor, position }: TooltipInstanceProps) {
     return virtualEl;
   }, [position.x, position.y, position.width, position.height, hostContext?.frameOffset]);
 
-  // Use floating-ui for positioning with proper strategy
+  // Use floating-ui for positioning with container-relative strategy
+  // Use floating-ui for positioning with container-relative strategy
   const { refs, floatingStyles } = useFloating({
-    strategy: "fixed",
+    strategy: "absolute",
     placement: anchor.positioning?.side || "top",
     middleware: [
       offset(anchor.positioning?.offset || 6),

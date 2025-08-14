@@ -2,7 +2,12 @@ import { useRef, useEffect, useId, useCallback } from "react";
 import { useFrame, type ThreeEvent } from "@react-three/fiber";
 import type { ReactNode } from "react";
 import * as THREE from "three";
-import { useTooltipStore, type AxisMode, type TooltipSide } from "./store";
+import {
+  useTooltipStore,
+  type AxisMode,
+  type TooltipSide,
+  type CoordinateDebugInfo,
+} from "./store";
 import { useTooltipHost } from "./tooltip-context";
 
 export interface UseTooltipAnchorOptions {
@@ -26,8 +31,13 @@ export function useTooltipAnchor(options: UseTooltipAnchorOptions): UseTooltipAn
   const id = options.id || autoId;
   const ref = useRef<THREE.Object3D>(null);
 
-  const { registerAnchor, unregisterAnchor, updateAnchorPosition, updateCursorPosition } =
-    useTooltipStore();
+  const {
+    registerAnchor,
+    unregisterAnchor,
+    updateAnchorPosition,
+    updateCursorPosition,
+    logCoordinateDebug,
+  } = useTooltipStore();
 
   const tooltipHost = useTooltipHost();
 
@@ -93,21 +103,40 @@ export function useTooltipAnchor(options: UseTooltipAnchorOptions): UseTooltipAn
     const container = tooltipHost?.containerRef.current;
     if (!container) return;
 
-    const containerRect = container.getBoundingClientRect();
+    // Find the canvas element within the container
+    const canvas = container.querySelector("canvas");
+    if (!canvas) return;
 
-    // Project all corners to screen space relative to canvas
+    const containerRect = container.getBoundingClientRect();
+    const canvasRect = canvas.getBoundingClientRect();
+
+    // Debug info collection
+    const debugInfo: Partial<CoordinateDebugInfo> = {
+      anchorId: id,
+      containerRect,
+      canvasRect,
+      worldPosition: { x: center.x, y: center.y, z: center.z },
+      ndcPosition: { x: centerProjected.x, y: centerProjected.y, z: centerProjected.z },
+      frameOffset: tooltipHost?.frameOffset,
+    };
+
+    // Project all corners to container-relative coordinates
     const projectedCorners = corners.map((corner) => {
       const projected = corner.clone();
       // Cast needed because @react-three/fiber's camera type has additional properties
       projected.project(camera as unknown as THREE.Camera);
 
-      // Convert NDC to viewport coordinates, then make relative to container
-      const viewportX = (projected.x * 0.5 + 0.5) * window.innerWidth;
-      const viewportY = (-projected.y * 0.5 + 0.5) * window.innerHeight;
+      // Convert NDC to canvas coordinates
+      const canvasX = (projected.x * 0.5 + 0.5) * canvasRect.width;
+      const canvasY = (-projected.y * 0.5 + 0.5) * canvasRect.height;
+
+      // Convert canvas coordinates to container-relative coordinates
+      const containerX = canvasX + (canvasRect.left - containerRect.left);
+      const containerY = canvasY + (canvasRect.top - containerRect.top);
 
       return {
-        x: viewportX - containerRect.left,
-        y: viewportY - containerRect.top,
+        x: containerX,
+        y: containerY,
       };
     });
 
@@ -126,14 +155,23 @@ export function useTooltipAnchor(options: UseTooltipAnchorOptions): UseTooltipAn
     const x = (screenBounds.minX + screenBounds.maxX) / 2;
     const y = (screenBounds.minY + screenBounds.maxY) / 2;
 
+    const finalPosition = {
+      x,
+      y,
+      width: screenBounds.maxX - screenBounds.minX,
+      height: screenBounds.maxY - screenBounds.minY,
+    };
+
+    // Add final position to debug info
+    debugInfo.containerPosition = { x, y };
+    debugInfo.finalPosition = finalPosition;
+
+    // Log debug information
+    logCoordinateDebug(debugInfo);
+
     // Check if position is within container bounds
-    if (container && x >= 0 && x <= containerRect.width && y >= 0 && y <= containerRect.height) {
-      updateAnchorPosition(id, {
-        x,
-        y,
-        width: screenBounds.maxX - screenBounds.minX,
-        height: screenBounds.maxY - screenBounds.minY,
-      });
+    if (x >= 0 && x <= containerRect.width && y >= 0 && y <= containerRect.height) {
+      updateAnchorPosition(id, finalPosition);
     }
   });
 
@@ -141,13 +179,23 @@ export function useTooltipAnchor(options: UseTooltipAnchorOptions): UseTooltipAn
   const handlePointerMove = useCallback(
     (event: ThreeEvent<PointerEvent>) => {
       if (options.axis && options.axis !== "none") {
+        // Get TooltipHost container for proper coordinate calculation
+        const container = tooltipHost?.containerRef.current;
+        if (!container) return;
+
+        const containerRect = container.getBoundingClientRect();
+
+        // Convert global cursor position to container-relative coordinates
+        const containerX = (event.clientX ?? event.nativeEvent.clientX) - containerRect.left;
+        const containerY = (event.clientY ?? event.nativeEvent.clientY) - containerRect.top;
+
         updateCursorPosition(id, {
-          x: event.clientX ?? event.nativeEvent.clientX,
-          y: event.clientY ?? event.nativeEvent.clientY,
+          x: containerX,
+          y: containerY,
         });
       }
     },
-    [id, options.axis, updateCursorPosition],
+    [id, options.axis, updateCursorPosition, tooltipHost],
   );
 
   const handlePointerLeave = useCallback(() => {

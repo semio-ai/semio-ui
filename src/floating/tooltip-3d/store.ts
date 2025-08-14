@@ -10,6 +10,19 @@ export interface ScreenPosition {
   height?: number;
 }
 
+export interface CoordinateDebugInfo {
+  anchorId: string;
+  timestamp: number;
+  containerRect?: DOMRect;
+  canvasRect?: DOMRect;
+  worldPosition?: { x: number; y: number; z: number };
+  ndcPosition?: { x: number; y: number; z: number };
+  canvasPosition?: { x: number; y: number };
+  containerPosition?: { x: number; y: number };
+  frameOffset?: { x: number; y: number };
+  finalPosition?: ScreenPosition;
+}
+
 export type AxisMode = "none" | "x" | "y" | "both";
 export type TooltipSide = "top" | "right" | "bottom" | "left";
 
@@ -51,6 +64,11 @@ export interface TooltipStore {
   _positionUpdateQueue: Map<string, ScreenPosition>;
   _rafId: number | null;
 
+  // Debug utilities
+  debugMode: boolean;
+  debugHistory: CoordinateDebugInfo[];
+  _maxDebugHistory: number;
+
   // Anchor management
   registerAnchor: (config: AnchorConfig) => void;
   unregisterAnchor: (id: string) => void;
@@ -73,6 +91,12 @@ export interface TooltipStore {
   isTooltipVisible: (anchorId: string) => boolean;
   getTooltipPosition: (anchorId: string) => ScreenPosition | null;
   getEffectivePosition: (anchorId: string) => ScreenPosition | null;
+
+  // Debug utilities
+  enableDebugMode: (enabled: boolean) => void;
+  logCoordinateDebug: (info: Partial<CoordinateDebugInfo>) => void;
+  getDebugHistory: (anchorId?: string) => CoordinateDebugInfo[];
+  clearDebugHistory: () => void;
 }
 
 export const useTooltipStore = create<TooltipStore>()(
@@ -87,6 +111,11 @@ export const useTooltipStore = create<TooltipStore>()(
       hoveredAnchors: new Set(),
       _positionUpdateQueue: new Map(),
       _rafId: null,
+
+      // Debug state
+      debugMode: false,
+      debugHistory: [],
+      _maxDebugHistory: 100,
 
       // Anchor registration
       registerAnchor: (config: AnchorConfig) => {
@@ -354,6 +383,52 @@ export const useTooltipStore = create<TooltipStore>()(
           default:
             return boundingBoxPos;
         }
+      },
+
+      // Debug utilities
+      enableDebugMode: (enabled: boolean) => {
+        set({ debugMode: enabled });
+        if (!enabled) {
+          set({ debugHistory: [] });
+        }
+      },
+
+      logCoordinateDebug: (info: Partial<CoordinateDebugInfo>) => {
+        const state = get();
+        if (!state.debugMode) return;
+
+        const debugInfo: CoordinateDebugInfo = {
+          anchorId: info.anchorId || "unknown",
+          timestamp: Date.now(),
+          ...info,
+        };
+
+        set((currentState) => {
+          const newHistory = [...currentState.debugHistory, debugInfo];
+
+          // Keep only the most recent entries
+          if (newHistory.length > currentState._maxDebugHistory) {
+            newHistory.splice(0, newHistory.length - currentState._maxDebugHistory);
+          }
+
+          if (currentState.debugMode) {
+            console.log("🎯 Tooltip Coordinate Debug:", debugInfo);
+          }
+
+          return { debugHistory: newHistory };
+        });
+      },
+
+      getDebugHistory: (anchorId?: string) => {
+        const state = get();
+        if (!anchorId) {
+          return state.debugHistory;
+        }
+        return state.debugHistory.filter((entry) => entry.anchorId === anchorId);
+      },
+
+      clearDebugHistory: () => {
+        set({ debugHistory: [] });
       },
     })),
     { name: "tooltip-3d-store" },

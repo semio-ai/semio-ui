@@ -23,56 +23,39 @@ export interface TooltipHostProps {
 export function TooltipHost({ children, className, style }: TooltipHostProps) {
   const parentContext = useTooltipHost();
   const containerRef = useRef<HTMLDivElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const frameOffsetRef = useRef({ x: 0, y: 0 });
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  useEffect(
-    () => {
+  useEffect(() => {
+    if (!containerRef.current) return;
+
+    // Calculate frame offset only for iframe positioning
+    const updateFrameOffset = () => {
       if (!containerRef.current) return;
 
-      // Find the canvas element within the container
-      const canvas = containerRef.current.querySelector("canvas");
-      if (canvas) {
-        canvasRef.current = canvas;
-      }
+      const isInIframe = window !== window.top;
 
-      // Calculate frame offset for iframe positioning
-      const updateFrameOffset = () => {
-        if (!containerRef.current) return;
-
-        const isInIframe = window !== window.top;
-        let localOffset = { x: 0, y: 0 };
-
-        if (isInIframe) {
-          // In iframe: use container's position relative to viewport
-          const rect = containerRef.current.getBoundingClientRect();
-          localOffset = { x: rect.left, y: rect.top };
-        }
-
-        // Compose with parent offset if nested
+      if (isInIframe) {
+        // In iframe: get container's position relative to parent window
+        const rect = containerRef.current.getBoundingClientRect();
         const parentOffset = parentContext?.frameOffset || { x: 0, y: 0 };
         frameOffsetRef.current = {
-          x: parentOffset.x + localOffset.x,
-          y: parentOffset.y + localOffset.y,
+          x: parentOffset.x + rect.left,
+          y: parentOffset.y + rect.top,
         };
-      };
+      } else {
+        // Not in iframe: no frame offset needed (coordinates are already window-relative)
+        frameOffsetRef.current = parentContext?.frameOffset || { x: 0, y: 0 };
+      }
+    };
 
-      // Update offset on mount and resize
-      updateFrameOffset();
-      window.addEventListener("resize", updateFrameOffset);
-      const id = timeoutRef.current;
+    // Update offset on mount and when window resizes
+    updateFrameOffset();
+    window.addEventListener("resize", updateFrameOffset);
 
-      return () => {
-        window.removeEventListener("resize", updateFrameOffset);
-        if (id) {
-          clearTimeout(id);
-        }
-      };
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- Intentionally omit dependencies to run only on mount
-    [],
-  );
+    return () => {
+      window.removeEventListener("resize", updateFrameOffset);
+    };
+  }, [parentContext?.frameOffset]);
 
   const contextValue: TooltipHostContextValue = {
     containerRef,

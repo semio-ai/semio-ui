@@ -2,6 +2,7 @@
 export {
   useTooltipStore,
   type ScreenPosition,
+  type CoordinateDebugInfo,
   type AxisMode,
   type TooltipSide,
   type AnchorConfig,
@@ -36,3 +37,5 @@ export {
   useRootTooltipHost,
   type TooltipHostContextValue,
 } from "./tooltip-context";
+
+export { TooltipDebug } from "./tooltip-debug";
