@@ -1,5 +1,12 @@
-import { type ReactNode, useRef, useEffect } from "react";
+import { type ReactNode, useRef, useEffect, createContext, useContext } from "react";
 import { TooltipPortal } from "./tooltip-portal";
+
+export interface TooltipHostContextValue {
+  containerRef: React.RefObject<HTMLDivElement>;
+  frameOffset: { x: number; y: number };
+}
+
+const TooltipHostContext = createContext<TooltipHostContextValue | null>(null);
 
 export interface TooltipHostProps {
   children: ReactNode;
@@ -18,6 +25,7 @@ export interface TooltipHostProps {
 export function TooltipHost({ children, className, style }: TooltipHostProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const frameOffsetRef = useRef({ x: 0, y: 0 });
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -27,14 +35,54 @@ export function TooltipHost({ children, className, style }: TooltipHostProps) {
     if (canvas) {
       canvasRef.current = canvas;
     }
+
+    // Calculate frame offset for iframe positioning
+    const updateFrameOffset = () => {
+      if (!containerRef.current) return;
+
+      const rect = containerRef.current.getBoundingClientRect();
+      const isInIframe = window !== window.top;
+
+      if (isInIframe) {
+        // In iframe: coordinates need to be adjusted relative to the iframe's position
+        // in the parent document
+        frameOffsetRef.current = { x: rect.left, y: rect.top };
+      } else {
+        // Not in iframe: no offset needed
+        frameOffsetRef.current = { x: 0, y: 0 };
+      }
+    };
+
+    // Update offset on mount and resize
+    updateFrameOffset();
+    window.addEventListener("resize", updateFrameOffset);
+
+    return () => {
+      window.removeEventListener("resize", updateFrameOffset);
+    };
   }, []);
 
+  const contextValue: TooltipHostContextValue = {
+    containerRef,
+    frameOffset: frameOffsetRef.current,
+  };
+
   return (
-    <div ref={containerRef} className={className} style={style}>
-      {children}
-      <TooltipPortal />
-    </div>
+    <TooltipHostContext.Provider value={contextValue}>
+      <div ref={containerRef} className={className} style={style}>
+        {children}
+        <TooltipPortal />
+      </div>
+    </TooltipHostContext.Provider>
   );
+}
+
+/**
+ * Hook to access the tooltip host context (for iframe positioning support).
+ * Returns null if not within a TooltipHost.
+ */
+export function useTooltipHost() {
+  return useContext(TooltipHostContext);
 }
 
 /**

@@ -29,4 +29,9 @@ export { TooltipProvider, useTooltipContext, useTooltip } from "./tooltip-provid
 
 export { TooltipPortal } from "./tooltip-portal";
 
-export { TooltipHost, withTooltipHost, type TooltipHostProps } from "./tooltip-host";
+export {
+  TooltipHost,
+  withTooltipHost,
+  useTooltipHost,
+  type TooltipHostProps,
+} from "./tooltip-host";
