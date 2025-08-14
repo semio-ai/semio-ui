@@ -56,11 +56,12 @@ export function TooltipHost({ children, className, style }: TooltipHostProps) {
     // Update offset on mount and resize
     updateFrameOffset();
     window.addEventListener("resize", updateFrameOffset);
+    const id = timeoutRef.current;
 
     return () => {
       window.removeEventListener("resize", updateFrameOffset);
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
+      if (id) {
+        clearTimeout(id);
       }
     };
   }, []);

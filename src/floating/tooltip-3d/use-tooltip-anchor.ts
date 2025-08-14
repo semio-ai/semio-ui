@@ -58,7 +58,7 @@ export function useTooltipAnchor(options: UseTooltipAnchorOptions): UseTooltipAn
   ]);
 
   // Update bounding box position every frame
-  useFrame(({ camera, size }) => {
+  useFrame(({ camera }) => {
     if (!ref.current) return;
 
     // Calculate 3D bounding box
