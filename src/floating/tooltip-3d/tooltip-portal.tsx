@@ -1,0 +1,113 @@
+import { useMemo } from "react";
+import { FloatingPortal, offset, flip, shift, useFloating } from "@floating-ui/react";
+import { clsx } from "clsx";
+import { useShallow } from "zustand/react/shallow";
+import { Variant } from "../../types";
+import { useTooltipStore, type AnchorConfig, type ScreenPosition } from "./store";
+
+interface TooltipInstanceProps {
+  anchor: AnchorConfig;
+  position: ScreenPosition;
+}
+
+/**
+ * Individual tooltip instance that handles its own positioning and rendering.
+ */
+function TooltipInstance({ anchor, position }: TooltipInstanceProps) {
+  // Create virtual element for floating-ui
+  const virtualElement = useMemo(
+    () => ({
+      getBoundingClientRect: () => ({
+        x: position.x,
+        y: position.y,
+        top: position.y,
+        left: position.x,
+        bottom: position.y,
+        right: position.x,
+        width: 0,
+        height: 0,
+        toJSON: () => ({}),
+      }),
+    }),
+    [position.x, position.y],
+  );
+
+  // Use floating-ui for positioning
+  const { refs, floatingStyles } = useFloating({
+    strategy: "absolute",
+    placement: anchor.positioning?.side || "top",
+    middleware: [
+      offset(anchor.positioning?.offset || 6),
+      flip({ padding: 5 }),
+      shift({ padding: 5 }),
+    ],
+  });
+
+  // Set the virtual element as the reference
+  useMemo(() => {
+    refs.setReference(virtualElement);
+  }, [refs, virtualElement]);
+
+  // Render content
+  const content = typeof anchor.content === "function" ? anchor.content() : anchor.content;
+
+  return (
+    <div
+      ref={refs.setFloating}
+      style={floatingStyles}
+      className={clsx(
+        "responsive overflow-clip",
+        Variant.Default,
+        "card select-none inline-flex items-center",
+        "pointer-events-none",
+        "variant-static-text",
+        "z-50",
+        "shadow-lg",
+        "animate-in fade-in-0 zoom-in-95",
+        "data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95",
+      )}
+      data-state="open"
+    >
+      {content}
+    </div>
+  );
+}
+
+/**
+ * Portal component that renders all visible tooltips.
+ * This component should be placed at the root level of your application,
+ * typically near the Canvas component.
+ */
+export function TooltipPortal() {
+  // Get visible tooltips and their positions
+  const visibleTooltips = useTooltipStore(
+    useShallow((state) => {
+      const visible: { anchor: AnchorConfig; position: ScreenPosition }[] = [];
+
+      state.visibility.forEach((vis, anchorId) => {
+        if (vis.visible) {
+          const anchor = state.anchors.get(anchorId);
+          const position = state.getEffectivePosition(anchorId);
+
+          if (anchor && position && (!anchor.isAvailable || anchor.isAvailable())) {
+            visible.push({ anchor, position });
+          }
+        }
+      });
+
+      return visible;
+    }),
+  );
+
+  if (visibleTooltips.length === 0) {
+    return null;
+  }
+
+  return (
+    <FloatingPortal>
+      {visibleTooltips.map(({ anchor, position }) => (
+        <TooltipInstance key={anchor.id} anchor={anchor} position={position} />
+      ))}
+    </FloatingPortal>
+  );
+}

@@ -23,6 +23,7 @@ export * from "./floating/tabbed-modal";
 export * from "./floating/toast";
 export * from "./floating/tooltip";
 export * from "./floating/tracked-tooltip";
+export * from "./floating/tooltip-3d";
 
 // Functions
 export * from "./functions/stamp-to-visual-time";
