@@ -118,6 +118,21 @@ export const useTooltipStore = create<TooltipStore>()(
       // Batched position updates for performance
       updateAnchorPosition: (id: string, position: ScreenPosition) => {
         const state = get();
+
+        // Check if position actually changed to prevent infinite re-renders
+        const existingPosition = state.positions.get(id);
+        if (existingPosition) {
+          const unchanged =
+            existingPosition.x === position.x &&
+            existingPosition.y === position.y &&
+            existingPosition.width === position.width &&
+            existingPosition.height === position.height;
+
+          if (unchanged) {
+            return; // Skip update if position hasn't changed
+          }
+        }
+
         state._positionUpdateQueue.set(id, position);
 
         if (!state._rafId) {
