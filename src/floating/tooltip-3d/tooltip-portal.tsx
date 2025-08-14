@@ -1,5 +1,6 @@
 import { useMemo, useRef } from "react";
 import { FloatingPortal, offset, flip, shift, useFloating } from "@floating-ui/react";
+import { motion, AnimatePresence } from "motion/react";
 import { clsx } from "clsx";
 import { useShallow } from "zustand/react/shallow";
 import { Variant } from "../../types";
@@ -82,23 +83,23 @@ function TooltipInstance({ anchor, position }: TooltipInstanceProps) {
   const content = typeof anchor.content === "function" ? anchor.content() : anchor.content;
 
   return (
-    <div
-      ref={refs.setFloating}
-      style={floatingStyles}
-      className={clsx(
-        "responsive overflow-clip",
-        Variant.Default,
-        "card select-none inline-flex items-center",
-        "pointer-events-none",
-        "variant-static-text",
-        "z-50",
-        "shadow-lg",
-        "animate-in fade-in-0 zoom-in-95",
-        "data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95",
-      )}
-      data-state="open"
-    >
-      {content}
+    <div ref={refs.setFloating} style={floatingStyles} className="z-50">
+      <motion.div
+        className={clsx(
+          "responsive overflow-clip",
+          Variant.Default,
+          "card select-none inline-flex items-center",
+          "pointer-events-none",
+          "variant-static-text",
+          "shadow-lg",
+        )}
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 0.95 }}
+        transition={{ type: "tween", duration: 0.1, ease: "easeInOut" }}
+      >
+        {content}
+      </motion.div>
     </div>
   );
 }
@@ -163,9 +164,11 @@ export function TooltipPortal() {
 
   return (
     <FloatingPortal root={portalRoot}>
-      {visibleTooltips.map(({ anchor, position }) => (
-        <TooltipInstance key={anchor.id} anchor={anchor} position={position} />
-      ))}
+      <AnimatePresence>
+        {visibleTooltips.map(({ anchor, position }) => (
+          <TooltipInstance key={anchor.id} anchor={anchor} position={position} />
+        ))}
+      </AnimatePresence>
     </FloatingPortal>
   );
 }
