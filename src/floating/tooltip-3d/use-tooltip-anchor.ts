@@ -1,4 +1,4 @@
-import { useRef, useEffect, useId, useCallback, useMemo, isValidElement } from "react";
+import { useRef, useEffect, useId, useCallback } from "react";
 import { useFrame, type ThreeEvent } from "@react-three/fiber";
 import type { ReactNode } from "react";
 import * as THREE from "three";
@@ -25,53 +25,11 @@ export function useTooltipAnchor(options: UseTooltipAnchorOptions): UseTooltipAn
   const id = options.id || autoId;
   const ref = useRef<THREE.Object3D>(null);
 
-  const {
-    registerAnchor,
-    unregisterAnchor,
-    updateAnchorPosition,
-    updateCursorPosition,
-    updateAnchorContent,
-  } = useTooltipStore();
+  const { registerAnchor, unregisterAnchor, updateAnchorPosition, updateCursorPosition } =
+    useTooltipStore();
 
-  // Content comparison and memoization to prevent infinite loops
-  const contentRef = useRef<ReactNode | (() => ReactNode)>(options.content);
-  const memoizedContent = useMemo(() => {
-    const newContent = options.content;
-    const prevContent = contentRef.current;
-
-    // If content types are different, always update
-    if (typeof newContent !== typeof prevContent) {
-      contentRef.current = newContent;
-      return newContent;
-    }
-
-    // For functions, compare by reference
-    if (typeof newContent === "function") {
-      if (newContent !== prevContent) {
-        contentRef.current = newContent;
-        return newContent;
-      }
-      return prevContent;
-    }
-
-    // For React elements, compare type and props
-    if (isValidElement(newContent) && isValidElement(prevContent)) {
-      if (
-        newContent.type === prevContent.type &&
-        JSON.stringify(newContent.props) === JSON.stringify(prevContent.props)
-      ) {
-        return prevContent; // Keep previous reference
-      }
-    }
-
-    // For primitives (string, number) or different elements, compare by reference/value
-    if (newContent !== prevContent) {
-      contentRef.current = newContent;
-      return newContent;
-    }
-
-    return prevContent;
-  }, [options.content]);
+  // Remove complex memoization - rely on store-level safety net to prevent infinite loops
+  const memoizedContent = options.content;
 
   // Register anchor on mount
   useEffect(() => {
@@ -88,7 +46,7 @@ export function useTooltipAnchor(options: UseTooltipAnchorOptions): UseTooltipAn
     });
 
     return () => unregisterAnchor(id);
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- Intentionally omit options.content - content updates are handled separately
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- Intentionally omit options.content - content is only set during registration
   }, [
     id,
     options.axis,
@@ -98,11 +56,6 @@ export function useTooltipAnchor(options: UseTooltipAnchorOptions): UseTooltipAn
     registerAnchor,
     unregisterAnchor,
   ]);
-
-  // Update content if it changes
-  useEffect(() => {
-    updateAnchorContent(id, memoizedContent);
-  }, [id, memoizedContent, updateAnchorContent]);
 
   // Update bounding box position every frame
   useFrame(({ camera, size }) => {

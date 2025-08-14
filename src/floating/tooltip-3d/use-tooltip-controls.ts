@@ -1,5 +1,5 @@
-import { useCallback } from 'react';
-import { useTooltipStore, type ScreenPosition } from './store';
+import { useCallback } from "react";
+import { useTooltipStore, type ScreenPosition } from "./store";
 
 export interface ShowTooltipOptions {
   screenPosition?: ScreenPosition;
@@ -11,6 +11,7 @@ export interface UseTooltipControlsResult {
   hideTooltip: (anchorId: string) => void;
   hideAll: () => void;
   isVisible: (anchorId: string) => boolean;
+  clearManualPosition: (anchorId: string) => void;
 }
 
 /**
@@ -24,7 +25,7 @@ export function useTooltipControls(): UseTooltipControlsResult {
 
   const showTooltip = useCallback(
     (anchorId: string, options?: ShowTooltipOptions) => {
-      const triggerId = options?.triggerId || 'imperative';
+      const triggerId = options?.triggerId || "imperative";
 
       if (options?.screenPosition) {
         // Update anchor with manual position
@@ -40,15 +41,24 @@ export function useTooltipControls(): UseTooltipControlsResult {
 
       store.showTooltip(anchorId, triggerId);
     },
-    [store]
+    [store],
   );
 
   const hideTooltip = useCallback(
     (anchorId: string) => {
       // Hide from imperative trigger
-      store.hideTooltip(anchorId, 'imperative');
+      store.hideTooltip(anchorId, "imperative");
+
+      // Clear manual screen position override when hiding
+      const anchor = store.anchors.get(anchorId);
+      if (anchor?.screenPosition) {
+        store.registerAnchor({
+          ...anchor,
+          screenPosition: undefined,
+        });
+      }
     },
-    [store]
+    [store],
   );
 
   const hideAll = useCallback(() => {
@@ -59,7 +69,20 @@ export function useTooltipControls(): UseTooltipControlsResult {
     (anchorId: string) => {
       return store.isTooltipVisible(anchorId);
     },
-    [store]
+    [store],
+  );
+
+  const clearManualPosition = useCallback(
+    (anchorId: string) => {
+      const anchor = store.anchors.get(anchorId);
+      if (anchor) {
+        store.registerAnchor({
+          ...anchor,
+          screenPosition: undefined,
+        });
+      }
+    },
+    [store],
   );
 
   return {
@@ -67,5 +90,6 @@ export function useTooltipControls(): UseTooltipControlsResult {
     hideTooltip,
     hideAll,
     isVisible,
+    clearManualPosition,
   };
 }

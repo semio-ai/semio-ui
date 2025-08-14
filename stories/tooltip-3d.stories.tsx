@@ -147,7 +147,7 @@ function ProgrammaticControlPanel() {
   const { showTooltip, hideTooltip, hideAll } = useTooltipControls();
   const [activeTooltips, setActiveTooltips] = useState<Set<string>>(new Set());
 
-  const toggleTooltip = (id: string, x: number, y: number) => {
+  const toggleTooltip = (id: string) => {
     if (activeTooltips.has(id)) {
       hideTooltip(id);
       setActiveTooltips((prev) => {
@@ -156,7 +156,7 @@ function ProgrammaticControlPanel() {
         return next;
       });
     } else {
-      showTooltip(id, { screenPosition: { x, y } });
+      showTooltip(id);
       setActiveTooltips((prev) => new Set(prev).add(id));
     }
   };
@@ -167,19 +167,19 @@ function ProgrammaticControlPanel() {
       <div className="space-y-2">
         <button
           className="w-full px-3 py-1.5 bg-green-500 hover:bg-green-600 text-white text-sm rounded transition-colors"
-          onClick={() => toggleTooltip("basic-1", window.innerWidth / 2 - 100, 100)}
+          onClick={() => toggleTooltip("basic-1")}
         >
           {activeTooltips.has("basic-1") ? "Hide" : "Show"} Red Cube
         </button>
         <button
           className="w-full px-3 py-1.5 bg-green-500 hover:bg-green-600 text-white text-sm rounded transition-colors"
-          onClick={() => toggleTooltip("basic-2", window.innerWidth / 2, 150)}
+          onClick={() => toggleTooltip("basic-2")}
         >
           {activeTooltips.has("basic-2") ? "Hide" : "Show"} Blue Cube
         </button>
         <button
           className="w-full px-3 py-1.5 bg-green-500 hover:bg-green-600 text-white text-sm rounded transition-colors"
-          onClick={() => toggleTooltip("basic-3", window.innerWidth / 2 + 100, 100)}
+          onClick={() => toggleTooltip("basic-3")}
         >
           {activeTooltips.has("basic-3") ? "Hide" : "Show"} Green Cube
         </button>
@@ -386,7 +386,144 @@ export const ProgrammaticControl = {
           <ProgrammaticControlPanel />
           <div className="mt-4 p-3 bg-blue-100 dark:bg-blue-900/30 rounded text-sm">
             <p className="text-blue-800 dark:text-blue-200">
-              📍 Click buttons to show tooltips at specific screen positions
+              📍 Click buttons to show tooltips anchored to their respective cubes
+            </p>
+          </div>
+        </div>
+      </div>
+    </TooltipProvider>
+  ),
+};
+
+// Manual screen positioning example
+function ManualPositionMesh({
+  position,
+  color,
+  tooltipId,
+  title,
+  description,
+}: {
+  position: [number, number, number];
+  color: string;
+  tooltipId: string;
+  title: string;
+  description: string;
+}) {
+  const { ref, anchorId } = useTooltipAnchor({
+    id: tooltipId,
+    content: (
+      <div className="p-3 max-w-xs">
+        <h4 className="font-semibold text-sm mb-1">{title}</h4>
+        <p className="text-xs text-gray-600 dark:text-gray-400">{description}</p>
+      </div>
+    ),
+    side: "top",
+    offset: 8,
+  });
+
+  const { show, hide } = useTooltipTrigger(anchorId);
+
+  return (
+    <Box
+      ref={ref as any}
+      args={[1, 1, 1]}
+      position={position}
+      onPointerOver={show}
+      onPointerOut={hide}
+    >
+      <meshStandardMaterial color={color} />
+    </Box>
+  );
+}
+
+function ManualPositionControlPanel() {
+  const { showTooltip, hideAll } = useTooltipControls();
+  const showAtPosition = (id: string, x: number, y: number) => {
+    showTooltip(id, {
+      screenPosition: { x, y },
+      triggerId: "manual-position",
+    });
+  };
+
+  return (
+    <div className="p-3 bg-gray-100 dark:bg-gray-800 rounded-lg">
+      <h4 className="text-sm font-medium mb-2">Manual Screen Positioning</h4>
+      <div className="space-y-2">
+        <button
+          className="w-full px-3 py-1.5 bg-purple-500 hover:bg-purple-600 text-white text-sm rounded transition-colors"
+          onClick={() => showAtPosition("manual-1", 200, 100)}
+        >
+          Show at Top Left (200, 100)
+        </button>
+        <button
+          className="w-full px-3 py-1.5 bg-purple-500 hover:bg-purple-600 text-white text-sm rounded transition-colors"
+          onClick={() => showAtPosition("manual-2", window.innerWidth - 200, 200)}
+        >
+          Show at Top Right
+        </button>
+        <button
+          className="w-full px-3 py-1.5 bg-purple-500 hover:bg-purple-600 text-white text-sm rounded transition-colors"
+          onClick={() =>
+            showAtPosition("manual-3", window.innerWidth / 2, window.innerHeight - 150)
+          }
+        >
+          Show at Bottom Center
+        </button>
+        <button
+          className="w-full px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white text-sm rounded transition-colors"
+          onClick={() => {
+            hideAll();
+          }}
+        >
+          Hide All Tooltips
+        </button>
+      </div>
+    </div>
+  );
+}
+
+export const ManualScreenPositioning = {
+  render: () => (
+    <TooltipProvider>
+      <div className="flex h-full">
+        <TooltipHost className="flex-1">
+          <Canvas camera={{ position: [0, 5, 10], fov: 50 }}>
+            <ambientLight intensity={0.5} />
+            <pointLight position={[10, 10, 10]} />
+            <OrbitControls />
+            <Grid infiniteGrid />
+
+            <ManualPositionMesh
+              position={[-3, 0, 0]}
+              color="purple"
+              tooltipId="manual-1"
+              title="Cube 1"
+              description="This tooltip can be shown at fixed screen positions"
+            />
+            <ManualPositionMesh
+              position={[0, 0, 0]}
+              color="indigo"
+              tooltipId="manual-2"
+              title="Cube 2"
+              description="Screen positioning overrides 3D positioning"
+            />
+            <ManualPositionMesh
+              position={[3, 0, 0]}
+              color="violet"
+              tooltipId="manual-3"
+              title="Cube 3"
+              description="Useful for fixed UI overlays"
+            />
+          </Canvas>
+        </TooltipHost>
+
+        <div className="w-80 p-4 bg-gray-50 dark:bg-gray-900 space-y-3">
+          <h3 className="text-lg font-semibold mb-4">Manual Screen Positioning</h3>
+          <ManualPositionControlPanel />
+          <div className="mt-4 p-3 bg-purple-100 dark:bg-purple-900/30 rounded text-sm">
+            <p className="text-purple-800 dark:text-purple-200">
+              📍 These tooltips appear at fixed screen coordinates, not anchored to the 3D objects.
+              Useful for creating fixed UI overlays or notifications.
             </p>
           </div>
         </div>

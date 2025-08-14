@@ -147,13 +147,11 @@ export const useTooltipStore = create<TooltipStore>()(
         set((state) => {
           const anchors = new Map(state.anchors);
           const anchor = anchors.get(id);
-          // Reference equality check as safety net (content is now auto-memoized in useTooltipAnchor)
-          if (anchor && anchor.content !== content) {
+          if (anchor) {
             anchor.content = content;
             anchors.set(id, anchor);
-            return { anchors };
           }
-          return state; // No change needed - prevents unnecessary re-renders
+          return { anchors };
         });
       },
 
