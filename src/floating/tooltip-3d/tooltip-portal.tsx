@@ -1,9 +1,14 @@
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
 import { FloatingPortal, offset, flip, shift, useFloating } from "@floating-ui/react";
 import { clsx } from "clsx";
 import { useShallow } from "zustand/react/shallow";
 import { Variant } from "../../types";
-import { useTooltipStore, type AnchorConfig, type ScreenPosition } from "./store";
+import {
+  useTooltipStore,
+  type AnchorConfig,
+  type ScreenPosition,
+  type TooltipStore,
+} from "./store";
 
 interface TooltipInstanceProps {
   anchor: AnchorConfig;
@@ -79,10 +84,15 @@ function TooltipInstance({ anchor, position }: TooltipInstanceProps) {
  * typically near the Canvas component.
  */
 export function TooltipPortal() {
-  // Get visible tooltips and their positions
+  // Cache to maintain reference stability and prevent infinite loops
+  const cacheRef = useRef<Map<string, { anchor: AnchorConfig; position: ScreenPosition }>>(
+    new Map(),
+  );
+
   const visibleTooltips = useTooltipStore(
-    useShallow((state) => {
-      const visible: { anchor: AnchorConfig; position: ScreenPosition }[] = [];
+    useShallow((state: TooltipStore) => {
+      const currentVisible: { anchor: AnchorConfig; position: ScreenPosition }[] = [];
+      const newCache = new Map<string, { anchor: AnchorConfig; position: ScreenPosition }>();
 
       state.visibility.forEach((vis, anchorId) => {
         if (vis.visible) {
@@ -90,12 +100,30 @@ export function TooltipPortal() {
           const position = state.getEffectivePosition(anchorId);
 
           if (anchor && position && (!anchor.isAvailable || anchor.isAvailable())) {
-            visible.push({ anchor, position });
+            // Check if we can reuse cached object to maintain reference stability
+            const cached = cacheRef.current.get(anchorId);
+            if (
+              cached &&
+              cached.anchor === anchor &&
+              cached.position.x === position.x &&
+              cached.position.y === position.y
+            ) {
+              // Reuse existing object reference
+              newCache.set(anchorId, cached);
+              currentVisible.push(cached);
+            } else {
+              // Create new object only when data actually changed
+              const newItem = { anchor, position };
+              newCache.set(anchorId, newItem);
+              currentVisible.push(newItem);
+            }
           }
         }
       });
 
-      return visible;
+      // Update cache for next comparison
+      cacheRef.current = newCache;
+      return currentVisible;
     }),
   );
 

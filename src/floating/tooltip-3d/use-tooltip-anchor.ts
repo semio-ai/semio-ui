@@ -1,4 +1,4 @@
-import { useRef, useEffect, useId, useCallback } from "react";
+import { useRef, useEffect, useId, useCallback, useMemo, isValidElement } from "react";
 import { useFrame, type ThreeEvent } from "@react-three/fiber";
 import type { ReactNode } from "react";
 import * as THREE from "three";
@@ -33,12 +33,52 @@ export function useTooltipAnchor(options: UseTooltipAnchorOptions): UseTooltipAn
     updateAnchorContent,
   } = useTooltipStore();
 
+  // Content comparison and memoization to prevent infinite loops
+  const contentRef = useRef<ReactNode | (() => ReactNode)>(options.content);
+  const memoizedContent = useMemo(() => {
+    const newContent = options.content;
+    const prevContent = contentRef.current;
+
+    // If content types are different, always update
+    if (typeof newContent !== typeof prevContent) {
+      contentRef.current = newContent;
+      return newContent;
+    }
+
+    // For functions, compare by reference
+    if (typeof newContent === "function") {
+      if (newContent !== prevContent) {
+        contentRef.current = newContent;
+        return newContent;
+      }
+      return prevContent;
+    }
+
+    // For React elements, compare type and props
+    if (isValidElement(newContent) && isValidElement(prevContent)) {
+      if (
+        newContent.type === prevContent.type &&
+        JSON.stringify(newContent.props) === JSON.stringify(prevContent.props)
+      ) {
+        return prevContent; // Keep previous reference
+      }
+    }
+
+    // For primitives (string, number) or different elements, compare by reference/value
+    if (newContent !== prevContent) {
+      contentRef.current = newContent;
+      return newContent;
+    }
+
+    return prevContent;
+  }, [options.content]);
+
   // Register anchor on mount
   useEffect(() => {
     registerAnchor({
       id,
       ref,
-      content: options.content,
+      content: memoizedContent,
       positioning: {
         axis: options.axis || "none",
         offset: options.offset,
@@ -61,8 +101,8 @@ export function useTooltipAnchor(options: UseTooltipAnchorOptions): UseTooltipAn
 
   // Update content if it changes
   useEffect(() => {
-    updateAnchorContent(id, options.content);
-  }, [id, options.content, updateAnchorContent]);
+    updateAnchorContent(id, memoizedContent);
+  }, [id, memoizedContent, updateAnchorContent]);
 
   // Update bounding box position every frame
   useFrame(({ camera, size }) => {
