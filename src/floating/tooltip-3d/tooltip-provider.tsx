@@ -7,7 +7,7 @@ interface TooltipProviderProps {
   store?: StoreApi<TooltipStore>;
 }
 
-const TooltipContext = createContext<StoreApi<TooltipStore> | null>(null);
+export const TooltipContext = createContext<StoreApi<TooltipStore> | null>(null);
 
 /**
  * Provider component that wraps the application or scene to enable the tooltip system.

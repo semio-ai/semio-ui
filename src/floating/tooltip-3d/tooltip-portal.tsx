@@ -9,7 +9,7 @@ import {
   type ScreenPosition,
   type TooltipStore,
 } from "./store";
-import { useTooltipHost } from "./tooltip-host";
+import { useTooltipHost, useRootTooltipHost } from "./tooltip-context";
 
 interface TooltipInstanceProps {
   anchor: AnchorConfig;
@@ -20,6 +20,8 @@ interface TooltipInstanceProps {
  * Individual tooltip instance that handles its own positioning and rendering.
  */
 function TooltipInstance({ anchor, position }: TooltipInstanceProps) {
+  // Use immediate context for positioning (not root context)
+  // This ensures correct positioning when tooltips are nested
   const hostContext = useTooltipHost();
 
   // Create virtual element for floating-ui with proper positioning
@@ -28,6 +30,7 @@ function TooltipInstance({ anchor, position }: TooltipInstanceProps) {
     const height = position.height || 0;
 
     // Apply frame offset for iframe positioning
+    // The frameOffset already includes parent offsets if nested
     const frameOffset = hostContext?.frameOffset || { x: 0, y: 0 };
     const adjustedX = position.x + frameOffset.x;
     const adjustedY = position.y + frameOffset.y;
@@ -107,8 +110,8 @@ export function TooltipPortal() {
     new Map(),
   );
 
-  // Get host context for iframe positioning (must be called at top level)
-  const hostContext = useTooltipHost();
+  // Get root host context for best portal placement (must be called at top level)
+  const hostContext = useRootTooltipHost();
 
   const visibleTooltips = useTooltipStore(
     useShallow((state: TooltipStore) => {

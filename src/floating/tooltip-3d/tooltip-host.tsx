@@ -1,12 +1,10 @@
-import { type ReactNode, useRef, useEffect, createContext, useContext } from "react";
+import { type ReactNode, useRef, useEffect } from "react";
 import { TooltipPortal } from "./tooltip-portal";
-
-export interface TooltipHostContextValue {
-  containerRef: React.RefObject<HTMLDivElement>;
-  frameOffset: { x: number; y: number };
-}
-
-const TooltipHostContext = createContext<TooltipHostContextValue | null>(null);
+import {
+  TooltipHostContext,
+  type TooltipHostContextValue,
+  useTooltipHost,
+} from "./tooltip-context";
 
 export interface TooltipHostProps {
   children: ReactNode;
@@ -23,52 +21,64 @@ export interface TooltipHostProps {
  * @param style - Optional inline styles for the wrapper
  */
 export function TooltipHost({ children, className, style }: TooltipHostProps) {
+  const parentContext = useTooltipHost();
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const frameOffsetRef = useRef({ x: 0, y: 0 });
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  useEffect(() => {
-    if (!containerRef.current) return;
-
-    // Find the canvas element within the container
-    const canvas = containerRef.current.querySelector("canvas");
-    if (canvas) {
-      canvasRef.current = canvas;
-    }
-
-    // Calculate frame offset for iframe positioning
-    const updateFrameOffset = () => {
+  useEffect(
+    () => {
       if (!containerRef.current) return;
 
-      const isInIframe = window !== window.top;
-
-      if (isInIframe) {
-        // In iframe: use container's position relative to viewport
-        const rect = containerRef.current.getBoundingClientRect();
-        frameOffsetRef.current = { x: rect.left, y: rect.top };
-      } else {
-        // Not in iframe: no offset needed
-        frameOffsetRef.current = { x: 0, y: 0 };
+      // Find the canvas element within the container
+      const canvas = containerRef.current.querySelector("canvas");
+      if (canvas) {
+        canvasRef.current = canvas;
       }
-    };
 
-    // Update offset on mount and resize
-    updateFrameOffset();
-    window.addEventListener("resize", updateFrameOffset);
-    const id = timeoutRef.current;
+      // Calculate frame offset for iframe positioning
+      const updateFrameOffset = () => {
+        if (!containerRef.current) return;
 
-    return () => {
-      window.removeEventListener("resize", updateFrameOffset);
-      if (id) {
-        clearTimeout(id);
-      }
-    };
-  }, []);
+        const isInIframe = window !== window.top;
+        let localOffset = { x: 0, y: 0 };
+
+        if (isInIframe) {
+          // In iframe: use container's position relative to viewport
+          const rect = containerRef.current.getBoundingClientRect();
+          localOffset = { x: rect.left, y: rect.top };
+        }
+
+        // Compose with parent offset if nested
+        const parentOffset = parentContext?.frameOffset || { x: 0, y: 0 };
+        frameOffsetRef.current = {
+          x: parentOffset.x + localOffset.x,
+          y: parentOffset.y + localOffset.y,
+        };
+      };
+
+      // Update offset on mount and resize
+      updateFrameOffset();
+      window.addEventListener("resize", updateFrameOffset);
+      const id = timeoutRef.current;
+
+      return () => {
+        window.removeEventListener("resize", updateFrameOffset);
+        if (id) {
+          clearTimeout(id);
+        }
+      };
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- Intentionally omit dependencies to run only on mount
+    [],
+  );
 
   const contextValue: TooltipHostContextValue = {
     containerRef,
     frameOffset: frameOffsetRef.current,
+    parentContext,
+    level: (parentContext?.level ?? -1) + 1,
   };
 
   return (
@@ -79,14 +89,6 @@ export function TooltipHost({ children, className, style }: TooltipHostProps) {
       </div>
     </TooltipHostContext.Provider>
   );
-}
-
-/**
- * Hook to access the tooltip host context (for iframe positioning support).
- * Returns null if not within a TooltipHost.
- */
-export function useTooltipHost() {
-  return useContext(TooltipHostContext);
 }
 
 /**

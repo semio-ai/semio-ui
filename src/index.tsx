@@ -28,6 +28,10 @@ export * from "./floating/tooltip-3d";
 // Functions
 export * from "./functions/stamp-to-visual-time";
 
+// Context
+export * from "./context/tooltip-context-utils";
+export type { WithTooltipContextProps } from "./context/tooltip-context-utils";
+
 // Hooks
 export * from "./hooks/layout-atoms";
 export * from "./hooks/use-add-toast";

@@ -25,13 +25,14 @@ export {
 } from "./use-tooltip-controls";
 
 // Components
-export { TooltipProvider, useTooltipContext, useTooltip } from "./tooltip-provider";
+export { TooltipProvider, TooltipContext, useTooltipContext, useTooltip } from "./tooltip-provider";
 
 export { TooltipPortal } from "./tooltip-portal";
 
+export { TooltipHost, withTooltipHost, type TooltipHostProps } from "./tooltip-host";
+
 export {
-  TooltipHost,
-  withTooltipHost,
   useTooltipHost,
-  type TooltipHostProps,
-} from "./tooltip-host";
+  useRootTooltipHost,
+  type TooltipHostContextValue,
+} from "./tooltip-context";
