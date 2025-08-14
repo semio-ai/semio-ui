@@ -6,6 +6,8 @@ import type * as THREE from "three";
 export interface ScreenPosition {
   x: number;
   y: number;
+  width?: number;
+  height?: number;
 }
 
 export type AxisMode = "none" | "x" | "y" | "both";
@@ -316,13 +318,23 @@ export const useTooltipStore = create<TooltipStore>()(
             // Use bounding box only (default)
             return boundingBoxPos;
           case "x":
-            // Track cursor X, use bounding box Y (for side positioning)
-            return { x: cursorPos.x, y: boundingBoxPos.y };
+            // Track cursor X, use bounding box Y (preserve dimensions)
+            return {
+              x: cursorPos.x,
+              y: boundingBoxPos.y,
+              width: boundingBoxPos.width,
+              height: boundingBoxPos.height,
+            };
           case "y":
-            // Track cursor Y, use bounding box X
-            return { x: boundingBoxPos.x, y: cursorPos.y };
+            // Track cursor Y, use bounding box X (preserve dimensions)
+            return {
+              x: boundingBoxPos.x,
+              y: cursorPos.y,
+              width: boundingBoxPos.width,
+              height: boundingBoxPos.height,
+            };
           case "both":
-            // Fully track cursor
+            // Fully track cursor (no dimensions available)
             return cursorPos;
           default:
             return boundingBoxPos;

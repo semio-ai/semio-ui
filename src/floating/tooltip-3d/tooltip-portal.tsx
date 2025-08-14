@@ -19,23 +19,28 @@ interface TooltipInstanceProps {
  * Individual tooltip instance that handles its own positioning and rendering.
  */
 function TooltipInstance({ anchor, position }: TooltipInstanceProps) {
-  // Create virtual element for floating-ui
-  const virtualElement = useMemo(
-    () => ({
+  // Create virtual element for floating-ui with actual bounding box dimensions
+  const virtualElement = useMemo(() => {
+    const width = position.width || 0;
+    const height = position.height || 0;
+    // Center the bounding rect around the position
+    const left = position.x - width / 2;
+    const top = position.y - height / 2;
+
+    return {
       getBoundingClientRect: () => ({
-        x: position.x,
-        y: position.y,
-        top: position.y,
-        left: position.x,
-        bottom: position.y,
-        right: position.x,
-        width: 0,
-        height: 0,
+        x: left,
+        y: top,
+        top,
+        left,
+        bottom: top + height,
+        right: left + width,
+        width,
+        height,
         toJSON: () => ({}),
       }),
-    }),
-    [position.x, position.y],
-  );
+    };
+  }, [position.x, position.y, position.width, position.height]);
 
   // Use floating-ui for positioning
   const { refs, floatingStyles } = useFloating({

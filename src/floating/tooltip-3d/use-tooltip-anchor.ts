@@ -109,36 +109,18 @@ export function useTooltipAnchor(options: UseTooltipAnchorOptions): UseTooltipAn
       { minX: Infinity, maxX: -Infinity, minY: Infinity, maxY: -Infinity },
     );
 
-    // Calculate position based on specified side of screen bounding box
-    const side = options.side || "top";
-    let x: number, y: number;
-
-    switch (side) {
-      case "top":
-        x = (screenBounds.minX + screenBounds.maxX) / 2;
-        y = screenBounds.minY;
-        break;
-      case "bottom":
-        x = (screenBounds.minX + screenBounds.maxX) / 2;
-        y = screenBounds.maxY;
-        break;
-      case "left":
-        x = screenBounds.minX;
-        y = (screenBounds.minY + screenBounds.maxY) / 2;
-        break;
-      case "right":
-        x = screenBounds.maxX;
-        y = (screenBounds.minY + screenBounds.maxY) / 2;
-        break;
-      default:
-        // Fallback to center
-        x = (screenBounds.minX + screenBounds.maxX) / 2;
-        y = (screenBounds.minY + screenBounds.maxY) / 2;
-    }
+    // Always use center of screen bounding box - let floating-ui handle side positioning and flipping
+    const x = (screenBounds.minX + screenBounds.maxX) / 2;
+    const y = (screenBounds.minY + screenBounds.maxY) / 2;
 
     // Check if position is within viewport
     if (x >= 0 && x <= size.width && y >= 0 && y <= size.height) {
-      updateAnchorPosition(id, { x, y });
+      updateAnchorPosition(id, {
+        x,
+        y,
+        width: screenBounds.maxX - screenBounds.minX,
+        height: screenBounds.maxY - screenBounds.minY,
+      });
     }
   });
 
