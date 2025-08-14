@@ -46,17 +46,19 @@ function BasicMesh({
   tooltipId,
   title,
   description,
+  side = "top",
 }: {
   position: [number, number, number];
   color: string;
   tooltipId: string;
   title: string;
   description: string;
+  side?: "top" | "right" | "bottom" | "left";
 }) {
   const { ref, anchorId } = useTooltipAnchor({
     id: tooltipId,
     content: <TooltipContent title={title} description={description} />,
-    side: "top",
+    side,
     offset: 8,
   });
 
@@ -212,25 +214,128 @@ export const Basic = {
             position={[-3, 0, 0]}
             color="red"
             tooltipId="basic-1"
-            title="Red Cube"
-            description="This tooltip uses default bounding box positioning"
+            title="Red Cube - Left Side"
+            description="This tooltip appears on the left side of the bounding box"
+            side="left"
           />
           <BasicMesh
             position={[0, 0, 0]}
             color="blue"
             tooltipId="basic-2"
-            title="Blue Cube"
-            description="Hover over the cube to see this tooltip"
+            title="Blue Cube - Top Side"
+            description="This tooltip appears on the top side of the bounding box"
+            side="top"
           />
           <BasicMesh
             position={[3, 0, 0]}
             color="green"
             tooltipId="basic-3"
-            title="Green Cube"
-            description="The tooltip appears at a fixed position relative to the cube"
+            title="Green Cube - Right Side"
+            description="This tooltip appears on the right side of the bounding box"
+            side="right"
           />
         </Canvas>
       </TooltipHost>
+    </TooltipProvider>
+  ),
+};
+
+// Side positioning demonstration
+function SidePositionMesh({
+  position,
+  color,
+  side,
+  label,
+}: {
+  position: [number, number, number];
+  color: string;
+  side: "top" | "right" | "bottom" | "left";
+  label: string;
+}) {
+  const { ref, anchorId } = useTooltipAnchor({
+    content: (
+      <TooltipContent
+        title={`${label} - ${side} side`}
+        description={`This tooltip is positioned on the ${side} side of the bounding box`}
+      />
+    ),
+    side,
+    offset: 12,
+  });
+
+  const { show, hide } = useTooltipTrigger(anchorId);
+
+  return (
+    <Box
+      ref={ref as any}
+      args={[1.5, 1.5, 1.5]}
+      position={position}
+      onPointerOver={show}
+      onPointerOut={hide}
+    >
+      <meshStandardMaterial color={color} />
+    </Box>
+  );
+}
+
+export const SidePositioning = {
+  render: () => (
+    <TooltipProvider>
+      <div className="flex h-full">
+        <TooltipHost className="flex-1">
+          <Canvas camera={{ position: [0, 5, 10], fov: 50 }}>
+            <ambientLight intensity={0.5} />
+            <pointLight position={[10, 10, 10]} />
+            <OrbitControls />
+            <Grid infiniteGrid />
+
+            <SidePositionMesh position={[-3, 2, 0]} color="red" side="top" label="Red Cube" />
+            <SidePositionMesh position={[3, 2, 0]} color="blue" side="right" label="Blue Cube" />
+            <SidePositionMesh
+              position={[-3, -2, 0]}
+              color="green"
+              side="bottom"
+              label="Green Cube"
+            />
+            <SidePositionMesh
+              position={[3, -2, 0]}
+              color="orange"
+              side="left"
+              label="Orange Cube"
+            />
+          </Canvas>
+        </TooltipHost>
+
+        <div className="w-80 p-4 bg-gray-50 dark:bg-gray-900">
+          <h3 className="text-lg font-semibold mb-4">Side Positioning</h3>
+          <div className="space-y-3 text-sm">
+            <div className="p-3 bg-red-100 dark:bg-red-900/30 rounded">
+              <strong className="text-red-700 dark:text-red-300">Top (Red):</strong>
+              <p className="text-gray-600 dark:text-gray-400 mt-1">
+                Tooltip anchored to the top side of the bounding box
+              </p>
+            </div>
+            <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded">
+              <strong className="text-blue-700 dark:text-blue-300">Right (Blue):</strong>
+              <p className="text-gray-600 dark:text-gray-400 mt-1">
+                Tooltip anchored to the right side of the bounding box
+              </p>
+            </div>
+            <div className="p-3 bg-green-100 dark:bg-green-900/30 rounded">
+              <strong className="text-green-700 dark:text-green-300">Bottom (Green):</strong>
+              <p className="text-gray-600 dark:text-gray-400 mt-1">
+                Tooltip anchored to the bottom side of the bounding box
+              </p>
+            </div>
+            <div className="p-3 bg-orange-100 dark:bg-orange-900/30 rounded">
+              <strong className="text-orange-700 dark:text-orange-300">Left (Orange):</strong>
+              <p className="text-gray-600 dark:text-gray-400 mt-1">
+                Tooltip anchored to the left side of the bounding box
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
     </TooltipProvider>
   ),
 };

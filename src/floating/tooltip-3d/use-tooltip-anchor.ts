@@ -61,31 +61,80 @@ export function useTooltipAnchor(options: UseTooltipAnchorOptions): UseTooltipAn
   useFrame(({ camera, size }) => {
     if (!ref.current) return;
 
-    // Get world position
-    const worldPos = ref.current.getWorldPosition(ref.current.position.clone());
+    // Calculate 3D bounding box
+    const boundingBox = new THREE.Box3().setFromObject(ref.current);
 
-    // Create a vector for projection
-    const vector = worldPos.clone();
+    // Get all 8 corners of the bounding box
+    const corners = [
+      new THREE.Vector3(boundingBox.min.x, boundingBox.min.y, boundingBox.min.z),
+      new THREE.Vector3(boundingBox.max.x, boundingBox.min.y, boundingBox.min.z),
+      new THREE.Vector3(boundingBox.min.x, boundingBox.max.y, boundingBox.min.z),
+      new THREE.Vector3(boundingBox.max.x, boundingBox.max.y, boundingBox.min.z),
+      new THREE.Vector3(boundingBox.min.x, boundingBox.min.y, boundingBox.max.z),
+      new THREE.Vector3(boundingBox.max.x, boundingBox.min.y, boundingBox.max.z),
+      new THREE.Vector3(boundingBox.min.x, boundingBox.max.y, boundingBox.max.z),
+      new THREE.Vector3(boundingBox.max.x, boundingBox.max.y, boundingBox.max.z),
+    ];
 
-    // Check if object is behind camera
-    const cameraDir = camera.getWorldDirection(camera.position.clone());
-    const toObject = worldPos.clone().sub(camera.position);
+    // Check if object is behind camera using center point
+    const center = boundingBox.getCenter(new THREE.Vector3());
+    const centerProjected = center.clone();
+    centerProjected.project(camera as unknown as THREE.Camera);
 
-    toObject.normalize();
-
-    // If object is behind camera, don't update position
-    if (cameraDir.dot(toObject) < 0) {
+    // If projected z is > 1, object is behind camera
+    if (centerProjected.z > 1) {
       return;
     }
 
-    // Project to screen space
-    // Cast needed because @react-three/fiber's camera type has additional properties
-    // that don't exactly match Three.js's base Camera type
-    vector.project(camera as unknown as THREE.Camera);
+    // Project all corners to screen space
+    const projectedCorners = corners.map((corner) => {
+      const projected = corner.clone();
+      // Cast needed because @react-three/fiber's camera type has additional properties
+      projected.project(camera as unknown as THREE.Camera);
 
-    // Convert to screen coordinates
-    const x = (vector.x * 0.5 + 0.5) * size.width;
-    const y = (-vector.y * 0.5 + 0.5) * size.height;
+      return {
+        x: (projected.x * 0.5 + 0.5) * size.width,
+        y: (-projected.y * 0.5 + 0.5) * size.height,
+      };
+    });
+
+    // Find screen-space bounding box
+    const screenBounds = projectedCorners.reduce(
+      (bounds, corner) => ({
+        minX: Math.min(bounds.minX, corner.x),
+        maxX: Math.max(bounds.maxX, corner.x),
+        minY: Math.min(bounds.minY, corner.y),
+        maxY: Math.max(bounds.maxY, corner.y),
+      }),
+      { minX: Infinity, maxX: -Infinity, minY: Infinity, maxY: -Infinity },
+    );
+
+    // Calculate position based on specified side of screen bounding box
+    const side = options.side || "top";
+    let x: number, y: number;
+
+    switch (side) {
+      case "top":
+        x = (screenBounds.minX + screenBounds.maxX) / 2;
+        y = screenBounds.minY;
+        break;
+      case "bottom":
+        x = (screenBounds.minX + screenBounds.maxX) / 2;
+        y = screenBounds.maxY;
+        break;
+      case "left":
+        x = screenBounds.minX;
+        y = (screenBounds.minY + screenBounds.maxY) / 2;
+        break;
+      case "right":
+        x = screenBounds.maxX;
+        y = (screenBounds.minY + screenBounds.maxY) / 2;
+        break;
+      default:
+        // Fallback to center
+        x = (screenBounds.minX + screenBounds.maxX) / 2;
+        y = (screenBounds.minY + screenBounds.maxY) / 2;
+    }
 
     // Check if position is within viewport
     if (x >= 0 && x <= size.width && y >= 0 && y <= size.height) {
