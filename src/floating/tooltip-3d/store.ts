@@ -162,16 +162,31 @@ export const useTooltipStore = create<TooltipStore>()(
           }
         }
 
-        state._positionUpdateQueue.set(id, position);
+        // Check if this anchor has a visible tooltip - if so, update immediately
+        const vis = state.visibility.get(id);
+        const isVisible = vis?.visible ?? false;
 
-        if (!state._rafId) {
-          state._rafId = requestAnimationFrame(() => {
-            set((currentState) => ({
-              positions: new Map([...currentState.positions, ...currentState._positionUpdateQueue]),
-              _positionUpdateQueue: new Map(),
-              _rafId: null,
-            }));
-          });
+        if (isVisible) {
+          // Immediate update for visible tooltips to prevent display issues
+          set((currentState) => ({
+            positions: new Map(currentState.positions).set(id, position),
+          }));
+        } else {
+          // Batch non-visible updates for performance
+          state._positionUpdateQueue.set(id, position);
+
+          if (!state._rafId) {
+            state._rafId = requestAnimationFrame(() => {
+              set((currentState) => ({
+                positions: new Map([
+                  ...currentState.positions,
+                  ...currentState._positionUpdateQueue,
+                ]),
+                _positionUpdateQueue: new Map(),
+                _rafId: null,
+              }));
+            });
+          }
         }
       },
 
@@ -216,16 +231,34 @@ export const useTooltipStore = create<TooltipStore>()(
 
       // Visibility control
       showTooltip: (anchorId: string, triggerId: string) => {
-        const anchor = get().anchors.get(anchorId);
+        const state = get();
+        const anchor = state.anchors.get(anchorId);
 
         // Check if anchor exists and is available
         if (!anchor || (anchor.isAvailable && !anchor.isAvailable())) {
           return;
         }
 
-        set((state) => {
-          const visibility = new Map(state.visibility);
-          const triggers = new Map(state.triggers);
+        // Ensure position exists before showing tooltip
+        const hasValidPosition = anchor.screenPosition || state.positions.get(anchorId);
+
+        // If no position exists yet, try to flush pending position updates
+        if (!hasValidPosition && state._positionUpdateQueue.has(anchorId)) {
+          const pendingPosition = state._positionUpdateQueue.get(anchorId);
+          if (pendingPosition) {
+            // Immediately apply the pending position update
+            set((currentState) => ({
+              positions: new Map(currentState.positions).set(anchorId, pendingPosition),
+              _positionUpdateQueue: new Map(
+                [...currentState._positionUpdateQueue].filter(([id]) => id !== anchorId),
+              ),
+            }));
+          }
+        }
+
+        set((currentState) => {
+          const visibility = new Map(currentState.visibility);
+          const triggers = new Map(currentState.triggers);
 
           // Update visibility state
           const vis = visibility.get(anchorId) || {
@@ -249,6 +282,7 @@ export const useTooltipStore = create<TooltipStore>()(
       hideTooltip: (anchorId: string, triggerId: string) => {
         set((state) => {
           const visibility = new Map(state.visibility);
+          const triggers = new Map(state.triggers);
           const vis = visibility.get(anchorId);
 
           if (vis) {
@@ -256,11 +290,13 @@ export const useTooltipStore = create<TooltipStore>()(
             vis.visible = vis.triggers.size > 0;
             if (!vis.visible) {
               vis.lastTrigger = undefined;
+              // Clean up trigger associations when fully hidden
+              triggers.delete(anchorId);
             }
             visibility.set(anchorId, vis);
           }
 
-          return { visibility };
+          return { visibility, triggers };
         });
       },
 

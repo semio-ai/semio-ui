@@ -17,7 +17,11 @@ export {
   type UseTooltipAnchorResult,
 } from "./use-tooltip-anchor";
 
-export { useTooltipTrigger, type UseTooltipTriggerResult } from "./use-tooltip-trigger";
+export {
+  useTooltipTrigger,
+  type UseTooltipTriggerResult,
+  type UseTooltipTriggerOptions,
+} from "./use-tooltip-trigger";
 
 export {
   useTooltipControls,

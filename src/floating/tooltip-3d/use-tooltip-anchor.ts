@@ -26,6 +26,35 @@ export interface UseTooltipAnchorResult {
   onPointerLeave?: () => void;
 }
 
+/**
+ * Hook to create a tooltip anchor that can be positioned in 3D space.
+ *
+ * The anchor handles position tracking and coordinate conversion from 3D to screen space.
+ * To control tooltip visibility with custom delays, use `useTooltipTrigger` with the returned `anchorId`.
+ *
+ * @param options Configuration options for the tooltip anchor
+ * @returns Anchor reference, ID, and optional event handlers
+ *
+ * @example
+ * ```tsx
+ * const { ref, anchorId, onPointerMove, onPointerLeave } = useTooltipAnchor({
+ *   content: <div>Tooltip content</div>,
+ *   side: "top"
+ * });
+ *
+ * const { show, hide } = useTooltipTrigger(anchorId, { showDelay: 100 });
+ *
+ * <mesh
+ *   ref={ref}
+ *   onPointerOver={() => show()}
+ *   onPointerOut={() => hide()}
+ *   onPointerMove={onPointerMove}
+ *   onPointerLeave={onPointerLeave}
+ * >
+ *   <boxGeometry />
+ * </mesh>
+ * ```
+ */
 export function useTooltipAnchor(options: UseTooltipAnchorOptions): UseTooltipAnchorResult {
   const autoId = useId();
   const id = options.id || autoId;

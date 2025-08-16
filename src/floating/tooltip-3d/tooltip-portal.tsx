@@ -27,6 +27,32 @@ function TooltipInstance({ anchor, position }: TooltipInstanceProps) {
 
   // Create virtual element for floating-ui with container-relative positioning
   const virtualElement = useMemo(() => {
+    // Additional validation to ensure position is still valid
+    if (
+      !position ||
+      typeof position.x !== "number" ||
+      typeof position.y !== "number" ||
+      isNaN(position.x) ||
+      isNaN(position.y) ||
+      !isFinite(position.x) ||
+      !isFinite(position.y)
+    ) {
+      // Return a fallback virtual element at origin
+      return {
+        getBoundingClientRect: () => ({
+          x: 0,
+          y: 0,
+          top: 0,
+          left: 0,
+          bottom: 0,
+          right: 0,
+          width: 0,
+          height: 0,
+          toJSON: () => ({}),
+        }),
+      };
+    }
+
     const width = position.width || 0;
     const height = position.height || 0;
 
@@ -62,7 +88,7 @@ function TooltipInstance({ anchor, position }: TooltipInstanceProps) {
     };
 
     return virtualEl;
-  }, [position.x, position.y, position.width, position.height, hostContext?.frameOffset]);
+  }, [position, hostContext?.frameOffset]);
 
   // Use floating-ui for positioning with container-relative strategy
   // Use floating-ui for positioning with container-relative strategy
@@ -128,7 +154,17 @@ export function TooltipPortal() {
           const anchor = state.anchors.get(anchorId);
           const position = state.getEffectivePosition(anchorId);
 
-          if (anchor && position && (!anchor.isAvailable || anchor.isAvailable())) {
+          // Enhanced position validation
+          const isValidPosition =
+            position &&
+            typeof position.x === "number" &&
+            typeof position.y === "number" &&
+            !isNaN(position.x) &&
+            !isNaN(position.y) &&
+            isFinite(position.x) &&
+            isFinite(position.y);
+
+          if (anchor && isValidPosition && (!anchor.isAvailable || anchor.isAvailable())) {
             // Check if we can reuse cached object to maintain reference stability
             const cached = cacheRef.current.get(anchorId);
             if (
