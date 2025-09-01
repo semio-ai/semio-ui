@@ -8,7 +8,7 @@ import {
   type TooltipSide,
   type CoordinateDebugInfo,
 } from "./store";
-import { useTooltipHost } from "./tooltip-context";
+import { useTooltipHost, useRootTooltipHost } from "./tooltip-context";
 
 export interface UseTooltipAnchorOptions {
   id?: string;
@@ -68,7 +68,11 @@ export function useTooltipAnchor(options: UseTooltipAnchorOptions): UseTooltipAn
     logCoordinateDebug,
   } = useTooltipStore();
 
-  const tooltipHost = useTooltipHost();
+  // Get both immediate and root contexts
+  // Immediate context for canvas-relative calculations
+  // Root context for final positioning (where portal is rendered)
+  const immediateHost = useTooltipHost();
+  const rootHost = useRootTooltipHost();
 
   // Remove complex memoization - rely on store-level safety net to prevent infinite loops
   const memoizedContent = options.content;
@@ -128,13 +132,13 @@ export function useTooltipAnchor(options: UseTooltipAnchorOptions): UseTooltipAn
       return;
     }
 
-    // Get TooltipHost container for proper coordinate calculation
-    const container = tooltipHost?.containerRef.current;
-    if (!container) return;
+    // Get immediate container for canvas-relative calculation
+    const immediateContainer = immediateHost?.containerRef.current;
+    if (!immediateContainer) return;
 
     // Find the main rendering canvas among potentially multiple canvases
     let canvas: HTMLCanvasElement | null = null;
-    const canvases = container.querySelectorAll("canvas");
+    const canvases = immediateContainer.querySelectorAll("canvas");
 
     if (canvases.length === 1) {
       // Simple case: only one canvas
@@ -164,17 +168,23 @@ export function useTooltipAnchor(options: UseTooltipAnchorOptions): UseTooltipAn
 
     if (!canvas) return;
 
-    const containerRect = container.getBoundingClientRect();
+    // Get rects for coordinate calculations
+    const immediateRect = immediateContainer.getBoundingClientRect();
     const canvasRect = canvas.getBoundingClientRect();
+
+    // Get root container rect for final transformation
+    const rootContainer = rootHost?.containerRef.current;
+    if (!rootContainer) return;
+    const rootRect = rootContainer.getBoundingClientRect();
 
     // Debug info collection
     const debugInfo: Partial<CoordinateDebugInfo> = {
       anchorId: id,
-      containerRect,
+      containerRect: immediateRect,
       canvasRect,
       worldPosition: { x: center.x, y: center.y, z: center.z },
       ndcPosition: { x: centerProjected.x, y: centerProjected.y, z: centerProjected.z },
-      frameOffset: tooltipHost?.frameOffset,
+      frameOffset: rootHost?.frameOffset,
     };
 
     // Project all corners to container-relative coordinates
@@ -187,13 +197,17 @@ export function useTooltipAnchor(options: UseTooltipAnchorOptions): UseTooltipAn
       const canvasX = (projected.x * 0.5 + 0.5) * canvasRect.width;
       const canvasY = (-projected.y * 0.5 + 0.5) * canvasRect.height;
 
-      // Convert canvas coordinates to container-relative coordinates
-      const containerX = canvasX + (canvasRect.left - containerRect.left);
-      const containerY = canvasY + (canvasRect.top - containerRect.top);
+      // Convert canvas coordinates to immediate container-relative coordinates
+      const immediateX = canvasX + (canvasRect.left - immediateRect.left);
+      const immediateY = canvasY + (canvasRect.top - immediateRect.top);
+
+      // Transform to root container coordinates
+      const rootX = immediateX + (immediateRect.left - rootRect.left);
+      const rootY = immediateY + (immediateRect.top - rootRect.top);
 
       return {
-        x: containerX,
-        y: containerY,
+        x: rootX,
+        y: rootY,
       };
     });
 
@@ -226,9 +240,8 @@ export function useTooltipAnchor(options: UseTooltipAnchorOptions): UseTooltipAn
     // Log debug information
     logCoordinateDebug(debugInfo);
 
-    // Check if position is within container bounds
-    const isWithinBounds =
-      x >= 0 && x <= containerRect.width && y >= 0 && y <= containerRect.height;
+    // Check if position is within root container bounds
+    const isWithinBounds = x >= 0 && x <= rootRect.width && y >= 0 && y <= rootRect.height;
 
     if (isWithinBounds) {
       updateAnchorPosition(id, finalPosition);
@@ -239,18 +252,18 @@ export function useTooltipAnchor(options: UseTooltipAnchorOptions): UseTooltipAn
   const handlePointerMove = useCallback(
     (event: ThreeEvent<PointerEvent>) => {
       if (options.axis && options.axis !== "none") {
-        // Get TooltipHost container for proper coordinate calculation
-        const container = tooltipHost?.containerRef.current;
-        if (!container) {
-          console.log(`🎯 [Tooltip Debug] No container for cursor tracking: ${id}`);
+        // Get root container for cursor tracking (since portal is at root)
+        const rootContainer = rootHost?.containerRef.current;
+        if (!rootContainer) {
+          console.log(`🎯 [Tooltip Debug] No root container for cursor tracking: ${id}`);
           return;
         }
 
-        const containerRect = container.getBoundingClientRect();
+        const rootRect = rootContainer.getBoundingClientRect();
 
-        // Convert global cursor position to container-relative coordinates
-        const containerX = (event.clientX ?? event.nativeEvent.clientX) - containerRect.left;
-        const containerY = (event.clientY ?? event.nativeEvent.clientY) - containerRect.top;
+        // Convert global cursor position to root container-relative coordinates
+        const containerX = (event.clientX ?? event.nativeEvent.clientX) - rootRect.left;
+        const containerY = (event.clientY ?? event.nativeEvent.clientY) - rootRect.top;
 
         updateCursorPosition(id, {
           x: containerX,
@@ -258,7 +271,7 @@ export function useTooltipAnchor(options: UseTooltipAnchorOptions): UseTooltipAn
         });
       }
     },
-    [id, options.axis, updateCursorPosition, tooltipHost],
+    [id, options.axis, updateCursorPosition, rootHost],
   );
 
   const handlePointerLeave = useCallback(() => {

@@ -64,11 +64,14 @@ export function TooltipHost({ children, className, style }: TooltipHostProps) {
     level: (parentContext?.level ?? -1) + 1,
   };
 
+  // Only render TooltipPortal at the root level to prevent duplicates
+  const isRootHost = contextValue.level === 0;
+
   return (
     <TooltipHostContext.Provider value={contextValue}>
       <div ref={containerRef} className={className} style={style}>
         {children}
-        <TooltipPortal />
+        {isRootHost && <TooltipPortal />}
       </div>
     </TooltipHostContext.Provider>
   );

@@ -21,9 +21,9 @@ interface TooltipInstanceProps {
  * Individual tooltip instance that handles its own positioning and rendering.
  */
 function TooltipInstance({ anchor, position }: TooltipInstanceProps) {
-  // Use immediate context for positioning (not root context)
-  // This ensures correct positioning when tooltips are nested
-  const hostContext = useTooltipHost();
+  // Use root context for positioning to ensure consistent viewport-relative coordinates
+  // Since the portal is rendered at root, we need root-relative coordinates
+  const hostContext = useRootTooltipHost();
 
   // Create virtual element for floating-ui with viewport-relative positioning
   const virtualElement = useMemo(() => {
@@ -165,7 +165,8 @@ export function TooltipPortal() {
     new Map(),
   );
 
-  // Get root host context for best portal placement (must be called at top level)
+  // Get root host context for portal placement
+  // This ensures the portal is always rendered at the root level
   const hostContext = useRootTooltipHost();
 
   const visibleTooltips = useTooltipStore(
