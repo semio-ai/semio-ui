@@ -25,7 +25,7 @@ function TooltipInstance({ anchor, position }: TooltipInstanceProps) {
   // This ensures correct positioning when tooltips are nested
   const hostContext = useTooltipHost();
 
-  // Create virtual element for floating-ui with container-relative positioning
+  // Create virtual element for floating-ui with viewport-relative positioning
   const virtualElement = useMemo(() => {
     // Additional validation to ensure position is still valid
     if (
@@ -56,14 +56,38 @@ function TooltipInstance({ anchor, position }: TooltipInstanceProps) {
     const width = position.width || 0;
     const height = position.height || 0;
 
-    // Position coordinates are already container-relative from useTooltipAnchor
-    // No need to apply frame offset - only needed for iframe scenarios
+    // Convert container-relative coordinates to viewport-relative coordinates
+    // This is required because floating-ui expects viewport-relative coordinates
+    const container = hostContext?.containerRef.current;
+    const containerRect = container?.getBoundingClientRect();
+
+    if (!containerRect) {
+      // Fallback if container not available
+      return {
+        getBoundingClientRect: () => ({
+          x: 0,
+          y: 0,
+          top: 0,
+          left: 0,
+          bottom: 0,
+          right: 0,
+          width: 0,
+          height: 0,
+          toJSON: () => ({}),
+        }),
+      };
+    }
+
+    // Convert to viewport coordinates by adding container's viewport position
+    const viewportX = position.x + containerRect.left;
+    const viewportY = position.y + containerRect.top;
+
+    // Apply frame offset for iframe scenarios
     const frameOffset = hostContext?.frameOffset || { x: 0, y: 0 };
     const isInIframe = window !== window.top;
 
-    // Apply frame offset only for iframe positioning
-    const adjustedX = isInIframe ? position.x + frameOffset.x : position.x;
-    const adjustedY = isInIframe ? position.y + frameOffset.y : position.y;
+    const adjustedX = isInIframe ? viewportX + frameOffset.x : viewportX;
+    const adjustedY = isInIframe ? viewportY + frameOffset.y : viewportY;
 
     // Center the bounding rect around the position
     const left = adjustedX - width / 2;
@@ -88,12 +112,12 @@ function TooltipInstance({ anchor, position }: TooltipInstanceProps) {
     };
 
     return virtualEl;
-  }, [position, hostContext?.frameOffset]);
+  }, [position, hostContext?.frameOffset, hostContext?.containerRef]);
 
   // Use floating-ui for positioning with container-relative strategy
-  // Use floating-ui for positioning with container-relative strategy
+  // Use floating-ui for positioning with viewport-relative strategy
   const { refs, floatingStyles } = useFloating({
-    strategy: "absolute",
+    strategy: "fixed",
     placement: anchor.positioning?.side || "top",
     middleware: [
       offset(anchor.positioning?.offset || 6),

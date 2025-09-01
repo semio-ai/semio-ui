@@ -132,8 +132,36 @@ export function useTooltipAnchor(options: UseTooltipAnchorOptions): UseTooltipAn
     const container = tooltipHost?.containerRef.current;
     if (!container) return;
 
-    // Find the canvas element within the container
-    const canvas = container.querySelector("canvas");
+    // Find the main rendering canvas among potentially multiple canvases
+    let canvas: HTMLCanvasElement | null = null;
+    const canvases = container.querySelectorAll("canvas");
+
+    if (canvases.length === 1) {
+      // Simple case: only one canvas
+      canvas = canvases[0];
+    } else if (canvases.length > 1) {
+      // Multiple canvases: find the main rendering canvas
+
+      let bestCanvas: HTMLCanvasElement | null = null;
+      let largestArea = 0;
+
+      for (const c of canvases) {
+        const rect = c.getBoundingClientRect();
+        const area = rect.width * rect.height;
+
+        // Skip canvases that are hidden or too small (likely HUD/minimap canvases)
+        if (area < 1000) continue;
+
+        // Prefer the largest canvas (main rendering canvas)
+        if (area > largestArea) {
+          largestArea = area;
+          bestCanvas = c;
+        }
+      }
+
+      canvas = bestCanvas;
+    }
+
     if (!canvas) return;
 
     const containerRect = container.getBoundingClientRect();
@@ -199,7 +227,10 @@ export function useTooltipAnchor(options: UseTooltipAnchorOptions): UseTooltipAn
     logCoordinateDebug(debugInfo);
 
     // Check if position is within container bounds
-    if (x >= 0 && x <= containerRect.width && y >= 0 && y <= containerRect.height) {
+    const isWithinBounds =
+      x >= 0 && x <= containerRect.width && y >= 0 && y <= containerRect.height;
+
+    if (isWithinBounds) {
       updateAnchorPosition(id, finalPosition);
     }
   });
@@ -210,7 +241,10 @@ export function useTooltipAnchor(options: UseTooltipAnchorOptions): UseTooltipAn
       if (options.axis && options.axis !== "none") {
         // Get TooltipHost container for proper coordinate calculation
         const container = tooltipHost?.containerRef.current;
-        if (!container) return;
+        if (!container) {
+          console.log(`🎯 [Tooltip Debug] No container for cursor tracking: ${id}`);
+          return;
+        }
 
         const containerRect = container.getBoundingClientRect();
 
