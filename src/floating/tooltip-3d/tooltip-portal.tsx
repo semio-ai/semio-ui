@@ -10,7 +10,7 @@ import {
   type ScreenPosition,
   type TooltipStore,
 } from "./store";
-import { useTooltipHost, useRootTooltipHost } from "./tooltip-context";
+import { useRootTooltipHost } from "./tooltip-context";
 
 interface TooltipInstanceProps {
   anchor: AnchorConfig;
