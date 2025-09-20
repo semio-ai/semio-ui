@@ -19,6 +19,7 @@ export * from "./floating/dropdown";
 export * from "./floating/modal";
 export * from "./floating/popover";
 export * from "./floating/select";
+export * from "./floating/select-tree";
 export * from "./floating/tabbed-modal";
 export * from "./floating/toast";
 export * from "./floating/tooltip";
@@ -96,6 +97,8 @@ export * from "./layouts/separator";
 
 // Nested-Elements
 export * from "./nested-elements/checkbox";
+export * from "./nested-elements/checkbox-tree";
+export * from "./nested-elements/context";
 export * from "./nested-elements/color-picker";
 export * from "./nested-elements/configured-render";
 export * from "./nested-elements/item";

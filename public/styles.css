@@ -616,10 +616,12 @@
     @apply dark:text-default-400 text-default-600;
     @apply dark:group-data-[highlighted]/item:text-black group-data-[highlighted]/item:text-white;
     @apply dark:group-data-[state=checked]/item:text-black group-data-[state=checked]/item:text-white;
+    @apply dark:group-data-[state=indeterminate]/item:text-black group-data-[state=indeterminate]/item:text-white;
     @apply group-data-[highlighted]/item:group-data-[state=unchecked]/item:text-white;
     @apply dark:group-data-[highlighted]/item:group-data-[state=unchecked]/item:text-black;
     @apply group-data-[state=unchecked]/item:opacity-50;
     @apply dark:group-data-[state=checked]/item:bg-layout-light-base group-data-[state=checked]/item:bg-layout-dark-base;
+    @apply group-data-[state=indeterminate]/item:shadow-[inset_0_0_0_1px_currentColor];
 
     &:is(:where(.group\/item)[data-state="unchecked"] *) {
       color: var(--accent-color);
@@ -627,6 +629,11 @@
 
     &:is(:where(.group\/item)[data-state="checked"] *) {
       background-color: var(--accent-color);
+    }
+
+    &:is(:where(.group\/item)[data-state="indeterminate"] *) {
+      color: var(--accent-color);
+      background-color: transparent;
     }
   }
 

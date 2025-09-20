@@ -75,7 +75,7 @@ export function Select<T extends string | string[]>({
       className={clsx(
         "responsive rounded-xs variant-mock-item-bg",
         "variant-responsive-text variant-responsive-appearing-outline",
-        "flex flex-row flex-1 px-1 items-center",
+        "flex flex-row flex-1 px-1 items-center min-w-0",
         "sized-height",
         size,
         selectOption?.color ? "custom-color" : (selectOption?.variant ?? Variant.Default),
@@ -83,7 +83,11 @@ export function Select<T extends string | string[]>({
       )}
     >
       <div
-        className={clsx("flex flex-1 flex-row items-center justify-center", "sized-height", size)}
+        className={clsx(
+          "flex flex-1 flex-row items-center justify-center min-w-0",
+          "sized-height",
+          size,
+        )}
       >
         <div
           className={clsx(
@@ -104,14 +108,14 @@ export function Select<T extends string | string[]>({
           }
           className={clsx(
             size,
-            "flex flex-1 flex-row px-3 items-center text-ellipsis text-nowrap",
+            "flex-1 px-3 flex items-center min-w-0",
             "responsive highlight-list-item",
             "sized-height",
             "sized-text",
             selectOption?.color ? "custom-color" : Variant.Default,
           )}
         >
-          {selectOption?.label ?? label}
+          <span className="truncate">{selectOption?.label ?? label}</span>
         </span>
 
         <StaticIcon
