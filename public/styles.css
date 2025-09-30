@@ -979,21 +979,21 @@
 
   .input-label-field-units-grid {
     display: grid;
-    grid-template-columns: auto 1fr auto;
+    grid-template-columns: auto minmax(4rem, 1fr) auto;
     grid-template-areas: "label input units";
     grid-template-rows: auto;
   }
 
   .input-field-units-grid {
     display: grid;
-    grid-template-columns: 1fr auto;
+    grid-template-columns: minmax(4rem, 1fr) auto;
     grid-template-areas: "input units";
     grid-template-rows: auto;
   }
 
   .input-label-field-grid {
     display: grid;
-    grid-template-columns: auto 1fr;
+    grid-template-columns: auto minmax(4rem, 1fr);
     grid-template-areas: "label input";
     grid-template-rows: auto;
   }

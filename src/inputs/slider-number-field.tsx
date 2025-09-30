@@ -253,6 +253,7 @@ const InnerSliderNumberField = forwardRef(
         ref={boundsRef}
         htmlFor={id}
         data-highlighted={highlight || focusState !== FocusState.Blurred ? "" : undefined}
+        aria-disabled={disabled}
         style={
           {
             "--custom-color": effectiveColor,
@@ -281,7 +282,6 @@ const InnerSliderNumberField = forwardRef(
             value={label}
             onChange={(e) => onLabelChange?.(e.target.value)}
             readOnly={!onLabelChange || focusState === FocusState.Dragging}
-            style={{ width: `min(100px,${(label.length + 2).toString()}ch)` }}
             onKeyDown={(e) => {
               if (!disabled && e.key === "Enter") {
                 setFocusState(FocusState.Blurred);
@@ -310,13 +310,13 @@ const InnerSliderNumberField = forwardRef(
               focusState !== FocusState.Dragging &&
                 "group-has-focus/input-wrapper:bg-neutral-900/20",
               focusState !== FocusState.FocusedLabel ? "cursor-ew-resize" : "cursor-text",
-              "responsive grid-area-label sized-text place-items-center text-center rounded-[1px]",
+              "responsive grid-area-label sized-text place-items-center text-left rounded-[1px]",
               "sized-inner-group-item font-mono variant-text-caret-color",
               "text-white/50 focus:outline-none focus:text-white/75 dark:focus:text-white/75",
               "pointer-events-none select-none group-has-focus/input-wrapper:pointer-events-auto group-has-focus/input-wrapper:select-auto",
               "transition-discrete transition-all delay-75",
               // Show ellipsis when the text gets too long
-              "truncate px-1 flex-none",
+              "truncate px-1 w-full min-w-0 max-w-full",
             )}
           />
         )}
@@ -329,11 +329,11 @@ const InnerSliderNumberField = forwardRef(
           readOnly={focusState !== FocusState.Focused}
           onChange={onChangeInner}
           className={clsx(
-            "responsive grid-area-field w-full min-w-0",
+            "responsive grid-area-input-field w-full min-w-0",
             "focus:outline-hidden",
             "disabled:cursor-not-allowed",
             focusState !== FocusState.Focused ? "cursor-ew-resize" : "cursor-text",
-            "sized-text sized-height text-right px-0.5",
+            "sized-text sized-height text-right pl-0.5 pr-1",
             "variant-text-caret-color font-mono",
             focusState === FocusState.Dragging && "select-none pointer-events-none",
             size,
@@ -376,7 +376,7 @@ const InnerSliderNumberField = forwardRef(
             className={clsx(
               effectiveVariant,
               size,
-              "grid-area-units text-right select-none pl-0.5 pr-2",
+              "grid-area-input-units text-right select-none pl-0.5 pr-2",
               "grid place-items-center pointer-events-none sized-text",
               "sized-height text-white/50 font-mono flex-none",
             )}
