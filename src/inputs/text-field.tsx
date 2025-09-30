@@ -6,6 +6,7 @@ import {
   type ForwardedRef,
   type ChangeEvent,
   type MouseEvent,
+  type CSSProperties,
 } from "react";
 import { clsx } from "clsx";
 import { IconX } from "@tabler/icons-react";
@@ -16,6 +17,7 @@ export interface TextFieldProps
   onChange?: (value: string, event: ChangeEvent<HTMLInputElement>) => void;
   onClear?: (event: MouseEvent<HTMLButtonElement>) => void;
   variant?: Variant;
+  color?: string;
   icon?: ReactNode;
   size?: Size;
   bg?: boolean;
@@ -31,6 +33,7 @@ export interface TextFieldProps
  * @param onClear - a callback to call when the clear button is clicked. Note, this does not clear the field.
  * @param size - the size of the field
  * @param variant - the variant of the field
+ * @param color - [optional] custom color to override the variant
  * @param icon - [optional] the icon to show on the left side of the field
  * @param bg - whether to show the field with a background
  * @param outline - whether to show the field with an outline on focus
@@ -44,6 +47,7 @@ const InnerTextField = forwardRef(
       onChange,
       onClear,
       variant = Variant.Default,
+      color,
       icon,
       bg = false,
       outline = "interact",
@@ -56,6 +60,11 @@ const InnerTextField = forwardRef(
   ): ReactNode => {
     return (
       <div
+        style={
+          {
+            "--custom-color": color,
+          } as CSSProperties
+        }
         className={clsx(
           "relative outline-hidden flex flex-row",
           "sized-height",
@@ -79,7 +88,7 @@ const InnerTextField = forwardRef(
               "variant-responsive-persistent-outline",
             outline === "hidden" && "outline-hidden focus:outline-hidden",
             size,
-            variant,
+            color ? "custom-color" : variant,
             "disabled:cursor-not-allowed cursor-text peer",
             "sized-text sized-height flex flex-1 min-w-10",
             icon ? "sized-inner-group-left-padding" : "pl-1",
@@ -92,7 +101,7 @@ const InnerTextField = forwardRef(
         {icon && (
           <span
             className={clsx(
-              variant,
+              color ? "custom-color" : variant,
               size,
               "responsive absolute left-0.5 top-0.5 grid place-items-center pointer-events-none",
               "sized-inner-group-item rounded-[1px] variant-responsive-input-extra-text",
@@ -105,7 +114,7 @@ const InnerTextField = forwardRef(
           <button
             type="button"
             className={clsx(
-              variant,
+              color ? "custom-color" : variant,
               size,
               "absolute right-0.5 top-0.5 place-items-center hidden peer-focus:grid",
               "transition-discrete transition-all delay-75 responsive",
