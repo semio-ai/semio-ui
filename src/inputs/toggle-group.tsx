@@ -83,6 +83,9 @@ export function ToggleGroup({
           "rounded-xs sized-inner-group-item",
           "responsive bg-(--accent-color)",
         )}
+        initial={{
+          x: 2,
+        }}
         animate={{
           x: left,
           width,

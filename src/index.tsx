@@ -25,7 +25,6 @@ export * from "./floating/toast";
 export * from "./floating/tooltip";
 export * from "./floating/tracked-tooltip";
 export * from "./floating/tooltip-3d";
-export * from "./floating/window-portal";
 
 // Functions
 export * from "./functions/stamp-to-visual-time";
