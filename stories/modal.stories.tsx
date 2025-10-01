@@ -1,7 +1,7 @@
 import { useState, type ReactNode } from "react";
 import type { Meta, StoryObj, ReactRenderer } from "@storybook/react-vite";
-import { type ArgsStoryFn } from "@storybook/core/csf";
 import { Button, Modal, Variant, type ModalProps } from "@semio/ui";
+import { ArgsStoryFn } from "storybook/internal/csf";
 
 const meta: Meta<typeof Modal> = {
   component: Modal,
@@ -97,7 +97,6 @@ export const Default: Story = {
     description: "Modal Description",
     children: lorem,
     variant: Variant.Default,
-    scrollDisabled: true,
   },
 };
 
