@@ -286,3 +286,57 @@ export const SizeWithIcons: Story = {
     variant: Variant.Primary,
   },
 };
+
+export const WithCustomValues: Story = {
+  render: (props) => {
+    return <ChipInputWithHooks {...props} />;
+  },
+  args: {
+    selectedValues: ["custom", "values"],
+    options: sampleOptions,
+    allowCustomValues: true,
+    placeholder: "Type and press Enter, comma, semicolon or dot...",
+  },
+};
+
+export const CustomValuesWithBackground: Story = {
+  render: (props) => {
+    return <ChipInputWithHooks {...props} />;
+  },
+  args: {
+    selectedValues: ["tag1", "tag2"],
+    options: [],
+    allowCustomValues: true,
+    bg: true,
+    placeholder: "Add custom tags...",
+    variant: Variant.Primary,
+  },
+};
+
+export const CustomValuesWithOptions: Story = {
+  render: (props) => {
+    return <ChipInputWithHooks {...props} />;
+  },
+  args: {
+    selectedValues: ["react", "my-custom-tech"],
+    options: sampleOptions,
+    allowCustomValues: true,
+    placeholder: "Select from dropdown or type custom values...",
+    outline: "always",
+  },
+};
+
+export const CustomValuesLarge: Story = {
+  render: (props) => {
+    return <ChipInputWithHooks {...props} />;
+  },
+  args: {
+    selectedValues: [],
+    options: coloredOptions,
+    allowCustomValues: true,
+    size: Size.Lg,
+    variant: Variant.Secondary,
+    placeholder: "Large size with custom values...",
+    bg: true,
+  },
+};
