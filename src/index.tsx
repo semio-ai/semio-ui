@@ -56,6 +56,7 @@ export * from "./icons/home";
 export * from "./icons/key";
 export * from "./icons/key-outline";
 export * from "./icons/key-outline-dash";
+export * from "./icons/normalized";
 export * from "./icons/play-pause";
 export * from "./icons/player-end-bounds";
 export * from "./icons/player-next-key";
@@ -66,6 +67,7 @@ export * from "./icons/preview-view";
 export * from "./icons/robot";
 export * from "./icons/robot-plus";
 export * from "./icons/static-icon";
+export * from "./icons/uniform";
 export * from "./icons/world-element-icons";
 
 // Inputs
