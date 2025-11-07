@@ -1,4 +1,13 @@
-import { memo, forwardRef, type ReactNode, type ForwardedRef } from "react";
+import {
+  memo,
+  forwardRef,
+  type ReactNode,
+  type ForwardedRef,
+  useState,
+  useRef,
+  type KeyboardEvent,
+  type ChangeEvent,
+} from "react";
 import { clsx } from "clsx";
 import { IconPlus } from "@tabler/icons-react";
 import { Variant, Size } from "../types";
@@ -20,6 +29,7 @@ export interface ChipInputProps {
   placeholder?: string;
   disabled?: boolean;
   className?: string;
+  allowCustomValues?: boolean;
 }
 
 /**
@@ -36,6 +46,7 @@ export interface ChipInputProps {
  * @param placeholder - Placeholder text when no chips selected
  * @param disabled - Whether the component is disabled
  * @param className - Additional CSS classes
+ * @param allowCustomValues - Whether to allow typing custom values
  */
 const InnerChipInput = forwardRef(
   (
@@ -51,10 +62,17 @@ const InnerChipInput = forwardRef(
       placeholder = "Select options...",
       disabled = false,
       className,
+      allowCustomValues = false,
     }: ChipInputProps,
     ref: ForwardedRef<HTMLDivElement>,
   ): ReactNode => {
-    const selectedOptions = options.filter((option) => selectedValues.includes(option.value));
+    const [inputValue, setInputValue] = useState("");
+    const inputRef = useRef<HTMLInputElement>(null);
+
+    const selectedOptions = selectedValues.map((value) => {
+      const option = options.find((o) => o.value === value);
+      return option ?? { label: value, value };
+    });
 
     const handleChipDelete = (valueToRemove: string) => {
       if (onChange && !disabled) {
@@ -62,9 +80,71 @@ const InnerChipInput = forwardRef(
       }
     };
 
+    const addCustomValue = (value: string) => {
+      const trimmedValue = value.trim();
+      if (trimmedValue && onChange && !selectedValues.includes(trimmedValue)) {
+        onChange([...selectedValues, trimmedValue]);
+      }
+      setInputValue("");
+    };
+
+    const handleInputKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+      if (!allowCustomValues) return;
+
+      // Handle Enter key
+      if (e.key === "Enter") {
+        e.preventDefault();
+        addCustomValue(inputValue);
+      }
+      // Handle Backspace on empty input to delete last chip
+      else if (e.key === "Backspace" && inputValue === "" && selectedValues.length > 0) {
+        e.preventDefault();
+        const lastValue = selectedValues[selectedValues.length - 1];
+        handleChipDelete(lastValue);
+      }
+    };
+
+    const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
+      if (!allowCustomValues) return;
+
+      const value = e.target.value;
+      const lastChar = value[value.length - 1];
+
+      // Check if the last character is a delimiter
+      if (lastChar === "," || lastChar === ";" || lastChar === ".") {
+        e.preventDefault();
+        // Add the value without the delimiter
+        addCustomValue(value.slice(0, -1));
+      } else {
+        setInputValue(value);
+      }
+    };
+
+    const handleContainerClick = () => {
+      if (allowCustomValues && !disabled && inputRef.current) {
+        inputRef.current.focus();
+      }
+    };
+
+    const handleContainerKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
+      if (
+        (e.key === "Enter" || e.key === " ") &&
+        allowCustomValues &&
+        !disabled &&
+        inputRef.current
+      ) {
+        e.preventDefault();
+        inputRef.current.focus();
+      }
+    };
+
     return (
       <div
         ref={ref}
+        onClick={handleContainerClick}
+        onKeyDown={handleContainerKeyDown}
+        role={allowCustomValues && !disabled ? "button" : undefined}
+        tabIndex={allowCustomValues && !disabled ? 0 : undefined}
         className={clsx(
           "responsive relative grid grid-cols-[minmax(0,1fr)_auto] gap-1",
           bg && "dark:bg-neutral-950/20 bg-neutral-50/20",
@@ -73,7 +153,7 @@ const InnerChipInput = forwardRef(
           outline === "always" && "parent-outline variant-responsive-persistent-outline",
           variant,
           disabled && "cursor-not-allowed opacity-50",
-          !disabled && "cursor-text",
+          !disabled && allowCustomValues && "cursor-text",
           "p-1",
           subtle && "variant-responsive-text",
           !subtle && "text-black dark:text-white",
@@ -81,7 +161,7 @@ const InnerChipInput = forwardRef(
         )}
       >
         <div className="flex flex-wrap gap-1 items-start">
-          {selectedOptions.length > 0 ? (
+          {selectedOptions.length > 0 &&
             selectedOptions.map((option) => (
               <Chip
                 key={option.value}
@@ -99,30 +179,50 @@ const InnerChipInput = forwardRef(
               >
                 {option.label}
               </Chip>
-            ))
-          ) : (
+            ))}
+          {selectedOptions.length === 0 && (!allowCustomValues || !inputValue) && (
             <span
               className={clsx(size, "flex sized-text sized-height text-left pl-1 items-center")}
             >
               {placeholder}
             </span>
           )}
+          {allowCustomValues && (
+            <input
+              ref={inputRef}
+              type="text"
+              value={inputValue}
+              onChange={handleInputChange}
+              onKeyDown={handleInputKeyDown}
+              disabled={disabled}
+              className={clsx(
+                size,
+                "flex-1 min-w-[100px] bg-transparent outline-none border-none sized-text sized-height pl-1",
+                "placeholder:text-neutral-400 dark:placeholder:text-neutral-600",
+              )}
+              placeholder={
+                selectedOptions.length === 0 && !inputValue ? "" : "Type and press Enter..."
+              }
+            />
+          )}
         </div>
-        <Dropdown
-          trigger={
-            <Button visuals="inverted" size={size} leftIcon={<IconPlus className="size-3/5" />} />
-          }
-          variant={variant}
-          disabled={disabled}
-        >
-          <NestedSelect
+        {options.length > 0 && (
+          <Dropdown
+            trigger={
+              <Button visuals="inverted" size={size} leftIcon={<IconPlus className="size-3/5" />} />
+            }
             variant={variant}
             disabled={disabled}
-            onChange={onChange}
-            values={selectedValues}
-            options={options}
-          />
-        </Dropdown>
+          >
+            <NestedSelect
+              variant={variant}
+              disabled={disabled}
+              onChange={onChange}
+              values={selectedValues}
+              options={options}
+            />
+          </Dropdown>
+        )}
       </div>
     );
   },
