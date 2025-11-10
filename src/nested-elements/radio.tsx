@@ -33,9 +33,6 @@ export function NestedRadio({ variant, disabled, onChange, value, options }: Nes
           key={option.value}
           value={option.value}
           disabled={option.disabled || disabled}
-          onSelect={(e) => {
-            e.preventDefault();
-          }}
           textValue={option.label}
           style={
             option.color
