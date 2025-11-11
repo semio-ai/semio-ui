@@ -9,6 +9,7 @@ import {
   CSSProperties,
   useMemo,
 } from "react";
+import { shouldUseBlendForLabelColor } from "@semio/utils";
 import { enableBoundaryChecking, round } from "number-precision";
 import { useGesture } from "@use-gesture/react";
 import { mergeRefs } from "react-merge-refs";
@@ -256,7 +257,9 @@ const InnerSliderNumberField = forwardRef(
     }, [value, visualMin, visualMax, min, max, focusState]);
 
     // Auto-override variant for warning states
-    const [effectiveColor, effectiveVariant] = useMemo(() => {
+    const [effectiveColor, effectiveVariant] = useMemo<
+      [string | undefined, Variant | undefined]
+    >(() => {
       if (autoOverrideVariantOnWarning) {
         if (
           status === NumericStatus.Above ||
@@ -269,6 +272,11 @@ const InnerSliderNumberField = forwardRef(
       return [color, variant];
     }, [autoOverrideVariantOnWarning, status, variant, color]);
 
+    const useBlendForLabel = useMemo(
+      () => shouldUseBlendForLabelColor(effectiveColor) as boolean,
+      [effectiveColor],
+    );
+
     return (
       <label
         ref={boundsRef}
@@ -279,10 +287,11 @@ const InnerSliderNumberField = forwardRef(
           {
             "--custom-color": effectiveColor,
             "--progress": percent ? `${(percent * 100).toFixed(2).toString()}%` : "0%",
+            "--label-auto-contrast": useBlendForLabel ? "1" : "0",
           } as CSSProperties
         }
         className={clsx(
-          "responsive touch-none",
+          "responsive touch-none isolate",
           effectiveColor ? "custom-color" : effectiveVariant,
           "py-0 px-0.5 group/input-wrapper select-none",
           label && units && "input-label-field-units-grid",
@@ -331,14 +340,23 @@ const InnerSliderNumberField = forwardRef(
               focusState !== FocusState.Dragging &&
                 "group-has-focus/input-wrapper:bg-neutral-900/20",
               focusState !== FocusState.FocusedLabel ? "cursor-ew-resize" : "cursor-text",
+              useBlendForLabel && focusState !== FocusState.FocusedLabel
+                ? "mix-blend-difference text-white bg-transparent"
+                : undefined,
               "responsive grid-area-label sized-text place-items-center text-left rounded-[1px]",
               "sized-inner-group-item font-mono variant-text-caret-color",
               "text-white/50 focus:outline-none focus:text-white/75 dark:focus:text-white/75",
+
               "pointer-events-none select-none group-has-focus/input-wrapper:pointer-events-auto group-has-focus/input-wrapper:select-auto",
               "transition-discrete transition-all delay-75",
               // Show ellipsis when the text gets too long
               "truncate px-1 w-full min-w-0 max-w-full",
             )}
+            style={{
+              textShadow: !useBlendForLabel
+                ? "0 0 1px rgba(0,0,0,0.55), 0 0 2px rgba(0,0,0,0.35)"
+                : undefined,
+            }}
           />
         )}
 
