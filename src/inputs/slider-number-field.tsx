@@ -37,6 +37,9 @@ export interface SliderNumberFieldProps extends Omit<NumberFieldProps, "strict">
   strictText?: boolean;
   onStatusChange?: (status: NumericStatus) => void;
   autoOverrideVariantOnWarning?: boolean;
+  onDragStartNative?: (event: MouseEvent | PointerEvent, value: number) => void;
+  onDragMoveNative?: (event: MouseEvent | PointerEvent, value: number) => void;
+  onDragEndNative?: (event: MouseEvent | PointerEvent, value: number) => void;
 }
 
 /**
@@ -88,6 +91,9 @@ const InnerSliderNumberField = forwardRef(
       wrapperClassName,
       onStatusChange,
       autoOverrideVariantOnWarning = false,
+      onDragStartNative,
+      onDragMoveNative,
+      onDragEndNative,
       ...forwardedProps
     }: SliderNumberFieldProps,
     ref: ForwardedRef<HTMLInputElement>,
@@ -95,6 +101,7 @@ const InnerSliderNumberField = forwardRef(
     const boundsRef = useRef<HTMLLabelElement>(null);
     const labelRef = useRef<HTMLInputElement>(null);
     const defaultInputRef = useRef<HTMLInputElement>(null);
+    const lastDragValueRef = useRef<number>(value);
 
     const inputRef = mergeRefs<HTMLInputElement>([defaultInputRef, ref]);
 
@@ -149,8 +156,10 @@ const InnerSliderNumberField = forwardRef(
           const bounds = boundsRef.current.getBoundingClientRect();
           if ((wheeling || dragging) && focusState !== FocusState.Dragging) {
             setFocusState(FocusState.Dragging);
+            onDragStartNative?.(event as MouseEvent, value);
           } else if (!wheeling && !dragging && focusState === FocusState.Dragging) {
             setFocusState(FocusState.Blurred);
+            onDragEndNative?.(event as MouseEvent, lastDragValueRef.current);
           }
           let v = value;
           if (min !== undefined && max !== undefined) {
@@ -163,7 +172,10 @@ const InnerSliderNumberField = forwardRef(
           } else {
             v += dx / 100;
           }
-          onChangeDirect(round(v, 2), event as MouseEvent);
+          const next = round(v, 2);
+          lastDragValueRef.current = next;
+          onChangeDirect(next, event as MouseEvent);
+          onDragMoveNative?.(event as MouseEvent, next);
           if (!dragging && !wheeling) {
             onBlurExternal?.(event as unknown as React.FocusEvent<HTMLInputElement>);
           }
@@ -179,8 +191,15 @@ const InnerSliderNumberField = forwardRef(
           wheeling = false,
         }) => {
           if (disabled) return;
-          if (focusState === FocusState.Blurred) return;
           if (dy === 0) return;
+
+          // Treat wheel as a drag cycle so visuals (progress) and native callbacks stay in sync
+          const wasDragging = focusState === FocusState.Dragging;
+          if (!wasDragging) {
+            setFocusState(FocusState.Dragging);
+            onDragStartNative?.(event as MouseEvent, value);
+          }
+
           let v = value;
           if (min !== undefined && max !== undefined) {
             const step = (max - min) / 100;
@@ -194,16 +213,17 @@ const InnerSliderNumberField = forwardRef(
           } else {
             v += dy / 100;
           }
-          onChangeDirect(round(v, 2), event as MouseEvent);
+          const next = round(v, 2);
+          lastDragValueRef.current = next;
+          onChangeDirect(next, event as MouseEvent);
+          onDragMoveNative?.(event as MouseEvent, next);
           onHighlightChange?.(dragging || hovering || wheeling);
-          if ((wheeling || dragging) && focusState !== FocusState.Dragging) {
-            setFocusState(FocusState.Dragging);
-          } else if (!wheeling && !dragging && focusState === FocusState.Dragging) {
-            setFocusState(FocusState.Blurred);
-          }
-          if (!dragging && !wheeling) {
-            onBlurExternal?.(event as unknown as React.FocusEvent<HTMLInputElement>);
-          }
+
+          // End the wheel "drag" immediately
+          setFocusState(FocusState.Blurred);
+          onDragEndNative?.(event as MouseEvent, next);
+
+          onBlurExternal?.(event as unknown as React.FocusEvent<HTMLInputElement>);
           event.preventDefault();
           event.stopPropagation();
         },
@@ -225,14 +245,15 @@ const InnerSliderNumberField = forwardRef(
     );
 
     const percent: number | undefined = useMemo(() => {
+      const progressValue = focusState === FocusState.Dragging ? lastDragValueRef.current : value;
       if (min !== undefined && max !== undefined) {
-        return (value - min) / (max - min);
+        return (progressValue - min) / (max - min);
       } else if (visualMin !== undefined && visualMax !== undefined) {
-        return coerceModuloResult(((value - visualMin) / (visualMax - visualMin)) % 1);
+        return coerceModuloResult(((progressValue - visualMin) / (visualMax - visualMin)) % 1);
       } else {
         return undefined;
       }
-    }, [value, visualMin, visualMax, min, max]);
+    }, [value, visualMin, visualMax, min, max, focusState]);
 
     // Auto-override variant for warning states
     const [effectiveColor, effectiveVariant] = useMemo(() => {
