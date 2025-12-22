@@ -11,6 +11,7 @@ import { IconVariant } from "../icons/variant";
 export interface ToastState {
   toasts: ToastData[];
   addToast: (toast: ToastData) => void;
+  updateToast: (id: string, data: Partial<ToastData>) => void;
   removeToast: (id: string) => void;
   clear: () => void;
 }
@@ -18,6 +19,7 @@ export interface ToastState {
 export const ToastContext = createContext<ToastState>({
   toasts: [],
   addToast: () => {},
+  updateToast: () => {},
   removeToast: () => {},
   clear: () => {},
 });
@@ -181,6 +183,15 @@ function InnerToastManager({ children }: ToastContainerProps) {
     [setToasts],
   );
 
+  const updateToast = useCallback(
+    (id: string, data: Partial<ToastData>) => {
+      setToasts((prevToasts: ToastData[]) =>
+        prevToasts.map((toast) => (toast.id === id ? { ...toast, ...data } : toast)),
+      );
+    },
+    [setToasts],
+  );
+
   const removeToast = useCallback(
     (id: string) => {
       setToasts((prevToasts: ToastData[]) => prevToasts.filter((toast) => toast.id !== id));
@@ -191,7 +202,7 @@ function InnerToastManager({ children }: ToastContainerProps) {
   const clear = useCallback(() => setToasts([]), [setToasts]);
 
   return (
-    <ToastContext.Provider value={{ toasts, addToast, removeToast, clear }}>
+    <ToastContext.Provider value={{ toasts, addToast, updateToast, removeToast, clear }}>
       <RadixToast.Provider swipeDirection="right" duration={4000}>
         <RadixToast.Viewport
           className={clsx(
