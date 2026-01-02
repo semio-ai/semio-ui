@@ -6,7 +6,6 @@ import {
   IconFile,
   IconFileTypeJs,
   IconFileTypeCss,
-  IconFileTypeHtml,
   IconBrandReact,
   IconBrandNodejs,
   IconPackage,
