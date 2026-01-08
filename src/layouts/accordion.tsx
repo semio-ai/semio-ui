@@ -12,12 +12,12 @@ export interface AccordionProps {
 }
 
 export function Accordion({ items, defaultOpen = false, sticky, stickyOffset }: AccordionProps) {
-  const defaultValue =
-    typeof defaultOpen === "boolean"
-      ? defaultOpen
-        ? items.filter((i) => !i.disabled).map((i) => i.key)
-        : []
-      : defaultOpen;
+  let defaultValue: string[];
+  if (typeof defaultOpen === "boolean") {
+    defaultValue = defaultOpen ? items.filter((i) => !i.disabled).map((i) => i.key) : [];
+  } else {
+    defaultValue = defaultOpen;
+  }
 
   return (
     <RadixAccordion.Root className="relative" type="multiple" defaultValue={defaultValue}>
