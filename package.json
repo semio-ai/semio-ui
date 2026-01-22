@@ -44,7 +44,7 @@
     "react-imask": "^7.6.0",
     "react-merge-refs": "^2.1.1",
     "react-use-measure": "^2.1.1",
-    "three": "^0.179.1",
+    "three": "^0.170.0",
     "zustand": "^5.0.2"
   },
   "peerDependencies": {
@@ -56,7 +56,7 @@
     "@types/lodash": "^4.17.0",
     "@types/react": "^18.3.1",
     "@types/react-dom": "^18.3.1",
-    "@types/three": "^0.179.0",
+    "@types/three": "^0.170.0",
     "autoprefixer": "^10.4.19",
     "eslint": "^8.57.1",
     "postcss": "^8.4.38",

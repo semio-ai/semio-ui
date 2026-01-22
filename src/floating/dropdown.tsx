@@ -43,7 +43,7 @@ const Dropdown = forwardRef(
               style={color ? ({ "--custom-color": color } as CSSProperties) : {}}
               className={clsx(
                 color ? "custom-color" : variant,
-                "responsive card dropdown-content m-0.5 min-w-[220px]",
+                "responsive card dropdown-content m-0.5 min-w-55",
                 "max-h-[calc(var(--radix-dropdown-menu-content-available-height)-4px)]",
                 "desktop:w-[calc(var(--radix-dropdown-menu-trigger-width)+10px)]",
                 "w-[calc(var(--radix-dropdown-menu-content-available-width)-4px)]",

@@ -47,7 +47,7 @@
   }
 
   .variant-responsive-bg {
-    @apply transition-colors duration-[50ms] ease-in-out rounded-xs;
+    @apply transition-colors duration-50 ease-in-out rounded-xs;
     @apply disabled:cursor-not-allowed;
 
     background-color: var(--standard-color);
@@ -75,14 +75,14 @@
   }
 
   .variant-static-bg-25 {
-    @apply transition-colors duration-[50ms] ease-in-out rounded-xs;
+    @apply transition-colors duration-50 ease-in-out rounded-xs;
     @apply disabled:cursor-not-allowed;
 
     background-color: color-mix(in oklab, var(--standard-color) 25%, transparent);
   }
 
   .variant-responsive-appearing-bg {
-    @apply transition-colors duration-[50ms] ease-in-out rounded-xs;
+    @apply transition-colors duration-50 ease-in-out rounded-xs;
     @apply disabled:cursor-not-allowed;
 
     background-color: transparent;
@@ -110,7 +110,7 @@
   }
 
   .variant-responsive-header-button-bg {
-    @apply transition-colors duration-[50ms] ease-in-out rounded-xs;
+    @apply transition-colors duration-50 ease-in-out rounded-xs;
     @apply disabled:cursor-not-allowed;
     @apply backdrop-blur-lg;
     @apply dark:bg-layout-dark-deep-inset/30 bg-layout-light-deep-inset/30;
@@ -120,7 +120,7 @@
   }
 
   .variant-responsive-appearing-outline {
-    @apply transition-[outline-width,outline-color] duration-[50ms] ease-in-out;
+    @apply transition-[outline-width,outline-color] duration-50 ease-in-out;
     outline-color: var(--accent-color);
     @apply outline-0 outline-offset-2 hover:not-disabled:outline;
     @apply focus:not-disabled:outline-2 focus-within:not-disabled:outline-2;
@@ -137,7 +137,7 @@
   }
 
   .variant-responsive-text {
-    @apply transition-colors duration-[50ms] ease-in-out;
+    @apply transition-colors duration-50 ease-in-out;
     color: var(--weak-accent-text-color);
     &:hover {
       @media (hover: hover) {
@@ -162,7 +162,7 @@
   }
 
   .variant-responsive-input-extra-text {
-    @apply transition-colors duration-[50ms] ease-in-out;
+    @apply transition-colors duration-50 ease-in-out;
     @apply text-default-500;
     @apply peer-disabled:text-default-500/50 peer-disabled:peer-hover:text-default-500/50;
     @apply not-peer-disabled:not-peer-read-only:text-default-500;
@@ -186,7 +186,7 @@
   }
 
   .variant-responsive-input-extra-button-text {
-    @apply transition-[color,background-color,outline-width] duration-[50ms] ease-in-out;
+    @apply transition-[color,background-color,outline-width] duration-50 ease-in-out;
     @apply text-default-500/0 bg-transparent;
     @apply peer-focus:hover:bg-default-600/20 dark:peer-focus:hover:bg-default-400/20;
     @apply peer-focus:text-default-600 dark:peer-focus:text-default-400;
@@ -198,7 +198,7 @@
   }
 
   .variant-static-persistent-outline {
-    @apply transition-[outline-color,outline-width] duration-[50ms] ease-in-out;
+    @apply transition-[outline-color,outline-width] duration-50 ease-in-out;
     @apply outline-1;
     outline-color: var(--standard-color);
   }
@@ -227,7 +227,7 @@
   }
 
   .variant-responsive-selectable-text {
-    @apply transition-colors duration-[50ms] ease-in-out;
+    @apply transition-colors duration-50 ease-in-out;
     @apply text-default-500;
 
     &:is(:where(.group\/tab):hover *) {
@@ -263,7 +263,7 @@
   }
 
   .variant-input-solid-bg {
-    @apply transition-colors duration-[50ms] ease-in-out;
+    @apply transition-colors duration-50 ease-in-out;
     background-color: color-mix(in oklab, var(--standard-color) 35%, transparent);
 
     &:not(*[data-highlighted]) {
@@ -278,7 +278,7 @@
   }
 
   .variant-input-gradient-bg {
-    @apply transition-colors duration-[50ms] ease-in-out;
+    @apply transition-colors duration-50 ease-in-out;
     background: linear-gradient(
       90deg,
       var(--standard-color) 0%,
@@ -311,7 +311,7 @@
   }
 
   .cta-button {
-    @apply transition-[color,outline-color,background-color] duration-[50ms] ease-in-out rounded-xs outline-1;
+    @apply transition-[color,outline-color,background-color] duration-50 ease-in-out rounded-xs outline-1;
     @apply dark:text-white text-black backdrop-blur-lg;
     @apply bg-neutral-500/25 hover:bg-neutral-500 disabled:bg-neutral-500/25;
     @apply outline-neutral-500;
@@ -441,26 +441,32 @@
   }
 
   .sized-list-item-indicator-height {
-    @apply h-[24px];
+    /* Default height is 24px */
+    @apply h-6;
 
     @variant size-xs {
-      @apply h-[10px];
+      /* 10px */
+      @apply h-2.5;
     }
 
     @variant size-sm {
-      @apply h-[16px];
+      /* 16px */
+      @apply h-4;
     }
 
     @variant size-md {
-      @apply h-[22px];
+      /* 22px */
+      @apply h-5.5;
     }
 
     @variant size-lg {
-      @apply h-[28px];
+      /* 28px */
+      @apply h-7;
     }
 
     @variant size-xl {
-      @apply h-[34px];
+      /* 34px */
+      @apply h-8.5;
     }
   }
 
@@ -609,7 +615,7 @@
   }
 
   .check-indicator {
-    @apply transition-[color,background-color] duration-[50ms] ease-in-out;
+    @apply transition-[color,background-color] duration-50 ease-in-out;
     @apply rounded-xs w-5 h-5 bg-transparent;
 
     @apply group-data-disabled/item:text-neutral-500/50;
@@ -638,7 +644,7 @@
   }
 
   .grid-list-item-indicator {
-    @apply transition-[color,background-color] duration-[50ms] ease-in-out;
+    @apply transition-[color,background-color] duration-50 ease-in-out;
     @apply rounded-xs dark:bg-black/40 bg-white/40;
 
     @apply data-disabled:text-neutral-500/50;
@@ -663,7 +669,7 @@
   }
 
   .list-item-extra {
-    @apply transition-colors duration-[50ms] ease-in-out;
+    @apply transition-colors duration-50 ease-in-out;
     @apply w-fit h-5 gap-0 flex flex-row items-center justify-end;
     @apply group-data-disabled/item:text-neutral-500/25;
     @apply dark:text-default-600 text-default-400;
@@ -675,7 +681,7 @@
 
   .table-list {
     .table-list-text {
-      @apply transition-colors duration-[50ms] ease-in-out;
+      @apply transition-colors duration-50 ease-in-out;
       @apply data-disabled:text-neutral-500/50;
       @apply dark:group-data-[highlighted]/row:text-black group-data-[highlighted]/row:text-white;
       @apply dark:group-data-[state=checked]/row:text-black group-data-[state=checked]/row:text-white;
@@ -684,7 +690,7 @@
     }
 
     .table-list-item {
-      @apply transition-colors duration-[50ms] ease-in-out;
+      @apply transition-colors duration-50 ease-in-out;
       @apply cursor-pointer;
       @apply data-disabled:text-neutral-500/50;
       @apply dark:data-[highlighted]:text-black data-[highlighted]:text-white;
@@ -709,7 +715,7 @@
   }
 
   .highlight-list-item {
-    @apply transition-colors duration-[50ms] ease-in-out;
+    @apply transition-colors duration-50 ease-in-out;
     @apply cursor-pointer;
     @apply data-disabled:text-neutral-500/50;
     @apply dark:data-[highlighted]:text-black data-[highlighted]:text-white;
@@ -727,7 +733,7 @@
   }
 
   .variant-mock-inner-item {
-    @apply transition-colors duration-[50ms] ease-in-out;
+    @apply transition-colors duration-50 ease-in-out;
     @apply rounded-[1px];
     @apply dark:text-black text-white;
 
@@ -735,7 +741,7 @@
   }
 
   .variant-mock-item-bg {
-    @apply transition-colors duration-[50ms] ease-in-out;
+    @apply transition-colors duration-50 ease-in-out;
     background-color: color-mix(in oklab, var(--accent-color) 20%, transparent);
 
     &:hover {
