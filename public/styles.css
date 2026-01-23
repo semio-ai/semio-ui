@@ -369,74 +369,92 @@
   }
 
   .sized-inner-group-left-padding {
-    @apply pl-[34px];
+    /* 34px */
+    @apply pl-8.5;
 
     @variant size-xs {
-      @apply pl-[22px];
+      /* 22px */
+      @apply pl-5.5;
     }
 
     @variant size-sm {
-      @apply pl-[30px];
+      /* 30px */
+      @apply pl-7.5;
     }
 
     @variant size-md {
-      @apply pl-[34px];
+      /* 34px */
+      @apply pl-8.5;
     }
 
     @variant size-lg {
-      @apply pl-[42px];
+      /* 42px */
+      @apply pl-10.5;
     }
 
     @variant size-xl {
-      @apply pl-[50px];
+      /* 50px */
+      @apply pl-12.5;
     }
   }
 
   .sized-inner-group-right-padding {
-    @apply pr-[34px];
+    /* 34px */
+    @apply pr-8.5;
 
     @variant size-xs {
-      @apply pr-[22px];
+      /* 22px */
+      @apply pr-5.5;
     }
 
     @variant size-sm {
-      @apply pr-[30px];
+      /* 30px */
+      @apply pr-7.5;
     }
 
     @variant size-md {
-      @apply pr-[34px];
+      /* 34px */
+      @apply pr-8.5;
     }
 
     @variant size-lg {
-      @apply pr-[42px];
+      /* 42px */
+      @apply pr-10.5;
     }
 
     @variant size-xl {
-      @apply pr-[50px];
+      /* 50px */
+      @apply pr-12.5;
     }
   }
 
   .sized-list-item-indicator {
-    @apply size-[24px];
+    /* 24px */
+    @apply size-6;
 
     @variant size-xs {
-      @apply size-[10px];
+      /* 10px */
+      @apply size-2.5;
     }
 
     @variant size-sm {
-      @apply size-[16px];
+      /* 16px */
+      @apply size-4;
     }
 
     @variant size-md {
-      @apply size-[22px];
+      /* 22px */
+      @apply size-5.5;
     }
 
     @variant size-lg {
-      @apply size-[28px];
+      /* 28px */
+      @apply size-7;
     }
 
     @variant size-xl {
-      @apply size-[34px];
+      /* 34px */
+      @apply size-8.5;
     }
   }
 
@@ -471,26 +489,32 @@
   }
 
   .sized-inner-group-item {
-    @apply h-[28px] w-[28px];
+    /* 28px */
+    @apply h-7 w-7;
 
     @variant size-xs {
-      @apply h-[16px] w-[16px];
+      /* 16px */
+      @apply h-4 w-4;
     }
 
     @variant size-sm {
-      @apply h-[24px] w-[24px];
+      /* 24px */
+      @apply h-6 w-6;
     }
 
     @variant size-md {
-      @apply h-[28px] w-[28px];
+      /* 28px */
+      @apply h-7 w-7;
     }
 
     @variant size-lg {
-      @apply h-[36px] w-[36px];
+      /* 36px */
+      @apply h-9 w-9;
     }
 
     @variant size-xl {
-      @apply h-[44px] w-[44px];
+      /* 44px */
+      @apply h-11 w-11;
     }
   }
 
@@ -519,26 +543,32 @@
   }
 
   .sized-inner-group-item-height {
-    @apply h-[28px];
+    /* 28px */
+    @apply h-7;
 
     @variant size-xs {
-      @apply h-[16px];
+      /* 16px */
+      @apply h-4;
     }
 
     @variant size-sm {
-      @apply h-[24px];
+      /* 24px */
+      @apply h-6;
     }
 
     @variant size-md {
-      @apply h-[28px];
+      /* 28px */
+      @apply h-7;
     }
 
     @variant size-lg {
-      @apply h-[36px];
+      /* 36px */
+      @apply h-9;
     }
 
     @variant size-xl {
-      @apply h-[44px];
+      /* 44px */
+      @apply h-11;
     }
   }
 
@@ -620,11 +650,11 @@
 
     @apply group-data-disabled/item:text-neutral-500/50;
     @apply dark:text-default-400 text-default-600;
-    @apply dark:group-data-[highlighted]/item:text-black group-data-[highlighted]/item:text-white;
+    @apply dark:group-data-highlighted/item:text-black group-data-highlighted/item:text-white;
     @apply dark:group-data-[state=checked]/item:text-black group-data-[state=checked]/item:text-white;
     @apply dark:group-data-[state=indeterminate]/item:text-black group-data-[state=indeterminate]/item:text-white;
-    @apply group-data-[highlighted]/item:group-data-[state=unchecked]/item:text-white;
-    @apply dark:group-data-[highlighted]/item:group-data-[state=unchecked]/item:text-black;
+    @apply group-data-highlighted/item:group-data-[state=unchecked]/item:text-white;
+    @apply dark:group-data-highlighted/item:group-data-[state=unchecked]/item:text-black;
     @apply group-data-[state=unchecked]/item:opacity-50;
     @apply dark:group-data-[state=checked]/item:bg-layout-light-base group-data-[state=checked]/item:bg-layout-dark-base;
     @apply group-data-[state=indeterminate]/item:shadow-[inset_0_0_0_1px_currentColor];
@@ -649,11 +679,11 @@
 
     @apply data-disabled:text-neutral-500/50;
     @apply dark:text-default-400 text-default-600;
-    @apply dark:data-[highlighted]:text-black data-[highlighted]:text-white;
+    @apply dark:data-highlighted:text-black data-highlighted:text-white;
     @apply dark:data-[state=checked]:text-black data-[state=checked]:text-white;
     @apply dark:data-[state=on]:text-black data-[state=on]:text-white;
-    @apply data-[highlighted]:data-[state=unchecked]:text-white;
-    @apply dark:data-[highlighted]:data-[state=unchecked]:text-black;
+    @apply data-highlighted:data-[state=unchecked]:text-white;
+    @apply dark:data-highlighted:data-[state=unchecked]:text-black;
     @apply data-[state=unchecked]:opacity-50;
     @apply dark:data-[state=checked]:bg-layout-light-base data-[state=checked]:bg-layout-dark-base;
     @apply dark:data-[state=on]:bg-layout-light-base data-[state=on]:bg-layout-dark-base;
@@ -673,17 +703,17 @@
     @apply w-fit h-5 gap-0 flex flex-row items-center justify-end;
     @apply group-data-disabled/item:text-neutral-500/25;
     @apply dark:text-default-600 text-default-400;
-    @apply dark:group-data-[highlighted]/item:text-black group-data-[highlighted]/item:text-white;
+    @apply dark:group-data-highlighted/item:text-black group-data-highlighted/item:text-white;
     @apply dark:group-data-[state=checked]/item:text-black group-data-[state=checked]/item:text-white;
-    @apply group-data-[highlighted]/item:group-data-[state=unchecked]/item:text-white;
-    @apply dark:group-data-[highlighted]/item:group-data-[state=unchecked]/item:text-black;
+    @apply group-data-highlighted/item:group-data-[state=unchecked]/item:text-white;
+    @apply dark:group-data-highlighted/item:group-data-[state=unchecked]/item:text-black;
   }
 
   .table-list {
     .table-list-text {
       @apply transition-colors duration-50 ease-in-out;
       @apply data-disabled:text-neutral-500/50;
-      @apply dark:group-data-[highlighted]/row:text-black group-data-[highlighted]/row:text-white;
+      @apply dark:group-data-highlighted/row:text-black group-data-highlighted/row:text-white;
       @apply dark:group-data-[state=checked]/row:text-black group-data-[state=checked]/row:text-white;
       @apply dark:focus:text-black focus:text-white;
       color: var(--accent-color);
@@ -693,7 +723,7 @@
       @apply transition-colors duration-50 ease-in-out;
       @apply cursor-pointer;
       @apply data-disabled:text-neutral-500/50;
-      @apply dark:data-[highlighted]:text-black data-[highlighted]:text-white;
+      @apply dark:data-highlighted:text-black data-highlighted:text-white;
       @apply dark:data-[state=checked]:text-black data-[state=checked]:text-white;
       color: var(--accent-color);
       &[data-highlighted] {
@@ -718,7 +748,7 @@
     @apply transition-colors duration-50 ease-in-out;
     @apply cursor-pointer;
     @apply data-disabled:text-neutral-500/50;
-    @apply dark:data-[highlighted]:text-black data-[highlighted]:text-white;
+    @apply dark:data-highlighted:text-black data-highlighted:text-white;
     color: var(--accent-color);
     &[data-highlighted] {
       background-color: color-mix(in oklab, var(--accent-color) 50%, transparent);
