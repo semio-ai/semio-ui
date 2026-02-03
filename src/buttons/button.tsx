@@ -19,9 +19,6 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
   rightIcon?: ReactNode;
   size?: Size | "fit";
   deemphasize?: boolean;
-  // invert?: boolean;
-  // border?: boolean;
-  // callToAction?: boolean;
   submit?: boolean;
   visuals?: "default" | "inverted" | "inverted-border" | "call-to-action" | "list-item";
 }
@@ -122,7 +119,19 @@ export const Button = forwardRef(
             {leftIcon}
           </div>
         )}
-        {children && <div className="px-3 py-2">{children}</div>}
+        {children && (
+          <div
+            className={clsx(
+              "grid place-items-center",
+              leftIcon ? "" : "pl-1.5",
+              rightIcon ? "" : "pr-1.5",
+              size !== "fit" && "sized-height",
+              size,
+            )}
+          >
+            {children}
+          </div>
+        )}
         {rightIcon && (
           <div
             className={clsx(
