@@ -804,7 +804,7 @@
     @apply rounded-md shadow-lg;
     /* @apply border-2;
     border-color: var(--card-border-color); */
-    @apply dark:bg-layout-dark-deep-inset/50 bg-layout-light-deep-inset/50 backdrop-blur-lg;
+    @apply dark:bg-layout-dark-deep-inset/80 bg-layout-light-deep-inset/80 backdrop-blur-lg;
   }
 
   .card-invert {
