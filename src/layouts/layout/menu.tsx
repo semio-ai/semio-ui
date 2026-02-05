@@ -86,14 +86,14 @@ function InnerMenu({
       <div
         data-ui={menuState ? "expanded" : ""}
         // The classname 'grid-area-menu' places the menu in the correct grid area.
-        className={clsx("grid-area-menu h-full w-full min-w-10 z-0", "group/menu")}
+        className={clsx("grid-area-menu h-full w-full min-w-11 z-0", "group/menu")}
         onDoubleClick={toggleMenu}
       >
         <ScrollArea
           wrapperClassName={clsx(
-            "responsive card-transparent flex min-w-10",
-            "h-10 w-full justify-center align-middle",
-            "desktop:h-full desktop:w-10 desktop:group-data-expanded/menu:w-fit desktop:justify-start",
+            "responsive card-transparent flex min-w-11",
+            "h-11 w-full justify-center align-middle",
+            "desktop:h-full desktop:w-11 desktop:group-data-expanded/menu:w-fit desktop:justify-start",
           )}
           className="desktop:pl-0.5"
           orientation={desktop ? "vertical" : "horizontal"}

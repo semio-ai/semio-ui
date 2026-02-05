@@ -1,5 +1,5 @@
 import { CSSProperties, ReactNode } from "react";
-import { IconPointFilled, IconSelector } from "@tabler/icons-react";
+import { IconLayoutGrid, IconPointFilled, IconSelector } from "@tabler/icons-react";
 import { clsx } from "clsx";
 // Will hopefully use later once we can search in the select.
 // import { matchSorter } from "match-sorter";
@@ -43,6 +43,7 @@ export interface SelectProps<T extends string | string[]> {
   label?: string;
   variant?: Variant;
   className?: string;
+  showChips?: boolean;
 }
 
 /**
@@ -62,8 +63,46 @@ export function Select<T extends string | string[]>({
   label,
   variant,
   className,
+  showChips = false,
 }: SelectProps<T>) {
   const multiple = Array.isArray(value);
+  const selectedValues: string[] = multiple ? (value as string[]) : [];
+  const selectedOptions = multiple
+    ? options.filter((option) => selectedValues.includes(option.value))
+    : [];
+  const triggerOption: SelectOption | undefined = multiple
+    ? (() => {
+        if (selectedOptions.length === 0) {
+          return {
+            value: "",
+            label: label ?? "Select items",
+            icon: <IconPointFilled className="w-3/5 h-3/5" />,
+            variant: variant ?? Variant.Default,
+          };
+        }
+        if (selectedOptions.length === 1) {
+          const [selectedOption] = selectedOptions;
+          return {
+            ...selectedOption,
+            variant: selectedOption.variant ?? variant ?? Variant.Default,
+          };
+        }
+        if (selectedOptions.length === options.length) {
+          return {
+            value: "",
+            label: "All selected",
+            icon: <IconLayoutGrid className="w-3/5 h-3/5" />,
+            variant: variant ?? Variant.Default,
+          };
+        }
+        return {
+          value: "",
+          label: `${String(selectedOptions.length)} selected`,
+          icon: <IconLayoutGrid className="w-3/5 h-3/5" />,
+          variant: variant ?? Variant.Default,
+        };
+      })()
+    : options.find((o) => o.value === value);
 
   const renderSingleOption = (selectOption?: SelectOption) => (
     <div
@@ -130,42 +169,44 @@ export function Select<T extends string | string[]>({
   );
 
   return (
-    <div className="flex flex-row w-full">
-      <Dropdown
-        trigger={renderSingleOption(options.find((o) => o.value === value))}
-        variant={options.find((o) => o.value === value)?.variant ?? Variant.Default}
-        color={options.find((o) => o.value === value)?.color ?? undefined}
-      >
-        {label && <NestedLabel>{label}</NestedLabel>}
-        {multiple && options.length > 0 && (
-          <NestedSelect
-            variant={variant}
-            values={value ?? []}
-            onChange={(v: string[]) => {
-              onChange(v as T);
-            }}
-            options={options}
-          />
-        )}
-        {!multiple && options.length > 0 && (
-          <NestedRadio
-            variant={variant}
-            value={value}
-            onChange={(v: string) => {
-              onChange(v as T);
-            }}
-            options={options}
-          />
-        )}
-        {options.length === 0 && (
-          <div className={clsx("p-2 text-center text-neutral-500", "sized-text", size)}>
-            No results found
-          </div>
-        )}
-      </Dropdown>
-      {Array.isArray(value) && value.length > 0 && (
-        <div className="flex flex-wrap w-full max-w-80 gap-1">
-          {value.map((v) => {
+    <div className={clsx("flex flex-col w-full gap-2")}>
+      <div className="flex flex-row w-full">
+        <Dropdown
+          trigger={renderSingleOption(triggerOption)}
+          variant={triggerOption?.variant ?? variant ?? Variant.Default}
+          color={triggerOption?.color ?? undefined}
+        >
+          {label && <NestedLabel>{label}</NestedLabel>}
+          {multiple && options.length > 0 && (
+            <NestedSelect
+              variant={variant}
+              values={selectedValues}
+              onChange={(v: string[]) => {
+                onChange(v as T);
+              }}
+              options={options}
+            />
+          )}
+          {!multiple && options.length > 0 && (
+            <NestedRadio
+              variant={variant}
+              value={value}
+              onChange={(v: string) => {
+                onChange(v as T);
+              }}
+              options={options}
+            />
+          )}
+          {options.length === 0 && (
+            <div className={clsx("p-2 text-center text-neutral-500", "sized-text", size)}>
+              No results found
+            </div>
+          )}
+        </Dropdown>
+      </div>
+      {multiple && showChips && selectedValues.length > 0 && (
+        <div className="flex flex-wrap w-full gap-1">
+          {selectedValues.map((v) => {
             const option = options.find((o) => o.value === v);
             return (
               <Chip
@@ -174,8 +215,7 @@ export function Select<T extends string | string[]>({
                 color={option?.color}
                 size={smallerSize(size)}
                 onDelete={(e) => {
-                  console.log("delete", v);
-                  onChange(value.filter((f) => f !== v) as T);
+                  onChange(selectedValues.filter((f) => f !== v) as T);
                   e.stopPropagation();
                 }}
               >

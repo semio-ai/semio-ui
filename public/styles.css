@@ -802,8 +802,9 @@
 
   .card-transparent {
     @apply rounded-md shadow-lg;
-    /* @apply border-2;
-    border-color: var(--card-border-color); */
+    @apply border-2;
+    border-color: var(--card-border-color);
+    /*border-color: var(--card-border-color);*/
     @apply dark:bg-layout-dark-deep-inset/80 bg-layout-light-deep-inset/80 backdrop-blur-lg;
   }
 
