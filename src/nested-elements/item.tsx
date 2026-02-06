@@ -3,7 +3,15 @@ import { clsx } from "clsx";
 import { NestedParent, type NestedItemProps } from "./types";
 import { useNestedParent } from "./context";
 
-export function NestedItem({ left, children, right, variant, disabled, onClick }: NestedItemProps) {
+export function NestedItem({
+  left,
+  children,
+  right,
+  variant,
+  disabled,
+  onClick,
+  closeOnSelect = true,
+}: NestedItemProps) {
   const parent = useNestedParent();
 
   const ItemComponent = parent === NestedParent.Dropdown ? DropdownMenu.Item : ContextMenu.Item;
@@ -12,6 +20,11 @@ export function NestedItem({ left, children, right, variant, disabled, onClick }
     <ItemComponent
       disabled={disabled}
       onClick={onClick}
+      onSelect={(event) => {
+        if (!closeOnSelect) {
+          event.preventDefault();
+        }
+      }}
       className={clsx(
         "leading-none flex items-center rounded-xs group/item",
         "h-7 text-sm px-[5px] relative pl-[30px] select-none outline-hidden",

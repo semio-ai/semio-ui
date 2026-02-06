@@ -60,6 +60,7 @@ export interface NestedColorPickerProps<T extends string | RawColor> {
  * @prop variant: The variant of the menu item. Defaults to {@link Variant.Default}
  * @prop disabled: Whether the menu is disabled.
  * @prop onClick: The function to call when the item is clicked.
+ * @prop closeOnSelect: Whether selecting the item closes the menu (defaults to true).
  */
 export interface NestedItemProps {
   left?: ReactNode;
@@ -68,6 +69,7 @@ export interface NestedItemProps {
   variant?: Variant;
   disabled?: boolean;
   onClick?: (event: MouseEvent) => void;
+  closeOnSelect?: boolean;
 }
 
 /**
