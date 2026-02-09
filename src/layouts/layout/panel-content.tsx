@@ -33,8 +33,8 @@ export function PanelContent({ region }: { region: PaneRegion }) {
               exit={variants[0]}
               transition={{ duration: 0.15, ease: "easeInOut" }}
               className={clsx(
-                "relative w-full overflow-clip pointer-events-auto",
-                "responsive card-transparent h-full",
+                "relative w-full pointer-events-auto",
+                "responsive card-transparent h-full rounded-md overflow-clip",
               )}
             >
               {pane.region === PaneRegion.Right && (
