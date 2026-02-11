@@ -10,6 +10,7 @@ import { NestedRadio } from "../nested-elements/radio";
 import { Chip } from "../chip";
 import { NestedLabel } from "../nested-elements/label";
 import { Dropdown } from "./dropdown";
+import { Tooltip } from "./tooltip";
 
 /**
  * @param {string} label - The text to display in the option
@@ -27,6 +28,9 @@ export interface SelectOption {
   icon?: ReactNode;
 }
 
+export type SelectVisuals = "icons" | "labels" | "both";
+export type SelectSizing = "default" | "inner" | "list-item";
+
 /**
  * @param {Variant} variant - The variant of the select (defines colors)
  * @param {T} value - The value of the select
@@ -34,16 +38,19 @@ export interface SelectOption {
  * @param {SelectOption[]} options - The options to display in the select
  * @param {Size} size - The size of the select
  * @param {string} label - The label of the select
+ * @param {SelectVisuals} visuals - How the trigger presents selected option data
  */
 export interface SelectProps<T extends string | string[]> {
   value?: T;
   onChange: (value: T) => void;
   options: SelectOption[];
   size?: Size;
+  sizing?: SelectSizing;
   label?: string;
   variant?: Variant;
   className?: string;
   showChips?: boolean;
+  visuals?: SelectVisuals;
 }
 
 /**
@@ -60,10 +67,12 @@ export function Select<T extends string | string[]>({
   onChange,
   options,
   size = Size.Md,
+  sizing = "default",
   label,
   variant,
   className,
   showChips = false,
+  visuals = "both",
 }: SelectProps<T>) {
   const multiple = Array.isArray(value);
   const selectedValues: string[] = multiple ? (value as string[]) : [];
@@ -104,73 +113,111 @@ export function Select<T extends string | string[]>({
       })()
     : options.find((o) => o.value === value);
 
-  const renderSingleOption = (selectOption?: SelectOption) => (
-    <div
-      style={
-        {
-          "--custom-color": selectOption?.color,
-        } as CSSProperties
-      }
-      className={clsx(
-        "responsive rounded-xs variant-mock-item-bg",
-        "variant-responsive-text variant-responsive-appearing-outline",
-        "flex flex-row flex-1 px-1 items-center min-w-0",
-        "sized-height",
-        size,
-        selectOption?.color ? "custom-color" : (selectOption?.variant ?? Variant.Default),
-        className,
-      )}
-    >
-      <div
-        className={clsx(
-          "flex flex-1 flex-row items-center justify-center min-w-0",
-          "sized-height",
-          size,
-        )}
-      >
+  const triggerHeightClass = resolveHeightSizingClass(sizing);
+  const triggerBoxClass = resolveBoxSizingClass(sizing);
+
+  const renderSingleOption = (selectOption?: SelectOption) => {
+    if (visuals === "icons") {
+      const tooltipContent = selectOption?.label ?? label ?? "Select";
+      return (
         <div
-          className={clsx(
-            size,
-            selectOption?.color ? "custom-color" : (selectOption?.variant ?? Variant.Default),
-            "responsive sized-mock-inner-item",
-            "grid place-items-center",
-            "variant-mock-inner-item",
-          )}
-        >
-          {selectOption?.icon || <IconPointFilled className="w-3/5 h-3/5" />}
-        </div>
-        <span
           style={
             {
               "--custom-color": selectOption?.color,
             } as CSSProperties
           }
           className={clsx(
+            "responsive rounded-xs variant-mock-item-bg",
+            "variant-responsive-text variant-responsive-appearing-outline",
+            "flex items-center justify-center p-0",
+            triggerBoxClass,
             size,
-            "flex-1 px-3 flex items-center min-w-0",
-            "responsive highlight-list-item",
-            "sized-height",
-            "sized-text",
-            selectOption?.color ? "custom-color" : Variant.Default,
+            selectOption?.color ? "custom-color" : (selectOption?.variant ?? Variant.Default),
+            className,
           )}
         >
-          <span className="truncate">{selectOption?.label ?? label}</span>
-        </span>
+          <Tooltip content={tooltipContent}>
+            <div className="flex h-full w-full items-center justify-center">
+              {selectOption?.icon || <IconPointFilled className="w-3/5 h-3/5" />}
+            </div>
+          </Tooltip>
+        </div>
+      );
+    }
 
-        <StaticIcon
-          size="fit"
-          className="pr-0.5 items-center justify-around"
-          variant={selectOption?.variant}
+    const showIcon = visuals === "both";
+
+    return (
+      <div
+        style={
+          {
+            "--custom-color": selectOption?.color,
+          } as CSSProperties
+        }
+        className={clsx(
+          "responsive rounded-xs variant-mock-item-bg",
+          "variant-responsive-text variant-responsive-appearing-outline",
+          "flex flex-row flex-1 px-1 items-center min-w-0",
+          triggerHeightClass,
+          size,
+          selectOption?.color ? "custom-color" : (selectOption?.variant ?? Variant.Default),
+          className,
+        )}
+      >
+        <div
+          className={clsx(
+            "flex flex-1 flex-row items-center justify-center min-w-0",
+            triggerHeightClass,
+            size,
+          )}
         >
-          <IconSelector size="13px" />
-        </StaticIcon>
+          {showIcon && (
+            <div
+              className={clsx(
+                size,
+                selectOption?.color ? "custom-color" : (selectOption?.variant ?? Variant.Default),
+                "responsive sized-mock-inner-item",
+                "grid place-items-center",
+                "variant-mock-inner-item",
+              )}
+            >
+              {selectOption?.icon || <IconPointFilled className="w-3/5 h-3/5" />}
+            </div>
+          )}
+          <span
+            style={
+              {
+                "--custom-color": selectOption?.color,
+              } as CSSProperties
+            }
+            className={clsx(
+              size,
+              "flex-1 flex items-center min-w-0",
+              "responsive highlight-list-item",
+              triggerHeightClass,
+              "sized-text",
+              showIcon ? "px-3" : "px-2",
+              selectOption?.color ? "custom-color" : Variant.Default,
+            )}
+          >
+            <span className="truncate">{selectOption?.label ?? label}</span>
+          </span>
+
+          <StaticIcon
+            size="fit"
+            className="pr-0.5 items-center justify-around"
+            variant={selectOption?.variant}
+          >
+            <IconSelector size="13px" />
+          </StaticIcon>
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   return (
-    <div className={clsx("flex flex-col w-full gap-2")}>
-      <div className="flex flex-row w-full">
+    <div className={clsx("flex flex-col gap-2", visuals === "icons" ? "w-fit" : "w-full")}>
+      <div className={clsx("flex flex-row", visuals === "icons" ? "w-fit" : "w-full")}>
         <Dropdown
           trigger={renderSingleOption(triggerOption)}
           variant={triggerOption?.variant ?? variant ?? Variant.Default}
@@ -235,4 +282,16 @@ function smallerSize(size: Size): Size {
   if (size === Size.Md) return Size.Sm;
   if (size === Size.Lg) return Size.Md;
   return Size.Sm;
+}
+
+function resolveBoxSizingClass(sizing: SelectSizing): string {
+  if (sizing === "inner") return "sized-inner-group-item";
+  if (sizing === "list-item") return "sized-list-item-indicator";
+  return "sized-height sized-width";
+}
+
+function resolveHeightSizingClass(sizing: SelectSizing): string {
+  if (sizing === "inner") return "sized-inner-group-item-height";
+  if (sizing === "list-item") return "sized-list-item-indicator-height";
+  return "sized-height";
 }

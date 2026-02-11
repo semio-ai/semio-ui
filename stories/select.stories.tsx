@@ -60,6 +60,7 @@ export const Primary: Story = {
       },
     ],
     size: Size.Sm,
+    visuals: "both",
   },
 };
 
@@ -85,5 +86,84 @@ export const Multiple: Story = {
       { value: "default", label: "Default" },
     ],
     size: Size.Sm,
+    visuals: "both",
+  },
+};
+
+export const VisualsBoth: Story = {
+  render: (props) => {
+    return <SelectWithHooks {...props} />;
+  },
+  args: {
+    variant: Variant.Default,
+    value: "hello",
+    options: [
+      {
+        value: "hello",
+        label: "Hello",
+        color: "#33bbbb",
+        icon: <IconMessageCircle2 className="w-3/5 h-3/5" />,
+      },
+      {
+        value: "world",
+        label: "World",
+        color: "#737373",
+        icon: <IconWorld className="w-3/5 h-3/5" />,
+      },
+    ],
+    size: Size.Sm,
+    visuals: "both",
+  },
+};
+
+export const VisualsIcons: Story = {
+  render: (props) => {
+    return <SelectWithHooks {...props} />;
+  },
+  args: {
+    variant: Variant.Default,
+    value: "hello",
+    options: [
+      {
+        value: "hello",
+        label: "Hello",
+        color: "#33bbbb",
+        icon: <IconMessageCircle2 className="w-3/5 h-3/5" />,
+      },
+      {
+        value: "world",
+        label: "World",
+        color: "#737373",
+        icon: <IconWorld className="w-3/5 h-3/5" />,
+      },
+    ],
+    size: Size.Sm,
+    visuals: "icons",
+  },
+};
+
+export const VisualsLabels: Story = {
+  render: (props) => {
+    return <SelectWithHooks {...props} />;
+  },
+  args: {
+    variant: Variant.Default,
+    value: "hello",
+    options: [
+      {
+        value: "hello",
+        label: "Hello",
+        color: "#33bbbb",
+        icon: <IconMessageCircle2 className="w-3/5 h-3/5" />,
+      },
+      {
+        value: "world",
+        label: "World",
+        color: "#737373",
+        icon: <IconWorld className="w-3/5 h-3/5" />,
+      },
+    ],
+    size: Size.Sm,
+    visuals: "labels",
   },
 };
