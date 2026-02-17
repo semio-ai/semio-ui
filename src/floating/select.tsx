@@ -51,6 +51,7 @@ export interface SelectProps<T extends string | string[]> {
   className?: string;
   showChips?: boolean;
   visuals?: SelectVisuals;
+  side?: "left" | "right" | "top" | "bottom";
 }
 
 /**
@@ -73,6 +74,7 @@ export function Select<T extends string | string[]>({
   className,
   showChips = false,
   visuals = "both",
+  side = "bottom",
 }: SelectProps<T>) {
   const multiple = Array.isArray(value);
   const selectedValues: string[] = multiple ? (value as string[]) : [];
@@ -219,6 +221,7 @@ export function Select<T extends string | string[]>({
     <div className={clsx("flex flex-col gap-2", visuals === "icons" ? "w-fit" : "w-full")}>
       <div className={clsx("flex flex-row", visuals === "icons" ? "w-fit" : "w-full")}>
         <Dropdown
+          side={side}
           trigger={renderSingleOption(triggerOption)}
           variant={triggerOption?.variant ?? variant ?? Variant.Default}
           color={triggerOption?.color ?? undefined}

@@ -24,6 +24,7 @@ export enum NestedParent {
  * @prop label: The label for the checkbox.
  * @prop variant: The variant of the checkbox. Defaults to {@link Variant.Default}
  * @prop onChange: The function to call when the checkbox changes.
+ * @prop closeOnSelect: Whether toggling the item closes the menu (defaults to true).
  * @prop color: The color of the checkbox. Overridees styling from variants.
  * @prop disabled: Whether the checkbox is disabled.
  * @prop icon: The icon to display next to the checkbox.
@@ -33,6 +34,7 @@ export interface NestedCheckboxProps {
   label: string;
   variant?: Variant;
   onChange?: (value: boolean) => void;
+  closeOnSelect?: boolean;
   color?: string;
   disabled?: boolean;
   icon?: ReactNode;
@@ -108,17 +110,19 @@ export interface NestedMenuProps {
 }
 
 /**
- * @prop label: The label for the option
- * @prop value: The value for the option. This should match the value specified.
- * @prop disabled: Whether the option is disabled.
- * @prop variant: The variant of the option. Defaults to {@link Variant.Default}
- * @prop color: The color of the option. Overridees styling from variants.
- * @prop icon: The icon to display next to the option.
+ * @prop label: [string] The label for the option
+ * @prop value: [string] The value for the option. This should match the value specified.
+ * @prop disabled: [boolean] Whether the option is disabled.
+ * @prop closeOnSelect: [boolean] Have the menu close after selecting this option
+ * @prop variant: [Variant] The variant of the option. Defaults to {@link Variant.Default}
+ * @prop color: [string] The color of the option. Overrides styling from variants.
+ * @prop icon: [ReactNode] The icon to display next to the option.
  */
 export interface NestedOption {
   label: string;
   value: string;
   disabled?: boolean;
+  closeOnSelect?: boolean;
   variant?: Variant;
   color?: string;
   icon?: ReactNode;

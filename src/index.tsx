@@ -52,6 +52,7 @@ export * from "./icons/file-type-mod";
 export * from "./icons/file-type-face";
 export * from "./icons/filter-box";
 export * from "./icons/filter-x";
+export * from "./icons/graph-view";
 export * from "./icons/home";
 export * from "./icons/key";
 export * from "./icons/key-outline";
@@ -68,6 +69,15 @@ export * from "./icons/robot";
 export * from "./icons/robot-plus";
 export * from "./icons/static-icon";
 export * from "./icons/uniform";
+export * from "./icons/vector-angled";
+export * from "./icons/vector-bezier";
+export * from "./icons/vector-bezier-handles";
+export * from "./icons/vector-bezier-insert-flat";
+export * from "./icons/vector-bezier-insert-sloped";
+export * from "./icons/vector-flat";
+export * from "./icons/vertex-free";
+export * from "./icons/vertex-paired";
+export * from "./icons/vertical-normalize";
 export * from "./icons/world-element-icons";
 
 // Inputs

@@ -41,6 +41,11 @@ export function NestedRadio({ variant, disabled, onChange, value, options }: Nes
                 } as CSSProperties)
               : {}
           }
+          onSelect={(e) => {
+            if (!option.closeOnSelect) {
+              e.preventDefault();
+            }
+          }}
           className={clsx(
             "leading-none flex items-center rounded-xs group/item",
             "h-7 text-sm px-[5px] relative pl-[30px] select-none outline-hidden",

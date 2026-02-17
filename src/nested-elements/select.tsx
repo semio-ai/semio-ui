@@ -41,7 +41,9 @@ export function NestedSelect({ variant, disabled, onChange, values, options }: N
             }
           }}
           onSelect={(e) => {
-            e.preventDefault();
+            if (!option.closeOnSelect) {
+              e.preventDefault();
+            }
           }}
           disabled={option.disabled || disabled}
           textValue={option.label}

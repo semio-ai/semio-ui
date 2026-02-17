@@ -205,7 +205,13 @@
 
   .variant-responsive-persistent-outline {
     @apply transition-[outline-color,outline-width] rounded-xs;
-    @apply outline-1 disabled:cursor-not-allowed focus:outline-2;
+    @apply outline-solid outline-1 disabled:cursor-not-allowed focus:outline-2;
+    outline-color: var(--standard-color);
+
+    &:focus,
+    &:focus-visible {
+      outline-color: var(--standard-color);
+    }
 
     &:disabled {
       outline-color: color-mix(in oklab, var(--standard-color) 50%, transparent);

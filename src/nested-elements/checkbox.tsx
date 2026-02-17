@@ -17,6 +17,7 @@ export function NestedCheckbox({
   variant,
   disabled,
   onChange,
+  closeOnSelect,
   value,
   color,
   icon,
@@ -44,7 +45,9 @@ export function NestedCheckbox({
         checked={value}
         onCheckedChange={onChange}
         onSelect={(e) => {
-          e.preventDefault();
+          if (!closeOnSelect) {
+            e.preventDefault();
+          }
         }}
         disabled={disabled}
         textValue={label}
