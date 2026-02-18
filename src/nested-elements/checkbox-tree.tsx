@@ -170,7 +170,7 @@ export function NestedCheckboxTree({
             className={clsx(
               "group/item",
               "leading-none flex items-center rounded-xs",
-              "min-h-7 text-sm py-1 px-[5px] relative pl-[30px] select-none outline-hidden",
+              "min-h-7 min-w-0 text-sm py-1 px-[5px] relative pl-[30px] select-none outline-hidden",
               "data-disabled:pointer-events-none",
               "responsive highlight-list-item",
               option.color ? "custom-color" : (option.variant ?? variant),
@@ -225,7 +225,7 @@ export function NestedCheckboxTree({
                   return <IconPoint size="13px" />;
                 })()}
             </div>
-            {option.label}
+            <span className="block min-w-0 truncate">{option.label}</span>
             <div
               className={clsx(
                 "ml-auto pl-[20px] inline-flex items-center justify-center flex-shrink-0",
@@ -273,7 +273,7 @@ export function NestedCheckboxTree({
           }
           className={clsx(
             "leading-none flex items-center rounded-xs group/item",
-            "min-h-7 text-sm py-1 px-[5px] relative pl-[30px] select-none outline-hidden",
+            "min-h-7 min-w-0 text-sm py-1 px-[5px] relative pl-[30px] select-none outline-hidden",
             "data-disabled:pointer-events-none",
             "responsive highlight-list-item",
             option.color ? "custom-color" : (option.variant ?? variant),
@@ -294,7 +294,7 @@ export function NestedCheckboxTree({
                 <IconPoint size="13px" />
               ))}
           </ItemIndicatorComponent>
-          {option.label}
+          <span className="block min-w-0 truncate">{option.label}</span>
         </ItemComponent>
       );
     }
