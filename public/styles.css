@@ -653,6 +653,7 @@
   .check-indicator {
     @apply transition-[color,background-color] duration-50 ease-in-out;
     @apply rounded-xs w-5 h-5 bg-transparent;
+    @apply grid place-items-center;
 
     @apply group-data-disabled/item:text-neutral-500/50;
     @apply dark:text-default-400 text-default-600;
@@ -682,6 +683,7 @@
   .grid-list-item-indicator {
     @apply transition-[color,background-color] duration-50 ease-in-out;
     @apply rounded-xs dark:bg-black/40 bg-white/40;
+    @apply grid place-items-center;
 
     @apply data-disabled:text-neutral-500/50;
     @apply dark:text-default-400 text-default-600;
@@ -1018,6 +1020,16 @@
       --light-accent-text-color: var(--color-info-500);
       --dark-accent-text-color: var(--color-info-500);
     }
+  }
+
+  .icon-standard {
+    /* Explicit width+height avoids SVG intrinsic width drift across icon sets. */
+    @apply block h-3/5 w-3/5 shrink-0;
+  }
+
+  .icon-slot {
+    @apply grid h-full w-full place-items-center leading-none;
+    @apply [&_svg]:block [&_svg]:h-3/5 [&_svg]:w-3/5 [&_svg]:shrink-0;
   }
 
   .input-label-field-units-grid {

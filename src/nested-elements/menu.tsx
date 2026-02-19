@@ -2,6 +2,7 @@ import { Fragment, useMemo } from "react";
 import { DropdownMenu, ContextMenu, Collapsible } from "radix-ui";
 import { IconChevronRight } from "@tabler/icons-react";
 import { clsx } from "clsx";
+import { ICON_CLASS_NAME } from "../constants/icon";
 import { ScrollArea } from "../layouts/scroll-area";
 import { useLayoutState } from "../hooks/use-layout-state";
 import { NestedParent, type NestedMenuProps } from "./types";
@@ -68,8 +69,8 @@ export function NestedMenu({
         {left && (
           <div
             className={clsx(
-              "absolute left-0 w-[30px] inline-flex items-center justify-center",
-              "responsive check-indicator",
+              "absolute left-1 top-1/2 -translate-y-1/2 inline-flex items-center justify-center",
+              "responsive list-item-extra",
               variant,
             )}
           >
@@ -81,14 +82,15 @@ export function NestedMenu({
 
         <div
           className={clsx(
-            "absolute right-1 grid place-items-center",
-            "responsive check-indicator",
+            "absolute right-1 top-1/2 -translate-y-1/2 inline-flex items-center justify-center",
+            "responsive list-item-extra",
             variant,
           )}
         >
           <IconChevronRight
             className={clsx(
-              "h-4/5 w-4/5 rotate-0 transition-transform",
+              ICON_CLASS_NAME,
+              "rotate-0 transition-transform",
               !desktop && "group-data-[state=open]/item:rotate-90",
             )}
           />

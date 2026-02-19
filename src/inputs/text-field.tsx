@@ -11,6 +11,7 @@ import {
 import { clsx } from "clsx";
 import { IconX } from "@tabler/icons-react";
 import { Size, Variant } from "../types";
+import { ICON_CLASS_NAME } from "../constants/icon";
 
 export interface TextFieldProps
   extends Omit<InputHTMLAttributes<HTMLInputElement>, "size" | "onChange"> {
@@ -125,7 +126,7 @@ const InnerTextField = forwardRef(
               onClear?.(e);
             }}
           >
-            <IconX className="w-3/5 h-3/5" />
+            <IconX className={ICON_CLASS_NAME} />
           </button>
         )}
       </div>

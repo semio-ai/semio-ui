@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { Avatar, Size, Variant } from "@semio/ui";
+import { Avatar, Size, Variant, ICON_CLASS_NAME } from "@semio/ui";
 import { IconUser } from "@tabler/icons-react";
 
 const meta: Meta<typeof Avatar> = {
@@ -166,7 +166,7 @@ export const PrimaryStatus: Story = {
 export const PrimaryIconStatus: Story = {
   args: {
     variant: Variant.Primary,
-    icon: <IconUser className="w-3/4 h-3/4" />,
+    icon: <IconUser className={ICON_CLASS_NAME} />,
     visuals: "default",
     alt: "Fred",
     onClick: (): void => {
@@ -202,7 +202,7 @@ export const PrimaryIcon: Story = {
     variant: Variant.Primary,
     visuals: "default",
     alt: "Fred",
-    icon: <IconUser className="w-3/4 h-3/4" />,
+    icon: <IconUser className={ICON_CLASS_NAME} />,
     onClick: (): void => {
       // eslint-disable-next-line no-alert -- alert for demo
       alert("Hello From Semio!");

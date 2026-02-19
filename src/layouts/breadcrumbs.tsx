@@ -5,6 +5,7 @@ import { Dropdown } from "../floating/dropdown";
 import { SelectOption } from "../floating/select";
 import { NestedRadio } from "../nested-elements/radio";
 import { Variant } from "../types";
+import { ICON_CLASS_NAME } from "../constants/icon";
 
 export interface BreadcrumbOptionElement {
   id: string;
@@ -85,13 +86,14 @@ export function InnerBreadcrumbs({
                   {showIcons &&
                     element.options.find((option) => option.value === element.value)?.icon &&
                     (element.options.find((option) => option.value === element.value)?.icon ?? (
-                      <IconHexagon key="icon" className="h-3/5 aspect-square" />
+                      <IconHexagon key="icon" className={ICON_CLASS_NAME} />
                     ))}
                   {element.options.find((option) => option.value === element.value)?.label ??
                     element.value}
                   <IconChevronDown
                     className={clsx(
-                      "h-3/5 aspect-square ease-in-out",
+                      ICON_CLASS_NAME,
+                      "ease-in-out",
                       "group-hover/trigger:opacity-100 opacity-20 group-data-[state=open]/trigger:opacity-100",
                       "rotate-0 group-data-[state=open]/trigger:rotate-180 transition-transform duration-75",
                     )}

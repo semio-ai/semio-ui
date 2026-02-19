@@ -2,6 +2,7 @@ import { DropdownMenu, ContextMenu } from "radix-ui";
 import { type CSSProperties, useCallback } from "react";
 import { IconCheck, IconMinus, IconPoint, IconChevronRight } from "@tabler/icons-react";
 import { clsx } from "clsx";
+import { ICON_CLASS_NAME } from "../constants/icon";
 import { Variant } from "../types";
 import { NestedParent } from "./types";
 import { useNestedParent } from "./context";
@@ -197,7 +198,7 @@ export function NestedCheckboxTree({
               })()}
               tabIndex={0}
               className={clsx(
-                "absolute left-1 top-1 inline-flex items-center justify-center cursor-pointer",
+                "absolute left-1 top-1/2 -translate-y-1/2 grid place-items-center cursor-pointer",
                 "responsive check-indicator",
                 option.color ? "custom-color" : (option.variant ?? variant),
               )}
@@ -214,16 +215,18 @@ export function NestedCheckboxTree({
                 }
               }}
             >
-              {option.icon ||
-                (() => {
-                  if (state === CheckboxState.Checked) {
-                    return <IconCheck size="13px" />;
-                  }
-                  if (state === CheckboxState.Indeterminate) {
-                    return <IconMinus size="13px" />;
-                  }
-                  return <IconPoint size="13px" />;
-                })()}
+              <span className="icon-slot">
+                {option.icon ||
+                  (() => {
+                    if (state === CheckboxState.Checked) {
+                      return <IconCheck className={ICON_CLASS_NAME} />;
+                    }
+                    if (state === CheckboxState.Indeterminate) {
+                      return <IconMinus className={ICON_CLASS_NAME} />;
+                    }
+                    return <IconPoint className={ICON_CLASS_NAME} />;
+                  })()}
+              </span>
             </div>
             <span className="block min-w-0 truncate">{option.label}</span>
             <div
@@ -233,7 +236,7 @@ export function NestedCheckboxTree({
                 option.variant ?? variant,
               )}
             >
-              <IconChevronRight className="w-3/5 h-3/5 flex-shrink-0" />
+              <IconChevronRight className={clsx(ICON_CLASS_NAME, "flex-shrink-0")} />
             </div>
           </SubTriggerComponent>
           <PortalComponent>
@@ -282,17 +285,19 @@ export function NestedCheckboxTree({
           <ItemIndicatorComponent
             forceMount
             className={clsx(
-              "absolute left-1 top-1 inline-flex items-center justify-center",
+              "absolute left-1 top-1/2 -translate-y-1/2 grid place-items-center",
               "responsive check-indicator",
               option.color ? "custom-color" : (option.variant ?? variant),
             )}
           >
-            {option.icon ||
-              (state === CheckboxState.Checked ? (
-                <IconCheck size="13px" />
-              ) : (
-                <IconPoint size="13px" />
-              ))}
+            <span className="icon-slot">
+              {option.icon ||
+                (state === CheckboxState.Checked ? (
+                  <IconCheck className={ICON_CLASS_NAME} />
+                ) : (
+                  <IconPoint className={ICON_CLASS_NAME} />
+                ))}
+            </span>
           </ItemIndicatorComponent>
           <span className="block min-w-0 truncate">{option.label}</span>
         </ItemComponent>

@@ -2,6 +2,7 @@ import { memo, type ReactNode, type ChangeEvent, type KeyboardEvent, useRef } fr
 import { clsx } from "clsx";
 import { IconSearch } from "@tabler/icons-react";
 import { Size, Variant } from "../types";
+import { ICON_CLASS_NAME } from "../constants/icon";
 import { TextField, TextFieldProps } from "./text-field";
 
 export interface SearchProps extends TextFieldProps {
@@ -36,7 +37,7 @@ function InnerSearch({
       )}
       size={size}
       variant={variant}
-      icon={<IconSearch className="h-3/5 w-3/5" />}
+      icon={<IconSearch className={ICON_CLASS_NAME} />}
       onClear={() => {
         if (inputRef.current) {
           inputRef.current.value = "";

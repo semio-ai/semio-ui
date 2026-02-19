@@ -21,6 +21,7 @@ import { NestedSeparator } from "../nested-elements/separator";
 import { NestedCheckbox } from "../nested-elements/checkbox";
 import { NestedSelect } from "../nested-elements/select";
 import { Theme, Variant } from "../types";
+import { ICON_CLASS_NAME } from "../constants/icon";
 
 export function NestedExample(): ReactNode {
   const [selectedTheme, setSelectedTheme] = useState<Theme>(Theme.System);
@@ -30,7 +31,7 @@ export function NestedExample(): ReactNode {
   return (
     <>
       <NestedItem
-        left={<IconArrowUp className="w-3/5 h-3/5" />}
+        left={<IconArrowUp className={ICON_CLASS_NAME} />}
         right={
           <div className="flex flex-row items-center justify-end gap-0 h-5">
             <IconCommand className="w-3 h-3" />
@@ -41,7 +42,7 @@ export function NestedExample(): ReactNode {
         Item 1
       </NestedItem>
       <NestedItem
-        left={<IconArrowDown className="w-3/5 h-3/5" />}
+        left={<IconArrowDown className={ICON_CLASS_NAME} />}
         right={
           <div className="flex flex-row items-center justify-end gap-0 h-5">
             <IconCommand className="w-3 h-3" />
@@ -59,19 +60,19 @@ export function NestedExample(): ReactNode {
           {
             value: "light",
             label: "Light",
-            icon: <IconSun className="h-3/5 w-3/5" />,
+            icon: <IconSun className={ICON_CLASS_NAME} />,
             color: "#F99600",
           },
           {
             value: "dark",
             label: "Dark",
-            icon: <IconMoon className="h-3/5 w-3/5" />,
+            icon: <IconMoon className={ICON_CLASS_NAME} />,
             variant: Variant.Tertiary,
           },
           {
             value: "system",
             label: "System",
-            icon: <IconSunMoon className="h-3/5 w-3/5" />,
+            icon: <IconSunMoon className={ICON_CLASS_NAME} />,
           },
         ]}
         onChange={(value) => setSelectedTheme(value as Theme)}
@@ -85,24 +86,24 @@ export function NestedExample(): ReactNode {
             {
               value: "hat",
               label: "Hat",
-              icon: <IconChefHat className="h-3/5 w-3/5" />,
+              icon: <IconChefHat className={ICON_CLASS_NAME} />,
               color: "#ee44ee",
             },
             {
               value: "coat",
               label: "Coat",
-              icon: <IconJacket className="h-3/5 w-3/5" />,
+              icon: <IconJacket className={ICON_CLASS_NAME} />,
             },
             {
               value: "glasses",
               label: "Glasses",
-              icon: <IconSunglasses className="h-3/5 w-3/5" />,
+              icon: <IconSunglasses className={ICON_CLASS_NAME} />,
               variant: Variant.Success,
             },
             {
               value: "shoes",
               label: "Shoes",
-              icon: <IconShoe className="h-3/5 w-3/5" />,
+              icon: <IconShoe className={ICON_CLASS_NAME} />,
               variant: Variant.Primary,
             },
           ]}

@@ -20,6 +20,7 @@ import { MenuItemClickFn, PaneRegion, Variant } from "../../types";
 import { ContextMenu } from "../../floating/context-menu";
 import { NestedSelect } from "../../nested-elements/select";
 import { NestedRadio } from "../../nested-elements/radio";
+import { ICON_CLASS_NAME } from "../../constants/icon";
 import { isPlaceholder } from "./types";
 
 function InnerMenu({
@@ -69,7 +70,8 @@ function InnerMenu({
                 icon: (
                   <IconChevronRightPipe
                     className={clsx(
-                      "w-3/5 h-3/5 transition-transform",
+                      ICON_CLASS_NAME,
+                      "transition-transform",
                       menuState ? "rotate-180" : "rotate-360",
                     )}
                   />

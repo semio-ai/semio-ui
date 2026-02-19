@@ -4,6 +4,7 @@ import { ArgsStoryFn } from "storybook/internal/csf";
 import {
   type BreadcrumbElement,
   Breadcrumbs,
+  ICON_CLASS_NAME,
   IconFileTypeAni,
   IconFileTypeMod,
   IconFileTypeFace,
@@ -47,7 +48,7 @@ const STATIC_ELEMENTS: BreadcrumbElement[] = [
       {
         value: "dashboard",
         label: "Dashboard",
-        icon: <IconDashboard className="h-3/5 aspect-square" />,
+        icon: <IconDashboard className={ICON_CLASS_NAME} />,
         children: [
           {
             id: "subRoot",
@@ -56,32 +57,32 @@ const STATIC_ELEMENTS: BreadcrumbElement[] = [
               {
                 value: "home",
                 label: "Home",
-                icon: <IconHome className="h-3/5 aspect-square" />,
+                icon: <IconHome className={ICON_CLASS_NAME} />,
                 default: true,
                 children: [],
               },
               {
                 value: "projects",
                 label: "Projects",
-                icon: <IconCube className="h-3/5 aspect-square" />,
+                icon: <IconCube className={ICON_CLASS_NAME} />,
                 children: [],
               },
               {
                 value: "animations",
                 label: "Animations",
-                icon: <IconFileTypeAni className="h-3/5 aspect-square" />,
+                icon: <IconFileTypeAni className={ICON_CLASS_NAME} />,
                 children: [],
               },
               {
                 value: "faces",
                 label: "Faces",
-                icon: <IconFileTypeFace className="h-3/5 aspect-square" />,
+                icon: <IconFileTypeFace className={ICON_CLASS_NAME} />,
                 children: [],
               },
               {
                 value: "models",
                 label: "Models",
-                icon: <IconFileTypeMod className="h-3/5 aspect-square" />,
+                icon: <IconFileTypeMod className={ICON_CLASS_NAME} />,
                 children: [],
               },
             ],
@@ -91,7 +92,7 @@ const STATIC_ELEMENTS: BreadcrumbElement[] = [
       {
         value: "marketplace",
         label: "Marketplace",
-        icon: <IconShoppingBag className="h-3/5 aspect-square" />,
+        icon: <IconShoppingBag className={ICON_CLASS_NAME} />,
         children: [
           {
             id: "subRoot",
@@ -100,32 +101,32 @@ const STATIC_ELEMENTS: BreadcrumbElement[] = [
               {
                 value: "home",
                 label: "Home",
-                icon: <IconHome className="h-3/5 aspect-square" />,
+                icon: <IconHome className={ICON_CLASS_NAME} />,
                 default: true,
                 children: [],
               },
               {
                 value: "projects",
                 label: "Projects",
-                icon: <IconCube className="h-3/5 aspect-square" />,
+                icon: <IconCube className={ICON_CLASS_NAME} />,
                 children: [],
               },
               {
                 value: "animations",
                 label: "Animations",
-                icon: <IconFileTypeAni className="h-3/5 aspect-square" />,
+                icon: <IconFileTypeAni className={ICON_CLASS_NAME} />,
                 children: [],
               },
               {
                 value: "faces",
                 label: "Faces",
-                icon: <IconFileTypeFace className="h-3/5 aspect-square" />,
+                icon: <IconFileTypeFace className={ICON_CLASS_NAME} />,
                 children: [],
               },
               {
                 value: "models",
                 label: "Models",
-                icon: <IconFileTypeMod className="h-3/5 aspect-square" />,
+                icon: <IconFileTypeMod className={ICON_CLASS_NAME} />,
                 children: [],
               },
             ],
@@ -135,7 +136,7 @@ const STATIC_ELEMENTS: BreadcrumbElement[] = [
       {
         value: "studio",
         label: "Studio",
-        icon: <IconHexagonLetterS className="h-3/5 aspect-square" />,
+        icon: <IconHexagonLetterS className={ICON_CLASS_NAME} />,
         children: [
           {
             id: "subRoot",
@@ -144,31 +145,31 @@ const STATIC_ELEMENTS: BreadcrumbElement[] = [
               {
                 value: "aljvnliea",
                 label: "Project 1",
-                icon: <IconCube className="h-3/5 aspect-square" />,
+                icon: <IconCube className={ICON_CLASS_NAME} />,
                 children: [],
               },
               {
                 value: "sdafskue2",
                 label: "Project 2",
-                icon: <IconCube className="h-3/5 aspect-square" />,
+                icon: <IconCube className={ICON_CLASS_NAME} />,
                 children: [],
               },
               {
                 value: "sdisd9311",
                 label: "Project 3",
-                icon: <IconCube className="h-3/5 aspect-square" />,
+                icon: <IconCube className={ICON_CLASS_NAME} />,
                 children: [],
               },
               {
                 value: "lkdfhjweq",
                 label: "Project 4",
-                icon: <IconCube className="h-3/5 aspect-square" />,
+                icon: <IconCube className={ICON_CLASS_NAME} />,
                 children: [],
               },
               {
                 value: "aseisdjcl",
                 label: "Project 5",
-                icon: <IconCube className="h-3/5 aspect-square" />,
+                icon: <IconCube className={ICON_CLASS_NAME} />,
                 children: [],
               },
             ],

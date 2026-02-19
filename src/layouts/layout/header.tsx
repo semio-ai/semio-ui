@@ -17,6 +17,7 @@ import { IconHome } from "../../icons/home";
 import { useLayoutActions } from "../../hooks/use-layout-actions";
 import { PaneRegion, Size, ToolbarWidget, Variant } from "../../types";
 import { HeaderButton } from "../../buttons/header-button";
+import { ICON_CLASS_NAME } from "../../constants/icon";
 import { isPlaceholder } from "./types";
 
 function InnerHeader({ homeIcon }: { homeIcon?: ReactNode }) {
@@ -90,7 +91,7 @@ function InnerHeader({ homeIcon }: { homeIcon?: ReactNode }) {
               variant={Variant.Default}
               size={Size.Sm}
               label="Toggle Menu"
-              icon={<IconMenu2 className={clsx("w-3/5 h-3/5")} />}
+              icon={<IconMenu2 className={ICON_CLASS_NAME} />}
             />
           }
         >
@@ -118,7 +119,8 @@ function InnerHeader({ homeIcon }: { homeIcon?: ReactNode }) {
           icon={
             <IconChevronRightPipe
               className={clsx(
-                "transition-transform w-3/5 h-3/5 ease-in-out duration-100",
+                ICON_CLASS_NAME,
+                "transition-transform ease-in-out duration-100",
                 rightRegionActive ? "rotate-360" : "rotate-180",
               )}
             />

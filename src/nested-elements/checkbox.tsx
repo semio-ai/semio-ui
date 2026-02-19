@@ -3,6 +3,7 @@ import { type CSSProperties } from "react";
 import { IconCheck } from "@tabler/icons-react";
 import { alpha, altColor } from "@semio/utils";
 import { clsx } from "clsx";
+import { ICON_CLASS_NAME } from "../constants/icon";
 import { useNestedParent } from "./context";
 import { NestedParent } from "./types";
 import type { NestedCheckboxProps } from "./types";
@@ -71,11 +72,11 @@ export function NestedCheckbox({
       >
         <ItemIndicatorComponent
           className={clsx(
-            "absolute left-1 inline-flex items-center justify-center",
-            "w-5 h-5 bg-transparent",
+            "absolute left-1 top-1/2 -translate-y-1/2 grid place-items-center",
+            "responsive check-indicator",
           )}
         >
-          {icon ?? <IconCheck className="w-3/5 h-3/5" />}
+          <span className="icon-slot">{icon ?? <IconCheck className={ICON_CLASS_NAME} />}</span>
         </ItemIndicatorComponent>
         {label}
       </ItemComponent>

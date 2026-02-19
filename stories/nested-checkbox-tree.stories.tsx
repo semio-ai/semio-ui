@@ -11,6 +11,7 @@ import {
   type NestedCheckboxTreeProps,
   NestedParentProvider,
   NestedParent,
+  ICON_CLASS_NAME,
 } from "@semio/ui";
 import {
   IconChevronDown,
@@ -98,44 +99,44 @@ const simpleTreeOptions: TreeOption[] = [
   {
     value: "documents",
     label: "Documents",
-    icon: <IconFolder className="w-3/5 h-3/5" />,
+    icon: <IconFolder className={ICON_CLASS_NAME} />,
     children: [
       {
         value: "reports",
         label: "Reports",
-        icon: <IconFolder className="w-3/5 h-3/5" />,
+        icon: <IconFolder className={ICON_CLASS_NAME} />,
         children: [
           {
             value: "q1-report",
             label: "Q1 Report",
-            icon: <IconFile className="w-3/5 h-3/5" />,
+            icon: <IconFile className={ICON_CLASS_NAME} />,
           },
           {
             value: "q2-report",
             label: "Q2 Report",
-            icon: <IconFile className="w-3/5 h-3/5" />,
+            icon: <IconFile className={ICON_CLASS_NAME} />,
           },
           {
             value: "q3-report",
             label: "Q3 Report",
-            icon: <IconFile className="w-3/5 h-3/5" />,
+            icon: <IconFile className={ICON_CLASS_NAME} />,
           },
         ],
       },
       {
         value: "presentations",
         label: "Presentations",
-        icon: <IconFolder className="w-3/5 h-3/5" />,
+        icon: <IconFolder className={ICON_CLASS_NAME} />,
         children: [
           {
             value: "keynote",
             label: "Keynote",
-            icon: <IconFile className="w-3/5 h-3/5" />,
+            icon: <IconFile className={ICON_CLASS_NAME} />,
           },
           {
             value: "demo",
             label: "Demo",
-            icon: <IconFile className="w-3/5 h-3/5" />,
+            icon: <IconFile className={ICON_CLASS_NAME} />,
           },
         ],
       },
@@ -144,17 +145,17 @@ const simpleTreeOptions: TreeOption[] = [
   {
     value: "images",
     label: "Images",
-    icon: <IconFolder className="w-3/5 h-3/5" />,
+    icon: <IconFolder className={ICON_CLASS_NAME} />,
     children: [
       {
         value: "photos",
         label: "Photos",
-        icon: <IconFile className="w-3/5 h-3/5" />,
+        icon: <IconFile className={ICON_CLASS_NAME} />,
       },
       {
         value: "screenshots",
         label: "Screenshots",
-        icon: <IconFile className="w-3/5 h-3/5" />,
+        icon: <IconFile className={ICON_CLASS_NAME} />,
       },
     ],
   },
@@ -165,88 +166,88 @@ const projectTreeOptions: TreeOption[] = [
   {
     value: "src",
     label: "src",
-    icon: <IconFolder className="w-3/5 h-3/5" />,
+    icon: <IconFolder className={ICON_CLASS_NAME} />,
     color: "#3498db",
     children: [
       {
         value: "components",
         label: "components",
-        icon: <IconBrandReact className="w-3/5 h-3/5" />,
+        icon: <IconBrandReact className={ICON_CLASS_NAME} />,
         color: "#61DAFB",
         children: [
           {
             value: "Button.tsx",
             label: "Button.tsx",
-            icon: <IconBrandReact className="w-3/5 h-3/5" />,
+            icon: <IconBrandReact className={ICON_CLASS_NAME} />,
           },
           {
             value: "Modal.tsx",
             label: "Modal.tsx",
-            icon: <IconBrandReact className="w-3/5 h-3/5" />,
+            icon: <IconBrandReact className={ICON_CLASS_NAME} />,
           },
           {
             value: "Card.tsx",
             label: "Card.tsx",
-            icon: <IconBrandReact className="w-3/5 h-3/5" />,
+            icon: <IconBrandReact className={ICON_CLASS_NAME} />,
           },
         ],
       },
       {
         value: "styles",
         label: "styles",
-        icon: <IconFolder className="w-3/5 h-3/5" />,
+        icon: <IconFolder className={ICON_CLASS_NAME} />,
         color: "#9b59b6",
         children: [
           {
             value: "global.css",
             label: "global.css",
-            icon: <IconFileTypeCss className="w-3/5 h-3/5" />,
+            icon: <IconFileTypeCss className={ICON_CLASS_NAME} />,
           },
           {
             value: "components.css",
             label: "components.css",
-            icon: <IconFileTypeCss className="w-3/5 h-3/5" />,
+            icon: <IconFileTypeCss className={ICON_CLASS_NAME} />,
           },
         ],
       },
       {
         value: "utils",
         label: "utils",
-        icon: <IconCode className="w-3/5 h-3/5" />,
+        icon: <IconCode className={ICON_CLASS_NAME} />,
         color: "#2ecc71",
         children: [
           {
             value: "api.ts",
             label: "api.ts",
-            icon: <IconApi className="w-3/5 h-3/5" />,
+            icon: <IconApi className={ICON_CLASS_NAME} />,
           },
           {
             value: "helpers.ts",
             label: "helpers.ts",
-            icon: <IconFileTypeJs className="w-3/5 h-3/5" />,
+            icon: <IconFileTypeJs className={ICON_CLASS_NAME} />,
           },
           {
             value: "constants.ts",
             label: "constants.ts",
-            icon: <IconFileTypeJs className="w-3/5 h-3/5" />,
+            icon: <IconFileTypeJs className={ICON_CLASS_NAME} />,
           },
         ],
       },
       {
         value: "pages",
         label: "pages",
-        icon: <IconFileTypeHtml className="w-3/5 h-3/5" />,
+        icon: <IconFileTypeHtml className={ICON_CLASS_NAME} />,
         color: "#e74c3c",
         children: [
           {
             value: "index.html",
             label: "index.html",
-            icon: <IconFileTypeHtml className="w-3/5 h-3/5" />,
+            icon: <IconFileTypeHtml className={ICON_CLASS_NAME} />,
           },
           {
             value: "about.html",
             label: "about.html",
-            icon: <IconFileTypeHtml className="w-3/5 h-3/5" />,
+            icon: <IconFileTypeHtml className={ICON_CLASS_NAME} />,
           },
         ],
       },
@@ -255,35 +256,35 @@ const projectTreeOptions: TreeOption[] = [
   {
     value: "tests",
     label: "tests",
-    icon: <IconTestPipe className="w-3/5 h-3/5" />,
+    icon: <IconTestPipe className={ICON_CLASS_NAME} />,
     color: "#f39c12",
     children: [
       {
         value: "unit",
         label: "unit",
-        icon: <IconFolder className="w-3/5 h-3/5" />,
+        icon: <IconFolder className={ICON_CLASS_NAME} />,
         children: [
           {
             value: "Button.test.tsx",
             label: "Button.test.tsx",
-            icon: <IconTestPipe className="w-3/5 h-3/5" />,
+            icon: <IconTestPipe className={ICON_CLASS_NAME} />,
           },
           {
             value: "Modal.test.tsx",
             label: "Modal.test.tsx",
-            icon: <IconTestPipe className="w-3/5 h-3/5" />,
+            icon: <IconTestPipe className={ICON_CLASS_NAME} />,
           },
         ],
       },
       {
         value: "integration",
         label: "integration",
-        icon: <IconFolder className="w-3/5 h-3/5" />,
+        icon: <IconFolder className={ICON_CLASS_NAME} />,
         children: [
           {
             value: "api.test.ts",
             label: "api.test.ts",
-            icon: <IconTestPipe className="w-3/5 h-3/5" />,
+            icon: <IconTestPipe className={ICON_CLASS_NAME} />,
           },
         ],
       },
@@ -292,14 +293,14 @@ const projectTreeOptions: TreeOption[] = [
   {
     value: "node_modules",
     label: "node_modules",
-    icon: <IconBrandNodejs className="w-3/5 h-3/5" />,
+    icon: <IconBrandNodejs className={ICON_CLASS_NAME} />,
     disabled: true,
     children: [],
   },
   {
     value: "package.json",
     label: "package.json",
-    icon: <IconPackage className="w-3/5 h-3/5" />,
+    icon: <IconPackage className={ICON_CLASS_NAME} />,
   },
 ];
 
@@ -364,13 +365,13 @@ const serviceCategories: TreeOption[] = [
   {
     value: "frontend",
     label: "Frontend",
-    icon: <IconDeviceDesktop className="w-3/5 h-3/5" />,
+    icon: <IconDeviceDesktop className={ICON_CLASS_NAME} />,
     variant: Variant.Primary,
     children: [
       {
         value: "react",
         label: "React",
-        icon: <IconBrandReact className="w-3/5 h-3/5" />,
+        icon: <IconBrandReact className={ICON_CLASS_NAME} />,
       },
       {
         value: "vue",
@@ -387,13 +388,13 @@ const serviceCategories: TreeOption[] = [
   {
     value: "backend",
     label: "Backend",
-    icon: <IconServer className="w-3/5 h-3/5" />,
+    icon: <IconServer className={ICON_CLASS_NAME} />,
     variant: Variant.Secondary,
     children: [
       {
         value: "nodejs",
         label: "Node.js",
-        icon: <IconBrandNodejs className="w-3/5 h-3/5" />,
+        icon: <IconBrandNodejs className={ICON_CLASS_NAME} />,
       },
       {
         value: "python",
@@ -410,7 +411,7 @@ const serviceCategories: TreeOption[] = [
   {
     value: "database",
     label: "Database",
-    icon: <IconDatabase className="w-3/5 h-3/5" />,
+    icon: <IconDatabase className={ICON_CLASS_NAME} />,
     variant: Variant.Tertiary,
     children: [
       {

@@ -1,6 +1,13 @@
 import { useState, type ReactNode } from "react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { SelectTree, Size, Variant, type TreeOption, type SelectTreeProps } from "@semio/ui";
+import {
+  SelectTree,
+  Size,
+  Variant,
+  type TreeOption,
+  type SelectTreeProps,
+  ICON_CLASS_NAME,
+} from "@semio/ui";
 import {
   IconFolder,
   IconFile,
@@ -48,44 +55,44 @@ const simpleTreeOptions: TreeOption[] = [
   {
     value: "documents",
     label: "Documents",
-    icon: <IconFolder className="w-3/5 h-3/5" />,
+    icon: <IconFolder className={ICON_CLASS_NAME} />,
     children: [
       {
         value: "reports",
         label: "Reports",
-        icon: <IconFolder className="w-3/5 h-3/5" />,
+        icon: <IconFolder className={ICON_CLASS_NAME} />,
         children: [
           {
             value: "q1-report",
             label: "Q1 Report",
-            icon: <IconFile className="w-3/5 h-3/5" />,
+            icon: <IconFile className={ICON_CLASS_NAME} />,
           },
           {
             value: "q2-report",
             label: "Q2 Report",
-            icon: <IconFile className="w-3/5 h-3/5" />,
+            icon: <IconFile className={ICON_CLASS_NAME} />,
           },
           {
             value: "q3-report",
             label: "Q3 Report",
-            icon: <IconFile className="w-3/5 h-3/5" />,
+            icon: <IconFile className={ICON_CLASS_NAME} />,
           },
         ],
       },
       {
         value: "presentations",
         label: "Presentations",
-        icon: <IconFolder className="w-3/5 h-3/5" />,
+        icon: <IconFolder className={ICON_CLASS_NAME} />,
         children: [
           {
             value: "keynote",
             label: "Keynote",
-            icon: <IconFile className="w-3/5 h-3/5" />,
+            icon: <IconFile className={ICON_CLASS_NAME} />,
           },
           {
             value: "demo",
             label: "Demo",
-            icon: <IconFile className="w-3/5 h-3/5" />,
+            icon: <IconFile className={ICON_CLASS_NAME} />,
           },
         ],
       },
@@ -94,17 +101,17 @@ const simpleTreeOptions: TreeOption[] = [
   {
     value: "images",
     label: "Images",
-    icon: <IconFolder className="w-3/5 h-3/5" />,
+    icon: <IconFolder className={ICON_CLASS_NAME} />,
     children: [
       {
         value: "photos",
         label: "Photos",
-        icon: <IconFile className="w-3/5 h-3/5" />,
+        icon: <IconFile className={ICON_CLASS_NAME} />,
       },
       {
         value: "screenshots",
         label: "Screenshots",
-        icon: <IconFile className="w-3/5 h-3/5" />,
+        icon: <IconFile className={ICON_CLASS_NAME} />,
       },
     ],
   },
@@ -115,70 +122,70 @@ const projectTreeOptions: TreeOption[] = [
   {
     value: "src",
     label: "src",
-    icon: <IconFolder className="w-3/5 h-3/5" />,
+    icon: <IconFolder className={ICON_CLASS_NAME} />,
     color: "#3498db",
     children: [
       {
         value: "components",
         label: "components",
-        icon: <IconBrandReact className="w-3/5 h-3/5" />,
+        icon: <IconBrandReact className={ICON_CLASS_NAME} />,
         color: "#61DAFB",
         children: [
           {
             value: "Button.tsx",
             label: "Button.tsx",
-            icon: <IconBrandReact className="w-3/5 h-3/5" />,
+            icon: <IconBrandReact className={ICON_CLASS_NAME} />,
           },
           {
             value: "Modal.tsx",
             label: "Modal.tsx",
-            icon: <IconBrandReact className="w-3/5 h-3/5" />,
+            icon: <IconBrandReact className={ICON_CLASS_NAME} />,
           },
           {
             value: "Card.tsx",
             label: "Card.tsx",
-            icon: <IconBrandReact className="w-3/5 h-3/5" />,
+            icon: <IconBrandReact className={ICON_CLASS_NAME} />,
           },
         ],
       },
       {
         value: "styles",
         label: "styles",
-        icon: <IconFolder className="w-3/5 h-3/5" />,
+        icon: <IconFolder className={ICON_CLASS_NAME} />,
         color: "#9b59b6",
         children: [
           {
             value: "global.css",
             label: "global.css",
-            icon: <IconFileTypeCss className="w-3/5 h-3/5" />,
+            icon: <IconFileTypeCss className={ICON_CLASS_NAME} />,
           },
           {
             value: "components.css",
             label: "components.css",
-            icon: <IconFileTypeCss className="w-3/5 h-3/5" />,
+            icon: <IconFileTypeCss className={ICON_CLASS_NAME} />,
           },
         ],
       },
       {
         value: "utils",
         label: "utils",
-        icon: <IconCode className="w-3/5 h-3/5" />,
+        icon: <IconCode className={ICON_CLASS_NAME} />,
         color: "#2ecc71",
         children: [
           {
             value: "api.ts",
             label: "api.ts",
-            icon: <IconApi className="w-3/5 h-3/5" />,
+            icon: <IconApi className={ICON_CLASS_NAME} />,
           },
           {
             value: "helpers.ts",
             label: "helpers.ts",
-            icon: <IconFileTypeJs className="w-3/5 h-3/5" />,
+            icon: <IconFileTypeJs className={ICON_CLASS_NAME} />,
           },
           {
             value: "constants.ts",
             label: "constants.ts",
-            icon: <IconFileTypeJs className="w-3/5 h-3/5" />,
+            icon: <IconFileTypeJs className={ICON_CLASS_NAME} />,
           },
         ],
       },
@@ -187,35 +194,35 @@ const projectTreeOptions: TreeOption[] = [
   {
     value: "tests",
     label: "tests",
-    icon: <IconTestPipe className="w-3/5 h-3/5" />,
+    icon: <IconTestPipe className={ICON_CLASS_NAME} />,
     color: "#f39c12",
     children: [
       {
         value: "unit",
         label: "unit",
-        icon: <IconFolder className="w-3/5 h-3/5" />,
+        icon: <IconFolder className={ICON_CLASS_NAME} />,
         children: [
           {
             value: "Button.test.tsx",
             label: "Button.test.tsx",
-            icon: <IconTestPipe className="w-3/5 h-3/5" />,
+            icon: <IconTestPipe className={ICON_CLASS_NAME} />,
           },
           {
             value: "Modal.test.tsx",
             label: "Modal.test.tsx",
-            icon: <IconTestPipe className="w-3/5 h-3/5" />,
+            icon: <IconTestPipe className={ICON_CLASS_NAME} />,
           },
         ],
       },
       {
         value: "integration",
         label: "integration",
-        icon: <IconFolder className="w-3/5 h-3/5" />,
+        icon: <IconFolder className={ICON_CLASS_NAME} />,
         children: [
           {
             value: "api.test.ts",
             label: "api.test.ts",
-            icon: <IconTestPipe className="w-3/5 h-3/5" />,
+            icon: <IconTestPipe className={ICON_CLASS_NAME} />,
           },
         ],
       },
@@ -224,7 +231,7 @@ const projectTreeOptions: TreeOption[] = [
   {
     value: "package.json",
     label: "package.json",
-    icon: <IconPackage className="w-3/5 h-3/5" />,
+    icon: <IconPackage className={ICON_CLASS_NAME} />,
   },
 ];
 
@@ -233,13 +240,13 @@ const serviceCategories: TreeOption[] = [
   {
     value: "frontend",
     label: "Frontend",
-    icon: <IconDeviceDesktop className="w-3/5 h-3/5" />,
+    icon: <IconDeviceDesktop className={ICON_CLASS_NAME} />,
     variant: Variant.Primary,
     children: [
       {
         value: "react",
         label: "React",
-        icon: <IconBrandReact className="w-3/5 h-3/5" />,
+        icon: <IconBrandReact className={ICON_CLASS_NAME} />,
       },
       {
         value: "vue",
@@ -256,13 +263,13 @@ const serviceCategories: TreeOption[] = [
   {
     value: "backend",
     label: "Backend",
-    icon: <IconServer className="w-3/5 h-3/5" />,
+    icon: <IconServer className={ICON_CLASS_NAME} />,
     variant: Variant.Secondary,
     children: [
       {
         value: "nodejs",
         label: "Node.js",
-        icon: <IconBrandNodejs className="w-3/5 h-3/5" />,
+        icon: <IconBrandNodejs className={ICON_CLASS_NAME} />,
       },
       {
         value: "python",
@@ -279,7 +286,7 @@ const serviceCategories: TreeOption[] = [
   {
     value: "database",
     label: "Database",
-    icon: <IconDatabase className="w-3/5 h-3/5" />,
+    icon: <IconDatabase className={ICON_CLASS_NAME} />,
     variant: Variant.Tertiary,
     children: [
       {
@@ -568,49 +575,49 @@ export const LongTextWithEllipsis: Story = {
       {
         value: "very-long-group",
         label: "This is a very long group name that should definitely trigger text ellipsis",
-        icon: <IconFolder className="w-3/5 h-3/5" />,
+        icon: <IconFolder className={ICON_CLASS_NAME} />,
         children: [
           {
             value: "very-long-file-name-1",
             label: "This is an extremely long file name that will test the ellipsis functionality",
-            icon: <IconFile className="w-3/5 h-3/5" />,
+            icon: <IconFile className={ICON_CLASS_NAME} />,
           },
           {
             value: "very-long-file-name-2",
             label: "Another ridiculously long file name to ensure overflow handling works",
-            icon: <IconFile className="w-3/5 h-3/5" />,
+            icon: <IconFile className={ICON_CLASS_NAME} />,
           },
           {
             value: "very-long-file-name-3",
             label: "Yet another super long file name for testing purposes",
-            icon: <IconFile className="w-3/5 h-3/5" />,
+            icon: <IconFile className={ICON_CLASS_NAME} />,
           },
           {
             value: "very-long-file-name-4",
             label: "One more incredibly lengthy file name to test",
-            icon: <IconFile className="w-3/5 h-3/5" />,
+            icon: <IconFile className={ICON_CLASS_NAME} />,
           },
           {
             value: "very-long-file-name-5",
             label: "Final extremely long file name in this group",
-            icon: <IconFile className="w-3/5 h-3/5" />,
+            icon: <IconFile className={ICON_CLASS_NAME} />,
           },
         ],
       },
       {
         value: "another-long-group",
         label: "Another group with an extraordinarily long name that exceeds normal bounds",
-        icon: <IconFolder className="w-3/5 h-3/5" />,
+        icon: <IconFolder className={ICON_CLASS_NAME} />,
         children: [
           {
             value: "short-1",
             label: "Short name 1",
-            icon: <IconFile className="w-3/5 h-3/5" />,
+            icon: <IconFile className={ICON_CLASS_NAME} />,
           },
           {
             value: "short-2",
             label: "Short name 2",
-            icon: <IconFile className="w-3/5 h-3/5" />,
+            icon: <IconFile className={ICON_CLASS_NAME} />,
           },
         ],
       },
@@ -647,31 +654,31 @@ export const MultipleGroupsLongNames: Story = {
       {
         value: "group-a",
         label: "Very Long Group Name That Could Cause Issues",
-        icon: <IconFolder className="w-3/5 h-3/5" />,
+        icon: <IconFolder className={ICON_CLASS_NAME} />,
         children: [
-          { value: "file-a1", label: "File A1", icon: <IconFile className="w-3/5 h-3/5" /> },
-          { value: "file-a2", label: "File A2", icon: <IconFile className="w-3/5 h-3/5" /> },
-          { value: "file-a3", label: "File A3", icon: <IconFile className="w-3/5 h-3/5" /> },
+          { value: "file-a1", label: "File A1", icon: <IconFile className={ICON_CLASS_NAME} /> },
+          { value: "file-a2", label: "File A2", icon: <IconFile className={ICON_CLASS_NAME} /> },
+          { value: "file-a3", label: "File A3", icon: <IconFile className={ICON_CLASS_NAME} /> },
         ],
       },
       {
         value: "group-b",
         label: "Another Extremely Long Group Name For Testing",
-        icon: <IconFolder className="w-3/5 h-3/5" />,
+        icon: <IconFolder className={ICON_CLASS_NAME} />,
         children: [
-          { value: "file-b1", label: "File B1", icon: <IconFile className="w-3/5 h-3/5" /> },
-          { value: "file-b2", label: "File B2", icon: <IconFile className="w-3/5 h-3/5" /> },
-          { value: "file-b3", label: "File B3", icon: <IconFile className="w-3/5 h-3/5" /> },
+          { value: "file-b1", label: "File B1", icon: <IconFile className={ICON_CLASS_NAME} /> },
+          { value: "file-b2", label: "File B2", icon: <IconFile className={ICON_CLASS_NAME} /> },
+          { value: "file-b3", label: "File B3", icon: <IconFile className={ICON_CLASS_NAME} /> },
         ],
       },
       {
         value: "group-c",
         label: "Yet Another Super Long Group Name Here",
-        icon: <IconFolder className="w-3/5 h-3/5" />,
+        icon: <IconFolder className={ICON_CLASS_NAME} />,
         children: [
-          { value: "file-c1", label: "File C1", icon: <IconFile className="w-3/5 h-3/5" /> },
-          { value: "file-c2", label: "File C2", icon: <IconFile className="w-3/5 h-3/5" /> },
-          { value: "file-c3", label: "File C3", icon: <IconFile className="w-3/5 h-3/5" /> },
+          { value: "file-c1", label: "File C1", icon: <IconFile className={ICON_CLASS_NAME} /> },
+          { value: "file-c2", label: "File C2", icon: <IconFile className={ICON_CLASS_NAME} /> },
+          { value: "file-c3", label: "File C3", icon: <IconFile className={ICON_CLASS_NAME} /> },
         ],
       },
     ],
@@ -713,68 +720,68 @@ export const NarrowContainerEllipsis: Story = {
       {
         value: "group1",
         label: "This is an extremely long group name that definitely won't fit",
-        icon: <IconFolder className="w-3/5 h-3/5" />,
+        icon: <IconFolder className={ICON_CLASS_NAME} />,
         children: [
           {
             value: "very-long-file-1",
             label: "Very long file name number one",
-            icon: <IconFile className="w-3/5 h-3/5" />,
+            icon: <IconFile className={ICON_CLASS_NAME} />,
           },
           {
             value: "very-long-file-2",
             label: "Very long file name number two",
-            icon: <IconFile className="w-3/5 h-3/5" />,
+            icon: <IconFile className={ICON_CLASS_NAME} />,
           },
         ],
       },
       {
         value: "group2",
         label: "Another ridiculously long group name for testing",
-        icon: <IconFolder className="w-3/5 h-3/5" />,
+        icon: <IconFolder className={ICON_CLASS_NAME} />,
         children: [
           {
             value: "very-long-file-3",
             label: "Very long file name number three",
-            icon: <IconFile className="w-3/5 h-3/5" />,
+            icon: <IconFile className={ICON_CLASS_NAME} />,
           },
           {
             value: "very-long-file-4",
             label: "Very long file name number four",
-            icon: <IconFile className="w-3/5 h-3/5" />,
+            icon: <IconFile className={ICON_CLASS_NAME} />,
           },
         ],
       },
       {
         value: "group3",
         label: "Short group",
-        icon: <IconFolder className="w-3/5 h-3/5" />,
+        icon: <IconFolder className={ICON_CLASS_NAME} />,
         children: [
           {
             value: "group1-file1",
             label: "File 1",
-            icon: <IconFile className="w-3/5 h-3/5" />,
+            icon: <IconFile className={ICON_CLASS_NAME} />,
           },
           {
             value: "group1-file2",
             label: "File 2",
-            icon: <IconFile className="w-3/5 h-3/5" />,
+            icon: <IconFile className={ICON_CLASS_NAME} />,
           },
         ],
       },
       {
         value: "group4",
         label: "Another group",
-        icon: <IconFolder className="w-3/5 h-3/5" />,
+        icon: <IconFolder className={ICON_CLASS_NAME} />,
         children: [
           {
             value: "group2-file1",
             label: "File A",
-            icon: <IconFile className="w-3/5 h-3/5" />,
+            icon: <IconFile className={ICON_CLASS_NAME} />,
           },
           {
             value: "group2-file2",
             label: "File B",
-            icon: <IconFile className="w-3/5 h-3/5" />,
+            icon: <IconFile className={ICON_CLASS_NAME} />,
           },
         ],
       },

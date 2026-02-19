@@ -2,6 +2,7 @@ import { DropdownMenu, ContextMenu } from "radix-ui";
 import { type CSSProperties } from "react";
 import { IconCheck, IconPoint } from "@tabler/icons-react";
 import { clsx } from "clsx";
+import { ICON_CLASS_NAME } from "../constants/icon";
 import { NestedParent, type NestedSelectProps } from "./types";
 import { useNestedParent } from "./context";
 
@@ -66,17 +67,19 @@ export function NestedSelect({ variant, disabled, onChange, values, options }: N
           <ItemIndicatorComponent
             forceMount
             className={clsx(
-              "absolute left-1 inline-flex items-center justify-center",
+              "absolute left-1 top-1/2 -translate-y-1/2 grid place-items-center",
               "responsive check-indicator",
               option.color ? "custom-color" : (option.variant ?? variant),
             )}
           >
-            {option.icon ||
-              (values.find((v) => v === option.value) !== undefined ? (
-                <IconCheck size="13px" />
-              ) : (
-                <IconPoint size="13px" />
-              ))}
+            <span className="icon-slot">
+              {option.icon ||
+                (values.find((v) => v === option.value) !== undefined ? (
+                  <IconCheck className={ICON_CLASS_NAME} />
+                ) : (
+                  <IconPoint className={ICON_CLASS_NAME} />
+                ))}
+            </span>
           </ItemIndicatorComponent>
           {option.label}
         </ItemComponent>

@@ -2,6 +2,7 @@ import { CSSProperties, useCallback, useMemo } from "react";
 import { IconPointFilled, IconSelector, IconWorld, IconLayoutGrid } from "@tabler/icons-react";
 import { clsx } from "clsx";
 import { Size, Variant } from "../types";
+import { ICON_CLASS_NAME } from "../constants/icon";
 import { StaticIcon } from "../icons/static-icon";
 import { NestedCheckboxTree, TreeOption } from "../nested-elements/checkbox-tree";
 import { NestedLabel } from "../nested-elements/label";
@@ -129,7 +130,7 @@ export function SelectTree({
     // If nothing is selected
     if (selectedCount === 0) {
       return {
-        icon: <IconPointFilled className="w-3/5 h-3/5" />,
+        icon: <IconPointFilled className={ICON_CLASS_NAME} />,
         label: label || "Select items",
         color: undefined,
         variant: Variant.Default,
@@ -139,7 +140,7 @@ export function SelectTree({
     // If everything is selected
     if (selectedCount === totalCount) {
       return {
-        icon: <IconWorld className="w-3/5 h-3/5" />,
+        icon: <IconWorld className={ICON_CLASS_NAME} />,
         label: "All selected",
         color: undefined,
         variant: variant || Variant.Default,
@@ -151,7 +152,7 @@ export function SelectTree({
       const selectedOption = findOption(value[0]);
       if (selectedOption) {
         return {
-          icon: selectedOption.icon || <IconPointFilled className="w-3/5 h-3/5" />,
+          icon: selectedOption.icon || <IconPointFilled className={ICON_CLASS_NAME} />,
           label: selectedOption.label,
           color: selectedOption.color,
           variant: selectedOption.variant || variant || Variant.Default,
@@ -168,7 +169,7 @@ export function SelectTree({
       const groupLeafCount = getAllLeafValues(group).length;
       if (groupLeafCount === selectedCount) {
         return {
-          icon: group.icon || <IconLayoutGrid className="w-3/5 h-3/5" />,
+          icon: group.icon || <IconLayoutGrid className={ICON_CLASS_NAME} />,
           label: group.label,
           color: group.color,
           variant: group.variant || variant || Variant.Default,
@@ -195,7 +196,7 @@ export function SelectTree({
             if (subGroupLeafCount === selectedCount) {
               // Show the complete subgroup
               return {
-                icon: subGroup.icon || <IconLayoutGrid className="w-3/5 h-3/5" />,
+                icon: subGroup.icon || <IconLayoutGrid className={ICON_CLASS_NAME} />,
                 label: subGroup.label,
                 color: subGroup.color,
                 variant: subGroup.variant || variant || Variant.Default,
@@ -205,7 +206,7 @@ export function SelectTree({
 
           // Show partial selection within the group
           return {
-            icon: option.icon || <IconLayoutGrid className="w-3/5 h-3/5" />,
+            icon: option.icon || <IconLayoutGrid className={ICON_CLASS_NAME} />,
             label: `${option.label} (${String(selectedInGroup.length)} of ${String(groupLeafValues.length)} selected)`,
             color: option.color,
             variant: option.variant || variant || Variant.Default,
@@ -220,7 +221,7 @@ export function SelectTree({
       if (completeGroups.length <= 3) {
         const groupNames = completeGroups.map((g) => g.label).join(", ");
         return {
-          icon: <IconLayoutGrid className="w-3/5 h-3/5" />,
+          icon: <IconLayoutGrid className={ICON_CLASS_NAME} />,
           label: groupNames,
           color: undefined,
           variant: variant || Variant.Default,
@@ -230,7 +231,7 @@ export function SelectTree({
 
     // Generic partial selection
     return {
-      icon: <IconLayoutGrid className="w-3/5 h-3/5" />,
+      icon: <IconLayoutGrid className={ICON_CLASS_NAME} />,
       label: `${String(selectedCount)} of ${String(totalCount)} selected`,
       color: undefined,
       variant: variant || Variant.Default,
@@ -271,7 +272,7 @@ export function SelectTree({
             "variant-mock-inner-item",
           )}
         >
-          {triggerDisplay.icon}
+          <span className="icon-slot">{triggerDisplay.icon}</span>
         </div>
         <span
           style={
@@ -296,7 +297,7 @@ export function SelectTree({
           className="pr-0.5 items-center justify-around flex-shrink-0"
           variant={triggerDisplay.variant}
         >
-          <IconSelector size="13px" />
+          <IconSelector className={ICON_CLASS_NAME} />
         </StaticIcon>
       </div>
     </div>

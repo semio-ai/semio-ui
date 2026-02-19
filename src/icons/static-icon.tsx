@@ -28,7 +28,8 @@ export function StaticIcon({
         color && !deemphasize && "text-(--text-color)",
         color && deemphasize && "text-(--text-deemphasized-color)",
         !color && "variant-static-text",
-        "place-items-center",
+        // Keep icon glyphs centered even when children provide intrinsic SVG dimensions.
+        "inline-grid place-items-center leading-none shrink-0",
         size === "fit" ? "h-fit w-fit" : "sized-height",
         className ?? "",
       )}

@@ -4,6 +4,7 @@ import { clsx } from "clsx";
 // Will hopefully use later once we can search in the select.
 // import { matchSorter } from "match-sorter";
 import { Size, Variant } from "../types";
+import { ICON_CLASS_NAME } from "../constants/icon";
 import { StaticIcon } from "../icons/static-icon";
 import { NestedSelect } from "../nested-elements/select";
 import { NestedRadio } from "../nested-elements/radio";
@@ -87,7 +88,7 @@ export function Select<T extends string | string[]>({
           return {
             value: "",
             label: label ?? "Select items",
-            icon: <IconPointFilled className="w-3/5 h-3/5" />,
+            icon: <IconPointFilled className={ICON_CLASS_NAME} />,
             variant: variant ?? Variant.Default,
           };
         }
@@ -102,14 +103,14 @@ export function Select<T extends string | string[]>({
           return {
             value: "",
             label: "All selected",
-            icon: <IconLayoutGrid className="w-3/5 h-3/5" />,
+            icon: <IconLayoutGrid className={ICON_CLASS_NAME} />,
             variant: variant ?? Variant.Default,
           };
         }
         return {
           value: "",
           label: `${String(selectedOptions.length)} selected`,
-          icon: <IconLayoutGrid className="w-3/5 h-3/5" />,
+          icon: <IconLayoutGrid className={ICON_CLASS_NAME} />,
           variant: variant ?? Variant.Default,
         };
       })()
@@ -139,8 +140,8 @@ export function Select<T extends string | string[]>({
           )}
         >
           <Tooltip content={tooltipContent}>
-            <div className="flex h-full w-full items-center justify-center">
-              {selectOption?.icon || <IconPointFilled className="w-3/5 h-3/5" />}
+            <div className="icon-slot">
+              {selectOption?.icon || <IconPointFilled className={ICON_CLASS_NAME} />}
             </div>
           </Tooltip>
         </div>
@@ -183,7 +184,9 @@ export function Select<T extends string | string[]>({
                 "variant-mock-inner-item",
               )}
             >
-              {selectOption?.icon || <IconPointFilled className="w-3/5 h-3/5" />}
+              <span className="icon-slot">
+                {selectOption?.icon || <IconPointFilled className={ICON_CLASS_NAME} />}
+              </span>
             </div>
           )}
           <span
@@ -210,7 +213,7 @@ export function Select<T extends string | string[]>({
             className="pr-0.5 items-center justify-around"
             variant={selectOption?.variant}
           >
-            <IconSelector size="13px" />
+            <IconSelector className={ICON_CLASS_NAME} />
           </StaticIcon>
         </div>
       </div>

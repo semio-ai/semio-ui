@@ -5,6 +5,7 @@ import { HeaderButton } from "../../buttons/header-button";
 import { PaneRegion, Size, Variant } from "../../types";
 import { useLayoutActions } from "../../hooks/use-layout-actions";
 import { usePanes, useDesktopState } from "../../hooks/layout-atoms";
+import { ICON_CLASS_NAME } from "../../constants/icon";
 
 export function PanelContent({ region }: { region: PaneRegion }) {
   const panes = usePanes();
@@ -46,7 +47,8 @@ export function PanelContent({ region }: { region: PaneRegion }) {
                   icon={
                     <IconChevronRightPipe
                       className={clsx(
-                        "transition-transform w-3/5 h-3/5 ease-in-out duration-100",
+                        ICON_CLASS_NAME,
+                        "transition-transform ease-in-out duration-100",
                         !pane.shouldClose ? "rotate-360" : "rotate-180",
                       )}
                     />

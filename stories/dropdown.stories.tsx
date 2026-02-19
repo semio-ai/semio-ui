@@ -1,7 +1,7 @@
 import { type ReactNode } from "react";
 import type { Meta, StoryObj, ReactRenderer } from "@storybook/react-vite";
 import { type ArgsStoryFn } from "@storybook/core/csf";
-import { Button, Dropdown, Size, Variant, type DropdownProps } from "@semio/ui";
+import { Button, Dropdown, Size, Variant, type DropdownProps, ICON_CLASS_NAME } from "@semio/ui";
 import { IconChevronDown } from "@tabler/icons-react";
 import { NestedExample } from "./prebuilt/nested-example";
 
@@ -29,7 +29,7 @@ function DropdownRenderer(props: DropdownProps): ReactNode {
       trigger={
         <Button
           variant={props.variant}
-          rightIcon={<IconChevronDown className="h-3/5 w-3/5" />}
+          rightIcon={<IconChevronDown className={ICON_CLASS_NAME} />}
           size={Size.Sm}
         >
           Open

@@ -1,6 +1,12 @@
 import type { Meta, ReactRenderer, StoryObj } from "@storybook/react-vite";
 import { type ReactNode, useEffect, useState } from "react";
-import { ProgressCircle, type ProgressCircleProps, Size, Variant } from "@semio/ui";
+import {
+  ProgressCircle,
+  type ProgressCircleProps,
+  Size,
+  Variant,
+  ICON_CLASS_NAME,
+} from "@semio/ui";
 import { IconCheck } from "@tabler/icons-react";
 import { type ArgsStoryFn } from "@storybook/core/csf";
 
@@ -108,6 +114,6 @@ export const InnerIcon: Story = {
   args: {
     variant: Variant.Success,
     size: Size.Md,
-    icon: <IconCheck className="w-3/4 h-3/4" />,
+    icon: <IconCheck className={ICON_CLASS_NAME} />,
   },
 };

@@ -8,6 +8,7 @@ import {
   Variant,
   NestedSelect,
   NestedCheckbox,
+  ICON_CLASS_NAME,
 } from "@semio/ui";
 import {
   IconArrowBigDown,
@@ -34,7 +35,7 @@ export function NestedExample(): ReactNode {
     <>
       <NestedLabel>Title 1</NestedLabel>
       <NestedItem
-        left={<IconArrowUp className="w-3/5 h-3/5" />}
+        left={<IconArrowUp className={ICON_CLASS_NAME} />}
         right={
           <div className="flex flex-row items-center justify-end gap-0 h-5">
             <IconCommand className="w-3 h-3" />
@@ -45,7 +46,7 @@ export function NestedExample(): ReactNode {
         Item 1
       </NestedItem>
       <NestedItem
-        left={<IconArrowDown className="w-3/5 h-3/5" />}
+        left={<IconArrowDown className={ICON_CLASS_NAME} />}
         right={
           <div className="flex flex-row items-center justify-end gap-0 h-5">
             <IconCommand className="w-3 h-3" />

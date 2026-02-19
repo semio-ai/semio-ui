@@ -16,6 +16,7 @@ import { NestedOption } from "../nested-elements/types";
 import { Dropdown } from "../floating/dropdown";
 import { NestedSelect } from "../nested-elements/select";
 import { Button } from "../buttons/button";
+import { ICON_CLASS_NAME } from "../constants/icon";
 
 export interface ChipInputProps {
   selectedValues: string[];
@@ -209,7 +210,11 @@ const InnerChipInput = forwardRef(
         {options.length > 0 && (
           <Dropdown
             trigger={
-              <Button visuals="inverted" size={size} leftIcon={<IconPlus className="size-3/5" />} />
+              <Button
+                visuals="inverted"
+                size={size}
+                leftIcon={<IconPlus className={ICON_CLASS_NAME} />}
+              />
             }
             variant={variant}
             disabled={disabled}

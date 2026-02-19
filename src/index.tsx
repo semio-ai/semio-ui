@@ -28,6 +28,7 @@ export * from "./floating/tooltip-3d";
 
 // Functions
 export * from "./functions/stamp-to-visual-time";
+export * from "./constants/icon";
 
 // Context
 export * from "./context/tooltip-context-utils";
