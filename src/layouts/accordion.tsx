@@ -8,16 +8,19 @@ export interface AccordionProps {
   sticky?: boolean;
   stickyOffset?: number;
   items: { header: string; content: React.ReactNode; key: string; disabled?: boolean }[];
-  defaultOpen?: boolean;
+  defaultOpen?: boolean | string[];
 }
 
 export function Accordion({ items, defaultOpen = false, sticky, stickyOffset }: AccordionProps) {
+  let defaultValue: string[];
+  if (typeof defaultOpen === "boolean") {
+    defaultValue = defaultOpen ? items.filter((i) => !i.disabled).map((i) => i.key) : [];
+  } else {
+    defaultValue = defaultOpen;
+  }
+
   return (
-    <RadixAccordion.Root
-      className="relative"
-      type="multiple"
-      defaultValue={defaultOpen ? items.filter((i) => !i.disabled).map((i) => i.key) : []}
-    >
+    <RadixAccordion.Root className="relative" type="multiple" defaultValue={defaultValue}>
       {items.map((item) => (
         <RadixAccordion.Item key={item.key} value={item.key} disabled={item.disabled}>
           <RadixAccordion.Header
