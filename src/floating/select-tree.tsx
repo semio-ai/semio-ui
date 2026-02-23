@@ -249,7 +249,7 @@ export function SelectTree({
       className={clsx(
         "responsive rounded-xs variant-mock-item-bg",
         "variant-responsive-text variant-responsive-appearing-outline",
-        "flex flex-row flex-1 px-1 items-center min-w-0",
+        "flex flex-row flex-1 pl-1 pr-0 items-center min-w-0",
         "sized-height",
         size,
         triggerDisplay.color ? "custom-color" : triggerDisplay.variant,
@@ -282,7 +282,7 @@ export function SelectTree({
           }
           className={clsx(
             size,
-            "flex-1 px-3 flex items-center min-w-0",
+            "flex-1 pl-3 pr-0 flex items-center min-w-0",
             "responsive highlight-list-item",
             "sized-height",
             "sized-text",
@@ -293,8 +293,8 @@ export function SelectTree({
         </span>
 
         <StaticIcon
-          size="fit"
-          className="pr-0.5 items-center justify-around flex-shrink-0"
+          size={size}
+          className="flex-shrink-0 sized-text sized-width"
           variant={triggerDisplay.variant}
         >
           <IconSelector className={ICON_CLASS_NAME} />

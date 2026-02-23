@@ -1,6 +1,6 @@
 import { DropdownMenu as DropdownPrimitive } from "radix-ui";
 import { clsx } from "clsx";
-import { ReactNode, ForwardedRef, forwardRef, CSSProperties } from "react";
+import { ReactNode, ForwardedRef, forwardRef, CSSProperties, type MouseEventHandler } from "react";
 import { Variant } from "../types";
 import { NestedParent } from "../nested-elements/types";
 import { NestedParentProvider } from "../nested-elements/context";
@@ -16,6 +16,7 @@ export interface DropdownProps {
   side?: "left" | "right" | "top" | "bottom";
   disabled?: boolean;
   onOpenChange?: (open: boolean) => void;
+  onTriggerDoubleClick?: MouseEventHandler<HTMLElement>;
   contentClassName?: string;
   scrollOrientation?: "vertical" | "horizontal" | "both";
   matchTriggerWidth?: boolean;
@@ -32,6 +33,7 @@ const Dropdown = forwardRef(
       side,
       disabled,
       onOpenChange,
+      onTriggerDoubleClick,
       contentClassName,
       scrollOrientation = "vertical",
       matchTriggerWidth = true,
@@ -46,6 +48,7 @@ const Dropdown = forwardRef(
             asChild
             disabled={disabled}
             className="group/trigger"
+            onDoubleClick={onTriggerDoubleClick}
           >
             {trigger}
           </DropdownPrimitive.Trigger>

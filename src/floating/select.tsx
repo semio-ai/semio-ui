@@ -160,7 +160,7 @@ export function Select<T extends string | string[]>({
         className={clsx(
           "responsive rounded-xs variant-mock-item-bg",
           "variant-responsive-text variant-responsive-appearing-outline",
-          "flex flex-row flex-1 px-1 items-center min-w-0",
+          "flex flex-row flex-1 pl-1 pr-0 items-center min-w-0",
           triggerHeightClass,
           size,
           selectOption?.color ? "custom-color" : (selectOption?.variant ?? Variant.Default),
@@ -201,7 +201,7 @@ export function Select<T extends string | string[]>({
               "responsive highlight-list-item",
               triggerHeightClass,
               "sized-text",
-              showIcon ? "px-3" : "px-2",
+              showIcon ? "pl-3 pr-0" : "pl-2 pr-0",
               selectOption?.color ? "custom-color" : Variant.Default,
             )}
           >
@@ -209,8 +209,8 @@ export function Select<T extends string | string[]>({
           </span>
 
           <StaticIcon
-            size="fit"
-            className="pr-0.5 items-center justify-around"
+            size={size}
+            className="sized-text sized-width"
             variant={selectOption?.variant}
           >
             <IconSelector className={ICON_CLASS_NAME} />

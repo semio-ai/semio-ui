@@ -70,7 +70,6 @@ export * from "./icons/preview-view";
 export * from "./icons/robot";
 export * from "./icons/robot-plus";
 export * from "./icons/static-icon";
-export * from "./icons/uniform";
 export * from "./icons/vector-angled";
 export * from "./icons/vector-bezier";
 export * from "./icons/vector-bezier-auto-clamp";
@@ -83,6 +82,7 @@ export * from "./icons/vertex-free";
 export * from "./icons/vertex-indeterminate";
 export * from "./icons/vertex-paired";
 export * from "./icons/vertical-normalize";
+export * from "./icons/vertical-uniform";
 export * from "./icons/world-element-icons";
 
 // Inputs
