@@ -321,11 +321,6 @@ export function InnerTabs(props: TabsProps): ReactNode {
         selected={props.selected}
         isMovingForward={isMovingForward}
       />
-      {/* {childrenTabs.map((tabChild) => (
-        <TabsPrimitive.Content key={tabChild.key} value={tabChild.key}>
-          <div className={clsx("cursor-default")}>{tabChild.content}</div>
-        </TabsPrimitive.Content>
-      ))} */}
     </TabsPrimitive.Root>
   );
 }
