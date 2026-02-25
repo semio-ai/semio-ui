@@ -346,6 +346,8 @@ export const InnerScrollArea = forwardRef<ScrollAreaRef, ScrollAreaProps>(
             className={clsx(
               "h-full w-full",
               overscrollDisabled ? "overscroll-none" : "overscroll-contain",
+              orientation === "vertical" && "overflow-x-hidden",
+              orientation === "horizontal" && "overflow-y-hidden",
               className,
             )}
           >

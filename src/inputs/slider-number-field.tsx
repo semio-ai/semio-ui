@@ -36,6 +36,7 @@ export type SliderNumberFieldDragMode = "absolute" | "relative";
 export interface SliderNumberFieldProps extends Omit<NumberFieldProps, "strict"> {
   visualMin?: number;
   visualMax?: number;
+  relativeDragRange?: number;
   strictSlider?: boolean;
   strictText?: boolean;
   dragMode?: SliderNumberFieldDragMode;
@@ -61,6 +62,7 @@ export interface SliderNumberFieldProps extends Omit<NumberFieldProps, "strict">
  * @param onHighlightChange - the function to call when the emphasis changes
  * @param visualMin - the visual minimum (for wrap-around values);
  * @param visualMax - the visual maximum (for wrap-around values);
+ * @param relativeDragRange - custom value range mapped across the control width when dragging without explicit bounds
  * @param strictSlider - whether to enforce the min/max bounds on the slider
  * @param strictText - whether to enforce the min/max bounds
  * @param onStatusChange - the function to call when the validation status changes
@@ -78,6 +80,7 @@ const InnerSliderNumberField = forwardRef(
       max,
       visualMin,
       visualMax,
+      relativeDragRange,
       units,
       color,
       strictSlider = false,
@@ -194,6 +197,8 @@ const InnerSliderNumberField = forwardRef(
             }
           } else if (visualMin !== undefined && visualMax !== undefined) {
             v = dragStartValueRef.current + ((visualMax - visualMin) * mx) / bounds.width;
+          } else if (relativeDragRange !== undefined) {
+            v = dragStartValueRef.current + (relativeDragRange * mx) / bounds.width;
           } else if (dragMode === "absolute") {
             v = value + dx / 100;
           } else {
@@ -248,6 +253,9 @@ const InnerSliderNumberField = forwardRef(
             }
           } else if (visualMin !== undefined && visualMax !== undefined) {
             const step = (visualMax - visualMin) / 100;
+            v = value + step * (dy > 0 ? 1 : -1);
+          } else if (relativeDragRange !== undefined) {
+            const step = relativeDragRange / 100;
             v = value + step * (dy > 0 ? 1 : -1);
           } else {
             v += dy / 100;
