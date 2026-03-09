@@ -335,7 +335,7 @@ export const InnerScrollArea = forwardRef<ScrollAreaRef, ScrollAreaProps>(
         style={style}
       >
         {header && (
-          <div ref={headerRef} className={clsx("flex-shrink-0", headerClassName)}>
+          <div ref={headerRef} className={clsx("shrink-0", headerClassName)}>
             {header}
           </div>
         )}
@@ -358,7 +358,7 @@ export const InnerScrollArea = forwardRef<ScrollAreaRef, ScrollAreaProps>(
             <RadixScrollArea.Scrollbar
               className={clsx(
                 "flex select-none touch-none py-1 px-0.5",
-                "ease-out transition-colors duration-[160ms]",
+                "ease-out transition-colors duration-160",
                 showGutter && "dark:hover:bg-white/25 hover:bg-black/25 bg-black/5 dark:bg-white/5",
                 "data-[orientation=vertical]:w-2.5 data-[orientation=horizontal]:flex-col data-[orientation=horizontal]:h-2.5",
               )}
@@ -368,7 +368,7 @@ export const InnerScrollArea = forwardRef<ScrollAreaRef, ScrollAreaProps>(
                 className={clsx(
                   "flex-1 bg-default-500/75 rounded-sm relative",
                   "before:content-[''] before:absolute before:top-1/2 before:left-1/2 before:-translate-x-1/2",
-                  "before:-translate-y-1/2 before:w-full before:h-full before:min-w-[22px] before:min-h-[22px]",
+                  "before:-translate-y-1/2 before:w-full before:h-full before:min-w-5.5 before:min-h-5.5",
                 )}
               />
             </RadixScrollArea.Scrollbar>
@@ -377,7 +377,7 @@ export const InnerScrollArea = forwardRef<ScrollAreaRef, ScrollAreaProps>(
             <RadixScrollArea.Scrollbar
               className={clsx(
                 "flex select-none touch-none py-0.5 px-1",
-                "ease-out transition-colors duration-[160ms]",
+                "ease-out transition-colors duration-160",
                 showGutter && "dark:hover:bg-white/25 hover:bg-black/25 bg-black/5 dark:bg-white/5",
                 "data-[orientation=vertical]:w-2.5 data-[orientation=horizontal]:flex-col data-[orientation=horizontal]:h-2.5",
               )}
@@ -387,7 +387,7 @@ export const InnerScrollArea = forwardRef<ScrollAreaRef, ScrollAreaProps>(
                 className={clsx(
                   "flex-1 bg-default-500/75 rounded-sm relative",
                   "before:content-[''] before:absolute before:top-1/2 before:left-1/2 before:-translate-x-1/2",
-                  "before:-translate-y-1/2 before:w-full before:h-full before:min-w-[22px] before:min-h-[22px]",
+                  "before:-translate-y-1/2 before:w-full before:h-full before:min-w-5.5 before:min-h-5.5",
                 )}
               />
             </RadixScrollArea.Scrollbar>
@@ -396,7 +396,7 @@ export const InnerScrollArea = forwardRef<ScrollAreaRef, ScrollAreaProps>(
         </div>
 
         {footer && (
-          <div ref={footerRef} className={clsx("flex-shrink-0", footerClassName)}>
+          <div ref={footerRef} className={clsx("shrink-0", footerClassName)}>
             {footer}
           </div>
         )}
