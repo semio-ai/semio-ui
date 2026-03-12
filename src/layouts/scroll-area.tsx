@@ -56,7 +56,6 @@ interface ScrollAreaProps {
   shrinkWidth?: boolean;
   orientation?: "vertical" | "horizontal" | "both";
   showGutter?: boolean;
-
   // Scroll tracking callbacks
   onScrollChange?: (scrollInfo: ScrollInfo) => void;
   onViewportChange?: (viewportInfo: ViewportInfo) => void;
@@ -326,6 +325,11 @@ export const InnerScrollArea = forwardRef<ScrollAreaRef, ScrollAreaProps>(
         className={clsx(
           "relative",
           "overflow-hidden overscroll-none",
+          // Radix injects a `display: table; min-width: 100%` wrapper inside the viewport
+          // to support horizontal scrolling. For vertical-only scroll areas this is unnecessary
+          // and prevents padding/margin from working correctly on content elements.
+          orientation === "vertical" &&
+            "[&_[data-radix-scroll-area-viewport]>div]:!block",
           "flex",
           orientation === "horizontal" ? "flex-row" : "flex-col",
           shrinkHeight ? "h-fit" : "h-full",
@@ -359,7 +363,8 @@ export const InnerScrollArea = forwardRef<ScrollAreaRef, ScrollAreaProps>(
               className={clsx(
                 "flex select-none touch-none py-1 px-0.5",
                 "ease-out transition-colors duration-160",
-                showGutter && "dark:hover:bg-white/25 hover:bg-black/25 bg-black/5 dark:bg-white/5",
+                showGutter &&
+                  "dark:hover:bg-white/25 hover:bg-black/25 bg-black/5 dark:bg-white/5",
                 "data-[orientation=vertical]:w-2.5 data-[orientation=horizontal]:flex-col data-[orientation=horizontal]:h-2.5",
               )}
               orientation="vertical"
