@@ -19,13 +19,20 @@ export * from "./floating/dropdown";
 export * from "./floating/modal";
 export * from "./floating/popover";
 export * from "./floating/select";
+export * from "./floating/select-tree";
 export * from "./floating/tabbed-modal";
 export * from "./floating/toast";
 export * from "./floating/tooltip";
 export * from "./floating/tracked-tooltip";
+export * from "./floating/tooltip-3d";
 
 // Functions
 export * from "./functions/stamp-to-visual-time";
+export * from "./constants/icon";
+
+// Context
+export * from "./context/tooltip-context-utils";
+export type { WithTooltipContextProps } from "./context/tooltip-context-utils";
 
 // Hooks
 export * from "./hooks/layout-atoms";
@@ -46,10 +53,13 @@ export * from "./icons/file-type-mod";
 export * from "./icons/file-type-face";
 export * from "./icons/filter-box";
 export * from "./icons/filter-x";
+export * from "./icons/graph-view";
+export * from "./icons/handle-indicator";
 export * from "./icons/home";
 export * from "./icons/key";
 export * from "./icons/key-outline";
 export * from "./icons/key-outline-dash";
+export * from "./icons/normalized";
 export * from "./icons/play-pause";
 export * from "./icons/player-end-bounds";
 export * from "./icons/player-next-key";
@@ -60,6 +70,19 @@ export * from "./icons/preview-view";
 export * from "./icons/robot";
 export * from "./icons/robot-plus";
 export * from "./icons/static-icon";
+export * from "./icons/vector-angled";
+export * from "./icons/vector-bezier";
+export * from "./icons/vector-bezier-auto-clamp";
+export * from "./icons/vector-bezier-handles";
+export * from "./icons/vector-bezier-insert-flat";
+export * from "./icons/vector-bezier-insert-sloped";
+export * from "./icons/vector-transition-curves";
+export * from "./icons/vector-flat";
+export * from "./icons/vertex-free";
+export * from "./icons/vertex-indeterminate";
+export * from "./icons/vertex-paired";
+export * from "./icons/vertical-normalize";
+export * from "./icons/vertical-uniform";
 export * from "./icons/world-element-icons";
 
 // Inputs
@@ -91,6 +114,8 @@ export * from "./layouts/separator";
 
 // Nested-Elements
 export * from "./nested-elements/checkbox";
+export * from "./nested-elements/checkbox-tree";
+export * from "./nested-elements/context";
 export * from "./nested-elements/color-picker";
 export * from "./nested-elements/configured-render";
 export * from "./nested-elements/item";

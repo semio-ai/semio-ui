@@ -20,6 +20,7 @@ import { MenuItemClickFn, PaneRegion, Variant } from "../../types";
 import { ContextMenu } from "../../floating/context-menu";
 import { NestedSelect } from "../../nested-elements/select";
 import { NestedRadio } from "../../nested-elements/radio";
+import { ICON_CLASS_NAME } from "../../constants/icon";
 import { isPlaceholder } from "./types";
 
 function InnerMenu({
@@ -69,7 +70,8 @@ function InnerMenu({
                 icon: (
                   <IconChevronRightPipe
                     className={clsx(
-                      "w-3/5 h-3/5 transition-transform",
+                      ICON_CLASS_NAME,
+                      "transition-transform",
                       menuState ? "rotate-180" : "rotate-360",
                     )}
                   />
@@ -92,13 +94,13 @@ function InnerMenu({
         <ScrollArea
           wrapperClassName={clsx(
             "responsive card-transparent flex min-w-10",
-            "h-10 w-full justify-center align-middle",
+            "h-11 w-full justify-center align-middle",
             "desktop:h-full desktop:w-10 desktop:group-data-expanded/menu:w-fit desktop:justify-start",
           )}
           className="desktop:pl-0.5"
           orientation={desktop ? "vertical" : "horizontal"}
-          headerClassName="dark:bg-layout-dark-inset bg-layout-light-inset pl-0.5"
-          footerClassName="dark:bg-layout-dark-inset bg-layout-light-inset pl-0.5"
+          headerClassName="dark:bg-layout-dark-inset bg-layout-light-inset pl-0.5 rounded-t-sm overflow-clip"
+          footerClassName="dark:bg-layout-dark-inset bg-layout-light-inset pl-0.5 rounded-b-sm overflow-clip"
           header={
             desktop ? (
               <div className="flex flex-col">

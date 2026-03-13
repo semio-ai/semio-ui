@@ -5,6 +5,7 @@ import { HeaderButton } from "../../buttons/header-button";
 import { PaneRegion, Size, Variant } from "../../types";
 import { useLayoutActions } from "../../hooks/use-layout-actions";
 import { usePanes, useDesktopState } from "../../hooks/layout-atoms";
+import { ICON_CLASS_NAME } from "../../constants/icon";
 
 export function PanelContent({ region }: { region: PaneRegion }) {
   const panes = usePanes();
@@ -33,8 +34,8 @@ export function PanelContent({ region }: { region: PaneRegion }) {
               exit={variants[0]}
               transition={{ duration: 0.15, ease: "easeInOut" }}
               className={clsx(
-                "relative w-full overflow-clip",
-                "responsive card-transparent h-full",
+                "relative w-full pointer-events-auto",
+                "responsive card-transparent h-full rounded-md overflow-clip",
               )}
             >
               {pane.region === PaneRegion.Right && (
@@ -46,7 +47,8 @@ export function PanelContent({ region }: { region: PaneRegion }) {
                   icon={
                     <IconChevronRightPipe
                       className={clsx(
-                        "transition-transform w-3/5 h-3/5 ease-in-out duration-100",
+                        ICON_CLASS_NAME,
+                        "transition-transform ease-in-out duration-100",
                         !pane.shouldClose ? "rotate-360" : "rotate-180",
                       )}
                     />

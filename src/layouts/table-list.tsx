@@ -21,6 +21,7 @@ import {
 import { Size, Variant } from "../types";
 import { Checkbox } from "../inputs/checkbox";
 import { ToggleSquare } from "../inputs/toggle-square";
+import { ICON_CLASS_NAME } from "../constants/icon";
 
 /**
  * Defines the structure and behavior of a table column.
@@ -290,7 +291,7 @@ export function TableList<T extends TableListItem>({
                     size={size}
                     variant={variant}
                   >
-                    {selected && <IconPointFilled className="w-3/5 h-3/5" />}
+                    {selected && <IconPointFilled className={ICON_CLASS_NAME} />}
                   </ToggleSquare>
                 </div>
               );

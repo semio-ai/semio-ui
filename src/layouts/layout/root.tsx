@@ -95,14 +95,12 @@ function InnerLayoutRoot({
       <Header homeIcon={homeIcon} />
 
       {/* Left Sidebar */}
-      <div className={clsx("grid-area-left w-full h-full overflow-clip transition-[width,height]")}>
+      <div className={clsx("grid-area-left w-full h-full transition-[width,height]")}>
         <PanelContent region={PaneRegion.Left} />
       </div>
 
       {/* Right Sidebar */}
-      <div
-        className={clsx("grid-area-right w-full h-full overflow-clip transition-[width,height]")}
-      >
+      <div className={clsx("grid-area-right w-full h-full transition-[width,height]")}>
         <PanelContent region={PaneRegion.Right} />
       </div>
 
@@ -115,7 +113,7 @@ function InnerLayoutRoot({
       </div>
 
       {/* Footer */}
-      <div className={clsx("grid-area-footer w-full h-full overflow-hidden")}>
+      <div className={clsx("grid-area-footer w-full h-full")}>
         <PanelContent region={PaneRegion.Footer} />
       </div>
     </div>

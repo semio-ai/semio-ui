@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { TextField, Variant, Size, type TextFieldProps } from "@semio/ui";
+import { TextField, Variant, Size, type TextFieldProps, ICON_CLASS_NAME } from "@semio/ui";
 import { useState } from "react";
 import { IconSearch } from "@tabler/icons-react";
 
@@ -106,7 +106,7 @@ export const PrimaryIcon: Story = {
   },
   args: {
     value: "I am text",
-    icon: <IconSearch className="w-3/5 h-3/5" />,
+    icon: <IconSearch className={ICON_CLASS_NAME} />,
     onChange: (): void => {
       // eslint-disable-next-line no-console -- log for demo
       console.log("Hello World!");
@@ -128,7 +128,7 @@ export const PrimaryIconClearable: Story = {
   },
   args: {
     value: "I am text",
-    icon: <IconSearch className="w-3/5 h-3/5" />,
+    icon: <IconSearch className={ICON_CLASS_NAME} />,
     onChange: (): void => {
       // eslint-disable-next-line no-console -- log for demo
       console.log("Hello World!");
@@ -154,7 +154,7 @@ export const SubtleIconClearable: Story = {
   },
   args: {
     value: "I am text",
-    icon: <IconSearch className="w-3/5 h-3/5" />,
+    icon: <IconSearch className={ICON_CLASS_NAME} />,
     onChange: (): void => {
       // eslint-disable-next-line no-console -- log for demo
       console.log("Hello World!");

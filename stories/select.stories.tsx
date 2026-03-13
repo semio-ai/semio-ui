@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { Select, type SelectProps, Size, Variant } from "@semio/ui";
+import { Select, type SelectProps, Size, Variant, ICON_CLASS_NAME } from "@semio/ui";
 import { IconMessageCircle2, IconWorld } from "@tabler/icons-react";
 
 const meta: Meta<typeof Select> = {
@@ -50,16 +50,17 @@ export const Primary: Story = {
         value: "hello",
         label: "Hello",
         color: "#33bbbb",
-        icon: <IconMessageCircle2 className="w-3/5 h-3/5" />,
+        icon: <IconMessageCircle2 className={ICON_CLASS_NAME} />,
       },
       {
         value: "world",
         label: "World",
         color: "#737373",
-        icon: <IconWorld className="w-3/5 h-3/5" />,
+        icon: <IconWorld className={ICON_CLASS_NAME} />,
       },
     ],
     size: Size.Sm,
+    visuals: "both",
   },
 };
 
@@ -85,5 +86,84 @@ export const Multiple: Story = {
       { value: "default", label: "Default" },
     ],
     size: Size.Sm,
+    visuals: "both",
+  },
+};
+
+export const VisualsBoth: Story = {
+  render: (props) => {
+    return <SelectWithHooks {...props} />;
+  },
+  args: {
+    variant: Variant.Default,
+    value: "hello",
+    options: [
+      {
+        value: "hello",
+        label: "Hello",
+        color: "#33bbbb",
+        icon: <IconMessageCircle2 className={ICON_CLASS_NAME} />,
+      },
+      {
+        value: "world",
+        label: "World",
+        color: "#737373",
+        icon: <IconWorld className={ICON_CLASS_NAME} />,
+      },
+    ],
+    size: Size.Sm,
+    visuals: "both",
+  },
+};
+
+export const VisualsIcons: Story = {
+  render: (props) => {
+    return <SelectWithHooks {...props} />;
+  },
+  args: {
+    variant: Variant.Default,
+    value: "hello",
+    options: [
+      {
+        value: "hello",
+        label: "Hello",
+        color: "#33bbbb",
+        icon: <IconMessageCircle2 className={ICON_CLASS_NAME} />,
+      },
+      {
+        value: "world",
+        label: "World",
+        color: "#737373",
+        icon: <IconWorld className={ICON_CLASS_NAME} />,
+      },
+    ],
+    size: Size.Sm,
+    visuals: "icons",
+  },
+};
+
+export const VisualsLabels: Story = {
+  render: (props) => {
+    return <SelectWithHooks {...props} />;
+  },
+  args: {
+    variant: Variant.Default,
+    value: "hello",
+    options: [
+      {
+        value: "hello",
+        label: "Hello",
+        color: "#33bbbb",
+        icon: <IconMessageCircle2 className={ICON_CLASS_NAME} />,
+      },
+      {
+        value: "world",
+        label: "World",
+        color: "#737373",
+        icon: <IconWorld className={ICON_CLASS_NAME} />,
+      },
+    ],
+    size: Size.Sm,
+    visuals: "labels",
   },
 };

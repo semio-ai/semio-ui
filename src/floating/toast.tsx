@@ -7,6 +7,7 @@ import { Button } from "../buttons/button";
 import { Size, Variant } from "../types";
 import { ProgressCircle } from "../feedback/progress";
 import { IconVariant } from "../icons/variant";
+import { ICON_CLASS_NAME } from "../constants/icon";
 
 export interface ToastState {
   toasts: ToastData[];
@@ -131,9 +132,9 @@ function InnerToast({ data }: { data: ToastData }) {
               variant={data.variant}
               icon={
                 paused ? (
-                  <IconPlayerPause className="w-3/4 h-3/4" />
+                  <IconPlayerPause className={ICON_CLASS_NAME} />
                 ) : (
-                  <IconVariant variant={data.variant} className="w-3/4 h-3/4" />
+                  <IconVariant variant={data.variant} className={ICON_CLASS_NAME} />
                 )
               }
             />

@@ -5,6 +5,7 @@ import {
   type ForwardedRef,
   type TextareaHTMLAttributes,
   type ChangeEvent,
+  type CSSProperties,
 } from "react";
 import { clsx } from "clsx";
 import { Variant } from "../types";
@@ -13,6 +14,7 @@ export interface TextAreaProps
   extends Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, "size" | "onChange"> {
   onChange?: (value: string, event: ChangeEvent<HTMLTextAreaElement>) => void;
   variant?: Variant;
+  color?: string;
   bg?: boolean;
   outline?: "hidden" | "interact" | "always";
   subtle?: boolean;
@@ -23,6 +25,7 @@ export interface TextAreaProps
  * @param value - the value of the field
  * @param onChange - the callback to call when the value changes
  * @param variant - the variant of the field
+ * @param color - [optional] custom color to override the variant
  * @param bg - whether to show the field with a background
  * @param outline - whether to show the field with an outline on focus
  */
@@ -31,6 +34,7 @@ const InnerTextArea = forwardRef(
     {
       onChange,
       variant = Variant.Default,
+      color,
       bg = false,
       outline = "interact",
       className,
@@ -44,13 +48,18 @@ const InnerTextArea = forwardRef(
         ref={ref}
         {...forwardedProps}
         onChange={(event) => onChange?.(event.target.value, event)}
+        style={
+          {
+            "--custom-color": color,
+          } as CSSProperties
+        }
         className={clsx(
           "responsive",
           bg && "dark:bg-neutral-950/20 bg-neutral-50/20",
           "rounded-xs",
           outline === "interact" && "variant-responsive-appearing-outline",
           outline === "always" && "variant-responsive-persistent-outline",
-          variant,
+          color ? "custom-color" : variant,
           "disabled:cursor-not-allowed cursor-text",
           "p-1",
           "variant-text-caret-color",

@@ -3,7 +3,15 @@ import { clsx } from "clsx";
 import { NestedParent, type NestedItemProps } from "./types";
 import { useNestedParent } from "./context";
 
-export function NestedItem({ left, children, right, variant, disabled, onClick }: NestedItemProps) {
+export function NestedItem({
+  left,
+  children,
+  right,
+  variant,
+  disabled,
+  onClick,
+  closeOnSelect = true,
+}: NestedItemProps) {
   const parent = useNestedParent();
 
   const ItemComponent = parent === NestedParent.Dropdown ? DropdownMenu.Item : ContextMenu.Item;
@@ -12,6 +20,11 @@ export function NestedItem({ left, children, right, variant, disabled, onClick }
     <ItemComponent
       disabled={disabled}
       onClick={onClick}
+      onSelect={(event) => {
+        if (!closeOnSelect) {
+          event.preventDefault();
+        }
+      }}
       className={clsx(
         "leading-none flex items-center rounded-xs group/item",
         "h-7 text-sm px-[5px] relative pl-[30px] select-none outline-hidden",
@@ -23,8 +36,8 @@ export function NestedItem({ left, children, right, variant, disabled, onClick }
       {left && (
         <div
           className={clsx(
-            "absolute left-1 inline-flex items-center justify-center",
-            "responsive check-indicator list-item-extra highlight-list-item",
+            "absolute left-1 top-1/2 -translate-y-1/2 inline-flex items-center justify-center",
+            "responsive list-item-extra highlight-list-item",
             variant,
           )}
         >
@@ -33,7 +46,13 @@ export function NestedItem({ left, children, right, variant, disabled, onClick }
       )}
       {children}
       {right && (
-        <div className={clsx("absolute right-1", "responsive list-item-extra", variant)}>
+        <div
+          className={clsx(
+            "absolute right-1 top-1/2 -translate-y-1/2 inline-flex items-center justify-center",
+            "responsive list-item-extra",
+            variant,
+          )}
+        >
           {right}
         </div>
       )}

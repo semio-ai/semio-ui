@@ -13,7 +13,7 @@ export function stampToVisualTime(
     if (showDetail) {
       return `${(t * framerate).toFixed(1)}f`;
     } else {
-      return `${Math.floor(t * framerate).toString()}f`;
+      return `${round(t * framerate, 0).toString()}f`;
     }
   } else if (timeDisplay === TimeDisplay.Seconds) {
     if (showDetail) {

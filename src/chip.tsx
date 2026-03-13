@@ -2,6 +2,7 @@ import { CSSProperties, ReactNode, type MouseEventHandler } from "react";
 import { IconX } from "@tabler/icons-react";
 import { clsx } from "clsx";
 import { Size, Variant } from "./types";
+import { ICON_CLASS_NAME } from "./constants/icon";
 
 export interface ChipProps {
   children: string;
@@ -52,7 +53,7 @@ export function Chip({
             "dark:bg-black/50 bg-white/50 rounded-[1px] grid place-items-center",
           )}
         >
-          {renderIcon("w-3/5 h-3/5")}
+          {renderIcon(ICON_CLASS_NAME)}
         </div>
       )}
       <div className="dark:text-red/75 text-white/75 px-2">{children}</div>
@@ -70,7 +71,7 @@ export function Chip({
             "dark:bg-black/50 bg-white/50 rounded-[1px] grid place-items-center",
           )}
         >
-          <IconX className="w-3/5 h-3/5" />
+          <IconX className={ICON_CLASS_NAME} />
         </button>
       )}
     </div>

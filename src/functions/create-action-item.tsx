@@ -1,11 +1,12 @@
 import { IconSquare } from "@tabler/icons-react";
 import { Variant } from "../types";
-import { ActionItem } from "../nested-elements/types";
+import { ActionItem } from "../layouts/layout/types";
+import { ICON_CLASS_NAME } from "../constants/icon";
 
 export function createActionItem(): ActionItem {
   return {
     id: crypto.randomUUID(),
-    left: <IconSquare className="w-3/5 h-3/5" />,
+    left: <IconSquare className={ICON_CLASS_NAME} />,
     children: [],
     label: "Action Item",
     variant: Variant.Default,
