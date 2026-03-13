@@ -60,7 +60,7 @@ export function NestedMenu({
         disabled={disabled}
         className={clsx(
           "leading-none flex items-center rounded-xs group/item",
-          "h-7 w-full text-sm px-[5px] relative pl-[30px] select-none outline-hidden",
+          "h-7 w-full text-sm px-1.25 relative pl-7.5 select-none outline-hidden",
           "data-disabled:pointer-events-none",
           "responsive highlight-list-item",
           variant,
@@ -104,7 +104,7 @@ export function NestedMenu({
               !desktop &&
                 "w-full pl-2 py-0.5 pr-0.5 mb-0.5 rounded-b-xs dark:bg-black/30 bg-neutral-400/30",
               desktop && "responsive card dropdown-content",
-              "min-w-[220px]",
+              "min-w-55",
               desktop && heightClass,
               desktop && parent === NestedParent.Dropdown
                 ? "w-[calc(var(--radix-dropdown-menu-trigger-width)+10px)]"
