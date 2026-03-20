@@ -106,7 +106,7 @@ export function useTableListState<T extends TableListItem>({
 
   // Type-ahead state
   const [typeAheadQuery, setTypeAheadQuery] = useState("");
-  const typeAheadTimeoutRef = useRef<NodeJS.Timeout>();
+  const typeAheadTimeoutRef = useRef<NodeJS.Timeout>(undefined);
 
   // Determine controlled vs uncontrolled
   const isControlledSelection = controlledSelectedKeys !== undefined;

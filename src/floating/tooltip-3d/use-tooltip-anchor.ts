@@ -20,7 +20,7 @@ export interface UseTooltipAnchorOptions {
 }
 
 export interface UseTooltipAnchorResult {
-  ref: React.RefObject<THREE.Object3D>;
+  ref: React.RefObject<THREE.Object3D | null>;
   anchorId: string;
   onPointerMove?: (event: ThreeEvent<PointerEvent>) => void;
   onPointerLeave?: () => void;

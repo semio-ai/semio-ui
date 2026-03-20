@@ -31,7 +31,7 @@ function InnerLayoutRoot({
   children,
   homeClassName,
 }: LayoutRootProps) {
-  const root = useRef<HTMLDivElement>();
+  const root = useRef<HTMLDivElement>(null);
   const [contentRef, contentBounds] = useMeasure();
 
   const {
