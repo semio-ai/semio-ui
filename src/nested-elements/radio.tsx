@@ -1,5 +1,5 @@
 import { DropdownMenu, ContextMenu } from "radix-ui";
-import { CSSProperties } from "react";
+import { type CSSProperties, type MouseEvent } from "react";
 import { IconPointFilled } from "@tabler/icons-react";
 import { clsx } from "clsx";
 import { ICON_CLASS_NAME } from "../constants/icon";
@@ -25,7 +25,7 @@ export function NestedRadio({ variant, disabled, onChange, value, options }: Nes
     <GroupComponent
       value={value}
       onValueChange={onChange}
-      onClick={(e) => {
+      onClick={(e: MouseEvent) => {
         e.stopPropagation();
       }}
     >
@@ -42,14 +42,14 @@ export function NestedRadio({ variant, disabled, onChange, value, options }: Nes
                 } as CSSProperties)
               : {}
           }
-          onSelect={(e) => {
+          onSelect={(e: Event) => {
             if (!option.closeOnSelect) {
               e.preventDefault();
             }
           }}
           className={clsx(
             "leading-none flex items-center rounded-xs group/item",
-            "h-7 text-sm px-[5px] relative pl-[30px] select-none outline-hidden",
+            "h-7 text-sm px-1.25 relative pl-7.5 select-none outline-hidden",
             "data-disabled:pointer-events-none",
             "responsive highlight-list-item",
             option.color ? "custom-color" : (option.variant ?? variant),

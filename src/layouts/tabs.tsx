@@ -128,7 +128,7 @@ export function InnerTabsRow({
           <Tooltip key={tabChild.key} content={tabChild.title}>
             <TabsPrimitive.Trigger
               data-state={tabIdx === activeIndex ? "on" : "off"}
-              ref={(el) => {
+              ref={(el: HTMLButtonElement | null) => {
                 if (el) {
                   tabsRef.current[tabIdx] = el;
                 }

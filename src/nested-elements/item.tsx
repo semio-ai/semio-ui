@@ -20,7 +20,7 @@ export function NestedItem({
     <ItemComponent
       disabled={disabled}
       onClick={onClick}
-      onSelect={(event) => {
+      onSelect={(event: Event) => {
         if (!closeOnSelect) {
           event.preventDefault();
         }

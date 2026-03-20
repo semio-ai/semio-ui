@@ -63,7 +63,7 @@ export function ToggleGroup({
       )}
       type="single"
       value={value}
-      onValueChange={(v) => {
+      onValueChange={(v: string) => {
         if (v) onChange(v);
       }}
       aria-label={label ?? "Toggle Group"}
@@ -104,7 +104,7 @@ export function ToggleGroup({
           >
             <RadixToggleGroup.Item
               key={option.value}
-              ref={(el) => {
+              ref={(el: HTMLButtonElement | null) => {
                 if (el) tabsRef.current[idx] = el;
               }}
               data-state={value === option.value ? "on" : "off"}

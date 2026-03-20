@@ -1,5 +1,5 @@
 import { DropdownMenu, ContextMenu } from "radix-ui";
-import { type CSSProperties } from "react";
+import { type MouseEvent, type CSSProperties } from "react";
 import { IconCheck } from "@tabler/icons-react";
 import { alpha, altColor } from "@semio/utils";
 import { clsx } from "clsx";
@@ -36,7 +36,7 @@ export function NestedCheckbox({
 
   return (
     <GroupComponent
-      onClick={(e) => {
+      onClick={(e: MouseEvent) => {
         e.stopPropagation();
       }}
     >
@@ -45,7 +45,7 @@ export function NestedCheckbox({
         color={color}
         checked={value}
         onCheckedChange={onChange}
-        onSelect={(e) => {
+        onSelect={(e: Event) => {
           if (!closeOnSelect) {
             e.preventDefault();
           }
@@ -64,7 +64,7 @@ export function NestedCheckbox({
         }
         className={clsx(
           "leading-none flex items-center rounded-xs group/item",
-          "h-7 text-sm px-[5px] relative pl-[30px] select-none outline-hidden",
+          "h-7 text-sm px-1.25 relative pl-7.5 select-none outline-hidden",
           "data-disabled:pointer-events-none",
           "responsive highlight-list-item",
           color ? "custom-color" : variant,

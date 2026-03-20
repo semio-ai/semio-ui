@@ -1,5 +1,5 @@
 import { DropdownMenu, ContextMenu } from "radix-ui";
-import { type CSSProperties, useCallback } from "react";
+import { type MouseEvent, type CSSProperties, useCallback } from "react";
 import { IconCheck, IconMinus, IconPoint, IconChevronRight } from "@tabler/icons-react";
 import { clsx } from "clsx";
 import { ICON_CLASS_NAME } from "../constants/icon";
@@ -171,7 +171,7 @@ export function NestedCheckboxTree({
             className={clsx(
               "group/item",
               "leading-none flex items-center rounded-xs",
-              "min-h-7 min-w-0 text-sm py-1 px-[5px] relative pl-[30px] select-none outline-hidden",
+              "min-h-7 min-w-0 text-sm py-1 px-1.25 relative pl-7.5 select-none outline-hidden",
               "data-disabled:pointer-events-none",
               "responsive highlight-list-item",
               option.color ? "custom-color" : (option.variant ?? variant),
@@ -231,19 +231,19 @@ export function NestedCheckboxTree({
             <span className="block min-w-0 truncate">{option.label}</span>
             <div
               className={clsx(
-                "ml-auto pl-[20px] inline-flex items-center justify-center flex-shrink-0",
+                "ml-auto pl-5 inline-flex items-center justify-center shrink-0",
                 "responsive text-variant",
                 option.variant ?? variant,
               )}
             >
-              <IconChevronRight className={clsx(ICON_CLASS_NAME, "flex-shrink-0")} />
+              <IconChevronRight className={clsx(ICON_CLASS_NAME, "shrink-0")} />
             </div>
           </SubTriggerComponent>
           <PortalComponent>
             <SubContentComponent
               className={clsx(
                 "responsive card dropdown-content",
-                "min-w-[220px] p-0.5",
+                "min-w-55 p-0.5",
                 option.variant ?? variant,
               )}
             >
@@ -262,7 +262,7 @@ export function NestedCheckboxTree({
           color={option.color}
           checked={state === CheckboxState.Checked}
           onCheckedChange={() => handleCheckboxChange(option)}
-          onSelect={(e) => {
+          onSelect={(e: Event) => {
             e.preventDefault();
           }}
           disabled={option.disabled || disabled}
@@ -276,7 +276,7 @@ export function NestedCheckboxTree({
           }
           className={clsx(
             "leading-none flex items-center rounded-xs group/item",
-            "min-h-7 min-w-0 text-sm py-1 px-[5px] relative pl-[30px] select-none outline-hidden",
+            "min-h-7 min-w-0 text-sm py-1 px-1.25 relative pl-7.5 select-none outline-hidden",
             "data-disabled:pointer-events-none",
             "responsive highlight-list-item",
             option.color ? "custom-color" : (option.variant ?? variant),
@@ -307,7 +307,7 @@ export function NestedCheckboxTree({
 
   return (
     <GroupComponent
-      onClick={(e) => {
+      onClick={(e: MouseEvent) => {
         e.stopPropagation();
       }}
     >
