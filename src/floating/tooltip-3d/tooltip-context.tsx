@@ -1,7 +1,7 @@
 import { type RefObject, createContext, useContext } from "react";
 
 export interface TooltipHostContextValue {
-  containerRef: RefObject<HTMLDivElement>;
+  containerRef: RefObject<HTMLDivElement | null>;
   frameOffset: { x: number; y: number };
   // Reference to parent context for nesting support
   parentContext?: TooltipHostContextValue | null;

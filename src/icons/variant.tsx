@@ -1,8 +1,8 @@
 import { forwardRef, type ForwardedRef } from "react";
-import { IconCheck, IconExclamationMark, type TablerIconsProps } from "@tabler/icons-react";
+import { IconCheck, IconExclamationMark, type IconProps } from "@tabler/icons-react";
 import { Variant } from "../types";
 
-export interface IconVariantProps extends TablerIconsProps {
+export interface IconVariantProps extends IconProps {
   className?: string;
   variant?: Variant;
 }
