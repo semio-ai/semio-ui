@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from "react";
 import type { Meta, StoryObj, ReactRenderer } from "@storybook/react-vite";
-import { ArgsStoryFn } from "storybook/internal/csf";
+import { type ArgsStoryFn } from "storybook/internal/csf";
 import {
   type BreadcrumbElement,
   Breadcrumbs,
