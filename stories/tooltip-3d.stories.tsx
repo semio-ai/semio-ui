@@ -2,7 +2,6 @@ import type { Meta } from "@storybook/react-vite";
 import { useState } from "react";
 import { Canvas } from "@react-three/fiber";
 import { Box, OrbitControls, Grid } from "@react-three/drei";
-
 import {
   TooltipProvider,
   TooltipHost,
@@ -100,7 +99,7 @@ function TrackingMesh({
     content: (
       <TooltipContent
         title={`Axis: ${axis}`}
-        description={`This tooltip uses ${axis === "none" ? "bounding box" : axis + " axis"} tracking`}
+        description={`This tooltip uses ${axis === "none" ? "bounding box" : `${axis} axis`} tracking`}
       />
     ),
     axis,

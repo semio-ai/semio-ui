@@ -19,7 +19,7 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 // Helper component for consistent content
-const ScrollContent = ({
+function ScrollContent({
   prefix,
   count = 30,
   bgColor = "bg-blue-100",
@@ -27,15 +27,15 @@ const ScrollContent = ({
   prefix: string;
   count?: number;
   bgColor?: string;
-}) => (
-  <div className="space-y-2 p-4">
+}) {
+  return <div className="space-y-2 p-4">
     {Array.from({ length: count }, (_, i) => (
       <div key={i} className={`p-3 ${bgColor} rounded text-sm`}>
         {prefix} {i + 1}
       </div>
     ))}
   </div>
-);
+}
 
 export const Basic: Story = {
   render: () => (
