@@ -99,7 +99,7 @@ function TrackingMesh({
     content: (
       <TooltipContent
         title={`Axis: ${axis}`}
-        description={`This tooltip uses ${axis === "none" ? "bounding box" : `${axis  } axis`} tracking`}
+        description={`This tooltip uses ${axis === "none" ? "bounding box" : `${axis} axis`} tracking`}
       />
     ),
     axis,
