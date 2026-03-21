@@ -56,7 +56,7 @@ export const Primary: Story = {
   args: {
     value: 0.5,
     onChange: (value: number) => {
-      // eslint-disable-next-line no-console -- demo
+       
       console.log(value);
     },
     variant: Variant.Primary,
@@ -72,7 +72,7 @@ export const PrimaryLabel: Story = {
   args: {
     value: 0.5,
     onChange: (value: number) => {
-      // eslint-disable-next-line no-console -- demo
+       
       console.log(value);
     },
     variant: Variant.Primary,
@@ -89,7 +89,7 @@ export const PrimaryLabelUnits: Story = {
   args: {
     value: 0.5,
     onChange: (value: number) => {
-      // eslint-disable-next-line no-console -- demo
+       
       console.log(value);
     },
     variant: Variant.Primary,
@@ -107,7 +107,7 @@ export const CustomLabelUnits: Story = {
   args: {
     value: 0.5,
     onChange: (value: number) => {
-      // eslint-disable-next-line no-console -- demo
+       
       console.log(value);
     },
     color: "#ee33ee",

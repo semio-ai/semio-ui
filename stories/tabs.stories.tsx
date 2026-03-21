@@ -66,7 +66,7 @@ export const Primary: Story = {
       },
     ],
     selected: "first",
-    // eslint-disable-next-line no-console -- This is a storybook story
+     
     onTabChange: (key) => console.log(key),
   },
   name: "Tabs",

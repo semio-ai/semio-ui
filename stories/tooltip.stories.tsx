@@ -1,6 +1,5 @@
 import { type ReactNode } from "react";
-import type { Meta, StoryObj, ReactRenderer } from "@storybook/react-vite";
-import { type ArgsStoryFn } from "@storybook/core/csf";
+import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Button, Tooltip, Size, Variant, type TooltipProps } from "@semio/ui";
 import { IconHandFinger } from "@tabler/icons-react";
 
@@ -41,7 +40,7 @@ function TooltipRenderer({ children, ...props }: TooltipProps): ReactNode {
  * to learn how to use render functions.
  */
 export const Default: Story = {
-  render: TooltipRenderer as ArgsStoryFn<ReactRenderer, TooltipProps>,
+  render: (args) => <TooltipRenderer {...args} />,
   args: {
     children: "Hover Me",
     content: "Surprise!",
@@ -50,7 +49,7 @@ export const Default: Story = {
 };
 
 export const Primary: Story = {
-  render: TooltipRenderer as ArgsStoryFn<ReactRenderer, TooltipProps>,
+  render: (args) => <TooltipRenderer {...args} />,
   args: {
     children: "Hover Me",
     content: "Surprise!",
@@ -59,7 +58,7 @@ export const Primary: Story = {
 };
 
 export const Secondary: Story = {
-  render: TooltipRenderer as ArgsStoryFn<ReactRenderer, TooltipProps>,
+  render: (args) => <TooltipRenderer {...args} />,
   args: {
     children: "Hover Me",
     content: "Surprise!",
@@ -68,7 +67,7 @@ export const Secondary: Story = {
 };
 
 export const Tertiary: Story = {
-  render: TooltipRenderer as ArgsStoryFn<ReactRenderer, TooltipProps>,
+  render: (args) => <TooltipRenderer {...args} />,
   args: {
     children: "Hover Me",
     content: "Surprise!",
@@ -77,7 +76,7 @@ export const Tertiary: Story = {
 };
 
 export const Info: Story = {
-  render: TooltipRenderer as ArgsStoryFn<ReactRenderer, TooltipProps>,
+  render: (args) => <TooltipRenderer {...args} />,
   args: {
     children: "Hover Me",
     content: "Surprise!",
@@ -86,7 +85,7 @@ export const Info: Story = {
 };
 
 export const Success: Story = {
-  render: TooltipRenderer as ArgsStoryFn<ReactRenderer, TooltipProps>,
+  render: (args) => <TooltipRenderer {...args} />,
   args: {
     children: "Hover Me",
     content: "Surprise!",
@@ -95,7 +94,7 @@ export const Success: Story = {
 };
 
 export const Warning: Story = {
-  render: TooltipRenderer as ArgsStoryFn<ReactRenderer, TooltipProps>,
+  render: (args) => <TooltipRenderer {...args} />,
   args: {
     children: "Hover Me",
     content: "Surprise!",
@@ -104,7 +103,7 @@ export const Warning: Story = {
 };
 
 export const Error: Story = {
-  render: TooltipRenderer as ArgsStoryFn<ReactRenderer, TooltipProps>,
+  render: (args) => <TooltipRenderer {...args} />,
   args: {
     children: "Hover Me",
     content: "Surprise!",

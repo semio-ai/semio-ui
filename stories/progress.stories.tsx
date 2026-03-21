@@ -1,7 +1,6 @@
-import type { Meta, ReactRenderer, StoryObj } from "@storybook/react-vite";
+import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Progress, type ProgressProps, Size, Variant } from "@semio/ui";
 import { type ReactNode, useEffect, useState } from "react";
-import { type ArgsStoryFn } from "@storybook/core/csf";
 
 const meta: Meta<typeof Progress> = {
   component: Progress,
@@ -39,7 +38,7 @@ function ProgressAnimator(props: ProgressProps): ReactNode {
  * to learn how to use render functions.
  */
 export const Primary: Story = {
-  render: ProgressAnimator as ArgsStoryFn<ReactRenderer, ProgressProps>,
+  render: (args) => <ProgressAnimator {...args} />,
   args: {
     variant: Variant.Primary,
     size: Size.Md,
@@ -47,7 +46,7 @@ export const Primary: Story = {
 };
 
 export const Secondary: Story = {
-  render: ProgressAnimator as ArgsStoryFn<ReactRenderer, ProgressProps>,
+  render: (args) => <ProgressAnimator {...args} />,
   args: {
     variant: Variant.Secondary,
     size: Size.Md,
@@ -55,7 +54,7 @@ export const Secondary: Story = {
 };
 
 export const Tertiary: Story = {
-  render: ProgressAnimator as ArgsStoryFn<ReactRenderer, ProgressProps>,
+  render: (args) => <ProgressAnimator {...args} />,
   args: {
     variant: Variant.Tertiary,
     size: Size.Md,
@@ -63,7 +62,7 @@ export const Tertiary: Story = {
 };
 
 export const Info: Story = {
-  render: ProgressAnimator as ArgsStoryFn<ReactRenderer, ProgressProps>,
+  render: (args) => <ProgressAnimator {...args} />,
   args: {
     variant: Variant.Info,
     size: Size.Md,
@@ -71,7 +70,7 @@ export const Info: Story = {
 };
 
 export const Warning: Story = {
-  render: ProgressAnimator as ArgsStoryFn<ReactRenderer, ProgressProps>,
+  render: (args) => <ProgressAnimator {...args} />,
   args: {
     variant: Variant.Warning,
     size: Size.Md,
@@ -79,7 +78,7 @@ export const Warning: Story = {
 };
 
 export const Success: Story = {
-  render: ProgressAnimator as ArgsStoryFn<ReactRenderer, ProgressProps>,
+  render: (args) => <ProgressAnimator {...args} />,
   args: {
     variant: Variant.Success,
     size: Size.Md,
@@ -87,7 +86,7 @@ export const Success: Story = {
 };
 
 export const Error: Story = {
-  render: ProgressAnimator as ArgsStoryFn<ReactRenderer, ProgressProps>,
+  render: (args) => <ProgressAnimator {...args} />,
   args: {
     variant: Variant.Error,
     size: Size.Md,
@@ -95,7 +94,7 @@ export const Error: Story = {
 };
 
 export const ExtraSmall: Story = {
-  render: ProgressAnimator as ArgsStoryFn<ReactRenderer, ProgressProps>,
+  render: (args) => <ProgressAnimator {...args} />,
   args: {
     variant: Variant.Success,
     size: Size.Xs,
@@ -103,7 +102,7 @@ export const ExtraSmall: Story = {
 };
 
 export const Small: Story = {
-  render: ProgressAnimator as ArgsStoryFn<ReactRenderer, ProgressProps>,
+  render: (args) => <ProgressAnimator {...args} />,
   args: {
     variant: Variant.Default,
     size: Size.Sm,
@@ -111,7 +110,7 @@ export const Small: Story = {
 };
 
 export const Medium: Story = {
-  render: ProgressAnimator as ArgsStoryFn<ReactRenderer, ProgressProps>,
+  render: (args) => <ProgressAnimator {...args} />,
   args: {
     variant: Variant.Default,
     size: Size.Md,
@@ -119,7 +118,7 @@ export const Medium: Story = {
 };
 
 export const Large: Story = {
-  render: ProgressAnimator as ArgsStoryFn<ReactRenderer, ProgressProps>,
+  render: (args) => <ProgressAnimator {...args} />,
   args: {
     variant: Variant.Default,
     size: Size.Lg,
@@ -127,7 +126,7 @@ export const Large: Story = {
 };
 
 export const ExtraLarge: Story = {
-  render: ProgressAnimator as ArgsStoryFn<ReactRenderer, ProgressProps>,
+  render: (args) => <ProgressAnimator {...args} />,
   args: {
     variant: Variant.Default,
     size: Size.Xl,

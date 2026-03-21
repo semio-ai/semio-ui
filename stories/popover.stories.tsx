@@ -1,6 +1,5 @@
 import { type ReactNode } from "react";
-import type { Meta, StoryObj, ReactRenderer } from "@storybook/react-vite";
-import { type ArgsStoryFn } from "@storybook/core/csf";
+import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Popover, Variant, type PopoverProps } from "@semio/ui";
 
 const meta: Meta<typeof Popover> = {
@@ -50,7 +49,7 @@ function PopoverRenderer(props: PopoverProps): ReactNode {
  * to learn how to use render functions.
  */
 export const Default: Story = {
-  render: PopoverRenderer as ArgsStoryFn<ReactRenderer, PopoverProps>,
+  render: (args) => <PopoverRenderer {...args} />,
   args: {
     children: "See Example Code",
     trigger: "See Example Code",
@@ -59,7 +58,7 @@ export const Default: Story = {
 };
 
 export const Primary: Story = {
-  render: PopoverRenderer as ArgsStoryFn<ReactRenderer, PopoverProps>,
+  render: (args) => <PopoverRenderer {...args} />,
   args: {
     children: "See Example Code",
     trigger: "See Example Code",
@@ -68,7 +67,7 @@ export const Primary: Story = {
 };
 
 export const Secondary: Story = {
-  render: PopoverRenderer as ArgsStoryFn<ReactRenderer, PopoverProps>,
+  render: (args) => <PopoverRenderer {...args} />,
   args: {
     children: "See Example Code",
     trigger: "See Example Code",
@@ -77,7 +76,7 @@ export const Secondary: Story = {
 };
 
 export const Tertiary: Story = {
-  render: PopoverRenderer as ArgsStoryFn<ReactRenderer, PopoverProps>,
+  render: (args) => <PopoverRenderer {...args} />,
   args: {
     children: "See Example Code",
     trigger: "See Example Code",
@@ -86,7 +85,7 @@ export const Tertiary: Story = {
 };
 
 export const Info: Story = {
-  render: PopoverRenderer as ArgsStoryFn<ReactRenderer, PopoverProps>,
+  render: (args) => <PopoverRenderer {...args} />,
   args: {
     children: "See Example Code",
     trigger: "See Example Code",
@@ -95,7 +94,7 @@ export const Info: Story = {
 };
 
 export const Success: Story = {
-  render: PopoverRenderer as ArgsStoryFn<ReactRenderer, PopoverProps>,
+  render: (args) => <PopoverRenderer {...args} />,
   args: {
     children: "See Example Code",
     trigger: "See Example Code",
@@ -104,7 +103,7 @@ export const Success: Story = {
 };
 
 export const Warning: Story = {
-  render: PopoverRenderer as ArgsStoryFn<ReactRenderer, PopoverProps>,
+  render: (args) => <PopoverRenderer {...args} />,
   args: {
     children: "See Example Code",
     trigger: "See Example Code",
@@ -113,7 +112,7 @@ export const Warning: Story = {
 };
 
 export const Error: Story = {
-  render: PopoverRenderer as ArgsStoryFn<ReactRenderer, PopoverProps>,
+  render: (args) => <PopoverRenderer {...args} />,
   args: {
     children: "See Example Code",
     trigger: "See Example Code",
