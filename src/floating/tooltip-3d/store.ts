@@ -28,7 +28,7 @@ export type TooltipSide = "top" | "right" | "bottom" | "left";
 
 export interface AnchorConfig {
   id: string;
-  ref?: RefObject<THREE.Object3D>;
+  ref?: RefObject<THREE.Object3D | null>;
   content: ReactNode | (() => ReactNode);
   positioning: {
     side?: TooltipSide;

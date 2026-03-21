@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, type ReactElement } from "react";
 import { clsx } from "clsx";
 
 export interface ImageButtonProps {
@@ -15,7 +15,7 @@ export function ImageButton({
   hoverText,
   dimensions,
   onClick,
-}: ImageButtonProps): JSX.Element {
+}: ImageButtonProps): ReactElement {
   const [showTooltip, setShowTooltip] = useState(false);
   const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 });
 

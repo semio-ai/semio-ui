@@ -33,8 +33,8 @@ interface TrackedTooltipResult extends FloatingResults {
 }
 
 export function useTrackedTooltip(
-  triggerRef: RefObject<ReferenceType>,
-  floatingRef: RefObject<ReferenceType>,
+  triggerRef: RefObject<ReferenceType | null>,
+  floatingRef: RefObject<ReferenceType | null>,
   side: "top" | "right" | "bottom" | "left",
   axis: "x" | "y" | "both",
   sideOffset = 4,

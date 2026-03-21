@@ -27,7 +27,7 @@ function Popover({ trigger, children, open, onStateChange, variant }: PopoverPro
               variant,
               "popover-content focus:outline-none",
               "responsive card",
-              "rounded-sm min-w-[220px] m-0.5",
+              "rounded-sm min-w-55 m-0.5",
             )}
           >
             <PopoverPrimitive.Arrow asChild width={12} height={6}>

@@ -268,7 +268,7 @@ export function SelectTree({
             size,
             triggerDisplay.color ? "custom-color" : triggerDisplay.variant,
             "responsive sized-mock-inner-item",
-            "grid place-items-center flex-shrink-0",
+            "grid place-items-center shrink-0",
             "variant-mock-inner-item",
           )}
         >
@@ -294,7 +294,7 @@ export function SelectTree({
 
         <StaticIcon
           size={size}
-          className="flex-shrink-0 sized-text sized-width"
+          className="shrink-0 sized-text sized-width"
           variant={triggerDisplay.variant}
         >
           <IconSelector className={ICON_CLASS_NAME} />

@@ -1,5 +1,5 @@
 import { DropdownMenu, ContextMenu } from "radix-ui";
-import { type CSSProperties } from "react";
+import type { MouseEvent, CSSProperties } from "react";
 import { IconCheck, IconPoint } from "@tabler/icons-react";
 import { clsx } from "clsx";
 import { ICON_CLASS_NAME } from "../constants/icon";
@@ -25,7 +25,7 @@ export function NestedSelect({ variant, disabled, onChange, values, options }: N
 
   return (
     <GroupComponent
-      onClick={(e) => {
+      onClick={(e: MouseEvent) => {
         e.stopPropagation();
       }}
     >
@@ -41,7 +41,7 @@ export function NestedSelect({ variant, disabled, onChange, values, options }: N
               onChange([...values, option.value]);
             }
           }}
-          onSelect={(e) => {
+          onSelect={(e: Event) => {
             if (!option.closeOnSelect) {
               e.preventDefault();
             }
@@ -58,7 +58,7 @@ export function NestedSelect({ variant, disabled, onChange, values, options }: N
           }
           className={clsx(
             "leading-none flex items-center rounded-xs group/item",
-            "h-7 text-sm px-[5px] relative pl-[30px] select-none outline-hidden",
+            "h-7 text-sm px-1.25 relative pl-7.5 select-none outline-hidden",
             "data-disabled:pointer-events-none",
             "responsive highlight-list-item",
             option.color ? "custom-color" : (option.variant ?? variant),
