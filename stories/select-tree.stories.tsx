@@ -46,7 +46,7 @@ type Story = StoryObj<typeof SelectTree>;
 function SelectTreeWrapper(
   props: Omit<SelectTreeProps, "value" | "onChange"> & { initialValues?: string[] },
 ): ReactNode {
-  const [values, setValues] = useState<string[]>(props.initialValues || []);
+  const [values, setValues] = useState<string[]>(props.initialValues ?? []);
   return <SelectTree {...props} value={values} onChange={setValues} />;
 }
 
@@ -374,36 +374,42 @@ export const ComprehensiveDemo: Story = {
           <div className="text-sm font-semibold mb-2">Demo Scenarios (Click to apply):</div>
           <div className="flex flex-wrap gap-2">
             <button
+              type="button"
               onClick={() => setValues(["keynote", "demo"])}
               className="px-3 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600"
             >
               Complete Subgroup (Presentations)
             </button>
             <button
+              type="button"
               onClick={() => setValues(["q1-report", "q2-report"])}
               className="px-3 py-1 text-xs bg-green-500 text-white rounded hover:bg-green-600"
             >
               Partial Group (2/3 Reports)
             </button>
             <button
+              type="button"
               onClick={() => setValues(["q1-report", "q2-report", "q3-report", "keynote", "demo"])}
               className="px-3 py-1 text-xs bg-purple-500 text-white rounded hover:bg-purple-600"
             >
               Complete Documents
             </button>
             <button
+              type="button"
               onClick={() => setValues(["keynote", "demo", "photos", "screenshots"])}
               className="px-3 py-1 text-xs bg-yellow-600 text-white rounded hover:bg-yellow-700"
             >
               Multiple Complete Groups
             </button>
             <button
+              type="button"
               onClick={() => setValues(["q1-report", "photos"])}
               className="px-3 py-1 text-xs bg-red-500 text-white rounded hover:bg-red-600"
             >
               Mixed Selection
             </button>
             <button
+              type="button"
               onClick={() => setValues([])}
               className="px-3 py-1 text-xs bg-gray-500 text-white rounded hover:bg-gray-600"
             >

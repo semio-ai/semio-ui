@@ -1,5 +1,6 @@
 import type { Meta } from "@storybook/react-vite";
-import { useState } from "react";
+import { type ReactNode, type RefObject, useState } from "react";
+import type * as THREE from "three";
 import { Canvas } from "@react-three/fiber";
 import { Box, OrbitControls, Grid } from "@react-three/drei";
 import {
@@ -73,7 +74,7 @@ function BasicMesh({
 
   return (
     <Box
-      ref={ref as any}
+      ref={ref as unknown as RefObject<THREE.Mesh | null>}
       args={[1, 1, 1]}
       position={position}
       onPointerOver={handlePointerOver}
@@ -111,7 +112,7 @@ function TrackingMesh({
 
   return (
     <Box
-      ref={ref as any}
+      ref={ref as unknown as RefObject<THREE.Mesh | null>}
       args={[2, 0.5, 0.5]}
       position={position}
       onPointerOver={show}
@@ -135,6 +136,7 @@ function ExternalControlPanel({ meshId, label }: { meshId: string; label: string
     <div className="p-3 bg-gray-100 dark:bg-gray-800 rounded-lg">
       <h4 className="text-sm font-medium mb-2">{label}</h4>
       <button
+        type="button"
         className="px-3 py-1.5 bg-blue-500 hover:bg-blue-600 text-white text-sm rounded transition-colors"
         onMouseEnter={() => {
           show();
@@ -175,24 +177,28 @@ function ProgrammaticControlPanel() {
       <h4 className="text-sm font-medium mb-2">Programmatic Control</h4>
       <div className="space-y-2">
         <button
+          type="button"
           className="w-full px-3 py-1.5 bg-green-500 hover:bg-green-600 text-white text-sm rounded transition-colors"
           onClick={() => toggleTooltip("basic-1")}
         >
           {activeTooltips.has("basic-1") ? "Hide" : "Show"} Red Cube
         </button>
         <button
+          type="button"
           className="w-full px-3 py-1.5 bg-green-500 hover:bg-green-600 text-white text-sm rounded transition-colors"
           onClick={() => toggleTooltip("basic-2")}
         >
           {activeTooltips.has("basic-2") ? "Hide" : "Show"} Blue Cube
         </button>
         <button
+          type="button"
           className="w-full px-3 py-1.5 bg-green-500 hover:bg-green-600 text-white text-sm rounded transition-colors"
           onClick={() => toggleTooltip("basic-3")}
         >
           {activeTooltips.has("basic-3") ? "Hide" : "Show"} Green Cube
         </button>
         <button
+          type="button"
           className="w-full px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white text-sm rounded transition-colors"
           onClick={() => {
             hideAll();
@@ -275,7 +281,7 @@ function SidePositionMesh({
 
   return (
     <Box
-      ref={ref as any}
+      ref={ref as unknown as RefObject<THREE.Mesh | null>}
       args={[1.5, 1.5, 1.5]}
       position={position}
       onPointerOver={show}
@@ -542,7 +548,7 @@ function ManualPositionMesh({
 
   return (
     <Box
-      ref={ref as any}
+      ref={ref as unknown as RefObject<THREE.Mesh | null>}
       args={[1, 1, 1]}
       position={position}
       onPointerOver={show}
@@ -567,18 +573,21 @@ function ManualPositionControlPanel() {
       <h4 className="text-sm font-medium mb-2">Manual Screen Positioning</h4>
       <div className="space-y-2">
         <button
+          type="button"
           className="w-full px-3 py-1.5 bg-purple-500 hover:bg-purple-600 text-white text-sm rounded transition-colors"
           onClick={() => showAtPosition("manual-1", 200, 100)}
         >
           Show at Top Left (200, 100)
         </button>
         <button
+          type="button"
           className="w-full px-3 py-1.5 bg-purple-500 hover:bg-purple-600 text-white text-sm rounded transition-colors"
           onClick={() => showAtPosition("manual-2", window.innerWidth - 200, 200)}
         >
           Show at Top Right
         </button>
         <button
+          type="button"
           className="w-full px-3 py-1.5 bg-purple-500 hover:bg-purple-600 text-white text-sm rounded transition-colors"
           onClick={() =>
             showAtPosition("manual-3", window.innerWidth / 2, window.innerHeight - 150)
@@ -587,6 +596,7 @@ function ManualPositionControlPanel() {
           Show at Bottom Center
         </button>
         <button
+          type="button"
           className="w-full px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white text-sm rounded transition-colors"
           onClick={() => {
             hideAll();
@@ -674,7 +684,7 @@ function MultiTriggerMesh({
 
   return (
     <Box
-      ref={ref as any}
+      ref={ref as unknown as RefObject<THREE.Mesh | null>}
       args={[3, 1, 1]}
       position={position}
       onPointerOver={show}
@@ -797,7 +807,7 @@ function NestedHostMesh({
 
   return (
     <Box
-      ref={ref as any}
+      ref={ref as unknown as RefObject<THREE.Mesh | null>}
       args={[1.5, 1.5, 1.5]}
       position={position}
       onPointerOver={show}
@@ -814,7 +824,7 @@ function NestedHostMesh({
 // With the fix:
 // - This nested host won't create a duplicate portal
 // - Tooltips calculate positions relative to this container, then transform to root coordinates
-function NestedCanvas({ children }: { children: React.ReactNode }) {
+function NestedCanvas({ children }: { children: ReactNode }) {
   return (
     <TooltipHost className="w-full h-full">
       <div className="w-full h-full relative border-2 border-yellow-500">

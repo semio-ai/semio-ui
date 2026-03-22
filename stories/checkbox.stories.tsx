@@ -1,7 +1,6 @@
-import type { Meta, ReactRenderer, StoryObj } from "@storybook/react-vite";
+import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Checkbox, type CheckboxProps, Size, Variant } from "@semio/ui";
 import { useState, type ReactNode } from "react";
-import { type ArgsStoryFn } from "@storybook/core/csf";
 
 const meta: Meta<typeof Checkbox> = {
   component: Checkbox,
@@ -31,7 +30,7 @@ function CheckboxRenderer({ ...props }: CheckboxProps): ReactNode {
  * to learn how to use render functions.
  */
 export const Primary: Story = {
-  render: CheckboxRenderer as ArgsStoryFn<ReactRenderer, CheckboxProps>,
+  render: (args) => <CheckboxRenderer {...args} />,
   args: {
     checked: true,
     variant: Variant.Primary,
@@ -41,7 +40,7 @@ export const Primary: Story = {
 };
 
 export const Secondary: Story = {
-  render: CheckboxRenderer as ArgsStoryFn<ReactRenderer, CheckboxProps>,
+  render: (args) => <CheckboxRenderer {...args} />,
   args: {
     checked: true,
     variant: Variant.Secondary,
@@ -51,7 +50,7 @@ export const Secondary: Story = {
 };
 
 export const Tertiary: Story = {
-  render: CheckboxRenderer as ArgsStoryFn<ReactRenderer, CheckboxProps>,
+  render: (args) => <CheckboxRenderer {...args} />,
   args: {
     checked: true,
     variant: Variant.Tertiary,
@@ -61,7 +60,7 @@ export const Tertiary: Story = {
 };
 
 export const Success: Story = {
-  render: CheckboxRenderer as ArgsStoryFn<ReactRenderer, CheckboxProps>,
+  render: (args) => <CheckboxRenderer {...args} />,
   args: {
     checked: true,
     variant: Variant.Success,
@@ -71,7 +70,7 @@ export const Success: Story = {
 };
 
 export const Warning: Story = {
-  render: CheckboxRenderer as ArgsStoryFn<ReactRenderer, CheckboxProps>,
+  render: (args) => <CheckboxRenderer {...args} />,
   args: {
     checked: true,
     variant: Variant.Warning,
@@ -81,7 +80,7 @@ export const Warning: Story = {
 };
 
 export const Error: Story = {
-  render: CheckboxRenderer as ArgsStoryFn<ReactRenderer, CheckboxProps>,
+  render: (args) => <CheckboxRenderer {...args} />,
   args: {
     checked: true,
     variant: Variant.Error,
@@ -91,7 +90,7 @@ export const Error: Story = {
 };
 
 export const Info: Story = {
-  render: CheckboxRenderer as ArgsStoryFn<ReactRenderer, CheckboxProps>,
+  render: (args) => <CheckboxRenderer {...args} />,
   args: {
     checked: true,
     variant: Variant.Info,
@@ -101,7 +100,7 @@ export const Info: Story = {
 };
 
 export const ExtraSmall: Story = {
-  render: CheckboxRenderer as ArgsStoryFn<ReactRenderer, CheckboxProps>,
+  render: (args) => <CheckboxRenderer {...args} />,
   args: {
     checked: true,
     variant: Variant.Primary,
@@ -111,7 +110,7 @@ export const ExtraSmall: Story = {
 };
 
 export const Small: Story = {
-  render: CheckboxRenderer as ArgsStoryFn<ReactRenderer, CheckboxProps>,
+  render: (args) => <CheckboxRenderer {...args} />,
   args: {
     checked: true,
     variant: Variant.Primary,
@@ -121,7 +120,7 @@ export const Small: Story = {
 };
 
 export const Medium: Story = {
-  render: CheckboxRenderer as ArgsStoryFn<ReactRenderer, CheckboxProps>,
+  render: (args) => <CheckboxRenderer {...args} />,
   args: {
     checked: true,
     variant: Variant.Primary,
@@ -131,7 +130,7 @@ export const Medium: Story = {
 };
 
 export const Large: Story = {
-  render: CheckboxRenderer as ArgsStoryFn<ReactRenderer, CheckboxProps>,
+  render: (args) => <CheckboxRenderer {...args} />,
   args: {
     checked: true,
     variant: Variant.Primary,
@@ -141,7 +140,7 @@ export const Large: Story = {
 };
 
 export const ExtraLarge: Story = {
-  render: CheckboxRenderer as ArgsStoryFn<ReactRenderer, CheckboxProps>,
+  render: (args) => <CheckboxRenderer {...args} />,
   args: {
     checked: true,
     variant: Variant.Primary,
@@ -151,7 +150,7 @@ export const ExtraLarge: Story = {
 };
 
 export const Disabled: Story = {
-  render: CheckboxRenderer as ArgsStoryFn<ReactRenderer, CheckboxProps>,
+  render: (args) => <CheckboxRenderer {...args} />,
   args: {
     checked: true,
     variant: Variant.Primary,

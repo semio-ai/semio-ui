@@ -54,7 +54,6 @@ export const Small: Story = {
   args: {
     value: "a",
     onChange: (value: string): void => {
-      // eslint-disable-next-line no-console -- alert for demo
       console.log(`Value changed to ${value}`);
     },
     size: Size.Sm,
@@ -100,7 +99,6 @@ export const Medium: Story = {
   args: {
     value: "a",
     onChange: (value: string): void => {
-      // eslint-disable-next-line no-console -- alert for demo
       console.log(`Value changed to ${value}`);
     },
     size: Size.Md,
@@ -146,7 +144,6 @@ export const Large: Story = {
   args: {
     value: "a",
     onChange: (value: string): void => {
-      // eslint-disable-next-line no-console -- alert for demo
       console.log(`Value changed to ${value}`);
     },
     size: Size.Lg,
@@ -193,7 +190,6 @@ export const Labels: Story = {
     visuals: "labels",
     value: "a",
     onChange: (value: string): void => {
-      // eslint-disable-next-line no-console -- alert for demo
       console.log(`Value changed to ${value}`);
     },
     size: Size.Md,
@@ -240,7 +236,6 @@ export const IconsAndLabels: Story = {
     visuals: "both",
     value: "a",
     onChange: (value: string): void => {
-      // eslint-disable-next-line no-console -- alert for demo
       console.log(`Value changed to ${value}`);
     },
     size: Size.Md,

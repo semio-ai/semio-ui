@@ -1,6 +1,5 @@
 import { type ReactNode } from "react";
-import type { Meta, StoryObj, ReactRenderer } from "@storybook/react-vite";
-import { type ArgsStoryFn } from "@storybook/core/csf";
+import type { Meta, StoryObj } from "@storybook/react-vite";
 import { ContextMenu, Variant, type ContextMenuProps } from "@semio/ui";
 import { NestedExample } from "./prebuilt/nested-example";
 
@@ -39,7 +38,7 @@ function ContextMenuRenderer(props: ContextMenuProps): ReactNode {
  * to learn how to use render functions.
  */
 export const Default: Story = {
-  render: ContextMenuRenderer as ArgsStoryFn<ReactRenderer, ContextMenuProps>,
+  render: (args) => <ContextMenuRenderer {...args} />,
   args: {
     children: "See Example Code",
     content: "See Example Code",
@@ -48,7 +47,7 @@ export const Default: Story = {
 };
 
 export const Primary: Story = {
-  render: ContextMenuRenderer as ArgsStoryFn<ReactRenderer, ContextMenuProps>,
+  render: (args) => <ContextMenuRenderer {...args} />,
   args: {
     children: "See Example Code",
     content: "See Example Code",
@@ -57,7 +56,7 @@ export const Primary: Story = {
 };
 
 export const Secondary: Story = {
-  render: ContextMenuRenderer as ArgsStoryFn<ReactRenderer, ContextMenuProps>,
+  render: (args) => <ContextMenuRenderer {...args} />,
   args: {
     children: "See Example Code",
     content: "See Example Code",
@@ -66,7 +65,7 @@ export const Secondary: Story = {
 };
 
 export const Tertiary: Story = {
-  render: ContextMenuRenderer as ArgsStoryFn<ReactRenderer, ContextMenuProps>,
+  render: (args) => <ContextMenuRenderer {...args} />,
   args: {
     children: "See Example Code",
     content: "See Example Code",
@@ -75,7 +74,7 @@ export const Tertiary: Story = {
 };
 
 export const Info: Story = {
-  render: ContextMenuRenderer as ArgsStoryFn<ReactRenderer, ContextMenuProps>,
+  render: (args) => <ContextMenuRenderer {...args} />,
   args: {
     children: "See Example Code",
     content: "See Example Code",
@@ -84,7 +83,7 @@ export const Info: Story = {
 };
 
 export const Success: Story = {
-  render: ContextMenuRenderer as ArgsStoryFn<ReactRenderer, ContextMenuProps>,
+  render: (args) => <ContextMenuRenderer {...args} />,
   args: {
     children: "See Example Code",
     content: "See Example Code",
@@ -93,7 +92,7 @@ export const Success: Story = {
 };
 
 export const Warning: Story = {
-  render: ContextMenuRenderer as ArgsStoryFn<ReactRenderer, ContextMenuProps>,
+  render: (args) => <ContextMenuRenderer {...args} />,
   args: {
     children: "See Example Code",
     content: "See Example Code",
@@ -102,7 +101,7 @@ export const Warning: Story = {
 };
 
 export const Error: Story = {
-  render: ContextMenuRenderer as ArgsStoryFn<ReactRenderer, ContextMenuProps>,
+  render: (args) => <ContextMenuRenderer {...args} />,
   args: {
     children: "See Example Code",
     content: "See Example Code",

@@ -1,6 +1,5 @@
 import { type ReactNode } from "react";
-import type { Meta, StoryObj, ReactRenderer } from "@storybook/react-vite";
-import { type ArgsStoryFn } from "@storybook/core/csf";
+import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Button, Dropdown, Size, Variant, type DropdownProps, ICON_CLASS_NAME } from "@semio/ui";
 import { IconChevronDown } from "@tabler/icons-react";
 import { NestedExample } from "./prebuilt/nested-example";
@@ -47,7 +46,7 @@ function DropdownRenderer(props: DropdownProps): ReactNode {
  * to learn how to use render functions.
  */
 export const Default: Story = {
-  render: DropdownRenderer as ArgsStoryFn<ReactRenderer, DropdownProps>,
+  render: (args) => <DropdownRenderer {...args} />,
   args: {
     children: "See Example Code",
     trigger: "See Example Code",
@@ -56,7 +55,7 @@ export const Default: Story = {
 };
 
 export const Primary: Story = {
-  render: DropdownRenderer as ArgsStoryFn<ReactRenderer, DropdownProps>,
+  render: (args) => <DropdownRenderer {...args} />,
   args: {
     children: "See Example Code",
     trigger: "See Example Code",
@@ -65,7 +64,7 @@ export const Primary: Story = {
 };
 
 export const Secondary: Story = {
-  render: DropdownRenderer as ArgsStoryFn<ReactRenderer, DropdownProps>,
+  render: (args) => <DropdownRenderer {...args} />,
   args: {
     children: "See Example Code",
     trigger: "See Example Code",
@@ -74,7 +73,7 @@ export const Secondary: Story = {
 };
 
 export const Tertiary: Story = {
-  render: DropdownRenderer as ArgsStoryFn<ReactRenderer, DropdownProps>,
+  render: (args) => <DropdownRenderer {...args} />,
   args: {
     children: "See Example Code",
     trigger: "See Example Code",
@@ -83,7 +82,7 @@ export const Tertiary: Story = {
 };
 
 export const Info: Story = {
-  render: DropdownRenderer as ArgsStoryFn<ReactRenderer, DropdownProps>,
+  render: (args) => <DropdownRenderer {...args} />,
   args: {
     children: "See Example Code",
     trigger: "See Example Code",
@@ -92,7 +91,7 @@ export const Info: Story = {
 };
 
 export const Success: Story = {
-  render: DropdownRenderer as ArgsStoryFn<ReactRenderer, DropdownProps>,
+  render: (args) => <DropdownRenderer {...args} />,
   args: {
     children: "See Example Code",
     trigger: "See Example Code",
@@ -101,7 +100,7 @@ export const Success: Story = {
 };
 
 export const Warning: Story = {
-  render: DropdownRenderer as ArgsStoryFn<ReactRenderer, DropdownProps>,
+  render: (args) => <DropdownRenderer {...args} />,
   args: {
     children: "See Example Code",
     trigger: "See Example Code",
@@ -110,7 +109,7 @@ export const Warning: Story = {
 };
 
 export const Error: Story = {
-  render: DropdownRenderer as ArgsStoryFn<ReactRenderer, DropdownProps>,
+  render: (args) => <DropdownRenderer {...args} />,
   args: {
     children: "See Example Code",
     trigger: "See Example Code",

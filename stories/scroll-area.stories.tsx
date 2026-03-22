@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { ScrollArea } from "@semio/ui";
+import { ScrollArea, type ScrollInfo, type ScrollAreaRef } from "@semio/ui";
 import { useState } from "react";
 import { useMotionValue, useMotionValueEvent } from "motion/react";
 
@@ -28,13 +28,15 @@ function ScrollContent({
   count?: number;
   bgColor?: string;
 }) {
-  return <div className="space-y-2 p-4">
-    {Array.from({ length: count }, (_, i) => (
-      <div key={i} className={`p-3 ${bgColor} rounded text-sm`}>
-        {prefix} {i + 1}
-      </div>
-    ))}
-  </div>
+  return (
+    <div className="space-y-2 p-4">
+      {Array.from({ length: count }, (_, i) => (
+        <div key={i} className={`p-3 ${bgColor} rounded text-sm`}>
+          {prefix} {i + 1}
+        </div>
+      ))}
+    </div>
+  );
 }
 
 export const Basic: Story = {
@@ -66,7 +68,7 @@ export const SynchronizedScrolling: Story = {
       setDisplayValue(value);
     });
 
-    const handleScrollChange = (info: any) => {
+    const handleScrollChange = (info: ScrollInfo) => {
       setScrollInfo({
         scrollTop: info.scrollTop,
         isOverscrolling: info.isOverscrolling,
@@ -138,7 +140,7 @@ export const SynchronizedScrolling: Story = {
             <strong>Motion value position:</strong> {displayValue.toFixed(1)}px
           </div>
           <div>
-            <strong>Active area:</strong> {activeArea || "None"}
+            <strong>Active area:</strong> {activeArea ?? "None"}
           </div>
           <div>
             <strong>Current scroll:</strong> {scrollInfo.scrollTop.toFixed(1)}px
@@ -248,7 +250,7 @@ export const HorizontalSync: Story = {
             <strong>Motion value position:</strong> {displayValue.toFixed(1)}px
           </div>
           <div>
-            <strong>Active area:</strong> {activeArea || "None"}
+            <strong>Active area:</strong> {activeArea ?? "None"}
           </div>
           <div className="text-purple-600">✓ Instant horizontal sync</div>
         </div>
@@ -317,7 +319,7 @@ export const ScrollTrackingDemo: Story = {
 
 export const ProgrammaticControl: Story = {
   render: () => {
-    const [scrollAreaRef, setScrollAreaRef] = useState<any>(null);
+    const [scrollAreaRef, setScrollAreaRef] = useState<ScrollAreaRef | null>(null);
     const [currentPosition, setCurrentPosition] = useState(0);
 
     const scrollToPosition = (position: number) => {
@@ -342,24 +344,28 @@ export const ProgrammaticControl: Story = {
         <div className="space-y-2">
           <div className="flex gap-2 flex-wrap">
             <button
+              type="button"
               onClick={() => scrollToPosition(0)}
               className="px-3 py-1 text-xs bg-blue-100 hover:bg-blue-200 rounded"
             >
               Top
             </button>
             <button
+              type="button"
               onClick={() => scrollToPosition(100)}
               className="px-3 py-1 text-xs bg-blue-100 hover:bg-blue-200 rounded"
             >
               100px
             </button>
             <button
+              type="button"
               onClick={() => scrollToPosition(300)}
               className="px-3 py-1 text-xs bg-blue-100 hover:bg-blue-200 rounded"
             >
               300px
             </button>
             <button
+              type="button"
               onClick={() => scrollToPosition(1000)}
               className="px-3 py-1 text-xs bg-blue-100 hover:bg-blue-200 rounded"
             >
@@ -399,7 +405,7 @@ export const ComprehensiveDemo: Story = {
       setDisplayValueX(value);
     });
 
-    const handleDetailedScrollChange = (info: any) => {
+    const handleDetailedScrollChange = (info: ScrollInfo) => {
       setScrollInfo(info);
     };
 
@@ -687,7 +693,7 @@ export const PerformanceComparison: Story = {
                 <strong>Position:</strong> {callbackDisplayValue.toFixed(1)}px
               </div>
               <div>
-                <strong>Active:</strong> {activeArea || "None"}
+                <strong>Active:</strong> {activeArea ?? "None"}
               </div>
               <div className="text-orange-600 font-medium">🐌 React state latency</div>
               <div className="text-orange-600">Hover to control</div>

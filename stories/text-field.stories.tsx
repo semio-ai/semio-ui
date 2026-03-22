@@ -65,7 +65,6 @@ export const Primary: Story = {
   args: {
     value: "I am text",
     onChange: (): void => {
-      // eslint-disable-next-line no-console -- log for demo
       console.log("Hello World!");
     },
     size: Size.Sm,
@@ -86,7 +85,6 @@ export const PrimaryNoBg: Story = {
   args: {
     value: "I am text",
     onChange: (): void => {
-      // eslint-disable-next-line no-console -- log for demo
       console.log("Hello World!");
     },
     size: Size.Sm,
@@ -108,7 +106,6 @@ export const PrimaryIcon: Story = {
     value: "I am text",
     icon: <IconSearch className={ICON_CLASS_NAME} />,
     onChange: (): void => {
-      // eslint-disable-next-line no-console -- log for demo
       console.log("Hello World!");
     },
     size: Size.Sm,
@@ -130,11 +127,9 @@ export const PrimaryIconClearable: Story = {
     value: "I am text",
     icon: <IconSearch className={ICON_CLASS_NAME} />,
     onChange: (): void => {
-      // eslint-disable-next-line no-console -- log for demo
       console.log("Hello World!");
     },
     onClear: (): void => {
-      // eslint-disable-next-line no-console -- log for demo
       console.log("Clear");
     },
     size: Size.Sm,
@@ -156,11 +151,9 @@ export const SubtleIconClearable: Story = {
     value: "I am text",
     icon: <IconSearch className={ICON_CLASS_NAME} />,
     onChange: (): void => {
-      // eslint-disable-next-line no-console -- log for demo
       console.log("Hello World!");
     },
     onClear: (): void => {
-      // eslint-disable-next-line no-console -- log for demo
       console.log("Clear");
     },
     size: Size.Sm,

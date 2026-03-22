@@ -46,7 +46,6 @@ export const Primary: Story = {
   args: {
     value: "#ff55aa",
     onChange: (value: string | RawColor) => {
-      // eslint-disable-next-line no-console -- demo
       console.log(value);
     },
   },

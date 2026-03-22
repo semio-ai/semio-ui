@@ -1,6 +1,5 @@
 import { useState, type ReactNode } from "react";
-import type { Meta, StoryObj, ReactRenderer } from "@storybook/react-vite";
-import { type ArgsStoryFn } from "storybook/internal/csf";
+import type { Meta, StoryObj } from "@storybook/react-vite";
 import {
   type BreadcrumbElement,
   Breadcrumbs,
@@ -186,7 +185,7 @@ const STATIC_ELEMENTS: BreadcrumbElement[] = [
  * to learn how to use render functions.
  */
 export const Default: Story = {
-  render: BreadcrumbsRenderer as ArgsStoryFn<ReactRenderer, BreadcrumbsProps>,
+  render: (args) => <BreadcrumbsRenderer {...args} />,
   args: {
     values: { root: "dashboard", subRoot: "projects", subSubRoot: "account" },
     elements: STATIC_ELEMENTS,
@@ -194,7 +193,7 @@ export const Default: Story = {
 };
 
 export const Primary: Story = {
-  render: BreadcrumbsRenderer as ArgsStoryFn<ReactRenderer, BreadcrumbsProps>,
+  render: (args) => <BreadcrumbsRenderer {...args} />,
   args: {
     values: { root: "dashboard", subRoot: "projects", subSubRoot: "account" },
     elements: STATIC_ELEMENTS,
@@ -203,7 +202,7 @@ export const Primary: Story = {
 };
 
 export const Secondary: Story = {
-  render: BreadcrumbsRenderer as ArgsStoryFn<ReactRenderer, BreadcrumbsProps>,
+  render: (args) => <BreadcrumbsRenderer {...args} />,
   args: {
     values: { root: "dashboard", subRoot: "projects", subSubRoot: "account" },
     elements: STATIC_ELEMENTS,
@@ -212,7 +211,7 @@ export const Secondary: Story = {
 };
 
 export const Tertiary: Story = {
-  render: BreadcrumbsRenderer as ArgsStoryFn<ReactRenderer, BreadcrumbsProps>,
+  render: (args) => <BreadcrumbsRenderer {...args} />,
   args: {
     values: { root: "dashboard", subRoot: "projects", subSubRoot: "account" },
     elements: STATIC_ELEMENTS,
@@ -221,7 +220,7 @@ export const Tertiary: Story = {
 };
 
 export const ExtraSmall: Story = {
-  render: BreadcrumbsRenderer as ArgsStoryFn<ReactRenderer, BreadcrumbsProps>,
+  render: (args) => <BreadcrumbsRenderer {...args} />,
   args: {
     values: { root: "dashboard", subRoot: "projects", subSubRoot: "account" },
     elements: STATIC_ELEMENTS,
@@ -230,7 +229,7 @@ export const ExtraSmall: Story = {
 };
 
 export const Small: Story = {
-  render: BreadcrumbsRenderer as ArgsStoryFn<ReactRenderer, BreadcrumbsProps>,
+  render: (args) => <BreadcrumbsRenderer {...args} />,
   args: {
     values: { root: "dashboard", subRoot: "projects", subSubRoot: "account" },
     elements: STATIC_ELEMENTS,
@@ -239,7 +238,7 @@ export const Small: Story = {
 };
 
 export const Medium: Story = {
-  render: BreadcrumbsRenderer as ArgsStoryFn<ReactRenderer, BreadcrumbsProps>,
+  render: (args) => <BreadcrumbsRenderer {...args} />,
   args: {
     values: { root: "dashboard", subRoot: "projects", subSubRoot: "account" },
     elements: STATIC_ELEMENTS,
@@ -248,7 +247,7 @@ export const Medium: Story = {
 };
 
 export const Large: Story = {
-  render: BreadcrumbsRenderer as ArgsStoryFn<ReactRenderer, BreadcrumbsProps>,
+  render: (args) => <BreadcrumbsRenderer {...args} />,
   args: {
     values: { root: "dashboard", subRoot: "projects", subSubRoot: "account" },
     elements: STATIC_ELEMENTS,
@@ -257,7 +256,7 @@ export const Large: Story = {
 };
 
 export const ExtraLarge: Story = {
-  render: BreadcrumbsRenderer as ArgsStoryFn<ReactRenderer, BreadcrumbsProps>,
+  render: (args) => <BreadcrumbsRenderer {...args} />,
   args: {
     values: { root: "dashboard", subRoot: "projects", subSubRoot: "account" },
     elements: STATIC_ELEMENTS,

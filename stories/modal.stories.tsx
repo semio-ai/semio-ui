@@ -1,7 +1,6 @@
 import { useState, type ReactNode } from "react";
-import type { Meta, StoryObj, ReactRenderer } from "@storybook/react-vite";
+import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Button, Modal, Variant, type ModalProps } from "@semio/ui";
-import { type ArgsStoryFn } from "storybook/internal/csf";
 
 const meta: Meta<typeof Modal> = {
   component: Modal,
@@ -91,7 +90,7 @@ const lorem = [
  * to learn how to use render functions.
  */
 export const Default: Story = {
-  render: ModalRenderer as ArgsStoryFn<ReactRenderer, ModalProps>,
+  render: (args) => <ModalRenderer {...args} />,
   args: {
     title: "Modal Title",
     description: "Modal Description",
@@ -101,7 +100,7 @@ export const Default: Story = {
 };
 
 export const Primary: Story = {
-  render: ModalRenderer as ArgsStoryFn<ReactRenderer, ModalProps>,
+  render: (args) => <ModalRenderer {...args} />,
   args: {
     title: "Modal Title",
     description: "Modal Description",
@@ -111,7 +110,7 @@ export const Primary: Story = {
 };
 
 export const Secondary: Story = {
-  render: ModalRenderer as ArgsStoryFn<ReactRenderer, ModalProps>,
+  render: (args) => <ModalRenderer {...args} />,
   args: {
     title: "Modal Title",
     description: "Modal Description",
@@ -121,7 +120,7 @@ export const Secondary: Story = {
 };
 
 export const Tertiary: Story = {
-  render: ModalRenderer as ArgsStoryFn<ReactRenderer, ModalProps>,
+  render: (args) => <ModalRenderer {...args} />,
   args: {
     title: "Modal Title",
     description: "Modal Description",
@@ -131,7 +130,7 @@ export const Tertiary: Story = {
 };
 
 export const Info: Story = {
-  render: ModalRenderer as ArgsStoryFn<ReactRenderer, ModalProps>,
+  render: (args) => <ModalRenderer {...args} />,
   args: {
     title: "Modal Title",
     description: "Modal Description",
@@ -141,7 +140,7 @@ export const Info: Story = {
 };
 
 export const Success: Story = {
-  render: ModalRenderer as ArgsStoryFn<ReactRenderer, ModalProps>,
+  render: (args) => <ModalRenderer {...args} />,
   args: {
     title: "Modal Title",
     description: "Modal Description",
@@ -151,7 +150,7 @@ export const Success: Story = {
 };
 
 export const Warning: Story = {
-  render: ModalRenderer as ArgsStoryFn<ReactRenderer, ModalProps>,
+  render: (args) => <ModalRenderer {...args} />,
   args: {
     title: "Modal Title",
     description: "Modal Description",
@@ -161,7 +160,7 @@ export const Warning: Story = {
 };
 
 export const Error: Story = {
-  render: ModalRenderer as ArgsStoryFn<ReactRenderer, ModalProps>,
+  render: (args) => <ModalRenderer {...args} />,
   args: {
     title: "Modal Title",
     description: "Modal Description",
