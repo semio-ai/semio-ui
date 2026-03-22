@@ -1,15 +1,5 @@
 import { clsx } from "clsx";
-import {
-  flip,
-  FloatingPortal,
-  offset,
-  ReferenceType,
-  type VirtualElement,
-  ContextData,
-  shift,
-  useFloating,
-  useMergeRefs,
-} from "@floating-ui/react";
+import { FloatingPortal } from "@floating-ui/react";
 import {
   forwardRef,
   type ReactNode,
@@ -17,64 +7,155 @@ import {
   type ForwardedRef,
   CSSProperties,
   useCallback,
+  useEffect,
+  useRef,
   useState,
 } from "react";
 import { Variant } from "../types";
 
-type FloatingResults = ReturnType<typeof useFloating>;
-interface ElementRefs {
-  triggerRef: ((instance: Element | VirtualElement | null) => void) | null;
-  floatingRef: ((instance: Element | VirtualElement | null) => void) | null;
-}
-
-interface TrackedTooltipResult extends FloatingResults {
-  elementRefs: ElementRefs;
+interface TrackedTooltipHookResult<T extends HTMLElement> {
+  /** Styles to apply to the tooltip container (position, transform) */
+  floatingStyles: CSSProperties;
+  /** Refs to attach to the trigger and floating elements */
+  elementRefs: {
+    triggerRef: RefObject<T | null>;
+    floatingRef: RefObject<HTMLDivElement | null>;
+  };
+  /** Context containing open state */
+  context: { open: boolean };
+  /** Call on pointer move/leave to update tooltip position and visibility */
   updateHoverState: (x: number | undefined, y: number | undefined, hovering: boolean) => void;
 }
 
-export function useTrackedTooltip(
-  triggerRef: RefObject<ReferenceType | null>,
-  floatingRef: RefObject<ReferenceType | null>,
+/**
+ * Lightweight cursor-following tooltip hook.
+ *
+ * Replaces the previous floating-ui based implementation which caused infinite
+ * re-render loops under React 19 due to setPositionReference triggering
+ * cascading state updates. This version uses direct DOM manipulation for
+ * position updates (no React state in the hot path) and only triggers
+ * re-renders when hover state transitions (enter/leave).
+ */
+export function useTrackedTooltip<T extends HTMLElement = HTMLElement>(
+  triggerRef: RefObject<T | null>,
+  floatingRef: RefObject<HTMLDivElement | null>,
   side: "top" | "right" | "bottom" | "left",
-  axis: "x" | "y" | "both",
+  _axis: "x" | "y" | "both",
   sideOffset = 4,
-): TrackedTooltipResult {
-  const [hoveringState, setHoveringState] = useState(false);
-  const floating = useFloating({
-    placement: side,
-    middleware: [offset(sideOffset), flip({ padding: 5 }), shift({ padding: 5 })],
-  });
+): TrackedTooltipHookResult<T> {
+  const [open, setOpen] = useState(false);
+  const openRef = useRef(false);
+  const posRef = useRef({ x: 0, y: 0 });
 
-  const triggerMergedRef = useMergeRefs([floating.refs.setReference, triggerRef]);
-  const floatingMergedRef = useMergeRefs([floating.refs.setFloating, floatingRef]);
+  // Position the tooltip element at the last known cursor position.
+  // Called both from updateHoverState (on move) and from the effect
+  // below (when the tooltip mounts after open transitions to true).
+  const applyPosition = useCallback(() => {
+    const el = floatingRef.current;
+    if (!el) return;
+    const { left, top } = computePosition(
+      posRef.current.x,
+      posRef.current.y,
+      el,
+      side,
+      sideOffset,
+    );
+    el.style.position = "fixed";
+    el.style.left = `${String(left)}px`;
+    el.style.top = `${String(top)}px`;
+  }, [floatingRef, side, sideOffset]);
 
-  const context = floating.context;
+  // When the tooltip first mounts (open flips true), the floating element
+  // wasn't available during the updateHoverState call that triggered it.
+  // Apply the last known position once it becomes available.
+  useEffect(() => {
+    if (open) applyPosition();
+  }, [open, applyPosition]);
 
   const updateHoverState = useCallback(
     (x: number | undefined, y: number | undefined, hovering: boolean) => {
-      floating.refs.setPositionReference(
-        createVirtualElement(context.elements.domReference, {
-          axis,
-          x: x ?? context.x,
-          y: y ?? context.y,
-          dataRef: context.dataRef,
-          pointerType: undefined,
-        }),
-      );
-      setHoveringState(hovering);
+      // Preserve previous coordinate when a value is undefined
+      const current = posRef.current;
+      posRef.current = {
+        x: x !== undefined ? x : current.x,
+        y: y !== undefined ? y : current.y,
+      };
+
+      // Update tooltip position directly via DOM to avoid re-renders
+      if (hovering) applyPosition();
+
+      // Only trigger re-render on hover state transitions
+      if (openRef.current !== hovering) {
+        openRef.current = hovering;
+        setOpen(hovering);
+      }
     },
-    [context, axis, floating.refs],
+    [applyPosition],
   );
 
   return {
-    ...floating,
+    floatingStyles: { position: "fixed" as const, left: 0, top: 0 },
     elementRefs: {
-      triggerRef: triggerMergedRef,
-      floatingRef: floatingMergedRef,
+      triggerRef,
+      floatingRef,
     },
-    context: { ...context, open: hoveringState },
+    context: { open },
     updateHoverState,
   };
+}
+
+/**
+ * Compute tooltip position relative to cursor, clamped to viewport.
+ */
+function computePosition(
+  cursorX: number,
+  cursorY: number,
+  tooltipEl: HTMLElement,
+  side: "top" | "right" | "bottom" | "left",
+  sideOffset: number,
+): { left: number; top: number } {
+  const rect = tooltipEl.getBoundingClientRect();
+  const w = rect.width || 0;
+  const h = rect.height || 0;
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+  const pad = 5;
+
+  let left: number;
+  let top: number;
+
+  switch (side) {
+    case "right":
+      left = cursorX + sideOffset;
+      top = cursorY - h / 2;
+      // Flip to left if overflowing right
+      if (left + w > vw - pad) left = cursorX - sideOffset - w;
+      break;
+    case "left":
+      left = cursorX - sideOffset - w;
+      top = cursorY - h / 2;
+      // Flip to right if overflowing left
+      if (left < pad) left = cursorX + sideOffset;
+      break;
+    case "top":
+      left = cursorX - w / 2;
+      top = cursorY - sideOffset - h;
+      // Flip to bottom if overflowing top
+      if (top < pad) top = cursorY + sideOffset;
+      break;
+    case "bottom":
+      left = cursorX - w / 2;
+      top = cursorY + sideOffset;
+      // Flip to top if overflowing bottom
+      if (top + h > vh - pad) top = cursorY - sideOffset - h;
+      break;
+  }
+
+  // Clamp to viewport
+  left = Math.max(pad, Math.min(left, vw - w - pad));
+  top = Math.max(pad, Math.min(top, vh - h - pad));
+
+  return { left, top };
 }
 
 export interface TrackedTooltipProps {
@@ -116,77 +197,3 @@ const TrackedTooltip = forwardRef(
 TrackedTooltip.displayName = "TrackedTooltip";
 
 export { TrackedTooltip };
-
-function createVirtualElement(
-  domElement: Element | null | undefined,
-  data: {
-    axis: "x" | "y" | "both";
-    dataRef: React.MutableRefObject<ContextData>;
-    pointerType: string | undefined;
-    x: number | null;
-    y: number | null;
-  },
-) {
-  let offsetX: number | null = null;
-  let offsetY: number | null = null;
-  let isAutoUpdateEvent = false;
-
-  return {
-    contextElement: domElement || undefined,
-    getBoundingClientRect() {
-      const domRect = domElement?.getBoundingClientRect() || {
-        width: 0,
-        height: 0,
-        x: 0,
-        y: 0,
-      };
-
-      const isXAxis = data.axis === "x" || data.axis === "both";
-      const isYAxis = data.axis === "y" || data.axis === "both";
-      const canTrackCursorOnAutoUpdate =
-        ["mouseenter", "mousemove"].includes(data.dataRef.current.openEvent?.type || "") &&
-        data.pointerType !== "touch";
-
-      let width = domRect.width;
-      let height = domRect.height;
-      let x = domRect.x;
-      let y = domRect.y;
-
-      if (offsetX === null && data.x && isXAxis) {
-        offsetX = domRect.x - data.x;
-      }
-
-      if (offsetY === null && data.y && isYAxis) {
-        offsetY = domRect.y - data.y;
-      }
-
-      x -= offsetX || 0;
-      y -= offsetY || 0;
-      width = 0;
-      height = 0;
-
-      if (!isAutoUpdateEvent || canTrackCursorOnAutoUpdate) {
-        width = data.axis === "y" ? domRect.width : 0;
-        height = data.axis === "x" ? domRect.height : 0;
-        x = isXAxis && data.x !== null ? data.x : x;
-        y = isYAxis && data.y !== null ? data.y : y;
-      } else if (isAutoUpdateEvent && !canTrackCursorOnAutoUpdate) {
-        height = data.axis === "x" ? domRect.height : height;
-        width = data.axis === "y" ? domRect.width : width;
-      }
-
-      isAutoUpdateEvent = true;
-
-      return {
-        width,
-        height,
-        x,
-        y,
-        top: y,
-        right: x + width,
-        bottom: y + height,
-        left: x,
-      };
-    },
-  };
-}
