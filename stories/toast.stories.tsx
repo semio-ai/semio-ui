@@ -6,7 +6,7 @@ import {
   ToastManager,
   useAddToast,
 } from "@semio/ui";
-import { type ReactNode } from "react";
+import { type ReactElement, type ReactNode } from "react";
 
 const meta: Meta<typeof ToastManager> = {
   component: ToastManager,
@@ -60,7 +60,7 @@ function AddButton(): ReactNode {
 
 // Create a wrapped version of the story with hooks to
 // illustrate callback behavior
-function ToastContainerWithHooks(props: ToastContainerProps): JSX.Element {
+function ToastContainerWithHooks(props: ToastContainerProps): ReactElement {
   return (
     <ToastManager {...props}>
       <AddButton />

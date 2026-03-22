@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type ReactElement } from "react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { ChipInput, type ChipInputProps, Variant, Size } from "@semio/ui";
 import { IconUser, IconStar, IconHeart } from "@tabler/icons-react";
@@ -23,7 +23,7 @@ type Story = StoryObj<typeof ChipInput>;
 
 // Create a wrapped version of the story with hooks to
 // illustrate callback behavior
-function ChipInputWithHooks(props: ChipInputProps): JSX.Element {
+function ChipInputWithHooks(props: ChipInputProps): ReactElement {
   const [selectedValues, setSelectedValues] = useState<string[]>(props.selectedValues);
 
   return <ChipInput {...props} selectedValues={selectedValues} onChange={setSelectedValues} />;

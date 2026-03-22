@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Size, NumberField, type NumberFieldProps, Variant } from "@semio/ui";
-import { useState } from "react";
+import { useState, type ReactElement } from "react";
 
 const meta: Meta<typeof NumberField> = {
   component: NumberField,
@@ -21,7 +21,7 @@ type Story = StoryObj<typeof NumberField>;
 
 // Create a wrapped version of the story with hooks to
 // illustrate callback behavior
-function NumberFieldWithHooks(props: NumberFieldProps): JSX.Element {
+function NumberFieldWithHooks(props: NumberFieldProps): ReactElement {
   const [value, setValue] = useState<number>(props.value);
   const [label, setLabel] = useState<string | undefined>(props.label);
   return (

@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Size, TimeDisplay, TimeInput, type TimeInputProps, Variant } from "@semio/ui";
-import { useState } from "react";
+import { useState, type ReactElement } from "react";
 
 const meta: Meta<typeof TimeInput> = {
   component: TimeInput,
@@ -21,7 +21,7 @@ type Story = StoryObj<typeof TimeInput>;
 
 // Create a wrapped version of the story with hooks to
 // illustrate callback behavior
-function TimeInputWithHooks(props: TimeInputProps): JSX.Element {
+function TimeInputWithHooks(props: TimeInputProps): ReactElement {
   const [t, setT] = useState(props.value);
 
   return (
