@@ -699,7 +699,7 @@ export const NarrowContainerEllipsis: Story = {
       <div className="text-sm text-gray-600 dark:text-gray-400">
         Container width: 150px - Text should show ellipsis
       </div>
-      <div className="w-[150px] border border-gray-300 dark:border-gray-700 p-2 overflow-hidden">
+      <div className="w-37.5 border border-gray-300 dark:border-gray-700 p-2 overflow-hidden">
         <SelectTreeWrapper
           {...props}
           initialValues={[
@@ -713,7 +713,7 @@ export const NarrowContainerEllipsis: Story = {
       <div className="text-sm text-gray-600 dark:text-gray-400">
         Container width: 200px - Slightly more room
       </div>
-      <div className="w-[200px] border border-gray-300 dark:border-gray-700 p-2 overflow-hidden">
+      <div className="w-50 border border-gray-300 dark:border-gray-700 p-2 overflow-hidden">
         <SelectTreeWrapper
           {...props}
           initialValues={["group1-file1", "group1-file2", "group2-file1", "group2-file2"]}

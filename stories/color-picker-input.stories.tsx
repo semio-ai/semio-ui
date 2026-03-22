@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { ColorPickerInput, type ColorPickerInputProps } from "@semio/ui";
-import { useState } from "react";
+import { useState, type ReactElement } from "react";
 import { type RawColor } from "@semio/utils";
 
 const meta: Meta<typeof ColorPickerInput> = {
@@ -17,7 +17,7 @@ type Story = StoryObj<typeof ColorPickerInput>;
 function ColorPickerInputWithHooks({
   value,
   onChange,
-}: ColorPickerInputProps<string | RawColor>): JSX.Element {
+}: ColorPickerInputProps<string | RawColor>): ReactElement {
   const [innerValue, setInnerValue] = useState<string | RawColor>(value);
   return (
     <>

@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Size, ToggleGroup, type ToggleGroupProps, Variant, ICON_CLASS_NAME } from "@semio/ui";
-import { useState } from "react";
+import { ReactElement, useState } from "react";
 import {
   IconLetterA,
   IconLetterB,
@@ -28,7 +28,7 @@ type Story = StoryObj<typeof ToggleGroup>;
 
 // Create a wrapped version of the story with hooks to
 // illustrate callback behavior
-function ToggleGroupWithHooks(props: ToggleGroupProps): JSX.Element {
+function ToggleGroupWithHooks(props: ToggleGroupProps): ReactElement {
   const [toggleValue, setToggleValue] = useState<string>(props.value);
   return (
     <ToggleGroup

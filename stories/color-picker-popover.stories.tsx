@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { ColorPickerPopover, type ColorPickerPopoverProps } from "@semio/ui";
-import { useState } from "react";
+import { useState, type ReactElement } from "react";
 import { type RawColor } from "@semio/utils";
 
 const meta: Meta<typeof ColorPickerPopover> = {
@@ -17,7 +17,7 @@ type Story = StoryObj<typeof ColorPickerPopover>;
 function ColorPickerPopoverWithHooks({
   value,
   onChange,
-}: ColorPickerPopoverProps<string | RawColor>): JSX.Element {
+}: ColorPickerPopoverProps<string | RawColor>): ReactElement {
   const [innerValue, setInnerValue] = useState<string | RawColor>(value);
   return (
     <>

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type ReactElement } from "react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Select, type SelectProps, Size, Variant, ICON_CLASS_NAME } from "@semio/ui";
 import { IconMessageCircle2, IconWorld } from "@tabler/icons-react";
@@ -22,7 +22,7 @@ type Story = StoryObj<typeof Select>;
 
 // Create a wrapped version of the story with hooks to
 // illustrate callback behavior
-function SelectWithHooks(props: SelectProps<string | string[]>): JSX.Element {
+function SelectWithHooks(props: SelectProps<string | string[]>): ReactElement {
   const [value, setValue] = useState<string | string[]>(props.value ?? "");
 
   return (

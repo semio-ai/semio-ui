@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { TextField, Variant, Size, type TextFieldProps, ICON_CLASS_NAME } from "@semio/ui";
-import { useState } from "react";
+import { useState, type ReactElement } from "react";
 import { IconSearch } from "@tabler/icons-react";
 
 const meta: Meta<typeof TextField> = {
@@ -22,7 +22,7 @@ type Story = StoryObj<typeof TextField>;
 
 // Create a wrapped version of the story with hooks to
 // illustrate callback behavior
-function TextFieldWithHooks(props: TextFieldProps): JSX.Element {
+function TextFieldWithHooks(props: TextFieldProps): ReactElement {
   const [t, setT] = useState<string | readonly string[] | number | undefined>(
     props.value as unknown as string | readonly string[] | number | undefined,
   );
