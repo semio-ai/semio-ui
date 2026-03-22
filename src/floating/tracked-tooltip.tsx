@@ -17,8 +17,6 @@ import {
   type ForwardedRef,
   CSSProperties,
   useCallback,
-  useMemo,
-  useRef,
   useState,
 } from "react";
 import { Variant } from "../types";
@@ -42,43 +40,30 @@ export function useTrackedTooltip(
   sideOffset = 4,
 ): TrackedTooltipResult {
   const [hoveringState, setHoveringState] = useState(false);
-  const middleware = useMemo(
-    () => [offset(sideOffset), flip({ padding: 5 }), shift({ padding: 5 })],
-    [sideOffset],
-  );
   const floating = useFloating({
     placement: side,
-    middleware,
+    middleware: [offset(sideOffset), flip({ padding: 5 }), shift({ padding: 5 })],
   });
 
   const triggerMergedRef = useMergeRefs([floating.refs.setReference, triggerRef]);
   const floatingMergedRef = useMergeRefs([floating.refs.setFloating, floatingRef]);
 
-  const floatingRefsRef = useRef(floating.refs);
-  floatingRefsRef.current = floating.refs;
-  const contextRef = useRef(floating.context);
-  contextRef.current = floating.context;
+  const context = floating.context;
 
   const updateHoverState = useCallback(
     (x: number | undefined, y: number | undefined, hovering: boolean) => {
-      const ctx = contextRef.current;
-      floatingRefsRef.current.setPositionReference(
-        createVirtualElement(ctx.elements.domReference, {
+      floating.refs.setPositionReference(
+        createVirtualElement(context.elements.domReference, {
           axis,
-          x: x ?? ctx.x,
-          y: y ?? ctx.y,
-          dataRef: ctx.dataRef,
+          x: x ?? context.x,
+          y: y ?? context.y,
+          dataRef: context.dataRef,
           pointerType: undefined,
         }),
       );
       setHoveringState(hovering);
     },
-    [axis],
-  );
-
-  const mergedContext = useMemo(
-    () => ({ ...floating.context, open: hoveringState }),
-    [floating.context, hoveringState],
+    [context, axis, floating.refs],
   );
 
   return {
@@ -87,7 +72,7 @@ export function useTrackedTooltip(
       triggerRef: triggerMergedRef,
       floatingRef: floatingMergedRef,
     },
-    context: mergedContext,
+    context: { ...context, open: hoveringState },
     updateHoverState,
   };
 }
