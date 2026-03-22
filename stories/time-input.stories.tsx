@@ -47,7 +47,6 @@ export const Seconds: Story = {
     value: 5000,
     label: "Current",
     onChange: (): void => {
-       
       console.log("Hello World!");
     },
     framerate: 24,
@@ -63,7 +62,6 @@ export const Frames: Story = {
   args: {
     value: 5000,
     onChange: (): void => {
-       
       console.log("Hello World!");
     },
     label: "Current",

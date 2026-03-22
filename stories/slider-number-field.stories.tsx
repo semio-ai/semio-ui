@@ -57,7 +57,6 @@ export const Primary: Story = {
   args: {
     value: 0.5,
     onChange: (value: number) => {
-       
       console.log(value);
     },
     min: 0,

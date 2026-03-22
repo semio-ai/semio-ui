@@ -46,7 +46,6 @@ export const Primary: Story = {
   args: {
     value: "#ff55aa",
     onChange: (value: string | RawColor) => {
-       
       console.log(value);
     },
   },

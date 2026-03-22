@@ -66,7 +66,7 @@ export const Primary: Story = {
       },
     ],
     selected: "first",
-     
+
     onTabChange: (key) => console.log(key),
   },
   name: "Tabs",

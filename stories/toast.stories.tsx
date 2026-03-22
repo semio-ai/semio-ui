@@ -32,7 +32,6 @@ function AddButton(): ReactNode {
       type="button"
       className="bg-neutral-500 text-white p-2 select-none pointer-events-auto"
       onClick={() => {
-         
         console.log("adding toast");
         const variant = getRandomVariant();
         const id = crypto.randomUUID();
@@ -47,7 +46,6 @@ function AddButton(): ReactNode {
               ? {
                   label: getRandomAction(),
                   onClick: (data: ToastData) => {
-                     
                     console.log(data);
                   },
                 }

@@ -28,13 +28,15 @@ function ScrollContent({
   count?: number;
   bgColor?: string;
 }) {
-  return <div className="space-y-2 p-4">
-    {Array.from({ length: count }, (_, i) => (
-      <div key={i} className={`p-3 ${bgColor} rounded text-sm`}>
-        {prefix} {i + 1}
-      </div>
-    ))}
-  </div>
+  return (
+    <div className="space-y-2 p-4">
+      {Array.from({ length: count }, (_, i) => (
+        <div key={i} className={`p-3 ${bgColor} rounded text-sm`}>
+          {prefix} {i + 1}
+        </div>
+      ))}
+    </div>
+  );
 }
 
 export const Basic: Story = {

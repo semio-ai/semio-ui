@@ -32,7 +32,6 @@ export const Primary: Story = {
     renderIcon: (cn: string) => <IconUser className={cn} />,
     variant: Variant.Primary,
     onDelete: () => {
-       
       console.log("Delete");
     },
   },
@@ -45,7 +44,6 @@ export const CustomColor: Story = {
     renderIcon: (cn: string) => <IconUser className={cn} />,
     color: "#ee11ee",
     onDelete: () => {
-       
       console.log("Delete");
     },
   },
@@ -59,7 +57,6 @@ export const ExtraSmall: Story = {
     size: Size.Xs,
     variant: Variant.Info,
     onDelete: () => {
-       
       console.log("Delete");
     },
   },
@@ -73,7 +70,6 @@ export const Small: Story = {
     size: Size.Sm,
     variant: Variant.Info,
     onDelete: () => {
-       
       console.log("Delete");
     },
   },
@@ -87,7 +83,6 @@ export const Large: Story = {
     size: Size.Lg,
     variant: Variant.Info,
     onDelete: () => {
-       
       console.log("Delete");
     },
   },
@@ -101,7 +96,6 @@ export const ExtraLarge: Story = {
     size: Size.Xl,
     variant: Variant.Info,
     onDelete: () => {
-       
       console.log("Delete");
     },
   },
@@ -113,7 +107,6 @@ export const NoIcon: Story = {
     children: "Hello World",
     variant: Variant.Info,
     onDelete: () => {
-       
       console.log("Delete");
     },
   },

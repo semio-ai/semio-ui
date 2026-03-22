@@ -1,5 +1,5 @@
 import type { Meta } from "@storybook/react-vite";
-import React, { useState } from "react";
+import { type ReactNode, type RefObject, useState } from "react";
 import type * as THREE from "three";
 import { Canvas } from "@react-three/fiber";
 import { Box, OrbitControls, Grid } from "@react-three/drei";
@@ -74,7 +74,7 @@ function BasicMesh({
 
   return (
     <Box
-      ref={ref as unknown as React.RefObject<THREE.Mesh | null>}
+      ref={ref as unknown as RefObject<THREE.Mesh | null>}
       args={[1, 1, 1]}
       position={position}
       onPointerOver={handlePointerOver}
@@ -112,7 +112,7 @@ function TrackingMesh({
 
   return (
     <Box
-      ref={ref as unknown as React.RefObject<THREE.Mesh | null>}
+      ref={ref as unknown as RefObject<THREE.Mesh | null>}
       args={[2, 0.5, 0.5]}
       position={position}
       onPointerOver={show}
@@ -281,7 +281,7 @@ function SidePositionMesh({
 
   return (
     <Box
-      ref={ref as unknown as React.RefObject<THREE.Mesh | null>}
+      ref={ref as unknown as RefObject<THREE.Mesh | null>}
       args={[1.5, 1.5, 1.5]}
       position={position}
       onPointerOver={show}
@@ -548,7 +548,7 @@ function ManualPositionMesh({
 
   return (
     <Box
-      ref={ref as unknown as React.RefObject<THREE.Mesh | null>}
+      ref={ref as unknown as RefObject<THREE.Mesh | null>}
       args={[1, 1, 1]}
       position={position}
       onPointerOver={show}
@@ -684,7 +684,7 @@ function MultiTriggerMesh({
 
   return (
     <Box
-      ref={ref as unknown as React.RefObject<THREE.Mesh | null>}
+      ref={ref as unknown as RefObject<THREE.Mesh | null>}
       args={[3, 1, 1]}
       position={position}
       onPointerOver={show}
@@ -807,7 +807,7 @@ function NestedHostMesh({
 
   return (
     <Box
-      ref={ref as unknown as React.RefObject<THREE.Mesh | null>}
+      ref={ref as unknown as RefObject<THREE.Mesh | null>}
       args={[1.5, 1.5, 1.5]}
       position={position}
       onPointerOver={show}
@@ -824,7 +824,7 @@ function NestedHostMesh({
 // With the fix:
 // - This nested host won't create a duplicate portal
 // - Tooltips calculate positions relative to this container, then transform to root coordinates
-function NestedCanvas({ children }: { children: React.ReactNode }) {
+function NestedCanvas({ children }: { children: ReactNode }) {
   return (
     <TooltipHost className="w-full h-full">
       <div className="w-full h-full relative border-2 border-yellow-500">
