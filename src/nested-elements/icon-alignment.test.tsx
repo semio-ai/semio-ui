@@ -53,7 +53,7 @@ describe("icon alignment class contracts", () => {
 
     expect(html).toContain("icon-slot");
     expect(html).toContain("icon-standard");
-    expect(html).toContain("h-3/5 aspect-square");
+    expect(html).toContain("aspect-square h-3/5");
   });
 
   it("uses icon-slot for nested select indicators", () => {
