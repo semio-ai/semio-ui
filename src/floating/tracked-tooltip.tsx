@@ -17,6 +17,7 @@ import {
   type ForwardedRef,
   CSSProperties,
   useCallback,
+  useRef,
   useState,
 } from "react";
 import { Variant } from "../types";
@@ -49,21 +50,24 @@ export function useTrackedTooltip(
   const floatingMergedRef = useMergeRefs([floating.refs.setFloating, floatingRef]);
 
   const context = floating.context;
+  const contextRef = useRef(context);
+  contextRef.current = context;
 
   const updateHoverState = useCallback(
     (x: number | undefined, y: number | undefined, hovering: boolean) => {
+      const ctx = contextRef.current;
       floating.refs.setPositionReference(
-        createVirtualElement(context.elements.domReference, {
+        createVirtualElement(ctx.elements.domReference, {
           axis,
-          x: x ?? context.x,
-          y: y ?? context.y,
-          dataRef: context.dataRef,
+          x: x ?? ctx.x,
+          y: y ?? ctx.y,
+          dataRef: ctx.dataRef,
           pointerType: undefined,
         }),
       );
       setHoveringState(hovering);
     },
-    [context, axis, floating.refs],
+    [axis, floating.refs], // eslint-disable-line react-hooks/exhaustive-deps -- contextRef is stable
   );
 
   return {
