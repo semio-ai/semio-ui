@@ -17,6 +17,7 @@ import {
   type ForwardedRef,
   CSSProperties,
   useCallback,
+  useMemo,
   useRef,
   useState,
 } from "react";
@@ -41,22 +42,27 @@ export function useTrackedTooltip(
   sideOffset = 4,
 ): TrackedTooltipResult {
   const [hoveringState, setHoveringState] = useState(false);
+  const middleware = useMemo(
+    () => [offset(sideOffset), flip({ padding: 5 }), shift({ padding: 5 })],
+    [sideOffset],
+  );
   const floating = useFloating({
     placement: side,
-    middleware: [offset(sideOffset), flip({ padding: 5 }), shift({ padding: 5 })],
+    middleware,
   });
 
   const triggerMergedRef = useMergeRefs([floating.refs.setReference, triggerRef]);
   const floatingMergedRef = useMergeRefs([floating.refs.setFloating, floatingRef]);
 
-  const context = floating.context;
-  const contextRef = useRef(context);
-  contextRef.current = context;
+  const floatingRefsRef = useRef(floating.refs);
+  floatingRefsRef.current = floating.refs;
+  const contextRef = useRef(floating.context);
+  contextRef.current = floating.context;
 
   const updateHoverState = useCallback(
     (x: number | undefined, y: number | undefined, hovering: boolean) => {
       const ctx = contextRef.current;
-      floating.refs.setPositionReference(
+      floatingRefsRef.current.setPositionReference(
         createVirtualElement(ctx.elements.domReference, {
           axis,
           x: x ?? ctx.x,
@@ -67,7 +73,12 @@ export function useTrackedTooltip(
       );
       setHoveringState(hovering);
     },
-    [axis, floating.refs], // eslint-disable-line react-hooks/exhaustive-deps -- contextRef is stable
+    [axis],
+  );
+
+  const mergedContext = useMemo(
+    () => ({ ...floating.context, open: hoveringState }),
+    [floating.context, hoveringState],
   );
 
   return {
@@ -76,7 +87,7 @@ export function useTrackedTooltip(
       triggerRef: triggerMergedRef,
       floatingRef: floatingMergedRef,
     },
-    context: { ...context, open: hoveringState },
+    context: mergedContext,
     updateHoverState,
   };
 }
