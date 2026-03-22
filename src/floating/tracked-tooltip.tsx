@@ -7,6 +7,7 @@ import {
   type ForwardedRef,
   CSSProperties,
   useCallback,
+  useEffect,
   useRef,
   useState,
 } from "react";
@@ -46,24 +47,42 @@ export function useTrackedTooltip<T extends HTMLElement = HTMLElement>(
   const openRef = useRef(false);
   const posRef = useRef({ x: 0, y: 0 });
 
+  // Position the tooltip element at the last known cursor position.
+  // Called both from updateHoverState (on move) and from the effect
+  // below (when the tooltip mounts after open transitions to true).
+  const applyPosition = useCallback(() => {
+    const el = floatingRef.current;
+    if (!el) return;
+    const { left, top } = computePosition(
+      posRef.current.x,
+      posRef.current.y,
+      el,
+      side,
+      sideOffset,
+    );
+    el.style.position = "fixed";
+    el.style.left = `${String(left)}px`;
+    el.style.top = `${String(top)}px`;
+  }, [floatingRef, side, sideOffset]);
+
+  // When the tooltip first mounts (open flips true), the floating element
+  // wasn't available during the updateHoverState call that triggered it.
+  // Apply the last known position once it becomes available.
+  useEffect(() => {
+    if (open) applyPosition();
+  }, [open, applyPosition]);
+
   const updateHoverState = useCallback(
     (x: number | undefined, y: number | undefined, hovering: boolean) => {
-      posRef.current = { x: x ?? 0, y: y ?? 0 };
+      // Preserve previous coordinate when a value is undefined
+      const current = posRef.current;
+      posRef.current = {
+        x: x !== undefined ? x : current.x,
+        y: y !== undefined ? y : current.y,
+      };
 
       // Update tooltip position directly via DOM to avoid re-renders
-      const el = floatingRef.current;
-      if (el && hovering) {
-        const { left, top } = computePosition(
-          posRef.current.x,
-          posRef.current.y,
-          el,
-          side,
-          sideOffset,
-        );
-        el.style.position = "fixed";
-        el.style.left = `${String(left)}px`;
-        el.style.top = `${String(top)}px`;
-      }
+      if (hovering) applyPosition();
 
       // Only trigger re-render on hover state transitions
       if (openRef.current !== hovering) {
@@ -71,7 +90,7 @@ export function useTrackedTooltip<T extends HTMLElement = HTMLElement>(
         setOpen(hovering);
       }
     },
-    [floatingRef, side, sideOffset],
+    [applyPosition],
   );
 
   return {
