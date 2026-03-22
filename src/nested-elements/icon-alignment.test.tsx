@@ -45,7 +45,7 @@ describe("icon alignment class contracts", () => {
           {
             value: "marketplace",
             label: "Marketplace",
-            icon: <IconShoppingBag className="h-3/5 aspect-square" />,
+            icon: <IconShoppingBag className="aspect-square h-3/5" />,
           },
         ]}
       />,
@@ -65,7 +65,7 @@ describe("icon alignment class contracts", () => {
           {
             value: "marketplace",
             label: "Marketplace",
-            icon: <IconShoppingBag className="h-3/5 aspect-square" />,
+            icon: <IconShoppingBag className="aspect-square h-3/5" />,
           },
         ]}
       />,
@@ -93,7 +93,7 @@ describe("icon alignment class contracts", () => {
           {
             value: "marketplace",
             label: "Marketplace",
-            icon: <IconShoppingBag className="h-3/5 aspect-square" />,
+            icon: <IconShoppingBag className="aspect-square h-3/5" />,
           },
         ]}
       />,
@@ -114,12 +114,12 @@ describe("icon alignment class contracts", () => {
           {
             value: "group:1",
             label: "Group",
-            icon: <IconShoppingBag className="h-3/5 aspect-square" />,
+            icon: <IconShoppingBag className="aspect-square h-3/5" />,
             children: [
               {
                 value: "group:1/track:1",
                 label: "Track",
-                icon: <IconShoppingBag className="h-3/5 aspect-square" />,
+                icon: <IconShoppingBag className="aspect-square h-3/5" />,
               },
             ],
           },

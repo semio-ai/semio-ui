@@ -40,7 +40,7 @@ export function ColorPickerPopover<T extends string | RawColor>({
             border: "3px solid white",
             cursor: "pointer",
           }}
-          className="h-6 w-6 border-3 border-white rounded-md shadow-md cursor-pointer"
+          className="h-6 w-6 cursor-pointer rounded-md border-3 border-white shadow-md"
         />
       }
     >

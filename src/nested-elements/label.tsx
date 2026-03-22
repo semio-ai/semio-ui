@@ -17,8 +17,8 @@ export function NestedLabel({ children, className }: NestedLabelProps) {
   return (
     <ItemComponent
       className={clsx(
-        "text-sm h-6 pl-3.75 leading-3.75 flex flex-row items-center",
-        "text-neutral-800 dark:text-neutral-200 font-bold py-1.25",
+        "flex h-6 flex-row items-center pl-3.75 text-sm leading-3.75",
+        "py-1.25 font-bold text-neutral-800 dark:text-neutral-200",
         "responsive highlight-list-item",
         className,
       )}

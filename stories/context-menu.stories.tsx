@@ -8,7 +8,7 @@ const meta: Meta<typeof ContextMenu> = {
   title: "ui/ContextMenu",
   decorators: [
     (Story) => (
-      <div className="grid place-items-center p-5 h-full">
+      <div className="grid h-full place-items-center p-5">
         {/* 👇 Decorators in Storybook also accept a function. Replace <Story/> with Story() to enable it  */}
         <Story />
       </div>
@@ -24,7 +24,7 @@ function ContextMenuRenderer(props: ContextMenuProps): ReactNode {
   return (
     <ContextMenu {...props} content={<NestedExample />}>
       <div
-        className={`p-5 w-96 h-52 card grid place-items-center ${props.variant ?? "default"} variant-static-text`}
+        className={`card grid h-52 w-96 place-items-center p-5 ${props.variant ?? "default"} variant-static-text`}
       >
         Right Click Me
       </div>

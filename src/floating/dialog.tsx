@@ -38,9 +38,9 @@ export function Dialog({
         <AlertDialog.Overlay
           forceMount
           className={clsx(
-            "transition-opacity data-[state=open]:animate-fadeIn data-[state=closed]:animate-fadeOut",
-            "fixed top-0 bottom-0 left-0 right-0 grid place-items-center",
-            "backdrop-blur-[2px] p-0",
+            "data-[state=open]:animate-fadeIn data-[state=closed]:animate-fadeOut transition-opacity",
+            "fixed top-0 right-0 bottom-0 left-0 grid place-items-center",
+            "p-0 backdrop-blur-[2px]",
           )}
         >
           <AlertDialog.Content
@@ -48,14 +48,14 @@ export function Dialog({
             className={clsx(
               "responsive",
               variant,
-              "flex flex-col focus:outline-hidden overflow-clip",
+              "flex flex-col overflow-clip focus:outline-hidden",
               "card animated-modal",
-              "max-h-screen w-fit h-fit",
+              "h-fit max-h-screen w-fit",
             )}
           >
             <div
               className={clsx(
-                "flex flex-col gap-1 p-3 bg-neutral-50/50 dark:bg-neutral-950/50",
+                "flex flex-col gap-1 bg-neutral-50/50 p-3 dark:bg-neutral-950/50",
                 variant,
                 "variant-static-text",
               )}
@@ -64,8 +64,8 @@ export function Dialog({
                 <AlertDialog.Title
                   className={clsx(
                     variant,
-                    "text-base/7 font-medium flex align-center",
-                    "justify-between responsive variant-static-text",
+                    "align-center flex text-base/7 font-medium",
+                    "responsive variant-static-text justify-between",
                   )}
                 >
                   {title}
@@ -79,14 +79,14 @@ export function Dialog({
                   />
                 </AlertDialog.Cancel>
               </div>
-              <AlertDialog.Description className="text-sm/6 dark:text-neutral-400 text-neutral-600">
+              <AlertDialog.Description className="text-sm/6 text-neutral-600 dark:text-neutral-400">
                 {description ?? ""}
               </AlertDialog.Description>
             </div>
 
-            <div className="flex-1 md:flex-none p-3 dark:text-white text-black">{children}</div>
+            <div className="flex-1 p-3 text-black md:flex-none dark:text-white">{children}</div>
 
-            <div className="p-3 flex flex-row gap-3 justify-end">
+            <div className="flex flex-row justify-end gap-3 p-3">
               {onCancel && (
                 <AlertDialog.Cancel asChild>
                   <Button

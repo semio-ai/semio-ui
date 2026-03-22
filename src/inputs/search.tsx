@@ -32,7 +32,7 @@ function InnerSearch({
     <TextField
       ref={inputRef}
       className={clsx(
-        "dark:focus:text-white focus:text-black text-neutral-600 dark:text-neutral-400",
+        "text-neutral-600 focus:text-black dark:text-neutral-400 dark:focus:text-white",
         forwardedProps.className,
       )}
       size={size}

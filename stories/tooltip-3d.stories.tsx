@@ -32,8 +32,8 @@ export default meta;
 // Helper component for tooltip content
 function TooltipContent({ title, description }: { title: string; description: string }) {
   return (
-    <div className="p-3 max-w-xs">
-      <h4 className="font-semibold text-sm mb-1">{title}</h4>
+    <div className="max-w-xs p-3">
+      <h4 className="mb-1 text-sm font-semibold">{title}</h4>
       <p className="text-xs text-gray-600 dark:text-gray-400">{description}</p>
     </div>
   );
@@ -133,11 +133,11 @@ function ExternalControlPanel({ meshId, label }: { meshId: string; label: string
   const [isHovering, setIsHovering] = useState(false);
 
   return (
-    <div className="p-3 bg-gray-100 dark:bg-gray-800 rounded-lg">
-      <h4 className="text-sm font-medium mb-2">{label}</h4>
+    <div className="rounded-lg bg-gray-100 p-3 dark:bg-gray-800">
+      <h4 className="mb-2 text-sm font-medium">{label}</h4>
       <button
         type="button"
-        className="px-3 py-1.5 bg-blue-500 hover:bg-blue-600 text-white text-sm rounded transition-colors"
+        className="rounded bg-blue-500 px-3 py-1.5 text-sm text-white transition-colors hover:bg-blue-600"
         onMouseEnter={() => {
           show();
           setIsHovering(true);
@@ -173,33 +173,33 @@ function ProgrammaticControlPanel() {
   };
 
   return (
-    <div className="p-3 bg-gray-100 dark:bg-gray-800 rounded-lg">
-      <h4 className="text-sm font-medium mb-2">Programmatic Control</h4>
+    <div className="rounded-lg bg-gray-100 p-3 dark:bg-gray-800">
+      <h4 className="mb-2 text-sm font-medium">Programmatic Control</h4>
       <div className="space-y-2">
         <button
           type="button"
-          className="w-full px-3 py-1.5 bg-green-500 hover:bg-green-600 text-white text-sm rounded transition-colors"
+          className="w-full rounded bg-green-500 px-3 py-1.5 text-sm text-white transition-colors hover:bg-green-600"
           onClick={() => toggleTooltip("basic-1")}
         >
           {activeTooltips.has("basic-1") ? "Hide" : "Show"} Red Cube
         </button>
         <button
           type="button"
-          className="w-full px-3 py-1.5 bg-green-500 hover:bg-green-600 text-white text-sm rounded transition-colors"
+          className="w-full rounded bg-green-500 px-3 py-1.5 text-sm text-white transition-colors hover:bg-green-600"
           onClick={() => toggleTooltip("basic-2")}
         >
           {activeTooltips.has("basic-2") ? "Hide" : "Show"} Blue Cube
         </button>
         <button
           type="button"
-          className="w-full px-3 py-1.5 bg-green-500 hover:bg-green-600 text-white text-sm rounded transition-colors"
+          className="w-full rounded bg-green-500 px-3 py-1.5 text-sm text-white transition-colors hover:bg-green-600"
           onClick={() => toggleTooltip("basic-3")}
         >
           {activeTooltips.has("basic-3") ? "Hide" : "Show"} Green Cube
         </button>
         <button
           type="button"
-          className="w-full px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white text-sm rounded transition-colors"
+          className="w-full rounded bg-red-500 px-3 py-1.5 text-sm text-white transition-colors hover:bg-red-600"
           onClick={() => {
             hideAll();
             setActiveTooltips(new Set());
@@ -216,7 +216,7 @@ function ProgrammaticControlPanel() {
 export const Basic = {
   render: () => (
     <TooltipProvider>
-      <TooltipHost className="w-full h-full">
+      <TooltipHost className="h-full w-full">
         <Canvas camera={{ position: [0, 5, 10], fov: 50 }}>
           <ambientLight intensity={0.8} />
           <directionalLight position={[5, 10, 5]} intensity={1.2} castShadow />
@@ -321,30 +321,30 @@ export const SidePositioning = {
           </Canvas>
         </TooltipHost>
 
-        <div className="w-80 p-4 bg-gray-50 dark:bg-gray-900">
-          <h3 className="text-lg font-semibold mb-4">Side Positioning</h3>
+        <div className="w-80 bg-gray-50 p-4 dark:bg-gray-900">
+          <h3 className="mb-4 text-lg font-semibold">Side Positioning</h3>
           <div className="space-y-3 text-sm">
-            <div className="p-3 bg-red-100 dark:bg-red-900/30 rounded">
+            <div className="rounded bg-red-100 p-3 dark:bg-red-900/30">
               <strong className="text-red-700 dark:text-red-300">Top (Red):</strong>
-              <p className="text-gray-600 dark:text-gray-400 mt-1">
+              <p className="mt-1 text-gray-600 dark:text-gray-400">
                 Tooltip anchored to the top side of the bounding box
               </p>
             </div>
-            <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded">
+            <div className="rounded bg-blue-100 p-3 dark:bg-blue-900/30">
               <strong className="text-blue-700 dark:text-blue-300">Right (Blue):</strong>
-              <p className="text-gray-600 dark:text-gray-400 mt-1">
+              <p className="mt-1 text-gray-600 dark:text-gray-400">
                 Tooltip anchored to the right side of the bounding box
               </p>
             </div>
-            <div className="p-3 bg-green-100 dark:bg-green-900/30 rounded">
+            <div className="rounded bg-green-100 p-3 dark:bg-green-900/30">
               <strong className="text-green-700 dark:text-green-300">Bottom (Green):</strong>
-              <p className="text-gray-600 dark:text-gray-400 mt-1">
+              <p className="mt-1 text-gray-600 dark:text-gray-400">
                 Tooltip anchored to the bottom side of the bounding box
               </p>
             </div>
-            <div className="p-3 bg-orange-100 dark:bg-orange-900/30 rounded">
+            <div className="rounded bg-orange-100 p-3 dark:bg-orange-900/30">
               <strong className="text-orange-700 dark:text-orange-300">Left (Orange):</strong>
-              <p className="text-gray-600 dark:text-gray-400 mt-1">
+              <p className="mt-1 text-gray-600 dark:text-gray-400">
                 Tooltip anchored to the left side of the bounding box
               </p>
             </div>
@@ -380,30 +380,30 @@ export const AxisTracking = {
           </Canvas>
         </TooltipHost>
 
-        <div className="w-80 p-4 bg-gray-50 dark:bg-gray-900">
-          <h3 className="text-lg font-semibold mb-4">Axis Tracking Modes</h3>
+        <div className="w-80 bg-gray-50 p-4 dark:bg-gray-900">
+          <h3 className="mb-4 text-lg font-semibold">Axis Tracking Modes</h3>
           <div className="space-y-3 text-sm">
-            <div className="p-3 bg-purple-100 dark:bg-purple-900/30 rounded">
+            <div className="rounded bg-purple-100 p-3 dark:bg-purple-900/30">
               <strong className="text-purple-700 dark:text-purple-300">None (Purple):</strong>
-              <p className="text-gray-600 dark:text-gray-400 mt-1">
+              <p className="mt-1 text-gray-600 dark:text-gray-400">
                 Tooltip stays at bounding box position
               </p>
             </div>
-            <div className="p-3 bg-orange-100 dark:bg-orange-900/30 rounded">
+            <div className="rounded bg-orange-100 p-3 dark:bg-orange-900/30">
               <strong className="text-orange-700 dark:text-orange-300">X-axis (Orange):</strong>
-              <p className="text-gray-600 dark:text-gray-400 mt-1">
+              <p className="mt-1 text-gray-600 dark:text-gray-400">
                 Follows cursor horizontally, fixed vertically
               </p>
             </div>
-            <div className="p-3 bg-cyan-100 dark:bg-cyan-900/30 rounded">
+            <div className="rounded bg-cyan-100 p-3 dark:bg-cyan-900/30">
               <strong className="text-cyan-700 dark:text-cyan-300">Y-axis (Cyan):</strong>
-              <p className="text-gray-600 dark:text-gray-400 mt-1">
+              <p className="mt-1 text-gray-600 dark:text-gray-400">
                 Follows cursor vertically, fixed horizontally
               </p>
             </div>
-            <div className="p-3 bg-pink-100 dark:bg-pink-900/30 rounded">
+            <div className="rounded bg-pink-100 p-3 dark:bg-pink-900/30">
               <strong className="text-pink-700 dark:text-pink-300">Both (Pink):</strong>
-              <p className="text-gray-600 dark:text-gray-400 mt-1">
+              <p className="mt-1 text-gray-600 dark:text-gray-400">
                 Tooltip follows cursor in both directions
               </p>
             </div>
@@ -451,12 +451,12 @@ export const ExternalTriggers = {
           </Canvas>
         </TooltipHost>
 
-        <div className="w-80 p-4 bg-gray-50 dark:bg-gray-900 space-y-3">
-          <h3 className="text-lg font-semibold mb-4">External Controls</h3>
+        <div className="w-80 space-y-3 bg-gray-50 p-4 dark:bg-gray-900">
+          <h3 className="mb-4 text-lg font-semibold">External Controls</h3>
           <ExternalControlPanel meshId="ext-1" label="Red Cube Control" />
           <ExternalControlPanel meshId="ext-2" label="Blue Cube Control" />
           <ExternalControlPanel meshId="ext-3" label="Green Cube Control" />
-          <div className="mt-4 p-3 bg-yellow-100 dark:bg-yellow-900/30 rounded text-sm">
+          <div className="mt-4 rounded bg-yellow-100 p-3 text-sm dark:bg-yellow-900/30">
             <p className="text-yellow-800 dark:text-yellow-200">
               💡 Hover over the buttons to trigger tooltips on the 3D objects
             </p>
@@ -504,10 +504,10 @@ export const ProgrammaticControl = {
           </Canvas>
         </TooltipHost>
 
-        <div className="w-80 p-4 bg-gray-50 dark:bg-gray-900 space-y-3">
-          <h3 className="text-lg font-semibold mb-4">Programmatic Control</h3>
+        <div className="w-80 space-y-3 bg-gray-50 p-4 dark:bg-gray-900">
+          <h3 className="mb-4 text-lg font-semibold">Programmatic Control</h3>
           <ProgrammaticControlPanel />
-          <div className="mt-4 p-3 bg-blue-100 dark:bg-blue-900/30 rounded text-sm">
+          <div className="mt-4 rounded bg-blue-100 p-3 text-sm dark:bg-blue-900/30">
             <p className="text-blue-800 dark:text-blue-200">
               📍 Click buttons to show tooltips anchored to their respective cubes
             </p>
@@ -535,8 +535,8 @@ function ManualPositionMesh({
   const { ref, anchorId } = useTooltipAnchor({
     id: tooltipId,
     content: (
-      <div className="p-3 max-w-xs">
-        <h4 className="font-semibold text-sm mb-1">{title}</h4>
+      <div className="max-w-xs p-3">
+        <h4 className="mb-1 text-sm font-semibold">{title}</h4>
         <p className="text-xs text-gray-600 dark:text-gray-400">{description}</p>
       </div>
     ),
@@ -569,26 +569,26 @@ function ManualPositionControlPanel() {
   };
 
   return (
-    <div className="p-3 bg-gray-100 dark:bg-gray-800 rounded-lg">
-      <h4 className="text-sm font-medium mb-2">Manual Screen Positioning</h4>
+    <div className="rounded-lg bg-gray-100 p-3 dark:bg-gray-800">
+      <h4 className="mb-2 text-sm font-medium">Manual Screen Positioning</h4>
       <div className="space-y-2">
         <button
           type="button"
-          className="w-full px-3 py-1.5 bg-purple-500 hover:bg-purple-600 text-white text-sm rounded transition-colors"
+          className="w-full rounded bg-purple-500 px-3 py-1.5 text-sm text-white transition-colors hover:bg-purple-600"
           onClick={() => showAtPosition("manual-1", 200, 100)}
         >
           Show at Top Left (200, 100)
         </button>
         <button
           type="button"
-          className="w-full px-3 py-1.5 bg-purple-500 hover:bg-purple-600 text-white text-sm rounded transition-colors"
+          className="w-full rounded bg-purple-500 px-3 py-1.5 text-sm text-white transition-colors hover:bg-purple-600"
           onClick={() => showAtPosition("manual-2", window.innerWidth - 200, 200)}
         >
           Show at Top Right
         </button>
         <button
           type="button"
-          className="w-full px-3 py-1.5 bg-purple-500 hover:bg-purple-600 text-white text-sm rounded transition-colors"
+          className="w-full rounded bg-purple-500 px-3 py-1.5 text-sm text-white transition-colors hover:bg-purple-600"
           onClick={() =>
             showAtPosition("manual-3", window.innerWidth / 2, window.innerHeight - 150)
           }
@@ -597,7 +597,7 @@ function ManualPositionControlPanel() {
         </button>
         <button
           type="button"
-          className="w-full px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white text-sm rounded transition-colors"
+          className="w-full rounded bg-red-500 px-3 py-1.5 text-sm text-white transition-colors hover:bg-red-600"
           onClick={() => {
             hideAll();
           }}
@@ -645,10 +645,10 @@ export const ManualScreenPositioning = {
           </Canvas>
         </TooltipHost>
 
-        <div className="w-80 p-4 bg-gray-50 dark:bg-gray-900 space-y-3">
-          <h3 className="text-lg font-semibold mb-4">Manual Screen Positioning</h3>
+        <div className="w-80 space-y-3 bg-gray-50 p-4 dark:bg-gray-900">
+          <h3 className="mb-4 text-lg font-semibold">Manual Screen Positioning</h3>
           <ManualPositionControlPanel />
-          <div className="mt-4 p-3 bg-purple-100 dark:bg-purple-900/30 rounded text-sm">
+          <div className="mt-4 rounded bg-purple-100 p-3 text-sm dark:bg-purple-900/30">
             <p className="text-purple-800 dark:text-purple-200">
               📍 These tooltips appear at fixed screen coordinates, not anchored to the 3D objects.
               Useful for creating fixed UI overlays or notifications.
@@ -719,11 +719,11 @@ export const MultipleTriggers = {
             </Canvas>
           </TooltipHost>
 
-          <div className="w-80 p-4 bg-gray-50 dark:bg-gray-900 space-y-3">
-            <h3 className="text-lg font-semibold mb-4">Multiple Triggers</h3>
+          <div className="w-80 space-y-3 bg-gray-50 p-4 dark:bg-gray-900">
+            <h3 className="mb-4 text-lg font-semibold">Multiple Triggers</h3>
 
-            <div className="p-3 bg-gray-100 dark:bg-gray-800 rounded-lg">
-              <h4 className="text-sm font-medium mb-2">Hover Trigger</h4>
+            <div className="rounded-lg bg-gray-100 p-3 dark:bg-gray-800">
+              <h4 className="mb-2 text-sm font-medium">Hover Trigger</h4>
               <p className="text-xs text-gray-600 dark:text-gray-400">
                 Hover over the purple box in the scene
               </p>
@@ -731,9 +731,9 @@ export const MultipleTriggers = {
 
             <ExternalControlPanel meshId="multi-trigger" label="Button Trigger" />
 
-            <div className="p-3 bg-gray-100 dark:bg-gray-800 rounded-lg">
-              <h4 className="text-sm font-medium mb-2">Toggle Trigger</h4>
-              <label className="flex items-center space-x-2 cursor-pointer">
+            <div className="rounded-lg bg-gray-100 p-3 dark:bg-gray-800">
+              <h4 className="mb-2 text-sm font-medium">Toggle Trigger</h4>
+              <label className="flex cursor-pointer items-center space-x-2">
                 <input
                   type="checkbox"
                   checked={toggleActive}
@@ -751,7 +751,7 @@ export const MultipleTriggers = {
               </label>
             </div>
 
-            <div className="mt-4 p-3 bg-purple-100 dark:bg-purple-900/30 rounded text-sm">
+            <div className="mt-4 rounded bg-purple-100 p-3 text-sm dark:bg-purple-900/30">
               <p className="text-purple-800 dark:text-purple-200">
                 🔗 All triggers control the same tooltip. It stays visible as long as any trigger is
                 active.
@@ -826,15 +826,15 @@ function NestedHostMesh({
 // - Tooltips calculate positions relative to this container, then transform to root coordinates
 function NestedCanvas({ children }: { children: ReactNode }) {
   return (
-    <TooltipHost className="w-full h-full">
-      <div className="w-full h-full relative border-2 border-yellow-500">
-        <div className="absolute top-4 left-4 z-10 bg-yellow-100 dark:bg-yellow-900/30 p-2 rounded text-xs">
+    <TooltipHost className="h-full w-full">
+      <div className="relative h-full w-full border-2 border-yellow-500">
+        <div className="absolute top-4 left-4 z-10 rounded bg-yellow-100 p-2 text-xs dark:bg-yellow-900/30">
           <strong>⚠️ Nested TooltipHost</strong>
           <p>This canvas has its own TooltipHost wrapper</p>
-          <p className="text-red-600 dark:text-red-400 mt-1">
+          <p className="mt-1 text-red-600 dark:text-red-400">
             With fix: Portal only at root, coordinates transformed
           </p>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
             (level=1, no portal but provides positioning context)
           </p>
         </div>
@@ -856,10 +856,10 @@ export const NestedTooltipHosts = {
       <div className="flex h-full">
         {/* Root TooltipHost */}
         <TooltipHost className="flex-1">
-          <div className="grid grid-cols-2 h-full gap-2">
+          <div className="grid h-full grid-cols-2 gap-2">
             {/* Left side: Canvas without nested host */}
             <div className="relative border-2 border-green-500">
-              <div className="absolute top-4 left-4 z-10 bg-green-100 dark:bg-green-900/30 p-2 rounded text-xs">
+              <div className="absolute top-4 left-4 z-10 rounded bg-green-100 p-2 text-xs dark:bg-green-900/30">
                 <strong>✓ No Nested Host</strong>
                 <p>Using root TooltipHost only</p>
               </div>
@@ -909,42 +909,42 @@ export const NestedTooltipHosts = {
           </div>
         </TooltipHost>
 
-        <div className="w-80 p-4 bg-gray-50 dark:bg-gray-900">
-          <h3 className="text-lg font-semibold mb-4">Nested TooltipHost Test</h3>
+        <div className="w-80 bg-gray-50 p-4 dark:bg-gray-900">
+          <h3 className="mb-4 text-lg font-semibold">Nested TooltipHost Test</h3>
           <div className="space-y-3 text-sm">
-            <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded">
+            <div className="rounded bg-blue-100 p-3 dark:bg-blue-900/30">
               <strong className="text-blue-700 dark:text-blue-300">Expected Behavior:</strong>
-              <p className="text-gray-600 dark:text-gray-400 mt-1">
+              <p className="mt-1 text-gray-600 dark:text-gray-400">
                 All cubes should show tooltips correctly positioned above them
               </p>
-              <p className="text-gray-600 dark:text-gray-400 mt-1">• No duplicate tooltips</p>
-              <p className="text-gray-600 dark:text-gray-400 mt-1">
+              <p className="mt-1 text-gray-600 dark:text-gray-400">• No duplicate tooltips</p>
+              <p className="mt-1 text-gray-600 dark:text-gray-400">
                 • Correct positioning even with nested hosts
               </p>
             </div>
-            <div className="p-3 bg-green-100 dark:bg-green-900/30 rounded">
+            <div className="rounded bg-green-100 p-3 dark:bg-green-900/30">
               <strong className="text-green-700 dark:text-green-300">
                 Left Canvas (Green Border):
               </strong>
-              <p className="text-gray-600 dark:text-gray-400 mt-1">
+              <p className="mt-1 text-gray-600 dark:text-gray-400">
                 Uses only the root TooltipHost. Has green and lime cubes.
               </p>
             </div>
-            <div className="p-3 bg-yellow-100 dark:bg-yellow-900/30 rounded">
+            <div className="rounded bg-yellow-100 p-3 dark:bg-yellow-900/30">
               <strong className="text-yellow-700 dark:text-yellow-300">
                 Right Canvas (Yellow Border):
               </strong>
-              <p className="text-gray-600 dark:text-gray-400 mt-1">
+              <p className="mt-1 text-gray-600 dark:text-gray-400">
                 Has its own nested TooltipHost wrapper. Has yellow and orange cubes.
               </p>
-              <p className="text-gray-600 dark:text-gray-400 mt-1">
+              <p className="mt-1 text-gray-600 dark:text-gray-400">
                 With the fix: Coordinates are transformed from nested → root container space
               </p>
             </div>
-            <div className="mt-4 p-3 bg-red-100 dark:bg-red-900/30 rounded">
+            <div className="mt-4 rounded bg-red-100 p-3 dark:bg-red-900/30">
               <strong className="text-red-700 dark:text-red-300">🔍 Test:</strong>
-              <p className="text-gray-600 dark:text-gray-400 mt-1">Hover over all four cubes:</p>
-              <ul className="text-gray-600 dark:text-gray-400 mt-1 ml-4 list-disc">
+              <p className="mt-1 text-gray-600 dark:text-gray-400">Hover over all four cubes:</p>
+              <ul className="mt-1 ml-4 list-disc text-gray-600 dark:text-gray-400">
                 <li>Each tooltip should appear directly above its cube</li>
                 <li>No duplicate tooltips should appear</li>
                 <li>

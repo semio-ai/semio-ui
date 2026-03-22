@@ -58,7 +58,7 @@ export function useTabsState(
               key: "default",
               title: emptyTabText ?? "No tabs",
               variant: Variant.Default,
-              content: defaultContent ?? <div className="w-full h-72">No Contents</div>,
+              content: defaultContent ?? <div className="h-72 w-full">No Contents</div>,
             },
           ],
     [children, defaultContent, emptyTabText],

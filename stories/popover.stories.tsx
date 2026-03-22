@@ -7,7 +7,7 @@ const meta: Meta<typeof Popover> = {
   title: "ui/Popover",
   decorators: [
     (Story) => (
-      <div className="grid place-items-center p-5 h-full">
+      <div className="grid h-full place-items-center p-5">
         {/* 👇 Decorators in Storybook also accept a function. Replace <Story/> with Story() to enable it  */}
         <Story />
       </div>
@@ -25,17 +25,17 @@ function PopoverRenderer(props: PopoverProps): ReactNode {
       {...props}
       trigger={
         <div
-          className={`p-5 w-96 h-24 card grid place-items-center ${props.variant ?? "default"} responsive variant-static-text`}
+          className={`card grid h-24 w-96 place-items-center p-5 ${props.variant ?? "default"} responsive variant-static-text`}
         >
           Click Me
         </div>
       }
     >
-      <div className="p-2 w-96 h-24 grid grid-cols-1 grid-rows-[40px_1fr]">
+      <div className="grid h-24 w-96 grid-cols-1 grid-rows-[40px_1fr] p-2">
         <p className={`text-lg font-bold ${props.variant ?? "default"} variant-static-text`}>
           Header Text
         </p>
-        <div className="dark:bg-layout-dark-inset bg-layout-light-inset rounded-xs w-full dark:text-white text-black p-1">
+        <div className="dark:bg-layout-dark-inset bg-layout-light-inset w-full rounded-xs p-1 text-black dark:text-white">
           Some Rich Content Here!
         </div>
       </div>

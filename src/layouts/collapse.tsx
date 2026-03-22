@@ -26,19 +26,19 @@ export function Collapse({
     <Collapsible.Root open={open} onOpenChange={onStateChange} disabled={disabled}>
       <Collapsible.Trigger
         className={clsx(
-          "bg-neutral-200 dark:bg-neutral-800 flex items-center w-full",
-          "justify-between cursor-pointer pl-3 pt-1 pb-1 pr-3",
-          disabled ? "dark:text-neutral-400 text-neutral-600" : "dark:text-white text-black",
+          "flex w-full items-center bg-neutral-200 dark:bg-neutral-800",
+          "cursor-pointer justify-between pt-1 pr-3 pb-1 pl-3",
+          disabled ? "text-neutral-600 dark:text-neutral-400" : "text-black dark:text-white",
         )}
       >
         {side === "right" && title}
         {direction === "horizontal" ? (
           <IconChevronLeft
-            className={clsx("transition-transform w-5 h-5", open ? "rotate-0" : "-rotate-90")}
+            className={clsx("h-5 w-5 transition-transform", open ? "rotate-0" : "-rotate-90")}
           />
         ) : (
           <IconChevronDown
-            className={clsx("transition-transform w-5 h-5", open ? "rotate-0" : "-rotate-90")}
+            className={clsx("h-5 w-5 transition-transform", open ? "rotate-0" : "-rotate-90")}
           />
         )}
         {side === "left" && title}

@@ -34,8 +34,8 @@ export function PanelContent({ region }: { region: PaneRegion }) {
               exit={variants[0]}
               transition={{ duration: 0.15, ease: "easeInOut" }}
               className={clsx(
-                "relative w-full pointer-events-auto",
-                "responsive card-transparent h-full rounded-md overflow-clip",
+                "pointer-events-auto relative w-full",
+                "responsive card-transparent h-full overflow-clip rounded-md",
               )}
             >
               {pane.region === PaneRegion.Right && (
@@ -48,7 +48,7 @@ export function PanelContent({ region }: { region: PaneRegion }) {
                     <IconChevronRightPipe
                       className={clsx(
                         ICON_CLASS_NAME,
-                        "transition-transform ease-in-out duration-100",
+                        "transition-transform duration-100 ease-in-out",
                         !pane.shouldClose ? "rotate-360" : "rotate-180",
                       )}
                     />

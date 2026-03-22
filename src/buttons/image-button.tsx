@@ -36,7 +36,7 @@ export function ImageButton({
       <button
         type="button"
         className={clsx(
-          "p-0 border-none bg-none cursor-pointer focus:outline-hidden",
+          "cursor-pointer border-none bg-none p-0 focus:outline-hidden",
           "cursor-pointer disabled:cursor-default",
         )}
         onClick={onClick}
@@ -48,7 +48,7 @@ export function ImageButton({
           src={imageUrl}
           alt={altText}
           className={clsx(
-            "transition duration-300 rounded-full ease-in-out",
+            "rounded-full transition duration-300 ease-in-out",
             "transform hover:border-2 hover:border-black",
           )}
           style={dimensions}
@@ -56,7 +56,7 @@ export function ImageButton({
       </button>
       {showTooltip && hoverText && (
         <div
-          className="absolute bg-gray-700 text-white text-xs rounded-sm py-1 px-2"
+          className="absolute rounded-sm bg-gray-700 px-2 py-1 text-xs text-white"
           style={{ top: tooltipPos.y + 10, left: tooltipPos.x + 10 }}
         >
           {hoverText}

@@ -6,7 +6,7 @@ const meta: Meta<typeof Snippet> = {
   title: "ui/Snippet",
   decorators: [
     (Story) => (
-      <div className="p-5 w-full max-w-4xl mx-auto bg-neutral-500">
+      <div className="mx-auto w-full max-w-4xl bg-neutral-500 p-5">
         <Story />
       </div>
     ),

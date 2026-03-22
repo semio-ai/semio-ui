@@ -43,7 +43,7 @@ function Tree({ node, nodeMap, indentLevel = 0, renderNode }: TreeProps) {
 
   return (
     <>
-      <div className="flex flex-row dark:text-neutral-300 text-neutral-700 items-center">
+      <div className="flex flex-row items-center text-neutral-700 dark:text-neutral-300">
         <button type="button" onClick={toggleCollapse} style={{ cursor: "pointer" }}>
           <IconChevronUp
             size="16px"

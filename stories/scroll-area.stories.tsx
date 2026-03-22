@@ -8,7 +8,7 @@ const meta: Meta<typeof ScrollArea> = {
   title: "ui/ScrollArea",
   decorators: [
     (Story) => (
-      <div className="grid place-items-center p-5 h-full">
+      <div className="grid h-full place-items-center p-5">
         <Story />
       </div>
     ),
@@ -47,7 +47,7 @@ export const Basic: Story = {
         rubber banding effect.
       </div>
 
-      <div className="border rounded" style={{ height: "250px", width: "250px" }}>
+      <div className="rounded border" style={{ height: "250px", width: "250px" }}>
         <ScrollArea onScrollChange={(info) => console.log("Scroll info:", info)}>
           <ScrollContent prefix="Item" count={40} />
         </ScrollArea>
@@ -87,14 +87,14 @@ export const SynchronizedScrolling: Story = {
 
         <div className="flex gap-4">
           <div className="space-y-2">
-            <div className="text-xs font-medium flex items-center gap-2">
+            <div className="flex items-center gap-2 text-xs font-medium">
               Area 1
-              {activeArea === "area1" && <span className="text-blue-600 font-bold">● ACTIVE</span>}
+              {activeArea === "area1" && <span className="font-bold text-blue-600">● ACTIVE</span>}
               {activeArea !== "area1" && <span className="text-gray-500">○ FOLLOWING</span>}
             </div>
             <div
-              className={`border-2 rounded transition-all ${
-                activeArea === "area1" ? "border-blue-600 shadow-lg bg-blue-50" : "border-blue-300"
+              className={`rounded border-2 transition-all ${
+                activeArea === "area1" ? "border-blue-600 bg-blue-50 shadow-lg" : "border-blue-300"
               }`}
               style={{ height: "250px", width: "200px" }}
               onMouseEnter={() => setActiveArea("area1")}
@@ -110,15 +110,15 @@ export const SynchronizedScrolling: Story = {
           </div>
 
           <div className="space-y-2">
-            <div className="text-xs font-medium flex items-center gap-2">
+            <div className="flex items-center gap-2 text-xs font-medium">
               Area 2
-              {activeArea === "area2" && <span className="text-green-600 font-bold">● ACTIVE</span>}
+              {activeArea === "area2" && <span className="font-bold text-green-600">● ACTIVE</span>}
               {activeArea !== "area2" && <span className="text-gray-500">○ FOLLOWING</span>}
             </div>
             <div
-              className={`border-2 rounded transition-all ${
+              className={`rounded border-2 transition-all ${
                 activeArea === "area2"
-                  ? "border-green-600 shadow-lg bg-green-50"
+                  ? "border-green-600 bg-green-50 shadow-lg"
                   : "border-green-300"
               }`}
               style={{ height: "250px", width: "200px" }}
@@ -135,7 +135,7 @@ export const SynchronizedScrolling: Story = {
           </div>
         </div>
 
-        <div className="text-xs bg-gray-50 p-3 rounded max-w-md space-y-1">
+        <div className="max-w-md space-y-1 rounded bg-gray-50 p-3 text-xs">
           <div>
             <strong>Motion value position:</strong> {displayValue.toFixed(1)}px
           </div>
@@ -162,19 +162,19 @@ export const WithHeaderFooter: Story = {
         the scrollable content area.
       </div>
 
-      <div className="border rounded bg-white" style={{ height: "300px", width: "280px" }}>
+      <div className="rounded border bg-white" style={{ height: "300px", width: "280px" }}>
         <ScrollArea
           header={
-            <div className="bg-gray-100 p-3 border-b font-medium text-sm">📊 Document Header</div>
+            <div className="border-b bg-gray-100 p-3 text-sm font-medium">📊 Document Header</div>
           }
           footer={
-            <div className="bg-gray-100 p-3 border-t text-xs text-gray-600">
+            <div className="border-t bg-gray-100 p-3 text-xs text-gray-600">
               Footer • Page 1 of 1
             </div>
           }
           onScrollChange={(info) => console.log("Header/Footer scroll:", info)}
         >
-          <div className="p-4 space-y-4">
+          <div className="space-y-4 p-4">
             <h3 className="font-semibold">Document Content</h3>
             <p className="text-sm text-gray-700">
               This content scrolls with natural overscroll behavior while the header and footer
@@ -207,7 +207,7 @@ export const HorizontalSync: Story = {
 
         <div className="space-y-4">
           <div
-            className={`border-2 rounded transition-all ${
+            className={`rounded border-2 transition-all ${
               activeArea === "horizontal1" ? "border-purple-600 bg-purple-50" : "border-purple-300"
             }`}
             style={{ height: "120px", width: "300px" }}
@@ -217,7 +217,7 @@ export const HorizontalSync: Story = {
             <ScrollArea orientation="horizontal" motionScrollX={sharedMotionX}>
               <div className="flex gap-4 p-4" style={{ width: "800px" }}>
                 {Array.from({ length: 20 }, (_, i) => (
-                  <div key={i} className="bg-purple-100 p-3 rounded whitespace-nowrap">
+                  <div key={i} className="rounded bg-purple-100 p-3 whitespace-nowrap">
                     Wide Item {i + 1}
                   </div>
                 ))}
@@ -226,7 +226,7 @@ export const HorizontalSync: Story = {
           </div>
 
           <div
-            className={`border-2 rounded transition-all ${
+            className={`rounded border-2 transition-all ${
               activeArea === "horizontal2" ? "border-indigo-600 bg-indigo-50" : "border-indigo-300"
             }`}
             style={{ height: "120px", width: "300px" }}
@@ -236,7 +236,7 @@ export const HorizontalSync: Story = {
             <ScrollArea orientation="horizontal" motionScrollX={sharedMotionX}>
               <div className="flex gap-4 p-4" style={{ width: "800px" }}>
                 {Array.from({ length: 20 }, (_, i) => (
-                  <div key={i} className="bg-indigo-100 p-3 rounded whitespace-nowrap">
+                  <div key={i} className="rounded bg-indigo-100 p-3 whitespace-nowrap">
                     Horizontal {i + 1}
                   </div>
                 ))}
@@ -245,7 +245,7 @@ export const HorizontalSync: Story = {
           </div>
         </div>
 
-        <div className="text-xs bg-gray-50 p-3 rounded max-w-md">
+        <div className="max-w-md rounded bg-gray-50 p-3 text-xs">
           <div>
             <strong>Motion value position:</strong> {displayValue.toFixed(1)}px
           </div>
@@ -276,11 +276,11 @@ export const ScrollTrackingDemo: Story = {
 
         <div className="relative">
           <div
-            className="border-2 rounded border-blue-300"
+            className="rounded border-2 border-blue-300"
             style={{ height: "200px", width: "250px" }}
           >
             <ScrollArea onScrollChange={(info) => setScrollInfo(info)}>
-              <div className="p-4 space-y-2">
+              <div className="space-y-2 p-4">
                 <div className="text-sm font-medium text-gray-800">Scroll Tracking Content</div>
                 <ScrollContent prefix="Track Item" count={15} bgColor="bg-blue-100" />
               </div>
@@ -288,7 +288,7 @@ export const ScrollTrackingDemo: Story = {
           </div>
         </div>
 
-        <div className="text-xs bg-blue-50 p-3 rounded max-w-md space-y-1">
+        <div className="max-w-md space-y-1 rounded bg-blue-50 p-3 text-xs">
           <div>
             <strong>Scroll Position:</strong> {scrollInfo.scrollTop.toFixed(1)}px
           </div>
@@ -332,7 +332,7 @@ export const ProgrammaticControl: Story = {
           Programmatic scroll control with the new simplified API.
         </div>
 
-        <div className="border rounded" style={{ height: "250px", width: "250px" }}>
+        <div className="rounded border" style={{ height: "250px", width: "250px" }}>
           <ScrollArea
             ref={setScrollAreaRef}
             onScrollChange={(info) => setCurrentPosition(info.scrollTop)}
@@ -342,38 +342,38 @@ export const ProgrammaticControl: Story = {
         </div>
 
         <div className="space-y-2">
-          <div className="flex gap-2 flex-wrap">
+          <div className="flex flex-wrap gap-2">
             <button
               type="button"
               onClick={() => scrollToPosition(0)}
-              className="px-3 py-1 text-xs bg-blue-100 hover:bg-blue-200 rounded"
+              className="rounded bg-blue-100 px-3 py-1 text-xs hover:bg-blue-200"
             >
               Top
             </button>
             <button
               type="button"
               onClick={() => scrollToPosition(100)}
-              className="px-3 py-1 text-xs bg-blue-100 hover:bg-blue-200 rounded"
+              className="rounded bg-blue-100 px-3 py-1 text-xs hover:bg-blue-200"
             >
               100px
             </button>
             <button
               type="button"
               onClick={() => scrollToPosition(300)}
-              className="px-3 py-1 text-xs bg-blue-100 hover:bg-blue-200 rounded"
+              className="rounded bg-blue-100 px-3 py-1 text-xs hover:bg-blue-200"
             >
               300px
             </button>
             <button
               type="button"
               onClick={() => scrollToPosition(1000)}
-              className="px-3 py-1 text-xs bg-blue-100 hover:bg-blue-200 rounded"
+              className="rounded bg-blue-100 px-3 py-1 text-xs hover:bg-blue-200"
             >
               Bottom
             </button>
           </div>
 
-          <div className="text-xs bg-gray-50 p-3 rounded">
+          <div className="rounded bg-gray-50 p-3 text-xs">
             <strong>Current Position:</strong> {currentPosition.toFixed(1)}px
           </div>
         </div>
@@ -421,17 +421,17 @@ export const ComprehensiveDemo: Story = {
           <h3 className="text-lg font-semibold">Vertical Synchronization</h3>
           <div className="flex gap-4">
             <div className="space-y-1">
-              <div className="text-xs font-medium flex items-center gap-2">
+              <div className="flex items-center gap-2 text-xs font-medium">
                 Primary Area
                 {activeArea === "vertical1" && (
-                  <span className="text-blue-600 font-bold">● CONTROLLING</span>
+                  <span className="font-bold text-blue-600">● CONTROLLING</span>
                 )}
                 {activeArea !== "vertical1" && <span className="text-gray-500">○ FOLLOWING</span>}
               </div>
               <div
-                className={`border-2 rounded transition-all ${
+                className={`rounded border-2 transition-all ${
                   activeArea === "vertical1"
-                    ? "border-blue-600 shadow-lg bg-blue-50"
+                    ? "border-blue-600 bg-blue-50 shadow-lg"
                     : "border-blue-300"
                 }`}
                 style={{ height: "200px", width: "180px" }}
@@ -450,17 +450,17 @@ export const ComprehensiveDemo: Story = {
             </div>
 
             <div className="space-y-1">
-              <div className="text-xs font-medium flex items-center gap-2">
+              <div className="flex items-center gap-2 text-xs font-medium">
                 Secondary Area
                 {activeArea === "vertical2" && (
-                  <span className="text-green-600 font-bold">● CONTROLLING</span>
+                  <span className="font-bold text-green-600">● CONTROLLING</span>
                 )}
                 {activeArea !== "vertical2" && <span className="text-gray-500">○ FOLLOWING</span>}
               </div>
               <div
-                className={`border-2 rounded transition-all ${
+                className={`rounded border-2 transition-all ${
                   activeArea === "vertical2"
-                    ? "border-green-600 shadow-lg bg-green-50"
+                    ? "border-green-600 bg-green-50 shadow-lg"
                     : "border-green-300"
                 }`}
                 style={{ height: "200px", width: "180px" }}
@@ -476,7 +476,7 @@ export const ComprehensiveDemo: Story = {
             <div className="space-y-1">
               <div className="text-xs font-medium text-gray-600">Third Area</div>
               <div
-                className="border-2 rounded border-purple-300"
+                className="rounded border-2 border-purple-300"
                 style={{ height: "200px", width: "180px" }}
               >
                 <ScrollArea motionScrollY={sharedMotionY}>
@@ -492,7 +492,7 @@ export const ComprehensiveDemo: Story = {
           <h3 className="text-lg font-semibold">Horizontal Synchronization</h3>
           <div className="space-y-3">
             <div
-              className={`border-2 rounded transition-all ${
+              className={`rounded border-2 transition-all ${
                 activeArea === "horizontal1"
                   ? "border-orange-600 bg-orange-50"
                   : "border-orange-300"
@@ -504,7 +504,7 @@ export const ComprehensiveDemo: Story = {
               <ScrollArea orientation="horizontal" motionScrollX={sharedMotionX}>
                 <div className="flex gap-3 p-3" style={{ width: "1000px" }}>
                   {Array.from({ length: 30 }, (_, i) => (
-                    <div key={i} className="bg-orange-100 p-2 rounded text-sm whitespace-nowrap">
+                    <div key={i} className="rounded bg-orange-100 p-2 text-sm whitespace-nowrap">
                       Wide {i + 1}
                     </div>
                   ))}
@@ -513,7 +513,7 @@ export const ComprehensiveDemo: Story = {
             </div>
 
             <div
-              className={`border-2 rounded transition-all ${
+              className={`rounded border-2 transition-all ${
                 activeArea === "horizontal2" ? "border-pink-600 bg-pink-50" : "border-pink-300"
               }`}
               style={{ height: "100px", width: "400px" }}
@@ -523,7 +523,7 @@ export const ComprehensiveDemo: Story = {
               <ScrollArea orientation="horizontal" motionScrollX={sharedMotionX}>
                 <div className="flex gap-3 p-3" style={{ width: "1000px" }}>
                   {Array.from({ length: 30 }, (_, i) => (
-                    <div key={i} className="bg-pink-100 p-2 rounded text-sm whitespace-nowrap">
+                    <div key={i} className="rounded bg-pink-100 p-2 text-sm whitespace-nowrap">
                       Item {i + 1}
                     </div>
                   ))}
@@ -535,7 +535,7 @@ export const ComprehensiveDemo: Story = {
 
         {/* Status Display */}
         <div className="grid grid-cols-2 gap-4">
-          <div className="text-xs bg-blue-50 p-4 rounded space-y-2">
+          <div className="space-y-2 rounded bg-blue-50 p-4 text-xs">
             <h4 className="font-semibold text-blue-800">Vertical Sync Status</h4>
             <div>
               <strong>Motion Value:</strong> {displayValueY.toFixed(1)}px
@@ -559,7 +559,7 @@ export const ComprehensiveDemo: Story = {
             </div>
           </div>
 
-          <div className="text-xs bg-orange-50 p-4 rounded space-y-2">
+          <div className="space-y-2 rounded bg-orange-50 p-4 text-xs">
             <h4 className="font-semibold text-orange-800">Horizontal Sync Status</h4>
             <div>
               <strong>Motion Value:</strong> {displayValueX.toFixed(1)}px
@@ -574,8 +574,8 @@ export const ComprehensiveDemo: Story = {
         </div>
 
         {/* Key Improvements */}
-        <div className="bg-green-50 p-4 rounded">
-          <h4 className="font-semibold text-green-800 mb-2">✅ Motion Value Benefits</h4>
+        <div className="rounded bg-green-50 p-4">
+          <h4 className="mb-2 font-semibold text-green-800">✅ Motion Value Benefits</h4>
           <div className="grid grid-cols-2 gap-2 text-xs text-green-700">
             <div>• Instant synchronization</div>
             <div>• No callback latency</div>
@@ -627,7 +627,7 @@ export const PerformanceComparison: Story = {
           <h3 className="text-lg font-semibold text-green-700">✅ Motion Values (Low Latency)</h3>
           <div className="flex gap-4">
             <div
-              className="border-2 rounded border-green-500"
+              className="rounded border-2 border-green-500"
               style={{ height: "200px", width: "200px" }}
             >
               <ScrollArea motionScrollY={motionY}>
@@ -635,21 +635,21 @@ export const PerformanceComparison: Story = {
               </ScrollArea>
             </div>
             <div
-              className="border-2 rounded border-green-500"
+              className="rounded border-2 border-green-500"
               style={{ height: "200px", width: "200px" }}
             >
               <ScrollArea motionScrollY={motionY}>
                 <ScrollContent prefix="Synced" count={30} bgColor="bg-green-100" />
               </ScrollArea>
             </div>
-            <div className="text-xs bg-green-50 p-3 rounded">
+            <div className="rounded bg-green-50 p-3 text-xs">
               <div>
                 <strong>Sync Method:</strong> Motion Values
               </div>
               <div>
                 <strong>Position:</strong> {motionDisplayValue.toFixed(1)}px
               </div>
-              <div className="text-green-600 font-medium">⚡ Instant sync</div>
+              <div className="font-medium text-green-600">⚡ Instant sync</div>
               <div className="text-green-600">60fps responsiveness</div>
             </div>
           </div>
@@ -660,7 +660,7 @@ export const PerformanceComparison: Story = {
           <h3 className="text-lg font-semibold text-orange-700">⚠️ Callbacks (Higher Latency)</h3>
           <div className="flex gap-4">
             <div
-              className="border-2 rounded border-orange-500"
+              className="rounded border-2 border-orange-500"
               style={{ height: "200px", width: "200px" }}
               onMouseEnter={() => setActiveArea("callback1")}
               onMouseLeave={() => setActiveArea(null)}
@@ -673,7 +673,7 @@ export const PerformanceComparison: Story = {
               </ScrollArea>
             </div>
             <div
-              className="border-2 rounded border-orange-500"
+              className="rounded border-2 border-orange-500"
               style={{ height: "200px", width: "200px" }}
               onMouseEnter={() => setActiveArea("callback2")}
               onMouseLeave={() => setActiveArea(null)}
@@ -685,7 +685,7 @@ export const PerformanceComparison: Story = {
                 <ScrollContent prefix="Delayed" count={30} bgColor="bg-orange-100" />
               </ScrollArea>
             </div>
-            <div className="text-xs bg-orange-50 p-3 rounded">
+            <div className="rounded bg-orange-50 p-3 text-xs">
               <div>
                 <strong>Sync Method:</strong> Callbacks
               </div>
@@ -695,19 +695,19 @@ export const PerformanceComparison: Story = {
               <div>
                 <strong>Active:</strong> {activeArea ?? "None"}
               </div>
-              <div className="text-orange-600 font-medium">🐌 React state latency</div>
+              <div className="font-medium text-orange-600">🐌 React state latency</div>
               <div className="text-orange-600">Hover to control</div>
             </div>
           </div>
         </div>
 
         {/* Performance Analysis */}
-        <div className="bg-blue-50 p-4 rounded">
-          <h4 className="font-semibold text-blue-800 mb-3">Performance Analysis</h4>
+        <div className="rounded bg-blue-50 p-4">
+          <h4 className="mb-3 font-semibold text-blue-800">Performance Analysis</h4>
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div>
-              <h5 className="font-medium text-green-700 mb-2">Motion Values ✅</h5>
-              <ul className="text-xs space-y-1 text-green-600">
+              <h5 className="mb-2 font-medium text-green-700">Motion Values ✅</h5>
+              <ul className="space-y-1 text-xs text-green-600">
                 <li>• Direct DOM updates</li>
                 <li>• No React re-render overhead</li>
                 <li>• 60fps synchronization</li>
@@ -716,8 +716,8 @@ export const PerformanceComparison: Story = {
               </ul>
             </div>
             <div>
-              <h5 className="font-medium text-orange-700 mb-2">Callbacks ⚠️</h5>
-              <ul className="text-xs space-y-1 text-orange-600">
+              <h5 className="mb-2 font-medium text-orange-700">Callbacks ⚠️</h5>
+              <ul className="space-y-1 text-xs text-orange-600">
                 <li>• React state updates required</li>
                 <li>• Re-render on every scroll event</li>
                 <li>• 16-33ms update cycles</li>
@@ -728,7 +728,7 @@ export const PerformanceComparison: Story = {
           </div>
         </div>
 
-        <div className="bg-green-50 p-3 rounded">
+        <div className="rounded bg-green-50 p-3">
           <div className="text-sm text-green-800">
             <strong>Recommendation:</strong> Use motion values for any real-time synchronization to
             achieve smooth, responsive user experiences without perceptible latency.

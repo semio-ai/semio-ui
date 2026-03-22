@@ -17,7 +17,7 @@ export function NestedStatic({ children, className }: NestedStaticProps) {
   return (
     <ItemComponent
       className={clsx(
-        "text-sm min-h-6 flex flex-row items-center",
+        "flex min-h-6 flex-row items-center text-sm",
         "text-neutral-800 dark:text-neutral-200",
         className,
       )}

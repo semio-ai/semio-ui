@@ -55,15 +55,15 @@ const InnerTextArea = forwardRef(
         }
         className={clsx(
           "responsive",
-          bg && "dark:bg-neutral-950/20 bg-neutral-50/20",
+          bg && "bg-neutral-50/20 dark:bg-neutral-950/20",
           "rounded-xs",
           outline === "interact" && "variant-responsive-appearing-outline",
           outline === "always" && "variant-responsive-persistent-outline",
           color ? "custom-color" : variant,
-          "disabled:cursor-not-allowed cursor-text",
+          "cursor-text disabled:cursor-not-allowed",
           "p-1",
           "variant-text-caret-color",
-          subtle && "dark:focus:text-white focus:text-black text-neutral-600 dark:text-neutral-400",
+          subtle && "text-neutral-600 focus:text-black dark:text-neutral-400 dark:focus:text-white",
           !subtle && "text-black dark:text-white",
           className,
         )}

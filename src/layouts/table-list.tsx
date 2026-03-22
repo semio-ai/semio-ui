@@ -271,7 +271,7 @@ export function TableList<T extends TableListItem>({
                 />
               </div>
             ) : (
-              <div className="h-full aspect-square" />
+              <div className="aspect-square h-full" />
             ),
           align: "center" as const,
           render: (item: T) => {
@@ -343,7 +343,7 @@ export function TableList<T extends TableListItem>({
     <div
       ref={mergeRefs([clickAwayDetectorRef, containerRef])}
       className={clsx(
-        "grid w-full scroll-mt-10 gap-x-4 gap-y-0 table-list p-1",
+        "table-list grid w-full scroll-mt-10 gap-x-4 gap-y-0 p-1",
         backgroundClassName,
       )}
       style={{
@@ -358,8 +358,8 @@ export function TableList<T extends TableListItem>({
       {!noHeader && (
         <header
           className={clsx(
-            "sized-height grid grid-cols-subgrid sticky w-full",
-            "dark:text-neutral-600 text-neutral-400 responsive",
+            "sized-height sticky grid w-full grid-cols-subgrid",
+            "responsive text-neutral-400 dark:text-neutral-600",
             "border-b border-b-neutral-400 dark:border-b-neutral-600",
             "bg-transparent backdrop-blur-lg",
             "z-1",
@@ -375,7 +375,7 @@ export function TableList<T extends TableListItem>({
             <div
               className={clsx(
                 "text-xs uppercase",
-                "sized-height w-full flex flex-row items-center",
+                "sized-height flex w-full flex-row items-center",
                 size,
                 (column.align === "left" || !column.align) && "justify-start",
                 column.align === "center" && "justify-center",
@@ -493,9 +493,9 @@ function InnerRow<T extends TableListItem>({
       ref={ref}
       className={clsx(
         "group/row grid grid-cols-subgrid",
-        "leading-none responsive",
+        "responsive leading-none",
         consecutiveClass,
-        "sized-height sized-text select-none outline-hidden",
+        "sized-height sized-text outline-hidden select-none",
         "items-center",
         "responsive table-list-item",
         !noHeader && "nth-[2]:mt-1",
@@ -503,7 +503,7 @@ function InnerRow<T extends TableListItem>({
         size,
         variant,
         rowClassName,
-        disabled && "opacity-50 cursor-not-allowed pointer-events-none",
+        disabled && "pointer-events-none cursor-not-allowed opacity-50",
       )}
       style={{
         gridColumn: `span ${columns.length.toString()} / span ${columns.length.toString()}`,
@@ -523,7 +523,7 @@ function InnerRow<T extends TableListItem>({
       {columns.map((column, columnIndex) => (
         <div
           className={clsx(
-            "w-full flex flex-row items-center self-center",
+            "flex w-full flex-row items-center self-center",
             column.flex && "min-w-0",
             (column.align === "left" || !column.align) && "justify-start",
             column.align === "center" && "justify-center",

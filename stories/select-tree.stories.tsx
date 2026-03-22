@@ -29,7 +29,7 @@ const meta: Meta<typeof SelectTree> = {
   title: "ui/SelectTree",
   decorators: [
     (Story) => (
-      <div className="grid place-items-center p-5 h-full">
+      <div className="grid h-full place-items-center p-5">
         <div className="w-80 max-w-full">
           <Story />
         </div>
@@ -370,48 +370,48 @@ export const ComprehensiveDemo: Story = {
     return (
       <div className="flex flex-col gap-4">
         <SelectTree {...props} value={values} onChange={setValues} />
-        <div className="p-4 bg-gray-100 dark:bg-gray-800 rounded">
-          <div className="text-sm font-semibold mb-2">Demo Scenarios (Click to apply):</div>
+        <div className="rounded bg-gray-100 p-4 dark:bg-gray-800">
+          <div className="mb-2 text-sm font-semibold">Demo Scenarios (Click to apply):</div>
           <div className="flex flex-wrap gap-2">
             <button
               type="button"
               onClick={() => setValues(["keynote", "demo"])}
-              className="px-3 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600"
+              className="rounded bg-blue-500 px-3 py-1 text-xs text-white hover:bg-blue-600"
             >
               Complete Subgroup (Presentations)
             </button>
             <button
               type="button"
               onClick={() => setValues(["q1-report", "q2-report"])}
-              className="px-3 py-1 text-xs bg-green-500 text-white rounded hover:bg-green-600"
+              className="rounded bg-green-500 px-3 py-1 text-xs text-white hover:bg-green-600"
             >
               Partial Group (2/3 Reports)
             </button>
             <button
               type="button"
               onClick={() => setValues(["q1-report", "q2-report", "q3-report", "keynote", "demo"])}
-              className="px-3 py-1 text-xs bg-purple-500 text-white rounded hover:bg-purple-600"
+              className="rounded bg-purple-500 px-3 py-1 text-xs text-white hover:bg-purple-600"
             >
               Complete Documents
             </button>
             <button
               type="button"
               onClick={() => setValues(["keynote", "demo", "photos", "screenshots"])}
-              className="px-3 py-1 text-xs bg-yellow-600 text-white rounded hover:bg-yellow-700"
+              className="rounded bg-yellow-600 px-3 py-1 text-xs text-white hover:bg-yellow-700"
             >
               Multiple Complete Groups
             </button>
             <button
               type="button"
               onClick={() => setValues(["q1-report", "photos"])}
-              className="px-3 py-1 text-xs bg-red-500 text-white rounded hover:bg-red-600"
+              className="rounded bg-red-500 px-3 py-1 text-xs text-white hover:bg-red-600"
             >
               Mixed Selection
             </button>
             <button
               type="button"
               onClick={() => setValues([])}
-              className="px-3 py-1 text-xs bg-gray-500 text-white rounded hover:bg-gray-600"
+              className="rounded bg-gray-500 px-3 py-1 text-xs text-white hover:bg-gray-600"
             >
               Clear All
             </button>
@@ -699,7 +699,7 @@ export const NarrowContainerEllipsis: Story = {
       <div className="text-sm text-gray-600 dark:text-gray-400">
         Container width: 150px - Text should show ellipsis
       </div>
-      <div className="w-37.5 border border-gray-300 dark:border-gray-700 p-2 overflow-hidden">
+      <div className="w-37.5 overflow-hidden border border-gray-300 p-2 dark:border-gray-700">
         <SelectTreeWrapper
           {...props}
           initialValues={[
@@ -713,7 +713,7 @@ export const NarrowContainerEllipsis: Story = {
       <div className="text-sm text-gray-600 dark:text-gray-400">
         Container width: 200px - Slightly more room
       </div>
-      <div className="w-50 border border-gray-300 dark:border-gray-700 p-2 overflow-hidden">
+      <div className="w-50 overflow-hidden border border-gray-300 p-2 dark:border-gray-700">
         <SelectTreeWrapper
           {...props}
           initialValues={["group1-file1", "group1-file2", "group2-file1", "group2-file2"]}

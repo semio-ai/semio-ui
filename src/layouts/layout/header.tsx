@@ -35,14 +35,14 @@ function InnerHeader({ homeIcon }: { homeIcon?: ReactNode }) {
   ) as ToolbarWidget[];
 
   return (
-    <div className="grid-area-header w-full h-full z-0">
+    <div className="grid-area-header z-0 h-full w-full">
       <div
         className={clsx(
-          "h-10 flex items-center justify-stretch",
-          "flex-row w-full gap-2 desktop:gap-1 pl-1 pr-1 desktop:pl-0",
+          "flex h-10 items-center justify-stretch",
+          "desktop:gap-1 desktop:pl-0 w-full flex-row gap-2 pr-1 pl-1",
         )}
       >
-        <span className="grid desktop:hidden place-items-center flex-none">
+        <span className="desktop:hidden grid flex-none place-items-center">
           <Dropdown
             side="bottom"
             disabled={
@@ -55,7 +55,7 @@ function InnerHeader({ homeIcon }: { homeIcon?: ReactNode }) {
                 <button
                   type="button"
                   role="tab"
-                  className={clsx("w-9 h-9 grid place-items-center")}
+                  className={clsx("grid h-9 w-9 place-items-center")}
                   onClick={() => {
                     toggleMenu();
                   }}
@@ -81,13 +81,13 @@ function InnerHeader({ homeIcon }: { homeIcon?: ReactNode }) {
           return null;
         })}
 
-        <div className="h-9 flex desktop:hidden flex-1" />
+        <div className="desktop:hidden flex h-9 flex-1" />
 
         <Dropdown
           disabled={mobileMenuItems.length + actionItems.length === 0}
           trigger={
             <HeaderButton
-              className="grid desktop:hidden flex-none"
+              className="desktop:hidden grid flex-none"
               variant={Variant.Default}
               size={Size.Sm}
               label="Toggle Menu"
@@ -109,7 +109,7 @@ function InnerHeader({ homeIcon }: { homeIcon?: ReactNode }) {
           )}
         </Dropdown>
 
-        <div className="h-9 hidden desktop:flex flex-1" />
+        <div className="desktop:flex hidden h-9 flex-1" />
 
         <HeaderButton
           className={clsx("flex-none", !desktop || rightRegionActive ? "hidden" : "grid")}
@@ -120,7 +120,7 @@ function InnerHeader({ homeIcon }: { homeIcon?: ReactNode }) {
             <IconChevronRightPipe
               className={clsx(
                 ICON_CLASS_NAME,
-                "transition-transform ease-in-out duration-100",
+                "transition-transform duration-100 ease-in-out",
                 rightRegionActive ? "rotate-360" : "rotate-180",
               )}
             />

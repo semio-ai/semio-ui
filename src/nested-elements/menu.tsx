@@ -59,8 +59,8 @@ export function NestedMenu({
       <SubTriggerComponent
         disabled={disabled}
         className={clsx(
-          "leading-none flex items-center rounded-xs group/item",
-          "h-7 w-full text-sm px-1.25 relative pl-7.5 select-none outline-hidden",
+          "group/item flex items-center rounded-xs leading-none",
+          "relative h-7 w-full px-1.25 pl-7.5 text-sm outline-hidden select-none",
           "data-disabled:pointer-events-none",
           "responsive highlight-list-item",
           variant,
@@ -69,7 +69,7 @@ export function NestedMenu({
         {left && (
           <div
             className={clsx(
-              "absolute left-1 top-1/2 -translate-y-1/2 inline-flex items-center justify-center",
+              "absolute top-1/2 left-1 inline-flex -translate-y-1/2 items-center justify-center",
               "responsive list-item-extra highlight-list-item",
               variant,
             )}
@@ -82,7 +82,7 @@ export function NestedMenu({
 
         <div
           className={clsx(
-            "absolute right-1 top-1/2 -translate-y-1/2 inline-flex items-center justify-center",
+            "absolute top-1/2 right-1 inline-flex -translate-y-1/2 items-center justify-center",
             "responsive list-item-extra",
             variant,
           )}
@@ -102,7 +102,7 @@ export function NestedMenu({
             className={clsx(
               variant,
               !desktop &&
-                "w-full pl-2 py-0.5 pr-0.5 mb-0.5 rounded-b-xs dark:bg-black/30 bg-neutral-400/30",
+                "mb-0.5 w-full rounded-b-xs bg-neutral-400/30 py-0.5 pr-0.5 pl-2 dark:bg-black/30",
               desktop && "responsive card dropdown-content",
               "min-w-55",
               desktop && heightClass,

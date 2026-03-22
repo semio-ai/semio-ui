@@ -57,22 +57,22 @@ export function Snippet({ text, language, className }: SnippetProps) {
   return (
     <div
       className={clsx(
-        "rounded-sm w-full bg-neutral-200 dark:bg-neutral-800 overflow-clip",
+        "w-full overflow-clip rounded-sm bg-neutral-200 dark:bg-neutral-800",
         className,
       )}
     >
       {language && (
         <div
           className={clsx(
-            "py-1 pl-4 pr-1 w-full italic bg-neutral-300 dark:bg-neutral-700",
-            "flex-row flex justify-between items-center",
+            "w-full bg-neutral-300 py-1 pr-1 pl-4 italic dark:bg-neutral-700",
+            "flex flex-row items-center justify-between",
           )}
         >
           {language}
           {copyButton}
         </div>
       )}
-      <div className="relative dark:bg-neutral-800 bg-neutral-200 p-1 min-h-12 overflow-x-scroll">
+      <div className="relative min-h-12 overflow-x-scroll bg-neutral-200 p-1 dark:bg-neutral-800">
         <Highlight
           theme={resolvedTheme === Theme.Dark ? themes.vsDark : themes.vsLight}
           code={text}

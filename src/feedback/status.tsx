@@ -37,9 +37,9 @@ export const Status = forwardRef(
             variant,
             size,
             "responsive",
-            "rounded-full absolute ring-2 dark:ring-neutral-800 ring-neutral-200",
+            "absolute rounded-full ring-2 ring-neutral-200 dark:ring-neutral-800",
             text
-              ? "h-[10px] min-w-[10px] text-[7px] p-1 dark:text-black text-white font-bold flex flex-row items-center justify-center"
+              ? "flex h-[10px] min-w-[10px] flex-row items-center justify-center p-1 text-[7px] font-bold text-white dark:text-black"
               : "sized-status",
             "variant-static-bg",
             getPlacement(placement),

@@ -104,15 +104,15 @@ export function InnerTabsRow({
       {leftWidget}
       <TabsPrimitive.List
         className={clsx(
-          "relative inline-flex flex-1 items-center rounded-sm overflow-clip",
-          "dark:bg-layout-dark-deep-inset bg-layout-light-deep-inset p-0.5 group/list",
+          "relative inline-flex flex-1 items-center overflow-clip rounded-sm",
+          "dark:bg-layout-dark-deep-inset bg-layout-light-deep-inset group/list p-0.5",
         )}
       >
         <motion.div
           // layout
           className={clsx(
-            "absolute responsive",
-            "rounded-xs sized-inner-group-item",
+            "responsive absolute",
+            "sized-inner-group-item rounded-xs",
             "variant-static-bg-25",
             "variant-static-persistent-outline",
             size,
@@ -311,7 +311,7 @@ export function InnerTabs(props: TabsProps): ReactNode {
 
   return (
     <TabsPrimitive.Root
-      className={clsx("@container flex flex-col w-full gap-0.5", "cursor-pointer rounded-sm")}
+      className={clsx("@container flex w-full flex-col gap-0.5", "cursor-pointer rounded-sm")}
       value={props.selected ?? childrenTabs[0].key}
       onValueChange={props.onTabChange}
     >

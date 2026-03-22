@@ -88,7 +88,7 @@ function InnerMenu({
       <div
         data-ui={menuState ? "expanded" : ""}
         // The classname 'grid-area-menu' places the menu in the correct grid area.
-        className={clsx("grid-area-menu h-full w-full min-w-10 z-0", "group/menu")}
+        className={clsx("grid-area-menu z-0 h-full w-full min-w-10", "group/menu")}
         onDoubleClick={toggleMenu}
       >
         <ScrollArea
@@ -169,7 +169,7 @@ function InnerMenu({
             ) : undefined
           }
         >
-          <div className="w-full h-full flex flex-row justify-center desktop:justify-start desktop:flex-col">
+          <div className="desktop:justify-start desktop:flex-col flex h-full w-full flex-row justify-center">
             {leftMenuItems.map((leftMenuItem) => (
               <MenuButton
                 key={leftMenuItem.id}

@@ -56,7 +56,7 @@ function InnerMenuButton(
           "responsive",
           hoverable ? "variant-responsive-selectable-text" : "variant-static-text",
           variant,
-          "w-9 h-9 grid place-items-center",
+          "grid h-9 w-9 place-items-center",
         ),
       };
 
@@ -69,10 +69,10 @@ function InnerMenuButton(
       className={clsx(
         variant,
         "cursor-pointer disabled:cursor-default",
-        "w-9 group/tab h-9 overflow-hidden",
+        "group/tab h-9 w-9 overflow-hidden",
         "desktop:group-data-expanded/menu:w-[188px]",
-        "overflow-hidden transition-all",
-        "grid place-items-center grid-cols-[36px_1fr] grid-rows-1 gap-[6px]",
+        "transition-all",
+        "grid grid-cols-[36px_1fr] grid-rows-1 place-items-center gap-[6px]",
         className,
       )}
       onClick={onClick}
@@ -93,7 +93,7 @@ function InnerMenuButton(
         className={clsx(
           "responsive",
           "desktop:group-data-expanded/menu:opacity-100",
-          "opacity-0 text-left w-[150px]",
+          "w-[150px] text-left opacity-0",
           hoverable ? "variant-responsive-selectable-text" : "variant-static-text",
           variant,
           textClassName,
