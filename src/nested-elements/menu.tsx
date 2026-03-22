@@ -70,7 +70,7 @@ export function NestedMenu({
           <div
             className={clsx(
               "absolute left-1 top-1/2 -translate-y-1/2 inline-flex items-center justify-center",
-              "responsive list-item-extra",
+              "responsive list-item-extra highlight-list-item",
               variant,
             )}
           >
