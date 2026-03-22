@@ -41,7 +41,6 @@ function InnerResizer({
         min,
         max,
       );
-      first && console.log(newValue, directionalOffset, offset, relativeValue);
       onDrag(newValue);
       if (down) {
         document.body.style.cursor = orientation === "vertical" ? "row-resize" : "col-resize";

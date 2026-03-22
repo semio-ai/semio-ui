@@ -255,7 +255,7 @@ export function useTooltipAnchor(options: UseTooltipAnchorOptions): UseTooltipAn
         // Get root container for cursor tracking (since portal is at root)
         const rootContainer = rootHost?.containerRef.current;
         if (!rootContainer) {
-          console.log(`🎯 [Tooltip Debug] No root container for cursor tracking: ${id}`);
+          console.warn(`[Tooltip] No root container for cursor tracking: ${id}`);
           return;
         }
 
