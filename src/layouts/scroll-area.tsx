@@ -343,7 +343,7 @@ export const InnerScrollArea = forwardRef<ScrollAreaRef, ScrollAreaProps>(
           </div>
         )}
 
-        <div className="flex-1 relative min-h-0 min-w-0">
+        <div className="relative min-h-0 min-w-0 flex-1">
           <RadixScrollArea.Viewport
             ref={viewportRef}
             className={clsx(
@@ -360,18 +360,18 @@ export const InnerScrollArea = forwardRef<ScrollAreaRef, ScrollAreaProps>(
           {(orientation === "both" || orientation === "vertical") && (
             <RadixScrollArea.Scrollbar
               className={clsx(
-                "flex select-none touch-none py-1 px-0.5",
-                "ease-out transition-colors duration-160",
-                showGutter && "dark:hover:bg-white/25 hover:bg-black/25 bg-black/5 dark:bg-white/5",
-                "data-[orientation=vertical]:w-2.5 data-[orientation=horizontal]:flex-col data-[orientation=horizontal]:h-2.5",
+                "flex touch-none px-0.5 py-1 select-none",
+                "transition-colors duration-160 ease-out",
+                showGutter && "bg-black/5 hover:bg-black/25 dark:bg-white/5 dark:hover:bg-white/25",
+                "data-[orientation=horizontal]:h-2.5 data-[orientation=horizontal]:flex-col data-[orientation=vertical]:w-2.5",
               )}
               orientation="vertical"
             >
               <RadixScrollArea.Thumb
                 className={clsx(
-                  "flex-1 bg-default-500/75 rounded-sm relative",
-                  "before:content-[''] before:absolute before:top-1/2 before:left-1/2 before:-translate-x-1/2",
-                  "before:-translate-y-1/2 before:w-full before:h-full before:min-w-5.5 before:min-h-5.5",
+                  "bg-default-500/75 relative flex-1 rounded-sm",
+                  "before:absolute before:top-1/2 before:left-1/2 before:-translate-x-1/2 before:content-['']",
+                  "before:h-full before:min-h-5.5 before:w-full before:min-w-5.5 before:-translate-y-1/2",
                 )}
               />
             </RadixScrollArea.Scrollbar>
@@ -379,18 +379,18 @@ export const InnerScrollArea = forwardRef<ScrollAreaRef, ScrollAreaProps>(
           {(orientation === "both" || orientation === "horizontal") && (
             <RadixScrollArea.Scrollbar
               className={clsx(
-                "flex select-none touch-none py-0.5 px-1",
-                "ease-out transition-colors duration-160",
-                showGutter && "dark:hover:bg-white/25 hover:bg-black/25 bg-black/5 dark:bg-white/5",
-                "data-[orientation=vertical]:w-2.5 data-[orientation=horizontal]:flex-col data-[orientation=horizontal]:h-2.5",
+                "flex touch-none px-1 py-0.5 select-none",
+                "transition-colors duration-160 ease-out",
+                showGutter && "bg-black/5 hover:bg-black/25 dark:bg-white/5 dark:hover:bg-white/25",
+                "data-[orientation=horizontal]:h-2.5 data-[orientation=horizontal]:flex-col data-[orientation=vertical]:w-2.5",
               )}
               orientation="horizontal"
             >
               <RadixScrollArea.Thumb
                 className={clsx(
-                  "flex-1 bg-default-500/75 rounded-sm relative",
-                  "before:content-[''] before:absolute before:top-1/2 before:left-1/2 before:-translate-x-1/2",
-                  "before:-translate-y-1/2 before:w-full before:h-full before:min-w-5.5 before:min-h-5.5",
+                  "bg-default-500/75 relative flex-1 rounded-sm",
+                  "before:absolute before:top-1/2 before:left-1/2 before:-translate-x-1/2 before:content-['']",
+                  "before:h-full before:min-h-5.5 before:w-full before:min-w-5.5 before:-translate-y-1/2",
                 )}
               />
             </RadixScrollArea.Scrollbar>

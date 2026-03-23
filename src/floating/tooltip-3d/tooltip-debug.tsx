@@ -58,7 +58,7 @@ export function TooltipDebug({
         <button
           type="button"
           onClick={() => enableDebugMode(true)}
-          className="px-3 py-2 bg-blue-600 text-white text-xs rounded shadow-lg hover:bg-blue-700"
+          className="rounded bg-blue-600 px-3 py-2 text-xs text-white shadow-lg hover:bg-blue-700"
           title="Enable tooltip debug mode"
         >
           🎯 Debug Tooltips
@@ -72,7 +72,7 @@ export function TooltipDebug({
       {/* Visual indicators for tooltip positions */}
       {effectiveShowVisualIndicators && tooltipHost?.containerRef.current && (
         <div
-          className="absolute inset-0 pointer-events-none z-[9998]"
+          className="pointer-events-none absolute inset-0 z-[9998]"
           style={{
             position: "absolute",
             top: 0,
@@ -94,7 +94,7 @@ export function TooltipDebug({
               }}
               title={`Anchor: ${anchorId}`}
             >
-              <div className="absolute -top-5 left-0 text-xs text-red-600 font-mono whitespace-nowrap">
+              <div className="absolute -top-5 left-0 font-mono text-xs whitespace-nowrap text-red-600">
                 {anchorId}
               </div>
             </div>
@@ -104,12 +104,12 @@ export function TooltipDebug({
 
       {/* Debug panel */}
       <div className={clsx("fixed top-4 right-4 z-[9999] max-w-md", className)}>
-        <div className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-xl">
+        <div className="rounded-lg border border-gray-300 bg-white shadow-xl dark:border-gray-600 dark:bg-gray-800">
           {/* Header */}
-          <div className="flex items-center justify-between p-3 border-b border-gray-200 dark:border-gray-700">
+          <div className="flex items-center justify-between border-b border-gray-200 p-3 dark:border-gray-700">
             <div className="flex items-center gap-2">
               <span className="text-sm font-semibold">🎯 Tooltip Debug</span>
-              <span className="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs rounded">
+              <span className="rounded bg-green-100 px-2 py-1 text-xs text-green-800 dark:bg-green-900 dark:text-green-200">
                 {visibleTooltips.length} visible
               </span>
             </div>
@@ -117,7 +117,7 @@ export function TooltipDebug({
               <button
                 type="button"
                 onClick={() => setIsExpanded(!isExpanded)}
-                className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
+                className="rounded p-1 hover:bg-gray-100 dark:hover:bg-gray-700"
                 title={isExpanded ? "Collapse" : "Expand"}
               >
                 <span className="text-xs">{isExpanded ? "−" : "+"}</span>
@@ -125,7 +125,7 @@ export function TooltipDebug({
               <button
                 type="button"
                 onClick={() => enableDebugMode(false)}
-                className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
+                className="rounded p-1 hover:bg-gray-100 dark:hover:bg-gray-700"
                 title="Disable debug mode"
               >
                 <span className="text-xs">×</span>
@@ -135,7 +135,7 @@ export function TooltipDebug({
 
           {/* Content */}
           {isExpanded && (
-            <div className="p-3 max-h-96 overflow-y-auto">
+            <div className="max-h-96 overflow-y-auto p-3">
               {/* Controls */}
               <div className="mb-3 space-y-2">
                 <div className="flex items-center gap-2">
@@ -149,7 +149,7 @@ export function TooltipDebug({
                     id="anchor-filter"
                     value={selectedAnchorId || ""}
                     onChange={(e) => setSelectedAnchorId(e.target.value || null)}
-                    className="text-xs border border-gray-300 dark:border-gray-600 rounded px-2 py-1 bg-white dark:bg-gray-700"
+                    className="rounded border border-gray-300 bg-white px-2 py-1 text-xs dark:border-gray-600 dark:bg-gray-700"
                   >
                     <option value="">All anchors</option>
                     {Array.from(new Set(debugHistory.map((h) => h.anchorId))).map((id) => (
@@ -163,7 +163,7 @@ export function TooltipDebug({
                   <button
                     type="button"
                     onClick={clearDebugHistory}
-                    className="text-xs px-2 py-1 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded"
+                    className="rounded bg-gray-100 px-2 py-1 text-xs hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600"
                   >
                     Clear History
                   </button>
@@ -172,7 +172,7 @@ export function TooltipDebug({
                       type="checkbox"
                       checked={effectiveShowVisualIndicators}
                       onChange={(e) => setInternalShowVisualIndicators(e.target.checked)}
-                      className="w-3 h-3"
+                      className="h-3 w-3"
                     />
                     Visual indicators
                   </label>
@@ -182,7 +182,7 @@ export function TooltipDebug({
               {/* Current visible tooltips */}
               {visibleTooltips.length > 0 && (
                 <div className="mb-4">
-                  <h4 className="text-xs font-semibold mb-2 text-gray-700 dark:text-gray-300">
+                  <h4 className="mb-2 text-xs font-semibold text-gray-700 dark:text-gray-300">
                     Visible Tooltips
                   </h4>
                   <div className="space-y-1">
@@ -191,13 +191,13 @@ export function TooltipDebug({
                       return (
                         <div
                           key={tooltip.id}
-                          className="text-xs p-2 bg-gray-50 dark:bg-gray-700 rounded"
+                          className="rounded bg-gray-50 p-2 text-xs dark:bg-gray-700"
                         >
                           <div className="font-mono text-blue-600 dark:text-blue-400">
                             {tooltip.id}
                           </div>
                           {position && (
-                            <div className="text-gray-600 dark:text-gray-400 mt-1">
+                            <div className="mt-1 text-gray-600 dark:text-gray-400">
                               Position: ({position.x.toFixed(1)}, {position.y.toFixed(1)})
                               {position.width && (
                                 <span>
@@ -217,14 +217,14 @@ export function TooltipDebug({
 
               {/* Debug history */}
               <div>
-                <h4 className="text-xs font-semibold mb-2 text-gray-700 dark:text-gray-300">
+                <h4 className="mb-2 text-xs font-semibold text-gray-700 dark:text-gray-300">
                   Recent Coordinate Transformations
                   {selectedAnchorId && (
                     <span className="font-normal text-gray-500"> for {selectedAnchorId}</span>
                   )}
                 </h4>
                 {filteredHistory.length === 0 ? (
-                  <div className="text-xs text-gray-500 dark:text-gray-400 italic">
+                  <div className="text-xs text-gray-500 italic dark:text-gray-400">
                     No debug history available
                   </div>
                 ) : (
@@ -253,15 +253,15 @@ function DebugEntry({ entry }: { entry: CoordinateDebugInfo }) {
   const [isExpanded, setIsExpanded] = useState(false);
 
   return (
-    <div className="text-xs border border-gray-200 dark:border-gray-600 rounded">
+    <div className="rounded border border-gray-200 text-xs dark:border-gray-600">
       <button
         type="button"
         onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full text-left p-2 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center justify-between"
+        className="flex w-full items-center justify-between p-2 text-left hover:bg-gray-50 dark:hover:bg-gray-700"
       >
         <div>
           <span className="font-mono text-blue-600 dark:text-blue-400">{entry.anchorId}</span>
-          <span className="text-gray-500 dark:text-gray-400 ml-2">
+          <span className="ml-2 text-gray-500 dark:text-gray-400">
             {new Date(entry.timestamp).toLocaleTimeString()}
           </span>
         </div>
@@ -269,7 +269,7 @@ function DebugEntry({ entry }: { entry: CoordinateDebugInfo }) {
       </button>
 
       {isExpanded && (
-        <div className="p-2 pt-0 space-y-2 bg-gray-50 dark:bg-gray-700/50">
+        <div className="space-y-2 bg-gray-50 p-2 pt-0 dark:bg-gray-700/50">
           {entry.worldPosition && (
             <div>
               <div className="font-semibold text-gray-700 dark:text-gray-300">3D World:</div>

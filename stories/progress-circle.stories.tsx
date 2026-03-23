@@ -14,7 +14,7 @@ const meta: Meta<typeof ProgressCircle> = {
   title: "ui/ProgressCircle",
   decorators: [
     (Story) => (
-      <div className="grid place-items-center p-5 h-full">
+      <div className="grid h-full place-items-center p-5">
         {/* 👇 Decorators in Storybook also accept a function. Replace <Story/> with Story() to enable it  */}
         <Story />
       </div>

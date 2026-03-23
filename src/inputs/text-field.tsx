@@ -67,7 +67,7 @@ const InnerTextField = forwardRef(
           } as CSSProperties
         }
         className={clsx(
-          "relative outline-hidden flex flex-row",
+          "relative flex flex-row outline-hidden",
           "sized-height",
           size,
           wrapperClassName,
@@ -79,7 +79,7 @@ const InnerTextField = forwardRef(
           onChange={(event) => onChange?.(event.target.value, event)}
           className={clsx(
             "responsive",
-            bg && "dark:bg-neutral-950/20 bg-neutral-50/20",
+            bg && "bg-neutral-50/20 dark:bg-neutral-950/20",
             "rounded-xs",
             outline === "interact" &&
               !forwardedProps.readOnly &&
@@ -90,8 +90,8 @@ const InnerTextField = forwardRef(
             outline === "hidden" && "outline-hidden focus:outline-hidden",
             size,
             color ? "custom-color" : variant,
-            "disabled:cursor-not-allowed cursor-text peer",
-            "sized-text sized-height flex flex-1 min-w-10",
+            "peer cursor-text disabled:cursor-not-allowed",
+            "sized-text sized-height flex min-w-10 flex-1",
             icon ? "sized-inner-group-left-padding" : "pl-1",
             onClear ? "sized-inner-group-right-padding" : "pr-1",
             "variant-text-caret-color",
@@ -104,8 +104,8 @@ const InnerTextField = forwardRef(
             className={clsx(
               color ? "custom-color" : variant,
               size,
-              "responsive absolute left-0.5 top-0.5 grid place-items-center pointer-events-none",
-              "sized-inner-group-item rounded-[1px] variant-responsive-input-extra-text",
+              "responsive pointer-events-none absolute top-0.5 left-0.5 grid place-items-center",
+              "sized-inner-group-item variant-responsive-input-extra-text rounded-[1px]",
             )}
           >
             {icon}
@@ -117,9 +117,9 @@ const InnerTextField = forwardRef(
             className={clsx(
               color ? "custom-color" : variant,
               size,
-              "absolute right-0.5 top-0.5 place-items-center hidden peer-focus:grid",
-              "transition-discrete transition-all delay-75 responsive",
-              "sized-inner-group-item rounded-[1px] variant-responsive-input-extra-button-text",
+              "absolute top-0.5 right-0.5 hidden place-items-center peer-focus:grid",
+              "responsive transition-all transition-discrete delay-75",
+              "sized-inner-group-item variant-responsive-input-extra-button-text rounded-[1px]",
             )}
             onClick={(e) => {
               // e.stopPropagation();

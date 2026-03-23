@@ -21,7 +21,7 @@ function ColorPickerPopoverWithHooks({
   const [innerValue, setInnerValue] = useState<string | RawColor>(value);
   return (
     <>
-      <p className="dark:text-white text-black">Current value: {JSON.stringify(innerValue)}</p>
+      <p className="text-black dark:text-white">Current value: {JSON.stringify(innerValue)}</p>
       <ColorPickerPopover
         value={innerValue}
         onChange={(v) => {

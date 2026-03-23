@@ -45,9 +45,9 @@ export function Checkbox({
       )}
     >
       <RadixCheckbox.Indicator
-        className={clsx(variant, "dark:text-black text-white", "grid place-items-center")}
+        className={clsx(variant, "text-white dark:text-black", "grid place-items-center")}
       >
-        <IconCheck className="w-4/5 h-4/5" />
+        <IconCheck className="h-4/5 w-4/5" />
       </RadixCheckbox.Indicator>
     </RadixCheckbox.Root>
   );

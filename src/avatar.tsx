@@ -107,7 +107,7 @@ export const Avatar = forwardRef(
                 "variant-responsive-bg variant-responsive-appearing-outline",
               visuals === "border" &&
                 !onClick &&
-                "variant-static-bg outline -outline-offset-1 dark:outline-black/25 outline-white/25",
+                "variant-static-bg outline -outline-offset-1 outline-white/25 dark:outline-black/25",
               visuals === "inverted-border" && onClick && "variant-responsive-persistent-outline",
               visuals === "inverted-border" && !onClick && "variant-static-persistent-outline",
               "sized-height sized-width sized-text",

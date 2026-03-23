@@ -27,7 +27,7 @@ export function Chip({
         "variant-responsive-bg variant-responsive-text",
         "sized-text sized-height",
         "responsive grid grid-rows-1 place-items-center",
-        "p-[2px] gap-2",
+        "gap-2 p-[2px]",
         renderIcon && children && onDelete && "grid-cols-[auto_1fr_auto]",
         renderIcon && children && !onDelete && "grid-cols-[auto_1fr]",
         !renderIcon && children && onDelete && "grid-cols-[1fr_auto]",
@@ -50,13 +50,13 @@ export function Chip({
             "responsive",
             size,
             "sized-inner-group-item",
-            "dark:bg-black/50 bg-white/50 rounded-[1px] grid place-items-center",
+            "grid place-items-center rounded-[1px] bg-white/50 dark:bg-black/50",
           )}
         >
           {renderIcon(ICON_CLASS_NAME)}
         </div>
       )}
-      <div className="dark:text-red/75 text-white/75 px-2">{children}</div>
+      <div className="dark:text-red/75 px-2 text-white/75">{children}</div>
       {onDelete && (
         <button
           type="button"
@@ -68,7 +68,7 @@ export function Chip({
           className={clsx(
             size,
             "sized-inner-group-item",
-            "dark:bg-black/50 bg-white/50 rounded-[1px] grid place-items-center",
+            "grid place-items-center rounded-[1px] bg-white/50 dark:bg-black/50",
           )}
         >
           <IconX className={ICON_CLASS_NAME} />

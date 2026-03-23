@@ -37,7 +37,6 @@ export function useLayoutState(): LayoutState {
   useEffect(() => {
     setDesktop(desktopMatcher.matches);
     const listener = (e: MediaQueryListEvent) => {
-      console.log("desktop changed", e.matches);
       setDesktop(e.matches);
     };
     desktopMatcher.addEventListener("change", listener);

@@ -32,7 +32,7 @@ export function ImageInput({
       onClick={() => fileInputRef.current?.click?.()}
       className={clsx(
         size,
-        "rounded-sm grid sized-image-input relative group/image-input bg-red-500",
+        "sized-image-input group/image-input relative grid rounded-sm bg-red-500",
         className,
       )}
     >
@@ -62,7 +62,7 @@ export function ImageInput({
           size,
           variant,
           "responsive cursor-pointer",
-          "size-full grid",
+          "grid size-full",
           "place-items-center rounded-sm select-none",
           "variant-responsive-bg variant-responsive-appearing-outline",
           "variant-responsive-text",
@@ -72,7 +72,7 @@ export function ImageInput({
       </AvatarPrimitive.Fallback>
       <div
         className={clsx(
-          "absolute rounded-b-sm bottom-0 left-0 right-0 text-center",
+          "absolute right-0 bottom-0 left-0 rounded-b-sm text-center",
           "backdrop-blur-sm transition-colors",
           "dark:bg-layout-dark-inset/50 bg-layout-light-inset/50",
           "dark:group-hover/image-input:bg-layout-dark-inset/75",

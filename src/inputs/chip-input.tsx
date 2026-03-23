@@ -148,7 +148,7 @@ const InnerChipInput = forwardRef(
         tabIndex={allowCustomValues && !disabled ? 0 : undefined}
         className={clsx(
           "responsive relative grid grid-cols-[minmax(0,1fr)_auto] gap-1",
-          bg && "dark:bg-neutral-950/20 bg-neutral-50/20",
+          bg && "bg-neutral-50/20 dark:bg-neutral-950/20",
           "rounded-xs",
           outline === "interact" && "parent-outline variant-responsive-appearing-outline",
           outline === "always" && "parent-outline variant-responsive-persistent-outline",
@@ -161,7 +161,7 @@ const InnerChipInput = forwardRef(
           className,
         )}
       >
-        <div className="flex flex-wrap gap-1 items-start">
+        <div className="flex flex-wrap items-start gap-1">
           {selectedOptions.length > 0 &&
             selectedOptions.map((option) => (
               <Chip
@@ -183,7 +183,7 @@ const InnerChipInput = forwardRef(
             ))}
           {selectedOptions.length === 0 && (!allowCustomValues || !inputValue) && (
             <span
-              className={clsx(size, "flex sized-text sized-height text-left pl-1 items-center")}
+              className={clsx(size, "sized-text sized-height flex items-center pl-1 text-left")}
             >
               {placeholder}
             </span>
@@ -198,7 +198,7 @@ const InnerChipInput = forwardRef(
               disabled={disabled}
               className={clsx(
                 size,
-                "flex-1 min-w-[100px] bg-transparent outline-none border-none sized-text sized-height pl-1",
+                "sized-text sized-height min-w-[100px] flex-1 border-none bg-transparent pl-1 outline-none",
                 "placeholder:text-neutral-400 dark:placeholder:text-neutral-600",
               )}
               placeholder={

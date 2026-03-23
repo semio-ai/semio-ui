@@ -91,8 +91,8 @@ function InnerToast({ data }: { data: ToastData }) {
       <motion.li
         layout
         className={clsx(
-          "overflow-hidden items-center",
-          "box-border relative w-[30ch] pointer-events-auto select-none",
+          "items-center overflow-hidden",
+          "pointer-events-auto relative box-border w-[30ch] select-none",
           "data-[swipe=cancel]:translate-x-0 data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)]",
           "data-[swipe=end]:animate-toastSwipeOut",
           "data-[swipe=cancel]:transition-[transform_200ms_ease-out]",
@@ -115,13 +115,13 @@ function InnerToast({ data }: { data: ToastData }) {
       >
         <div
           className={clsx(
-            "bg-neutral-50/50 dark:bg-neutral-950/50 relative",
-            "flex flex-row h-11 px-2 justify-between items-center",
+            "relative bg-neutral-50/50 dark:bg-neutral-950/50",
+            "flex h-11 flex-row items-center justify-between px-2",
           )}
         >
           <RadixToast.Title
             className={clsx(
-              "text-[15px] flex-row flex items-center gap-3",
+              "flex flex-row items-center gap-3 text-[15px]",
               data.variant,
               "variant-static-text responsive",
             )}
@@ -159,7 +159,7 @@ function InnerToast({ data }: { data: ToastData }) {
         <RadixToast.Description
           className={clsx(data.content ? "p-3" : "hidden", "overflow-hidden")}
         >
-          <p className={clsx("dark:text-neutral-300 text-neutral-700 text-sm mb-3")}>
+          <p className={clsx("mb-3 text-sm text-neutral-700 dark:text-neutral-300")}>
             {data.content}
           </p>
         </RadixToast.Description>
@@ -207,7 +207,7 @@ function InnerToastManager({ children }: ToastContainerProps) {
       <RadixToast.Provider swipeDirection="right" duration={4000}>
         <RadixToast.Viewport
           className={clsx(
-            "max-sm:top-20 fixed top-4 right-4 flex w-80 flex-col-reverse gap-3 pointer-events-none z-2147483647",
+            "pointer-events-none fixed top-4 right-4 z-2147483647 flex w-80 flex-col-reverse gap-3 max-sm:top-20",
             // "pointer-events-none fixed top-0 right-0  m-0 flex w-[390px]",
             // "max-w-[100vw] list-none flex-col gap-2.5 p-[var(--viewport-padding)]",
             // "outline-hidden [--viewport-padding:_60px]",

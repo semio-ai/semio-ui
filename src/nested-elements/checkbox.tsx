@@ -63,8 +63,8 @@ export function NestedCheckbox({
             : {}
         }
         className={clsx(
-          "leading-none flex items-center rounded-xs group/item",
-          "h-7 text-sm px-1.25 relative pl-7.5 select-none outline-hidden",
+          "group/item flex items-center rounded-xs leading-none",
+          "relative h-7 px-1.25 pl-7.5 text-sm outline-hidden select-none",
           "data-disabled:pointer-events-none",
           "responsive highlight-list-item",
           color ? "custom-color" : variant,
@@ -72,7 +72,7 @@ export function NestedCheckbox({
       >
         <ItemIndicatorComponent
           className={clsx(
-            "absolute left-1 top-1/2 -translate-y-1/2 grid place-items-center",
+            "absolute top-1/2 left-1 grid -translate-y-1/2 place-items-center",
             "responsive check-indicator",
           )}
         >

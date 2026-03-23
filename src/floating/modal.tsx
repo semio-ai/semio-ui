@@ -94,9 +94,9 @@ export function Modal({
         <Dialog.Overlay
           forceMount
           className={clsx(
-            "transition-opacity data-[state=open]:animate-fadeIn data-[state=closed]:animate-fadeOut",
-            "fixed top-0 bottom-0 left-0 right-0 grid place-items-center",
-            "backdrop-blur-[2px] p-0",
+            "data-[state=open]:animate-fadeIn data-[state=closed]:animate-fadeOut transition-opacity",
+            "fixed top-0 right-0 bottom-0 left-0 grid place-items-center",
+            "p-0 backdrop-blur-[2px]",
           )}
         >
           <Dialog.Content
@@ -105,7 +105,7 @@ export function Modal({
               "responsive flex flex-col focus:outline-hidden",
               "card animated-modal overflow-clip",
               variant,
-              "w-[calc(100vw-4px)] h-[calc(100dvh-4px)]",
+              "h-[calc(100dvh-4px)] w-[calc(100vw-4px)]",
               "desktop:max-w-[calc(100vw-4px)] desktop:max-h-[calc(100dvh-4px)]",
               "desktop:min-h-72 desktop:min-w-96",
               "desktop:h-fit desktop:w-fit",
@@ -114,7 +114,7 @@ export function Modal({
             <ScrollArea
               orientation="vertical"
               className={clsx(
-                "w-[calc(100vw-4px)] h-[calc(100dvh-4px)]",
+                "h-[calc(100dvh-4px)] w-[calc(100vw-4px)]",
                 "desktop:max-w-[calc(100vw-4px)] desktop:max-h-[calc(100dvh-4px)]",
                 "desktop:min-h-72 desktop:min-w-96",
                 "desktop:h-fit desktop:w-fit",
@@ -134,8 +134,8 @@ export function Modal({
                       <Dialog.Title
                         className={clsx(
                           variant,
-                          "text-base/7 font-medium flex align-center",
-                          "justify-between responsive variant-static-text",
+                          "align-center flex text-base/7 font-medium",
+                          "responsive variant-static-text justify-between",
                         )}
                       >
                         {title}
@@ -146,7 +146,7 @@ export function Modal({
                         </Dialog.Close>
                       )}
                     </div>
-                    <Dialog.Description className="text-sm/6 dark:text-white/50 text-black/50">
+                    <Dialog.Description className="text-sm/6 text-black/50 dark:text-white/50">
                       {description ?? ""}
                     </Dialog.Description>
                   </div>
@@ -156,7 +156,7 @@ export function Modal({
               }
               footer={
                 showFooter && (
-                  <div className="p-3 flex gap-3 justify-end">
+                  <div className="flex justify-end gap-3 p-3">
                     {onCancel && (
                       <Dialog.Close asChild>
                         <Button
@@ -185,7 +185,7 @@ export function Modal({
                 )
               }
             >
-              <div className="flex-1 md:flex-none dark:text-white text-black p-0">{children}</div>
+              <div className="flex-1 p-0 text-black md:flex-none dark:text-white">{children}</div>
             </ScrollArea>
           </Dialog.Content>
         </Dialog.Overlay>

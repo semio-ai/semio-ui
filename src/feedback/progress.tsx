@@ -16,7 +16,7 @@ export function Progress({ progress, variant, size }: ProgressProps) {
       className={clsx(
         size,
         variant,
-        "responsive sized-progress-height relative overflow-hidden variant-static-bg-50 w-full translate-z-0 rounded-sm",
+        "responsive sized-progress-height variant-static-bg-50 relative w-full translate-z-0 overflow-hidden rounded-sm",
       )}
       value={progress}
     >
@@ -56,7 +56,7 @@ export function ProgressCircle({ size, progress, variant, icon }: ProgressCircle
         variant,
         "sized-height sized-width",
         "variant-static-text",
-        "relative responsive",
+        "responsive relative",
       )}
     >
       <svg width="100%" height="100%" viewBox="0 0 10 10">
@@ -91,7 +91,7 @@ export function ProgressCircle({ size, progress, variant, icon }: ProgressCircle
         </g>
       </svg>
       {icon && (
-        <div className="absolute grid place-items-center left-[10%] right-[10%] top-[10%] bottom-[10%]">
+        <div className="absolute top-[10%] right-[10%] bottom-[10%] left-[10%] grid place-items-center">
           {icon}
         </div>
       )}

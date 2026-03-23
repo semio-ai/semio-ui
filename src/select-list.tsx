@@ -56,9 +56,9 @@ export function SelectList<T extends string | string[]>({
       onSelectionChange={handleSelectionChange}
       rowClassName={clsx(
         size,
-        "dark:bg-transparent bg-transparent hover:bg-neutral-500/10",
-        "focus:outline outline-[1.5px] outline-offset-[-2px]",
-        "has-focus:outline flex flex-row items-center",
+        "bg-transparent hover:bg-neutral-500/10 dark:bg-transparent",
+        "outline-[1.5px] outline-offset-[-2px] focus:outline",
+        "flex flex-row items-center has-focus:outline",
         "aria-selected:focus:outline-black/50 aria-selected:has-focus:outline-black/50",
         "sized-height",
         rowClassName,
@@ -71,11 +71,11 @@ export function SelectList<T extends string | string[]>({
           align: "left",
           flex: true,
           render: (item) => (
-            <div className="flex flex-row items-center px-2 gap-3 cursor-pointer">
+            <div className="flex cursor-pointer flex-row items-center gap-3 px-2">
               <div
                 className={clsx(
-                  "p-1 flex flex-row items-center justify-center",
-                  "dark:group-aria-selected/row:bg-neutral-950 group-aria-selected/row:bg-neutral-50 rounded-full bg-transparent text-neutral-500",
+                  "flex flex-row items-center justify-center p-1",
+                  "rounded-full bg-transparent text-neutral-500 group-aria-selected/row:bg-neutral-50 dark:group-aria-selected/row:bg-neutral-950",
                   iconClassName,
                 )}
               >
@@ -84,8 +84,8 @@ export function SelectList<T extends string | string[]>({
               <div
                 className={clsx(
                   size,
-                  "dark:group-aria-selected/row:text-neutral-950 group-aria-selected/row:text-neutral-50 text-neutral-500",
-                  "select-none cursor-pointer",
+                  "text-neutral-500 group-aria-selected/row:text-neutral-50 dark:group-aria-selected/row:text-neutral-950",
+                  "cursor-pointer select-none",
                   "sized-text",
                 )}
               >

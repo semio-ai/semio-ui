@@ -13,7 +13,7 @@ const meta: Meta<typeof ToastManager> = {
   title: "ui/ToastManager",
   decorators: [
     (Story) => (
-      <div className="grid place-items-center p-5 h-full">
+      <div className="grid h-full place-items-center p-5">
         {/* 👇 Decorators in Storybook also accept a function. Replace <Story/> with Story() to enable it  */}
         <Story />
       </div>
@@ -30,7 +30,7 @@ function AddButton(): ReactNode {
   return (
     <button
       type="button"
-      className="bg-neutral-500 text-white p-2 select-none pointer-events-auto"
+      className="pointer-events-auto bg-neutral-500 p-2 text-white select-none"
       onClick={() => {
         console.log("adding toast");
         const variant = getRandomVariant();

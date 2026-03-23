@@ -338,14 +338,14 @@ const InnerSliderNumberField = forwardRef(
           } as CSSProperties
         }
         className={clsx(
-          "responsive touch-none isolate",
+          "responsive isolate touch-none",
           effectiveColor ? "custom-color" : effectiveVariant,
-          "py-0 px-0.5 group/input-wrapper select-none",
+          "group/input-wrapper px-0.5 py-0 select-none",
           label && units && "input-label-field-units-grid",
           label && !units && "input-label-field-grid",
           !label && units && "input-field-units-grid",
           !label && !units && "input-field-grid",
-          "sized-height rounded-xs place-items-center",
+          "sized-height place-items-center rounded-xs",
           bg && "variant-input-gradient-bg",
           outline === "interact" && "variant-responsive-appearing-outline",
           outline === "always" && "variant-responsive-persistent-outline",
@@ -387,19 +387,19 @@ const InnerSliderNumberField = forwardRef(
             className={clsx(
               effectiveColor ? "custom-color" : effectiveVariant,
               size,
-              focusState === FocusState.Dragging && "select-none pointer-events-none",
+              focusState === FocusState.Dragging && "pointer-events-none select-none",
               focusState !== FocusState.Dragging &&
                 "group-has-focus/input-wrapper:bg-neutral-900/20",
               focusState !== FocusState.FocusedLabel ? "cursor-ew-resize" : "cursor-text",
               labelFallbackColorClass,
-              "responsive grid-area-label sized-text place-items-center text-left rounded-[1px]",
-              "sized-inner-group-item font-mono variant-text-caret-color",
+              "responsive grid-area-label sized-text place-items-center rounded-[1px] text-left",
+              "sized-inner-group-item variant-text-caret-color font-mono",
               "focus:outline-none",
 
               "pointer-events-none select-none group-has-focus/input-wrapper:pointer-events-auto group-has-focus/input-wrapper:select-auto",
-              "transition-discrete transition-all delay-75",
+              "transition-all transition-discrete delay-75",
               // Show ellipsis when the text gets too long
-              "truncate px-1 w-full min-w-0 max-w-full",
+              "w-full max-w-full min-w-0 truncate px-1",
             )}
           />
         )}
@@ -416,9 +416,9 @@ const InnerSliderNumberField = forwardRef(
             "focus:outline-hidden",
             "disabled:cursor-not-allowed",
             focusState !== FocusState.Focused ? "cursor-ew-resize" : "cursor-text",
-            "sized-text sized-height text-right pl-0.5 pr-1",
+            "sized-text sized-height pr-1 pl-0.5 text-right",
             "variant-text-caret-color font-mono",
-            focusState === FocusState.Dragging && "select-none pointer-events-none",
+            focusState === FocusState.Dragging && "pointer-events-none select-none",
             size,
             effectiveColor ? "custom-color" : effectiveVariant,
             valueFallbackColorClass,
@@ -466,9 +466,9 @@ const InnerSliderNumberField = forwardRef(
             className={clsx(
               effectiveVariant,
               size,
-              "grid-area-input-units text-right select-none pl-0.5 pr-2",
-              "grid place-items-center pointer-events-none sized-text",
-              "sized-height font-mono flex-none",
+              "grid-area-input-units pr-2 pl-0.5 text-right select-none",
+              "sized-text pointer-events-none grid place-items-center",
+              "sized-height flex-none font-mono",
               unitsFallbackColorClass,
             )}
           />

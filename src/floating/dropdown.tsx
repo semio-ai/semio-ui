@@ -80,7 +80,7 @@ const Dropdown = forwardRef(
                 orientation={scrollOrientation}
                 wrapperClassName="max-h-[calc(var(--radix-dropdown-menu-content-available-height)-4px)]"
                 className={clsx(
-                  "max-h-[calc(var(--radix-dropdown-menu-content-available-height)-6px)] p-0.5 gap-0.5 flex-col flex",
+                  "flex max-h-[calc(var(--radix-dropdown-menu-content-available-height)-6px)] flex-col gap-0.5 p-0.5",
                 )}
               >
                 {children}

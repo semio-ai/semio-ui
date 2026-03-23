@@ -15,11 +15,11 @@ export function Label({
 }) {
   return (
     <label>
-      <div className="flex flex-row justify-between items-center p-0.5">
-        <span className="capitalize text-md text-neutral-500">{label}</span>
+      <div className="flex flex-row items-center justify-between p-0.5">
+        <span className="text-md text-neutral-500 capitalize">{label}</span>
         {message && (
           <span
-            className={clsx("text-xs text-error-500", variant, "responsive variant-static-text")}
+            className={clsx("text-error-500 text-xs", variant, "responsive variant-static-text")}
           >
             {message}
           </span>

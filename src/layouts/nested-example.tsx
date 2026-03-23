@@ -33,9 +33,9 @@ export function NestedExample(): ReactNode {
       <NestedItem
         left={<IconArrowUp className={ICON_CLASS_NAME} />}
         right={
-          <div className="flex flex-row items-center justify-end gap-0 h-5">
-            <IconCommand className="w-3 h-3" />
-            <IconArrowBigUp className="w-3 h-3" />
+          <div className="flex h-5 flex-row items-center justify-end gap-0">
+            <IconCommand className="h-3 w-3" />
+            <IconArrowBigUp className="h-3 w-3" />
           </div>
         }
       >
@@ -44,9 +44,9 @@ export function NestedExample(): ReactNode {
       <NestedItem
         left={<IconArrowDown className={ICON_CLASS_NAME} />}
         right={
-          <div className="flex flex-row items-center justify-end gap-0 h-5">
-            <IconCommand className="w-3 h-3" />
-            <IconArrowBigDown className="w-3 h-3" />
+          <div className="flex h-5 flex-row items-center justify-end gap-0">
+            <IconCommand className="h-3 w-3" />
+            <IconArrowBigDown className="h-3 w-3" />
           </div>
         }
       >

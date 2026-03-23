@@ -60,7 +60,7 @@ export function InnerBreadcrumbs({
   }
 
   return (
-    <div className={clsx(variant, "responsive flex items-center gap-2 variant-static-text")}>
+    <div className={clsx(variant, "responsive variant-static-text flex items-center gap-2")}>
       {renderedElements.map((element, idx) => (
         <div key={element.id} className="flex items-center gap-2">
           {element.type === "option" ? (
@@ -76,10 +76,10 @@ export function InnerBreadcrumbs({
                       element.options.find((option) => option.value === element.value)?.icon
                       ? "grid grid-cols-[auto_1fr_auto]"
                       : "grid grid-cols-[1fr_auto]",
-                    "rounded-xs responsive variant-responsive-text variant-responsive-appearing-bg",
+                    "responsive variant-responsive-text variant-responsive-appearing-bg rounded-xs",
                     "variant-responsive-appearing-outline",
-                    "place-items-center sized-height",
-                    "px-1 sized-text",
+                    "sized-height place-items-center",
+                    "sized-text px-1",
                     elementClassName,
                   )}
                 >
@@ -94,8 +94,8 @@ export function InnerBreadcrumbs({
                     className={clsx(
                       ICON_CLASS_NAME,
                       "ease-in-out",
-                      "group-hover/trigger:opacity-100 opacity-20 group-data-[state=open]/trigger:opacity-100",
-                      "rotate-0 group-data-[state=open]/trigger:rotate-180 transition-transform duration-75",
+                      "opacity-20 group-hover/trigger:opacity-100 group-data-[state=open]/trigger:opacity-100",
+                      "rotate-0 transition-transform duration-75 group-data-[state=open]/trigger:rotate-180",
                     )}
                   />
                 </button>
@@ -110,7 +110,7 @@ export function InnerBreadcrumbs({
           ) : (
             <div
               key={element.id}
-              className={clsx(size, "flex items-center sized-height sized-text", elementClassName)}
+              className={clsx(size, "sized-height sized-text flex items-center", elementClassName)}
             >
               {element.render ? element.render(element.value) : element.value}
             </div>

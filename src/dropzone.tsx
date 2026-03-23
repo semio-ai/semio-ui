@@ -41,7 +41,7 @@ export function Dropzone<T extends TableListItem>({
     <div
       {...getRootProps()}
       className={clsx(
-        "cursor-pointer grid",
+        "grid cursor-pointer",
         "md:grid-cols-[1fr_1fr] md:grid-rows-1",
         "grid-cols-1 grid-rows-[2fr_3fr]",
         "focus:outline-hidden",
@@ -73,7 +73,7 @@ export function Dropzone<T extends TableListItem>({
       )}
       {data.length === 0 && (
         <div className="grid place-items-center">
-          <div className="grid place-items-center grid-cols-1 gap-3 max-h-40">
+          <div className="grid max-h-40 grid-cols-1 place-items-center gap-3">
             <div className="h-32 w-32">
               <IconArrowBigDownLines size="128px" className="text-info" />
             </div>
@@ -84,8 +84,8 @@ export function Dropzone<T extends TableListItem>({
         </div>
       )}
       {isDragActive && data.length === 0 && (
-        <div className="absolute left-0 right-0 top-0 bottom-0 outline outline-info -outline-offset-4 grid place-items-center bg-white/50 dark:bg-black/50 backdrop-blur-xs">
-          <div className="grid place-items-center grid-cols-1 gap-3 max-h-40">
+        <div className="outline-info absolute top-0 right-0 bottom-0 left-0 grid place-items-center bg-white/50 outline -outline-offset-4 backdrop-blur-xs dark:bg-black/50">
+          <div className="grid max-h-40 grid-cols-1 place-items-center gap-3">
             <div className="h-32 w-32">
               <IconArrowBigDownLines size="128px" className="text-info" />
             </div>

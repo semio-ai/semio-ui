@@ -13,13 +13,13 @@ export function CopyLinkButton({ link }: { link: string }) {
   return (
     <div className="flex-col items-center space-y-2">
       <h1 className="">Public Link:</h1>
-      <p className="text-sm text-blue-500 truncate max-w-full">{link}</p>
+      <p className="max-w-full truncate text-sm text-blue-500">{link}</p>
       <button
         type="button"
         onClick={(e) => {
           void handleCopy(e);
         }}
-        className={`px-3 py-1 border rounded-sm ${copied ? "bg-green-500 text-white" : "bg-gray-200 text-gray-800 hover:bg-gray-300"}`}
+        className={`rounded-sm border px-3 py-1 ${copied ? "bg-green-500 text-white" : "bg-gray-200 text-gray-800 hover:bg-gray-300"}`}
       >
         {copied ? "Copied!" : "Copy Link"}
       </button>

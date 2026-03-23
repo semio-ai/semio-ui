@@ -159,12 +159,12 @@ const InnerNumberField = forwardRef(
         className={clsx(
           "responsive",
           effectiveColor ? "custom-color" : effectiveVariant,
-          "py-0 px-0.5 group/input-wrapper select-none",
+          "group/input-wrapper px-0.5 py-0 select-none",
           label && units && "input-label-field-units-grid",
           label && !units && "input-label-field-grid",
           !label && units && "input-field-units-grid",
           !label && !units && "input-field-grid",
-          "sized-height rounded-xs place-items-center",
+          "sized-height place-items-center rounded-xs",
           bg && "variant-input-solid-bg",
           outline === "interact" && "variant-responsive-appearing-outline",
           outline === "always" && "variant-responsive-persistent-outline",
@@ -203,13 +203,13 @@ const InnerNumberField = forwardRef(
             className={clsx(
               effectiveColor ? "custom-color" : effectiveVariant,
               size,
-              "responsive grid-area-label sized-text place-items-center text-left px-0.5 rounded-[1px]",
-              "sized-inner-group-item font-mono variant-text-caret-color group-has-focus/input-wrapper:bg-neutral-900/20",
-              "text-white/50 focus:outline-none focus:text-white/75 dark:focus:text-white/75",
+              "responsive grid-area-label sized-text place-items-center rounded-[1px] px-0.5 text-left",
+              "sized-inner-group-item variant-text-caret-color font-mono group-has-focus/input-wrapper:bg-neutral-900/20",
+              "text-white/50 focus:text-white/75 focus:outline-none dark:focus:text-white/75",
               "select-none group-has-focus/input-wrapper:pointer-events-auto group-has-focus/input-wrapper:select-auto",
-              "pointer-events-none transition-discrete transition-all delay-75",
+              "pointer-events-none transition-all transition-discrete delay-75",
               // Show ellipsis when the text gets too long
-              "truncate px-1 flex-none",
+              "flex-none truncate px-1",
             )}
           />
         )}
@@ -223,13 +223,13 @@ const InnerNumberField = forwardRef(
           className={clsx(
             "responsive grid-area-field w-full min-w-0",
             "focus:outline-hidden",
-            "disabled:cursor-not-allowed cursor-text",
-            "sized-text sized-height text-right px-0.5",
+            "cursor-text disabled:cursor-not-allowed",
+            "sized-text sized-height px-0.5 text-right",
             "variant-text-caret-color font-mono",
             size,
             effectiveColor ? "custom-color" : effectiveVariant,
             subtle &&
-              "dark:focus:text-white focus:text-black text-neutral-600 dark:text-neutral-400",
+              "text-neutral-600 focus:text-black dark:text-neutral-400 dark:focus:text-white",
             !subtle && "text-black dark:text-white",
             className,
           )}
@@ -266,9 +266,9 @@ const InnerNumberField = forwardRef(
             className={clsx(
               effectiveVariant,
               size,
-              "grid-area-units text-right select-none pl-0.5 pr-2",
-              "grid place-items-center pointer-events-none sized-text",
-              "sized-height text-white/50 font-mono flex-none",
+              "grid-area-units pr-2 pl-0.5 text-right select-none",
+              "sized-text pointer-events-none grid place-items-center",
+              "sized-height flex-none font-mono text-white/50",
             )}
           />
         )}

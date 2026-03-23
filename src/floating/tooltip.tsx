@@ -61,8 +61,8 @@ function Tooltip({
               "responsive",
               "sized-text",
               "tooltip-content",
-              "select-none inline-flex items-center px-2 py-0.5",
-              invert ? "dark:text-black text-white card-invert" : "variant-static-text card",
+              "inline-flex items-center px-2 py-0.5 select-none",
+              invert ? "card-invert text-white dark:text-black" : "variant-static-text card",
               variant,
               "z-10",
             )}

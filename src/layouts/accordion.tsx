@@ -25,7 +25,7 @@ export function Accordion({ items, defaultOpen = false, sticky, stickyOffset }: 
         <RadixAccordion.Item key={item.key} value={item.key} disabled={item.disabled}>
           <RadixAccordion.Header
             className={clsx(
-              "h-7 dark:bg-neutral-700/50 bg-neutral-300/50 backdrop-blur-md",
+              "h-7 bg-neutral-300/50 backdrop-blur-md dark:bg-neutral-700/50",
               sticky && "sticky",
             )}
             style={
@@ -36,19 +36,19 @@ export function Accordion({ items, defaultOpen = false, sticky, stickyOffset }: 
                 : {}
             }
           >
-            <RadixAccordion.Trigger className="w-full text-left grid grid-cols-[auto_1fr] p-1 gap-2 text-sm group items-center">
+            <RadixAccordion.Trigger className="group grid w-full grid-cols-[auto_1fr] items-center gap-2 p-1 text-left text-sm">
               <div
                 className={clsx(
                   Size.Sm,
-                  "sized-list-item-indicator rounded-xs grid-list-item-indicator grid place-items-center",
+                  "sized-list-item-indicator grid-list-item-indicator grid place-items-center rounded-xs",
                 )}
               >
                 <IconChevronDown
                   size={12}
-                  className="transition-transform group-data-[state=open]:rotate-0 group-data-[state=closed]:-rotate-90"
+                  className="transition-transform group-data-[state=closed]:-rotate-90 group-data-[state=open]:rotate-0"
                 />
               </div>
-              <span className="text-neutral-700 dark:text-neutral-300 flex flex-row">
+              <span className="flex flex-row text-neutral-700 dark:text-neutral-300">
                 {item.header}
               </span>
             </RadixAccordion.Trigger>

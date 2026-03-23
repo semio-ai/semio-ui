@@ -29,22 +29,22 @@ export function VerticalStepper({ steps, onStepChange, activeStep = 0 }: Vertica
               onStepChange(index);
             }}
             key={index}
-            className={clsx("text-nowrap gap-2 focus:outline-hidden group/button")}
+            className={clsx("group/button gap-2 text-nowrap focus:outline-hidden")}
             leftIcon={
               step.completed ? (
                 <IconCheck
                   className={clsx(
-                    "w-6 h-6 rounded-full p-1",
+                    "h-6 w-6 rounded-full p-1",
                     "group-aria-selected/button:bg-info-500",
                     "dark:group-aria-selected/button:text-neutral-800",
                     "group-aria-selected/button:text-neutral-200",
-                    "bg-transparent text-info-500",
+                    "text-info-500 bg-transparent",
                   )}
                 />
               ) : (
                 <IconCircle
                   className={clsx(
-                    "w-6 h-6 rounded-full p-0.5",
+                    "h-6 w-6 rounded-full p-0.5",
                     "group-aria-selected/button:bg-neutral-500",
                     "dark:group-aria-selected/button:text-neutral-800",
                     "group-aria-selected/button:text-neutral-200",

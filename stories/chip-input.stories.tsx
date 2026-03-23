@@ -8,7 +8,7 @@ const meta: Meta<typeof ChipInput> = {
   title: "ui/ChipInput",
   decorators: [
     (Story) => (
-      <div className="grid place-items-center p-5 h-full">
+      <div className="grid h-full place-items-center p-5">
         <div className="w-full max-w-md">
           <Story />
         </div>

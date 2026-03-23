@@ -74,7 +74,7 @@ function InnerLayoutRoot({
       }
       ref={root as MutableRefObject<HTMLDivElement>}
       className={clsx(
-        "relative top-0 left-0 h-dvh right-0 flex select-none",
+        "relative top-0 right-0 left-0 flex h-dvh select-none",
         "bg-layout-light-base dark:bg-layout-dark-base",
         "app-layout",
         className,
@@ -82,7 +82,7 @@ function InnerLayoutRoot({
     >
       {/* The backdrop/background element is a child of the layout component */}
       {children && (
-        <div className="absolute top-0 left-0 bottom-0 right-0">
+        <div className="absolute top-0 right-0 bottom-0 left-0">
           {isValidElement(children) && children}
           {!isValidElement(children) && typeof children === "function" && children(contentBounds)}
         </div>
@@ -95,25 +95,25 @@ function InnerLayoutRoot({
       <Header homeIcon={homeIcon} />
 
       {/* Left Sidebar */}
-      <div className={clsx("grid-area-left w-full h-full transition-[width,height]")}>
+      <div className={clsx("grid-area-left h-full w-full transition-[width,height]")}>
         <PanelContent region={PaneRegion.Left} />
       </div>
 
       {/* Right Sidebar */}
-      <div className={clsx("grid-area-right w-full h-full transition-[width,height]")}>
+      <div className={clsx("grid-area-right h-full w-full transition-[width,height]")}>
         <PanelContent region={PaneRegion.Right} />
       </div>
 
       {/* Content */}
       <div
         ref={contentRef}
-        className={clsx("grid-area-content w-full h-full overflow-hidden -z-1")}
+        className={clsx("grid-area-content -z-1 h-full w-full overflow-hidden")}
       >
-        <div className={clsx("h-full w-full bg-transparent pointer-events-none")} />
+        <div className={clsx("pointer-events-none h-full w-full bg-transparent")} />
       </div>
 
       {/* Footer */}
-      <div className={clsx("grid-area-footer w-full h-full")}>
+      <div className={clsx("grid-area-footer h-full w-full")}>
         <PanelContent region={PaneRegion.Footer} />
       </div>
     </div>

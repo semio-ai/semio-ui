@@ -170,8 +170,8 @@ export function NestedCheckboxTree({
             disabled={option.disabled || disabled}
             className={clsx(
               "group/item",
-              "leading-none flex items-center rounded-xs",
-              "min-h-7 min-w-0 text-sm py-1 px-1.25 relative pl-7.5 select-none outline-hidden",
+              "flex items-center rounded-xs leading-none",
+              "relative min-h-7 min-w-0 px-1.25 py-1 pl-7.5 text-sm outline-hidden select-none",
               "data-disabled:pointer-events-none",
               "responsive highlight-list-item",
               option.color ? "custom-color" : (option.variant ?? variant),
@@ -198,7 +198,7 @@ export function NestedCheckboxTree({
               })()}
               tabIndex={0}
               className={clsx(
-                "absolute left-1 top-1/2 -translate-y-1/2 grid place-items-center cursor-pointer",
+                "absolute top-1/2 left-1 grid -translate-y-1/2 cursor-pointer place-items-center",
                 "responsive check-indicator",
                 option.color ? "custom-color" : (option.variant ?? variant),
               )}
@@ -231,7 +231,7 @@ export function NestedCheckboxTree({
             <span className="block min-w-0 truncate">{option.label}</span>
             <div
               className={clsx(
-                "ml-auto pl-5 inline-flex items-center justify-center shrink-0",
+                "ml-auto inline-flex shrink-0 items-center justify-center pl-5",
                 "responsive text-variant",
                 option.variant ?? variant,
               )}
@@ -275,8 +275,8 @@ export function NestedCheckboxTree({
               : {}
           }
           className={clsx(
-            "leading-none flex items-center rounded-xs group/item",
-            "min-h-7 min-w-0 text-sm py-1 px-1.25 relative pl-7.5 select-none outline-hidden",
+            "group/item flex items-center rounded-xs leading-none",
+            "relative min-h-7 min-w-0 px-1.25 py-1 pl-7.5 text-sm outline-hidden select-none",
             "data-disabled:pointer-events-none",
             "responsive highlight-list-item",
             option.color ? "custom-color" : (option.variant ?? variant),
@@ -285,7 +285,7 @@ export function NestedCheckboxTree({
           <ItemIndicatorComponent
             forceMount
             className={clsx(
-              "absolute left-1 top-1/2 -translate-y-1/2 grid place-items-center",
+              "absolute top-1/2 left-1 grid -translate-y-1/2 place-items-center",
               "responsive check-indicator",
               option.color ? "custom-color" : (option.variant ?? variant),
             )}

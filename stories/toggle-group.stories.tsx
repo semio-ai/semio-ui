@@ -14,7 +14,7 @@ const meta: Meta<typeof ToggleGroup> = {
   title: "ui/ToggleGroup",
   decorators: [
     (Story) => (
-      <div className="grid place-items-center p-5 h-full bg-neutral-500">
+      <div className="grid h-full place-items-center bg-neutral-500 p-5">
         {/* 👇 Decorators in Storybook also accept a function. Replace <Story/> with Story() to enable it  */}
         <Story />
       </div>

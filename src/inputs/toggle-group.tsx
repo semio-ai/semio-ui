@@ -57,7 +57,7 @@ export function ToggleGroup({
   return (
     <RadixToggleGroup.Root
       className={clsx(
-        "transition-all relative inline-flex items-center overflow-hidden rounded-sm ",
+        "relative inline-flex items-center overflow-hidden rounded-sm transition-all ",
         bg && "dark:bg-layout-dark-base bg-layout-light-base",
         className,
       )}
@@ -80,7 +80,7 @@ export function ToggleGroup({
           activeOption?.color ? "custom-color" : activeOption?.variant,
           size,
           "absolute",
-          "rounded-xs sized-inner-group-item",
+          "sized-inner-group-item rounded-xs",
           "responsive bg-(--accent-color)",
         )}
         initial={{
@@ -94,7 +94,7 @@ export function ToggleGroup({
         }}
         transition={{ type: "tween", duration: 0.2, ease: "easeInOut" }}
       />
-      <div className="inline-flex items-center justify-center z-1 p-0.5">
+      <div className="z-1 inline-flex items-center justify-center p-0.5">
         {options.map((option, idx) => (
           <Tooltip
             key={option.value}
@@ -117,7 +117,7 @@ export function ToggleGroup({
                 "grid place-items-center transition-colors",
                 (visuals === "icons" || visuals === "labels") && "grid-cols-1 grid-rows-1",
                 visuals === "both" && "grid-cols-[auto_auto] grid-rows-1",
-                value === option.value ? "dark:text-black text-white" : "variant-responsive-text",
+                value === option.value ? "text-white dark:text-black" : "variant-responsive-text",
               )}
               style={
                 option.color

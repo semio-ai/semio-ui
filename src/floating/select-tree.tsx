@@ -247,9 +247,9 @@ export function SelectTree({
         } as CSSProperties
       }
       className={clsx(
-        "responsive rounded-xs variant-mock-item-bg",
+        "responsive variant-mock-item-bg rounded-xs",
         "variant-responsive-text variant-responsive-appearing-outline",
-        "flex flex-row flex-1 pl-1 pr-0 items-center min-w-0",
+        "flex min-w-0 flex-1 flex-row items-center pr-0 pl-1",
         "sized-height",
         size,
         triggerDisplay.color ? "custom-color" : triggerDisplay.variant,
@@ -258,7 +258,7 @@ export function SelectTree({
     >
       <div
         className={clsx(
-          "flex flex-1 flex-row items-center justify-center min-w-0",
+          "flex min-w-0 flex-1 flex-row items-center justify-center",
           "sized-height",
           size,
         )}
@@ -268,7 +268,7 @@ export function SelectTree({
             size,
             triggerDisplay.color ? "custom-color" : triggerDisplay.variant,
             "responsive sized-mock-inner-item",
-            "grid place-items-center shrink-0",
+            "grid shrink-0 place-items-center",
             "variant-mock-inner-item",
           )}
         >
@@ -282,7 +282,7 @@ export function SelectTree({
           }
           className={clsx(
             size,
-            "flex-1 pl-3 pr-0 flex items-center min-w-0",
+            "flex min-w-0 flex-1 items-center pr-0 pl-3",
             "responsive highlight-list-item",
             "sized-height",
             "sized-text",
@@ -294,7 +294,7 @@ export function SelectTree({
 
         <StaticIcon
           size={size}
-          className="shrink-0 sized-text sized-width"
+          className="sized-text sized-width shrink-0"
           variant={triggerDisplay.variant}
         >
           <IconSelector className={ICON_CLASS_NAME} />
@@ -304,8 +304,8 @@ export function SelectTree({
   );
 
   return (
-    <div className="flex flex-col w-full gap-2">
-      <div className="flex flex-row w-full min-w-0">
+    <div className="flex w-full flex-col gap-2">
+      <div className="flex w-full min-w-0 flex-row">
         <Dropdown
           trigger={renderTrigger()}
           variant={triggerDisplay.variant}
@@ -323,7 +323,7 @@ export function SelectTree({
         </Dropdown>
       </div>
       {showChips && value.length > 0 && (
-        <div className="flex flex-wrap w-full gap-1">
+        <div className="flex w-full flex-wrap gap-1">
           {value.map((v) => {
             const option = findOption(v);
             if (!option) return null;

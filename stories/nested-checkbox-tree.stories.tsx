@@ -36,7 +36,7 @@ const meta: Meta<typeof NestedCheckboxTree> = {
   title: "ui/NestedCheckboxTree",
   decorators: [
     (Story) => (
-      <div className="grid place-items-center p-5 h-full">
+      <div className="grid h-full place-items-center p-5">
         <Story />
       </div>
     ),
@@ -85,10 +85,10 @@ function ContextMenuCheckboxTree(props: NestedCheckboxTreeProps): ReactNode {
       }
     >
       <div
-        className={`p-5 w-96 h-52 card grid place-items-center ${props.variant ?? "default"} variant-static-text`}
+        className={`card grid h-52 w-96 place-items-center p-5 ${props.variant ?? "default"} variant-static-text`}
       >
         Right Click Me
-        <div className="text-sm mt-2 opacity-60">{values.length} items selected</div>
+        <div className="mt-2 text-sm opacity-60">{values.length} items selected</div>
       </div>
     </ContextMenu>
   );

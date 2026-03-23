@@ -41,7 +41,6 @@ function InnerResizer({
         min,
         max,
       );
-      first && console.log(newValue, directionalOffset, offset, relativeValue);
       onDrag(newValue);
       if (down) {
         document.body.style.cursor = orientation === "vertical" ? "row-resize" : "col-resize";
@@ -55,7 +54,7 @@ function InnerResizer({
   );
 
   const dotClassName = clsx(
-    "size-0.5 transition delay-150 rounded-full",
+    "size-0.5 rounded-full transition delay-150",
     "bg-neutral-700/30 dark:bg-neutral-300/30",
     "not-group-disabled/trigger:group-hover/trigger:bg-neutral-700",
     "not-group-disabled/trigger:dark:group-hover/trigger:bg-neutral-300",
@@ -76,8 +75,8 @@ function InnerResizer({
         orientation === "horizontal" && showEllipses && "w-1 grid-rows-[1fr_auto_auto_auto_1fr]",
         orientation === "vertical" && !showEllipses && "h-0.5",
         orientation === "horizontal" && !showEllipses && "w-0.5",
-        "touch-none variant-responsive-appearing-bg transition delay-150 group/trigger",
-        "grid gap-0.5 place-items-center responsive",
+        "variant-responsive-appearing-bg group/trigger touch-none transition delay-150",
+        "responsive grid place-items-center gap-0.5",
         variant,
       )}
     >

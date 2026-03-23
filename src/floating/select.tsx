@@ -130,7 +130,7 @@ export function Select<T extends string | string[]>({
             } as CSSProperties
           }
           className={clsx(
-            "responsive rounded-xs variant-mock-item-bg",
+            "responsive variant-mock-item-bg rounded-xs",
             "variant-responsive-text variant-responsive-appearing-outline",
             "flex items-center justify-center p-0",
             triggerBoxClass,
@@ -158,9 +158,9 @@ export function Select<T extends string | string[]>({
           } as CSSProperties
         }
         className={clsx(
-          "responsive rounded-xs variant-mock-item-bg",
+          "responsive variant-mock-item-bg rounded-xs",
           "variant-responsive-text variant-responsive-appearing-outline",
-          "flex flex-row flex-1 pl-1 pr-0 items-center min-w-0",
+          "flex min-w-0 flex-1 flex-row items-center pr-0 pl-1",
           triggerHeightClass,
           size,
           selectOption?.color ? "custom-color" : (selectOption?.variant ?? Variant.Default),
@@ -169,7 +169,7 @@ export function Select<T extends string | string[]>({
       >
         <div
           className={clsx(
-            "flex flex-1 flex-row items-center justify-center min-w-0",
+            "flex min-w-0 flex-1 flex-row items-center justify-center",
             triggerHeightClass,
             size,
           )}
@@ -197,11 +197,11 @@ export function Select<T extends string | string[]>({
             }
             className={clsx(
               size,
-              "flex-1 flex items-center min-w-0",
+              "flex min-w-0 flex-1 items-center",
               "responsive highlight-list-item",
               triggerHeightClass,
               "sized-text",
-              showIcon ? "pl-3 pr-0" : "pl-2 pr-0",
+              showIcon ? "pr-0 pl-3" : "pr-0 pl-2",
               selectOption?.color ? "custom-color" : Variant.Default,
             )}
           >
@@ -258,7 +258,7 @@ export function Select<T extends string | string[]>({
         </Dropdown>
       </div>
       {multiple && showChips && selectedValues.length > 0 && (
-        <div className="flex flex-wrap w-full gap-1">
+        <div className="flex w-full flex-wrap gap-1">
           {selectedValues.map((v) => {
             const option = options.find((o) => o.value === v);
             return (

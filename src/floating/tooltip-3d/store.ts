@@ -447,9 +447,6 @@ export const useTooltipStore = create<TooltipStore>()(
             newHistory.splice(0, newHistory.length - currentState._maxDebugHistory);
           }
 
-          if (currentState.debugMode) {
-            console.log("🎯 Tooltip Coordinate Debug:", debugInfo);
-          }
 
           return { debugHistory: newHistory };
         });

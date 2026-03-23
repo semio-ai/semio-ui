@@ -209,10 +209,8 @@ export const useImageInput = (onChange: (file: File | null) => void, projectImag
   }, [projectImageUrl]);
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
-    console.log("(useImageInput) handleChange called:", event.target.files);
     const file = event.target.files?.[0] || null;
     if (file) {
-      console.log("(useImageInput) handleChange called:", file);
       onChange(file);
       const reader = new FileReader();
       reader.onloadend = () => {

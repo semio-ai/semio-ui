@@ -13,13 +13,13 @@ import type { ReactNode } from "react";
  */
 function Spinner({ children }: { children?: ReactNode }): ReactNode {
   return (
-    <div className="flex justify-center items-center h-auto">
+    <div className="flex h-auto items-center justify-center">
       {children ? (
         <div className="animate-bounce-spin relative">
           <div className="relative">{children}</div>
         </div>
       ) : (
-        <div className="animate-spin rounded-full h-32 w-32 border-t-4 border-blue-500" />
+        <div className="h-32 w-32 animate-spin rounded-full border-t-4 border-blue-500" />
       )}
     </div>
   );

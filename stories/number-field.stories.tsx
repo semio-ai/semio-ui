@@ -7,7 +7,7 @@ const meta: Meta<typeof NumberField> = {
   title: "ui/NumberField",
   decorators: [
     (Story) => (
-      <div className="grid place-items-center p-5 h-full">
+      <div className="grid h-full place-items-center p-5">
         {/* 👇 Decorators in Storybook also accept a function. Replace <Story/> with Story() to enable it  */}
         <Story />
       </div>
@@ -25,7 +25,7 @@ function NumberFieldWithHooks(props: NumberFieldProps): ReactElement {
   const [value, setValue] = useState<number>(props.value);
   const [label, setLabel] = useState<string | undefined>(props.label);
   return (
-    <div className="grid place-items-center grid-cols-[auto_1fr] grid-rows-1 gap-2 w-[50%]">
+    <div className="grid w-[50%] grid-cols-[auto_1fr] grid-rows-1 place-items-center gap-2">
       <p className="text-black dark:text-white">{value}</p>
       <NumberField
         {...props}

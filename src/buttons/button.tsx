@@ -72,7 +72,7 @@ export const Button = forwardRef(
         aria-label={altText}
         data-deemphasized={deemphasize}
         className={clsx(
-          "responsive select-none cursor-pointer disabled:cursor-default",
+          "responsive cursor-pointer select-none disabled:cursor-default",
           visuals === "default" &&
             "variant-responsive-bg variant-responsive-appearing-outline text-white dark:text-black",
           (visuals === "inverted" || visuals === "inverted-border") && "variant-responsive-text",
