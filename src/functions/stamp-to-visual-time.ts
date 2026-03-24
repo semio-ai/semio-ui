@@ -3,7 +3,7 @@ import { TimeDisplay } from "../types";
 
 export function stampToVisualTime(
   stamp: number,
-  duration: number,
+  _duration: number,
   framerate: number,
   timeDisplay: TimeDisplay,
   showDetail?: boolean,
