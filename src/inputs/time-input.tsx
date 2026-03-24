@@ -53,6 +53,24 @@ export function TimeInput({
     );
   }
 
+  if (display === TimeDisplay.SecondsPlusFrames) {
+    // TODO: Implement a proper seconds+frames input — either a segmented number
+    // control (separate editable fields for seconds and frames within a single
+    // compact widget) or a formatted text field with parse logic that accepts
+    // "3s 12f" style input. For now, fall back to total frames to avoid layout
+    // overflow in the compact sidebar.
+    return (
+      <NumberField
+        {...forwardedProps}
+        units="f"
+        min={(min / 1000) * framerate}
+        max={(max / 1000) * framerate}
+        value={temporal.frames}
+        onChange={(v) => temporal.updateFrames(v)}
+      />
+    );
+  }
+
   if (display === TimeDisplay.Milliseconds) {
     return (
       <NumberField
@@ -65,4 +83,16 @@ export function TimeInput({
       />
     );
   }
+
+  // Fallback to frames
+  return (
+    <NumberField
+      {...forwardedProps}
+      units="f"
+      min={(min / 1000) * framerate}
+      max={(max / 1000) * framerate}
+      value={temporal.frames}
+      onChange={(v) => temporal.updateFrames(v)}
+    />
+  );
 }
