@@ -8,7 +8,8 @@ export function stampToVisualTime(
   timeDisplay: TimeDisplay,
   showDetail?: boolean,
 ): string {
-  const t = (stamp * duration) / 1000;
+  // In v2 format, stamp is already in milliseconds. Convert to seconds for display.
+  const t = stamp / 1000;
   if (timeDisplay === TimeDisplay.Frames) {
     if (showDetail) {
       return `${(t * framerate).toFixed(1)}f`;
