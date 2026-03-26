@@ -251,7 +251,7 @@
         color: var(--color-default-400);
       }
     }
-    &:is(:where(.group\/tab)[aria-selected="true"] *) {
+    &:is(:where(.group\/tab)[data-active] *) {
       color: var(--accent-color);
     }
   }
