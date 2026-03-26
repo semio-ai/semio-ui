@@ -64,7 +64,7 @@ function InnerMenuButton(
     <button
       ref={ref}
       type="button"
-      role="tab"
+      aria-current={active ? "page" : undefined}
       aria-selected={active}
       className={clsx(
         variant,

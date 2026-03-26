@@ -8,6 +8,8 @@ export interface AvatarProps {
   src?: string;
   icon?: React.ReactNode;
   alt: string;
+  /** Accessible label for the avatar when used as an interactive element. */
+  "aria-label"?: string;
   size?: Size;
   onClick?: MouseEventHandler<HTMLSpanElement>;
   variant?: Variant;
@@ -37,6 +39,7 @@ export const Avatar = forwardRef(
     {
       src,
       alt,
+      "aria-label": ariaLabel,
       icon,
       size = Size.Md,
       onClick,
@@ -64,6 +67,8 @@ export const Avatar = forwardRef(
         <AvatarPrimitive.Root
           ref={ref}
           onClick={onClick}
+          role={onClick ? "button" : undefined}
+          aria-label={ariaLabel}
           className={clsx(variant, "rounded-sm", size, "sized-height sized-width", className)}
         >
           <AvatarPrimitive.Image

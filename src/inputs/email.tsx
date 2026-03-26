@@ -24,15 +24,19 @@ export const EmailInput = forwardRef(
     const isEmpty = checkIsEmpty(ref);
     const usedVariant = invalid && !isEmpty ? Variant.Error : variant;
 
+    const inputId = props.id ?? `email-${props.name ?? "default"}`;
+
     return (
       <Label
         label={props.name ?? "Email"}
+        htmlFor={inputId}
         message={invalid ? message : undefined}
         variant={usedVariant}
       >
         <TextField
           bg
           ref={ref}
+          id={inputId}
           size={size}
           variant={usedVariant}
           {...props}
