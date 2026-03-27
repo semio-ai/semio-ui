@@ -11,6 +11,7 @@ export function NestedItem({
   disabled,
   onClick,
   closeOnSelect = true,
+  testId,
 }: NestedItemProps) {
   const parent = useNestedParent();
 
@@ -20,6 +21,7 @@ export function NestedItem({
     <ItemComponent
       disabled={disabled}
       onClick={onClick}
+      data-testid={testId}
       onSelect={(event: Event) => {
         if (!closeOnSelect) {
           event.preventDefault();
