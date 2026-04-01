@@ -68,6 +68,17 @@ export const Avatar = forwardRef(
           ref={ref}
           onClick={onClick}
           role={onClick ? "button" : undefined}
+          tabIndex={onClick ? 0 : undefined}
+          onKeyDown={
+            onClick
+              ? (e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    e.currentTarget.click();
+                  }
+                }
+              : undefined
+          }
           aria-label={ariaLabel}
           className={clsx(variant, "rounded-sm", size, "sized-height sized-width", className)}
         >
