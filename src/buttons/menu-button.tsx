@@ -64,8 +64,8 @@ function InnerMenuButton(
     <button
       ref={ref}
       type="button"
-      role="tab"
-      aria-selected={active}
+      aria-current={active ? "page" : undefined}
+      data-active={active ? "" : undefined}
       className={clsx(
         variant,
         "cursor-pointer disabled:cursor-default",

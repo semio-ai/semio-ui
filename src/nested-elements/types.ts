@@ -72,6 +72,8 @@ export interface NestedItemProps {
   disabled?: boolean;
   onClick?: (event: MouseEvent) => void;
   closeOnSelect?: boolean;
+  /** Test ID for E2E targeting of portal-rendered dropdown items. */
+  testId?: string;
 }
 
 /**

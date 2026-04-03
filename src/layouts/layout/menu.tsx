@@ -85,7 +85,8 @@ function InnerMenu({
         </>
       }
     >
-      <div
+      <nav
+        aria-label="Main navigation"
         data-ui={menuState ? "expanded" : ""}
         // The classname 'grid-area-menu' places the menu in the correct grid area.
         className={clsx("grid-area-menu z-0 h-full w-full min-w-10", "group/menu")}
@@ -193,7 +194,7 @@ function InnerMenu({
             ))}
           </div>
         </ScrollArea>
-      </div>
+      </nav>
     </ContextMenu>
   );
 }

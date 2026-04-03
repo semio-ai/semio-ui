@@ -7,14 +7,17 @@ export function Label({
   variant,
   message,
   label,
+  htmlFor,
 }: {
   children: ReactNode;
   variant?: Variant;
   message?: string;
   label: string;
+  /** Associates the label with an input element by id. */
+  htmlFor?: string;
 }) {
   return (
-    <label>
+    <label htmlFor={htmlFor}>
       <div className="flex flex-row items-center justify-between p-0.5">
         <span className="text-md text-neutral-500 capitalize">{label}</span>
         {message && (
