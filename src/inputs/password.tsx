@@ -1,4 +1,4 @@
-import { InputHTMLAttributes, ForwardedRef, forwardRef } from "react";
+import { InputHTMLAttributes, ForwardedRef, forwardRef, useId } from "react";
 import { Size, Variant } from "../types";
 import { TextField } from "./text-field";
 import { Label } from "./label";
@@ -25,8 +25,8 @@ export const PasswordInput = forwardRef(
   ) => {
     const isEmpty = checkIsEmpty(ref);
     const usedVariant = invalid && !isEmpty ? Variant.Error : variant;
-
-    const inputId = props.id ?? `password-${props.name ?? "default"}`;
+    const reactId = useId();
+    const inputId = props.id ?? reactId;
 
     return (
       <Label
