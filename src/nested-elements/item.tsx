@@ -29,7 +29,7 @@ export function NestedItem({
       }}
       className={clsx(
         "group/item flex items-center rounded-xs leading-none",
-        "relative h-7 px-[5px] pl-[30px] text-sm outline-hidden select-none",
+        "relative h-7 px-1.25 pl-7.5 text-sm outline-hidden select-none",
         "data-disabled:pointer-events-none",
         "responsive highlight-list-item",
         variant,

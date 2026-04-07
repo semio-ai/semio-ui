@@ -46,8 +46,11 @@ export * from "./hooks/use-theme";
 export * from "./hooks/use-window-size";
 
 // Icons
+export * from "./icons/angle";
+export * from "./icons/bounce";
 export * from "./icons/box";
 export * from "./icons/box-plus";
+export * from "./icons/fast";
 export * from "./icons/file-type-ani";
 export * from "./icons/file-type-mod";
 export * from "./icons/file-type-face";
@@ -69,6 +72,7 @@ export * from "./icons/project";
 export * from "./icons/preview-view";
 export * from "./icons/robot";
 export * from "./icons/robot-plus";
+export * from "./icons/slow";
 export * from "./icons/static-icon";
 export * from "./icons/vector-angled";
 export * from "./icons/vector-bezier";
