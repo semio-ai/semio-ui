@@ -50,6 +50,8 @@ export * from "./icons/angle";
 export * from "./icons/bounce";
 export * from "./icons/box";
 export * from "./icons/box-plus";
+export * from "./icons/eye";
+export * from "./icons/eye-off";
 export * from "./icons/fast";
 export * from "./icons/file-type-ani";
 export * from "./icons/file-type-mod";
