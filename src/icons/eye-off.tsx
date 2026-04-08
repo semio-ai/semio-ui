@@ -30,7 +30,7 @@ const EyeOff: React.ForwardRefExoticComponent<IconProps & RefAttributes<SVGSVGEl
           fill="none"
           fillRule="nonzero"
           stroke="currentColor"
-          strokeOpacity="0.5"
+          strokeOpacity="0.7"
           strokeWidth="1.5px"
         />
         <path
