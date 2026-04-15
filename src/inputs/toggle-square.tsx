@@ -6,6 +6,8 @@ import { Tooltip } from "../floating/tooltip";
 
 export interface ToggleSquareProps {
   variant?: Variant;
+  /** Custom color applied as CSS custom property for themed coloring. */
+  color?: string;
   value: boolean;
   disabled?: boolean;
   onChange: (value: boolean) => void;
@@ -18,6 +20,7 @@ export interface ToggleSquareProps {
 
 export function ToggleSquare({
   variant,
+  color,
   value,
   disabled,
   onChange,
@@ -36,6 +39,7 @@ export function ToggleSquare({
           "responsive",
           size,
           variant,
+          color && "custom-color",
           sizing === "default" && "sized-height sized-width",
           sizing === "inner" && "sized-inner-group-item",
           sizing === "list-item" && "sized-list-item-indicator",
@@ -44,11 +48,12 @@ export function ToggleSquare({
           asIndicator ? "grid-list-item-indicator" : "variant-checkbox-bg",
           !asIndicator && "variant-responsive-appearing-outline",
           "appearance-none",
-          "dark:data-[state=on]:text-neutral-800",
-          "data-[state=on]:text-neutral-200",
-          "dark:data-[state=off]:text-neutral-200",
-          "data-[state=off]:text-neutral-800",
+          !color && "dark:data-[state=on]:text-neutral-800",
+          !color && "data-[state=on]:text-neutral-200",
+          !color && "dark:data-[state=off]:text-neutral-200",
+          !color && "data-[state=off]:text-neutral-800",
         )}
+        style={color ? { "--custom-color": color } as React.CSSProperties : undefined}
         pressed={value}
         onPressedChange={onChange}
         aria-label={label ?? "Toggle Button"}
