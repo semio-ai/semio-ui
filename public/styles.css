@@ -658,7 +658,7 @@
       &[data-state="unchecked"],
       &[data-state="off"] {
         background-color: color-mix(in oklab, var(--standard-color) 20%, transparent) !important;
-        color: var(--standard-color);
+        color: var(--standard-color) !important;
         &:hover {
           @media (hover: hover) {
             background-color: color-mix(in oklab, var(--standard-color) 30%, transparent) !important;
@@ -669,7 +669,7 @@
       &[data-state="indeterminate"] {
         background-color: color-mix(in oklab, var(--standard-color) 20%, transparent) !important;
         box-shadow: inset 0 0 0 1px var(--standard-color);
-        color: var(--standard-color);
+        color: var(--standard-color) !important;
         &:hover {
           @media (hover: hover) {
             background-color: color-mix(in oklab, var(--standard-color) 30%, transparent) !important;
