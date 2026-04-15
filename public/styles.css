@@ -635,7 +635,20 @@
         background-color: var(--standard-color);
         &:hover {
           @media (hover: hover) {
-            background-color: var(--accent-color) /* oklch(62.3% 0.214 259.815) */;
+            background-color: var(--accent-color);
+          }
+        }
+      }
+    }
+
+    /* When using a custom color, show a subtle tinted background in the off state. */
+    &.custom-color:not(*:disabled) {
+      &[data-state="unchecked"],
+      &[data-state="off"] {
+        background-color: color-mix(in oklab, var(--standard-color) 20%, transparent);
+        &:hover {
+          @media (hover: hover) {
+            background-color: color-mix(in oklab, var(--standard-color) 30%, transparent);
           }
         }
       }
