@@ -44,7 +44,9 @@ export function ToggleSquare({
           sizing === "list-item" && "sized-list-item-indicator",
           "rounded-xs",
           "flex items-center justify-center",
-          asIndicator ? "grid-list-item-indicator" : "variant-checkbox-bg",
+          // When a custom color is provided, use color-mixed backgrounds
+          // instead of the theme-based variant-checkbox-bg.
+          !color && (asIndicator ? "grid-list-item-indicator" : "variant-checkbox-bg"),
           !asIndicator && "variant-responsive-appearing-outline",
           "appearance-none",
           !color && "dark:data-[state=on]:text-neutral-800",
@@ -52,7 +54,12 @@ export function ToggleSquare({
           !color && "dark:data-[state=off]:text-neutral-200",
           !color && "data-[state=off]:text-neutral-800",
         )}
-        style={color ? { "--custom-color": color } as React.CSSProperties : undefined}
+        style={color ? {
+          "--custom-color": color,
+          backgroundColor: value
+            ? `color-mix(in oklab, ${color} 80%, transparent)`
+            : `color-mix(in oklab, ${color} 20%, transparent)`,
+        } as React.CSSProperties : undefined}
         pressed={value}
         onPressedChange={onChange}
         aria-label={label ?? "Toggle Button"}
