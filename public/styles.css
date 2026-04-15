@@ -658,6 +658,7 @@
       &[data-state="unchecked"],
       &[data-state="off"] {
         background-color: color-mix(in oklab, var(--standard-color) 20%, transparent) !important;
+        color: var(--standard-color);
         &:hover {
           @media (hover: hover) {
             background-color: color-mix(in oklab, var(--standard-color) 30%, transparent) !important;
