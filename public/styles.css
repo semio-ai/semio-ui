@@ -1037,7 +1037,7 @@
 
   .icon-standard {
     /* Explicit width+height avoids SVG intrinsic width drift across icon sets. */
-    @apply block h-3/5 w-3/5 shrink-0;
+    @apply block h-[70%] w-[70%] shrink-0;
   }
 
   .icon-slot {
