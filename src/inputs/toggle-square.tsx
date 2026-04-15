@@ -38,8 +38,7 @@ export function ToggleSquare({
         className={clsx(
           "responsive",
           size,
-          variant,
-          color && "custom-color",
+          color ? "custom-color" : variant,
           sizing === "default" && "sized-height sized-width",
           sizing === "inner" && "sized-inner-group-item",
           sizing === "list-item" && "sized-list-item-indicator",
