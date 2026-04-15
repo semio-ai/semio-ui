@@ -664,10 +664,11 @@
           }
         }
       }
-      /* Indeterminate with custom color: same subtle bg as off + inset border. */
+      /* Indeterminate with custom color: same subtle bg as off + inset border + full color icon. */
       &[data-state="indeterminate"] {
         background-color: color-mix(in oklab, var(--standard-color) 20%, transparent) !important;
         box-shadow: inset 0 0 0 1px var(--standard-color);
+        color: var(--standard-color);
         &:hover {
           @media (hover: hover) {
             background-color: color-mix(in oklab, var(--standard-color) 30%, transparent) !important;
