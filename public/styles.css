@@ -644,10 +644,10 @@
     /* Indeterminate/partial state: off-style background + inset colored border. */
     &:not(*:disabled) {
       &[data-state="indeterminate"] {
-        box-shadow: inset 0 0 0 1.5px var(--standard-color);
+        box-shadow: inset 0 0 0 1px var(--standard-color);
         &:hover {
           @media (hover: hover) {
-            box-shadow: inset 0 0 0 1.5px var(--accent-color);
+            box-shadow: inset 0 0 0 1px var(--accent-color);
           }
         }
       }
@@ -667,11 +667,11 @@
       /* Indeterminate with custom color: same subtle bg as off + inset border. */
       &[data-state="indeterminate"] {
         background-color: color-mix(in oklab, var(--standard-color) 20%, transparent) !important;
-        box-shadow: inset 0 0 0 1.5px var(--standard-color);
+        box-shadow: inset 0 0 0 1px var(--standard-color);
         &:hover {
           @media (hover: hover) {
             background-color: color-mix(in oklab, var(--standard-color) 30%, transparent) !important;
-            box-shadow: inset 0 0 0 1.5px var(--accent-color);
+            box-shadow: inset 0 0 0 1px var(--accent-color);
           }
         }
       }
