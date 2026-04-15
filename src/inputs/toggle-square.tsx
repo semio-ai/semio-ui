@@ -46,6 +46,7 @@ export function ToggleSquare({
         disabled={disabled}
         checked={checked}
         data-state={value === "partial" ? "indeterminate" : value ? "checked" : "unchecked"}
+        onClick={(e) => e.stopPropagation()}
         onCheckedChange={(next) => {
           // Radix fires with boolean | "indeterminate"
           // Coerce to boolean: indeterminate → true (toggle on)
