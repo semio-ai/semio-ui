@@ -45,6 +45,7 @@ export function ToggleSquare({
       <RadixCheckbox.Root
         disabled={disabled}
         checked={checked}
+        data-state={value === "partial" ? "indeterminate" : value ? "checked" : "unchecked"}
         onCheckedChange={(next) => {
           // Radix fires with boolean | "indeterminate"
           // Coerce to boolean: indeterminate → true (toggle on)
