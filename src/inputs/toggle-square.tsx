@@ -1,5 +1,5 @@
 import { type ReactNode } from "react";
-import { Toggle as RadixToggle } from "radix-ui";
+import { Checkbox as RadixCheckbox } from "radix-ui";
 import { clsx } from "clsx";
 import { Variant, Size } from "../types";
 import { Tooltip } from "../floating/tooltip";
@@ -8,7 +8,13 @@ export interface ToggleSquareProps {
   variant?: Variant;
   /** Custom color applied as CSS custom property for themed coloring. */
   color?: string;
-  value: boolean;
+  /**
+   * Toggle state:
+   * - `true` — on/checked (full color background)
+   * - `false` — off/unchecked (subtle or default background)
+   * - `"partial"` — indeterminate (off background + inset colored border)
+   */
+  value: boolean | "partial";
   disabled?: boolean;
   onChange: (value: boolean) => void;
   label?: string;
@@ -30,11 +36,20 @@ export function ToggleSquare({
   sizing = "default",
   asIndicator = false,
 }: ToggleSquareProps) {
+  // Map our tri-state to Radix Checkbox's checked prop
+  const checked: boolean | "indeterminate" =
+    value === "partial" ? "indeterminate" : value;
+
   return (
     <Tooltip disabled={disabled} content={label ?? "Option"}>
-      <RadixToggle.Root
+      <RadixCheckbox.Root
         disabled={disabled}
-        data-state={value ? "on" : "off"}
+        checked={checked}
+        onCheckedChange={(next) => {
+          // Radix fires with boolean | "indeterminate"
+          // Coerce to boolean: indeterminate → true (toggle on)
+          onChange(next === "indeterminate" ? true : Boolean(next));
+        }}
         className={clsx(
           "responsive",
           size,
@@ -47,18 +62,20 @@ export function ToggleSquare({
           asIndicator ? "grid-list-item-indicator" : "variant-checkbox-bg",
           !asIndicator && "variant-responsive-appearing-outline",
           "appearance-none",
-          !color && "dark:data-[state=on]:text-neutral-800",
-          !color && "data-[state=on]:text-neutral-200",
-          !color && "dark:data-[state=off]:text-neutral-200",
-          !color && "data-[state=off]:text-neutral-800",
+          !color && "dark:data-[state=checked]:text-neutral-800",
+          !color && "data-[state=checked]:text-neutral-200",
+          !color && "dark:data-[state=unchecked]:text-neutral-200",
+          !color && "data-[state=unchecked]:text-neutral-800",
+          !color && "dark:data-[state=indeterminate]:text-neutral-200",
+          !color && "data-[state=indeterminate]:text-neutral-800",
         )}
         style={color ? { "--custom-color": color } as React.CSSProperties : undefined}
-        pressed={value}
-        onPressedChange={onChange}
         aria-label={label ?? "Toggle Button"}
       >
+        {/* Render children directly — not inside Indicator.
+            The icon is always visible; its appearance changes based on state. */}
         {children ?? ""}
-      </RadixToggle.Root>
+      </RadixCheckbox.Root>
     </Tooltip>
   );
 }

@@ -641,6 +641,18 @@
       }
     }
 
+    /* Indeterminate/partial state: off-style background + inset colored border. */
+    &:not(*:disabled) {
+      &[data-state="indeterminate"] {
+        box-shadow: inset 0 0 0 1.5px var(--standard-color);
+        &:hover {
+          @media (hover: hover) {
+            box-shadow: inset 0 0 0 1.5px var(--accent-color);
+          }
+        }
+      }
+    }
+
     /* When using a custom color, show a subtle tinted background in the off state. */
     &.custom-color:not(*:disabled) {
       &[data-state="unchecked"],
@@ -649,6 +661,17 @@
         &:hover {
           @media (hover: hover) {
             background-color: color-mix(in oklab, var(--standard-color) 30%, transparent);
+          }
+        }
+      }
+      /* Indeterminate with custom color: same subtle bg as off + inset border. */
+      &[data-state="indeterminate"] {
+        background-color: color-mix(in oklab, var(--standard-color) 20%, transparent);
+        box-shadow: inset 0 0 0 1.5px var(--standard-color);
+        &:hover {
+          @media (hover: hover) {
+            background-color: color-mix(in oklab, var(--standard-color) 30%, transparent);
+            box-shadow: inset 0 0 0 1.5px var(--accent-color);
           }
         }
       }
@@ -1036,6 +1059,11 @@
   }
 
   .icon-standard {
+    /* Explicit width+height avoids SVG intrinsic width drift across icon sets. */
+    @apply block h-3/5 w-3/5 shrink-0;
+  }
+
+  .icon-larger {
     /* Explicit width+height avoids SVG intrinsic width drift across icon sets. */
     @apply block h-[70%] w-[70%] shrink-0;
   }
