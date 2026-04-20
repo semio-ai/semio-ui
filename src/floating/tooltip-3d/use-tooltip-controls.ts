@@ -9,6 +9,7 @@ export interface ShowTooltipOptions {
 export interface UseTooltipControlsResult {
   showTooltip: (anchorId: string, options?: ShowTooltipOptions) => void;
   hideTooltip: (anchorId: string) => void;
+  dismissOverlay: (anchorId: string) => void;
   hideAll: () => void;
   isVisible: (anchorId: string) => boolean;
   clearManualPosition: (anchorId: string) => void;
@@ -61,6 +62,13 @@ export function useTooltipControls(): UseTooltipControlsResult {
     [store],
   );
 
+  const dismissOverlayFn = useCallback(
+    (anchorId: string) => {
+      store.dismissOverlay(anchorId);
+    },
+    [store],
+  );
+
   const hideAll = useCallback(() => {
     store.hideAll();
   }, [store]);
@@ -88,6 +96,7 @@ export function useTooltipControls(): UseTooltipControlsResult {
   return {
     showTooltip,
     hideTooltip,
+    dismissOverlay: dismissOverlayFn,
     hideAll,
     isVisible,
     clearManualPosition,

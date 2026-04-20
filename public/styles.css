@@ -661,7 +661,11 @@
         color: var(--standard-color) !important;
         &:hover {
           @media (hover: hover) {
-            background-color: color-mix(in oklab, var(--standard-color) 30%, transparent) !important;
+            background-color: color-mix(
+              in oklab,
+              var(--standard-color) 30%,
+              transparent
+            ) !important;
           }
         }
       }
@@ -672,7 +676,11 @@
         color: var(--standard-color) !important;
         &:hover {
           @media (hover: hover) {
-            background-color: color-mix(in oklab, var(--standard-color) 30%, transparent) !important;
+            background-color: color-mix(
+              in oklab,
+              var(--standard-color) 30%,
+              transparent
+            ) !important;
             box-shadow: inset 0 0 0 1px var(--accent-color);
           }
         }
@@ -843,7 +851,7 @@
   .card {
     @apply rounded-sm shadow-lg border-2;
     border-color: var(--card-border-color);
-    @apply dark:bg-layout-dark-base bg-layout-light-base;
+    @apply dark:bg-layout-dark-inset bg-layout-light-inset;
   }
 
   .card-transparent {

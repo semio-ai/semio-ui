@@ -54,7 +54,7 @@ export function TooltipDebug({
 
   if (!debugMode) {
     return (
-      <div className={clsx("fixed top-4 right-4 z-[9999]", className)}>
+      <div className={clsx("fixed top-4 right-4 z-9999", className)}>
         <button
           type="button"
           onClick={() => enableDebugMode(true)}
@@ -72,7 +72,7 @@ export function TooltipDebug({
       {/* Visual indicators for tooltip positions */}
       {effectiveShowVisualIndicators && tooltipHost?.containerRef.current && (
         <div
-          className="pointer-events-none absolute inset-0 z-[9998]"
+          className="pointer-events-none absolute inset-0 z-9998"
           style={{
             position: "absolute",
             top: 0,
@@ -103,7 +103,7 @@ export function TooltipDebug({
       )}
 
       {/* Debug panel */}
-      <div className={clsx("fixed top-4 right-4 z-[9999] max-w-md", className)}>
+      <div className={clsx("fixed top-4 right-4 z-9999 max-w-md", className)}>
         <div className="rounded-lg border border-gray-300 bg-white shadow-xl dark:border-gray-600 dark:bg-gray-800">
           {/* Header */}
           <div className="flex items-center justify-between border-b border-gray-200 p-3 dark:border-gray-700">

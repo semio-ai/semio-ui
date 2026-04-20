@@ -1,9 +1,13 @@
 import { useMemo, useRef } from "react";
 import { FloatingPortal, offset, flip, shift, useFloating } from "@floating-ui/react";
+import { DropdownMenu as DropdownPrimitive } from "radix-ui";
 import { motion, AnimatePresence } from "motion/react";
 import { clsx } from "clsx";
 import { useShallow } from "zustand/react/shallow";
 import { Variant } from "../../types";
+import { ScrollArea } from "../../layouts/scroll-area";
+import { NestedParent } from "../../nested-elements/types";
+import { NestedParentProvider } from "../../nested-elements/context";
 import {
   useTooltipStore,
   type AnchorConfig,
@@ -12,22 +16,93 @@ import {
 } from "./store";
 import { useRootTooltipHost } from "./tooltip-context";
 
-interface TooltipInstanceProps {
+interface OverlayInstanceProps {
   anchor: AnchorConfig;
   position: ScreenPosition;
 }
 
 /**
- * Individual tooltip instance that handles its own positioning and rendering.
+ * Context menu overlay using Radix DropdownMenu for full keyboard
+ * navigation, focus management, and click-outside dismissal.
+ * A tiny invisible trigger is fixed-positioned at the click location.
  */
-function TooltipInstance({ anchor, position }: TooltipInstanceProps) {
-  // Use root context for positioning to ensure consistent viewport-relative coordinates
-  // Since the portal is rendered at root, we need root-relative coordinates
+function InteractiveOverlayInstance({ anchor, position }: OverlayInstanceProps) {
+  const hostContext = useRootTooltipHost();
+  const dismissOverlay = useTooltipStore((s) => s.dismissOverlay);
+  const isMenu = anchor.mode === "context-menu";
+
+  // Convert container-relative position to viewport-relative for the trigger
+  const container = hostContext?.containerRef.current;
+  const containerRect = container?.getBoundingClientRect();
+  const viewportX = (containerRect?.left ?? 0) + position.x;
+  const viewportY = (containerRect?.top ?? 0) + position.y;
+
+  const content = typeof anchor.content === "function" ? anchor.content() : anchor.content;
+  const side = anchor.positioning?.side ?? (isMenu ? "bottom" : "top");
+
+  const dropdown = (
+    <DropdownPrimitive.Root
+      open
+      onOpenChange={(open) => {
+        if (!open) dismissOverlay(anchor.id);
+      }}
+    >
+      <DropdownPrimitive.Trigger asChild>
+        <div
+          style={{
+            position: "fixed",
+            left: viewportX,
+            top: viewportY,
+            width: 1,
+            height: 1,
+            pointerEvents: "none",
+          }}
+        />
+      </DropdownPrimitive.Trigger>
+      <DropdownPrimitive.Portal>
+        <DropdownPrimitive.Content
+          side={side}
+          align={isMenu ? "start" : "center"}
+          sideOffset={anchor.positioning?.offset ?? (isMenu ? 2 : 6)}
+          collisionPadding={5}
+          className={clsx(
+            Variant.Default,
+            isMenu
+              ? "responsive card dropdown-content m-0.5 min-w-44"
+              : "responsive card m-0.5 overflow-clip shadow-lg",
+            isMenu && "max-h-[calc(var(--radix-dropdown-menu-content-available-height)-4px)]",
+          )}
+        >
+          {isMenu ? (
+            <ScrollArea
+              shrinkHeight
+              className="flex max-h-[calc(var(--radix-dropdown-menu-content-available-height)-6px)] flex-col gap-0.5 p-0.5"
+            >
+              {content}
+            </ScrollArea>
+          ) : (
+            content
+          )}
+        </DropdownPrimitive.Content>
+      </DropdownPrimitive.Portal>
+    </DropdownPrimitive.Root>
+  );
+
+  // Context menus wrap in NestedParentProvider for NestedItem support
+  if (isMenu) {
+    return <NestedParentProvider value={NestedParent.Dropdown}>{dropdown}</NestedParentProvider>;
+  }
+  return dropdown;
+}
+
+/**
+ * Standard tooltip/popover instance using floating-ui positioning.
+ */
+function TooltipInstance({ anchor, position }: OverlayInstanceProps) {
   const hostContext = useRootTooltipHost();
 
   // Create virtual element for floating-ui with viewport-relative positioning
   const virtualElement = useMemo(() => {
-    // Additional validation to ensure position is still valid
     if (
       !position ||
       typeof position.x !== "number" ||
@@ -37,17 +112,9 @@ function TooltipInstance({ anchor, position }: TooltipInstanceProps) {
       !isFinite(position.x) ||
       !isFinite(position.y)
     ) {
-      // Return a fallback virtual element at origin
       return {
         getBoundingClientRect: () => ({
-          x: 0,
-          y: 0,
-          top: 0,
-          left: 0,
-          bottom: 0,
-          right: 0,
-          width: 0,
-          height: 0,
+          x: 0, y: 0, top: 0, left: 0, bottom: 0, right: 0, width: 0, height: 0,
           toJSON: () => ({}),
         }),
       };
@@ -56,66 +123,39 @@ function TooltipInstance({ anchor, position }: TooltipInstanceProps) {
     const width = position.width || 0;
     const height = position.height || 0;
 
-    // Convert container-relative coordinates to viewport-relative coordinates
-    // This is required because floating-ui expects viewport-relative coordinates
     const container = hostContext?.containerRef.current;
     const containerRect = container?.getBoundingClientRect();
 
     if (!containerRect) {
-      // Fallback if container not available
       return {
         getBoundingClientRect: () => ({
-          x: 0,
-          y: 0,
-          top: 0,
-          left: 0,
-          bottom: 0,
-          right: 0,
-          width: 0,
-          height: 0,
+          x: 0, y: 0, top: 0, left: 0, bottom: 0, right: 0, width: 0, height: 0,
           toJSON: () => ({}),
         }),
       };
     }
 
-    // Convert to viewport coordinates by adding container's viewport position
     const viewportX = position.x + containerRect.left;
     const viewportY = position.y + containerRect.top;
 
-    // Apply frame offset for iframe scenarios
     const frameOffset = hostContext?.frameOffset || { x: 0, y: 0 };
     const isInIframe = window !== window.top;
 
     const adjustedX = isInIframe ? viewportX + frameOffset.x : viewportX;
     const adjustedY = isInIframe ? viewportY + frameOffset.y : viewportY;
 
-    // Center the bounding rect around the position
     const left = adjustedX - width / 2;
     const top = adjustedY - height / 2;
 
-    // Create virtual element for floating-ui
-    const virtualEl = {
-      getBoundingClientRect: () => {
-        const rect = {
-          x: left,
-          y: top,
-          top,
-          left,
-          bottom: top + height,
-          right: left + width,
-          width,
-          height,
-          toJSON: () => ({}),
-        };
-        return rect;
-      },
+    return {
+      getBoundingClientRect: () => ({
+        x: left, y: top, top, left,
+        bottom: top + height, right: left + width, width, height,
+        toJSON: () => ({}),
+      }),
     };
-
-    return virtualEl;
   }, [position, hostContext?.frameOffset, hostContext?.containerRef]);
 
-  // Use floating-ui for positioning with container-relative strategy
-  // Use floating-ui for positioning with viewport-relative strategy
   const { refs, floatingStyles } = useFloating({
     strategy: "fixed",
     placement: anchor.positioning?.side || "top",
@@ -126,10 +166,8 @@ function TooltipInstance({ anchor, position }: TooltipInstanceProps) {
     ],
   });
 
-  // Set the virtual element as the reference immediately after floating setup
   refs.setReference(virtualElement);
 
-  // Render content
   const content = typeof anchor.content === "function" ? anchor.content() : anchor.content;
 
   return (
@@ -155,18 +193,14 @@ function TooltipInstance({ anchor, position }: TooltipInstanceProps) {
 }
 
 /**
- * Portal component that renders all visible tooltips.
- * This component should be placed at the root level of your application,
- * typically near the Canvas component.
+ * Portal component that renders all visible overlays (tooltips, popovers, context menus).
+ * Placed at the root level via TooltipHost.
  */
 export function TooltipPortal() {
-  // Cache to maintain reference stability and prevent infinite loops
   const cacheRef = useRef<Map<string, { anchor: AnchorConfig; position: ScreenPosition }>>(
     new Map(),
   );
 
-  // Get root host context for portal placement
-  // This ensures the portal is always rendered at the root level
   const hostContext = useRootTooltipHost();
 
   const visibleTooltips = useTooltipStore(
@@ -179,7 +213,6 @@ export function TooltipPortal() {
           const anchor = state.anchors.get(anchorId);
           const position = state.getEffectivePosition(anchorId);
 
-          // Enhanced position validation
           const isValidPosition =
             position &&
             typeof position.x === "number" &&
@@ -190,7 +223,6 @@ export function TooltipPortal() {
             isFinite(position.y);
 
           if (anchor && isValidPosition && (!anchor.isAvailable || anchor.isAvailable())) {
-            // Check if we can reuse cached object to maintain reference stability
             const cached = cacheRef.current.get(anchorId);
             if (
               cached &&
@@ -198,11 +230,9 @@ export function TooltipPortal() {
               cached.position.x === position.x &&
               cached.position.y === position.y
             ) {
-              // Reuse existing object reference
               newCache.set(anchorId, cached);
               currentVisible.push(cached);
             } else {
-              // Create new object only when data actually changed
               const newItem = { anchor, position };
               newCache.set(anchorId, newItem);
               currentVisible.push(newItem);
@@ -211,7 +241,6 @@ export function TooltipPortal() {
         }
       });
 
-      // Update cache for next comparison
       cacheRef.current = newCache;
       return currentVisible;
     }),
@@ -223,13 +252,28 @@ export function TooltipPortal() {
     return null;
   }
 
+  // Interactive overlays (context menus, click-popovers) use Radix DropdownMenu for
+  // built-in click-outside dismissal. Non-interactive tooltips use floating-ui.
+  const interactive = visibleTooltips.filter(({ anchor }) => anchor.interactive);
+  const tooltips = visibleTooltips.filter(({ anchor }) => !anchor.interactive);
+
   return (
-    <FloatingPortal root={portalRoot}>
-      <AnimatePresence>
-        {visibleTooltips.map(({ anchor, position }) => (
-          <TooltipInstance key={anchor.id} anchor={anchor} position={position} />
-        ))}
-      </AnimatePresence>
-    </FloatingPortal>
+    <>
+      {/* Interactive overlays use Radix DropdownMenu for click-outside dismissal */}
+      {interactive.map(({ anchor, position }) => (
+        <InteractiveOverlayInstance key={anchor.id} anchor={anchor} position={position} />
+      ))}
+
+      {/* Tooltips and popovers use floating-ui */}
+      {tooltips.length > 0 && (
+        <FloatingPortal root={portalRoot}>
+          <AnimatePresence>
+            {tooltips.map(({ anchor, position }) => (
+              <TooltipInstance key={anchor.id} anchor={anchor} position={position} />
+            ))}
+          </AnimatePresence>
+        </FloatingPortal>
+      )}
+    </>
   );
 }

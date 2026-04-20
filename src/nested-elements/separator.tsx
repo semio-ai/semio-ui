@@ -18,7 +18,7 @@ export function NestedSeparator({ variant }: NestedSeparatorProps) {
   return (
     <ItemComponent
       className={clsx(
-        "m-[5px] h-[1px]",
+        "m-1.25 h-px",
         variant,
         "responsive variant-separator-fill pointer-events-none select-none",
       )}

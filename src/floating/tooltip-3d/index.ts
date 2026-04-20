@@ -5,6 +5,7 @@ export {
   type CoordinateDebugInfo,
   type AxisMode,
   type TooltipSide,
+  type OverlayMode,
   type AnchorConfig,
   type VisibilityState,
   type TooltipStore,
@@ -43,3 +44,12 @@ export {
 } from "./tooltip-context";
 
 export { TooltipDebug } from "./tooltip-debug";
+
+// Canvas context menu
+export {
+  useCanvasContextMenu,
+  type CanvasContextMenuContext,
+  type UseCanvasContextMenuOptions,
+  type UseCanvasContextMenuResult,
+} from "./use-canvas-context-menu";
+

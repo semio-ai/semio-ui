@@ -25,6 +25,7 @@ export interface CoordinateDebugInfo {
 
 export type AxisMode = "none" | "x" | "y" | "both";
 export type TooltipSide = "top" | "right" | "bottom" | "left";
+export type OverlayMode = "hover" | "click" | "context-menu";
 
 export interface AnchorConfig {
   id: string;
@@ -36,6 +37,14 @@ export interface AnchorConfig {
     axis?: AxisMode;
     clampToViewport?: boolean;
   };
+  // Interaction mode: hover (default), click-to-pin, or context menu
+  mode?: OverlayMode;
+  // When true, portal content receives pointer events (for menus/popovers)
+  interactive?: boolean;
+  // Priority for group-based exclusion (higher wins)
+  priority?: number;
+  // Exclusion group: only highest-priority anchor visible per group
+  group?: string;
   // Anchor can specify conditions for when it's available
   isAvailable?: () => boolean;
   // Manual screen position override
@@ -84,10 +93,12 @@ export interface TooltipStore {
 
   // Batch operations
   hideAll: () => void;
+  dismissOverlay: (anchorId: string) => void;
   updatePositions: (updates: Map<string, ScreenPosition>) => void;
 
   // Computed getters
   getVisibleTooltips: () => AnchorConfig[];
+  hasInteractiveOverlay: () => boolean;
   isTooltipVisible: (anchorId: string) => boolean;
   getTooltipPosition: (anchorId: string) => ScreenPosition | null;
   getEffectivePosition: (anchorId: string) => ScreenPosition | null;
@@ -325,6 +336,23 @@ export const useTooltipStore = create<TooltipStore>()(
         });
       },
 
+      // Force-dismiss an overlay regardless of active triggers
+      dismissOverlay: (anchorId: string) => {
+        set((state) => {
+          const visibility = new Map(state.visibility);
+          const triggers = new Map(state.triggers);
+          const vis = visibility.get(anchorId);
+          if (vis) {
+            vis.visible = false;
+            vis.triggers.clear();
+            vis.lastTrigger = undefined;
+            visibility.set(anchorId, vis);
+          }
+          triggers.delete(anchorId);
+          return { visibility, triggers };
+        });
+      },
+
       // Batch update positions
       updatePositions: (updates: Map<string, ScreenPosition>) => {
         set((state) => ({
@@ -347,6 +375,19 @@ export const useTooltipStore = create<TooltipStore>()(
         });
 
         return visible;
+      },
+
+      hasInteractiveOverlay: () => {
+        const state = get();
+        let found = false;
+        state.visibility.forEach((vis, anchorId) => {
+          if (found) return;
+          if (vis.visible) {
+            const anchor = state.anchors.get(anchorId);
+            if (anchor?.interactive) found = true;
+          }
+        });
+        return found;
       },
 
       isTooltipVisible: (anchorId: string) => {

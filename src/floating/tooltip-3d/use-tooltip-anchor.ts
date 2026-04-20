@@ -6,6 +6,7 @@ import {
   useTooltipStore,
   type AxisMode,
   type TooltipSide,
+  type OverlayMode,
   type CoordinateDebugInfo,
 } from "./store";
 import { useTooltipHost, useRootTooltipHost } from "./tooltip-context";
@@ -17,6 +18,14 @@ export interface UseTooltipAnchorOptions {
   offset?: number;
   side?: TooltipSide;
   isAvailable?: () => boolean;
+  /** Interaction mode: 'hover' (default), 'click', or 'context-menu'. */
+  mode?: OverlayMode;
+  /** When true, overlay content receives pointer events. Defaults to true for click/context-menu. */
+  interactive?: boolean;
+  /** Priority for group-based exclusion (higher wins). */
+  priority?: number;
+  /** Exclusion group: only highest-priority visible per group. */
+  group?: string;
 }
 
 export interface UseTooltipAnchorResult {
@@ -24,6 +33,8 @@ export interface UseTooltipAnchorResult {
   anchorId: string;
   onPointerMove?: (event: ThreeEvent<PointerEvent>) => void;
   onPointerLeave?: () => void;
+  /** Returned when mode === 'click'. Toggles overlay visibility. */
+  onClick?: (event: ThreeEvent<MouseEvent>) => void;
 }
 
 /**
@@ -77,6 +88,9 @@ export function useTooltipAnchor(options: UseTooltipAnchorOptions): UseTooltipAn
   // Remove complex memoization - rely on store-level safety net to prevent infinite loops
   const memoizedContent = options.content;
 
+  const mode = options.mode ?? "hover";
+  const interactive = options.interactive ?? (mode !== "hover");
+
   // Register anchor on mount
   useEffect(() => {
     registerAnchor({
@@ -88,6 +102,10 @@ export function useTooltipAnchor(options: UseTooltipAnchorOptions): UseTooltipAn
         offset: options.offset,
         side: options.side,
       },
+      mode,
+      interactive,
+      priority: options.priority,
+      group: options.group,
       isAvailable: options.isAvailable,
     });
 
@@ -99,6 +117,10 @@ export function useTooltipAnchor(options: UseTooltipAnchorOptions): UseTooltipAn
     options.offset,
     options.side,
     options.isAvailable,
+    options.priority,
+    options.group,
+    mode,
+    interactive,
     registerAnchor,
     unregisterAnchor,
   ]);
@@ -280,18 +302,41 @@ export function useTooltipAnchor(options: UseTooltipAnchorOptions): UseTooltipAn
     }
   }, [id, options.axis, updateCursorPosition]);
 
-  // Only return event handlers if axis tracking is enabled
+  // Click handler for mode === 'click': toggles visibility.
+  // If this anchor belongs to a group, dismiss other group members first
+  // so only one overlay per group is visible at a time.
+  const store = useTooltipStore();
+  const clickTriggerId = `${id}-click`;
+  const handleClick = useCallback(
+    (_event: ThreeEvent<MouseEvent>) => {
+      if (options.group) {
+        // Read current state imperatively — store Maps are stale if captured in closure
+        const { anchors: currentAnchors, visibility: currentVis, dismissOverlay: dismiss } = useTooltipStore.getState();
+        currentVis.forEach((vis, anchorId) => {
+          if (anchorId !== id && vis.visible) {
+            const other = currentAnchors.get(anchorId);
+            if (other?.group === options.group) {
+              dismiss(anchorId);
+            }
+          }
+        });
+      }
+      store.toggleTooltip(id, clickTriggerId);
+    },
+    [id, clickTriggerId, options.group, store],
+  );
+
+  // Build result based on mode and axis tracking
+  const result: UseTooltipAnchorResult = { ref, anchorId: id };
+
   if (options.axis && options.axis !== "none") {
-    return {
-      ref,
-      anchorId: id,
-      onPointerMove: handlePointerMove,
-      onPointerLeave: handlePointerLeave,
-    };
+    result.onPointerMove = handlePointerMove;
+    result.onPointerLeave = handlePointerLeave;
   }
 
-  return {
-    ref,
-    anchorId: id,
-  };
+  if (mode === "click") {
+    result.onClick = handleClick;
+  }
+
+  return result;
 }
