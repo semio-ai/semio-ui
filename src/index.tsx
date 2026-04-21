@@ -67,6 +67,7 @@ export * from "./icons/key-outline-dash";
 export * from "./icons/lock";
 export * from "./icons/lock-off";
 export * from "./icons/move-player-end-bounds";
+export * from "./icons/move-playhead";
 export * from "./icons/normalized";
 export * from "./icons/play-pause";
 export * from "./icons/player-end-bounds";
@@ -153,6 +154,7 @@ export * from "./form-base";
 export * from "./buttons/image-button";
 export * from "./context";
 export * from "./keybinding";
+export * from "./keybinding-context";
 
 export * from "./node-tree";
 export * from "./menu-item";

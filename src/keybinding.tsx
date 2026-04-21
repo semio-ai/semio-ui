@@ -1,4 +1,5 @@
 import { ReactNode } from "react";
+import { useKeybinding } from "./keybinding-context";
 
 export enum KeyCode {
   Mod = "mod",
@@ -68,17 +69,35 @@ function resolveKeyLabel(key: string | KeyCode): { label: string; isSymbol: bool
 }
 
 /**
+ * Parse a Mantine hotkey combo string ("mod+x", "shift+ArrowLeft") into
+ * individual key parts suitable for rendering.
+ */
+export function parseHotkeyCombo(combo: string): string[] {
+  return combo.split("+").map((part) => part.trim());
+}
+
+/**
  * Renders a keyboard shortcut as a compact inline sequence.
  * Automatically adapts symbols for macOS (⌘⇧⌥) vs Windows/Linux (Ctrl+Shift+Alt).
+ *
+ * Use `keys` for explicit key lists, or `combo` for Mantine hotkey syntax strings.
  */
-export function Keybinding({ keys = [] }: { keys: (string | KeyCode)[] }): ReactNode {
-  if (keys.length === 0) return null;
+export function Keybinding({
+  keys,
+  combo,
+}: {
+  /** Explicit key list (e.g. [KeyCode.Mod, "x"]) */
+  keys?: (string | KeyCode)[];
+  /** Mantine hotkey syntax string (e.g. "mod+x") — parsed into keys automatically */
+  combo?: string;
+}): ReactNode {
+  const resolvedKeys = keys ?? (combo ? parseHotkeyCombo(combo) : []);
+  if (resolvedKeys.length === 0) return null;
 
   return (
     <span className="inline-flex items-center gap-1 text-nowrap text-sm leading-none">
-      {keys.map((key, i) => {
+      {resolvedKeys.map((key, i) => {
         const { label, isSymbol } = resolveKeyLabel(key);
-        // On PC, add "+" separator between keys (Mac uses symbol juxtaposition)
         const separator = !isMac && i > 0 ? "+" : null;
         return (
           <span key={i} className="inline-flex items-center">
@@ -89,4 +108,20 @@ export function Keybinding({ keys = [] }: { keys: (string | KeyCode)[] }): React
       })}
     </span>
   );
+}
+
+/**
+ * Displays the keybinding hint for a registered action, reading from KeybindingContext.
+ * Shows the first key combo of the action's binding. Returns null if the action isn't registered.
+ *
+ * @example
+ * ```tsx
+ * <NestedItem right={<KeybindingHint action="animation:delete" />}>Delete</NestedItem>
+ * ```
+ */
+export function KeybindingHint({ action }: { action: string }): ReactNode {
+  const binding = useKeybinding(action);
+  if (!binding || binding.keys.length === 0) return null;
+  // Display the first combo
+  return <Keybinding combo={binding.keys[0]} />;
 }
