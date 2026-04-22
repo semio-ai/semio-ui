@@ -11,13 +11,15 @@ export interface ContextMenuProps {
   children: ReactNode;
   variant?: Variant;
   color?: string;
+  disabled?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
-function ContextMenu({ content, children, variant, color }: ContextMenuProps) {
+function ContextMenu({ content, children, variant, color, disabled, onOpenChange }: ContextMenuProps) {
   return (
     <NestedParentProvider value={NestedParent.Context}>
-      <ContextMenuPrimitive.Root>
-        <ContextMenuPrimitive.Trigger asChild>{children}</ContextMenuPrimitive.Trigger>
+      <ContextMenuPrimitive.Root onOpenChange={onOpenChange}>
+        <ContextMenuPrimitive.Trigger asChild disabled={disabled}>{children}</ContextMenuPrimitive.Trigger>
         <ContextMenuPrimitive.Portal>
           <ContextMenuPrimitive.Content
             alignOffset={3}
