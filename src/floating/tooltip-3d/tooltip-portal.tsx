@@ -8,7 +8,6 @@ import { Variant } from "../../types";
 import { ScrollArea } from "../../layouts/scroll-area";
 import { NestedParent } from "../../nested-elements/types";
 import { NestedParentProvider } from "../../nested-elements/context";
-import { useKeybindingMap, KeybindingProvider } from "../../keybinding-context";
 import {
   useTooltipStore,
   type AnchorConfig,
@@ -32,9 +31,6 @@ function InteractiveOverlayInstance({ anchor, position }: OverlayInstanceProps) 
   const dismissOverlay = useTooltipStore((s) => s.dismissOverlay);
   const isMenu = anchor.mode === "context-menu";
 
-  // Capture the keybinding context from the current tree position so we can
-  // re-provide it inside the Radix portal (which escapes the React tree).
-  const keybindingMap = useKeybindingMap();
 
   // Convert container-relative position to viewport-relative for the trigger
   const container = hostContext?.containerRef.current;
@@ -65,8 +61,6 @@ function InteractiveOverlayInstance({ anchor, position }: OverlayInstanceProps) 
         />
       </DropdownPrimitive.Trigger>
       <DropdownPrimitive.Portal>
-        {/* Re-provide contexts that are lost when Radix portals to DOM root */}
-        <KeybindingProvider value={keybindingMap}>
           <DropdownPrimitive.Content
             side={side}
             align={isMenu ? "start" : "center"}
@@ -75,7 +69,7 @@ function InteractiveOverlayInstance({ anchor, position }: OverlayInstanceProps) 
             className={clsx(
               Variant.Default,
               isMenu
-                ? "responsive card dropdown-content m-0.5 min-w-44"
+                ? "responsive card dropdown-content m-0.5 min-w-56"
                 : "responsive card m-0.5 overflow-clip shadow-lg",
               isMenu && "max-h-[calc(var(--radix-dropdown-menu-content-available-height)-4px)]",
             )}
@@ -91,7 +85,6 @@ function InteractiveOverlayInstance({ anchor, position }: OverlayInstanceProps) 
               content
             )}
           </DropdownPrimitive.Content>
-        </KeybindingProvider>
       </DropdownPrimitive.Portal>
     </DropdownPrimitive.Root>
   );

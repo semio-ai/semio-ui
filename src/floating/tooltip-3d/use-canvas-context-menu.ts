@@ -1,8 +1,9 @@
-import { useRef, useEffect, useId, useCallback } from "react";
+import { useRef, useEffect, useId, useCallback, createElement } from "react";
 import type { ThreeEvent } from "@react-three/fiber";
 import type { ReactNode } from "react";
 import { useTooltipStore, type ScreenPosition } from "./store";
 import { useRootTooltipHost } from "./tooltip-context";
+import { useKeybindingMap, KeybindingProvider } from "../../keybinding-context";
 
 export interface CanvasContextMenuContext {
   /** World-space intersection point from R3F raycaster. */
@@ -70,6 +71,12 @@ export function useCanvasContextMenu(
   const itemsRef = useRef(options.items);
   itemsRef.current = options.items;
 
+  // Capture keybinding map from context — will be re-provided inside the
+  // Radix portal so KeybindingHint components render correctly.
+  const keybindingMap = useKeybindingMap();
+  const keybindingMapRef = useRef(keybindingMap);
+  keybindingMapRef.current = keybindingMap;
+
   // Register a placeholder anchor on mount. The real content is set
   // at invocation time in onContextMenu so it captures current state.
   useEffect(() => {
@@ -120,8 +127,14 @@ export function useCanvasContextMenu(
 
       // Eagerly evaluate items with current state so the menu content
       // is a snapshot — standard context menu behavior.
+      // Wrap in KeybindingProvider so KeybindingHint components work
+      // inside the Radix portal (which escapes the React context tree).
       const ctx = contextRef.current;
-      const content = itemsRef.current(ctx);
+      const rawContent = itemsRef.current(ctx);
+      const content = createElement(
+        KeybindingProvider,
+        { value: keybindingMapRef.current, children: rawContent },
+      );
 
       // Update the anchor with the evaluated content and screen position
       registerAnchor({
