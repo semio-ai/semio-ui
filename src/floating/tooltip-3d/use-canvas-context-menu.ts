@@ -1,9 +1,13 @@
 import { useRef, useEffect, useId, useCallback, createElement } from "react";
 import type { ThreeEvent } from "@react-three/fiber";
 import type { ReactNode } from "react";
+import {
+  useKeybindingMap,
+  KeybindingProvider,
+  type KeybindingMap,
+} from "../../keybinding-context";
 import { useTooltipStore, type ScreenPosition } from "./store";
 import { useRootTooltipHost } from "./tooltip-context";
-import { useKeybindingMap, KeybindingProvider } from "../../keybinding-context";
 
 export interface CanvasContextMenuContext {
   /** World-space intersection point from R3F raycaster. */
@@ -29,6 +33,15 @@ export interface UseCanvasContextMenuResult {
   /** The anchor ID, for imperative control if needed. */
   anchorId: string;
 }
+
+interface PortalKeybindingProviderProps {
+  value: KeybindingMap;
+  children?: ReactNode;
+}
+
+const PortalKeybindingProvider = KeybindingProvider as (
+  props: PortalKeybindingProviderProps,
+) => ReactNode;
 
 /**
  * Hook for right-click context menus on R3F meshes.
@@ -132,8 +145,9 @@ export function useCanvasContextMenu(
       const ctx = contextRef.current;
       const rawContent = itemsRef.current(ctx);
       const content = createElement(
-        KeybindingProvider,
-        { value: keybindingMapRef.current, children: rawContent },
+        PortalKeybindingProvider,
+        { value: keybindingMapRef.current },
+        rawContent,
       );
 
       // Update the anchor with the evaluated content and screen position
