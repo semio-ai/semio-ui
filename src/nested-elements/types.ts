@@ -53,6 +53,7 @@ export interface NestedColorPickerProps<T extends string | RawColor> {
   disabled?: boolean;
   label?: string;
   variant?: Variant;
+  left?: ReactNode;
 }
 
 /**
