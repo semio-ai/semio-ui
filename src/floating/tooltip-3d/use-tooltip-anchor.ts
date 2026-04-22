@@ -270,20 +270,22 @@ export function useTooltipAnchor(options: UseTooltipAnchorOptions): UseTooltipAn
     }
   });
 
-  // Handle cursor tracking - only if axis mode requires it
+  // Handle cursor tracking - only if axis mode requires it.
+  // When a click-mode tooltip is visible (pinned), skip cursor updates so
+  // the overlay stays at the click position instead of following the mouse.
   const handlePointerMove = useCallback(
     (event: ThreeEvent<PointerEvent>) => {
       if (options.axis && options.axis !== "none") {
-        // Get root container for cursor tracking (since portal is at root)
-        const rootContainer = rootHost?.containerRef.current;
-        if (!rootContainer) {
-          console.warn(`[Tooltip] No root container for cursor tracking: ${id}`);
-          return;
+        // Don't update cursor position while a click-pinned tooltip is showing
+        if (mode === "click") {
+          const vis = useTooltipStore.getState().visibility.get(id);
+          if (vis?.visible) return;
         }
 
-        const rootRect = rootContainer.getBoundingClientRect();
+        const rootContainer = rootHost?.containerRef.current;
+        if (!rootContainer) return;
 
-        // Convert global cursor position to root container-relative coordinates
+        const rootRect = rootContainer.getBoundingClientRect();
         const containerX = (event.clientX ?? event.nativeEvent.clientX) - rootRect.left;
         const containerY = (event.clientY ?? event.nativeEvent.clientY) - rootRect.top;
 
@@ -293,14 +295,19 @@ export function useTooltipAnchor(options: UseTooltipAnchorOptions): UseTooltipAn
         });
       }
     },
-    [id, options.axis, updateCursorPosition, rootHost],
+    [id, mode, options.axis, updateCursorPosition, rootHost],
   );
 
   const handlePointerLeave = useCallback(() => {
     if (options.axis && options.axis !== "none") {
+      // Don't clear cursor position while a click-pinned tooltip is showing
+      if (mode === "click") {
+        const vis = useTooltipStore.getState().visibility.get(id);
+        if (vis?.visible) return;
+      }
       updateCursorPosition(id, null);
     }
-  }, [id, options.axis, updateCursorPosition]);
+  }, [id, mode, options.axis, updateCursorPosition]);
 
   // Click handler for mode === 'click': toggles visibility.
   // If this anchor belongs to a group, dismiss other group members first
@@ -308,7 +315,7 @@ export function useTooltipAnchor(options: UseTooltipAnchorOptions): UseTooltipAn
   const store = useTooltipStore();
   const clickTriggerId = `${id}-click`;
   const handleClick = useCallback(
-    (_event: ThreeEvent<MouseEvent>) => {
+    (event: ThreeEvent<MouseEvent>) => {
       if (options.group) {
         // Read current state imperatively — store Maps are stale if captured in closure
         const { anchors: currentAnchors, visibility: currentVis, dismissOverlay: dismiss } = useTooltipStore.getState();
@@ -321,9 +328,22 @@ export function useTooltipAnchor(options: UseTooltipAnchorOptions): UseTooltipAn
           }
         });
       }
+
+      // Pin cursor position at click location so axis-tracking tooltips
+      // stay at the click point instead of following subsequent mouse movement.
+      if (options.axis && options.axis !== "none") {
+        const rootContainer = rootHost?.containerRef.current;
+        if (rootContainer) {
+          const rootRect = rootContainer.getBoundingClientRect();
+          const containerX = (event.clientX ?? event.nativeEvent.clientX) - rootRect.left;
+          const containerY = (event.clientY ?? event.nativeEvent.clientY) - rootRect.top;
+          updateCursorPosition(id, { x: containerX, y: containerY });
+        }
+      }
+
       store.toggleTooltip(id, clickTriggerId);
     },
-    [id, clickTriggerId, options.group, store],
+    [id, clickTriggerId, options.group, options.axis, store, rootHost, updateCursorPosition],
   );
 
   // Build result based on mode and axis tracking

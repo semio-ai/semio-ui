@@ -15,6 +15,7 @@ export interface DropdownProps {
   header?: ReactNode;
   side?: "left" | "right" | "top" | "bottom";
   disabled?: boolean;
+  open?: boolean;
   onOpenChange?: (open: boolean) => void;
   onTriggerDoubleClick?: MouseEventHandler<HTMLElement>;
   contentClassName?: string;
@@ -32,6 +33,7 @@ const Dropdown = forwardRef(
       color,
       side,
       disabled,
+      open,
       onOpenChange,
       onTriggerDoubleClick,
       contentClassName,
@@ -42,7 +44,7 @@ const Dropdown = forwardRef(
   ) => {
     return (
       <NestedParentProvider value={NestedParent.Dropdown}>
-        <DropdownPrimitive.Root onOpenChange={onOpenChange}>
+        <DropdownPrimitive.Root open={open} onOpenChange={onOpenChange}>
           <DropdownPrimitive.Trigger
             ref={ref}
             asChild
