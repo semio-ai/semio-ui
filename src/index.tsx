@@ -110,6 +110,7 @@ export * from "./inputs/image-input";
 export * from "./inputs/label";
 export * from "./inputs/password";
 export * from "./inputs/search";
+export * from "./inputs/switch";
 export * from "./inputs/time-input";
 export * from "./inputs/text-field";
 export * from "./inputs/text-area";
