@@ -16,10 +16,19 @@ export interface ContextMenuProps {
 }
 
 function ContextMenu({ content, children, variant, color, disabled, onOpenChange }: ContextMenuProps) {
+  if (disabled) {
+    return (
+      <NestedParentProvider value={NestedParent.Context}>
+        <span className="pointer-events-none" aria-disabled="true">
+          {children}
+        </span>
+      </NestedParentProvider>
+    );
+  }
   return (
     <NestedParentProvider value={NestedParent.Context}>
       <ContextMenuPrimitive.Root onOpenChange={onOpenChange}>
-        <ContextMenuPrimitive.Trigger asChild disabled={disabled}>{children}</ContextMenuPrimitive.Trigger>
+        <ContextMenuPrimitive.Trigger asChild>{children}</ContextMenuPrimitive.Trigger>
         <ContextMenuPrimitive.Portal>
           <ContextMenuPrimitive.Content
             alignOffset={3}
