@@ -1,7 +1,7 @@
-import { forwardRef, type RefAttributes } from "react";
+import { forwardRef, type ForwardRefExoticComponent, type RefAttributes } from "react";
 import type { IconProps } from "@solar-icons/react-perf";
 
-const EyeOff: React.ForwardRefExoticComponent<IconProps & RefAttributes<SVGSVGElement>> =
+const EyeOff: ForwardRefExoticComponent<IconProps & RefAttributes<SVGSVGElement>> =
   forwardRef<SVGSVGElement, IconProps>((props, ref) => {
     const { alt, color = "currentColor", size = "1em", mirrored = false, ...restProps } = props;
 

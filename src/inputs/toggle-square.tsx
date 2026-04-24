@@ -1,4 +1,4 @@
-import { type ReactNode } from "react";
+import { type CSSProperties, type ReactNode } from "react";
 import { Checkbox as RadixCheckbox } from "radix-ui";
 import { clsx } from "clsx";
 import { Variant, Size } from "../types";
@@ -70,7 +70,7 @@ export function ToggleSquare({
           !color && "dark:data-[state=indeterminate]:text-neutral-200",
           !color && "data-[state=indeterminate]:text-neutral-800",
         )}
-        style={color ? { "--custom-color": color } as React.CSSProperties : undefined}
+        style={color ? ({ "--custom-color": color } as CSSProperties) : undefined}
         aria-label={label ?? "Toggle Button"}
       >
         {/* Render children directly — not inside Indicator.

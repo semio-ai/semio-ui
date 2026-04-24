@@ -271,20 +271,22 @@ export const useTooltipStore = create<TooltipStore>()(
           const visibility = new Map(currentState.visibility);
           const triggers = new Map(currentState.triggers);
 
-          // Update visibility state
-          const vis = visibility.get(anchorId) || {
-            visible: false,
-            triggers: new Set(),
-          };
-          vis.triggers.add(triggerId);
-          vis.visible = true;
-          vis.lastTrigger = triggerId;
-          visibility.set(anchorId, vis);
+          // Update visibility state — construct a fresh VisibilityState (and Set)
+          // so subscribers comparing entries by identity see the change.
+          const prev = visibility.get(anchorId);
+          const nextTriggers = new Set(prev?.triggers);
+          nextTriggers.add(triggerId);
+          visibility.set(anchorId, {
+            ...prev,
+            visible: true,
+            triggers: nextTriggers,
+            lastTrigger: triggerId,
+          });
 
           // Track trigger associations
-          const anchorTriggers = triggers.get(anchorId) || new Set();
-          anchorTriggers.add(triggerId);
-          triggers.set(anchorId, anchorTriggers);
+          const nextAnchorTriggers = new Set(triggers.get(anchorId));
+          nextAnchorTriggers.add(triggerId);
+          triggers.set(anchorId, nextAnchorTriggers);
 
           return { visibility, triggers };
         });
@@ -294,17 +296,22 @@ export const useTooltipStore = create<TooltipStore>()(
         set((state) => {
           const visibility = new Map(state.visibility);
           const triggers = new Map(state.triggers);
-          const vis = visibility.get(anchorId);
+          const prev = visibility.get(anchorId);
 
-          if (vis) {
-            vis.triggers.delete(triggerId);
-            vis.visible = vis.triggers.size > 0;
-            if (!vis.visible) {
-              vis.lastTrigger = undefined;
+          if (prev) {
+            const nextTriggers = new Set(prev.triggers);
+            nextTriggers.delete(triggerId);
+            const stillVisible = nextTriggers.size > 0;
+            visibility.set(anchorId, {
+              ...prev,
+              triggers: nextTriggers,
+              visible: stillVisible,
+              lastTrigger: stillVisible ? prev.lastTrigger : undefined,
+            });
+            if (!stillVisible) {
               // Clean up trigger associations when fully hidden
               triggers.delete(anchorId);
             }
-            visibility.set(anchorId, vis);
           }
 
           return { visibility, triggers };
@@ -326,11 +333,13 @@ export const useTooltipStore = create<TooltipStore>()(
       hideAll: () => {
         set((state) => {
           const visibility = new Map(state.visibility);
-          visibility.forEach((vis, key) => {
-            vis.visible = false;
-            vis.triggers.clear();
-            vis.lastTrigger = undefined;
-            visibility.set(key, vis);
+          visibility.forEach((prev, key) => {
+            visibility.set(key, {
+              ...prev,
+              visible: false,
+              triggers: new Set(),
+              lastTrigger: undefined,
+            });
           });
           return { visibility };
         });
@@ -341,12 +350,14 @@ export const useTooltipStore = create<TooltipStore>()(
         set((state) => {
           const visibility = new Map(state.visibility);
           const triggers = new Map(state.triggers);
-          const vis = visibility.get(anchorId);
-          if (vis) {
-            vis.visible = false;
-            vis.triggers.clear();
-            vis.lastTrigger = undefined;
-            visibility.set(anchorId, vis);
+          const prev = visibility.get(anchorId);
+          if (prev) {
+            visibility.set(anchorId, {
+              ...prev,
+              visible: false,
+              triggers: new Set(),
+              lastTrigger: undefined,
+            });
           }
           triggers.delete(anchorId);
           return { visibility, triggers };

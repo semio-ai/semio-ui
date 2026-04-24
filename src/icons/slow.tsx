@@ -1,7 +1,7 @@
-import { forwardRef, type RefAttributes } from "react";
+import { forwardRef, type ForwardRefExoticComponent, type RefAttributes } from "react";
 import type { IconProps } from "@solar-icons/react-perf";
 
-const Slow: React.ForwardRefExoticComponent<IconProps & RefAttributes<SVGSVGElement>> = forwardRef<
+const Slow: ForwardRefExoticComponent<IconProps & RefAttributes<SVGSVGElement>> = forwardRef<
   SVGSVGElement,
   IconProps
 >((props, ref) => {
