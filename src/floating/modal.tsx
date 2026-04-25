@@ -19,6 +19,26 @@ export interface ModalProps {
   onSubmit?: (event: MouseEvent) => void;
   onCancel?: (event: MouseEvent) => void;
   variant?: Variant;
+  /**
+   * Whether clicking the submit button should close the modal immediately.
+   *
+   * - `true` (default) — wraps the submit button in `Dialog.Close`. The
+   *   modal closes synchronously on click, regardless of whether
+   *   `onSubmit` is sync or async. Suitable for handlers that don't need
+   *   to keep the modal open (sync state writes, fire-and-forget uploads).
+   * - `false` — renders the submit button as a regular button. The modal
+   *   stays open after the click; the consumer is responsible for
+   *   eventually calling `onStateChange(false)` (typically after a
+   *   successful `await` of the submit work). On error, the consumer
+   *   should leave the modal open and surface the error inline so the
+   *   user can retry.
+   *
+   * Cancel and the X close button always close immediately regardless of
+   * this prop — async cancel is rare and "discard my work" should be
+   * instant. Use `dismissDisabled` to lock those out during an
+   * in-flight submit.
+   */
+  closeOnSubmitClick?: boolean;
 }
 
 /**
@@ -85,7 +105,18 @@ export function Modal({
   onSubmit,
   onCancel,
   variant,
+  closeOnSubmitClick = true,
 }: ModalProps) {
+  const submitButton = onSubmit && (
+    <Button
+      tabIndex={0}
+      variant={variant}
+      onClick={onSubmit}
+      disabled={submitDisabled}
+    >
+      {submitText}
+    </Button>
+  );
   const showFooter = onSubmit || onCancel;
   const showHeader = title || description;
   return (
@@ -169,18 +200,12 @@ export function Modal({
                         </Button>
                       </Dialog.Close>
                     )}
-                    {onSubmit && (
-                      <Dialog.Close asChild>
-                        <Button
-                          tabIndex={0}
-                          variant={variant}
-                          onClick={onSubmit}
-                          disabled={submitDisabled}
-                        >
-                          {submitText}
-                        </Button>
-                      </Dialog.Close>
-                    )}
+                    {submitButton &&
+                      (closeOnSubmitClick ? (
+                        <Dialog.Close asChild>{submitButton}</Dialog.Close>
+                      ) : (
+                        submitButton
+                      ))}
                   </div>
                 )
               }
