@@ -75,6 +75,7 @@ export function useTooltipAnchor(options: UseTooltipAnchorOptions): UseTooltipAn
     registerAnchor,
     unregisterAnchor,
     updateAnchorPosition,
+    updateAnchorContent,
     updateCursorPosition,
     logCoordinateDebug,
   } = useTooltipStore();
@@ -110,7 +111,7 @@ export function useTooltipAnchor(options: UseTooltipAnchorOptions): UseTooltipAn
     });
 
     return () => unregisterAnchor(id);
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- Intentionally omit options.content - content is only set during registration
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- Content updates are handled by the dedicated effect below; keeping this dep list narrow avoids re-registering the anchor on every content change.
   }, [
     id,
     options.axis,
@@ -124,6 +125,14 @@ export function useTooltipAnchor(options: UseTooltipAnchorOptions): UseTooltipAn
     registerAnchor,
     unregisterAnchor,
   ]);
+
+  // Push content updates to the registered anchor when the consumer's
+  // `content` prop changes after mount. Callers that re-render frequently
+  // should memoize their content so this effect only fires on intentional
+  // changes — every fire writes to the tooltip store and re-renders portals.
+  useEffect(() => {
+    updateAnchorContent(id, memoizedContent);
+  }, [id, memoizedContent, updateAnchorContent]);
 
   // Update bounding box position every frame
   useFrame(({ camera }) => {
