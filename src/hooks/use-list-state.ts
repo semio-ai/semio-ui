@@ -106,7 +106,7 @@ export function useListState<T extends ListItem>({
 
   // Type-ahead state
   const [typeAheadQuery, setTypeAheadQuery] = useState("");
-  const typeAheadTimeoutRef = useRef<NodeJS.Timeout>(undefined);
+  const typeAheadTimeoutRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   // Determine controlled vs uncontrolled
   const isControlledSelection = controlledSelectedKeys !== undefined;
