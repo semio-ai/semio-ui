@@ -7,6 +7,7 @@ import {
   DragEvent,
   KeyboardEvent,
   useMemo,
+  useRef,
 } from "react";
 import {
   NumericStatus,
@@ -44,7 +45,6 @@ export interface NumericInterface {
   status: NumericStatus;
   onChange: (event: ChangeEvent<HTMLInputElement>) => void;
   onChangeDirect: (value: number, event: MouseEvent) => void;
-  onChangeHeadless: (value: number) => void;
   onBlur: (event: FocusEvent<HTMLInputElement> | KeyboardEvent<HTMLInputElement>) => void;
   onStepUp: (event: MouseEvent) => void;
   onStepDown: (event: MouseEvent) => void;
@@ -69,7 +69,12 @@ export const useNumeric = ({
   );
 
   const [state, setState] = useState<NumericState>(parseNumericInput(initial, min, max, sigFigs));
-  const [currentExternalValue, setCurrentExternalValue] = useState<number>(initial);
+  // Track the latest external value in a ref so onBlur can revert to it
+  // without scheduling a per-render setState. Consumers (NumberField,
+  // SliderNumberField) already render the external value directly when
+  // the field isn't focused; we only need this ref for revert-on-blur.
+  const currentExternalValueRef = useRef<number>(initial);
+  currentExternalValueRef.current = initial;
 
   const onChange = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
@@ -110,15 +115,6 @@ export const useNumeric = ({
     [min, max, sigFigs, config, onValidChange],
   );
 
-  const onChangeHeadless = useCallback(
-    (value: number) => {
-      const newState = parseNumericInput(value, min, max, sigFigs);
-      setState(newState);
-      setCurrentExternalValue(value);
-    },
-    [min, max, sigFigs],
-  );
-
   const onStepUp = useCallback(
     (event: MouseEvent) => {
       const newState = calculateSteppedValue(state.numeric, stepSize, "up", min, max, sigFigs);
@@ -149,16 +145,17 @@ export const useNumeric = ({
     (event: FocusEvent<HTMLInputElement> | KeyboardEvent<HTMLInputElement>) => {
       // If current state is invalid, revert to the current external value
       if (state.status === NumericStatus.Invalid) {
-        const revertedState = revertToValue(currentExternalValue, config);
+        const externalValue = currentExternalValueRef.current;
+        const revertedState = revertToValue(externalValue, config);
         setState(revertedState);
-        onValidChange(currentExternalValue, event);
+        onValidChange(externalValue, event);
       } else {
         const blurResult = validateOnBlur(state, config);
         setState(blurResult.finalState);
         onValidChange(blurResult.valueToEmit, event);
       }
     },
-    [state, config, onValidChange, currentExternalValue],
+    [state, config, onValidChange],
   );
 
   return {
@@ -166,7 +163,6 @@ export const useNumeric = ({
     status: state.status,
     onChange,
     onChangeDirect,
-    onChangeHeadless,
     onBlur,
     onStepUp,
     onStepDown,
