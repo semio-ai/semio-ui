@@ -263,7 +263,7 @@ export const InnerScrollArea = forwardRef<ScrollAreaRef, ScrollAreaProps>(
       const element = viewportRef.current;
       if (!element) return;
 
-      let scrollTimeout: NodeJS.Timeout;
+      let scrollTimeout: ReturnType<typeof setTimeout>;
 
       const handleScrollStart = () => {
         setIsUserScrolling(true);
