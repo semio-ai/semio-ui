@@ -15,7 +15,7 @@ import { mergeRefs } from "react-merge-refs";
 import { clamp } from "lodash";
 import { clsx } from "clsx";
 import { useNumeric } from "../hooks/use-numeric";
-import { NumericStatus } from "../hooks/numeric-utils";
+import { NumericStatus, formatDisplayValue } from "../hooks/numeric-utils";
 import { Size, Variant } from "../types";
 import { NumberFieldProps } from "./number-field";
 
@@ -128,7 +128,6 @@ const InnerSliderNumberField = forwardRef(
       status,
       onChange: onChangeInner,
       onChangeDirect,
-      onChangeHeadless,
       onBlur,
     } = useNumeric({
       initial: value,
@@ -138,11 +137,9 @@ const InnerSliderNumberField = forwardRef(
       enforceLimits: strictText,
     });
 
-    useEffect(() => {
-      if (focusState !== FocusState.Focused) {
-        onChangeHeadless(value);
-      }
-    }, [value, focusState, onChangeHeadless]);
+    // See number-field.tsx for the React 19 max-update-depth rationale.
+    const displayedTextValue =
+      focusState === FocusState.Focused ? textValue : formatDisplayValue(value, 2);
 
     useEffect(() => {
       onStatusChange?.(status);
@@ -408,7 +405,7 @@ const InnerSliderNumberField = forwardRef(
           ref={inputRef}
           {...forwardedProps}
           id={id}
-          value={textValue}
+          value={displayedTextValue}
           readOnly={focusState !== FocusState.Focused}
           onChange={onChangeInner}
           className={clsx(

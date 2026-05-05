@@ -93,7 +93,7 @@ function InnerToast({ data }: { data: ToastData }) {
         className={clsx(
           "items-center overflow-hidden",
           "pointer-events-auto relative box-border w-[30ch] select-none",
-          "data-[swipe=cancel]:translate-x-0 data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)]",
+          "data-[swipe=cancel]:translate-x-0 data-[swipe=move]:translate-x-(--radix-toast-swipe-move-x)",
           "data-[swipe=end]:animate-toastSwipeOut",
           "data-[swipe=cancel]:transition-[transform_200ms_ease-out]",
           data.variant,

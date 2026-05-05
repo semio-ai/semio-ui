@@ -15,7 +15,7 @@ import { useHover } from "@use-gesture/react";
 import { clsx } from "clsx";
 import { mergeRefs } from "react-merge-refs";
 import { useNumeric, ValidChangeEvent } from "../hooks/use-numeric";
-import { NumericStatus } from "../hooks/numeric-utils";
+import { NumericStatus, formatDisplayValue } from "../hooks/numeric-utils";
 import { Size, Variant } from "../types";
 import { TextFieldProps } from "./text-field";
 
@@ -104,7 +104,6 @@ const InnerNumberField = forwardRef(
       textValue,
       status,
       onChange: onChangeInner,
-      onChangeHeadless,
       onBlur,
     } = useNumeric({
       initial: value,
@@ -114,11 +113,13 @@ const InnerNumberField = forwardRef(
       enforceLimits: strict,
     });
 
-    useEffect(() => {
-      if (focusState !== FocusState.Focused) {
-        onChangeHeadless(value);
-      }
-    }, [value, focusState, onChangeHeadless]);
+    // Display the formatted prop value when not focused; useNumeric's
+    // local textValue is only consulted while the user is typing. The
+    // previous sync-via-useEffect pattern fired a setState every render,
+    // which fed React 19's nestedPassiveUpdateCount and tripped
+    // "Maximum update depth exceeded" once per ~50 playback ticks.
+    const displayedTextValue =
+      focusState === FocusState.Focused ? textValue : formatDisplayValue(value, 2);
 
     useEffect(() => {
       onStatusChange?.(status);
@@ -218,7 +219,7 @@ const InnerNumberField = forwardRef(
           ref={inputRef}
           {...forwardedProps}
           id={id}
-          value={textValue}
+          value={displayedTextValue}
           onChange={onChangeInner}
           className={clsx(
             "responsive grid-area-field w-full min-w-0",
