@@ -20,6 +20,8 @@ export interface TabbedModalProps {
   onSubmit?: (event: MouseEvent) => void;
   onCancel?: (event: MouseEvent) => void;
   variant?: Variant;
+  /** See `Modal.closeOnSubmitClick`. Forwarded as-is. */
+  closeOnSubmitClick?: boolean;
 }
 
 /**
@@ -100,6 +102,7 @@ export function TabbedModal({
   onSubmit,
   onCancel,
   variant,
+  closeOnSubmitClick,
 }: TabbedModalProps) {
   const { childrenTabs, isMovingForward } = useTabsState(children, selected, undefined, "No tabs");
 
@@ -134,6 +137,7 @@ export function TabbedModal({
         onSubmit={onSubmit}
         onCancel={onCancel}
         variant={variant}
+        closeOnSubmitClick={closeOnSubmitClick}
       >
         {tabsContent}
       </Modal>

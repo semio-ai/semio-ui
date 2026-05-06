@@ -11,13 +11,23 @@ export interface ContextMenuProps {
   children: ReactNode;
   variant?: Variant;
   color?: string;
+  disabled?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
-function ContextMenu({ content, children, variant, color }: ContextMenuProps) {
+function ContextMenu({ content, children, variant, color, disabled, onOpenChange }: ContextMenuProps) {
   return (
     <NestedParentProvider value={NestedParent.Context}>
-      <ContextMenuPrimitive.Root>
-        <ContextMenuPrimitive.Trigger asChild>{children}</ContextMenuPrimitive.Trigger>
+      <ContextMenuPrimitive.Root onOpenChange={onOpenChange}>
+        {/* `disabled` MUST be forwarded to Radix's Trigger, not handled by
+            short-circuiting this component to a different element. Swapping the
+            tree (e.g. returning a plain <span> when disabled) unmounts the
+            children's Radix subtree mid-interaction; a sibling Dropdown that
+            just opened never fires its onOpenChange(false), so any external
+            "menu open" counter gets stuck and the row becomes uninteractive. */}
+        <ContextMenuPrimitive.Trigger asChild disabled={disabled}>
+          {children}
+        </ContextMenuPrimitive.Trigger>
         <ContextMenuPrimitive.Portal>
           <ContextMenuPrimitive.Content
             alignOffset={3}

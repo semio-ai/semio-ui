@@ -2,11 +2,11 @@ import { clsx } from "clsx";
 import { ReactNode } from "react";
 import { useDropzone, type Accept } from "react-dropzone";
 import { IconArrowBigDownLines } from "@tabler/icons-react";
-import { TableListItem } from "./hooks/use-table-list-state";
+import { ListItem } from "./hooks/use-list-state";
 import { ScrollArea } from "./layouts/scroll-area";
 import { ColumnDefinition, TableList } from "./layouts/table-list";
 
-export interface DropzoneProps<T extends TableListItem> {
+export interface DropzoneProps<T extends ListItem> {
   onDrop: (files: File[]) => void;
   data: T[];
   columns: ColumnDefinition<T>[];
@@ -19,7 +19,7 @@ export interface DropzoneProps<T extends TableListItem> {
   className?: string;
 }
 
-export function Dropzone<T extends TableListItem>({
+export function Dropzone<T extends ListItem>({
   onDrop,
   data,
   columns,

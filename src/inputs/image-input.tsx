@@ -32,7 +32,7 @@ export function ImageInput({
       onClick={() => fileInputRef.current?.click?.()}
       className={clsx(
         size,
-        "sized-image-input group/image-input relative grid rounded-sm bg-red-500",
+        "sized-image-input group/image-input relative grid rounded-sm",
         className,
       )}
     >
@@ -57,7 +57,6 @@ export function ImageInput({
         )}
       />
       <AvatarPrimitive.Fallback
-        asChild
         className={clsx(
           size,
           variant,

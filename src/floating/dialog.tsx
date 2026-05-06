@@ -17,6 +17,18 @@ export interface DialogProps {
   onSubmit?: (event: MouseEvent | KeyboardEvent) => void | Promise<void>;
   onCancel?: (event: MouseEvent | KeyboardEvent) => void;
   variant?: Variant;
+  /**
+   * Whether clicking the submit button should close the dialog
+   * immediately. Default `true` — wraps the submit button in
+   * `AlertDialog.Action`, matching historic behavior. Set `false` for
+   * async submit handlers (e.g. delete that hits the network) so the
+   * dialog stays open while the work is in flight; the consumer is
+   * then responsible for calling `onStateChange(false)` after the
+   * promise resolves successfully and leaving the dialog open with an
+   * inline error / toast on failure. See `Modal.closeOnSubmitClick`
+   * for the same semantics.
+   */
+  closeOnSubmitClick?: boolean;
 }
 
 export function Dialog({
@@ -31,7 +43,26 @@ export function Dialog({
   onSubmit,
   onCancel,
   variant,
+  closeOnSubmitClick = true,
 }: DialogProps) {
+  const submitButton = onSubmit && (
+    <Button
+      tabIndex={0}
+      className="flex-1"
+      variant={variant}
+      onClick={(event) => {
+        const fn = async (e: MouseEvent) => {
+          if (typeof onSubmit === "function") {
+            await onSubmit(e);
+          }
+        };
+        void fn(event);
+      }}
+      disabled={submitDisabled}
+    >
+      {submitText}
+    </Button>
+  );
   return (
     <AlertDialog.Root open={open} onOpenChange={onStateChange}>
       <AlertDialog.Portal>
@@ -99,26 +130,12 @@ export function Dialog({
                   </Button>
                 </AlertDialog.Cancel>
               )}
-              {onSubmit && (
-                <AlertDialog.Action asChild>
-                  <Button
-                    tabIndex={0}
-                    className="flex-1"
-                    variant={variant}
-                    onClick={(event) => {
-                      const fn = async (e: MouseEvent) => {
-                        if (typeof onSubmit === "function") {
-                          await onSubmit(e);
-                        }
-                      };
-                      void fn(event);
-                    }}
-                    disabled={submitDisabled}
-                  >
-                    {submitText}
-                  </Button>
-                </AlertDialog.Action>
-              )}
+              {submitButton &&
+                (closeOnSubmitClick ? (
+                  <AlertDialog.Action asChild>{submitButton}</AlertDialog.Action>
+                ) : (
+                  submitButton
+                ))}
             </div>
           </AlertDialog.Content>
         </AlertDialog.Overlay>

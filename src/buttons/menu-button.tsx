@@ -70,9 +70,9 @@ function InnerMenuButton(
         variant,
         "cursor-pointer disabled:cursor-default",
         "group/tab h-9 w-9 overflow-hidden",
-        "desktop:group-data-expanded/menu:w-[188px]",
+        "desktop:group-data-expanded/menu:w-47",
         "transition-all",
-        "grid grid-cols-[36px_1fr] grid-rows-1 place-items-center gap-[6px]",
+        "grid grid-cols-[36px_1fr] grid-rows-1 place-items-center gap-1.5",
         className,
       )}
       onClick={onClick}
@@ -93,7 +93,7 @@ function InnerMenuButton(
         className={clsx(
           "responsive",
           "desktop:group-data-expanded/menu:opacity-100",
-          "w-[150px] text-left opacity-0",
+          "w-37.5 text-left opacity-0",
           hoverable ? "variant-responsive-selectable-text" : "variant-static-text",
           variant,
           textClassName,

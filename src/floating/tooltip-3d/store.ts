@@ -25,6 +25,7 @@ export interface CoordinateDebugInfo {
 
 export type AxisMode = "none" | "x" | "y" | "both";
 export type TooltipSide = "top" | "right" | "bottom" | "left";
+export type OverlayMode = "hover" | "click" | "context-menu";
 
 export interface AnchorConfig {
   id: string;
@@ -36,6 +37,14 @@ export interface AnchorConfig {
     axis?: AxisMode;
     clampToViewport?: boolean;
   };
+  // Interaction mode: hover (default), click-to-pin, or context menu
+  mode?: OverlayMode;
+  // When true, portal content receives pointer events (for menus/popovers)
+  interactive?: boolean;
+  // Priority for group-based exclusion (higher wins)
+  priority?: number;
+  // Exclusion group: only highest-priority anchor visible per group
+  group?: string;
   // Anchor can specify conditions for when it's available
   isAvailable?: () => boolean;
   // Manual screen position override
@@ -84,10 +93,12 @@ export interface TooltipStore {
 
   // Batch operations
   hideAll: () => void;
+  dismissOverlay: (anchorId: string) => void;
   updatePositions: (updates: Map<string, ScreenPosition>) => void;
 
   // Computed getters
   getVisibleTooltips: () => AnchorConfig[];
+  hasInteractiveOverlay: () => boolean;
   isTooltipVisible: (anchorId: string) => boolean;
   getTooltipPosition: (anchorId: string) => ScreenPosition | null;
   getEffectivePosition: (anchorId: string) => ScreenPosition | null;
@@ -260,20 +271,22 @@ export const useTooltipStore = create<TooltipStore>()(
           const visibility = new Map(currentState.visibility);
           const triggers = new Map(currentState.triggers);
 
-          // Update visibility state
-          const vis = visibility.get(anchorId) || {
-            visible: false,
-            triggers: new Set(),
-          };
-          vis.triggers.add(triggerId);
-          vis.visible = true;
-          vis.lastTrigger = triggerId;
-          visibility.set(anchorId, vis);
+          // Update visibility state — construct a fresh VisibilityState (and Set)
+          // so subscribers comparing entries by identity see the change.
+          const prev = visibility.get(anchorId);
+          const nextTriggers = new Set(prev?.triggers);
+          nextTriggers.add(triggerId);
+          visibility.set(anchorId, {
+            ...prev,
+            visible: true,
+            triggers: nextTriggers,
+            lastTrigger: triggerId,
+          });
 
           // Track trigger associations
-          const anchorTriggers = triggers.get(anchorId) || new Set();
-          anchorTriggers.add(triggerId);
-          triggers.set(anchorId, anchorTriggers);
+          const nextAnchorTriggers = new Set(triggers.get(anchorId));
+          nextAnchorTriggers.add(triggerId);
+          triggers.set(anchorId, nextAnchorTriggers);
 
           return { visibility, triggers };
         });
@@ -283,17 +296,22 @@ export const useTooltipStore = create<TooltipStore>()(
         set((state) => {
           const visibility = new Map(state.visibility);
           const triggers = new Map(state.triggers);
-          const vis = visibility.get(anchorId);
+          const prev = visibility.get(anchorId);
 
-          if (vis) {
-            vis.triggers.delete(triggerId);
-            vis.visible = vis.triggers.size > 0;
-            if (!vis.visible) {
-              vis.lastTrigger = undefined;
+          if (prev) {
+            const nextTriggers = new Set(prev.triggers);
+            nextTriggers.delete(triggerId);
+            const stillVisible = nextTriggers.size > 0;
+            visibility.set(anchorId, {
+              ...prev,
+              triggers: nextTriggers,
+              visible: stillVisible,
+              lastTrigger: stillVisible ? prev.lastTrigger : undefined,
+            });
+            if (!stillVisible) {
               // Clean up trigger associations when fully hidden
               triggers.delete(anchorId);
             }
-            visibility.set(anchorId, vis);
           }
 
           return { visibility, triggers };
@@ -315,13 +333,34 @@ export const useTooltipStore = create<TooltipStore>()(
       hideAll: () => {
         set((state) => {
           const visibility = new Map(state.visibility);
-          visibility.forEach((vis, key) => {
-            vis.visible = false;
-            vis.triggers.clear();
-            vis.lastTrigger = undefined;
-            visibility.set(key, vis);
+          visibility.forEach((prev, key) => {
+            visibility.set(key, {
+              ...prev,
+              visible: false,
+              triggers: new Set(),
+              lastTrigger: undefined,
+            });
           });
           return { visibility };
+        });
+      },
+
+      // Force-dismiss an overlay regardless of active triggers
+      dismissOverlay: (anchorId: string) => {
+        set((state) => {
+          const visibility = new Map(state.visibility);
+          const triggers = new Map(state.triggers);
+          const prev = visibility.get(anchorId);
+          if (prev) {
+            visibility.set(anchorId, {
+              ...prev,
+              visible: false,
+              triggers: new Set(),
+              lastTrigger: undefined,
+            });
+          }
+          triggers.delete(anchorId);
+          return { visibility, triggers };
         });
       },
 
@@ -347,6 +386,19 @@ export const useTooltipStore = create<TooltipStore>()(
         });
 
         return visible;
+      },
+
+      hasInteractiveOverlay: () => {
+        const state = get();
+        let found = false;
+        state.visibility.forEach((vis, anchorId) => {
+          if (found) return;
+          if (vis.visible) {
+            const anchor = state.anchors.get(anchorId);
+            if (anchor?.interactive) found = true;
+          }
+        });
+        return found;
       },
 
       isTooltipVisible: (anchorId: string) => {

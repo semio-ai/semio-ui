@@ -632,10 +632,56 @@
     &:not(*:disabled) {
       &[data-state="checked"],
       &[data-state="on"] {
-        background-color: var(--standard-color);
+        background-color: var(--standard-color) !important;
         &:hover {
           @media (hover: hover) {
-            background-color: var(--accent-color) /* oklch(62.3% 0.214 259.815) */;
+            background-color: var(--accent-color) !important;
+          }
+        }
+      }
+    }
+
+    /* Indeterminate/partial state: off-style background + inset colored border. */
+    &:not(*:disabled) {
+      &[data-state="indeterminate"] {
+        box-shadow: inset 0 0 0 1px var(--standard-color);
+        &:hover {
+          @media (hover: hover) {
+            box-shadow: inset 0 0 0 1px var(--accent-color);
+          }
+        }
+      }
+    }
+
+    /* When using a custom color, show a subtle tinted background in the off state. */
+    &.custom-color:not(*:disabled) {
+      &[data-state="unchecked"],
+      &[data-state="off"] {
+        background-color: color-mix(in oklab, var(--standard-color) 20%, transparent) !important;
+        color: var(--standard-color) !important;
+        &:hover {
+          @media (hover: hover) {
+            background-color: color-mix(
+              in oklab,
+              var(--standard-color) 30%,
+              transparent
+            ) !important;
+          }
+        }
+      }
+      /* Indeterminate with custom color: same subtle bg as off + inset border + full color icon. */
+      &[data-state="indeterminate"] {
+        background-color: color-mix(in oklab, var(--standard-color) 20%, transparent) !important;
+        box-shadow: inset 0 0 0 1px var(--standard-color);
+        color: var(--standard-color) !important;
+        &:hover {
+          @media (hover: hover) {
+            background-color: color-mix(
+              in oklab,
+              var(--standard-color) 30%,
+              transparent
+            ) !important;
+            box-shadow: inset 0 0 0 1px var(--accent-color);
           }
         }
       }
@@ -645,7 +691,7 @@
       @apply dark:bg-layout-dark-base/50 bg-layout-light-base/50;
       &[data-state="checked"],
       &[data-state="on"] {
-        background-color: color-mix(in oklab, var(--standard-color) 50%, transparent);
+        background-color: color-mix(in oklab, var(--standard-color) 50%, transparent) !important;
       }
     }
   }
@@ -805,7 +851,7 @@
   .card {
     @apply rounded-sm shadow-lg border-2;
     border-color: var(--card-border-color);
-    @apply dark:bg-layout-dark-base bg-layout-light-base;
+    @apply dark:bg-layout-dark-inset bg-layout-light-inset;
   }
 
   .card-transparent {
@@ -1025,6 +1071,11 @@
   .icon-standard {
     /* Explicit width+height avoids SVG intrinsic width drift across icon sets. */
     @apply block h-3/5 w-3/5 shrink-0;
+  }
+
+  .icon-larger {
+    /* Explicit width+height avoids SVG intrinsic width drift across icon sets. */
+    @apply block h-[70%] w-[70%] shrink-0;
   }
 
   .icon-slot {

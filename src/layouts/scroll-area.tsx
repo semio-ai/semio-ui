@@ -263,7 +263,7 @@ export const InnerScrollArea = forwardRef<ScrollAreaRef, ScrollAreaProps>(
       const element = viewportRef.current;
       if (!element) return;
 
-      let scrollTimeout: NodeJS.Timeout;
+      let scrollTimeout: ReturnType<typeof setTimeout>;
 
       const handleScrollStart = () => {
         setIsUserScrolling(true);
@@ -343,7 +343,7 @@ export const InnerScrollArea = forwardRef<ScrollAreaRef, ScrollAreaProps>(
           </div>
         )}
 
-        <div className="relative min-h-0 min-w-0 flex-1">
+        <div className="relative min-h-0 min-w-0 flex-1 overflow-hidden">
           <RadixScrollArea.Viewport
             ref={viewportRef}
             className={clsx(

@@ -14,10 +14,10 @@ import { mergeRefs } from "react-merge-refs";
 import { IconPointFilled } from "@tabler/icons-react";
 import { useClickAway } from "../hooks/use-click-away";
 import {
-  useTableListState,
-  type TableListItem,
+  useListState,
+  type ListItem,
   type SelectionMode,
-} from "../hooks/use-table-list-state";
+} from "../hooks/use-list-state";
 import { Size, Variant } from "../types";
 import { Checkbox } from "../inputs/checkbox";
 import { ToggleSquare } from "../inputs/toggle-square";
@@ -34,7 +34,7 @@ import { ICON_CLASS_NAME } from "../constants/icon";
  * @property requiredSize - Minimum screen size required to show this column
  * @property render - Function to render the cell content for each row
  */
-export interface ColumnDefinition<T extends TableListItem> {
+export interface ColumnDefinition<T extends ListItem> {
   key: string;
   header: ReactNode;
   align?: "left" | "center" | "right";
@@ -46,7 +46,7 @@ export interface ColumnDefinition<T extends TableListItem> {
 /**
  * Props for the TableList component.
  *
- * @template T - The type of table list items extending TableListItem
+ * @template T - The type of table list items extending ListItem
  * @property data - Array of data items to display in the table
  * @property columns - Column definitions that specify how to render each column
  * @property headerOffset - Offset from top for sticky header positioning. Defaults to 0
@@ -74,7 +74,16 @@ export interface ColumnDefinition<T extends TableListItem> {
  * @property transparentHeader - Whether the header should have a transparent background. Defaults to true
  * @property showIndicators - Whether to show selection indicators (radio/checkbox) in first column. Defaults to false
  */
-export interface TableListProps<T extends TableListItem> {
+/**
+ * Appearance presets for common styling patterns.
+ *
+ * - `card`: Default — header, card-panel background, full padding. Used in dashboard.
+ * - `panel`: Transparent background, subtle hover, no header, compact. Used in sidebars and modals.
+ * - `inline`: Minimal styling, transparent, no padding. Used for embedded lists.
+ */
+export type TableListAppearance = "card" | "panel" | "inline";
+
+export interface TableListProps<T extends ListItem> {
   data: T[];
   columns: ColumnDefinition<T>[];
   headerOffset?: number;
@@ -88,6 +97,7 @@ export interface TableListProps<T extends TableListItem> {
   // Visual Config
   size?: Size;
   variant?: Variant;
+  appearance?: TableListAppearance;
 
   // Selection configuration
   selectionMode?: SelectionMode;
@@ -144,13 +154,13 @@ export interface TableListProps<T extends TableListItem> {
  * - Cmd+A: Select all items (multiple mode only)
  * - Escape: Clear all selection
  *
- * @template T - The type of data items, must extend TableListItem
+ * @template T - The type of data items, must extend ListItem
  * @param props - Configuration props for the table list
  * @returns Rendered table list component
  *
  * @example
  * ```tsx
- * interface User extends TableListItem {
+ * interface User extends ListItem {
  *   key: string;
  *   name: string;
  *   email: string;
@@ -179,7 +189,7 @@ export interface TableListProps<T extends TableListItem> {
  * />
  * ```
  */
-export function TableList<T extends TableListItem>({
+export function TableList<T extends ListItem>({
   data,
   columns,
   headerOffset = 0,
@@ -210,12 +220,20 @@ export function TableList<T extends TableListItem>({
   onKeyDown,
 
   showIndicators = false,
+  appearance = "card",
 }: TableListProps<T>) {
+  // Apply appearance presets — these can be overridden by explicit className props
+  const presetStyles = getAppearanceStyles(appearance);
+  const resolvedNoHeader = noHeader || presetStyles.noHeader;
+  const resolvedRowClassName = clsx(presetStyles.rowClassName, rowClassName);
+  const resolvedHeaderClassName = headerClassName ?? presetStyles.headerClassName;
+  const resolvedBackgroundClassName = backgroundClassName ?? presetStyles.backgroundClassName;
+  const resolvedSize = size === Size.Md && presetStyles.size ? presetStyles.size : size;
   const [containerRef, containerBounds] = useMeasure();
   const clickAwayDetectorRef = useRef<HTMLDivElement>(null);
 
   // Initialize the table list state hook
-  const tableState = useTableListState({
+  const tableState = useListState({
     items: data,
     selectionMode,
     selectedKeys,
@@ -344,7 +362,7 @@ export function TableList<T extends TableListItem>({
       ref={mergeRefs([clickAwayDetectorRef, containerRef])}
       className={clsx(
         "table-list grid w-full scroll-mt-10 gap-x-4 gap-y-0 p-1",
-        backgroundClassName,
+        resolvedBackgroundClassName,
       )}
       style={{
         gridTemplateColumns: templateColumns,
@@ -355,7 +373,7 @@ export function TableList<T extends TableListItem>({
       }}
       {...navigationProps}
     >
-      {!noHeader && (
+      {!resolvedNoHeader && (
         <header
           className={clsx(
             "sized-height sticky grid w-full grid-cols-subgrid",
@@ -363,8 +381,8 @@ export function TableList<T extends TableListItem>({
             "border-b border-b-neutral-400 dark:border-b-neutral-600",
             "bg-transparent backdrop-blur-lg",
             "z-1",
-            size,
-            headerClassName,
+            resolvedSize,
+            resolvedHeaderClassName,
           )}
           style={{
             top: headerOffset,
@@ -402,15 +420,15 @@ export function TableList<T extends TableListItem>({
           <Row
             key={row.key}
             row={row}
-            noHeader={noHeader}
-            columns={activeColumns as ColumnDefinition<TableListItem>[]}
+            noHeader={resolvedNoHeader}
+            columns={activeColumns as ColumnDefinition<ListItem>[]}
             idx={idx}
             focused={tableState.isFocused(row.key)}
             selected={tableState.isSelected(row.key)}
             disabled={tableState.isDisabled(row.key)}
-            rowClassName={rowClassName}
+            rowClassName={resolvedRowClassName}
             selectionMode={selectionMode}
-            size={size}
+            size={resolvedSize}
             variant={variant}
             consecutiveClass={consecutiveClass}
             {...itemProps}
@@ -431,7 +449,7 @@ export function TableList<T extends TableListItem>({
   );
 }
 
-interface RowProps<T extends TableListItem> {
+interface RowProps<T extends ListItem> {
   rowClassName?: string;
   row: T;
   columns: ColumnDefinition<T>[];
@@ -458,7 +476,7 @@ interface RowProps<T extends TableListItem> {
   onBlur?: () => void;
 }
 
-function InnerRow<T extends TableListItem>({
+function InnerRow<T extends ListItem>({
   rowClassName,
   row,
   columns,
@@ -514,7 +532,16 @@ function InnerRow<T extends TableListItem>({
       aria-disabled={ariaDisabled}
       tabIndex={tabIndex}
       onKeyDown={onKeyDown as any as KeyboardEventHandler<HTMLDivElement>}
-      onClick={onClick as any as MouseEventHandler<HTMLDivElement>}
+      onClick={(e) => {
+        // Skip row selection if the click originated from an interactive child element
+        // (button, input, dropdown trigger, etc.). This prevents row selection from
+        // capturing clicks meant for action buttons within the row.
+        const target = e.target as HTMLElement;
+        if (target !== e.currentTarget && target.closest("button, input, select, textarea, [role='menuitem'], [data-radix-collection-item]")) {
+          return;
+        }
+        (onClick as any as MouseEventHandler<HTMLDivElement>)?.(e);
+      }}
       onFocus={onFocus}
       onBlur={onBlur}
       onMouseEnter={onFocus}
@@ -541,7 +568,7 @@ function InnerRow<T extends TableListItem>({
 const Row = memo(InnerRow) as typeof InnerRow;
 
 // const Row = memo(InnerRow);
-function getTemplateColumns<T extends TableListItem>(columns: ColumnDefinition<T>[]) {
+function getTemplateColumns<T extends ListItem>(columns: ColumnDefinition<T>[]) {
   return columns
     .map((column) => {
       // Indicators column should be auto-sized
@@ -572,7 +599,7 @@ const sizeLookup: Record<Size, number> = {
  * @param isFocused - Function to check if an item is focused
  * @returns CSS class name for border radius styling
  */
-function getConsecutiveClasses<T extends TableListItem>(
+function getConsecutiveClasses<T extends ListItem>(
   data: T[],
   index: number,
   isSelected: (key: string) => boolean,
@@ -599,5 +626,36 @@ function getConsecutiveClasses<T extends TableListItem>(
     return "rounded-t-xs rounded-b-none"; // Start of group
   } else {
     return "rounded-xs"; // Standalone item
+  }
+}
+
+interface AppearancePreset {
+  noHeader: boolean;
+  size?: Size;
+  rowClassName?: string;
+  headerClassName?: string;
+  backgroundClassName?: string;
+}
+
+function getAppearanceStyles(appearance: TableListAppearance): AppearancePreset {
+  switch (appearance) {
+    case "panel":
+      return {
+        noHeader: true,
+        size: Size.Lg,
+        rowClassName: "bg-transparent hover:bg-neutral-500/10 dark:bg-transparent",
+        backgroundClassName: "bg-transparent dark:bg-transparent",
+      };
+    case "inline":
+      return {
+        noHeader: true,
+        rowClassName: "bg-transparent hover:bg-neutral-500/10 dark:bg-transparent p-0",
+        backgroundClassName: "bg-transparent dark:bg-transparent p-0",
+      };
+    case "card":
+    default:
+      return {
+        noHeader: false,
+      };
   }
 }

@@ -27,7 +27,7 @@ export function Chip({
         "variant-responsive-bg variant-responsive-text",
         "sized-text sized-height",
         "responsive grid grid-rows-1 place-items-center",
-        "gap-2 p-[2px]",
+        "gap-2 p-0.5",
         renderIcon && children && onDelete && "grid-cols-[auto_1fr_auto]",
         renderIcon && children && !onDelete && "grid-cols-[auto_1fr]",
         !renderIcon && children && onDelete && "grid-cols-[1fr_auto]",
