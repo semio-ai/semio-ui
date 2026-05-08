@@ -2,7 +2,7 @@ import { atom, useAtomValue } from "jotai";
 import { ActionItem } from "../layouts/layout/types";
 import { PaneRegion, PaneSpec, ToolbarItem } from "../types";
 
-export const menuStateAtom = atom<boolean>(false);
+export const menuStateAtom = atom<boolean>(true);
 export const panesAtom = atom<PaneSpec[]>([]);
 export const toolbarItemsAtom = atom<ToolbarItem[]>([]);
 export const actionItemsAtom = atom<ActionItem[]>([]);
