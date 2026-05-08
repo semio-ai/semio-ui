@@ -28,7 +28,7 @@ export const Arrow = forwardRef(
           <rect
             width="30"
             height="2"
-            className="dark:fill-layout-dark-base fill-layout-light-base"
+            className="dark:fill-layout-dark-inset fill-layout-light-inset"
           />
         )}
         <path
@@ -39,7 +39,7 @@ export const Arrow = forwardRef(
             color ? "custom-color" : variant,
             filled
               ? "colored-carrot-invert-fill"
-              : "colored-carrot-stroke dark:fill-layout-dark-base fill-layout-light-base stroke-3",
+              : "colored-carrot-stroke dark:fill-layout-dark-inset fill-layout-light-inset stroke-3",
           )}
           strokeLinejoin="round"
           strokeWidth="2"

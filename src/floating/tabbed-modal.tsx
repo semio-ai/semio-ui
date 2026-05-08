@@ -1,5 +1,5 @@
 import { ReactNode, type MouseEvent } from "react";
-import { Tabs as TabsPrimitive } from "radix-ui";
+import { Tabs as TabsPrimitive } from "@base-ui/react/tabs";
 import { TabChild, useTabsState } from "../hooks/use-tabs-state";
 import { TabsRow, TabsContent } from "../layouts/tabs";
 import { Variant } from "../types";
@@ -104,15 +104,9 @@ export function TabbedModal({
   variant,
   closeOnSubmitClick,
 }: TabbedModalProps) {
-  const { childrenTabs, isMovingForward } = useTabsState(children, selected, undefined, "No tabs");
+  const { childrenTabs } = useTabsState(children, selected, undefined, "No tabs");
 
-  const tabsContent = (
-    <TabsContent
-      childrenTabs={childrenTabs}
-      selected={selected}
-      isMovingForward={isMovingForward}
-    />
-  );
+  const tabsContent = <TabsContent childrenTabs={childrenTabs} />;
 
   const combinedHeaderBottom = (
     <>
@@ -124,7 +118,14 @@ export function TabbedModal({
   );
 
   return (
-    <TabsPrimitive.Root value={selected} onValueChange={onTabChange}>
+    <TabsPrimitive.Root
+      value={selected}
+      onValueChange={(value) => {
+        if (typeof value === "string") {
+          onTabChange?.(value);
+        }
+      }}
+    >
       <Modal
         open={open}
         title={title}
