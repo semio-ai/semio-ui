@@ -100,9 +100,11 @@ export * from "./icons/vertical-uniform";
 export * from "./icons/world-element-icons";
 
 // Inputs
+export * from "./inputs/autocomplete";
 export * from "./inputs/checkbox";
 export * from "./inputs/chip-input";
 export * from "./inputs/color-picker-input";
+export * from "./inputs/combobox";
 export * from "./inputs/number-field";
 export * from "./inputs/slider-number-field";
 export * from "./inputs/email";
