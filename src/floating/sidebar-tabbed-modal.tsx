@@ -169,7 +169,7 @@ export function SidebarTabbedModal({
           className={clsx(
             "data-[state=open]:animate-fadeIn data-[state=closed]:animate-fadeOut transition-opacity",
             "fixed top-0 right-0 bottom-0 left-0 grid place-items-center",
-            "p-0 backdrop-blur-[2px]",
+            "p-0 bg-black/40",
           )}
         >
           <Dialog.Content
@@ -180,9 +180,14 @@ export function SidebarTabbedModal({
               "animated-modal",
               variant,
               // Single `card` surrounds the whole modal — sidebar and content
-              // panes share one bordered surface and are separated by a
-              // vertical divider on the sidebar's right edge (see SidebarPane).
+              // panes share one bordered surface. On desktop the modal's bg
+              // becomes a frosted-glass layer (mirroring `card-transparent`'s
+              // recipe); the content pane covers its area with a solid bg so
+              // only the SIDEBAR region reads as frosted. Mobile keeps
+              // `card`'s solid `inset` bg.
               "card",
+              "desktop:bg-layout-light-inset/90 desktop:dark:bg-layout-dark-inset/90",
+              "desktop:backdrop-blur-xl",
               // `relative` so the absolute-positioned panes anchor here on
               // mobile; `overflow-hidden` clips the off-screen pane during
               // the slide transition AND keeps content inside the card's
@@ -214,9 +219,15 @@ export function SidebarTabbedModal({
                   "desktop:!w-9",
                   "desktop:group-data-expanded/menu:!w-full",
                 ),
-                // Same pattern for label opacity.
+                // Same pattern for label opacity. `pr-3` adds 12px of
+                // breathing room INSIDE the label (so the text doesn't run
+                // flush to the right edge of the sidebar). The label fills
+                // its grid cell with `w-full`, so the cell — and therefore
+                // the button and the `w-fit` nav — grow by the padding to
+                // accommodate it. Active-state bg still covers the full
+                // row because the button itself is unchanged.
                 expandedLabelClassName: clsx(
-                  "!opacity-100 w-full",
+                  "!opacity-100 w-full pr-3",
                   "desktop:!opacity-0",
                   "desktop:group-data-expanded/menu:!opacity-100",
                 ),
@@ -373,21 +384,24 @@ function SidebarPane({
         offScreenOnMobile && "-translate-x-full",
         // Desktop: normal flex flow side-by-side, no translation. Width
         // depends on the desktop collapse state — `w-11` collapsed (44px:
-        // 44 − 2px right divider − 4px symmetric `p-0.5` = 38px inner,
-        // leaving 2px of breathing room around the 36px button), `w-fit`
-        // (content-sized, capped by `max-w-72`) expanded. The nav targets
-        // ITSELF via `data-expanded` (`&[data-ui~="expanded"]`); the
-        // descendant `group-data-expanded/menu` form would only match
-        // children. `border-r-2` provides the divider between sidebar and
-        // content panes.
+        // 44 − 4px symmetric `p-0.5` = 40px inner, leaving 4px of slack
+        // around the 36px button), `w-fit` (content-sized, capped by
+        // `max-w-72`) expanded. The nav targets ITSELF via `data-expanded`
+        // (`&[data-ui~="expanded"]`); the descendant
+        // `group-data-expanded/menu` form would only match children.
+        // The boundary between sidebar and content panes is distinguished
+        // by background-color tiers (header/footer = base, tab list =
+        // inset, content body = deep-inset) rather than a hard divider.
         "desktop:relative desktop:inset-auto",
         "desktop:flex! desktop:flex-col desktop:h-auto",
         "desktop:translate-x-0",
         "desktop:w-11",
-        "desktop:border-r-2 desktop:border-(--card-border-color)",
         "desktop:data-expanded:w-fit",
         "desktop:data-expanded:max-w-72",
         "desktop:transition-[width,max-width] desktop:duration-200 desktop:ease-out",
+        // No bg override here — the sidebar inherits `Dialog.Content`'s
+        // frosted-glass layer on desktop. The content pane gets the solid
+        // bg instead (see `ContentPane`).
         // Suppress pointer events while slid off — desktop variant restores.
         offScreenOnMobile && "pointer-events-none",
         "desktop:pointer-events-auto",
@@ -511,6 +525,7 @@ function SidebarPane({
                     )}
                   />
                 ),
+                closeOnSelect: true,
               },
             ]}
             onChange={onToggleDesktopCollapsed}
@@ -618,8 +633,14 @@ function ContentPane({
         offScreenOnMobile && "translate-x-full",
         // Desktop: normal flex flow, fill remaining width, no translation.
         "desktop:relative desktop:inset-auto",
-        "desktop:!flex desktop:flex-col desktop:h-auto desktop:flex-1",
+        "desktop:flex! desktop:flex-col desktop:h-auto desktop:flex-1",
         "desktop:translate-x-0",
+        // Solid content bg on desktop — the parent `Dialog.Content` is
+        // frosted-glass on desktop, and the content pane covers its area
+        // so the sidebar (which inherits the parent) reads as the
+        // transparent region. Mobile inherits the card's solid bg, so no
+        // override needed.
+        "desktop:bg-layout-light-inset desktop:dark:bg-layout-dark-inset",
         offScreenOnMobile && "pointer-events-none",
         "desktop:pointer-events-auto",
         variant,
@@ -647,8 +668,7 @@ function ContentPane({
             />
             <h2
               className={clsx(
-                variant,
-                "responsive variant-static-text",
+                "responsive default variant-static-text",
                 "min-w-0 flex-1 truncate text-base/7 font-medium",
               )}
             >

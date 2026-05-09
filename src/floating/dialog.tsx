@@ -71,7 +71,7 @@ export function Dialog({
           className={clsx(
             "data-[state=open]:animate-fadeIn data-[state=closed]:animate-fadeOut transition-opacity",
             "fixed top-0 right-0 bottom-0 left-0 grid place-items-center",
-            "p-0 backdrop-blur-[2px]",
+            "p-0 bg-black/40",
           )}
         >
           <AlertDialog.Content
