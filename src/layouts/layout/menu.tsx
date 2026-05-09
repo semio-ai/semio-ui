@@ -12,6 +12,7 @@ import {
 import { ScrollArea } from "../scroll-area";
 import { Dropdown } from "../../floating/dropdown";
 import { MenuButton } from "../../buttons/menu-button";
+import { MenuButtonProvider } from "../../context/menu-button-context";
 import { NestedLabel } from "../../nested-elements/label";
 import { NestedChild } from "../../nested-elements/configured-render";
 import { IconHome } from "../../icons/home";
@@ -41,6 +42,14 @@ function InnerMenu({
   const activeLeftPaneId = useActiveLeftPane();
 
   return (
+    <MenuButtonProvider
+      value={{
+        expanded: menuState,
+        desktop,
+        expandedWidthClassName: "desktop:group-data-expanded/menu:w-47",
+        expandedLabelClassName: "w-37.5",
+      }}
+    >
     <ContextMenu
       content={
         <>
@@ -196,6 +205,7 @@ function InnerMenu({
         </ScrollArea>
       </nav>
     </ContextMenu>
+    </MenuButtonProvider>
   );
 }
 
