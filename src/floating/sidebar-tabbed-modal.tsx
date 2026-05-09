@@ -161,6 +161,14 @@ export function SidebarTabbedModal({
     [onTabChange, selected],
   );
 
+  const handleToggleDesktopCollapsed = useCallback(() => {
+    setDesktopCollapsed((prev) => !prev);
+  }, []);
+
+  const handleBack = useCallback(() => {
+    setShowingContent(false);
+  }, []);
+
   return (
     <Dialog.Root open={open} onOpenChange={!dismissDisabled ? onStateChange : undefined}>
       <Dialog.Portal>
@@ -245,8 +253,7 @@ export function SidebarTabbedModal({
                 offScreenOnMobile={showingContent}
                 ariaHidden={!isDesktop && showingContent}
                 sidebarExpanded={sidebarExpanded}
-                desktopCollapsed={desktopCollapsed}
-                onToggleDesktopCollapsed={() => setDesktopCollapsed((prev) => !prev)}
+                onToggleDesktopCollapsed={handleToggleDesktopCollapsed}
                 contextMenuExtras={contextMenuExtras}
                 isDesktop={isDesktop}
                 tabId={tabId}
@@ -255,7 +262,7 @@ export function SidebarTabbedModal({
             </MenuButtonProvider>
             <ContentPane
               tab={activeTab}
-              onBack={() => setShowingContent(false)}
+              onBack={handleBack}
               variant={variant}
               dismissDisabled={dismissDisabled}
               offScreenOnMobile={!showingContent}
@@ -282,7 +289,6 @@ function SidebarPane({
   offScreenOnMobile,
   ariaHidden,
   sidebarExpanded,
-  desktopCollapsed,
   onToggleDesktopCollapsed,
   contextMenuExtras,
   isDesktop,
@@ -300,7 +306,6 @@ function SidebarPane({
   offScreenOnMobile: boolean;
   ariaHidden: boolean;
   sidebarExpanded: boolean;
-  desktopCollapsed: boolean;
   onToggleDesktopCollapsed: () => void;
   contextMenuExtras?: ReactNode;
   isDesktop: boolean;
@@ -370,11 +375,17 @@ function SidebarPane({
       aria-label="Sections"
       data-ui={sidebarExpanded ? "expanded" : ""}
       aria-hidden={ariaHidden ? true : undefined}
+      // Double-click toggles expand/collapse on desktop, mirroring the
+      // context-menu option and matching the main app menu's gesture.
+      // Skipped on mobile (no collapse state there). MenuButtons stop
+      // propagation on their own dblclick, so clicking a tab won't fire
+      // this.
+      onDoubleClick={isDesktop ? onToggleDesktopCollapsed : undefined}
       className={clsx(
-        // The outer Dialog.Content carries `card` (one card surrounds both
-        // panes). The nav here just provides the `group/menu` scope for
-        // descendant `data-expanded` selectors and a right-edge divider on
-        // desktop matching the card border color.
+        // The outer `Dialog.Content` carries `card` (one card surrounds both
+        // panes); this nav just provides the `group/menu` scope for
+        // descendant `data-expanded` selectors and the responsive
+        // collapse/expand width animation.
         "group/menu",
         "overflow-hidden",
         // Mobile: full-bleed overlay that slides off the left edge when the
@@ -383,15 +394,14 @@ function SidebarPane({
         "transition-transform duration-300 ease-out",
         offScreenOnMobile && "-translate-x-full",
         // Desktop: normal flex flow side-by-side, no translation. Width
-        // depends on the desktop collapse state — `w-11` collapsed (44px:
-        // 44 − 4px symmetric `p-0.5` = 40px inner, leaving 4px of slack
-        // around the 36px button), `w-fit` (content-sized, capped by
-        // `max-w-72`) expanded. The nav targets ITSELF via `data-expanded`
-        // (`&[data-ui~="expanded"]`); the descendant
-        // `group-data-expanded/menu` form would only match children.
-        // The boundary between sidebar and content panes is distinguished
-        // by background-color tiers (header/footer = base, tab list =
-        // inset, content body = deep-inset) rather than a hard divider.
+        // depends on the desktop collapse state — `w-11` (44px) collapsed,
+        // `w-fit` (content-sized, capped by `max-w-72`) expanded. The nav
+        // targets ITSELF via `data-expanded` (`&[data-ui~="expanded"]`);
+        // the descendant `group-data-expanded/menu` form would only match
+        // children. No bg override — the sidebar inherits
+        // `Dialog.Content`'s frosted-glass layer on desktop while the
+        // content pane covers its half with a solid bg, making the
+        // sidebar the "transparent" region.
         "desktop:relative desktop:inset-auto",
         "desktop:flex! desktop:flex-col desktop:h-auto",
         "desktop:translate-x-0",
@@ -399,9 +409,6 @@ function SidebarPane({
         "desktop:data-expanded:w-fit",
         "desktop:data-expanded:max-w-72",
         "desktop:transition-[width,max-width] desktop:duration-200 desktop:ease-out",
-        // No bg override here — the sidebar inherits `Dialog.Content`'s
-        // frosted-glass layer on desktop. The content pane gets the solid
-        // bg instead (see `ContentPane`).
         // Suppress pointer events while slid off — desktop variant restores.
         offScreenOnMobile && "pointer-events-none",
         "desktop:pointer-events-auto",
@@ -448,7 +455,10 @@ function SidebarPane({
                 className={clsx(
                   variant,
                   "responsive variant-static-text",
-                  "grid place-items-center",
+                  // Match the sizing of `MenuButton` icons in the rows below
+                  // — h-9 w-9 box gives `icon-standard` (`h-3/5 w-3/5`) a
+                  // definite parent to scale against.
+                  "grid h-9 w-9 place-items-center",
                 )}
               >
                 {collapsedIcon}
@@ -511,17 +521,20 @@ function SidebarPane({
         <>
           {contextMenuExtras}
           <NestedSelect
-            values={!desktopCollapsed ? ["open"] : []}
+            // The context menu is desktop-only, so `sidebarExpanded` here
+            // is equivalent to "not collapsed" — drives the toggle label
+            // and chevron rotation.
+            values={sidebarExpanded ? ["open"] : []}
             options={[
               {
-                label: !desktopCollapsed ? "Collapse Sidebar" : "Expand Sidebar",
+                label: sidebarExpanded ? "Collapse Sidebar" : "Expand Sidebar",
                 value: "open",
                 icon: (
                   <IconChevronRightPipe
                     className={clsx(
                       ICON_CLASS_NAME,
                       "transition-transform",
-                      !desktopCollapsed ? "rotate-180" : "rotate-0",
+                      sidebarExpanded ? "rotate-180" : "rotate-0",
                     )}
                   />
                 ),
@@ -668,7 +681,8 @@ function ContentPane({
             />
             <h2
               className={clsx(
-                "responsive default variant-static-text",
+                variant,
+                "responsive variant-static-text",
                 "min-w-0 flex-1 truncate text-base/7 font-medium",
               )}
             >

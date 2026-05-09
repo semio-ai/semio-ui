@@ -1,11 +1,10 @@
 import {
   type AriaAttributes,
   type AriaRole,
-  ForwardedRef,
-  forwardRef,
   type KeyboardEventHandler,
-  MouseEventHandler,
-  ReactNode,
+  type MouseEventHandler,
+  type ReactNode,
+  type Ref,
 } from "react";
 import { clsx } from "clsx";
 import { Variant } from "../types";
@@ -13,7 +12,7 @@ import { Status } from "../feedback/status";
 import { Tooltip } from "../floating/tooltip";
 import { useMenuButtonContext } from "../context/menu-button-context";
 
-interface MenuButtonProps {
+export interface MenuButtonProps {
   children: string;
   altText?: string;
   icon: ReactNode;
@@ -51,31 +50,31 @@ interface MenuButtonProps {
   "aria-controls"?: AriaAttributes["aria-controls"];
   id?: string;
   onKeyDown?: KeyboardEventHandler<HTMLButtonElement>;
+  /** Ref to the underlying `<button>` element. */
+  ref?: Ref<HTMLButtonElement>;
 }
 
-function InnerMenuButton(
-  {
-    children,
-    altText,
-    icon,
-    onClick,
-    active,
-    hoverable,
-    bg,
-    activeOnDesktopOnly,
-    status,
-    variant,
-    className,
-    textClassName,
-    tabIndex,
-    role,
-    "aria-selected": ariaSelected,
-    "aria-controls": ariaControls,
-    id,
-    onKeyDown,
-  }: MenuButtonProps,
-  ref: ForwardedRef<HTMLButtonElement>,
-) {
+export function MenuButton({
+  children,
+  altText,
+  icon,
+  onClick,
+  active,
+  hoverable,
+  bg,
+  activeOnDesktopOnly,
+  status,
+  variant,
+  className,
+  textClassName,
+  tabIndex,
+  role,
+  "aria-selected": ariaSelected,
+  "aria-controls": ariaControls,
+  id,
+  onKeyDown,
+  ref,
+}: MenuButtonProps) {
   const { expanded, desktop, expandedWidthClassName, expandedLabelClassName } =
     useMenuButtonContext();
   const Wrapper = status ? Status : "div";
@@ -190,5 +189,3 @@ function InnerMenuButton(
     </button>
   );
 }
-
-export const MenuButton = forwardRef(InnerMenuButton);
