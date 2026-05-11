@@ -44,6 +44,7 @@ export * from "./hooks/use-delayed-boolean";
 export * from "./hooks/use-layout-actions";
 export * from "./hooks/use-layout-state";
 export * from "./hooks/use-system-theme-preference";
+export * from "./hooks/use-tabs-state";
 export * from "./hooks/use-theme";
 export * from "./hooks/use-window-size";
 

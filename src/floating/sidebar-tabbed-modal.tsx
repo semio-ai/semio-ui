@@ -194,7 +194,7 @@ export function SidebarTabbedModal({
               // only the SIDEBAR region reads as frosted. Mobile keeps
               // `card`'s solid `inset` bg.
               "card",
-              "desktop:bg-layout-light-inset/90 desktop:dark:bg-layout-dark-inset/90",
+              "desktop:bg-layout-light-base/90 desktop:dark:bg-layout-dark-base/90",
               "desktop:backdrop-blur-xl",
               // `relative` so the absolute-positioned panes anchor here on
               // mobile; `overflow-hidden` clips the off-screen pane during
@@ -434,7 +434,6 @@ function SidebarPane({
               "flex flex-row items-center gap-2 h-12",
               // Padding tightens when collapsed (narrow rail).
               sidebarExpanded ? "justify-between px-3" : "justify-center px-1",
-              "bg-neutral-50/50 dark:bg-neutral-950/50",
             )}
           >
             {/* Dialog.Title always rendered for Radix; visually hidden when
@@ -473,17 +472,7 @@ function SidebarPane({
           </header>
         }
         footer={
-          sidebarFooter ? (
-            <footer
-              className={clsx(
-                "px-2 py-1.5",
-                "bg-neutral-50/50 dark:bg-neutral-950/50",
-                "border-t border-neutral-500/15",
-              )}
-            >
-              {sidebarFooter}
-            </footer>
-          ) : undefined
+          sidebarFooter ? <footer className="px-2 py-1.5">{sidebarFooter}</footer> : undefined
         }
       >
         <div
@@ -652,10 +641,14 @@ function ContentPane({
         // frosted-glass on desktop, and the content pane covers its area
         // so the sidebar (which inherits the parent) reads as the
         // transparent region. Mobile inherits the card's solid bg, so no
-        // override needed.
-        "desktop:bg-layout-light-inset desktop:dark:bg-layout-dark-inset",
+        // override needed there. A subtle `border-l` provides the
+        // sidebar↔content divider on desktop at the same opacity as the
+        // inner content header/footer dividers for a consistent hairline
+        // system.
         offScreenOnMobile && "pointer-events-none",
         "desktop:pointer-events-auto",
+        "desktop:bg-layout-light-base desktop:dark:bg-layout-dark-base",
+        "desktop:border-l desktop:border-neutral-500/15",
         variant,
       )}
     >
@@ -669,7 +662,7 @@ function ContentPane({
             className={clsx(
               "flex flex-row items-center gap-2 px-3",
               "h-12",
-              "bg-neutral-50/50 dark:bg-neutral-950/50",
+              "border-b border-neutral-500/15",
             )}
           >
             <Button
@@ -697,13 +690,7 @@ function ContentPane({
         }
         footer={
           tab.contentFooter ? (
-            <footer
-              className={clsx(
-                "px-3 py-2",
-                "bg-neutral-50/50 dark:bg-neutral-950/50",
-                "border-t border-neutral-500/15",
-              )}
-            >
+            <footer className="px-3 py-2 border-t border-neutral-500/15">
               {tab.contentFooter}
             </footer>
           ) : undefined

@@ -31,6 +31,47 @@ export interface DialogProps {
   closeOnSubmitClick?: boolean;
 }
 
+/**
+ * A confirmation/alert dialog built on Radix `AlertDialog`. Mirrors the
+ * structure of `Modal` — header (title + optional description + X close),
+ * optional body, optional footer (cancel/submit) — and shares its visual
+ * language (frosted card, `bg-black/40` overlay, hairline section dividers).
+ *
+ * Layout sections and dividers:
+ * - **Header** is always rendered. It carries title, description (subtitle),
+ *   and the X close button. Has `border-b` only when a body or footer
+ *   follows — a header by itself doesn't need a dangling underline.
+ * - **Body** is rendered only when `children` is truthy. When absent (the
+ *   common confirmation-only case), the empty padded area is skipped and
+ *   no body-adjacent dividers are drawn.
+ * - **Footer** is rendered when `onCancel` or `onSubmit` is set. It gets a
+ *   `border-t` only when a body sits above it; otherwise the header's
+ *   `border-b` already separates them and a second hairline would read as
+ *   a double line.
+ *
+ * @example Confirmation-only (no body)
+ * ```tsx
+ * <Dialog
+ *   open={open}
+ *   onStateChange={setOpen}
+ *   title="Delete project?"
+ *   description="This cannot be undone."
+ *   submitText="Delete"
+ *   variant={Variant.Error}
+ *   onSubmit={handleDelete}
+ *   onCancel={() => setOpen(false)}
+ * />
+ * ```
+ *
+ * @example With body content
+ * ```tsx
+ * <Dialog title="Remove items" submitText="Remove" {...handlers}>
+ *   <ul className="list-disc pl-5 text-sm">
+ *     {items.map((i) => <li key={i.id}>{i.name}</li>)}
+ *   </ul>
+ * </Dialog>
+ * ```
+ */
 export function Dialog({
   children,
   open,
@@ -63,6 +104,8 @@ export function Dialog({
       {submitText}
     </Button>
   );
+  const hasBody = Boolean(children);
+  const hasFooter = Boolean(onCancel || submitButton);
   return (
     <AlertDialog.Root open={open} onOpenChange={onStateChange}>
       <AlertDialog.Portal>
@@ -86,7 +129,11 @@ export function Dialog({
           >
             <div
               className={clsx(
-                "flex flex-col gap-1 bg-neutral-50/50 p-3 dark:bg-neutral-950/50",
+                "flex flex-col gap-1 p-3",
+                // Header gets a bottom divider only when something follows
+                // it. A solo header (no body, no footer — uncommon) reads
+                // cleaner without a dangling underline.
+                (hasBody || hasFooter) && "border-b border-neutral-500/15",
                 variant,
                 "variant-static-text",
               )}
@@ -115,28 +162,39 @@ export function Dialog({
               </AlertDialog.Description>
             </div>
 
-            <div className="flex-1 p-3 text-black md:flex-none dark:text-white">{children}</div>
+            {hasBody && (
+              <div className="flex-1 p-3 text-black md:flex-none dark:text-white">{children}</div>
+            )}
 
-            <div className="flex flex-row justify-end gap-3 p-3">
-              {onCancel && (
-                <AlertDialog.Cancel asChild>
-                  <Button
-                    tabIndex={0}
-                    className="flex-1"
-                    variant={Variant.Default}
-                    onClick={onCancel}
-                  >
-                    {cancelText ?? "Cancel"}
-                  </Button>
-                </AlertDialog.Cancel>
-              )}
-              {submitButton &&
-                (closeOnSubmitClick ? (
-                  <AlertDialog.Action asChild>{submitButton}</AlertDialog.Action>
-                ) : (
-                  submitButton
-                ))}
-            </div>
+            {hasFooter && (
+              <div
+                className={clsx(
+                  "flex flex-row justify-end gap-3 p-3",
+                  // Only divide from a body that actually exists; otherwise the
+                  // header's `border-b` is already the separator above us.
+                  hasBody && "border-t border-neutral-500/15",
+                )}
+              >
+                {onCancel && (
+                  <AlertDialog.Cancel asChild>
+                    <Button
+                      tabIndex={0}
+                      className="flex-1"
+                      variant={Variant.Default}
+                      onClick={onCancel}
+                    >
+                      {cancelText ?? "Cancel"}
+                    </Button>
+                  </AlertDialog.Cancel>
+                )}
+                {submitButton &&
+                  (closeOnSubmitClick ? (
+                    <AlertDialog.Action asChild>{submitButton}</AlertDialog.Action>
+                  ) : (
+                    submitButton
+                  ))}
+              </div>
+            )}
           </AlertDialog.Content>
         </AlertDialog.Overlay>
       </AlertDialog.Portal>

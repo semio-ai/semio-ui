@@ -153,9 +153,9 @@ export function Modal({
               header={
                 <div
                   className={clsx(
-                    "flex flex-col gap-1 ",
+                    "flex flex-col gap-1",
                     !showHeader && "hidden",
-                    "bg-neutral-50/50 dark:bg-neutral-950/50",
+                    "border-b border-neutral-500/15",
                   )}
                 >
                   <div
@@ -187,7 +187,7 @@ export function Modal({
               }
               footer={
                 showFooter && (
-                  <div className="flex justify-end gap-3 p-3">
+                  <div className="flex justify-end gap-3 p-3 border-t border-neutral-500/15">
                     {onCancel && (
                       <Dialog.Close asChild>
                         <Button
