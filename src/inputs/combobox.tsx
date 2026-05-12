@@ -17,6 +17,7 @@ import {
   popupClassName,
   popupScrollWrapperClassName,
   popupViewportClassName,
+  positionerClassName,
   rightChevronClassName,
   statusClassName,
 } from "./combobox-shared";
@@ -187,7 +188,11 @@ export function Combobox<TValue extends string>({
       </ComboboxPrimitive.InputGroup>
 
       <ComboboxPrimitive.Portal container={portalContainer ?? undefined}>
-        <ComboboxPrimitive.Positioner sideOffset={4} align="center">
+        <ComboboxPrimitive.Positioner
+          sideOffset={4}
+          align="center"
+          className={positionerClassName()}
+        >
           <ComboboxPrimitive.Popup className={popupClassName(popupClassNameProp)}>
             <ComboboxPrimitive.Status className={statusClassName()} />
             <ScrollArea

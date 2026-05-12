@@ -16,6 +16,7 @@ import {
   popupClassName,
   popupScrollWrapperClassName,
   popupViewportClassName,
+  positionerClassName,
   rightButtonClassName,
   statusClassName,
 } from "./combobox-shared";
@@ -158,7 +159,11 @@ export function Autocomplete<TItem>({
       </AutocompletePrimitive.InputGroup>
 
       <AutocompletePrimitive.Portal container={portalContainer ?? undefined}>
-        <AutocompletePrimitive.Positioner sideOffset={4} align="center">
+        <AutocompletePrimitive.Positioner
+          sideOffset={4}
+          align="center"
+          className={positionerClassName()}
+        >
           <AutocompletePrimitive.Popup
             className={popupClassName(popupClassNameProp)}
           >

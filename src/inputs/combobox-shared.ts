@@ -4,10 +4,23 @@ import { Size, Variant } from "../types";
 /** Cap the popup height to the available space below the anchor. */
 export const POPUP_MAX_HEIGHT_CLASS = "max-h-[calc(var(--available-height)-4px)]";
 
+/**
+ * Class for the Positioner element. z-index lives here, not on the Popup —
+ * Positioner is the actually-positioned (`position: absolute`) element that
+ * creates the stacking context. z-index on the non-positioned Popup child
+ * is ignored for cross-context stacking against e.g. a Radix Dialog.
+ *
+ * Set high enough to win against modal overlays (which typically rely on
+ * portal DOM order at z-auto).
+ */
+export function positionerClassName(extras?: string) {
+  return clsx("z-50", extras);
+}
+
 export function popupClassName(extras?: string) {
   return clsx(
     "responsive card dropdown-content",
-    "z-50 m-0.5 rounded-sm",
+    "m-0.5 rounded-sm",
     "w-[calc(var(--available-width)-4px)]",
     "desktop:w-[calc(var(--anchor-width)+10px)]",
     POPUP_MAX_HEIGHT_CLASS,
