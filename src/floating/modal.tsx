@@ -141,6 +141,19 @@ export function Modal({
               "desktop:min-h-72 desktop:min-w-96",
               "desktop:h-fit desktop:w-fit",
             )}
+            // Don't dismiss the modal when a click originates inside a
+            // base-ui popup (Autocomplete, Combobox, etc.). Those popups
+            // portal to body, so Radix treats their clicks as "outside"
+            // by default — selecting an item would close the modal AND
+            // swallow the option's onClick. Detect via the
+            // `data-base-ui-portal` attribute that FloatingPortal sets
+            // on its portal node.
+            onInteractOutside={(event) => {
+              const target = event.detail.originalEvent.target as Element | null;
+              if (target?.closest("[data-base-ui-portal]")) {
+                event.preventDefault();
+              }
+            }}
           >
             <ScrollArea
               orientation="vertical"
