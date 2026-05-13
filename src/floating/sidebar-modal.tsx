@@ -387,6 +387,10 @@ function SidebarPane({
       aria-label="Sections"
       data-ui={sidebarExpanded ? "expanded" : ""}
       aria-hidden={ariaHidden ? true : undefined}
+      // `aria-hidden` alone doesn't remove focusable descendants from the
+      // tab order. `inert` does — without it, keyboard users could focus
+      // into an off-screen pane while drilled into the other on mobile.
+      inert={ariaHidden}
       // Double-click toggles expand/collapse on desktop, mirroring the
       // context-menu option and matching the main app menu's gesture.
       // Skipped on mobile (no collapse state there). MenuButtons stop
@@ -644,6 +648,9 @@ function ContentPane({
       role="tabpanel"
       aria-labelledby={tabId}
       aria-hidden={ariaHidden ? true : undefined}
+      // See SidebarPane — `inert` covers focusability that `aria-hidden`
+      // alone doesn't.
+      inert={ariaHidden}
       className={clsx(
         // The outer Dialog.Popup carries `card`. The content pane just
         // needs its own clip + scroll layout.

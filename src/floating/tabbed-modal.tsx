@@ -117,7 +117,12 @@ export function TabbedModal({
 
   return (
     <TabsPrimitive.Root
-      value={selected}
+      // Fall back to the first tab when the consumer hasn't passed a
+      // `selected` — `TabsPrimitive.Root` is controlled, so leaving
+      // `value` as `undefined` would render with no active tab (and an
+      // unaligned indicator). `childrenTabs` always has at least one
+      // entry thanks to `useTabsState`'s placeholder.
+      value={selected ?? childrenTabs[0]?.key}
       onValueChange={(value) => {
         if (typeof value === "string") {
           onTabChange?.(value);

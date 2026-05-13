@@ -117,7 +117,10 @@ export function MenuButton({
       id={id}
       role={role}
       tabIndex={tabIndex}
-      aria-current={active ? "page" : undefined}
+      // `aria-current="page"` is appropriate for nav links/buttons but not
+      // for `role="tab"` (which uses `aria-selected`) or other interactive
+      // roles. Only set it when the consumer hasn't overridden `role`.
+      aria-current={active && !role ? "page" : undefined}
       aria-selected={ariaSelected}
       aria-controls={ariaControls}
       data-active={active ? "" : undefined}

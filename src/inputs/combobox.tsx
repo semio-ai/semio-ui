@@ -124,7 +124,12 @@ export function Combobox<TValue extends string>({
 
   return (
     <ComboboxPrimitive.Root<ComboboxOption<TValue>, false>
-      items={options as readonly ComboboxOption<TValue>[]}
+      // Pass `flatOptions` (not raw `options`) — when grouped, `options` is
+      // `ComboboxGroup[]` whose entries lack a `value`, which would break
+      // base-ui's `itemToStringValue` / `isItemEqualToValue` callbacks. We
+      // still render groups in the List below; this prop is only for the
+      // store's flat item set.
+      items={flatOptions}
       value={selectedOption}
       onValueChange={(next) => {
         if (next == null) {
