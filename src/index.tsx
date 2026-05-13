@@ -20,7 +20,7 @@ export * from "./floating/modal";
 export * from "./floating/popover";
 export * from "./floating/select";
 export * from "./floating/select-tree";
-export * from "./floating/sidebar-tabbed-modal";
+export * from "./floating/sidebar-modal";
 export * from "./floating/tabbed-modal";
 export * from "./floating/toast";
 export * from "./floating/tooltip";

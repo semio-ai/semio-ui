@@ -84,8 +84,8 @@ export function MenuButton({
   // base-layer rule, so they win.
   const activeOverride = activeOnDesktopOnly
     ? clsx(
-        "group-data-[active]/tab:text-default-500",
-        "desktop:group-data-[active]/tab:text-[var(--accent-color)]",
+        "group-data-active/tab:text-default-500",
+        "desktop:group-data-active/tab:text-[var(--accent-color)]",
       )
     : undefined;
   const wrapperProps = status
@@ -148,12 +148,12 @@ export function MenuButton({
           "hover:bg-[color-mix(in_oklab,var(--accent-color)_15%,transparent)]",
           activeOnDesktopOnly
             ? [
-                "desktop:data-[active]:bg-[color-mix(in_oklab,var(--accent-color)_25%,transparent)]",
-                "desktop:data-[active]:hover:bg-[color-mix(in_oklab,var(--accent-color)_35%,transparent)]",
+                "desktop:data-active:bg-[color-mix(in_oklab,var(--accent-color)_25%,transparent)]",
+                "desktop:data-active:hover:bg-[color-mix(in_oklab,var(--accent-color)_35%,transparent)]",
               ]
             : [
-                "data-[active]:bg-[color-mix(in_oklab,var(--accent-color)_25%,transparent)]",
-                "data-[active]:hover:bg-[color-mix(in_oklab,var(--accent-color)_35%,transparent)]",
+                "data-active:bg-[color-mix(in_oklab,var(--accent-color)_25%,transparent)]",
+                "data-active:hover:bg-[color-mix(in_oklab,var(--accent-color)_35%,transparent)]",
               ],
         ],
         className,

@@ -7,7 +7,7 @@ import { createContext, useContext, type ReactNode } from "react";
  *
  * - The main app menu wraps its `MenuButton`s in a Provider that pipes the
  *   global jotai atoms (`useMenuState()` / `useDesktopState()`) through.
- * - Modal sidebars (e.g. `SidebarTabbedModal`) wrap their `MenuButton`s in a
+ * - Modal sidebars (e.g. `SidebarModal`) wrap their `MenuButton`s in a
  *   Provider whose values are local component state, so the modal's sidebar
  *   expand/collapse is independent of the app menu.
  */
@@ -45,7 +45,7 @@ export function useMenuButtonContext(): MenuButtonContextValue {
   const ctx = useContext(MenuButtonContext);
   if (!ctx) {
     throw new Error(
-      "MenuButton must be wrapped in <MenuButtonProvider>. The main app menu provides one in `Menu`; modals like `SidebarTabbedModal` provide their own.",
+      "MenuButton must be wrapped in <MenuButtonProvider>. The main app menu provides one in `Menu`; modals like `SidebarModal` provide their own.",
     );
   }
   return ctx;

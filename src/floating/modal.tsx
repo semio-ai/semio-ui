@@ -1,5 +1,5 @@
 import { type ReactNode, type MouseEvent } from "react";
-import { Dialog } from "radix-ui";
+import { Dialog } from "@base-ui/react/dialog";
 import { clsx } from "clsx";
 import { IconX } from "@tabler/icons-react";
 import { ScrollArea } from "../layouts/scroll-area";
@@ -22,16 +22,14 @@ export interface ModalProps {
   /**
    * Whether clicking the submit button should close the modal immediately.
    *
-   * - `true` (default) — wraps the submit button in `Dialog.Close`. The
-   *   modal closes synchronously on click, regardless of whether
-   *   `onSubmit` is sync or async. Suitable for handlers that don't need
-   *   to keep the modal open (sync state writes, fire-and-forget uploads).
-   * - `false` — renders the submit button as a regular button. The modal
-   *   stays open after the click; the consumer is responsible for
-   *   eventually calling `onStateChange(false)` (typically after a
-   *   successful `await` of the submit work). On error, the consumer
-   *   should leave the modal open and surface the error inline so the
-   *   user can retry.
+   * - `true` (default) — the modal closes synchronously on click, regardless
+   *   of whether `onSubmit` is sync or async. Suitable for handlers that
+   *   don't need to keep the modal open (sync state writes, fire-and-forget
+   *   uploads).
+   * - `false` — the modal stays open after the click; the consumer is
+   *   responsible for eventually calling `onStateChange(false)` (typically
+   *   after a successful `await` of the submit work). On error, leave the
+   *   modal open and surface the error inline so the user can retry.
    *
    * Cancel and the X close button always close immediately regardless of
    * this prop — async cancel is rare and "discard my work" should be
@@ -42,55 +40,44 @@ export interface ModalProps {
 }
 
 /**
- * A flexible modal dialog component built on top of Radix UI's Dialog primitive.
+ * A flexible modal dialog built on base-ui's `Dialog` primitive.
  *
- * This component provides a full-screen overlay modal with customizable header, content area,
- * and footer. It includes automatic scroll handling, responsive design, and smooth animations.
- * The modal can be configured with submit/cancel actions and supports custom content placement
- * in the header area.
+ * Provides a full-screen overlay modal with customisable header, content
+ * area, and footer. Includes automatic scroll handling, responsive
+ * design, and smooth fade-and-slide animations. Submit/cancel actions
+ * are configurable; custom content can be slotted into the header area
+ * below the description.
+ *
+ * Why base-ui (not Radix): Radix's `DismissableLayer` treats clicks
+ * inside other portals (e.g. base-ui's `Autocomplete` popup) as
+ * "outside", which closed the modal *and* swallowed the popup's option
+ * `onClick`. base-ui's `Dialog` and `Autocomplete` coordinate via the
+ * `FloatingPortal` machinery and don't have that conflict.
  *
  * Features:
- * - Full-screen overlay with backdrop blur
- * - Responsive design (full-screen on mobile, centered on desktop)
- * - Automatic scroll area with header and footer
- * - Customizable header with title, description, and additional content
- * - Optional submit/cancel footer with configurable actions
- * - Keyboard and click-away dismissal (configurable)
- * - Smooth fade animations for open/close states
- * - Variant-based styling support
+ * - Full-screen dim overlay on every breakpoint; centred card on desktop
+ * - Responsive (full-bleed on mobile, fit-to-content on desktop)
+ * - Automatic scroll area with header/footer hairline dividers
+ * - Header with title, description, X close, and optional `headerBottom`
+ * - Optional submit/cancel footer with configurable close semantics
+ * - Keyboard (Esc) and click-away dismissal (configurable)
+ * - Variant-based styling
  *
  * @example
  * ```tsx
- * const [isOpen, setIsOpen] = useState(false);
- *
  * <Modal
  *   open={isOpen}
  *   onStateChange={setIsOpen}
  *   title="Edit Settings"
  *   description="Modify your application settings below"
- *   headerBottom={<CustomTabs />}
  *   submitText="Save Changes"
- *   onSubmit={(event) => handleSave()}
- *   onCancel={(event) => setIsOpen(false)}
+ *   onSubmit={() => handleSave()}
+ *   onCancel={() => setIsOpen(false)}
  *   variant={Variant.Primary}
  * >
  *   <SettingsForm />
  * </Modal>
  * ```
- *
- * @param children - Main content to display in the modal body
- * @param open - Controls whether the modal is visible
- * @param title - Optional title displayed in the header
- * @param description - Optional description text below the title
- * @param headerBottom - Optional content rendered below description but within header area
- * @param dismissDisabled - When true, prevents closing modal via ESC key or click-away
- * @param submitDisabled - When true, disables the submit button
- * @param submitText - Text for the submit button (defaults to "Submit")
- * @param onStateChange - Callback fired when modal should open/close
- * @param onSubmit - Optional callback for submit button click (shows submit button when provided)
- * @param onCancel - Optional callback for cancel button click (shows cancel button when provided)
- * @param variant - Visual variant for styling the modal and buttons
- * @param scrollDisabled - Legacy prop for disabling scroll area (currently unused)
  */
 export function Modal({
   children,
@@ -107,53 +94,64 @@ export function Modal({
   variant,
   closeOnSubmitClick = true,
 }: ModalProps) {
+  const showFooter = onSubmit || onCancel;
+  const showHeader = title || description;
   const submitButton = onSubmit && (
     <Button
       tabIndex={0}
       variant={variant}
-      onClick={onSubmit}
+      onClick={(event) => {
+        onSubmit(event);
+        if (closeOnSubmitClick) {
+          onStateChange(false);
+        }
+      }}
       disabled={submitDisabled}
     >
       {submitText}
     </Button>
   );
-  const showFooter = onSubmit || onCancel;
-  const showHeader = title || description;
   return (
-    <Dialog.Root open={open} onOpenChange={!dismissDisabled ? onStateChange : undefined}>
+    <Dialog.Root
+      open={open}
+      onOpenChange={(nextOpen) => {
+        // Honour `dismissDisabled` for every close reason (escape, outside
+        // press, focus out). Open requests still propagate so a controlled
+        // parent can `setOpen(true)` programmatically — though typically
+        // the parent already manages `open` itself.
+        if (dismissDisabled && !nextOpen) return;
+        onStateChange(nextOpen);
+      }}
+      // Lock out pointer dismissal entirely when disabled; the
+      // `onOpenChange` guard above covers escape/focus-out too.
+      disablePointerDismissal={dismissDisabled}
+    >
       <Dialog.Portal>
-        <Dialog.Overlay
-          forceMount
+        <Dialog.Backdrop
           className={clsx(
-            "data-[state=open]:animate-fadeIn data-[state=closed]:animate-fadeOut transition-opacity",
-            "fixed top-0 right-0 bottom-0 left-0 grid place-items-center",
-            "p-0 bg-black/40",
+            "fixed inset-0 bg-black/40",
+            "transition-opacity duration-200",
+            "data-starting-style:opacity-0 data-ending-style:opacity-0",
           )}
-        >
-          <Dialog.Content
-            forceMount
+        />
+        <Dialog.Viewport className="fixed inset-0 grid place-items-center p-0">
+          <Dialog.Popup
             className={clsx(
               "responsive flex flex-col focus:outline-hidden",
-              "card animated-modal overflow-clip",
+              "card overflow-clip",
               variant,
               "h-[calc(100dvh-4px)] w-[calc(100vw-4px)]",
               "desktop:max-w-[calc(100vw-4px)] desktop:max-h-[calc(100dvh-4px)]",
               "desktop:min-h-72 desktop:min-w-96",
               "desktop:h-fit desktop:w-fit",
+              // Slide-up + fade in, slide-down + fade out. Matches the
+              // `animated-modal` keyframes that the Radix-backed version
+              // used, expressed via base-ui's `data-starting-style` /
+              // `data-ending-style` transition hooks.
+              "transition-[opacity,scale] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]",
+              "data-starting-style:opacity-0 data-starting-style:scale-90",
+              "data-ending-style:opacity-0 data-ending-style:scale-90",
             )}
-            // Don't dismiss the modal when a click originates inside a
-            // base-ui popup (Autocomplete, Combobox, etc.). Those popups
-            // portal to body, so Radix treats their clicks as "outside"
-            // by default — selecting an item would close the modal AND
-            // swallow the option's onClick. Detect via the
-            // `data-base-ui-portal` attribute that FloatingPortal sets
-            // on its portal node.
-            onInteractOutside={(event) => {
-              const target = event.detail.originalEvent.target as Element | null;
-              if (target?.closest("[data-base-ui-portal]")) {
-                event.preventDefault();
-              }
-            }}
           >
             <ScrollArea
               orientation="vertical"
@@ -185,9 +183,11 @@ export function Modal({
                         {title}
                       </Dialog.Title>
                       {!dismissDisabled && (
-                        <Dialog.Close asChild>
-                          <Button variant={variant} leftIcon={<IconX />} />
-                        </Dialog.Close>
+                        <Dialog.Close
+                          render={(props) => (
+                            <Button {...props} variant={variant} leftIcon={<IconX />} />
+                          )}
+                        />
                       )}
                     </div>
                     <Dialog.Description className="text-sm/6 text-black/50 dark:text-white/50">
@@ -202,31 +202,27 @@ export function Modal({
                 showFooter && (
                   <div className="flex justify-end gap-3 p-3 border-t border-neutral-500/15">
                     {onCancel && (
-                      <Dialog.Close asChild>
-                        <Button
-                          tabIndex={0}
-                          variant={Variant.Default}
-                          onClick={onCancel}
-                          disabled={dismissDisabled}
-                        >
-                          Cancel
-                        </Button>
-                      </Dialog.Close>
+                      <Button
+                        tabIndex={0}
+                        variant={Variant.Default}
+                        onClick={(event) => {
+                          onCancel(event);
+                          onStateChange(false);
+                        }}
+                        disabled={dismissDisabled}
+                      >
+                        Cancel
+                      </Button>
                     )}
-                    {submitButton &&
-                      (closeOnSubmitClick ? (
-                        <Dialog.Close asChild>{submitButton}</Dialog.Close>
-                      ) : (
-                        submitButton
-                      ))}
+                    {submitButton}
                   </div>
                 )
               }
             >
               <div className="flex-1 p-0 text-black md:flex-none dark:text-white">{children}</div>
             </ScrollArea>
-          </Dialog.Content>
-        </Dialog.Overlay>
+          </Dialog.Popup>
+        </Dialog.Viewport>
       </Dialog.Portal>
     </Dialog.Root>
   );

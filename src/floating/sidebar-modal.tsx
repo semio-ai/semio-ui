@@ -9,7 +9,7 @@ import {
   useRef,
   useState,
 } from "react";
-import { Dialog } from "radix-ui";
+import { Dialog } from "@base-ui/react/dialog";
 import { clsx } from "clsx";
 import {
   IconChevronLeft,
@@ -36,7 +36,7 @@ export interface SidebarTab {
   contentFooter?: ReactNode;
 }
 
-export interface SidebarTabbedModalProps {
+export interface SidebarModalProps {
   open: boolean;
   onStateChange: (open: boolean) => void;
   /** Modal title — rendered as the sidebar header. */
@@ -81,12 +81,15 @@ const PLACEHOLDER_TAB: SidebarTab = {
  * the sidebar tab list — analogous to the action items at the bottom of the
  * main app menu.
  *
+ * Built on base-ui's `Dialog` (not Radix). See `Modal` for the rationale —
+ * Radix's `DismissableLayer` interferes with base-ui's `Autocomplete`/
+ * `Combobox` clicks, which a settings-style modal commonly contains.
+ *
  * Layout:
- * - Desktop: both panes side-by-side at equal height (via flex stretch). The
- *   modal is sized to a viewport-relative `clamp(...)` width so it doesn't
- *   reflow when the active tab's content changes; internals can react to the
- *   modal's width via container queries (`@container` is set on the content
- *   pane body).
+ * - Desktop: both panes side-by-side at equal height. The modal is sized to a
+ *   viewport-relative `clamp(...)` width so it doesn't reflow when the active
+ *   tab's content changes; internals can react to the modal's width via
+ *   container queries (`@container` is set on the content pane body).
  * - Mobile: sidebar fills the modal initially. Tapping a tab drills into the
  *   content pane (with a back chevron in its header). X close stays available
  *   on both views.
@@ -99,7 +102,7 @@ const PLACEHOLDER_TAB: SidebarTab = {
  * `MenuButtonProvider` so the modal's expand/collapse is independent of the
  * main app menu.
  */
-export function SidebarTabbedModal({
+export function SidebarModal({
   open,
   onStateChange,
   title,
@@ -111,7 +114,7 @@ export function SidebarTabbedModal({
   contextMenuExtras,
   variant,
   dismissDisabled = false,
-}: SidebarTabbedModalProps) {
+}: SidebarModalProps) {
   const tabList = useMemo<SidebarTab[]>(() => (tabs.length > 0 ? tabs : [PLACEHOLDER_TAB]), [tabs]);
 
   const [internalSelected, setInternalSelected] = useState<string>(tabList[0].key);
@@ -170,22 +173,27 @@ export function SidebarTabbedModal({
   }, []);
 
   return (
-    <Dialog.Root open={open} onOpenChange={!dismissDisabled ? onStateChange : undefined}>
+    <Dialog.Root
+      open={open}
+      onOpenChange={(nextOpen) => {
+        if (dismissDisabled && !nextOpen) return;
+        onStateChange(nextOpen);
+      }}
+      disablePointerDismissal={dismissDisabled}
+    >
       <Dialog.Portal>
-        <Dialog.Overlay
-          forceMount
+        <Dialog.Backdrop
           className={clsx(
-            "data-[state=open]:animate-fadeIn data-[state=closed]:animate-fadeOut transition-opacity",
-            "fixed top-0 right-0 bottom-0 left-0 grid place-items-center",
-            "p-0 bg-black/40",
+            "fixed inset-0 bg-black/40",
+            "transition-opacity duration-200",
+            "data-starting-style:opacity-0 data-ending-style:opacity-0",
           )}
-        >
-          <Dialog.Content
-            forceMount
+        />
+        <Dialog.Viewport className="fixed inset-0 grid place-items-center p-0">
+          <Dialog.Popup
             aria-describedby={undefined}
             className={clsx(
               "responsive focus:outline-hidden",
-              "animated-modal",
               variant,
               // Single `card` surrounds the whole modal — sidebar and content
               // panes share one bordered surface. On desktop the modal's bg
@@ -210,6 +218,10 @@ export function SidebarTabbedModal({
               // against (rather than the modal expanding to fit all tabs).
               "desktop:w-[clamp(40rem,80vw,72rem)]",
               "desktop:h-[clamp(24rem,75dvh,calc(100dvh-4rem))]",
+              // Scale-up + fade in/out. Matches `Modal`.
+              "transition-[opacity,scale] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]",
+              "data-starting-style:opacity-0 data-starting-style:scale-90",
+              "data-ending-style:opacity-0 data-ending-style:scale-90",
             )}
           >
             <MenuButtonProvider
@@ -270,8 +282,8 @@ export function SidebarTabbedModal({
               tabId={tabId(activeTab.key)}
               panelId={panelId(activeTab.key)}
             />
-          </Dialog.Content>
-        </Dialog.Overlay>
+          </Dialog.Popup>
+        </Dialog.Viewport>
       </Dialog.Portal>
     </Dialog.Root>
   );
@@ -382,7 +394,7 @@ function SidebarPane({
       // this.
       onDoubleClick={isDesktop ? onToggleDesktopCollapsed : undefined}
       className={clsx(
-        // The outer `Dialog.Content` carries `card` (one card surrounds both
+        // The outer `Dialog.Popup` carries `card` (one card surrounds both
         // panes); this nav just provides the `group/menu` scope for
         // descendant `data-expanded` selectors and the responsive
         // collapse/expand width animation.
@@ -399,7 +411,7 @@ function SidebarPane({
         // targets ITSELF via `data-expanded` (`&[data-ui~="expanded"]`);
         // the descendant `group-data-expanded/menu` form would only match
         // children. No bg override — the sidebar inherits
-        // `Dialog.Content`'s frosted-glass layer on desktop while the
+        // `Dialog.Popup`'s frosted-glass layer on desktop while the
         // content pane covers its half with a solid bg, making the
         // sidebar the "transparent" region.
         "desktop:relative desktop:inset-auto",
@@ -433,10 +445,10 @@ function SidebarPane({
             className={clsx(
               "flex flex-row items-center gap-2 h-12",
               // Padding tightens when collapsed (narrow rail).
-              sidebarExpanded ? "justify-between px-3" : "justify-center px-1",
+              sidebarExpanded ? "justify-between pl-3 pr-2" : "justify-center px-1",
             )}
           >
-            {/* Dialog.Title always rendered for Radix; visually hidden when
+            {/* Dialog.Title always rendered for a11y; visually hidden when
                 collapsed so the icon takes its place. */}
             <Dialog.Title
               className={clsx(
@@ -465,9 +477,17 @@ function SidebarPane({
             )}
             {/* Mobile-only — content pane carries the X on desktop. */}
             {!dismissDisabled && (
-              <Dialog.Close asChild className="desktop:hidden">
-                <Button variant={variant} leftIcon={<IconX />} altText="Close" />
-              </Dialog.Close>
+              <Dialog.Close
+                render={(props) => (
+                  <Button
+                    {...props}
+                    className="desktop:hidden"
+                    variant={variant}
+                    leftIcon={<IconX />}
+                    altText="Close"
+                  />
+                )}
+              />
             )}
           </header>
         }
@@ -625,7 +645,7 @@ function ContentPane({
       aria-labelledby={tabId}
       aria-hidden={ariaHidden ? true : undefined}
       className={clsx(
-        // The outer Dialog.Content carries `card`. The content pane just
+        // The outer Dialog.Popup carries `card`. The content pane just
         // needs its own clip + scroll layout.
         "overflow-hidden",
         // Mobile: full-bleed overlay that slides in from the right when the
@@ -637,7 +657,7 @@ function ContentPane({
         "desktop:relative desktop:inset-auto",
         "desktop:flex! desktop:flex-col desktop:h-auto desktop:flex-1",
         "desktop:translate-x-0",
-        // Solid content bg on desktop — the parent `Dialog.Content` is
+        // Solid content bg on desktop — the parent `Dialog.Popup` is
         // frosted-glass on desktop, and the content pane covers its area
         // so the sidebar (which inherits the parent) reads as the
         // transparent region. Mobile inherits the card's solid bg, so no
@@ -660,7 +680,7 @@ function ContentPane({
         header={
           <header
             className={clsx(
-              "flex flex-row items-center gap-2 px-3",
+              "flex flex-row items-center gap-2 px-2",
               "h-12",
               "border-b border-neutral-500/15",
             )}
@@ -682,15 +702,17 @@ function ContentPane({
               {tab.title}
             </h2>
             {!dismissDisabled && (
-              <Dialog.Close asChild>
-                <Button variant={variant} leftIcon={<IconX />} altText="Close" />
-              </Dialog.Close>
+              <Dialog.Close
+                render={(props) => (
+                  <Button {...props} variant={variant} leftIcon={<IconX />} altText="Close" />
+                )}
+              />
             )}
           </header>
         }
         footer={
           tab.contentFooter ? (
-            <footer className="px-3 py-2 border-t border-neutral-500/15">
+            <footer className="px-2 py-2 border-t border-neutral-500/15">
               {tab.contentFooter}
             </footer>
           ) : undefined

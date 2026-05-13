@@ -25,22 +25,20 @@ export interface TabbedModalProps {
 }
 
 /**
- * A modal dialog component with integrated tabbed interface for organizing content.
+ * A modal dialog with an integrated tabbed interface for organizing content.
  *
- * This component extends the base Modal with tabbed functionality, automatically managing
- * tab state and providing smooth sliding animations between tab content. It wraps the
- * standard Modal component with Radix UI's Tabs primitive and renders tab navigation
- * in the header area below the description.
+ * Composes our `Modal` (base-ui Dialog) with base-ui's `Tabs` primitive: the
+ * tab row renders in the modal header below the description, and the modal
+ * footer (cancel/submit) applies globally across tabs. Tab content swaps
+ * instantly when the selection changes — no slide animation.
  *
  * Features:
- * - Automatic tab state management with useTabsState hook
- * - Smooth sliding animations between tab content based on navigation direction
- * - Tab navigation rendered in modal header below description
- * - Support for icons, labels, or both on tabs
- * - Combines user's headerBottom content with tab navigation
- * - All standard modal functionality (submit/cancel, dismissal, etc.)
- * - Responsive design with proper scroll handling
- * - Automatic default content when no tabs are provided
+ * - Automatic tab state management via `useTabsState`
+ * - Tab row rendered in the modal header (below `description`, above any
+ *   consumer-supplied `headerBottom`)
+ * - Icons, labels, or both on tabs
+ * - All standard modal functionality (submit/cancel, dismissal, scroll)
+ * - Automatic placeholder content when no tabs are provided
  *
  * @example
  * ```tsx

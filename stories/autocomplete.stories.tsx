@@ -384,37 +384,38 @@ function InModalDemo(): ReactElement {
   return (
     <div className="flex flex-col gap-3">
       <Button onClick={() => setOpen(true)}>Open modal with autocomplete</Button>
-      {picked && (
-        <div className="text-sm">
-          Picked: <span className="font-medium">{picked.name}</span>
-        </div>
-      )}
       <Modal
         title="Add a collaborator"
         open={open}
         onStateChange={setOpen}
         onCancel={() => setOpen(false)}
       >
-        <div className="w-full p-3">
+        <div className="flex w-full flex-col gap-3 p-3">
           <Autocomplete<PersonItem>
             items={items}
             value={value}
             onChange={setValue}
             onSelect={(item) => {
+              setValue(item.name);
               setPicked(item);
-              setValue("");
-              setOpen(false);
             }}
             getItemKey={(item) => item.id}
             getItemIcon={renderIcon}
             renderItem={renderItem}
             placeholder="Search people…"
           />
-          <div className="mt-3 text-xs text-neutral-500">
-            Verifies that the popup escapes the modal via Portal and positions
-            against the input correctly.
+          {picked && (
+            <div className="text-sm">
+              Picked: <span className="font-medium">{picked.name}</span>{" "}
+              <span className="text-neutral-500">({picked.email})</span>
+            </div>
+          )}
+          <div className="text-xs text-neutral-500">
+            Demonstrates Autocomplete inside `Modal`: the popup escapes the
+            modal via Portal, positions against the input, and item clicks
+            select correctly without dismissing the modal.
           </div>
-          <div className="mt-3 flex flex-row gap-2 opacity-50">
+          <div className="flex flex-row gap-2 opacity-50">
             <IconBuilding className={ICON_CLASS_NAME} />
             <IconWorld className={ICON_CLASS_NAME} />
           </div>

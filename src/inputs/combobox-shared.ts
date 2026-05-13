@@ -8,10 +8,7 @@ export const POPUP_MAX_HEIGHT_CLASS = "max-h-[calc(var(--available-height)-4px)]
  * Class for the Positioner element. z-index lives here, not on the Popup —
  * Positioner is the actually-positioned (`position: absolute`) element that
  * creates the stacking context. z-index on the non-positioned Popup child
- * is ignored for cross-context stacking against e.g. a Radix Dialog.
- *
- * Set high enough to win against modal overlays (which typically rely on
- * portal DOM order at z-auto).
+ * is ignored for cross-context stacking against other portaled overlays.
  */
 export function positionerClassName(extras?: string) {
   return clsx("z-50", extras);
@@ -27,8 +24,8 @@ export function popupClassName(extras?: string) {
     "overflow-hidden outline-hidden",
     "origin-[var(--transform-origin)]",
     "transition-[opacity,transform] duration-150",
-    "data-[starting-style]:opacity-0 data-[starting-style]:scale-95",
-    "data-[ending-style]:opacity-0 data-[ending-style]:scale-95",
+    "data-starting-style:opacity-0 data-starting-style:scale-95",
+    "data-ending-style:opacity-0 data-ending-style:scale-95",
     extras,
   );
 }
@@ -167,6 +164,6 @@ export function rightButtonClassName(size: Size, variant: Variant) {
 export function rightChevronClassName(size: Size, variant: Variant) {
   return clsx(
     rightButtonClassName(size, variant),
-    "data-[popup-open]:rotate-180 transition-transform",
+    "data-popup-open:rotate-180 transition-transform",
   );
 }
