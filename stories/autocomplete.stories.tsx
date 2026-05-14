@@ -151,11 +151,12 @@ export const WithIcons: Story = {
 
 function AsyncDemo(): ReactElement {
   const [value, setValue] = useState("");
+  const [searchTrigger, setSearchTrigger] = useState("");
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<PersonItem[]>([]);
 
   useEffect(() => {
-    const trimmed = value.trim();
+    const trimmed = searchTrigger.trim();
     if (trimmed.length < 2) {
       setResults([]);
       setLoading(false);
@@ -173,7 +174,7 @@ function AsyncDemo(): ReactElement {
     return () => {
       window.clearTimeout(handle);
     };
-  }, [value]);
+  }, [searchTrigger]);
 
   const renderIcon = useCallback(() => <IconUser className={ICON_CLASS_NAME} />, []);
   const renderItem = useCallback(
@@ -186,6 +187,8 @@ function AsyncDemo(): ReactElement {
       items={results}
       value={value}
       onChange={setValue}
+      onDebouncedChange={setSearchTrigger}
+      debounceMs={250}
       onSelect={(item) => setValue(item.name)}
       getItemKey={(item) => item.id}
       getItemIcon={renderIcon}

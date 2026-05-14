@@ -1,4 +1,4 @@
-import { type ReactNode, type Ref, useId } from "react";
+import { type ReactNode, type Ref, useEffect, useId } from "react";
 import { Autocomplete as AutocompletePrimitive } from "@base-ui/react/autocomplete";
 import { clsx } from "clsx";
 import { IconPointFilled, IconSearch, IconX } from "@tabler/icons-react";
@@ -30,6 +30,15 @@ export interface AutocompleteProps<TItem> {
   items: TItem[];
   value: string;
   onChange: (value: string) => void;
+  /**
+   * Fires after `value` has been stable for `debounceMs`. Useful for triggering
+   * a backend search without firing on every keystroke. When `debounceMs` is 0
+   * (the default), this fires synchronously alongside `onChange`. Pass a stable
+   * callback (e.g. from `useState`/`useCallback`) to avoid re-scheduling.
+   */
+  onDebouncedChange?: (value: string) => void;
+  /** Delay in milliseconds before `onDebouncedChange` fires. Defaults to 0. */
+  debounceMs?: number;
   onSelect: (item: TItem) => void;
   renderItem: (item: TItem, state: AutocompleteItemState) => ReactNode;
   getItemKey: (item: TItem) => string;
@@ -75,6 +84,8 @@ export function Autocomplete<TItem>({
   items,
   value,
   onChange,
+  onDebouncedChange,
+  debounceMs = 0,
   onSelect,
   renderItem,
   getItemKey,
@@ -108,6 +119,22 @@ export function Autocomplete<TItem>({
   const showClear = value.length > 0 && !disabled && !readOnly;
   const resolvedLeftIcon =
     leftIcon === undefined ? <IconSearch className={ICON_CLASS_NAME} /> : leftIcon;
+
+  useEffect(() => {
+    if (!onDebouncedChange) {
+      return;
+    }
+    if (debounceMs <= 0) {
+      onDebouncedChange(value);
+      return;
+    }
+    const handle = window.setTimeout(() => {
+      onDebouncedChange(value);
+    }, debounceMs);
+    return () => {
+      window.clearTimeout(handle);
+    };
+  }, [value, debounceMs, onDebouncedChange]);
 
   return (
     <AutocompletePrimitive.Root
@@ -166,6 +193,7 @@ export function Autocomplete<TItem>({
         >
           <AutocompletePrimitive.Popup
             className={popupClassName(popupClassNameProp)}
+            data-loading={loading ? "true" : undefined}
           >
             <AutocompletePrimitive.Status className={statusClassName()}>
               {loading ? loadingContent : null}
