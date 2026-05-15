@@ -198,7 +198,9 @@ export function Combobox<TValue extends string>({
           align="center"
           className={positionerClassName()}
         >
-          <ComboboxPrimitive.Popup className={popupClassName(popupClassNameProp)}>
+          <ComboboxPrimitive.Popup
+            className={popupClassName({ variant, extras: popupClassNameProp })}
+          >
             <ComboboxPrimitive.Status className={statusClassName()} />
             <ScrollArea
               orientation="vertical"

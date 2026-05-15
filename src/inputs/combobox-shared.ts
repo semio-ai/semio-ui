@@ -14,8 +14,16 @@ export function positionerClassName(extras?: string) {
   return clsx("z-50", extras);
 }
 
-export function popupClassName(extras?: string) {
+export function popupClassName(opts?: {
+  variant?: Variant;
+  color?: string;
+  extras?: string;
+}) {
   return clsx(
+    // Variant/custom-color class first — drives `--card-border-color` so the
+    // popup border picks up the same accent as the input/trigger, matching
+    // `Dropdown`'s behavior.
+    opts?.color ? "custom-color" : opts?.variant ?? Variant.Default,
     "responsive card dropdown-content",
     "m-0.5 rounded-sm",
     "w-[calc(var(--available-width)-4px)]",
@@ -26,7 +34,7 @@ export function popupClassName(extras?: string) {
     "transition-[opacity,transform] duration-150",
     "data-starting-style:opacity-0 data-starting-style:scale-95",
     "data-ending-style:opacity-0 data-ending-style:scale-95",
-    extras,
+    opts?.extras,
   );
 }
 

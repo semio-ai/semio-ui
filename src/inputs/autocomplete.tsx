@@ -192,7 +192,7 @@ export function Autocomplete<TItem>({
           className={positionerClassName()}
         >
           <AutocompletePrimitive.Popup
-            className={popupClassName(popupClassNameProp)}
+            className={popupClassName({ variant, extras: popupClassNameProp })}
             data-loading={loading ? "true" : undefined}
           >
             <AutocompletePrimitive.Status className={statusClassName()}>
