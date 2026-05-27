@@ -11,6 +11,18 @@
 @custom-variant data-expanded (&[data-ui~="expanded"]);
 @custom-variant data-checked (&[data-ui~="checked"]);
 
+/* Attribute-presence variants. Tailwind v4 doesn't auto-name kebab-case
+   data attributes, so without these registrations the only working form
+   is `data-[starting-style]:` etc. Registering them lets the canonical
+   `data-starting-style:` form generate the same `[data-starting-style]`
+   selector — and silences the IntelliSense "use canonical form" hint. */
+@custom-variant data-active (&[data-active]);
+@custom-variant data-disabled (&[data-disabled]);
+@custom-variant data-ending-style (&[data-ending-style]);
+@custom-variant data-highlighted (&[data-highlighted]);
+@custom-variant data-popup-open (&[data-popup-open]);
+@custom-variant data-starting-style (&[data-starting-style]);
+
 @custom-variant size-xs (&:where(.size-xs));
 @custom-variant size-sm (&:where(.size-sm));
 @custom-variant size-md (&:where(.size-md));

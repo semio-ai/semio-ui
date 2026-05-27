@@ -20,6 +20,7 @@ export * from "./floating/modal";
 export * from "./floating/popover";
 export * from "./floating/select";
 export * from "./floating/select-tree";
+export * from "./floating/sidebar-modal";
 export * from "./floating/tabbed-modal";
 export * from "./floating/toast";
 export * from "./floating/tooltip";
@@ -31,6 +32,7 @@ export * from "./functions/stamp-to-visual-time";
 export * from "./constants/icon";
 
 // Context
+export * from "./context/menu-button-context";
 export * from "./context/tooltip-context-utils";
 export type { WithTooltipContextProps } from "./context/tooltip-context-utils";
 
@@ -42,6 +44,7 @@ export * from "./hooks/use-delayed-boolean";
 export * from "./hooks/use-layout-actions";
 export * from "./hooks/use-layout-state";
 export * from "./hooks/use-system-theme-preference";
+export * from "./hooks/use-tabs-state";
 export * from "./hooks/use-theme";
 export * from "./hooks/use-window-size";
 
@@ -100,9 +103,11 @@ export * from "./icons/vertical-uniform";
 export * from "./icons/world-element-icons";
 
 // Inputs
+export * from "./inputs/autocomplete";
 export * from "./inputs/checkbox";
 export * from "./inputs/chip-input";
 export * from "./inputs/color-picker-input";
+export * from "./inputs/combobox";
 export * from "./inputs/number-field";
 export * from "./inputs/slider-number-field";
 export * from "./inputs/email";
