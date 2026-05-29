@@ -46,6 +46,14 @@ function Tooltip({
     }
   }, [controlledState, defaultOpen]);
 
+  // Short-circuit when disabled — Radix's `Tooltip.Trigger` does not honour a
+  // `disabled` prop directly. With `asChild` the prop is forwarded to the
+  // rendered element, but it's silently dropped on non-`<button>` children
+  // (`<div>`, `<span>`, etc.), leaving the tooltip armed.
+  if (disabled) {
+    return <>{children}</>;
+  }
+
   return (
     <TooltipPrimitive.Provider>
       <TooltipPrimitive.Root open={open} onOpenChange={handleOpenChange}>
