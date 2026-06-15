@@ -2,7 +2,7 @@
 
 The package's TypeScript declarations (`dist/index.d.ts`) are the authoritative API. This catalog is a map of
 what exists, grouped by area, so you reach for the right component. **All imports come from the package root**:
-`import { X } from "@semio-private/ui";`
+`import { X } from "@semio/ui";`
 
 ## Buttons
 `Button`, `Anchor`, `HeaderButton`, `MenuButton`, `ImageButton`, `CopyLinkButton`
@@ -36,9 +36,13 @@ what exists, grouped by area, so you reach for the right component. **All import
 `useLayoutState`, `useLayoutActions`, `useWindowSize`, `useClickAway`, `useDelayedBoolean`,
 `use-add-toast`, layout atoms
 
-## Shared types & enums
+## Shared types & enums — these are NOMINAL ENUMS, pass members not strings
 `Variant`, `Size`, `Theme`, `TimeDisplay`, `PaneRegion`, `ToolbarItem` / `ToolbarWidget` / `ToolbarSpacer`,
 `PaneSpec`, `MenuItemClickFn`
+
+`Variant`, `Size`, and `Theme` are real exported **enums** — `import { Variant, Size, Theme } from "@semio/ui"`
+and pass a member (`Variant.Primary`, `Size.Md`, `Theme.Dark`). A string literal will NOT type-check against
+these props. Full member lists and the one `"fit"` exception are in `Guidelines.md` ("Enums are mandatory").
 
 ## Icon constants
 `ICON_CLASS_NAME` = `"icon-standard"` · `ICON_LG_CLASS_NAME` = `"icon-larger"`
@@ -48,7 +52,9 @@ what exists, grouped by area, so you reach for the right component. **All import
 ## Reference component: `Button` (verified API)
 
 This is the exact, current signature. Treat it as the pattern for how Semio components are typed — props are
-explicit, `variant`/`size` come from the shared enums, and refs are forwarded.
+explicit, refs are forwarded, and `variant`/`size` come from the shared `Variant`/`Size` enums. That `variant`/
+`size` enum pattern is **not** specific to Button: it recurs on ~50 components across the library (inputs,
+overlays, feedback, layouts, avatar, chip, …), and the enum-member rule is identical on all of them.
 
 ```tsx
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -56,11 +62,11 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   altText?: string;                 // accessible label (maps to aria-label)
   disabled?: boolean;
   onClick?: MouseEventHandler<HTMLButtonElement>;
-  variant?: Variant;                // primary | secondary | tertiary | default | info | success | warning | error
+  variant?: Variant;                // ENUM — pass Variant.Primary/.Secondary/.Tertiary/.Default/.Info/.Success/.Warning/.Error (never a string)
   color?: string;                   // custom color override (sets --custom-color); use sparingly, prefer variant
   leftIcon?: ReactNode;             // icon slot — pass a Semio/Tabler icon
   rightIcon?: ReactNode;
-  size?: Size | "fit";              // Size.Xs..Xl, or "fit" to wrap content
+  size?: Size | "fit";              // ENUM — pass Size.Xs/.Sm/.Md/.Lg/.Xl, or the literal "fit". Never "md"/"size-md".
   deemphasize?: boolean;            // subtler background + colored text
   submit?: boolean;                 // renders type="submit"
   visuals?: "default" | "inverted" | "inverted-border" | "call-to-action" | "list-item";
@@ -70,8 +76,8 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 Usage:
 
 ```tsx
-import { Button, Variant, Size } from "@semio-private/ui";
-import { Robot } from "@semio-private/ui";
+import { Button, Variant, Size } from "@semio/ui";
+import { Robot } from "@semio/ui";
 
 <Button variant={Variant.Primary} size={Size.Md} leftIcon={<Robot className="icon-standard" />}>
   Run agent
