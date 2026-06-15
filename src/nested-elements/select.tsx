@@ -1,8 +1,7 @@
 import { DropdownMenu, ContextMenu } from "radix-ui";
 import type { MouseEvent, CSSProperties } from "react";
-import { IconCheck, IconPoint } from "@tabler/icons-react";
 import { clsx } from "clsx";
-import { ICON_CLASS_NAME } from "../constants/icon";
+import { Icon } from "../icons/registry";
 import { NestedParent, type NestedSelectProps } from "./types";
 import { useNestedParent } from "./context";
 
@@ -75,9 +74,9 @@ export function NestedSelect({ variant, disabled, onChange, values, options }: N
             <span className="icon-slot">
               {option.icon ||
                 (values.find((v) => v === option.value) !== undefined ? (
-                  <IconCheck className={ICON_CLASS_NAME} />
+                  <Icon name="check" />
                 ) : (
-                  <IconPoint className={ICON_CLASS_NAME} />
+                  <Icon name="point" />
                 ))}
             </span>
           </ItemIndicatorComponent>

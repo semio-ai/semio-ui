@@ -2,12 +2,13 @@ import { ReactNode, createContext, useContext, useState, useCallback, memo, useR
 import { AnimatePresence, useAnimationFrame, motion, useSpring } from "motion/react";
 import { Toast as RadixToast } from "radix-ui";
 import { clsx } from "clsx";
-import { IconPlayerPause, IconX } from "@tabler/icons-react";
+import { IconX } from "@tabler/icons-react";
 import { Button } from "../buttons/button";
 import { Size, Variant } from "../types";
 import { ProgressCircle } from "../feedback/progress";
 import { IconVariant } from "../icons/variant";
 import { ICON_CLASS_NAME } from "../constants/icon";
+import { Icon } from "../icons/registry";
 
 export interface ToastState {
   toasts: ToastData[];
@@ -132,7 +133,7 @@ function InnerToast({ data }: { data: ToastData }) {
               variant={data.variant}
               icon={
                 paused ? (
-                  <IconPlayerPause className={ICON_CLASS_NAME} />
+                  <Icon name="player-pause" />
                 ) : (
                   <IconVariant variant={data.variant} className={ICON_CLASS_NAME} />
                 )

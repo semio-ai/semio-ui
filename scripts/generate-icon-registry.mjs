@@ -2,18 +2,19 @@
  * Codegen for the default icon registry (SEM-161).
  *
  * Emits two generated files consumed by `src/icons/registry/default-registry.ts`:
- *   - `tabler.generated.ts` — the curated set of @tabler/icons-react icons that
- *     @semio/ui's *own* components import (scanned from src), keyed kebab-case.
+ *   - `tabler.generated.ts` — the curated set of @tabler/icons-react icons in the
+ *     default registry (an explicit seed below), keyed kebab-case.
  *   - `semio.generated.ts`  — @semio/ui's own custom icons from src/icons/,
  *     keyed kebab-case, with the non-glyph/parametric exports excluded.
  *
- * Rationale: a full Tabler map would be ~6k icons; @semio/ui only uses a few
- * dozen internally. We seed the default with exactly those (zero-config for the
- * package's own components) and let consumers extend via <IconProvider>. Run:
+ * Rationale: a full Tabler map would be ~6k icons; @semio/ui only needs a few
+ * dozen. We seed the default with exactly those (zero-config for the package's
+ * own components) and let consumers extend via <IconProvider>. Run:
  *
  *   npm run generate:icons -w @semio/ui
  *
- * The generated files are committed; re-run after adding/removing icon imports.
+ * The generated files are committed; re-run after editing TABLER_SEED or adding
+ * a custom icon under src/icons/.
  */
 import { readFileSync, writeFileSync, readdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
@@ -21,8 +22,7 @@ import { dirname, join } from "node:path";
 import * as Tabler from "@tabler/icons-react";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const SRC = join(__dirname, "..", "src");
-const ICONS_DIR = join(SRC, "icons");
+const ICONS_DIR = join(__dirname, "..", "src", "icons");
 const OUT_DIR = join(ICONS_DIR, "registry");
 
 /**
@@ -47,37 +47,25 @@ function toKey(name) {
     .toLowerCase();
 }
 
-function walk(dir) {
-  const out = [];
-  for (const entry of readdirSync(dir, { withFileTypes: true })) {
-    const p = join(dir, entry.name);
-    if (entry.isDirectory()) {
-      if (entry.name === "registry") continue; // never scan our own generated output
-      out.push(...walk(p));
-    } else if (/\.tsx?$/.test(entry.name)) {
-      out.push(p);
-    }
-  }
-  return out;
-}
-
-// --- 1. Tabler seed: scan every @tabler/icons-react named import across src ---
-const tablerNames = new Set();
-const importRe = /import\s+(?:type\s+)?\{([^}]*)\}\s*from\s*["']@tabler\/icons-react["']/g;
-for (const file of walk(SRC)) {
-  const text = readFileSync(file, "utf8");
-  for (const m of text.matchAll(importRe)) {
-    for (const spec of m[1].split(",")) {
-      // handle `IconX as Foo` — keep the imported (left) name
-      const name = spec.trim().split(/\s+as\s+/)[0].trim();
-      // keep only real icon components — Tabler icons are forwardRef *objects*, so
-      // a truthiness check is right here; the `IconProps` type is `undefined` at
-      // runtime and is dropped automatically.
-      if (name && Tabler[name]) tablerNames.add(name);
-    }
-  }
-}
-const tablerSorted = [...tablerNames].sort();
+// --- 1. Tabler seed: the curated set of @tabler/icons-react icons in the default ---
+// This is an EXPLICIT list, not import-scanned: @semio/ui's own components render
+// icons through `<Icon name>`, which means they no longer import Tabler directly —
+// so the seed must stand on its own. Add an export name here when the default
+// registry should gain another Tabler glyph. Validated against the live module.
+const TABLER_SEED = [
+  "IconArrowBigDown", "IconArrowBigDownLines", "IconArrowBigUp", "IconArrowDown",
+  "IconArrowUp", "IconCheck", "IconChefHat", "IconChevronDown", "IconChevronLeft",
+  "IconChevronRight", "IconChevronRightPipe", "IconChevronUp", "IconCircle",
+  "IconClipboardCheck", "IconClipboardPlus", "IconCommand", "IconExclamationMark",
+  "IconHexagon", "IconJacket", "IconLayoutGrid", "IconLine", "IconMenu2", "IconMinus",
+  "IconMoon", "IconPencil", "IconPinned", "IconPlayerPause", "IconPlus", "IconPoint",
+  "IconPointFilled", "IconRotate", "IconRotate2", "IconSearch", "IconSelector",
+  "IconShoe", "IconShoppingBag", "IconSquare", "IconSun", "IconSunMoon",
+  "IconSunglasses", "IconTransformPoint", "IconView360", "IconWorld", "IconX",
+];
+const missing = TABLER_SEED.filter((n) => !Tabler[n]);
+if (missing.length) throw new Error(`TABLER_SEED has unknown Tabler icons: ${missing.join(", ")}`);
+const tablerSorted = [...new Set(TABLER_SEED)].sort();
 
 // --- 2. Custom icons: scan src/icons/*.tsx for exported glyph components ---
 const exportRe =

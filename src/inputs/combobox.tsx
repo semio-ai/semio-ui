@@ -1,8 +1,7 @@
 import { type CSSProperties, type ReactNode, type Ref, useId, useMemo } from "react";
 import { Combobox as ComboboxPrimitive } from "@base-ui/react/combobox";
 import { clsx } from "clsx";
-import { IconChevronDown, IconPointFilled } from "@tabler/icons-react";
-import { ICON_CLASS_NAME } from "../constants/icon";
+import { Icon } from "../icons/registry";
 import { Size, Variant } from "../types";
 import { ScrollArea } from "../layouts/scroll-area";
 import {
@@ -188,7 +187,7 @@ export function Combobox<TValue extends string>({
           className={rightChevronClassName(size, variant)}
           aria-label="Toggle options"
         >
-          <IconChevronDown className={ICON_CLASS_NAME} />
+          <Icon name="chevron-down" />
         </ComboboxPrimitive.Trigger>
       </ComboboxPrimitive.InputGroup>
 
@@ -282,7 +281,7 @@ function ComboboxItemRow<TValue extends string>({
         <div {...props} data-state={isSelected ? "checked" : "unchecked"}>
           <span className={itemIndicatorClassName({ variant: itemVariant, color: option.color })}>
             <span className="icon-slot">
-              {option.icon ?? <IconPointFilled className={ICON_CLASS_NAME} />}
+              {option.icon ?? <Icon name="point-filled" />}
             </span>
           </span>
           {renderItem

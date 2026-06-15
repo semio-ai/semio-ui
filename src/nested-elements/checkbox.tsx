@@ -1,9 +1,8 @@
 import { DropdownMenu, ContextMenu } from "radix-ui";
 import { type MouseEvent, type CSSProperties } from "react";
-import { IconCheck } from "@tabler/icons-react";
 import { alpha, altColor } from "@semio/utils";
 import { clsx } from "clsx";
-import { ICON_CLASS_NAME } from "../constants/icon";
+import { Icon } from "../icons/registry";
 import { useNestedParent } from "./context";
 import { NestedParent } from "./types";
 import type { NestedCheckboxProps } from "./types";
@@ -76,7 +75,7 @@ export function NestedCheckbox({
             "responsive check-indicator",
           )}
         >
-          <span className="icon-slot">{icon ?? <IconCheck className={ICON_CLASS_NAME} />}</span>
+          <span className="icon-slot">{icon ?? <Icon name="check" />}</span>
         </ItemIndicatorComponent>
         {label}
       </ItemComponent>

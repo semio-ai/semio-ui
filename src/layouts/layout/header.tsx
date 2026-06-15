@@ -1,6 +1,6 @@
 import { memo, ReactNode } from "react";
 import { clsx } from "clsx";
-import { IconChevronRightPipe, IconMenu2 } from "@tabler/icons-react";
+import { IconChevronRightPipe } from "@tabler/icons-react";
 import {
   useActionItems,
   useActiveRightPane,
@@ -18,6 +18,7 @@ import { useLayoutActions } from "../../hooks/use-layout-actions";
 import { PaneRegion, Size, ToolbarWidget, Variant } from "../../types";
 import { HeaderButton } from "../../buttons/header-button";
 import { ICON_CLASS_NAME } from "../../constants/icon";
+import { Icon } from "../../icons/registry";
 import { isPlaceholder } from "./types";
 
 function InnerHeader({ homeIcon }: { homeIcon?: ReactNode }) {
@@ -91,7 +92,7 @@ function InnerHeader({ homeIcon }: { homeIcon?: ReactNode }) {
               variant={Variant.Default}
               size={Size.Sm}
               label="Toggle Menu"
-              icon={<IconMenu2 className={ICON_CLASS_NAME} />}
+              icon={<Icon name="menu2" />}
             />
           }
         >

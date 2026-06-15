@@ -1,8 +1,7 @@
 import { DropdownMenu, ContextMenu } from "radix-ui";
 import { type MouseEvent, type CSSProperties, useCallback } from "react";
-import { IconCheck, IconMinus, IconPoint, IconChevronRight } from "@tabler/icons-react";
 import { clsx } from "clsx";
-import { ICON_CLASS_NAME } from "../constants/icon";
+import { Icon } from "../icons/registry";
 import { Variant } from "../types";
 import { NestedParent } from "./types";
 import { useNestedParent } from "./context";
@@ -219,12 +218,12 @@ export function NestedCheckboxTree({
                 {option.icon ||
                   (() => {
                     if (state === CheckboxState.Checked) {
-                      return <IconCheck className={ICON_CLASS_NAME} />;
+                      return <Icon name="check" />;
                     }
                     if (state === CheckboxState.Indeterminate) {
-                      return <IconMinus className={ICON_CLASS_NAME} />;
+                      return <Icon name="minus" />;
                     }
-                    return <IconPoint className={ICON_CLASS_NAME} />;
+                    return <Icon name="point" />;
                   })()}
               </span>
             </div>
@@ -236,7 +235,7 @@ export function NestedCheckboxTree({
                 option.variant ?? variant,
               )}
             >
-              <IconChevronRight className={clsx(ICON_CLASS_NAME, "shrink-0")} />
+              <Icon name="chevron-right" className="shrink-0" />
             </div>
           </SubTriggerComponent>
           <PortalComponent>
@@ -293,9 +292,9 @@ export function NestedCheckboxTree({
             <span className="icon-slot">
               {option.icon ||
                 (state === CheckboxState.Checked ? (
-                  <IconCheck className={ICON_CLASS_NAME} />
+                  <Icon name="check" />
                 ) : (
-                  <IconPoint className={ICON_CLASS_NAME} />
+                  <Icon name="point" />
                 ))}
             </span>
           </ItemIndicatorComponent>

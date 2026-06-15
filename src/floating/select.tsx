@@ -1,10 +1,9 @@
 import { CSSProperties, ReactNode } from "react";
-import { IconLayoutGrid, IconPointFilled, IconSelector } from "@tabler/icons-react";
 import { clsx } from "clsx";
 // Will hopefully use later once we can search in the select.
 // import { matchSorter } from "match-sorter";
 import { Size, Variant } from "../types";
-import { ICON_CLASS_NAME } from "../constants/icon";
+import { Icon } from "../icons/registry";
 import { StaticIcon } from "../icons/static-icon";
 import { NestedSelect } from "../nested-elements/select";
 import { NestedRadio } from "../nested-elements/radio";
@@ -88,7 +87,7 @@ export function Select<T extends string | string[]>({
           return {
             value: "",
             label: label ?? "Select items",
-            icon: <IconPointFilled className={ICON_CLASS_NAME} />,
+            icon: <Icon name="point-filled" />,
             variant: variant ?? Variant.Default,
           };
         }
@@ -103,14 +102,14 @@ export function Select<T extends string | string[]>({
           return {
             value: "",
             label: "All selected",
-            icon: <IconLayoutGrid className={ICON_CLASS_NAME} />,
+            icon: <Icon name="layout-grid" />,
             variant: variant ?? Variant.Default,
           };
         }
         return {
           value: "",
           label: `${String(selectedOptions.length)} selected`,
-          icon: <IconLayoutGrid className={ICON_CLASS_NAME} />,
+          icon: <Icon name="layout-grid" />,
           variant: variant ?? Variant.Default,
         };
       })()
@@ -141,7 +140,7 @@ export function Select<T extends string | string[]>({
         >
           <Tooltip content={tooltipContent}>
             <div className="icon-slot">
-              {selectOption?.icon || <IconPointFilled className={ICON_CLASS_NAME} />}
+              {selectOption?.icon || <Icon name="point-filled" />}
             </div>
           </Tooltip>
         </div>
@@ -185,7 +184,7 @@ export function Select<T extends string | string[]>({
               )}
             >
               <span className="icon-slot">
-                {selectOption?.icon || <IconPointFilled className={ICON_CLASS_NAME} />}
+                {selectOption?.icon || <Icon name="point-filled" />}
               </span>
             </div>
           )}
@@ -213,7 +212,7 @@ export function Select<T extends string | string[]>({
             className="sized-text sized-width"
             variant={selectOption?.variant}
           >
-            <IconSelector className={ICON_CLASS_NAME} />
+            <Icon name="selector" />
           </StaticIcon>
         </div>
       </div>

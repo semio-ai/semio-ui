@@ -1,8 +1,7 @@
 import { CSSProperties, useCallback, useMemo } from "react";
-import { IconPointFilled, IconSelector, IconWorld, IconLayoutGrid } from "@tabler/icons-react";
 import { clsx } from "clsx";
 import { Size, Variant } from "../types";
-import { ICON_CLASS_NAME } from "../constants/icon";
+import { Icon } from "../icons/registry";
 import { StaticIcon } from "../icons/static-icon";
 import { NestedCheckboxTree, TreeOption } from "../nested-elements/checkbox-tree";
 import { NestedLabel } from "../nested-elements/label";
@@ -130,7 +129,7 @@ export function SelectTree({
     // If nothing is selected
     if (selectedCount === 0) {
       return {
-        icon: <IconPointFilled className={ICON_CLASS_NAME} />,
+        icon: <Icon name="point-filled" />,
         label: label || "Select items",
         color: undefined,
         variant: Variant.Default,
@@ -140,7 +139,7 @@ export function SelectTree({
     // If everything is selected
     if (selectedCount === totalCount) {
       return {
-        icon: <IconWorld className={ICON_CLASS_NAME} />,
+        icon: <Icon name="world" />,
         label: "All selected",
         color: undefined,
         variant: variant || Variant.Default,
@@ -152,7 +151,7 @@ export function SelectTree({
       const selectedOption = findOption(value[0]);
       if (selectedOption) {
         return {
-          icon: selectedOption.icon || <IconPointFilled className={ICON_CLASS_NAME} />,
+          icon: selectedOption.icon || <Icon name="point-filled" />,
           label: selectedOption.label,
           color: selectedOption.color,
           variant: selectedOption.variant || variant || Variant.Default,
@@ -169,7 +168,7 @@ export function SelectTree({
       const groupLeafCount = getAllLeafValues(group).length;
       if (groupLeafCount === selectedCount) {
         return {
-          icon: group.icon || <IconLayoutGrid className={ICON_CLASS_NAME} />,
+          icon: group.icon || <Icon name="layout-grid" />,
           label: group.label,
           color: group.color,
           variant: group.variant || variant || Variant.Default,
@@ -196,7 +195,7 @@ export function SelectTree({
             if (subGroupLeafCount === selectedCount) {
               // Show the complete subgroup
               return {
-                icon: subGroup.icon || <IconLayoutGrid className={ICON_CLASS_NAME} />,
+                icon: subGroup.icon || <Icon name="layout-grid" />,
                 label: subGroup.label,
                 color: subGroup.color,
                 variant: subGroup.variant || variant || Variant.Default,
@@ -206,7 +205,7 @@ export function SelectTree({
 
           // Show partial selection within the group
           return {
-            icon: option.icon || <IconLayoutGrid className={ICON_CLASS_NAME} />,
+            icon: option.icon || <Icon name="layout-grid" />,
             label: `${option.label} (${String(selectedInGroup.length)} of ${String(groupLeafValues.length)} selected)`,
             color: option.color,
             variant: option.variant || variant || Variant.Default,
@@ -221,7 +220,7 @@ export function SelectTree({
       if (completeGroups.length <= 3) {
         const groupNames = completeGroups.map((g) => g.label).join(", ");
         return {
-          icon: <IconLayoutGrid className={ICON_CLASS_NAME} />,
+          icon: <Icon name="layout-grid" />,
           label: groupNames,
           color: undefined,
           variant: variant || Variant.Default,
@@ -231,7 +230,7 @@ export function SelectTree({
 
     // Generic partial selection
     return {
-      icon: <IconLayoutGrid className={ICON_CLASS_NAME} />,
+      icon: <Icon name="layout-grid" />,
       label: `${String(selectedCount)} of ${String(totalCount)} selected`,
       color: undefined,
       variant: variant || Variant.Default,
@@ -297,7 +296,7 @@ export function SelectTree({
           className="sized-text sized-width shrink-0"
           variant={triggerDisplay.variant}
         >
-          <IconSelector className={ICON_CLASS_NAME} />
+          <Icon name="selector" />
         </StaticIcon>
       </div>
     </div>

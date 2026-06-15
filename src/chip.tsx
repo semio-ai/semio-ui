@@ -1,8 +1,8 @@
 import { CSSProperties, ReactNode, type MouseEventHandler } from "react";
-import { IconX } from "@tabler/icons-react";
 import { clsx } from "clsx";
 import { Size, Variant } from "./types";
 import { ICON_CLASS_NAME } from "./constants/icon";
+import { Icon } from "./icons/registry";
 
 export interface ChipProps {
   children: string;
@@ -71,7 +71,7 @@ export function Chip({
             "grid place-items-center rounded-[1px] bg-white/50 dark:bg-black/50",
           )}
         >
-          <IconX className={ICON_CLASS_NAME} />
+          <Icon name="x" />
         </button>
       )}
     </div>

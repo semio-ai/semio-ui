@@ -1,8 +1,7 @@
 import { type ReactNode, type Ref, useEffect, useId } from "react";
 import { Autocomplete as AutocompletePrimitive } from "@base-ui/react/autocomplete";
 import { clsx } from "clsx";
-import { IconPointFilled, IconSearch, IconX } from "@tabler/icons-react";
-import { ICON_CLASS_NAME } from "../constants/icon";
+import { Icon } from "../icons/registry";
 import { Size, Variant } from "../types";
 import { ScrollArea } from "../layouts/scroll-area";
 import {
@@ -118,7 +117,7 @@ export function Autocomplete<TItem>({
   const inputId = id ?? generatedId;
   const showClear = value.length > 0 && !disabled && !readOnly;
   const resolvedLeftIcon =
-    leftIcon === undefined ? <IconSearch className={ICON_CLASS_NAME} /> : leftIcon;
+    leftIcon === undefined ? <Icon name="search" /> : leftIcon;
 
   useEffect(() => {
     if (!onDebouncedChange) {
@@ -180,7 +179,7 @@ export function Autocomplete<TItem>({
             className={rightButtonClassName(size, variant)}
             aria-label="Clear search"
           >
-            <IconX className={ICON_CLASS_NAME} />
+            <Icon name="x" />
           </AutocompletePrimitive.Clear>
         )}
       </AutocompletePrimitive.InputGroup>
@@ -224,7 +223,7 @@ export function Autocomplete<TItem>({
                           <span className={itemIndicatorClassName({ variant })}>
                             <span className="icon-slot">
                               {getItemIcon?.(item) ?? (
-                                <IconPointFilled className={ICON_CLASS_NAME} />
+                                <Icon name="point-filled" />
                               )}
                             </span>
                           </span>
