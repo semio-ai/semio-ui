@@ -36,8 +36,12 @@ A React context holds a registry mapping string keys to icon components. A singl
 export type IconComponent = React.ComponentType<{ className?: string }>;
 export type IconRegistry = Record<string, IconComponent>;
 
-// Default registry, generated from @tabler/icons-react keyed by kebab-case name.
-export const defaultIconRegistry: IconRegistry = /* { "chevron-down": IconChevronDown, … } */;
+// Default registry: the generated Tabler set merged with @semio/ui's own custom
+// icons (src/icons/), keyed kebab-case. Custom icons win on key collision.
+export const defaultIconRegistry: IconRegistry = {
+  ...tablerIconRegistry,   // generated from @tabler/icons-react
+  ...semioIconRegistry,    // generated from @semio/ui's own src/icons/ exports
+};
 ```
 
 ```tsx
@@ -102,7 +106,25 @@ The registry context should **not** hand-roll a bare `React.createContext` + `us
 - **`useOptionalContext(context)`** — non-throwing resolution that walks up the tree, returning `null` when no ancestor provides one (so `<Icon>` and `IconProvider` can fall back to `defaultIconRegistry` at the root).
 - **`withOptionalContext` / `composeContexts`** — "natural resolution": a component self-provides the default **only if no ancestor already provides it**, avoiding double-wrapping when providers nest, and composes cleanly with the existing Tooltip/Animation/Scene providers.
 
-This gives the icon system hierarchical, nesting-aware resolution for free — the nearest `IconProvider` wins, and the default Tabler set is the implicit root.
+This gives the icon system hierarchical, nesting-aware resolution for free — the nearest `IconProvider` wins, and the default registry is the implicit root.
+
+### The default registry includes `@semio/ui`'s own custom icons
+
+`@semio/ui` ships ~50 custom icons of its own in `src/icons/` (Semio-specific glyphs: `home`, `robot`, the keyframe/vector/vertex curve-editing marks, player transport, file-type badges, etc.). These must be in the **default** registry so `<Icon name="home" />` resolves the Semio glyph with zero configuration — the default is *not* just Tabler:
+
+```tsx
+export const defaultIconRegistry: IconRegistry = {
+  ...tablerIconRegistry, // generated from @tabler/icons-react
+  ...semioIconRegistry,  // generated from @semio/ui's own src/icons/ exports
+};
+```
+
+The package's custom icons are spread **last**, so they take precedence on key collision — an intentional Semio glyph overrides the Tabler default of the same key.
+
+Two practical wrinkles the SEM-161 codegen must handle:
+
+- **Inconsistent export names.** The existing icons are not uniformly prefixed (`IconHome`, `IconPlayerNextKey`, but also bare `Angle`, `Lock`, `Speaker`, `SelectClose`). Codegen normalizes each export to a kebab-case key: strip an optional `Icon` prefix, then PascalCase → kebab (`IconHome` → `home`, `Angle` → `angle`, `IconPlayerNextKey` → `player-next-key`, `IconVectorBezierAutoClamp` → `vector-bezier-auto-clamp`).
+- **A parametric subset is not a plain glyph.** Some exports take more than `{ className }` and won't satisfy `IconComponent`: stateful icons (`IconPlayPause` has `center: "play" | "pause"`), wrapper components (`StaticIcon`, `WorldElementIcon`), and the easing-curve family (`IconVectorSine`, `IconVectorCubic`, …). The codegen registers only `className`-compatible exports and curates/excludes the rest; those remain available as direct imports (or are registered under explicit per-state keys if needed). The generated `semioIconRegistry` is therefore a filtered, not blanket, map of `src/icons/`.
 
 **One registry-specific extension on top of the base pattern.** The utils infra resolves a context as *replace-or-inherit* (use the nearest provider, else the default). The icon registry additionally wants **merge-on-nest**: a nested `IconProvider` with `extend` should compose its keys *over* the parent registry (`{ ...parent, ...registry }`) rather than shadow it entirely. So `IconProvider` reads the parent via `useOptionalContext` and merges, while still building on the utils-created context/hook so the rest of the resolution semantics (and the `<Icon>` consumer hook) stay standardized. `extend: false` falls back to the base replace behavior.
 
@@ -166,7 +188,7 @@ This is the same discipline the color tokens already follow (token name == code-
 ## Migration Path
 
 1. **Phase 1 (this doc, SEM-160).** Agree the API and the Figma/Code Connect contract.
-2. **Phase 2 (SEM-161).** Land `IconProvider`, `registry`, `<Icon>`, the generated default Tabler registry, and standardized sizing in `@semio/ui`. Keep `Button`'s `leftIcon`/`rightIcon` working by accepting either a node (legacy) or rendering `<Icon name>` internally; add a codemod for the common cases.
+2. **Phase 2 (SEM-161).** Land `IconProvider`, `registry`, `<Icon>`, the generated default registry (Tabler **plus** `@semio/ui`'s own `src/icons/`), and standardized sizing in `@semio/ui`. Keep `Button`'s `leftIcon`/`rightIcon` working by accepting either a node (legacy) or rendering `<Icon name>` internally; add a codemod for the common cases.
 3. **Phase 3 (SEM-162).** Migrate `apps/studio` and other consumers to `<Icon name>` / registry overrides; publish the Figma icon library; generate Code Connect; point component slots at the library.
 
 Backwards compatibility: `leftIcon`/`rightIcon` continue to accept a `ReactNode` during the transition, so the change is non-breaking; call sites migrate incrementally to `leftIcon={<Icon name="…" />}` or a future `leftIconName` shorthand.
@@ -175,12 +197,14 @@ Backwards compatibility: `leftIcon`/`rightIcon` continue to accept a `ReactNode`
 
 - **Per-icon Code Connect volume.** Mitigated by generation; needs a maintained codegen step in CI.
 - **Curated vs. full set in Figma.** A full Tabler library is large; we may seed with the icons actually used in `apps/studio` and grow on demand.
+- **Custom-icon precedence & coverage.** The default registry merges `@semio/ui`'s own `src/icons/` over Tabler (custom wins on collision). Confirm that precedence direction, and decide how the parametric/stateful custom icons (`IconPlayPause`, `StaticIcon`, `WorldElementIcon`, the easing `IconVector*` family) are handled — excluded from the registry vs. registered under explicit per-state keys. These Semio glyphs also need names in the Figma icon library (SEM-162), not just the Tabler set.
 - **Fallback behavior.** Decide whether an unknown `name` renders nothing, a visible "missing icon" glyph (dev), or throws in CI.
 - **Shorthand ergonomics.** Whether to add `leftIconName`/`rightIconName` props to controls in addition to the generic slot.
 
 ## References
 
 - `packages/ui/src/constants/icon.ts` — `ICON_CLASS_NAME` (`icon-standard`), `ICON_LG_CLASS_NAME` (`icon-larger`).
+- `packages/ui/src/icons/` — `@semio/ui`'s own custom icons, folded into the default registry alongside Tabler.
 - `packages/ui/dist/styles.css` — `.icon-standard { h-3/5 w-3/5 }`, `.icon-larger { h-[70%] w-[70%] }`.
 - `packages/utils/src/react/context-providers.tsx` — shared context infrastructure (`createContextSolution`, `useOptionalContext`, `withOptionalContext`, `composeContexts`) the `IconProvider` should build on; `packages/utils/src/react/context-providers-example.md` documents the pattern.
 - `packages/ui/src/context/tooltip-context-utils.tsx` — existing in-package precedent using that infrastructure.
