@@ -102,6 +102,9 @@ export * from "./icons/vertical-normalize";
 export * from "./icons/vertical-uniform";
 export * from "./icons/world-element-icons";
 
+// Icon registry (context-based `<Icon name>` + IconProvider)
+export * from "./icons/registry";
+
 // Inputs
 export * from "./inputs/autocomplete";
 export * from "./inputs/checkbox";

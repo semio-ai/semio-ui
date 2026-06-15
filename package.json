@@ -24,8 +24,9 @@
     "**/*.css"
   ],
   "scripts": {
-    "build": "tsup src/index.tsx --format esm,cjs --dts --external react --publicDir",
-    "dev": "tsup src/index.tsx --format esm,cjs --watch --dts --external react --publicDir",
+    "build": "tsup src/index.tsx --format esm,cjs --dts --external react --external @tabler/icons-react --publicDir",
+    "dev": "tsup src/index.tsx --format esm,cjs --watch --dts --external react --external @tabler/icons-react --publicDir",
+    "generate:icons": "node scripts/generate-icon-registry.mjs",
     "lint": "eslint . --max-warnings 0",
     "lint:fix": "eslint . --fix",
     "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist",

@@ -7,6 +7,7 @@ import {
 } from "react";
 import { clsx } from "clsx";
 import { Variant, Size } from "../types";
+import { Icon } from "../icons/registry";
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children?: ReactNode;
@@ -15,8 +16,14 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
   onClick?: MouseEventHandler<HTMLButtonElement>;
   variant?: Variant;
   color?: string;
+  /** A rendered icon node. Prefer {@link leftIconName} for registry icons. */
   leftIcon?: ReactNode;
+  /** A rendered icon node. Prefer {@link rightIconName} for registry icons. */
   rightIcon?: ReactNode;
+  /** Registry key rendered through `<Icon>`; takes precedence over {@link leftIcon}. */
+  leftIconName?: string;
+  /** Registry key rendered through `<Icon>`; takes precedence over {@link rightIcon}. */
+  rightIconName?: string;
   size?: Size | "fit";
   deemphasize?: boolean;
   submit?: boolean;
@@ -49,6 +56,8 @@ export const Button = forwardRef(
       color,
       leftIcon,
       rightIcon,
+      leftIconName,
+      rightIconName,
       size = Size.Md,
       deemphasize = false,
       // callToAction = false,
@@ -61,8 +70,11 @@ export const Button = forwardRef(
     }: ButtonProps,
     ref: ForwardedRef<HTMLButtonElement>,
   ) => {
-    const iconOnly =
-      (!rightIcon && children === undefined) || (!leftIcon && children === undefined);
+    // Name-based shorthands route through the registry `<Icon>` and win over a
+    // raw node, so call sites can migrate to keys without dropping back-compat.
+    const left = leftIconName ? <Icon name={leftIconName} /> : leftIcon;
+    const right = rightIconName ? <Icon name={rightIconName} /> : rightIcon;
+    const iconOnly = (!right && children === undefined) || (!left && children === undefined);
 
     return (
       <button
@@ -82,11 +94,11 @@ export const Button = forwardRef(
           // For now we just inherit the parent styling in list items
           visuals === "list-item" && "",
           "grid grid-rows-1 place-items-center",
-          leftIcon && children && rightIcon && "grid-cols-[auto_1fr_auto]",
-          leftIcon && children && !rightIcon && "grid-cols-[auto_1fr]",
-          !leftIcon && children && rightIcon && "grid-cols-[1fr_auto]",
-          leftIcon && !children && rightIcon && "grid-cols-[auto_auto]",
-          leftIcon && !children && !rightIcon && "grid-cols-[auto]",
+          left && children && right && "grid-cols-[auto_1fr_auto]",
+          left && children && !right && "grid-cols-[auto_1fr]",
+          !left && children && right && "grid-cols-[1fr_auto]",
+          left && !children && right && "grid-cols-[auto_auto]",
+          left && !children && !right && "grid-cols-[auto]",
           size !== "fit" && size,
           size !== "fit" && visuals !== "list-item" && "sized-text sized-height",
           size !== "fit" && iconOnly && visuals !== "list-item" && "sized-width",
@@ -107,7 +119,7 @@ export const Button = forwardRef(
             : undefined
         }
       >
-        {leftIcon && (
+        {left && (
           <div
             className={clsx(
               "grid place-items-center",
@@ -116,15 +128,15 @@ export const Button = forwardRef(
               size !== "fit" && visuals === "list-item" && "sized-text sized-list-item-indicator",
             )}
           >
-            {leftIcon}
+            {left}
           </div>
         )}
         {children && (
           <div
             className={clsx(
               "grid place-items-center",
-              leftIcon ? "" : "pl-1.5",
-              rightIcon ? "" : "pr-1.5",
+              left ? "" : "pl-1.5",
+              right ? "" : "pr-1.5",
               size !== "fit" && "sized-height",
               size,
             )}
@@ -132,7 +144,7 @@ export const Button = forwardRef(
             {children}
           </div>
         )}
-        {rightIcon && (
+        {right && (
           <div
             className={clsx(
               "grid place-items-center",
@@ -141,7 +153,7 @@ export const Button = forwardRef(
               size !== "fit" && visuals === "list-item" && "sized-text sized-list-item-indicator",
             )}
           >
-            {rightIcon}
+            {right}
           </div>
         )}
       </button>
