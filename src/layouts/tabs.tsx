@@ -5,6 +5,7 @@ import { clsx } from "clsx";
 import { Tooltip } from "../floating/tooltip";
 import { Size, Variant } from "../types";
 import { useTabsState, type TabChild } from "../hooks/use-tabs-state";
+import { resolveIcon } from "../icons/registry";
 
 export interface TabsProps {
   visuals?: "icons" | "labels" | "both";
@@ -116,7 +117,7 @@ export function InnerTabsRow({
                       size,
                     )}
                   >
-                    {tabChild.icon ?? <IconHexagon className="size-2/5" />}
+                    {resolveIcon(tabChild.icon) ?? <IconHexagon className="size-2/5" />}
                   </p>
                 )}
                 {(visuals === "labels" || visuals === "both") && (

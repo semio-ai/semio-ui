@@ -6,7 +6,7 @@ import { SelectOption } from "../floating/select";
 import { NestedRadio } from "../nested-elements/radio";
 import { Variant } from "../types";
 import { ICON_CLASS_NAME } from "../constants/icon";
-import { Icon } from "../icons/registry";
+import { Icon, resolveIcon } from "../icons/registry";
 
 export interface BreadcrumbOptionElement {
   id: string;
@@ -86,9 +86,9 @@ export function InnerBreadcrumbs({
                 >
                   {showIcons &&
                     element.options.find((option) => option.value === element.value)?.icon &&
-                    (element.options.find((option) => option.value === element.value)?.icon ?? (
-                      <Icon key="icon" name="hexagon" />
-                    ))}
+                    (resolveIcon(
+                      element.options.find((option) => option.value === element.value)?.icon,
+                    ) ?? <Icon key="icon" name="hexagon" />)}
                   {element.options.find((option) => option.value === element.value)?.label ??
                     element.value}
                   <IconChevronDown

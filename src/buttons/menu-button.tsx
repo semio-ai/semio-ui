@@ -11,6 +11,7 @@ import { Variant } from "../types";
 import { Status } from "../feedback/status";
 import { Tooltip } from "../floating/tooltip";
 import { useMenuButtonContext } from "../context/menu-button-context";
+import { resolveIcon } from "../icons/registry";
 
 export interface MenuButtonProps {
   children: string;
@@ -173,7 +174,7 @@ export function MenuButton({
         content={altText ?? children}
         side={desktop ? "right" : "top"}
       >
-        <Wrapper {...wrapperProps}>{icon}</Wrapper>
+        <Wrapper {...wrapperProps}>{resolveIcon(icon)}</Wrapper>
       </Tooltip>
       <span
         className={clsx(

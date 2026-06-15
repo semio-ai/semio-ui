@@ -1,7 +1,7 @@
 import { type CSSProperties, type ReactNode, type Ref, useId, useMemo } from "react";
 import { Combobox as ComboboxPrimitive } from "@base-ui/react/combobox";
 import { clsx } from "clsx";
-import { Icon } from "../icons/registry";
+import { Icon, resolveIcon } from "../icons/registry";
 import { Size, Variant } from "../types";
 import { ScrollArea } from "../layouts/scroll-area";
 import {
@@ -165,7 +165,7 @@ export function Combobox<TValue extends string>({
             )}
             aria-hidden="true"
           >
-            {resolvedLeftIcon}
+            {resolveIcon(resolvedLeftIcon)}
           </span>
         )}
         <ComboboxPrimitive.Input
@@ -281,7 +281,7 @@ function ComboboxItemRow<TValue extends string>({
         <div {...props} data-state={isSelected ? "checked" : "unchecked"}>
           <span className={itemIndicatorClassName({ variant: itemVariant, color: option.color })}>
             <span className="icon-slot">
-              {option.icon ?? <Icon name="point-filled" />}
+              {resolveIcon(option.icon) ?? <Icon name="point-filled" />}
             </span>
           </span>
           {renderItem

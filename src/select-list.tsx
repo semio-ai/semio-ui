@@ -5,6 +5,7 @@ import { clsx } from "clsx";
 import { Size, Variant } from "./types";
 import { TableList } from "./layouts/table-list";
 import { SelectProps } from "./floating/select";
+import { resolveIcon } from "./icons/registry";
 
 export function SelectList<T extends string | string[]>({
   value,
@@ -79,7 +80,7 @@ export function SelectList<T extends string | string[]>({
                   iconClassName,
                 )}
               >
-                {item.icon ?? <IconPointFilled />}
+                {resolveIcon(item.icon) ?? <IconPointFilled />}
               </div>
               <div
                 className={clsx(

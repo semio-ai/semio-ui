@@ -14,6 +14,7 @@ import { Dropdown } from "../../floating/dropdown";
 import { NestedLabel } from "../../nested-elements/label";
 import { NestedChild } from "../../nested-elements/configured-render";
 import { IconHome } from "../../icons/home";
+import { resolveIcon } from "../../icons/registry";
 import { useLayoutActions } from "../../hooks/use-layout-actions";
 import { PaneRegion, Size, ToolbarWidget, Variant } from "../../types";
 import { HeaderButton } from "../../buttons/header-button";
@@ -61,7 +62,7 @@ function InnerHeader({ homeIcon }: { homeIcon?: ReactNode }) {
                     toggleMenu();
                   }}
                 >
-                  {homeIcon ?? <IconHome />}
+                  {resolveIcon(homeIcon) ?? <IconHome />}
                 </button>
               </span>
             }

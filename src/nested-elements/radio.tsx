@@ -1,7 +1,7 @@
 import { DropdownMenu, ContextMenu } from "radix-ui";
 import { type CSSProperties, type MouseEvent } from "react";
 import { clsx } from "clsx";
-import { Icon } from "../icons/registry";
+import { Icon, resolveIcon } from "../icons/registry";
 import { NestedParent, type NestedRadioProps } from "./types";
 import { useNestedParent } from "./context";
 
@@ -63,7 +63,7 @@ export function NestedRadio({ variant, disabled, onChange, value, options }: Nes
             )}
           >
             <span className="icon-slot">
-              {option.icon ?? <Icon name="point-filled" />}
+              {resolveIcon(option.icon) ?? <Icon name="point-filled" />}
             </span>
           </ItemIndicatorComponent>
           {option.label}

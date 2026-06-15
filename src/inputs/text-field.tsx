@@ -10,7 +10,7 @@ import {
 } from "react";
 import { clsx } from "clsx";
 import { Size, Variant } from "../types";
-import { Icon } from "../icons/registry";
+import { Icon, resolveIcon } from "../icons/registry";
 
 export interface TextFieldProps
   extends Omit<InputHTMLAttributes<HTMLInputElement>, "size" | "onChange"> {
@@ -107,7 +107,7 @@ const InnerTextField = forwardRef(
               "sized-inner-group-item variant-responsive-input-extra-text rounded-[1px]",
             )}
           >
-            {icon}
+            {resolveIcon(icon)}
           </span>
         )}
         {onClear && (

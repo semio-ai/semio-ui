@@ -195,7 +195,25 @@ This is the same discipline the color tokens already follow (token name == code-
 2. **Phase 2 (SEM-161).** Land `IconProvider`, `registry`, `<Icon>`, the generated default registry (Tabler **plus** `@semio/ui`'s own `src/icons/`), and standardized sizing in `@semio/ui`. Keep `Button`'s `leftIcon`/`rightIcon` working by accepting either a node (legacy) or rendering `<Icon name>` internally; add a codemod for the common cases.
 3. **Phase 3 (SEM-162).** Migrate `apps/studio` and other consumers to `<Icon name>` / registry overrides; publish the Figma icon library; generate Code Connect; point component slots at the library.
 
-Backwards compatibility: `leftIcon`/`rightIcon` continue to accept a `ReactNode`, so the change is non-breaking. As implemented in SEM-161, `Button` also accepts `leftIconName`/`rightIconName` shorthands that render through `<Icon>`; the name shorthand takes precedence over the node. Call sites migrate incrementally.
+Backwards compatibility: every icon slot still accepts a `ReactNode`, so the change is non-breaking.
+
+### Consumer model (`@semio/animation`, `apps/studio`, …) — icon slots take a key *or* a node
+
+The icon system is primarily *for* the higher-level libraries and apps. The intended flow:
+
+1. **Register once.** A consumer wraps its tree in `<IconProvider registry={…}>` seeded with the icons it uses (app-specific glyphs + any Tabler icons beyond the curated default). Done once near the app root; nested providers compose.
+2. **Reference by name, anywhere.** Every `@semio/ui` icon slot — `Button`'s `leftIcon`/`rightIcon`, the `icon` props across menus/selects/inputs/tabs/breadcrumbs/sidebars, etc. — accepts **either a registry key string or a node**:
+
+   ```tsx
+   <Button leftIcon="trash" />                 // string key → <Icon name="trash"> internally
+   <Button leftIcon={<Icon name="trash" />} /> // an explicit node
+   <Button leftIcon={<CustomGlyph />} />       // any node
+   <MenuItem icon="settings" />                // same rule on every slot
+   ```
+
+   Sizing is handled by `<Icon>`; the consumer never imports `ICON_CLASS_NAME`.
+
+Mechanically, slots keep a `ReactNode` type (`ReactNode` already permits `string`) and each render site funnels the value through the exported `resolveIcon(value)` helper — a string key becomes a self-sizing `<Icon name>`, any node passes through unchanged (`resolveIcon` is idempotent). There is **one** way to reference an icon (key string or `<Icon>`); `@semio/ui` deliberately does **not** add parallel `*IconName` string props per component. (Today ~269 `ICON_CLASS_NAME` references across ~40 consumer files become `<Icon name>` / key strings — the SEM-162 migration.)
 
 ## Risks & Open Questions
 
@@ -203,7 +221,7 @@ Backwards compatibility: `leftIcon`/`rightIcon` continue to accept a `ReactNode`
 - **Curated vs. full set.** *Resolved (SEM-161):* the default seeds the Tabler icons `@semio/ui` uses internally + its custom glyphs, with `@tabler/icons-react` external; apps extend on demand. The **Figma** library still seeds from the icons used in `apps/studio` and grows. *(Figma side: SEM-162.)*
 - **Custom-icon precedence & coverage.** *Resolved (SEM-161):* custom icons win on key collision (spread last); non-glyph/required-prop components are excluded from the registry and stay direct imports. These Semio glyphs still need names in the Figma icon library *(SEM-162)*.
 - **Fallback behavior.** *Resolved (SEM-161):* an unknown `name` renders nothing and warns in non-production. A visible "missing" glyph or CI-fail can layer on later if wanted.
-- **Shorthand ergonomics.** *Resolved (SEM-161):* `leftIconName`/`rightIconName` added to `Button`; other controls can follow the same pattern as needed.
+- **Shorthand ergonomics.** *Resolved (SEM-161):* every icon slot accepts a key string **or** a node (via `resolveIcon`); no parallel `*IconName` props. See "Consumer model" above.
 
 ## References
 

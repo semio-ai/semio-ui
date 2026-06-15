@@ -1,7 +1,7 @@
 import { type ReactNode, type Ref, useEffect, useId } from "react";
 import { Autocomplete as AutocompletePrimitive } from "@base-ui/react/autocomplete";
 import { clsx } from "clsx";
-import { Icon } from "../icons/registry";
+import { Icon, resolveIcon } from "../icons/registry";
 import { Size, Variant } from "../types";
 import { ScrollArea } from "../layouts/scroll-area";
 import {
@@ -156,7 +156,7 @@ export function Autocomplete<TItem>({
       >
         {resolvedLeftIcon != null && (
           <span className={leftIconClassName(size, variant)} aria-hidden="true">
-            {resolvedLeftIcon}
+            {resolveIcon(resolvedLeftIcon)}
           </span>
         )}
         <AutocompletePrimitive.Input

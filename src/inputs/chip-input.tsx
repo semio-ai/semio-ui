@@ -15,7 +15,7 @@ import { NestedOption } from "../nested-elements/types";
 import { Dropdown } from "../floating/dropdown";
 import { NestedSelect } from "../nested-elements/select";
 import { Button } from "../buttons/button";
-import { Icon } from "../icons/registry";
+import { Icon, resolveIcon } from "../icons/registry";
 
 export interface ChipInputProps {
   selectedValues: string[];
@@ -170,7 +170,9 @@ const InnerChipInput = forwardRef(
                 color={option.color}
                 renderIcon={
                   option.icon
-                    ? (iconClassName: string) => <div className={iconClassName}>{option.icon}</div>
+                    ? (iconClassName: string) => (
+                        <div className={iconClassName}>{resolveIcon(option.icon)}</div>
+                      )
                     : undefined
                 }
                 onDelete={

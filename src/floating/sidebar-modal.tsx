@@ -19,6 +19,7 @@ import {
 } from "@tabler/icons-react";
 import { Button } from "../buttons/button";
 import { MenuButton } from "../buttons/menu-button";
+import { resolveIcon } from "../icons/registry";
 import { MenuButtonProvider } from "../context/menu-button-context";
 import { ICON_CLASS_NAME } from "../constants/icon";
 import { ScrollArea } from "../layouts/scroll-area";
@@ -476,7 +477,7 @@ function SidebarPane({
                   "grid h-9 w-9 place-items-center",
                 )}
               >
-                {collapsedIcon}
+                {resolveIcon(collapsedIcon)}
               </span>
             )}
             {/* Mobile-only — content pane carries the X on desktop. */}

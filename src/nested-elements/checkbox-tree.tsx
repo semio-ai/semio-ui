@@ -1,7 +1,7 @@
 import { DropdownMenu, ContextMenu } from "radix-ui";
 import { type MouseEvent, type CSSProperties, useCallback } from "react";
 import { clsx } from "clsx";
-import { Icon } from "../icons/registry";
+import { Icon, resolveIcon } from "../icons/registry";
 import { Variant } from "../types";
 import { NestedParent } from "./types";
 import { useNestedParent } from "./context";
@@ -215,7 +215,7 @@ export function NestedCheckboxTree({
               }}
             >
               <span className="icon-slot">
-                {option.icon ||
+                {resolveIcon(option.icon) ||
                   (() => {
                     if (state === CheckboxState.Checked) {
                       return <Icon name="check" />;
@@ -290,7 +290,7 @@ export function NestedCheckboxTree({
             )}
           >
             <span className="icon-slot">
-              {option.icon ||
+              {resolveIcon(option.icon) ||
                 (state === CheckboxState.Checked ? (
                   <Icon name="check" />
                 ) : (

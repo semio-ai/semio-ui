@@ -3,7 +3,7 @@ import { clsx } from "clsx";
 // Will hopefully use later once we can search in the select.
 // import { matchSorter } from "match-sorter";
 import { Size, Variant } from "../types";
-import { Icon } from "../icons/registry";
+import { Icon, resolveIcon } from "../icons/registry";
 import { StaticIcon } from "../icons/static-icon";
 import { NestedSelect } from "../nested-elements/select";
 import { NestedRadio } from "../nested-elements/radio";
@@ -140,7 +140,7 @@ export function Select<T extends string | string[]>({
         >
           <Tooltip content={tooltipContent}>
             <div className="icon-slot">
-              {selectOption?.icon || <Icon name="point-filled" />}
+              {resolveIcon(selectOption?.icon) || <Icon name="point-filled" />}
             </div>
           </Tooltip>
         </div>
@@ -184,7 +184,7 @@ export function Select<T extends string | string[]>({
               )}
             >
               <span className="icon-slot">
-                {selectOption?.icon || <Icon name="point-filled" />}
+                {resolveIcon(selectOption?.icon) || <Icon name="point-filled" />}
               </span>
             </div>
           )}

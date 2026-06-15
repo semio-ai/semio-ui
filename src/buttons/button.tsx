@@ -7,7 +7,7 @@ import {
 } from "react";
 import { clsx } from "clsx";
 import { Variant, Size } from "../types";
-import { Icon } from "../icons/registry";
+import { resolveIcon, type IconValue } from "../icons/registry";
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children?: ReactNode;
@@ -16,14 +16,10 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
   onClick?: MouseEventHandler<HTMLButtonElement>;
   variant?: Variant;
   color?: string;
-  /** A rendered icon node. Prefer {@link leftIconName} for registry icons. */
-  leftIcon?: ReactNode;
-  /** A rendered icon node. Prefer {@link rightIconName} for registry icons. */
-  rightIcon?: ReactNode;
-  /** Registry key rendered through `<Icon>`; takes precedence over {@link leftIcon}. */
-  leftIconName?: string;
-  /** Registry key rendered through `<Icon>`; takes precedence over {@link rightIcon}. */
-  rightIconName?: string;
+  /** Left icon: a registry key (e.g. `"trash"`) or a rendered node. */
+  leftIcon?: IconValue;
+  /** Right icon: a registry key (e.g. `"chevron-down"`) or a rendered node. */
+  rightIcon?: IconValue;
   size?: Size | "fit";
   deemphasize?: boolean;
   submit?: boolean;
@@ -56,8 +52,6 @@ export const Button = forwardRef(
       color,
       leftIcon,
       rightIcon,
-      leftIconName,
-      rightIconName,
       size = Size.Md,
       deemphasize = false,
       // callToAction = false,
@@ -70,10 +64,10 @@ export const Button = forwardRef(
     }: ButtonProps,
     ref: ForwardedRef<HTMLButtonElement>,
   ) => {
-    // Name-based shorthands route through the registry `<Icon>` and win over a
-    // raw node, so call sites can migrate to keys without dropping back-compat.
-    const left = leftIconName ? <Icon name={leftIconName} /> : leftIcon;
-    const right = rightIconName ? <Icon name={rightIconName} /> : rightIcon;
+    // A slot value may be a registry key (string) or a node; resolveIcon turns a
+    // key into a self-sizing <Icon>, otherwise passes the node through.
+    const left = resolveIcon(leftIcon);
+    const right = resolveIcon(rightIcon);
     const iconOnly = (!right && children === undefined) || (!left && children === undefined);
 
     return (

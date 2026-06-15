@@ -3,6 +3,7 @@ import { Progress as RadixProgress } from "radix-ui";
 import { MotionValue, motion, useTransform } from "motion/react";
 import { clsx } from "clsx";
 import { Size, Variant } from "../types";
+import { resolveIcon } from "../icons/registry";
 
 export interface ProgressProps {
   progress: number;
@@ -92,7 +93,7 @@ export function ProgressCircle({ size, progress, variant, icon }: ProgressCircle
       </svg>
       {icon && (
         <div className="absolute top-[10%] right-[10%] bottom-[10%] left-[10%] grid place-items-center">
-          {icon}
+          {resolveIcon(icon)}
         </div>
       )}
     </div>

@@ -1,7 +1,7 @@
 import { CSSProperties, useCallback, useMemo } from "react";
 import { clsx } from "clsx";
 import { Size, Variant } from "../types";
-import { Icon } from "../icons/registry";
+import { Icon, resolveIcon } from "../icons/registry";
 import { StaticIcon } from "../icons/static-icon";
 import { NestedCheckboxTree, TreeOption } from "../nested-elements/checkbox-tree";
 import { NestedLabel } from "../nested-elements/label";
@@ -271,7 +271,7 @@ export function SelectTree({
             "variant-mock-inner-item",
           )}
         >
-          <span className="icon-slot">{triggerDisplay.icon}</span>
+          <span className="icon-slot">{resolveIcon(triggerDisplay.icon)}</span>
         </div>
         <span
           style={

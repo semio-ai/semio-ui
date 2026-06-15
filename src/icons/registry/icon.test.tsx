@@ -1,6 +1,7 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
-import { Icon } from "./icon";
+import { Button } from "../../buttons/button";
+import { Icon, resolveIcon } from "./icon";
 import { IconProvider } from "./icon-provider";
 
 /** Minimal stand-in glyphs so tests don't depend on any concrete icon's markup. */
@@ -110,5 +111,36 @@ describe("Icon sizing (single source of truth)", () => {
     );
     expect(html).toContain("icon-standard");
     expect(html).toContain("text-red-500");
+  });
+});
+
+describe("resolveIcon (slot values: string key or node)", () => {
+  it("turns a string key into a rendered <Icon>", () => {
+    const html = renderToStaticMarkup(<>{resolveIcon("chevron-down")}</>);
+    expect(html).toContain("tabler-icon-chevron-down");
+    expect(html).toContain("icon-standard");
+  });
+
+  it("returns a node unchanged", () => {
+    const node = <svg data-glyph="passthrough" />;
+    const html = renderToStaticMarkup(<>{resolveIcon(node)}</>);
+    expect(html).toContain('data-glyph="passthrough"');
+  });
+
+  it("passes nullish through (so `?? fallback` still works)", () => {
+    expect(resolveIcon(undefined)).toBeUndefined();
+    expect(resolveIcon(null)).toBeNull();
+  });
+});
+
+describe("icon slots accept a string key (e.g. Button)", () => {
+  it("renders a registry icon from a string leftIcon", () => {
+    const html = renderToStaticMarkup(<Button leftIcon="chevron-down">Go</Button>);
+    expect(html).toContain("tabler-icon-chevron-down");
+  });
+
+  it("still accepts a node leftIcon (back-compat)", () => {
+    const html = renderToStaticMarkup(<Button leftIcon={<Icon name="x" />}>Close</Button>);
+    expect(html).toContain("tabler-icon-x");
   });
 });
