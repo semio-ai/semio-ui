@@ -42,7 +42,11 @@ export const defaultIconRegistry: IconRegistry = /* { "chevron-down": IconChevro
 
 ```tsx
 // icon-provider.tsx
-const IconRegistryContext = React.createContext<IconRegistry>(defaultIconRegistry);
+import { useOptionalContext } from "@semio/utils";
+
+// Built on the shared @semio/utils context infrastructure (see below) rather than
+// a bespoke createContext — null sentinel + fallback to defaultIconRegistry.
+const IconRegistryContext = React.createContext<IconRegistry | null>(null);
 
 export function IconProvider({
   registry,
@@ -50,10 +54,11 @@ export function IconProvider({
   children,
 }: {
   registry: IconRegistry;
-  extend?: boolean; // merge over the default registry (true) or replace it (false)
+  extend?: boolean; // merge over the parent/default registry (true) or replace it (false)
   children: React.ReactNode;
 }) {
-  const parent = React.useContext(IconRegistryContext);
+  // Resolve up the tree; fall back to the default set at the root.
+  const parent = useOptionalContext(IconRegistryContext) ?? defaultIconRegistry;
   const value = React.useMemo(
     () => (extend ? { ...parent, ...registry } : registry),
     [parent, registry, extend],
@@ -74,7 +79,7 @@ export interface IconProps {
 }
 
 export function Icon({ name, className, size = "standard" }: IconProps) {
-  const registry = React.useContext(IconRegistryContext);
+  const registry = useOptionalContext(IconRegistryContext) ?? defaultIconRegistry;
   const Resolved = registry[name];
   if (!Resolved) {
     if (process.env.NODE_ENV !== "production") {
@@ -88,6 +93,18 @@ export function Icon({ name, className, size = "standard" }: IconProps) {
 ```
 
 Sizing stays anchored to the existing constants (`icon-standard` / `icon-larger`), but now they are applied in exactly one place (`<Icon>`) rather than re-derived per component. Consuming components provide the **slot** (the square sized to the control), and `<Icon>` fills it at the standard proportion.
+
+### Build on the shared `@semio/utils` context infrastructure
+
+The registry context should **not** hand-roll a bare `React.createContext` + `useContext`. `@semio/utils` already provides the house pattern for context providers (`packages/utils/src/react/context-providers.tsx`), and `@semio/ui` already consumes it for the tooltip context (`packages/ui/src/context/tooltip-context-utils.tsx`). The icon registry should follow suit for consistency and to inherit the same resolution/nesting guarantees:
+
+- **`createContextSolution({ context, defaultValue, name })`** — returns a standardized `{ useContext, Provider, withOptional, context }` bundle, including a required-context hook that throws a clear, named error when used outside a provider.
+- **`useOptionalContext(context)`** — non-throwing resolution that walks up the tree, returning `null` when no ancestor provides one (so `<Icon>` and `IconProvider` can fall back to `defaultIconRegistry` at the root).
+- **`withOptionalContext` / `composeContexts`** — "natural resolution": a component self-provides the default **only if no ancestor already provides it**, avoiding double-wrapping when providers nest, and composes cleanly with the existing Tooltip/Animation/Scene providers.
+
+This gives the icon system hierarchical, nesting-aware resolution for free — the nearest `IconProvider` wins, and the default Tabler set is the implicit root.
+
+**One registry-specific extension on top of the base pattern.** The utils infra resolves a context as *replace-or-inherit* (use the nearest provider, else the default). The icon registry additionally wants **merge-on-nest**: a nested `IconProvider` with `extend` should compose its keys *over* the parent registry (`{ ...parent, ...registry }`) rather than shadow it entirely. So `IconProvider` reads the parent via `useOptionalContext` and merges, while still building on the utils-created context/hook so the rest of the resolution semantics (and the `<Icon>` consumer hook) stay standardized. `extend: false` falls back to the base replace behavior.
 
 ### Why a registry beats per-icon imports
 
@@ -165,4 +182,6 @@ Backwards compatibility: `leftIcon`/`rightIcon` continue to accept a `ReactNode`
 
 - `packages/ui/src/constants/icon.ts` — `ICON_CLASS_NAME` (`icon-standard`), `ICON_LG_CLASS_NAME` (`icon-larger`).
 - `packages/ui/dist/styles.css` — `.icon-standard { h-3/5 w-3/5 }`, `.icon-larger { h-[70%] w-[70%] }`.
+- `packages/utils/src/react/context-providers.tsx` — shared context infrastructure (`createContextSolution`, `useOptionalContext`, `withOptionalContext`, `composeContexts`) the `IconProvider` should build on; `packages/utils/src/react/context-providers-example.md` documents the pattern.
+- `packages/ui/src/context/tooltip-context-utils.tsx` — existing in-package precedent using that infrastructure.
 - Figma Code Connect — `figma.instance`, `figma.boolean`, `figma.string`, `figma.enum`.
