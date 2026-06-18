@@ -65,8 +65,6 @@ export * from "./icons/graph-view";
 export * from "./icons/handle-indicator";
 export * from "./icons/home";
 export * from "./icons/key";
-export * from "./icons/key-outline";
-export * from "./icons/key-outline-dash";
 export * from "./icons/lock";
 export * from "./icons/lock-off";
 export * from "./icons/move-player-end-bounds";

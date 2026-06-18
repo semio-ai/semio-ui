@@ -15,8 +15,6 @@ import { IconFilterX } from "../filter-x";
 import { IconGraphView } from "../graph-view";
 import { IconHome } from "../home";
 import { IconKey } from "../key";
-import { IconKeyOutline } from "../key-outline";
-import { IconKeyOutlineDash } from "../key-outline-dash";
 import { Lock } from "../lock";
 import { LockOff } from "../lock-off";
 import { MovePlayerEndBounds } from "../move-player-end-bounds";
@@ -68,8 +66,6 @@ export const semioIconRegistry: IconRegistry = {
   "graph-view": IconGraphView,
   "home": IconHome,
   "key": IconKey,
-  "key-outline": IconKeyOutline,
-  "key-outline-dash": IconKeyOutlineDash,
   "lock": Lock,
   "lock-off": LockOff,
   "move-player-end-bounds": MovePlayerEndBounds,

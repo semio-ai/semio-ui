@@ -1,6 +1,5 @@
 import { memo, ReactNode } from "react";
 import { clsx } from "clsx";
-import { IconChevronRightPipe } from "@tabler/icons-react";
 import {
   useActionItems,
   useActiveRightPane,
@@ -13,13 +12,10 @@ import {
 import { Dropdown } from "../../floating/dropdown";
 import { NestedLabel } from "../../nested-elements/label";
 import { NestedChild } from "../../nested-elements/configured-render";
-import { IconHome } from "../../icons/home";
-import { resolveIcon } from "../../icons/registry";
+import { Icon, resolveIcon } from "../../icons/registry";
 import { useLayoutActions } from "../../hooks/use-layout-actions";
 import { PaneRegion, Size, ToolbarWidget, Variant } from "../../types";
 import { HeaderButton } from "../../buttons/header-button";
-import { ICON_CLASS_NAME } from "../../constants/icon";
-import { Icon } from "../../icons/registry";
 import { isPlaceholder } from "./types";
 
 function InnerHeader({ homeIcon }: { homeIcon?: ReactNode }) {
@@ -62,7 +58,7 @@ function InnerHeader({ homeIcon }: { homeIcon?: ReactNode }) {
                     toggleMenu();
                   }}
                 >
-                  {resolveIcon(homeIcon) ?? <IconHome />}
+                  {resolveIcon(homeIcon) ?? <Icon name="home" />}
                 </button>
               </span>
             }
@@ -119,9 +115,9 @@ function InnerHeader({ homeIcon }: { homeIcon?: ReactNode }) {
           size={Size.Md}
           label="Toggle Menu"
           icon={
-            <IconChevronRightPipe
+            <Icon
+              name="sidebar-toggle"
               className={clsx(
-                ICON_CLASS_NAME,
                 "transition-transform duration-100 ease-in-out",
                 rightRegionActive ? "rotate-360" : "rotate-180",
               )}

@@ -27,8 +27,19 @@ export interface IconProps {
   /** Registry key, kebab-case (e.g. `"chevron-down"`). */
   name: string;
   className?: string;
-  /** Sizing preset. `"standard"` (60% of the slot) or `"larger"` (70%). */
-  size?: "standard" | "larger";
+  /**
+   * Sizing preset. `"standard"` (60% of the slot), `"larger"` (70%), or `"none"`
+   * to skip the standard sizing class — for bespoke slots that size the glyph
+   * themselves via `className` (e.g. the stepper's `h-6 w-6`, the checkbox check).
+   */
+  size?: "standard" | "larger" | "none";
+  /**
+   * Extra props forwarded to the resolved icon component — the "state bag" for
+   * stateful glyphs (`<Icon name="disclosure" open />`, `<Icon name="key" dashed
+   * center="plus" />`). Untyped here by design; prefer the typed wrappers
+   * (`<KeyIcon>`, `<DisclosureIcon>`) at call sites that need checked props.
+   */
+  [prop: string]: unknown;
 }
 
 /**
@@ -36,9 +47,13 @@ export interface IconProps {
  * the default) and renders it at the standardized size. Sizing lives here — the
  * single source of truth — so consuming components only need to supply the slot.
  *
+ * Any props beyond `name`/`className`/`size` are forwarded to the resolved icon,
+ * so a single key can render state-dependent glyphs (rotation, swap, fill)
+ * without the consuming component branching on state itself.
+ *
  * Unknown names render nothing and, outside production, warn in the console.
  */
-export function Icon({ name, className, size = "standard" }: IconProps) {
+export function Icon({ name, className, size = "standard", ...rest }: IconProps) {
   const registry = useOptionalContext(IconRegistryContext) ?? defaultIconRegistry;
   const Resolved = registry[name];
 
@@ -49,6 +64,7 @@ export function Icon({ name, className, size = "standard" }: IconProps) {
     return null;
   }
 
-  const sizeClass = size === "larger" ? ICON_LG_CLASS_NAME : ICON_CLASS_NAME;
-  return <Resolved className={clsx(sizeClass, className)} />;
+  const sizeClass =
+    size === "none" ? undefined : size === "larger" ? ICON_LG_CLASS_NAME : ICON_CLASS_NAME;
+  return <Resolved className={clsx(sizeClass, className)} {...rest} />;
 }

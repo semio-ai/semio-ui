@@ -63,7 +63,7 @@ export function NestedRadio({ variant, disabled, onChange, value, options }: Nes
             )}
           >
             <span className="icon-slot">
-              {resolveIcon(option.icon) ?? <Icon name="point-filled" />}
+              {resolveIcon(option.icon) ?? <Icon name="radio-selected" />}
             </span>
           </ItemIndicatorComponent>
           {option.label}

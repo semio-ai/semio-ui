@@ -2,13 +2,22 @@ import { ReactNode, createContext, useContext, useState, useCallback, memo, useR
 import { AnimatePresence, useAnimationFrame, motion, useSpring } from "motion/react";
 import { Toast as RadixToast } from "radix-ui";
 import { clsx } from "clsx";
-import { IconX } from "@tabler/icons-react";
 import { Button } from "../buttons/button";
 import { Size, Variant } from "../types";
 import { ProgressCircle } from "../feedback/progress";
-import { IconVariant } from "../icons/variant";
-import { ICON_CLASS_NAME } from "../constants/icon";
 import { Icon } from "../icons/registry";
+
+/**
+ * Variants that have a status glyph (`status-success`, …). Other variants
+ * (primary/secondary/…) show no status icon — matching the old `IconVariant`,
+ * which returned `null` for them.
+ */
+const STATUS_VARIANTS = new Set<Variant>([
+  Variant.Success,
+  Variant.Error,
+  Variant.Warning,
+  Variant.Info,
+]);
 
 export interface ToastState {
   toasts: ToastData[];
@@ -134,9 +143,9 @@ function InnerToast({ data }: { data: ToastData }) {
               icon={
                 paused ? (
                   <Icon name="player-pause" />
-                ) : (
-                  <IconVariant variant={data.variant} className={ICON_CLASS_NAME} />
-                )
+                ) : data.variant && STATUS_VARIANTS.has(data.variant) ? (
+                  <Icon name={`status-${data.variant}`} />
+                ) : null
               }
             />
             {data.title}
@@ -148,7 +157,7 @@ function InnerToast({ data }: { data: ToastData }) {
               variant={data.variant}
               leftIcon={
                 typeof data.dismiss !== "object" ? (
-                  <IconX size={18} className="text-black" />
+                  <Icon name="close" className="text-black" />
                 ) : undefined
               }
               altText={typeof data.dismiss === "object" ? data.dismiss.label : "dismiss"}

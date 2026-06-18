@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Chip, Size, Variant } from "@semio/ui";
-import { IconUser } from "@tabler/icons-react";
 
 const meta: Meta<typeof Chip> = {
   component: Chip,
@@ -29,7 +28,7 @@ export const Primary: Story = {
   name: "Default Chip",
   args: {
     children: "Hello World",
-    renderIcon: (cn: string) => <IconUser className={cn} />,
+    icon: "home",
     variant: Variant.Primary,
     onDelete: () => {
       console.log("Delete");
@@ -41,7 +40,7 @@ export const CustomColor: Story = {
   render: (props) => <Chip {...props} />,
   args: {
     children: "Hello World",
-    renderIcon: (cn: string) => <IconUser className={cn} />,
+    icon: "home",
     color: "#ee11ee",
     onDelete: () => {
       console.log("Delete");
@@ -53,7 +52,7 @@ export const ExtraSmall: Story = {
   render: (props) => <Chip {...props} />,
   args: {
     children: "Hello World",
-    renderIcon: (cn: string) => <IconUser className={cn} />,
+    icon: "home",
     size: Size.Xs,
     variant: Variant.Info,
     onDelete: () => {
@@ -66,7 +65,7 @@ export const Small: Story = {
   render: (props) => <Chip {...props} />,
   args: {
     children: "Hello World",
-    renderIcon: (cn: string) => <IconUser className={cn} />,
+    icon: "home",
     size: Size.Sm,
     variant: Variant.Info,
     onDelete: () => {
@@ -79,7 +78,7 @@ export const Large: Story = {
   render: (props) => <Chip {...props} />,
   args: {
     children: "Hello World",
-    renderIcon: (cn: string) => <IconUser className={cn} />,
+    icon: "home",
     size: Size.Lg,
     variant: Variant.Info,
     onDelete: () => {
@@ -92,7 +91,7 @@ export const ExtraLarge: Story = {
   render: (props) => <Chip {...props} />,
   args: {
     children: "Hello World",
-    renderIcon: (cn: string) => <IconUser className={cn} />,
+    icon: "home",
     size: Size.Xl,
     variant: Variant.Info,
     onDelete: () => {
@@ -116,7 +115,7 @@ export const NoDelete: Story = {
   render: (props) => <Chip {...props} />,
   args: {
     children: "Hello World",
-    renderIcon: (cn: string) => <IconUser className={cn} />,
+    icon: "home",
     variant: Variant.Info,
   },
 };

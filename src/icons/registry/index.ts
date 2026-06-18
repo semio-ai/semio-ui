@@ -4,4 +4,7 @@ export { IconRegistryContext } from "./icon-context";
 export { defaultIconRegistry } from "./default-registry";
 export { tablerIconRegistry } from "./tabler.generated";
 export { semioIconRegistry } from "./semio.generated";
+export { roleIconRegistry } from "./roles";
+export { DisclosureIcon, type DisclosureIconProps } from "./disclosure";
+export { KeyIcon, type KeyIconProps } from "./key-icon";
 export type { IconComponent, IconRegistry } from "./types";

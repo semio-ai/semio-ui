@@ -1,11 +1,9 @@
 import { memo, useCallback, useMemo, type ReactNode } from "react";
 import { clsx } from "clsx";
-import { IconChevronDown } from "@tabler/icons-react";
 import { Dropdown } from "../floating/dropdown";
 import { SelectOption } from "../floating/select";
 import { NestedRadio } from "../nested-elements/radio";
 import { Variant } from "../types";
-import { ICON_CLASS_NAME } from "../constants/icon";
 import { Icon, resolveIcon } from "../icons/registry";
 
 export interface BreadcrumbOptionElement {
@@ -91,9 +89,9 @@ export function InnerBreadcrumbs({
                     ) ?? <Icon key="icon" name="hexagon" />)}
                   {element.options.find((option) => option.value === element.value)?.label ??
                     element.value}
-                  <IconChevronDown
+                  <Icon
+                    name="disclosure-open"
                     className={clsx(
-                      ICON_CLASS_NAME,
                       "ease-in-out",
                       "opacity-20 group-hover/trigger:opacity-100 group-data-[state=open]/trigger:opacity-100",
                       "rotate-0 transition-transform duration-75 group-data-[state=open]/trigger:rotate-180",

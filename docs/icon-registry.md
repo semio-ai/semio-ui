@@ -33,7 +33,9 @@ A React context holds a registry mapping string keys to icon components. A singl
 
 ```tsx
 // registry.ts
-export type IconComponent = React.ComponentType<{ className?: string }>;
+// Icons may accept a state bag beyond className (see "Roles, glyphs, and stateful
+// icons" below); the Record is the deliberately-loose seam, kept honest by wrappers.
+export type IconComponent = React.ComponentType<{ className?: string } & Record<string, unknown>>;
 export type IconRegistry = Record<string, IconComponent>;
 
 // Default registry: the generated Tabler set merged with @semio/ui's own custom
@@ -138,6 +140,39 @@ Two practical wrinkles the codegen handles (`scripts/generate-icon-registry.mjs`
 - **One swap point.** Product surfaces can `IconProvider`-override a handful of keys without touching call sites.
 - **Lean by default.** The default registry is a curated seed (the Tabler icons `@semio/ui` itself uses + its own custom glyphs), and `@tabler/icons-react` is external — so `@semio/ui` doesn't ship the full icon library. Consumers register only what they additionally need.
 
+### Roles, glyphs, and stateful icons (SEM-161 refinement)
+
+Keys fall into two kinds, and the distinction drives how they're named and overridden:
+
+- **Role keys** name a *function in the UI*, not a picture. The set wired so far: `close`, `back`, `drill-in`, `submenu`, `sidebar-toggle`, `disclosure-open`/`disclosure-closed`, `selected`, `radio-selected`, `step-complete`/`step-pending`, and `status-success`/`status-error`/`status-warning`/`status-info`. The glyph is just the default *value*. Overriding `close` re-skins every close affordance across the design system at once. Role keys are named for the **role, not the glyph** — `close`, not `close-x`; `disclosure`, not `chevron-down` (the `-x`/`chevron` re-encodes the shape, defeating the indirection). They live in a hand-maintained `roles.ts` (not codegen), and keys are added only as a component is wired to one — an unused role key is noise.
+- **Glyph keys** name an *arbitrary picture* used as content — `star`, `home`, `heart`, `trash`. These keep their literal (Tabler) names; a caller asking for a star wants a star.
+
+`@semio/ui`'s own components reference **role keys**; they are the stable contract that also seeds the Figma library / Code Connect naming (SEM-162). Glyph keys are the convenience layer for consumers.
+
+**Stateful icons.** Some roles render different glyphs by state — the disclosure chevron rotates (or swaps `+`/`−`) on open; the keyframe glyph varies by `dashed`/`center`/`fill`. Rather than a one-off branch inside each consuming component (e.g. an identity check in the accordion), the variation logic lives **inside the icon component**, and `<Icon>` forwards a *state bag* to it:
+
+```tsx
+<Icon name="disclosure" open={open} />        // default component rotates on `open`
+<Icon name="key" dashed center="plus" />      // IconKey reads its own props
+```
+
+This is why `IconComponent` accepts `{ className?: string } & Record<string, unknown>`. The default `disclosure` component rotates a single element (preserving today's animation); a consumer override that resolves to two different glyphs swaps instead — the consuming component (accordion/collapse) is unchanged either way. A role's prop shape is part of its contract: an override must honor it.
+
+> This subsumed the dead `key-outline` / `key-outline-dash` files — `IconKey` already exposes `fillOpacity` (outline) and `dashed`, which is exactly how the one real call site (animation's `track-control-menu`) uses it. They were removed in SEM-161; `key` carries the variants via props.
+
+**Typed wrappers keep the loose seam honest.** The `Record<string, unknown>` is the *only* loose spot, and it's confined to resolution/theming. Everyday call sites stay type-checked one of two ways: a literal-key `<Icon name="check" />` (no state), or a thin typed wrapper for stateful roles — `<KeyIcon dashed center="plus" />`, `<DisclosureIcon open />` — that forwards checked props into `<Icon name>`. So no caller hand-casts props; the looseness never leaks into app code.
+
+**Enumerable sets get discrete keys, not one stateful component.** Where the variation is a small, independently-themeable set, prefer discrete keys over a single stateful component. Status icons are the case: `status-success` / `status-error` / `status-warning` / `status-info` (each independently overrideable) replace the old `IconVariant` switch (`variant → glyph`), which was just an ad-hoc mini-registry. The consuming site does `<Icon name={`status-${variant}`} />`. Rule of thumb: **stateful component** when the variation is animated / continuous / multi-dimensional (`disclosure`, `key`); **discrete keys** when it's a small enumerable set a consumer may want to reskin one at a time (`status-*`).
+
+### Nesting & library composition (directionality)
+
+Resolution is **nearest-provider-wins**, and each `IconProvider` merges `{ ...parent, ...registry }`. So on a key collision the *deeper* provider wins: an ancestor override (`default → app → library`) takes effect for every key a nearer provider doesn't itself set, but a nearer provider's explicit key shadows an ancestor's. This is correct for "library brings defaults, app overrides," and *backwards* for "app has final authority" — a library that re-registers a common role key (`close`) could quietly defeat app theming from above.
+
+Guidance, to keep app authority intact:
+
+- **Libraries export a registry *object*, not their own `<IconProvider>`.** `@semio/animation` exports `animationIconRegistry`; the app composes it where it controls precedence: `<IconProvider registry={{ ...animationIconRegistry, ...appOverrides }}>`. Last-wins, app has the final say. This sidesteps the directionality question entirely.
+- If a library *does* render its own provider (for self-contained defaults), keep it **additive-only** — net-new keys, no shared role keys — so ancestor overrides always pass through.
+
 ## Figma Mapping
 
 The tension: code wants a **string** (`name`), but Figma needs **real components** to render a glyph — it cannot draw an icon from a free-text string. Figma's native "pick one of a set" mechanism is the **instance-swap** property. So the bridge is:
@@ -184,6 +219,7 @@ The per-icon Code Connect files are repetitive and **generated** by a script tha
 The whole system hinges on one rule, enforced by lint/codegen:
 
 - Registry keys are **kebab-case** (`chevron-down`).
+- **Role keys are named for the role, not the glyph** — `close` not `close-x`, `disclosure` not `chevron-down`, `selected` not `check`. (See "Roles, glyphs, and stateful icons" above.) Glyph/content keys keep their literal names.
 - Figma icon component names equal the registry key (allowing an `icon/` prefix for organization, stripped on read).
 - Code Connect output uses the same key.
 
