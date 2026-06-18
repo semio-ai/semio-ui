@@ -170,8 +170,9 @@ export function rightButtonClassName(size: Size, variant: Variant) {
 }
 
 export function rightChevronClassName(size: Size, variant: Variant) {
-  return clsx(
-    rightButtonClassName(size, variant),
-    "data-popup-open:rotate-180 transition-transform",
-  );
+  // The `select-indicator` is a static double chevron (it signals "opens a list",
+  // not a direction), so the trigger no longer flips 180° on open — that caret
+  // rotation was for the old single chevron and read as a glitchy sweep on the
+  // symmetric double chevron. Just the base button styling now.
+  return rightButtonClassName(size, variant);
 }
