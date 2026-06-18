@@ -296,7 +296,7 @@ export function SelectTree({
           className="sized-text sized-width shrink-0"
           variant={triggerDisplay.variant}
         >
-          <Icon name="selector" />
+          <Icon name="select-indicator" />
         </StaticIcon>
       </div>
     </div>

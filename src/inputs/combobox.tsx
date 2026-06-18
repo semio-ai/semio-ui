@@ -187,7 +187,7 @@ export function Combobox<TValue extends string>({
           className={rightChevronClassName(size, variant)}
           aria-label="Toggle options"
         >
-          <Icon name="chevron-down" />
+          <Icon name="select-indicator" />
         </ComboboxPrimitive.Trigger>
       </ComboboxPrimitive.InputGroup>
 

@@ -212,7 +212,7 @@ export function Select<T extends string | string[]>({
             className="sized-text sized-width"
             variant={selectOption?.variant}
           >
-            <Icon name="selector" />
+            <Icon name="select-indicator" />
           </StaticIcon>
         </div>
       </div>

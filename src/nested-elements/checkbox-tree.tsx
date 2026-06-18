@@ -235,7 +235,7 @@ export function NestedCheckboxTree({
                 option.variant ?? variant,
               )}
             >
-              <Icon name="chevron-right" className="shrink-0" />
+              <Icon name="submenu" className="shrink-0" />
             </div>
           </SubTriggerComponent>
           <PortalComponent>

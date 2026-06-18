@@ -7,6 +7,7 @@ import {
   IconCircle,
   IconExclamationMark,
   IconPointFilled,
+  IconSelector,
   IconX,
 } from "@tabler/icons-react";
 import type { IconRegistry } from "./types";
@@ -26,6 +27,9 @@ export const roleIconRegistry: IconRegistry = {
   // Affordances
   close: IconX,
   submenu: IconChevronRight,
+  // Value-picker trigger (select/combobox). The double up/down chevron is the
+  // convention for "opens a list to pick from", distinct from a disclosure caret.
+  "select-indicator": IconSelector,
   // Navigation. `drill-in` (go to a sub-page) shares chevron-right with `submenu`
   // by default but is a distinct role so the two can diverge.
   back: IconChevronLeft,
