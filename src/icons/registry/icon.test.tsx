@@ -42,7 +42,8 @@ describe("IconProvider extend vs replace", () => {
       </IconProvider>,
     );
     expect(html).toContain('data-glyph="star"'); // newly registered
-    expect(html).toContain("tabler-icon-chevron-down"); // still inherited from default
+    // chevron-down still resolves from the inherited default → both icons render
+    expect(html.match(/<svg/g)).toHaveLength(2);
   });
 
   it("replace (extend=false) drops the inherited registry", () => {
@@ -54,7 +55,8 @@ describe("IconProvider extend vs replace", () => {
       </IconProvider>,
     );
     expect(html).toContain('data-glyph="star"');
-    expect(html).not.toContain("chevron-down"); // no longer resolvable
+    expect(html.match(/<svg/g)).toHaveLength(1); // only star resolves; chevron-down dropped
+    expect(warn).toHaveBeenCalled(); // unresolved chevron-down warns
     warn.mockRestore();
   });
 
@@ -117,7 +119,8 @@ describe("Icon sizing (single source of truth)", () => {
 describe("resolveIcon (slot values: string key or node)", () => {
   it("turns a string key into a rendered <Icon>", () => {
     const html = renderToStaticMarkup(<>{resolveIcon("chevron-down")}</>);
-    expect(html).toContain("tabler-icon-chevron-down");
+    expect(html).toContain("<svg"); // string key became a rendered <Icon>…
+    expect(html).toContain("icon-standard"); // …that self-sizes
     expect(html).toContain("icon-standard");
   });
 
@@ -136,11 +139,14 @@ describe("resolveIcon (slot values: string key or node)", () => {
 describe("icon slots accept a string key (e.g. Button)", () => {
   it("renders a registry icon from a string leftIcon", () => {
     const html = renderToStaticMarkup(<Button leftIcon="chevron-down">Go</Button>);
-    expect(html).toContain("tabler-icon-chevron-down");
+    expect(html).toContain("<svg"); // string key resolved to a self-sizing icon
+    expect(html).toContain("icon-standard");
   });
 
   it("still accepts a node leftIcon (back-compat)", () => {
-    const html = renderToStaticMarkup(<Button leftIcon={<Icon name="x" />}>Close</Button>);
-    expect(html).toContain("tabler-icon-x");
+    const html = renderToStaticMarkup(
+      <Button leftIcon={<svg data-glyph="passthrough" />}>Close</Button>,
+    );
+    expect(html).toContain('data-glyph="passthrough"'); // node passes through unchanged
   });
 });

@@ -55,7 +55,9 @@ export interface IconProps {
  */
 export function Icon({ name, className, size = "standard", ...rest }: IconProps) {
   const registry = useOptionalContext(IconRegistryContext) ?? defaultIconRegistry;
-  const Resolved = registry[name];
+  // Own-property check so an unexpected `name` (e.g. "toString", "constructor")
+  // can't resolve an inherited Object.prototype member instead of an icon.
+  const Resolved = Object.hasOwn(registry, name) ? registry[name] : undefined;
 
   if (!Resolved) {
     if (typeof process !== "undefined" && process.env.NODE_ENV !== "production") {

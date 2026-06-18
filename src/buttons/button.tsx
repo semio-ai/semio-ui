@@ -68,7 +68,9 @@ export const Button = forwardRef(
     // key into a self-sizing <Icon>, otherwise passes the node through.
     const left = resolveIcon(leftIcon);
     const right = resolveIcon(rightIcon);
-    const iconOnly = (!right && children === undefined) || (!left && children === undefined);
+    // Icon-only = no text and exactly one icon (square sizing). An empty button or
+    // a two-icon button is not icon-only.
+    const iconOnly = children === undefined && Boolean(left) !== Boolean(right);
 
     return (
       <button
