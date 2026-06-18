@@ -3,7 +3,7 @@ import { clsx } from "clsx";
 import { Dropdown } from "../floating/dropdown";
 import { SelectOption } from "../floating/select";
 import { NestedRadio } from "../nested-elements/radio";
-import { Variant } from "../types";
+import { Size, Variant } from "../types";
 import { Icon, resolveIcon } from "../icons/registry";
 
 export interface BreadcrumbOptionElement {
@@ -22,7 +22,7 @@ export interface BreadcrumbStaticElement {
 export type BreadcrumbElement = BreadcrumbOptionElement | BreadcrumbStaticElement;
 
 export interface BreadcrumbsProps {
-  size?: string;
+  size?: Size;
   variant?: Variant;
   values: Record<string, string | undefined>;
   elements: BreadcrumbElement[];

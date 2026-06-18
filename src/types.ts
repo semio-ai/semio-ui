@@ -3,7 +3,10 @@ import { ReactNode, MouseEvent } from "react";
 /**
  * Theme options for the application's appearance.
  *
- * Includes Light, Dark, and System themes
+ * Includes Light, Dark, and System themes.
+ *
+ * Always reference a member (e.g. `Theme.Dark`). This is a nominal enum: a string literal (`"dark"`) is NOT
+ * assignable to props/APIs typed as `Theme`.
  */
 export enum Theme {
   /**
@@ -25,7 +28,10 @@ export enum Theme {
 /**
  * Visual variants for UI components.
  *
- * Includes Primary, Secondary, Tertiary, Default, Info, Success, Warning, and Error variants
+ * Includes Primary, Secondary, Tertiary, Default, Info, Success, Warning, and Error variants.
+ *
+ * Always reference a member (e.g. `Variant.Primary`). This is a nominal enum: a string literal
+ * (`"primary"`) is NOT assignable to props typed as `Variant`.
  */
 export enum Variant {
   /**
@@ -72,7 +78,11 @@ export enum Variant {
 /**
  * Size options for UI components.
  *
- * Includes Extra Small (Xs), Small (Sm), Medium (Md), and Large (Lg) sizes
+ * Includes Extra Small (Xs), Small (Sm), Medium (Md), Large (Lg), and Extra Large (Xl) sizes.
+ *
+ * Always reference a member (e.g. `Size.Md`). This is a nominal enum: a string literal — including the
+ * underlying value `"size-md"` or a guess like `"md"` — is NOT assignable to props typed as `Size`.
+ * Some props accept `Size | "fit"`; in those, `"fit"` is the only valid string.
  */
 export enum Size {
   /**

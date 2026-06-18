@@ -2,6 +2,11 @@
   "name": "@semio/ui",
   "description": "Basic React components, built by Semio with Radix/Tailwind",
   "version": "0.1.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/semio-ai/semio_studio.git",
+    "directory": "packages/ui"
+  },
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
@@ -12,7 +17,8 @@
       "import": "./dist/index.mjs",
       "require": "./dist/index.js"
     },
-    "./dist/styles.css": "./dist/styles.css"
+    "./dist/styles.css": "./dist/styles.css",
+    "./styles.css": "./dist/semio-ui.css"
   },
   "license": "MIT",
   "files": [
@@ -24,7 +30,8 @@
     "**/*.css"
   ],
   "scripts": {
-    "build": "tsup src/index.tsx --format esm,cjs --dts --external react --external @tabler/icons-react --publicDir",
+    "build": "tsup src/index.tsx --format esm,cjs --dts --external react --external @tabler/icons-react --publicDir && npm run build:css",
+    "build:css": "tailwindcss -i make-kit/make.css -o dist/semio-ui.css --minify",
     "dev": "tsup src/index.tsx --format esm,cjs --watch --dts --external react --external @tabler/icons-react --publicDir",
     "generate:icons": "node scripts/generate-icon-registry.mjs",
     "lint": "eslint . --max-warnings 0",
@@ -37,7 +44,7 @@
     "@base-ui/react": "^1.4.1",
     "@floating-ui/react": "^0.27.4",
     "@react-three/fiber": "^9.0.0",
-    "@semio/utils": "*",
+    "@semio/utils": "^0.1.0",
     "@tabler/icons-react": "^3.34.0",
     "@use-gesture/react": "^10.3.0",
     "clsx": "^2.1.1",
@@ -50,7 +57,6 @@
     "prism-react-renderer": "^2.4.1",
     "radix-ui": "^1.4.2",
     "react-colorful": "^5.6.1",
-    "react-dom": "^19.1.0",
     "react-dropzone": "^15.0.0",
     "react-hook-form": "^7.53.2",
     "react-imask": "^7.6.0",
@@ -60,11 +66,14 @@
     "zustand": "^5.0.2"
   },
   "peerDependencies": {
+    "react": "^18.2.0 || ^19.0.0",
+    "react-dom": "^18.2.0 || ^19.0.0",
     "tailwindcss": "^4.1.3"
   },
   "devDependencies": {
     "@semio/eslint-config": "*",
     "@semio/typescript-config": "*",
+    "@tailwindcss/cli": "^4.1.3",
     "@types/lodash": "^4.17.0",
     "@types/react": "^19.1.0",
     "@types/react-dom": "^19.1.0",
@@ -72,6 +81,7 @@
     "autoprefixer": "^10.4.19",
     "postcss": "^8.5.10",
     "react": "^19.1.0",
+    "react-dom": "^19.1.0",
     "tsup": "^8.0.1",
     "typescript": "^5.3.3",
     "vitest": "^3.2.4"

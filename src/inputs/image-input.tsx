@@ -10,7 +10,7 @@ export interface ImageInputProps {
   onImageChange: (file: File | null) => void;
   variant?: Variant;
   className?: string;
-  size?: string;
+  size?: Size;
 }
 
 export function ImageInput({
