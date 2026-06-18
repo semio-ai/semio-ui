@@ -57,11 +57,11 @@ const TABLER_SEED = [
   "IconArrowUp", "IconCheck", "IconChefHat", "IconChevronDown", "IconChevronLeft",
   "IconChevronRight", "IconChevronRightPipe", "IconChevronUp", "IconCircle",
   "IconClipboardCheck", "IconClipboardPlus", "IconCommand", "IconExclamationMark",
-  "IconHexagon", "IconJacket", "IconLayoutGrid", "IconLine", "IconMenu2", "IconMinus",
-  "IconMoon", "IconPencil", "IconPinned", "IconPlayerPause", "IconPlus", "IconPoint",
-  "IconPointFilled", "IconRotate", "IconRotate2", "IconSearch", "IconSelector",
-  "IconShoe", "IconShoppingBag", "IconSquare", "IconSun", "IconSunMoon",
-  "IconSunglasses", "IconTransformPoint", "IconView360", "IconWorld", "IconX",
+  "IconHeart", "IconHexagon", "IconJacket", "IconLayoutGrid", "IconLine", "IconMenu2",
+  "IconMinus", "IconMoon", "IconPencil", "IconPinned", "IconPlayerPause", "IconPlus",
+  "IconPoint", "IconPointFilled", "IconRotate", "IconRotate2", "IconSearch", "IconSelector",
+  "IconShoe", "IconShoppingBag", "IconSquare", "IconStar", "IconSun", "IconSunMoon",
+  "IconSunglasses", "IconTransformPoint", "IconUser", "IconView360", "IconWorld", "IconX",
 ];
 const missing = TABLER_SEED.filter((n) => !Tabler[n]);
 if (missing.length) throw new Error(`TABLER_SEED has unknown Tabler icons: ${missing.join(", ")}`);

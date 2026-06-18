@@ -104,7 +104,9 @@ export const UnknownFallback: Story = {
       <div className="grid size-9 place-items-center rounded-sm bg-neutral-200 dark:bg-neutral-700">
         <Icon name="definitely-not-a-real-icon" />
       </div>
-      <span className="text-xs opacity-70">renders nothing — check the console for the dev warning</span>
+      <span className="text-xs opacity-70">
+        renders nothing — check the console for the dev warning
+      </span>
     </div>
   ),
 };
@@ -141,15 +143,17 @@ export const Disclosure: Story = {
 export const Key: Story = {
   render: () => (
     <div className="flex gap-6">
-      {(
-        [
-          { label: "filled", props: {} },
-          { label: "outline", props: { fillOpacity: 0 } },
-          { label: "dashed", props: { dashed: true } },
-          { label: "+ center", props: { fillOpacity: 0, center: "plus" as const } },
-          { label: "− center", props: { fillOpacity: 0, center: "minus" as const } },
-        ]
-      ).map(({ label, props }) => (
+      {[
+        { label: "filled", props: {} },
+        { label: "outline", props: { fillOpacity: 0 } },
+        { label: "partial fill", props: { fillOpacity: 0.5 } },
+        { label: "dashed", props: { dashed: true, fillOpacity: 0 } },
+        { label: "+ center", props: { fillOpacity: 0, center: "plus" as const } },
+        { label: "− center", props: { fillOpacity: 0, center: "minus" as const } },
+        { label: "dashed", props: { dashed: true, fillOpacity: 0.5 } },
+        { label: "+ center / partial fill", props: { fillOpacity: 0.5, center: "plus" as const } },
+        { label: "− center / partial fill", props: { fillOpacity: 0.5, center: "minus" as const } },
+      ].map(({ label, props }) => (
         <div key={label} className="flex flex-col items-center gap-1">
           <div className="grid size-9 place-items-center rounded-sm bg-neutral-200 dark:bg-neutral-700">
             <KeyIcon {...props} />
