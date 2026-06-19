@@ -1,0 +1,14 @@
+/* make.css — Tailwind entry used ONLY to precompile the Make-kit stylesheet.
+ *
+ * It re-uses your real source CSS (../public/styles.css, which already imports
+ * "tailwindcss" and ./theme.css and registers every @custom-variant / @utility),
+ * and adds an @source directive so Tailwind scans the component source and emits
+ * every utility the components actually use (grid, pl-1.5, sized-text,
+ * variant-responsive-bg, cta-button, ...) into a complete, static stylesheet.
+ *
+ * Your public/styles.css is left untouched, so nothing about the normal build or
+ * the apps that consume @semio/ui changes.
+ */
+@import "../public/styles.css";
+
+@source "../src/**/*.{ts,tsx}";

@@ -1,11 +1,22 @@
 import { DropdownMenu as DropdownPrimitive } from "radix-ui";
 import { clsx } from "clsx";
-import { ReactNode, ForwardedRef, forwardRef, CSSProperties, type MouseEventHandler } from "react";
+import {
+  ReactNode,
+  ForwardedRef,
+  forwardRef,
+  CSSProperties,
+  type MouseEventHandler,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { Variant } from "../types";
 import { NestedParent } from "../nested-elements/types";
 import { NestedParentProvider } from "../nested-elements/context";
 import { ScrollArea } from "../layouts/scroll-area";
 import { Arrow } from "./arrow";
+import { takeDropdownOpenLock, releaseDropdownOpenLock } from "./dropdown-coordinator";
 
 export interface DropdownProps {
   trigger: ReactNode;
@@ -42,9 +53,60 @@ const Dropdown = forwardRef(
     }: DropdownProps,
     ref: ForwardedRef<HTMLButtonElement>,
   ) => {
+    // Always drive `DropdownPrimitive.Root` from a state we own so the
+    // module-scoped coordinator can close us if another Dropdown opens
+    // (see `dropdown-coordinator.ts`). When the consumer passes a
+    // controlled `open` prop we mirror it; otherwise our internal state
+    // is the source of truth and `onOpenChange` is still fired so any
+    // listener observes transitions normally.
+    const isControlled = open !== undefined;
+    const [internalOpen, setInternalOpen] = useState(false);
+    const actualOpen = isControlled ? (open ?? false) : internalOpen;
+
+    // The coordinator uses this callback's identity as the lock key, so
+    // it MUST be stable across renders — otherwise the take/release pair
+    // would use different references and the release would no-op,
+    // leaving a stale entry that re-closes this dropdown the next time
+    // it opens. The stable `close` reads the latest controlled-mode /
+    // onOpenChange via refs.
+    const isControlledRef = useRef(isControlled);
+    isControlledRef.current = isControlled;
+    const onOpenChangeRef = useRef(onOpenChange);
+    onOpenChangeRef.current = onOpenChange;
+    const close = useCallback(() => {
+      if (!isControlledRef.current) setInternalOpen(false);
+      onOpenChangeRef.current?.(false);
+    }, []);
+
+    const handleOpenChange = useCallback(
+      (next: boolean) => {
+        if (!isControlled) setInternalOpen(next);
+        onOpenChange?.(next);
+      },
+      [isControlled, onOpenChange],
+    );
+
+    // Take or release the open lock whenever our open state changes.
+    // Taking the lock synchronously calls the previous holder's close,
+    // which propagates back into its own state via the same mechanism
+    // — exactly one dropdown ends up open.
+    useEffect(() => {
+      if (actualOpen) {
+        takeDropdownOpenLock(close);
+      } else {
+        releaseDropdownOpenLock(close);
+      }
+    }, [actualOpen, close]);
+
+    // Belt and braces: if this Dropdown unmounts while open, release
+    // the lock so a future Dropdown isn't blocked by a dead reference.
+    useEffect(() => {
+      return () => releaseDropdownOpenLock(close);
+    }, [close]);
+
     return (
       <NestedParentProvider value={NestedParent.Dropdown}>
-        <DropdownPrimitive.Root open={open} onOpenChange={onOpenChange}>
+        <DropdownPrimitive.Root open={actualOpen} onOpenChange={handleOpenChange}>
           <DropdownPrimitive.Trigger
             ref={ref}
             asChild
