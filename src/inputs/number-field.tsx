@@ -103,6 +103,7 @@ const InnerNumberField = forwardRef(
     const {
       textValue,
       status,
+      dirty,
       onChange: onChangeInner,
       onBlur,
     } = useNumeric({
@@ -113,13 +114,17 @@ const InnerNumberField = forwardRef(
       enforceLimits: strict,
     });
 
-    // Display the formatted prop value when not focused; useNumeric's
-    // local textValue is only consulted while the user is typing. The
-    // previous sync-via-useEffect pattern fired a setState every render,
-    // which fed React 19's nestedPassiveUpdateCount and tripped
-    // "Maximum update depth exceeded" once per ~50 playback ticks.
+    // Display the formatted prop value unless the user is actively editing;
+    // useNumeric's local textValue is only consulted once focused AND dirty.
+    // Gating on `dirty` (not just focus) keeps the live external value
+    // visible while a focused-but-untouched field's underlying value changes
+    // (e.g. the playhead moving), and prevents focusing from surfacing the
+    // stale text captured at mount. The previous sync-via-useEffect pattern
+    // fired a setState every render, which fed React 19's
+    // nestedPassiveUpdateCount and tripped "Maximum update depth exceeded"
+    // once per ~50 playback ticks.
     const displayedTextValue =
-      focusState === FocusState.Focused ? textValue : formatDisplayValue(value, 2);
+      focusState === FocusState.Focused && dirty ? textValue : formatDisplayValue(value, 2);
 
     useEffect(() => {
       onStatusChange?.(status);

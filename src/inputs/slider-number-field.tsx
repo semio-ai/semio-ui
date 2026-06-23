@@ -126,6 +126,7 @@ const InnerSliderNumberField = forwardRef(
     const {
       textValue,
       status,
+      dirty,
       onChange: onChangeInner,
       onChangeDirect,
       onBlur,
@@ -137,9 +138,12 @@ const InnerSliderNumberField = forwardRef(
       enforceLimits: strictText,
     });
 
-    // See number-field.tsx for the React 19 max-update-depth rationale.
+    // Show local text only while focused AND edited; otherwise render the
+    // live value so a moving playhead stays visible and a focus-without-edit
+    // blur can't revert it. See number-field.tsx for the full rationale
+    // (and the React 19 max-update-depth history).
     const displayedTextValue =
-      focusState === FocusState.Focused ? textValue : formatDisplayValue(value, 2);
+      focusState === FocusState.Focused && dirty ? textValue : formatDisplayValue(value, 2);
 
     useEffect(() => {
       onStatusChange?.(status);

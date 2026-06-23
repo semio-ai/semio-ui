@@ -43,6 +43,14 @@ interface NumericProps {
 export interface NumericInterface {
   textValue: string;
   status: NumericStatus;
+  /**
+   * True once the user has typed into the field this focus session and has
+   * not yet blurred/committed. Consumers display `textValue` only while
+   * dirty; when clean they render the live external value directly so that
+   * external updates (e.g. a moving playhead) remain visible and a blur
+   * without edits never emits a stale value.
+   */
+  dirty: boolean;
   onChange: (event: ChangeEvent<HTMLInputElement>) => void;
   onChangeDirect: (value: number, event: MouseEvent) => void;
   onBlur: (event: FocusEvent<HTMLInputElement> | KeyboardEvent<HTMLInputElement>) => void;
@@ -69,6 +77,13 @@ export const useNumeric = ({
   );
 
   const [state, setState] = useState<NumericState>(parseNumericInput(initial, min, max, sigFigs));
+  // `dirty` flips true on the first keystroke and resets on blur/commit. It
+  // gates whether consumers show the local `textValue` or the live external
+  // value, and whether blur emits at all. Without it, focusing a field would
+  // surface the stale text captured at mount and a blur-without-edits would
+  // re-emit that stale value — reverting any external change (e.g. a playhead
+  // move) that happened while the field was focused.
+  const [dirty, setDirty] = useState(false);
   // Track the latest external value in a ref so onBlur can revert to it
   // without scheduling a per-render setState. Consumers (NumberField,
   // SliderNumberField) already render the external value directly when
@@ -93,6 +108,9 @@ export const useNumeric = ({
 
       // Always update the internal state to show what the user typed
       setState(validationResult.newState);
+      // The user has edited the field; from here display the local text and
+      // allow blur to commit it.
+      setDirty(true);
 
       // Only call onChange callback if the value should trigger it
       if (validationResult.shouldCallOnChange && validationResult.valueToEmit !== undefined) {
@@ -143,9 +161,19 @@ export const useNumeric = ({
 
   const onBlur = useCallback(
     (event: FocusEvent<HTMLInputElement> | KeyboardEvent<HTMLInputElement>) => {
+      const externalValue = currentExternalValueRef.current;
+
+      // No edit this focus session: re-sync to the live external value and
+      // emit nothing. Emitting here would clobber any external change (e.g. a
+      // playhead move) that landed while the field was merely focused.
+      if (!dirty) {
+        setState(revertToValue(externalValue, config));
+        return;
+      }
+      setDirty(false);
+
       // If current state is invalid, revert to the current external value
       if (state.status === NumericStatus.Invalid) {
-        const externalValue = currentExternalValueRef.current;
         const revertedState = revertToValue(externalValue, config);
         setState(revertedState);
         onValidChange(externalValue, event);
@@ -155,12 +183,13 @@ export const useNumeric = ({
         onValidChange(blurResult.valueToEmit, event);
       }
     },
-    [state, config, onValidChange],
+    [dirty, state, config, onValidChange],
   );
 
   return {
     textValue: state.textValue,
     status: state.status,
+    dirty,
     onChange,
     onChangeDirect,
     onBlur,
