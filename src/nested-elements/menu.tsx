@@ -73,7 +73,10 @@ export function NestedMenu({
               variant,
             )}
           >
-            {resolveIcon(left)}
+            {/* Shared `.list-item-icon` normalization, matching NestedItem — so submenu
+                -trigger left icons align with regular item icons regardless of set.
+                resolveIcon lets `left` be a registry key or a node. */}
+            <span className="list-item-icon">{resolveIcon(left)}</span>
           </div>
         )}
 

@@ -1095,6 +1095,14 @@
     @apply [&_svg]:block [&_svg]:h-3/5 [&_svg]:w-3/5 [&_svg]:shrink-0;
   }
 
+  /* Like icon-slot, but a definite square instead of filling its parent — for the
+     list-item (NestedItem/NestedMenu) left-icon rail, whose parent slot is w-fit.
+     Normalizes any icon set to one size + centers it, so glyphs don't shift. */
+  .list-item-icon {
+    @apply grid size-5 place-items-center leading-none;
+    @apply [&_svg]:block [&_svg]:h-3/5 [&_svg]:w-3/5 [&_svg]:shrink-0;
+  }
+
   .input-label-field-units-grid {
     display: grid;
     grid-template-columns: auto minmax(4rem, 1fr) auto;

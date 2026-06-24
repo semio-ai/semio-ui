@@ -5,7 +5,7 @@ const Lock: ForwardRefExoticComponent<IconProps & RefAttributes<SVGSVGElement>> 
   SVGSVGElement,
   IconProps
 >((props, ref) => {
-  const { alt, color = "currentColor", size = "1em", mirrored = false, ...restProps } = props;
+  const { alt, color = "currentColor", size = "18px", mirrored = false, ...restProps } = props;
 
   return (
     <svg

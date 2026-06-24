@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { ReactElement, ReactNode } from "react";
 import { clsx } from "clsx";
 import { useOptionalContext } from "@semio/utils";
 import { ICON_CLASS_NAME, ICON_LG_CLASS_NAME } from "../../constants/icon";
@@ -6,19 +6,19 @@ import { IconRegistryContext } from "./icon-context";
 import { defaultIconRegistry, type IconName } from "./default-registry";
 
 /**
- * The value an `@semio/ui` icon slot accepts: a **registry key** (string,
- * resolved via the registry) or an already-rendered node. A bare string handed
- * to a slot is resolved as a registry key, not printed as text — `resolveIcon`
- * does the dispatch.
+ * The value an `@semio/ui` icon slot accepts: either a **registry key** ({@link
+ * IconName}, resolved via the registry) or an already-rendered element. Typing
+ * the string arm as `IconName` rather than bare `string` is what makes a mistyped
+ * slot key a build error at the call site — the same check direct `<Icon name>`
+ * gets, extended to every slot (`Button` `leftIcon`, `Chip` `icon`, …).
  *
- * This currently aliases `ReactNode` (permissive: any string or node). It is the
- * single seam through which slot-level key checking will tighten — once
- * consumers register their keys, narrowing the string arm to {@link IconName}
- * here turns a mistyped slot key into a build error everywhere at once, with no
- * per-component change. Direct `<Icon name>` usage is already key-checked via
- * `IconProps["name"]`.
+ * The node arm is `ReactElement` (plus the `null`/`undefined`/`false` from
+ * conditional rendering) rather than the full `ReactNode`: `ReactNode` includes
+ * `string`, and `Exclude<ReactNode, string>` does not actually strip it in the
+ * React 19 types — so a `ReactNode` arm would silently re-admit arbitrary strings
+ * and defeat the key check. Elements are the only node form an icon slot needs.
  */
-export type IconValue = ReactNode;
+export type IconValue = IconName | ReactElement | null | undefined | false;
 
 /**
  * Normalizes an icon slot value for rendering: a string key becomes `<Icon name>`
@@ -27,10 +27,9 @@ export type IconValue = ReactNode;
  * `icon={<Icon name="chevron-down" />}` **or** `icon={<CustomGlyph />}`.
  */
 export function resolveIcon(icon: IconValue): ReactNode {
-  // A string slot value is a registry key by contract. The cast is the one
-  // controlled bridge from the permissive `IconValue` to the checked
-  // `IconProps["name"]`; unknown keys still warn + render nothing at runtime.
-  return typeof icon === "string" ? <Icon name={icon as IconName} /> : icon;
+  // A string here narrows to IconName (the only string arm of IconValue), so the
+  // key is already checked at the call site — no cast needed.
+  return typeof icon === "string" ? <Icon name={icon} /> : icon;
 }
 
 export interface IconProps {

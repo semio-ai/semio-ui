@@ -44,7 +44,10 @@ export function NestedItem({
             variant,
           )}
         >
-          {resolveIcon(left)}
+          {/* Normalizes any icon set to one size + centers it (see `.list-item-icon`),
+              so glyphs don't shift with their own intrinsic width in this w-fit slot.
+              resolveIcon lets `left` be a registry key or a node. */}
+          <span className="list-item-icon">{resolveIcon(left)}</span>
         </div>
       )}
       {children}
