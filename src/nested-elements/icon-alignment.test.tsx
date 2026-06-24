@@ -9,6 +9,7 @@ import { SelectTree } from "../floating/select-tree";
 import { Size, Variant } from "../types";
 import { NestedParentProvider } from "./context";
 import { NestedCheckbox } from "./checkbox";
+import { NestedItem } from "./item";
 import { NestedRadio } from "./radio";
 import { NestedSelect } from "./select";
 import { NestedParent } from "./types";
@@ -31,6 +32,13 @@ describe("icon alignment class contracts", () => {
     expect(css).toContain("@apply block h-3/5 w-3/5 shrink-0;");
     expect(css).toContain(".icon-slot");
     expect(css).toContain("@apply [&_svg]:block [&_svg]:h-3/5 [&_svg]:w-3/5 [&_svg]:shrink-0;");
+    // Shared list-item left-icon normalization (used by NestedItem + NestedMenu).
+    expect(css).toContain(".list-item-icon");
+  });
+
+  it("uses list-item-icon to normalize NestedItem left icons", () => {
+    const html = renderWithDropdownParent(<NestedItem left={<IconShoppingBag />}>Item</NestedItem>);
+    expect(html).toContain("list-item-icon");
   });
 
   it("uses icon-slot for nested radio indicators (default + custom icon)", () => {

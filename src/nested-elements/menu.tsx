@@ -73,12 +73,9 @@ export function NestedMenu({
               variant,
             )}
           >
-            {/* Definite-size square that normalizes the icon size + centers it, matching
-                NestedItem — so submenu-trigger left icons align with regular item icons
-                regardless of icon set. */}
-            <span className="grid size-5 place-items-center [&_svg]:h-3/5 [&_svg]:w-3/5 [&_svg]:shrink-0">
-              {left}
-            </span>
+            {/* Shared `.list-item-icon` normalization, matching NestedItem — so submenu
+                -trigger left icons align with regular item icons regardless of set. */}
+            <span className="list-item-icon">{left}</span>
           </div>
         )}
 
