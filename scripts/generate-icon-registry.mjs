@@ -36,6 +36,8 @@ const CUSTOM_EXCLUDE = new Set([
   "WorldElementIcon", // parametric: picks a glyph from an element type
   "IconPlayPause", // stateful: requires `center: "play" | "pause"`
   "IconHandleIndicator", // requires a `handle` prop — an affordance, not a glyph
+  "IconVariant", // parametric: picks a status glyph from `variant`, renders null otherwise
+  // — superseded by the `status-*` role keys
 ]);
 
 /** PascalCase / `IconFoo` → kebab-case key (`IconChevronDown` → `chevron-down`). */

@@ -34,7 +34,6 @@ import { Slow } from "../slow";
 import { Speaker } from "../speaker";
 import { SpeakerOff } from "../speaker-off";
 import { IconUniform } from "../uniform";
-import { IconVariant } from "../variant";
 import { IconVectorAngled } from "../vector-angled";
 import { IconVectorBezier } from "../vector-bezier";
 import { IconVectorBezierAutoClamp } from "../vector-bezier-auto-clamp";
@@ -85,7 +84,6 @@ export const semioIconRegistry = {
   "speaker": Speaker,
   "speaker-off": SpeakerOff,
   "uniform": IconUniform,
-  "variant": IconVariant,
   "vector-angled": IconVectorAngled,
   "vector-back": IconVectorBack,
   "vector-bezier": IconVectorBezier,
