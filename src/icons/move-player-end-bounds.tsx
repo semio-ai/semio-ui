@@ -4,7 +4,7 @@ import type { IconProps } from "@solar-icons/react-perf";
 const MovePlayerEndBounds: ForwardRefExoticComponent<
   IconProps & RefAttributes<SVGSVGElement>
 > = forwardRef<SVGSVGElement, IconProps>((props, ref) => {
-  const { alt, color = "currentColor", size = "1em", mirrored = false, ...restProps } = props;
+  const { alt, color = "currentColor", size = "18px", mirrored = false, ...restProps } = props;
 
   return (
     <svg
