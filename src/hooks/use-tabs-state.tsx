@@ -1,11 +1,12 @@
 import { useMemo, type ReactNode } from "react";
 import { Variant } from "../types";
+import type { IconValue } from "../icons/registry";
 
 export interface TabChild {
   title: string;
   key: string;
   variant?: Variant;
-  icon?: ReactNode;
+  icon?: IconValue;
   content: ReactNode;
 }
 

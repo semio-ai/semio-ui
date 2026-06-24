@@ -1,9 +1,9 @@
-import { CSSProperties, ReactNode } from "react";
+import { CSSProperties } from "react";
 import { clsx } from "clsx";
 // Will hopefully use later once we can search in the select.
 // import { matchSorter } from "match-sorter";
 import { Size, Variant } from "../types";
-import { Icon, resolveIcon } from "../icons/registry";
+import { Icon, resolveIcon, type IconValue } from "../icons/registry";
 import { StaticIcon } from "../icons/static-icon";
 import { NestedSelect } from "../nested-elements/select";
 import { NestedRadio } from "../nested-elements/radio";
@@ -17,7 +17,7 @@ import { Tooltip } from "./tooltip";
  * @param {string} value - The unique key to register and identify the option
  * @param {boolean} disabled - Whether the option is disabled
  * @param {string} color - The color of the option
- * @param {ReactNode} icon - The icon to display in the option
+ * @param {IconValue} icon - The icon to display in the option (registry key or node)
  */
 export interface SelectOption {
   label: string;
@@ -25,7 +25,7 @@ export interface SelectOption {
   disabled?: boolean;
   color?: string;
   variant?: Variant;
-  icon?: ReactNode;
+  icon?: IconValue;
 }
 
 export type SelectVisuals = "icons" | "labels" | "both";

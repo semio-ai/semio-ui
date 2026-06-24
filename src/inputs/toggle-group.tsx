@@ -1,10 +1,10 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ToggleGroup as RadixToggleGroup } from "radix-ui";
 import { motion } from "motion/react";
 import { clsx } from "clsx";
 import { Tooltip } from "../floating/tooltip";
 import { Variant, Size } from "../types";
-import { resolveIcon } from "../icons/registry";
+import { resolveIcon, type IconValue } from "../icons/registry";
 
 export interface ToggleGroupProps {
   visuals: "icons" | "labels" | "both";
@@ -18,7 +18,7 @@ export interface ToggleGroupProps {
     disabled?: boolean;
     color?: string;
     variant?: Variant;
-    icon?: ReactNode;
+    icon?: IconValue;
   }[];
   size?: Size;
   className?: string;

@@ -3,13 +3,20 @@ import { clsx } from "clsx";
 import { useOptionalContext } from "@semio/utils";
 import { ICON_CLASS_NAME, ICON_LG_CLASS_NAME } from "../../constants/icon";
 import { IconRegistryContext } from "./icon-context";
-import { defaultIconRegistry } from "./default-registry";
+import { defaultIconRegistry, type IconName } from "./default-registry";
 
 /**
- * The value an `@semio/ui` icon slot accepts: either a **registry key** (string,
- * e.g. `"chevron-down"`) or an already-rendered node. `ReactNode` already permits
- * a string, so this alias is mostly documentation — but it signals that a bare
- * string handed to an icon slot is resolved as a registry key, not printed as text.
+ * The value an `@semio/ui` icon slot accepts: a **registry key** (string,
+ * resolved via the registry) or an already-rendered node. A bare string handed
+ * to a slot is resolved as a registry key, not printed as text — `resolveIcon`
+ * does the dispatch.
+ *
+ * This currently aliases `ReactNode` (permissive: any string or node). It is the
+ * single seam through which slot-level key checking will tighten — once
+ * consumers register their keys, narrowing the string arm to {@link IconName}
+ * here turns a mistyped slot key into a build error everywhere at once, with no
+ * per-component change. Direct `<Icon name>` usage is already key-checked via
+ * `IconProps["name"]`.
  */
 export type IconValue = ReactNode;
 
@@ -20,12 +27,19 @@ export type IconValue = ReactNode;
  * `icon={<Icon name="chevron-down" />}` **or** `icon={<CustomGlyph />}`.
  */
 export function resolveIcon(icon: IconValue): ReactNode {
-  return typeof icon === "string" ? <Icon name={icon} /> : icon;
+  // A string slot value is a registry key by contract. The cast is the one
+  // controlled bridge from the permissive `IconValue` to the checked
+  // `IconProps["name"]`; unknown keys still warn + render nothing at runtime.
+  return typeof icon === "string" ? <Icon name={icon as IconName} /> : icon;
 }
 
 export interface IconProps {
-  /** Registry key, kebab-case (e.g. `"chevron-down"`). */
-  name: string;
+  /**
+   * Registry key, kebab-case (e.g. `"chevron-down"`). Typed as {@link IconName},
+   * so a key not in the active registry (default keys plus any a consumer
+   * registers via `IconRegistryKeys` augmentation) is a build error.
+   */
+  name: IconName;
   className?: string;
   /**
    * Sizing preset. `"standard"` (60% of the slot), `"larger"` (70%), or `"none"`

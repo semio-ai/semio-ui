@@ -1,5 +1,6 @@
-import { ForwardedRef, forwardRef, ReactNode } from "react";
+import { ForwardedRef, forwardRef } from "react";
 import { clsx } from "clsx";
+import type { IconValue } from "../icons/registry";
 import { Button, ButtonProps } from "./button";
 
 export interface HeaderButtonProps
@@ -17,7 +18,7 @@ export interface HeaderButtonProps
     | "children"
   > {
   label: string;
-  icon: ReactNode;
+  icon: IconValue;
 }
 
 function InnerHeaderButton(

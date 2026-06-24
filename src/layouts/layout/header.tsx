@@ -1,4 +1,4 @@
-import { memo, ReactNode } from "react";
+import { memo } from "react";
 import { clsx } from "clsx";
 import {
   useActionItems,
@@ -12,13 +12,13 @@ import {
 import { Dropdown } from "../../floating/dropdown";
 import { NestedLabel } from "../../nested-elements/label";
 import { NestedChild } from "../../nested-elements/configured-render";
-import { Icon, resolveIcon } from "../../icons/registry";
+import { Icon, resolveIcon, type IconValue } from "../../icons/registry";
 import { useLayoutActions } from "../../hooks/use-layout-actions";
 import { PaneRegion, Size, ToolbarWidget, Variant } from "../../types";
 import { HeaderButton } from "../../buttons/header-button";
 import { isPlaceholder } from "./types";
 
-function InnerHeader({ homeIcon }: { homeIcon?: ReactNode }) {
+function InnerHeader({ homeIcon }: { homeIcon?: IconValue }) {
   const desktop = useDesktopState();
   const toolbarItems = useToolbarItems();
   const homeActionItem = useHomeActionItem();

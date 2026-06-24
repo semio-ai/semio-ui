@@ -1,5 +1,6 @@
 import { DropdownMenu, ContextMenu } from "radix-ui";
 import { clsx } from "clsx";
+import { resolveIcon } from "../icons/registry";
 import { NestedParent, type NestedItemProps } from "./types";
 import { useNestedParent } from "./context";
 
@@ -43,7 +44,7 @@ export function NestedItem({
             variant,
           )}
         >
-          {left}
+          {resolveIcon(left)}
         </div>
       )}
       {children}

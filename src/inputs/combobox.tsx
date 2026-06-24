@@ -1,7 +1,7 @@
 import { type CSSProperties, type ReactNode, type Ref, useId, useMemo } from "react";
 import { Combobox as ComboboxPrimitive } from "@base-ui/react/combobox";
 import { clsx } from "clsx";
-import { Icon, resolveIcon } from "../icons/registry";
+import { Icon, resolveIcon, type IconValue } from "../icons/registry";
 import { Size, Variant } from "../types";
 import { ScrollArea } from "../layouts/scroll-area";
 import {
@@ -27,7 +27,7 @@ export interface ComboboxOption<TValue extends string = string> {
   disabled?: boolean;
   color?: string;
   variant?: Variant;
-  icon?: ReactNode;
+  icon?: IconValue;
 }
 
 export interface ComboboxGroup<TValue extends string = string> {
@@ -58,7 +58,7 @@ export interface ComboboxProps<TValue extends string = string> {
   readOnly?: boolean;
   required?: boolean;
   /** Show a left-side icon. Defaults to the selected option's icon (if any). */
-  leftIcon?: ReactNode | null;
+  leftIcon?: IconValue;
   bg?: boolean;
   outline?: "hidden" | "interact" | "always";
   emptyContent?: ReactNode;

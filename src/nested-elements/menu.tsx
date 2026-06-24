@@ -1,7 +1,7 @@
 import { Fragment, useMemo } from "react";
 import { DropdownMenu, ContextMenu, Collapsible } from "radix-ui";
 import { clsx } from "clsx";
-import { Icon } from "../icons/registry";
+import { Icon, resolveIcon } from "../icons/registry";
 import { ScrollArea } from "../layouts/scroll-area";
 import { useLayoutState } from "../hooks/use-layout-state";
 import { NestedParent, type NestedMenuProps } from "./types";
@@ -73,7 +73,7 @@ export function NestedMenu({
               variant,
             )}
           >
-            {left}
+            {resolveIcon(left)}
           </div>
         )}
 

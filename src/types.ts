@@ -1,4 +1,5 @@
 import { ReactNode, MouseEvent } from "react";
+import type { IconValue } from "./icons/registry";
 
 /**
  * Theme options for the application's appearance.
@@ -169,7 +170,7 @@ export enum PaneRegion {
 export interface PaneSpec {
   id: string;
   name: string;
-  icon: ReactNode;
+  icon: IconValue;
   size: string | number;
   clickFn?: MenuItemClickFn;
   preventClose?: boolean;

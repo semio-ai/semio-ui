@@ -5,19 +5,21 @@ import { clsx } from "clsx";
 import { Button } from "../buttons/button";
 import { Size, Variant } from "../types";
 import { ProgressCircle } from "../feedback/progress";
-import { Icon } from "../icons/registry";
+import { Icon, type IconName } from "../icons/registry";
 
 /**
- * Variants that have a status glyph (`status-success`, …). Other variants
- * (primary/secondary/…) show no status icon — matching the old `IconVariant`,
- * which returned `null` for them.
+ * Variants that have a status glyph mapped to its registry key. Other variants
+ * (primary/secondary/…) are absent and show no status icon — matching the old
+ * `IconVariant`, which returned `null` for them. Typing the values as `IconName`
+ * means a bad key here is a build error, and the lookup avoids constructing a
+ * `status-${variant}` string that could name a key the registry doesn't have.
  */
-const STATUS_VARIANTS = new Set<Variant>([
-  Variant.Success,
-  Variant.Error,
-  Variant.Warning,
-  Variant.Info,
-]);
+const STATUS_ICONS: Partial<Record<Variant, IconName>> = {
+  [Variant.Success]: "status-success",
+  [Variant.Error]: "status-error",
+  [Variant.Warning]: "status-warning",
+  [Variant.Info]: "status-info",
+};
 
 export interface ToastState {
   toasts: ToastData[];
@@ -80,6 +82,15 @@ function InnerToast({ data }: { data: ToastData }) {
     }
   });
 
+  // The transport pauses on hover; otherwise show the variant's status glyph (if
+  // it has one). Computed here rather than inline so the registry key narrows.
+  const statusIcon = data.variant ? STATUS_ICONS[data.variant] : undefined;
+  const toastIcon = paused ? (
+    <Icon name="player-pause" />
+  ) : statusIcon ? (
+    <Icon name={statusIcon} />
+  ) : null;
+
   return (
     <RadixToast.Root
       asChild
@@ -140,13 +151,7 @@ function InnerToast({ data }: { data: ToastData }) {
               size={Size.Xs}
               progress={completionSpring}
               variant={data.variant}
-              icon={
-                paused ? (
-                  <Icon name="player-pause" />
-                ) : data.variant && STATUS_VARIANTS.has(data.variant) ? (
-                  <Icon name={`status-${data.variant}`} />
-                ) : null
-              }
+              icon={toastIcon}
             />
             {data.title}
           </RadixToast.Title>

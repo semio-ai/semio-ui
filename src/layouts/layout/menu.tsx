@@ -1,4 +1,4 @@
-import { memo, MouseEvent, ReactNode } from "react";
+import { memo, MouseEvent } from "react";
 import { clsx } from "clsx";
 import {
   useActionItems,
@@ -14,7 +14,7 @@ import { MenuButton } from "../../buttons/menu-button";
 import { MenuButtonProvider } from "../../context/menu-button-context";
 import { NestedLabel } from "../../nested-elements/label";
 import { NestedChild } from "../../nested-elements/configured-render";
-import { Icon } from "../../icons/registry";
+import { Icon, type IconValue } from "../../icons/registry";
 import { useLayoutActions } from "../../hooks/use-layout-actions";
 import { MenuItemClickFn, PaneRegion, Variant } from "../../types";
 import { ContextMenu } from "../../floating/context-menu";
@@ -27,7 +27,7 @@ function InnerMenu({
   homeText,
   homeClassName,
 }: {
-  homeIcon?: ReactNode;
+  homeIcon?: IconValue;
   homeText?: string;
   homeClassName?: string;
 }) {

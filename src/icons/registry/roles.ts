@@ -23,7 +23,9 @@ import type { IconRegistry } from "./types";
  * noise. (Glyph keys that already double as their role name, e.g. `search`, stay
  * in the Tabler set rather than being duplicated here.)
  */
-export const roleIconRegistry: IconRegistry = {
+// `satisfies` (not `: IconRegistry`) so the role keys survive for `keyof` in the
+// derived `IconName` type — see default-registry.ts.
+export const roleIconRegistry = {
   // Affordances
   close: IconX,
   submenu: IconChevronRight,
@@ -56,4 +58,4 @@ export const roleIconRegistry: IconRegistry = {
   "status-error": IconExclamationMark,
   "status-warning": IconExclamationMark,
   "status-info": IconExclamationMark,
-};
+} satisfies IconRegistry;
