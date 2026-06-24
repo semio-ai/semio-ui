@@ -9,14 +9,13 @@ import {
   type ChangeEvent,
 } from "react";
 import { clsx } from "clsx";
-import { IconPlus } from "@tabler/icons-react";
 import { Variant, Size } from "../types";
 import { Chip } from "../chip";
 import { NestedOption } from "../nested-elements/types";
 import { Dropdown } from "../floating/dropdown";
 import { NestedSelect } from "../nested-elements/select";
 import { Button } from "../buttons/button";
-import { ICON_CLASS_NAME } from "../constants/icon";
+import { Icon } from "../icons/registry";
 
 export interface ChipInputProps {
   selectedValues: string[];
@@ -169,11 +168,7 @@ const InnerChipInput = forwardRef(
                 variant={option.variant ?? variant}
                 size={size}
                 color={option.color}
-                renderIcon={
-                  option.icon
-                    ? (iconClassName: string) => <div className={iconClassName}>{option.icon}</div>
-                    : undefined
-                }
+                icon={option.icon}
                 onDelete={
                   !disabled && !option.disabled ? () => handleChipDelete(option.value) : undefined
                 }
@@ -213,7 +208,7 @@ const InnerChipInput = forwardRef(
               <Button
                 visuals="inverted"
                 size={size}
-                leftIcon={<IconPlus className={ICON_CLASS_NAME} />}
+                leftIcon={<Icon name="plus" />}
               />
             }
             variant={variant}

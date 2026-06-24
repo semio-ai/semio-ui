@@ -1,7 +1,6 @@
 import { useState, type ReactElement } from "react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { ChipInput, type ChipInputProps, Variant, Size } from "@semio/ui";
-import { IconUser, IconStar, IconHeart } from "@tabler/icons-react";
 
 const meta: Meta<typeof ChipInput> = {
   component: ChipInput,
@@ -49,9 +48,9 @@ const coloredOptions = [
 ];
 
 const iconOptions = [
-  { label: "Users", value: "users", icon: <IconUser size={14} /> },
-  { label: "Favorites", value: "favorites", icon: <IconStar size={14} /> },
-  { label: "Liked", value: "liked", icon: <IconHeart size={14} /> },
+  { label: "Users", value: "users", icon: "user" },
+  { label: "Favorites", value: "favorites", icon: "star" },
+  { label: "Liked", value: "liked", icon: "heart" },
   { label: "Regular Option", value: "regular" },
 ];
 

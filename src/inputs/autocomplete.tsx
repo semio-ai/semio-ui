@@ -1,8 +1,7 @@
 import { type ReactNode, type Ref, useEffect, useId } from "react";
 import { Autocomplete as AutocompletePrimitive } from "@base-ui/react/autocomplete";
 import { clsx } from "clsx";
-import { IconPointFilled, IconSearch, IconX } from "@tabler/icons-react";
-import { ICON_CLASS_NAME } from "../constants/icon";
+import { Icon, resolveIcon, type IconValue } from "../icons/registry";
 import { Size, Variant } from "../types";
 import { ScrollArea } from "../layouts/scroll-area";
 import {
@@ -48,7 +47,7 @@ export interface AutocompleteProps<TItem> {
    * styling used by `Select`/`NestedRadio` so popups feel consistent. If
    * omitted, a small bullet renders in the indicator.
    */
-  getItemIcon?: (item: TItem) => ReactNode;
+  getItemIcon?: (item: TItem) => IconValue;
   /** Ref to the underlying input element (for programmatic focus, etc.). */
   ref?: Ref<HTMLInputElement>;
   placeholder?: string;
@@ -58,7 +57,7 @@ export interface AutocompleteProps<TItem> {
   readOnly?: boolean;
   required?: boolean;
   /** Left-side icon. Defaults to a search icon. Pass `null` to omit. */
-  leftIcon?: ReactNode | null;
+  leftIcon?: IconValue;
   /** Background fill on the input. Defaults to true. */
   bg?: boolean;
   outline?: "hidden" | "interact" | "always";
@@ -118,7 +117,7 @@ export function Autocomplete<TItem>({
   const inputId = id ?? generatedId;
   const showClear = value.length > 0 && !disabled && !readOnly;
   const resolvedLeftIcon =
-    leftIcon === undefined ? <IconSearch className={ICON_CLASS_NAME} /> : leftIcon;
+    leftIcon === undefined ? <Icon name="search" /> : leftIcon;
 
   useEffect(() => {
     if (!onDebouncedChange) {
@@ -157,7 +156,7 @@ export function Autocomplete<TItem>({
       >
         {resolvedLeftIcon != null && (
           <span className={leftIconClassName(size, variant)} aria-hidden="true">
-            {resolvedLeftIcon}
+            {resolveIcon(resolvedLeftIcon)}
           </span>
         )}
         <AutocompletePrimitive.Input
@@ -180,7 +179,7 @@ export function Autocomplete<TItem>({
             className={rightButtonClassName(size, variant)}
             aria-label="Clear search"
           >
-            <IconX className={ICON_CLASS_NAME} />
+            <Icon name="x" />
           </AutocompletePrimitive.Clear>
         )}
       </AutocompletePrimitive.InputGroup>
@@ -224,7 +223,7 @@ export function Autocomplete<TItem>({
                           <span className={itemIndicatorClassName({ variant })}>
                             <span className="icon-slot">
                               {getItemIcon?.(item) ?? (
-                                <IconPointFilled className={ICON_CLASS_NAME} />
+                                <Icon name="point-filled" />
                               )}
                             </span>
                           </span>

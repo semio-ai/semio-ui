@@ -3,7 +3,6 @@ import {
   type AriaRole,
   type KeyboardEventHandler,
   type MouseEventHandler,
-  type ReactNode,
   type Ref,
 } from "react";
 import { clsx } from "clsx";
@@ -11,11 +10,12 @@ import { Variant } from "../types";
 import { Status } from "../feedback/status";
 import { Tooltip } from "../floating/tooltip";
 import { useMenuButtonContext } from "../context/menu-button-context";
+import { resolveIcon, type IconValue } from "../icons/registry";
 
 export interface MenuButtonProps {
   children: string;
   altText?: string;
-  icon: ReactNode;
+  icon: IconValue;
   onClick?: MouseEventHandler;
   active?: boolean;
   hoverable?: boolean;
@@ -173,7 +173,7 @@ export function MenuButton({
         content={altText ?? children}
         side={desktop ? "right" : "top"}
       >
-        <Wrapper {...wrapperProps}>{icon}</Wrapper>
+        <Wrapper {...wrapperProps}>{resolveIcon(icon)}</Wrapper>
       </Tooltip>
       <span
         className={clsx(

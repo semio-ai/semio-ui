@@ -1,11 +1,10 @@
 import { AnimatePresence, motion, TargetAndTransition } from "motion/react";
-import { IconChevronRightPipe } from "@tabler/icons-react";
 import { clsx } from "clsx";
 import { HeaderButton } from "../../buttons/header-button";
 import { PaneRegion, Size, Variant } from "../../types";
 import { useLayoutActions } from "../../hooks/use-layout-actions";
 import { usePanes, useDesktopState } from "../../hooks/layout-atoms";
-import { ICON_CLASS_NAME } from "../../constants/icon";
+import { Icon } from "../../icons/registry";
 
 export function PanelContent({ region }: { region: PaneRegion }) {
   const panes = usePanes();
@@ -45,9 +44,9 @@ export function PanelContent({ region }: { region: PaneRegion }) {
                   size={Size.Md}
                   label="Toggle Menu"
                   icon={
-                    <IconChevronRightPipe
+                    <Icon
+                      name="sidebar-toggle"
                       className={clsx(
-                        ICON_CLASS_NAME,
                         "transition-transform duration-100 ease-in-out",
                         !pane.shouldClose ? "rotate-360" : "rotate-180",
                       )}

@@ -1,9 +1,10 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ToggleGroup as RadixToggleGroup } from "radix-ui";
 import { motion } from "motion/react";
 import { clsx } from "clsx";
 import { Tooltip } from "../floating/tooltip";
 import { Variant, Size } from "../types";
+import { resolveIcon, type IconValue } from "../icons/registry";
 
 export interface ToggleGroupProps {
   visuals: "icons" | "labels" | "both";
@@ -17,7 +18,7 @@ export interface ToggleGroupProps {
     disabled?: boolean;
     color?: string;
     variant?: Variant;
-    icon?: ReactNode;
+    icon?: IconValue;
   }[];
   size?: Size;
   className?: string;
@@ -131,7 +132,7 @@ export function ToggleGroup({
               aria-label={option.label}
             >
               {(visuals === "icons" || visuals === "both") && (
-                <p className="sized-inner-group-item grid place-items-center">{option.icon}</p>
+                <p className="sized-inner-group-item grid place-items-center">{resolveIcon(option.icon)}</p>
               )}
               {(visuals === "labels" || visuals === "both") && (
                 <p className={clsx("text-nowrap", visuals === "both" ? "pr-2" : "px-2")}>

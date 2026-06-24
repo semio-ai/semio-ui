@@ -1,6 +1,7 @@
 import type { ReactNode, MouseEvent } from "react";
 import { RawColor } from "@semio/utils";
 import { Variant } from "../types";
+import type { IconValue } from "../icons/registry";
 
 /**
  * Types of nested parent components.
@@ -37,7 +38,7 @@ export interface NestedCheckboxProps {
   closeOnSelect?: boolean;
   color?: string;
   disabled?: boolean;
-  icon?: ReactNode;
+  icon?: IconValue;
 }
 
 /**
@@ -53,7 +54,7 @@ export interface NestedColorPickerProps<T extends string | RawColor> {
   disabled?: boolean;
   label?: string;
   variant?: Variant;
-  left?: ReactNode;
+  left?: IconValue;
 }
 
 /**
@@ -66,7 +67,7 @@ export interface NestedColorPickerProps<T extends string | RawColor> {
  * @prop closeOnSelect: Whether selecting the item closes the menu (defaults to true).
  */
 export interface NestedItemProps {
-  left?: ReactNode;
+  left?: IconValue;
   children: ReactNode;
   right?: ReactNode;
   variant?: Variant;
@@ -104,7 +105,7 @@ export interface NestedLabelProps {
  * @prop hideHeader: Whether to hide the header of the menu.
  */
 export interface NestedMenuProps {
-  left?: ReactNode;
+  left?: IconValue;
   children: ReactNode;
   label?: string;
   variant?: Variant;
@@ -128,7 +129,7 @@ export interface NestedOption {
   closeOnSelect?: boolean;
   variant?: Variant;
   color?: string;
-  icon?: ReactNode;
+  icon?: IconValue;
 }
 
 /**

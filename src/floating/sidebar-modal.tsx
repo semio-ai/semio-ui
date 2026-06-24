@@ -11,16 +11,10 @@ import {
 } from "react";
 import { Dialog } from "@base-ui/react/dialog";
 import { clsx } from "clsx";
-import {
-  IconChevronLeft,
-  IconChevronRight,
-  IconChevronRightPipe,
-  IconX,
-} from "@tabler/icons-react";
 import { Button } from "../buttons/button";
 import { MenuButton } from "../buttons/menu-button";
+import { Icon, resolveIcon, type IconValue } from "../icons/registry";
 import { MenuButtonProvider } from "../context/menu-button-context";
-import { ICON_CLASS_NAME } from "../constants/icon";
 import { ScrollArea } from "../layouts/scroll-area";
 import { NestedSelect } from "../nested-elements/select";
 import { Variant } from "../types";
@@ -29,7 +23,7 @@ import { ContextMenu } from "./context-menu";
 export interface SidebarTab {
   key: string;
   title: string;
-  icon?: ReactNode;
+  icon?: IconValue;
   variant?: Variant;
   content: ReactNode;
   /** Per-tab footer rendered at the bottom of the content pane. */
@@ -49,11 +43,10 @@ export interface SidebarModalProps {
   sidebarFooter?: ReactNode;
   /**
    * Icon shown in the sidebar header when the sidebar is collapsed on
-   * desktop. Swaps in for the title text in that one state. Use a small
-   * icon (e.g. `<IconSettings className={ICON_CLASS_NAME} />`) — the
-   * collapsed rail is narrow.
+   * desktop. Swaps in for the title text in that one state. Accepts a registry
+   * key or a node (e.g. `collapsedIcon="settings"`); `<Icon>` handles sizing.
    */
-  collapsedIcon?: ReactNode;
+  collapsedIcon?: IconValue;
   /**
    * Optional content prepended to the desktop right-click context menu on
    * the sidebar. The expand/collapse toggle is appended after these. Use
@@ -313,7 +306,7 @@ function SidebarPane({
   onSelect: (key: string) => void;
   variant?: Variant;
   sidebarFooter?: ReactNode;
-  collapsedIcon?: ReactNode;
+  collapsedIcon?: IconValue;
   dismissDisabled: boolean;
   offScreenOnMobile: boolean;
   ariaHidden: boolean;
@@ -476,7 +469,7 @@ function SidebarPane({
                   "grid h-9 w-9 place-items-center",
                 )}
               >
-                {collapsedIcon}
+                {resolveIcon(collapsedIcon)}
               </span>
             )}
             {/* Mobile-only — content pane carries the X on desktop. */}
@@ -487,7 +480,7 @@ function SidebarPane({
                     {...props}
                     className="desktop:hidden"
                     variant={variant}
-                    leftIcon={<IconX />}
+                    leftIcon="close"
                     altText="Close"
                   />
                 )}
@@ -543,9 +536,9 @@ function SidebarPane({
                 label: sidebarExpanded ? "Collapse Sidebar" : "Expand Sidebar",
                 value: "open",
                 icon: (
-                  <IconChevronRightPipe
+                  <Icon
+                    name="sidebar-toggle"
                     className={clsx(
-                      ICON_CLASS_NAME,
                       "transition-transform",
                       sidebarExpanded ? "rotate-180" : "rotate-0",
                     )}
@@ -617,7 +610,7 @@ function SidebarTabRow({
           "text-neutral-500 desktop:hidden",
         )}
       >
-        <IconChevronRight className="size-4" />
+        <Icon name="drill-in" size="none" className="size-4" />
       </span>
     </div>
   );
@@ -694,7 +687,7 @@ function ContentPane({
           >
             <Button
               variant={variant}
-              leftIcon={<IconChevronLeft />}
+              leftIcon="back"
               onClick={onBack}
               altText="Back"
               className="desktop:hidden"
@@ -711,7 +704,7 @@ function ContentPane({
             {!dismissDisabled && (
               <Dialog.Close
                 render={(props) => (
-                  <Button {...props} variant={variant} leftIcon={<IconX />} altText="Close" />
+                  <Button {...props} variant={variant} leftIcon="close" altText="Close" />
                 )}
               />
             )}

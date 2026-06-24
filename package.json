@@ -30,9 +30,10 @@
     "**/*.css"
   ],
   "scripts": {
-    "build": "tsup src/index.tsx --format esm,cjs --dts --external react --publicDir && npm run build:css",
+    "build": "tsup src/index.tsx --format esm,cjs --dts --external react --external @tabler/icons-react --publicDir && npm run build:css",
     "build:css": "tailwindcss -i make-kit/make.css -o dist/semio-ui.css --minify",
-    "dev": "tsup src/index.tsx --format esm,cjs --watch --dts --external react --publicDir",
+    "dev": "tsup src/index.tsx --format esm,cjs --watch --dts --external react --external @tabler/icons-react --publicDir",
+    "generate:icons": "node scripts/generate-icon-registry.mjs",
     "lint": "eslint . --max-warnings 0",
     "lint:fix": "eslint . --fix",
     "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist",

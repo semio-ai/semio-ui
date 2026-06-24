@@ -11,7 +11,6 @@ import {
 import { clsx } from "clsx";
 import useMeasure from "react-use-measure";
 import { mergeRefs } from "react-merge-refs";
-import { IconPointFilled } from "@tabler/icons-react";
 import { useClickAway } from "../hooks/use-click-away";
 import {
   useListState,
@@ -21,7 +20,7 @@ import {
 import { Size, Variant } from "../types";
 import { Checkbox } from "../inputs/checkbox";
 import { ToggleSquare } from "../inputs/toggle-square";
-import { ICON_CLASS_NAME } from "../constants/icon";
+import { Icon } from "../icons/registry";
 
 /**
  * Defines the structure and behavior of a table column.
@@ -309,7 +308,7 @@ export function TableList<T extends ListItem>({
                     size={size}
                     variant={variant}
                   >
-                    {selected && <IconPointFilled className={ICON_CLASS_NAME} />}
+                    {selected && <Icon name="point-filled" />}
                   </ToggleSquare>
                 </div>
               );

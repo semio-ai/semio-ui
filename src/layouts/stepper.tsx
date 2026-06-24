@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
 import { clsx } from "clsx";
-import { IconCheck, IconCircle } from "@tabler/icons-react";
 import { Button } from "../buttons/button";
+import { Icon } from "../icons/registry";
 
 export interface Step {
   label: string;
@@ -32,7 +32,9 @@ export function VerticalStepper({ steps, onStepChange, activeStep = 0 }: Vertica
             className={clsx("group/button gap-2 text-nowrap focus:outline-hidden")}
             leftIcon={
               step.completed ? (
-                <IconCheck
+                <Icon
+                  name="step-complete"
+                  size="none"
                   className={clsx(
                     "h-6 w-6 rounded-full p-1",
                     "group-aria-selected/button:bg-info-500",
@@ -42,7 +44,9 @@ export function VerticalStepper({ steps, onStepChange, activeStep = 0 }: Vertica
                   )}
                 />
               ) : (
-                <IconCircle
+                <Icon
+                  name="step-pending"
+                  size="none"
                   className={clsx(
                     "h-6 w-6 rounded-full p-0.5",
                     "group-aria-selected/button:bg-neutral-500",

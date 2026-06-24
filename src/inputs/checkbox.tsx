@@ -1,7 +1,7 @@
 import { Checkbox as RadixCheckbox } from "radix-ui";
-import { IconCheck } from "@tabler/icons-react";
 import { clsx } from "clsx";
 import { Size, Variant } from "../types";
+import { Icon } from "../icons/registry";
 
 export interface CheckboxProps {
   id?: string;
@@ -45,9 +45,11 @@ export function Checkbox({
       )}
     >
       <RadixCheckbox.Indicator
-        className={clsx(variant, "text-white dark:text-black", "grid place-items-center")}
+        // h-full/w-full so the check's `h-4/5` percentage resolves against the
+        // sized Root and scales with `size` (the box is `sized-height/width`).
+        className={clsx(variant, "text-white dark:text-black", "grid h-full w-full place-items-center")}
       >
-        <IconCheck className="h-4/5 w-4/5" />
+        <Icon name="selected" size="none" className="h-4/5 w-4/5" />
       </RadixCheckbox.Indicator>
     </RadixCheckbox.Root>
   );

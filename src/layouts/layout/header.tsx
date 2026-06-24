@@ -1,6 +1,5 @@
-import { memo, ReactNode } from "react";
+import { memo } from "react";
 import { clsx } from "clsx";
-import { IconChevronRightPipe, IconMenu2 } from "@tabler/icons-react";
 import {
   useActionItems,
   useActiveRightPane,
@@ -13,14 +12,13 @@ import {
 import { Dropdown } from "../../floating/dropdown";
 import { NestedLabel } from "../../nested-elements/label";
 import { NestedChild } from "../../nested-elements/configured-render";
-import { IconHome } from "../../icons/home";
+import { Icon, resolveIcon, type IconValue } from "../../icons/registry";
 import { useLayoutActions } from "../../hooks/use-layout-actions";
 import { PaneRegion, Size, ToolbarWidget, Variant } from "../../types";
 import { HeaderButton } from "../../buttons/header-button";
-import { ICON_CLASS_NAME } from "../../constants/icon";
 import { isPlaceholder } from "./types";
 
-function InnerHeader({ homeIcon }: { homeIcon?: ReactNode }) {
+function InnerHeader({ homeIcon }: { homeIcon?: IconValue }) {
   const desktop = useDesktopState();
   const toolbarItems = useToolbarItems();
   const homeActionItem = useHomeActionItem();
@@ -60,7 +58,7 @@ function InnerHeader({ homeIcon }: { homeIcon?: ReactNode }) {
                     toggleMenu();
                   }}
                 >
-                  {homeIcon ?? <IconHome />}
+                  {resolveIcon(homeIcon) ?? <Icon name="home" />}
                 </button>
               </span>
             }
@@ -91,7 +89,7 @@ function InnerHeader({ homeIcon }: { homeIcon?: ReactNode }) {
               variant={Variant.Default}
               size={Size.Sm}
               label="Toggle Menu"
-              icon={<IconMenu2 className={ICON_CLASS_NAME} />}
+              icon={<Icon name="menu2" />}
             />
           }
         >
@@ -117,9 +115,9 @@ function InnerHeader({ homeIcon }: { homeIcon?: ReactNode }) {
           size={Size.Md}
           label="Toggle Menu"
           icon={
-            <IconChevronRightPipe
+            <Icon
+              name="sidebar-toggle"
               className={clsx(
-                ICON_CLASS_NAME,
                 "transition-transform duration-100 ease-in-out",
                 rightRegionActive ? "rotate-360" : "rotate-180",
               )}

@@ -1,8 +1,7 @@
 import { type CSSProperties, type ReactNode, type Ref, useId, useMemo } from "react";
 import { Combobox as ComboboxPrimitive } from "@base-ui/react/combobox";
 import { clsx } from "clsx";
-import { IconChevronDown, IconPointFilled } from "@tabler/icons-react";
-import { ICON_CLASS_NAME } from "../constants/icon";
+import { Icon, resolveIcon, type IconValue } from "../icons/registry";
 import { Size, Variant } from "../types";
 import { ScrollArea } from "../layouts/scroll-area";
 import {
@@ -28,7 +27,7 @@ export interface ComboboxOption<TValue extends string = string> {
   disabled?: boolean;
   color?: string;
   variant?: Variant;
-  icon?: ReactNode;
+  icon?: IconValue;
 }
 
 export interface ComboboxGroup<TValue extends string = string> {
@@ -59,7 +58,7 @@ export interface ComboboxProps<TValue extends string = string> {
   readOnly?: boolean;
   required?: boolean;
   /** Show a left-side icon. Defaults to the selected option's icon (if any). */
-  leftIcon?: ReactNode | null;
+  leftIcon?: IconValue;
   bg?: boolean;
   outline?: "hidden" | "interact" | "always";
   emptyContent?: ReactNode;
@@ -166,7 +165,7 @@ export function Combobox<TValue extends string>({
             )}
             aria-hidden="true"
           >
-            {resolvedLeftIcon}
+            {resolveIcon(resolvedLeftIcon)}
           </span>
         )}
         <ComboboxPrimitive.Input
@@ -188,7 +187,7 @@ export function Combobox<TValue extends string>({
           className={rightChevronClassName(size, variant)}
           aria-label="Toggle options"
         >
-          <IconChevronDown className={ICON_CLASS_NAME} />
+          <Icon name="select-indicator" />
         </ComboboxPrimitive.Trigger>
       </ComboboxPrimitive.InputGroup>
 
@@ -282,7 +281,7 @@ function ComboboxItemRow<TValue extends string>({
         <div {...props} data-state={isSelected ? "checked" : "unchecked"}>
           <span className={itemIndicatorClassName({ variant: itemVariant, color: option.color })}>
             <span className="icon-slot">
-              {option.icon ?? <IconPointFilled className={ICON_CLASS_NAME} />}
+              {resolveIcon(option.icon) ?? <Icon name="point-filled" />}
             </span>
           </span>
           {renderItem

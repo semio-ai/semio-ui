@@ -9,9 +9,8 @@ import {
   type CSSProperties,
 } from "react";
 import { clsx } from "clsx";
-import { IconX } from "@tabler/icons-react";
 import { Size, Variant } from "../types";
-import { ICON_CLASS_NAME } from "../constants/icon";
+import { Icon, resolveIcon, type IconValue } from "../icons/registry";
 
 export interface TextFieldProps
   extends Omit<InputHTMLAttributes<HTMLInputElement>, "size" | "onChange"> {
@@ -19,7 +18,7 @@ export interface TextFieldProps
   onClear?: (event: MouseEvent<HTMLButtonElement>) => void;
   variant?: Variant;
   color?: string;
-  icon?: ReactNode;
+  icon?: IconValue;
   size?: Size;
   bg?: boolean;
   outline?: "hidden" | "interact" | "always";
@@ -108,7 +107,7 @@ const InnerTextField = forwardRef(
               "sized-inner-group-item variant-responsive-input-extra-text rounded-[1px]",
             )}
           >
-            {icon}
+            {resolveIcon(icon)}
           </span>
         )}
         {onClear && (
@@ -126,7 +125,7 @@ const InnerTextField = forwardRef(
               onClear?.(e);
             }}
           >
-            <IconX className={ICON_CLASS_NAME} />
+            <Icon name="x" />
           </button>
         )}
       </div>

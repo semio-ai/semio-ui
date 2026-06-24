@@ -1,26 +1,22 @@
-import { CSSProperties, ReactNode, type MouseEventHandler } from "react";
-import { IconX } from "@tabler/icons-react";
+import { CSSProperties, type MouseEventHandler } from "react";
 import { clsx } from "clsx";
 import { Size, Variant } from "./types";
-import { ICON_CLASS_NAME } from "./constants/icon";
+import { Icon, resolveIcon, type IconValue } from "./icons/registry";
 
 export interface ChipProps {
   children: string;
   variant?: Variant;
   size?: Size;
   color?: string;
-  renderIcon?: (className: string) => ReactNode;
+  /** Leading icon: a registry key (e.g. `"user"`) or a rendered node. */
+  icon?: IconValue;
   onDelete?: MouseEventHandler<HTMLButtonElement>;
 }
 
-export function Chip({
-  children,
-  variant,
-  size = Size.Md,
-  color,
-  renderIcon,
-  onDelete,
-}: ChipProps) {
+export function Chip({ children, variant, size = Size.Md, color, icon, onDelete }: ChipProps) {
+  // A slot value may be a registry key (string) or a node; resolveIcon turns a
+  // key into a self-sizing <Icon>, otherwise passes the node through.
+  const resolvedIcon = resolveIcon(icon);
   return (
     <div
       className={clsx(
@@ -28,11 +24,11 @@ export function Chip({
         "sized-text sized-height",
         "responsive grid grid-rows-1 place-items-center",
         "gap-2 p-0.5",
-        renderIcon && children && onDelete && "grid-cols-[auto_1fr_auto]",
-        renderIcon && children && !onDelete && "grid-cols-[auto_1fr]",
-        !renderIcon && children && onDelete && "grid-cols-[1fr_auto]",
-        renderIcon && !children && onDelete && "grid-cols-[auto_auto]",
-        renderIcon && !children && !onDelete && "grid-cols-[auto]",
+        resolvedIcon && children && onDelete && "grid-cols-[auto_1fr_auto]",
+        resolvedIcon && children && !onDelete && "grid-cols-[auto_1fr]",
+        !resolvedIcon && children && onDelete && "grid-cols-[1fr_auto]",
+        resolvedIcon && !children && onDelete && "grid-cols-[auto_auto]",
+        resolvedIcon && !children && !onDelete && "grid-cols-[auto]",
         color ? "custom-color" : variant,
         size,
       )}
@@ -44,7 +40,7 @@ export function Chip({
           : undefined
       }
     >
-      {renderIcon && (
+      {resolvedIcon && (
         <div
           className={clsx(
             "responsive",
@@ -53,7 +49,7 @@ export function Chip({
             "grid place-items-center rounded-[1px] bg-white/50 dark:bg-black/50",
           )}
         >
-          {renderIcon(ICON_CLASS_NAME)}
+          {resolvedIcon}
         </div>
       )}
       <div className="dark:text-red/75 px-2 text-white/75">{children}</div>
@@ -71,7 +67,7 @@ export function Chip({
             "grid place-items-center rounded-[1px] bg-white/50 dark:bg-black/50",
           )}
         >
-          <IconX className={ICON_CLASS_NAME} />
+          <Icon name="close" />
         </button>
       )}
     </div>

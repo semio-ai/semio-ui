@@ -1,8 +1,9 @@
-import { ReactNode, useMemo } from "react";
+import { useMemo } from "react";
 import { Progress as RadixProgress } from "radix-ui";
 import { MotionValue, motion, useTransform } from "motion/react";
 import { clsx } from "clsx";
 import { Size, Variant } from "../types";
+import { resolveIcon, type IconValue } from "../icons/registry";
 
 export interface ProgressProps {
   progress: number;
@@ -32,7 +33,7 @@ export interface ProgressCircleProps {
   progress: number | MotionValue<number>;
   variant?: Variant;
   size?: Size;
-  icon?: ReactNode;
+  icon?: IconValue;
 }
 
 const progressToOffset = (progress: number) => {
@@ -92,7 +93,7 @@ export function ProgressCircle({ size, progress, variant, icon }: ProgressCircle
       </svg>
       {icon && (
         <div className="absolute top-[10%] right-[10%] bottom-[10%] left-[10%] grid place-items-center">
-          {icon}
+          {resolveIcon(icon)}
         </div>
       )}
     </div>

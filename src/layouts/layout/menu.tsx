@@ -1,6 +1,5 @@
-import { memo, MouseEvent, ReactNode } from "react";
+import { memo, MouseEvent } from "react";
 import { clsx } from "clsx";
-import { IconChevronRightPipe } from "@tabler/icons-react";
 import {
   useActionItems,
   useActiveLeftPane,
@@ -15,13 +14,12 @@ import { MenuButton } from "../../buttons/menu-button";
 import { MenuButtonProvider } from "../../context/menu-button-context";
 import { NestedLabel } from "../../nested-elements/label";
 import { NestedChild } from "../../nested-elements/configured-render";
-import { IconHome } from "../../icons/home";
+import { Icon, type IconValue } from "../../icons/registry";
 import { useLayoutActions } from "../../hooks/use-layout-actions";
 import { MenuItemClickFn, PaneRegion, Variant } from "../../types";
 import { ContextMenu } from "../../floating/context-menu";
 import { NestedSelect } from "../../nested-elements/select";
 import { NestedRadio } from "../../nested-elements/radio";
-import { ICON_CLASS_NAME } from "../../constants/icon";
 import { isPlaceholder } from "./types";
 
 function InnerMenu({
@@ -29,7 +27,7 @@ function InnerMenu({
   homeText,
   homeClassName,
 }: {
-  homeIcon?: ReactNode;
+  homeIcon?: IconValue;
   homeText?: string;
   homeClassName?: string;
 }) {
@@ -77,12 +75,9 @@ function InnerMenu({
                 label: menuState ? "Collapse Menu" : "Expand Menu",
                 value: "open",
                 icon: (
-                  <IconChevronRightPipe
-                    className={clsx(
-                      ICON_CLASS_NAME,
-                      "transition-transform",
-                      menuState ? "rotate-180" : "rotate-360",
-                    )}
+                  <Icon
+                    name="sidebar-toggle"
+                    className={clsx("transition-transform", menuState ? "rotate-180" : "rotate-360")}
                   />
                 ),
               },
@@ -125,7 +120,7 @@ function InnerMenu({
                     <span>
                       <MenuButton
                         key="menu-home-toggle"
-                        icon={homeIcon ?? <IconHome />}
+                        icon={homeIcon ?? <Icon name="home" />}
                         className="font-bold"
                         textClassName={homeClassName}
                       >

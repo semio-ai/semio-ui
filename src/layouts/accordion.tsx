@@ -1,8 +1,8 @@
 import React from "react";
 import { Accordion as RadixAccordion } from "radix-ui";
-import { IconChevronDown } from "@tabler/icons-react";
 import { clsx } from "clsx";
 import { Size } from "../types";
+import { DisclosureIcon } from "../icons/registry";
 
 export interface AccordionProps {
   sticky?: boolean;
@@ -43,10 +43,7 @@ export function Accordion({ items, defaultOpen = false, sticky, stickyOffset }: 
                   "sized-list-item-indicator grid-list-item-indicator grid place-items-center rounded-xs",
                 )}
               >
-                <IconChevronDown
-                  size={12}
-                  className="transition-transform group-data-[state=closed]:-rotate-90 group-data-[state=open]:rotate-0"
-                />
+                <DisclosureIcon fromGroupState className="size-3" />
               </div>
               <span className="flex flex-row text-neutral-700 dark:text-neutral-300">
                 {item.header}

@@ -1,7 +1,6 @@
 import { type ReactNode, type MouseEvent } from "react";
 import { Dialog } from "@base-ui/react/dialog";
 import { clsx } from "clsx";
-import { IconX } from "@tabler/icons-react";
 import { ScrollArea } from "../layouts/scroll-area";
 import { Variant } from "../types";
 import { Button } from "../buttons/button";
@@ -185,7 +184,7 @@ export function Modal({
                       {!dismissDisabled && (
                         <Dialog.Close
                           render={(props) => (
-                            <Button {...props} variant={variant} leftIcon={<IconX />} />
+                            <Button {...props} variant={variant} leftIcon="close" />
                           )}
                         />
                       )}

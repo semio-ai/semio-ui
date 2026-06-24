@@ -1,7 +1,6 @@
 import { type ReactNode, type MouseEvent } from "react";
 import { AlertDialog } from "radix-ui";
 import { clsx } from "clsx";
-import { IconX } from "@tabler/icons-react";
 import { Variant } from "../types";
 import { Button } from "../buttons/button";
 
@@ -152,7 +151,7 @@ export function Dialog({
                   <Button
                     tabIndex={0}
                     variant={variant}
-                    leftIcon={<IconX />}
+                    leftIcon="close"
                     altText={cancelText}
                   />
                 </AlertDialog.Cancel>
