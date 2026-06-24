@@ -1,7 +1,7 @@
 import { Fragment, useMemo } from "react";
 import { DropdownMenu, ContextMenu, Collapsible } from "radix-ui";
 import { clsx } from "clsx";
-import { Icon } from "../icons/registry";
+import { Icon, resolveIcon } from "../icons/registry";
 import { ScrollArea } from "../layouts/scroll-area";
 import { useLayoutState } from "../hooks/use-layout-state";
 import { NestedParent, type NestedMenuProps } from "./types";
@@ -74,8 +74,9 @@ export function NestedMenu({
             )}
           >
             {/* Shared `.list-item-icon` normalization, matching NestedItem — so submenu
-                -trigger left icons align with regular item icons regardless of set. */}
-            <span className="list-item-icon">{left}</span>
+                -trigger left icons align with regular item icons regardless of set.
+                resolveIcon lets `left` be a registry key or a node. */}
+            <span className="list-item-icon">{resolveIcon(left)}</span>
           </div>
         )}
 

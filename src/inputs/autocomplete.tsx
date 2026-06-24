@@ -1,7 +1,7 @@
 import { type ReactNode, type Ref, useEffect, useId } from "react";
 import { Autocomplete as AutocompletePrimitive } from "@base-ui/react/autocomplete";
 import { clsx } from "clsx";
-import { Icon, resolveIcon } from "../icons/registry";
+import { Icon, resolveIcon, type IconValue } from "../icons/registry";
 import { Size, Variant } from "../types";
 import { ScrollArea } from "../layouts/scroll-area";
 import {
@@ -47,7 +47,7 @@ export interface AutocompleteProps<TItem> {
    * styling used by `Select`/`NestedRadio` so popups feel consistent. If
    * omitted, a small bullet renders in the indicator.
    */
-  getItemIcon?: (item: TItem) => ReactNode;
+  getItemIcon?: (item: TItem) => IconValue;
   /** Ref to the underlying input element (for programmatic focus, etc.). */
   ref?: Ref<HTMLInputElement>;
   placeholder?: string;
@@ -57,7 +57,7 @@ export interface AutocompleteProps<TItem> {
   readOnly?: boolean;
   required?: boolean;
   /** Left-side icon. Defaults to a search icon. Pass `null` to omit. */
-  leftIcon?: ReactNode | null;
+  leftIcon?: IconValue;
   /** Background fill on the input. Defaults to true. */
   bg?: boolean;
   outline?: "hidden" | "interact" | "always";

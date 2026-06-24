@@ -99,9 +99,12 @@ const tablerOut =
   HEADER +
   `import {\n${tablerSorted.map((n) => `  ${n},`).join("\n")}\n} from "@tabler/icons-react";\n` +
   `import type { IconRegistry } from "./types";\n\n` +
-  `export const tablerIconRegistry: IconRegistry = {\n` +
+  // `satisfies` (not `: IconRegistry`) so the literal keys survive for the
+  // `keyof`-derived `IconName` type — an annotation would widen to
+  // `Record<string, …>` and erase them.
+  `export const tablerIconRegistry = {\n` +
   tablerSorted.map((n) => `  "${toKey(n)}": ${n},`).join("\n") +
-  `\n};\n`;
+  `\n} satisfies IconRegistry;\n`;
 writeFileSync(join(OUT_DIR, "tabler.generated.ts"), tablerOut);
 
 // --- 4. Emit semio.generated.ts ---
@@ -118,9 +121,9 @@ const semioOut =
   HEADER +
   semioImports +
   `\nimport type { IconRegistry } from "./types";\n\n` +
-  `export const semioIconRegistry: IconRegistry = {\n` +
+  `export const semioIconRegistry = {\n` +
   customUnique.map((c) => `  "${c.key}": ${c.name},`).join("\n") +
-  `\n};\n`;
+  `\n} satisfies IconRegistry;\n`;
 writeFileSync(join(OUT_DIR, "semio.generated.ts"), semioOut);
 
 console.log(

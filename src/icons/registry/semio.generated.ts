@@ -50,7 +50,7 @@ import { IconVerticalNormalize } from "../vertical-normalize";
 import { IconVerticalUniform } from "../vertical-uniform";
 import type { IconRegistry } from "./types";
 
-export const semioIconRegistry: IconRegistry = {
+export const semioIconRegistry = {
   "angle": Angle,
   "bounce": Bounce,
   "box": IconBox,
@@ -107,4 +107,4 @@ export const semioIconRegistry: IconRegistry = {
   "vertex-paired": IconVertexPaired,
   "vertical-normalize": IconVerticalNormalize,
   "vertical-uniform": IconVerticalUniform,
-};
+} satisfies IconRegistry;

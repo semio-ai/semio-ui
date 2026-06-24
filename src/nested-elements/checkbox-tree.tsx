@@ -1,7 +1,7 @@
 import { DropdownMenu, ContextMenu } from "radix-ui";
 import { type MouseEvent, type CSSProperties, useCallback } from "react";
 import { clsx } from "clsx";
-import { Icon, resolveIcon } from "../icons/registry";
+import { Icon, resolveIcon, type IconValue } from "../icons/registry";
 import { Variant } from "../types";
 import { NestedParent } from "./types";
 import { useNestedParent } from "./context";
@@ -23,7 +23,7 @@ export interface TreeOption {
   disabled?: boolean;
   variant?: Variant;
   color?: string;
-  icon?: React.ReactNode;
+  icon?: IconValue;
 }
 
 export interface NestedCheckboxTreeProps {

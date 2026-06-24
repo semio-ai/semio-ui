@@ -6,13 +6,14 @@ import {
   KeyIcon,
   defaultIconRegistry,
   roleIconRegistry,
+  type IconName,
 } from "@semio/ui";
 import { IconHeart, IconPlus, IconMinus } from "@tabler/icons-react";
 
 /**
- * Visual coverage for the icon registry (SEM-161): the default registry gallery,
- * semantic role keys, standardized sizing, `IconProvider` overrides, the
- * unknown-name fallback, and the stateful wrappers (`DisclosureIcon`, `KeyIcon`).
+ * Visual coverage for the icon registry: the default registry gallery, semantic
+ * role keys, standardized sizing, `IconProvider` overrides, the unknown-name
+ * fallback, and the stateful wrappers (`DisclosureIcon`, `KeyIcon`).
  */
 const meta: Meta<typeof Icon> = {
   component: Icon,
@@ -31,7 +32,7 @@ export default meta;
 type Story = StoryObj<typeof Icon>;
 
 /** A labeled, fixed-size slot so icon proportions are visible and comparable. */
-function Cell({ name, label }: { name: string; label?: string }) {
+function Cell({ name, label }: { name: IconName; label?: string }) {
   return (
     <div className="flex w-24 flex-col items-center gap-1">
       <div className="grid size-9 place-items-center rounded-sm bg-neutral-200 dark:bg-neutral-700">
@@ -42,7 +43,7 @@ function Cell({ name, label }: { name: string; label?: string }) {
   );
 }
 
-function Gallery({ keys }: { keys: string[] }) {
+function Gallery({ keys }: { keys: IconName[] }) {
   return (
     <div className="flex flex-wrap gap-3">
       {keys.map((k) => (
@@ -54,12 +55,13 @@ function Gallery({ keys }: { keys: string[] }) {
 
 /** The whole default registry — catches a missing/broken glyph at a glance. */
 export const DefaultRegistry: Story = {
-  render: () => <Gallery keys={Object.keys(defaultIconRegistry).sort()} />,
+  // `Object.keys` widens to `string[]`; these are by definition registry keys.
+  render: () => <Gallery keys={Object.keys(defaultIconRegistry).sort() as IconName[]} />,
 };
 
 /** The semantic role keys — named for their UI function, not their glyph. */
 export const RoleKeys: Story = {
-  render: () => <Gallery keys={Object.keys(roleIconRegistry).sort()} />,
+  render: () => <Gallery keys={Object.keys(roleIconRegistry).sort() as IconName[]} />,
 };
 
 /** Standardized sizing: `standard` (60%), `larger` (70%), `none` (bespoke). */
@@ -102,6 +104,8 @@ export const UnknownFallback: Story = {
   render: () => (
     <div className="flex items-center gap-3">
       <div className="grid size-9 place-items-center rounded-sm bg-neutral-200 dark:bg-neutral-700">
+        {/* @ts-expect-error — intentionally unregistered: demonstrates the fallback,
+            and the error shows the key check rejecting unknown names. */}
         <Icon name="definitely-not-a-real-icon" />
       </div>
       <span className="text-xs opacity-70">

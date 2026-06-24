@@ -51,7 +51,7 @@ import {
 } from "@tabler/icons-react";
 import type { IconRegistry } from "./types";
 
-export const tablerIconRegistry: IconRegistry = {
+export const tablerIconRegistry = {
   "arrow-big-down": IconArrowBigDown,
   "arrow-big-down-lines": IconArrowBigDownLines,
   "arrow-big-up": IconArrowBigUp,
@@ -99,4 +99,4 @@ export const tablerIconRegistry: IconRegistry = {
   "view360": IconView360,
   "world": IconWorld,
   "x": IconX,
-};
+} satisfies IconRegistry;

@@ -78,6 +78,8 @@ describe("IconProvider extend vs replace", () => {
 describe("Icon fallback", () => {
   it("renders nothing and warns (dev) for an unknown name", () => {
     const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    // @ts-expect-error — intentionally an unregistered key: this exercises the
+    // runtime fallback, and the error confirms `IconName` rejects unknown keys.
     const html = renderToStaticMarkup(<Icon name="definitely-not-a-real-icon" />);
     expect(html).toBe("");
     expect(warn).toHaveBeenCalledOnce();

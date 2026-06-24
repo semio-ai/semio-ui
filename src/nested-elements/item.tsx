@@ -1,5 +1,6 @@
 import { DropdownMenu, ContextMenu } from "radix-ui";
 import { clsx } from "clsx";
+import { resolveIcon } from "../icons/registry";
 import { NestedParent, type NestedItemProps } from "./types";
 import { useNestedParent } from "./context";
 
@@ -44,8 +45,9 @@ export function NestedItem({
           )}
         >
           {/* Normalizes any icon set to one size + centers it (see `.list-item-icon`),
-              so glyphs don't shift with their own intrinsic width in this w-fit slot. */}
-          <span className="list-item-icon">{left}</span>
+              so glyphs don't shift with their own intrinsic width in this w-fit slot.
+              resolveIcon lets `left` be a registry key or a node. */}
+          <span className="list-item-icon">{resolveIcon(left)}</span>
         </div>
       )}
       {children}

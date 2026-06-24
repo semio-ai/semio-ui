@@ -4,6 +4,7 @@ import { clsx } from "clsx";
 import { useGesture } from "@use-gesture/react";
 import useMeasure, { RectReadOnly } from "react-use-measure";
 import { PaneRegion } from "../../types";
+import type { IconValue } from "../../icons/registry";
 import { useLayoutState } from "../../hooks/use-layout-state";
 import { PanelContent } from "./panel-content";
 import { Menu } from "./menu";
@@ -12,7 +13,7 @@ import { Header } from "./header";
 export interface LayoutRootProps {
   className?: string;
   children?: ReactNode | ((contentBounds: RectReadOnly) => ReactNode);
-  homeIcon?: ReactNode;
+  homeIcon?: IconValue;
   homeText?: string;
   homeClassName?: string;
 }
