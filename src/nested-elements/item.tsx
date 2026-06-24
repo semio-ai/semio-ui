@@ -43,7 +43,12 @@ export function NestedItem({
             variant,
           )}
         >
-          {left}
+          {/* Definite-size square that centers the icon and normalizes its size, so
+              icons from any set (Solar 1em / Tabler 24 / Semio) land at the same size
+              and x-offset instead of shifting with their own intrinsic width. */}
+          <span className="grid size-5 place-items-center [&_svg]:h-3/5 [&_svg]:w-3/5 [&_svg]:shrink-0">
+            {left}
+          </span>
         </div>
       )}
       {children}
