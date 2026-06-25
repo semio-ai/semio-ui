@@ -6,6 +6,7 @@ import {
   KeybindingProvider,
   type KeybindingMap,
 } from "../../keybinding-context";
+import { takeDropdownOpenLock, releaseDropdownOpenLock } from "../dropdown-coordinator";
 import { useTooltipStore, type ScreenPosition } from "./store";
 import { useRootTooltipHost } from "./tooltip-context";
 
@@ -109,6 +110,30 @@ export function useCanvasContextMenu(
 
     return () => unregisterAnchor(id);
   }, [id, options.priority, options.group, registerAnchor, unregisterAnchor]);
+
+  // Participate in the global single-open-menu lock so opening any Dropdown
+  // dismisses an open canvas context menu (mirrors the existing reverse: a
+  // right-click already dismisses an open Dropdown via Radix's outside-press).
+  // The canvas menu lives in its own overlay store, so without this it stayed
+  // open when a Dropdown opened elsewhere. Hold the lock while visible; release
+  // when hidden. `close` is stable so re-right-clicking doesn't evict itself.
+  const close = useCallback(() => dismissOverlay(id), [dismissOverlay, id]);
+  useEffect(() => {
+    const unsubscribe = useTooltipStore.subscribe(
+      (state) => state.visibility.get(id)?.visible ?? false,
+      (visible) => {
+        if (visible) {
+          takeDropdownOpenLock(close);
+        } else {
+          releaseDropdownOpenLock(close);
+        }
+      },
+    );
+    return () => {
+      releaseDropdownOpenLock(close);
+      unsubscribe();
+    };
+  }, [id, close]);
 
   const onContextMenu = useCallback(
     (event: ThreeEvent<PointerEvent>) => {
