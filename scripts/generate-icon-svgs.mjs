@@ -35,7 +35,10 @@ const SVG_DIR = join(FIGMA_DIR, "icon-svgs");
 
 // A composed entry: imports the three registry modules and exports the resolved
 // registry + the default key set (so the Figma build knows which keys are new).
-const ENTRY = join(here, ".registry-entry.ts");
+// Per-process temp names so concurrent/restarted runs can't clobber each other's
+// entry/bundle (the `finally` below removes them). They must live in scripts/ — not
+// /tmp — so the externalized react/react-dom resolve from node_modules.
+const ENTRY = join(here, `.registry-entry.${process.pid}.ts`);
 const entrySrc = DEFAULT_ONLY
   ? `import { defaultIconRegistry } from "../src/icons/registry/default-registry";
      export const registry = defaultIconRegistry;
@@ -57,7 +60,7 @@ writeFileSync(ENTRY, entrySrc);
 // a CJS bundle requires node builtins natively. `react`/`react-dom` stay external (the
 // rendered elements must share react-dom/server's React instance; Node dedupes the CJS
 // module between this file's `import` and the bundle's `require`).
-const TMP = join(here, ".registry-bundle.cjs");
+const TMP = join(here, `.registry-bundle.${process.pid}.cjs`);
 let registry, defaultKeys, animationKeys, studioKeys;
 try {
   await esbuild.build({

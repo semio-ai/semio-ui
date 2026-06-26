@@ -40,7 +40,9 @@ const SUBSET = {
   visuals: ["default", "inverted", "inverted-border"],
   variants: ["default", "primary", "secondary", "tertiary", "error"],
   states: ["default", "hover", "focus", "disabled"],
-  properties: ["Label", "Show label", "Icon left", "Icon right"],
+  // Label + show-label toggle, the left/right icon visibility booleans, and the
+  // left/right instance-swap props — the full component API the Figma Button exposes.
+  properties: ["Label", "Show label", "Left icon", "Right icon", "Icon left", "Icon right"],
 };
 
 const types = readFileSync(join(root, "src/types.ts"), "utf8");

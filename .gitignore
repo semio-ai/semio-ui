@@ -4,3 +4,8 @@
 figma/icon-svgs/
 figma/icon-svgs.generated.json
 figma/icon-svgs.new-keys.json
+
+# Transient esbuild entry/bundle from generate-icon-svgs.mjs (per-PID; removed on
+# success, ignored here in case a run crashes before cleanup).
+scripts/.registry-entry.*
+scripts/.registry-bundle.*
