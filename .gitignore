@@ -1,0 +1,6 @@
+
+# Generated Figma bridge outputs (regenerable via scripts/generate-icon-svgs.mjs).
+# The committed artifacts in figma/ (icon-manifest.json, button-contract.json) are NOT ignored.
+figma/icon-svgs/
+figma/icon-svgs.generated.json
+figma/icon-svgs.new-keys.json

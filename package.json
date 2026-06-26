@@ -34,6 +34,8 @@
     "build:css": "tailwindcss -i make-kit/make.css -o dist/semio-ui.css --minify",
     "dev": "tsup src/index.tsx --format esm,cjs --watch --dts --external react --external @tabler/icons-react --publicDir",
     "generate:icons": "node scripts/generate-icon-registry.mjs",
+    "generate:icon-svgs": "node scripts/generate-icon-svgs.mjs",
+    "parity:figma": "node scripts/figma-parity-check.mjs",
     "lint": "eslint . --max-warnings 0",
     "lint:fix": "eslint . --fix",
     "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist",
