@@ -1,5 +1,11 @@
 # @semio/ui
 
+## 0.1.2
+
+### Patch Changes
+
+- e15f29f: Add third-party icon attribution. Both packages now ship a `NOTICE` file crediting Tabler Icons (MIT) and Solar Icons by 480 Design (CC BY 4.0), satisfying the CC BY 4.0 attribution requirement for the bundled Solar icon designs. See `THIRD-PARTY-NOTICES.md` at the repo root.
+
 ## 0.1.1
 
 ### Patch Changes
