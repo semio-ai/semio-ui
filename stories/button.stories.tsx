@@ -1,10 +1,12 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Button, IconHome, Size, Variant } from "@semio/ui";
 import { IconPlus } from "@tabler/icons-react";
+import { figmaNode } from "./figma-links";
 
 const meta: Meta<typeof Button> = {
   component: Button,
   title: "ui/Button",
+  parameters: { design: { type: "figma", url: figmaNode("191-127") } },
   decorators: [
     (Story) => (
       <div className="grid h-full place-items-center p-5">
