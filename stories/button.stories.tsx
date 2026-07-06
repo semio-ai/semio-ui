@@ -1,12 +1,15 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Button, IconHome, Size, Variant } from "@semio/ui";
 import { IconPlus } from "@tabler/icons-react";
-import { figmaNode } from "./figma-links";
+import { buttonVariant } from "./figma-links";
+
+// Per-story Figma design link → the matching Button variant (1:1), instead of the
+// whole variant set. `type` is a const so it satisfies addon-designs' typing.
+const design = (url: string) => ({ design: { type: "figma" as const, url } });
 
 const meta: Meta<typeof Button> = {
   component: Button,
   title: "ui/Button",
-  parameters: { design: { type: "figma", url: figmaNode("191-127") } },
   decorators: [
     (Story) => (
       <div className="grid h-full place-items-center p-5">
@@ -36,6 +39,7 @@ export const DefaultPrimary: Story = {
     },
     disabled: false,
   },
+  parameters: design(buttonVariant.defaultPrimary),
 };
 
 export const DefaultSecondary: Story = {
@@ -48,6 +52,7 @@ export const DefaultSecondary: Story = {
     },
     disabled: false,
   },
+  parameters: design(buttonVariant.defaultSecondary),
 };
 
 export const InvertedPrimary: Story = {
@@ -61,6 +66,7 @@ export const InvertedPrimary: Story = {
     visuals: "inverted",
     disabled: false,
   },
+  parameters: design(buttonVariant.invertedPrimary),
 };
 
 export const InvertedSecondary: Story = {
@@ -74,6 +80,7 @@ export const InvertedSecondary: Story = {
     visuals: "inverted",
     disabled: false,
   },
+  parameters: design(buttonVariant.invertedSecondary),
 };
 
 export const BorderedPrimary: Story = {
@@ -87,6 +94,7 @@ export const BorderedPrimary: Story = {
     visuals: "inverted-border",
     disabled: false,
   },
+  parameters: design(buttonVariant.borderedPrimary),
 };
 
 export const BorderedSecondary: Story = {
@@ -100,8 +108,11 @@ export const BorderedSecondary: Story = {
     visuals: "inverted-border",
     disabled: false,
   },
+  parameters: design(buttonVariant.borderedSecondary),
 };
 
+// Size stories: Figma has no Size axis (size is an examples demo), so these reuse
+// the inverted-border/primary variant node — same visual+variant, different size.
 export const PrimaryExtraSmall: Story = {
   args: {
     children: "Hello",
@@ -114,6 +125,7 @@ export const PrimaryExtraSmall: Story = {
     size: Size.Xs,
     disabled: false,
   },
+  parameters: design(buttonVariant.borderedPrimary),
 };
 
 export const PrimarySmall: Story = {
@@ -128,6 +140,7 @@ export const PrimarySmall: Story = {
     size: Size.Sm,
     disabled: false,
   },
+  parameters: design(buttonVariant.borderedPrimary),
 };
 
 export const PrimaryMedium: Story = {
@@ -142,6 +155,7 @@ export const PrimaryMedium: Story = {
     size: Size.Md,
     disabled: false,
   },
+  parameters: design(buttonVariant.borderedPrimary),
 };
 
 export const PrimaryLarge: Story = {
@@ -156,6 +170,7 @@ export const PrimaryLarge: Story = {
     size: Size.Lg,
     disabled: false,
   },
+  parameters: design(buttonVariant.borderedPrimary),
 };
 
 export const PrimaryExtraLarge: Story = {
@@ -170,8 +185,10 @@ export const PrimaryExtraLarge: Story = {
     size: Size.Xl,
     disabled: false,
   },
+  parameters: design(buttonVariant.borderedPrimary),
 };
 
+// Custom-color stories: color is a prop, not a Figma variant → link the base visual.
 export const CustomColorButton: Story = {
   args: {
     children: "Hello",
@@ -183,6 +200,7 @@ export const CustomColorButton: Story = {
     disabled: false,
     color: "#FF00FF",
   },
+  parameters: design(buttonVariant.defaultPrimary),
 };
 
 export const CustomColorInvertedButton: Story = {
@@ -197,6 +215,7 @@ export const CustomColorInvertedButton: Story = {
     disabled: false,
     color: "#FF00FF",
   },
+  parameters: design(buttonVariant.invertedPrimary),
 };
 
 export const CustomColorBorderButton: Story = {
@@ -211,6 +230,7 @@ export const CustomColorBorderButton: Story = {
     disabled: false,
     color: "#FF00FF",
   },
+  parameters: design(buttonVariant.borderedPrimary),
 };
 
 export const PrimaryIconButton: Story = {
@@ -224,6 +244,7 @@ export const PrimaryIconButton: Story = {
     size: Size.Md,
     disabled: false,
   },
+  parameters: design(buttonVariant.defaultPrimary),
 };
 
 export const PrimaryInvertedIconButton: Story = {
@@ -238,6 +259,7 @@ export const PrimaryInvertedIconButton: Story = {
     size: Size.Md,
     disabled: false,
   },
+  parameters: design(buttonVariant.invertedPrimary),
 };
 
 export const PrimaryBorderedIconButton: Story = {
@@ -252,6 +274,7 @@ export const PrimaryBorderedIconButton: Story = {
     size: Size.Md,
     disabled: false,
   },
+  parameters: design(buttonVariant.borderedPrimary),
 };
 
 export const PrimaryButtonIconText: Story = {
@@ -267,8 +290,10 @@ export const PrimaryButtonIconText: Story = {
     size: Size.Md,
     disabled: false,
   },
+  parameters: design(buttonVariant.borderedPrimary),
 };
 
+// call-to-action is a documented single example, not a Figma variant → no design link.
 export const PrimaryCallToActionButton: Story = {
   args: {
     children: "Join!",

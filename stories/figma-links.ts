@@ -6,3 +6,19 @@ const FIGMA_FILE = "https://www.figma.com/design/ExKZLlbGQ3lJxBddvR500j/Semio-UI
 
 /** Build a Figma node deep-link for a story's `parameters.design.url`. */
 export const figmaNode = (nodeId: string) => `${FIGMA_FILE}?node-id=${nodeId}`;
+
+/**
+ * Button variant nodes (Visual × Variant, State=default) for 1:1 story→variant
+ * design links. Figma models Size as an examples demo (not a variant axis) and
+ * doesn't build cta / custom-color as variants — so size stories reuse their
+ * visual+variant node, custom-color reuses its base visual, and cta stories have
+ * no 1:1 node.
+ */
+export const buttonVariant = {
+  defaultPrimary: figmaNode("191-43"),
+  defaultSecondary: figmaNode("191-64"),
+  invertedPrimary: figmaNode("194-22"),
+  invertedSecondary: figmaNode("194-42"),
+  borderedPrimary: figmaNode("194-122"),
+  borderedSecondary: figmaNode("194-142"),
+} as const;
