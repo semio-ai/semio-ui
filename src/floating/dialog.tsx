@@ -141,8 +141,8 @@ export function Dialog({
                 <AlertDialog.Title
                   className={clsx(
                     variant,
-                    "align-center flex text-base/7 font-medium",
-                    "responsive variant-static-text justify-between",
+                    "flex items-center text-base/7 font-medium whitespace-nowrap",
+                    "responsive variant-static-text shrink-0",
                   )}
                 >
                   {title}

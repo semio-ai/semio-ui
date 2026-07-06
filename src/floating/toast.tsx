@@ -137,27 +137,30 @@ function InnerToast({ data }: { data: ToastData }) {
         <div
           className={clsx(
             "relative bg-neutral-50/50 dark:bg-neutral-950/50",
-            "flex h-11 flex-row items-center justify-between px-2",
+            "flex min-h-11 flex-row items-center justify-between gap-2 px-2 py-1.5",
           )}
         >
           <RadixToast.Title
             className={clsx(
-              "flex flex-row items-center gap-3 text-[15px]",
+              "flex min-w-0 flex-row items-center gap-3 text-[15px]",
               data.variant,
               "variant-static-text responsive",
             )}
           >
-            <ProgressCircle
-              size={Size.Xs}
-              progress={completionSpring}
-              variant={data.variant}
-              icon={toastIcon}
-            />
-            {data.title}
+            <span className="flex shrink-0">
+              <ProgressCircle
+                size={Size.Xs}
+                progress={completionSpring}
+                variant={data.variant}
+                icon={toastIcon}
+              />
+            </span>
+            <span className="min-w-0 break-words">{data.title}</span>
           </RadixToast.Title>
           <RadixToast.Close asChild>
             <Button
               size={Size.Sm}
+              className="shrink-0"
               // onClick={() => removeToast(data.id)}
               variant={data.variant}
               leftIcon={
