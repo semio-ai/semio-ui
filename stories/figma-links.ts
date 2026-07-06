@@ -8,17 +8,20 @@ const FIGMA_FILE = "https://www.figma.com/design/ExKZLlbGQ3lJxBddvR500j/Semio-UI
 export const figmaNode = (nodeId: string) => `${FIGMA_FILE}?node-id=${nodeId}`;
 
 /**
- * Button variant nodes (Visual × Variant, State=default) for 1:1 story→variant
- * design links. Figma models Size as an examples demo (not a variant axis) and
- * doesn't build cta / custom-color as variants — so size stories reuse their
- * visual+variant node, custom-color reuses its base visual, and cta stories have
- * no 1:1 node.
+ * Button preview nodes (Visual × Variant, State=default) for 1:1 story→design
+ * links. These point at **standalone instances** on the Examples page's
+ * "Storybook previews" frame — NOT the variants inside the Button component set,
+ * because Figma's embed renders the whole set for a node that lives inside it,
+ * whereas a standalone instance embeds as a single button. Figma models Size as
+ * an examples demo (not a variant axis) and doesn't build cta / custom-color as
+ * variants — so size stories reuse their visual+variant node, custom-color reuses
+ * its base visual, and cta stories have no 1:1 node.
  */
 export const buttonVariant = {
-  defaultPrimary: figmaNode("191-43"),
-  defaultSecondary: figmaNode("191-64"),
-  invertedPrimary: figmaNode("194-22"),
-  invertedSecondary: figmaNode("194-42"),
-  borderedPrimary: figmaNode("194-122"),
-  borderedSecondary: figmaNode("194-142"),
+  defaultPrimary: figmaNode("370-477"),
+  defaultSecondary: figmaNode("370-496"),
+  invertedPrimary: figmaNode("370-513"),
+  invertedSecondary: figmaNode("370-530"),
+  borderedPrimary: figmaNode("370-547"),
+  borderedSecondary: figmaNode("370-564"),
 } as const;
