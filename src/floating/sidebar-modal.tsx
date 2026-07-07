@@ -18,6 +18,7 @@ import { MenuButtonProvider } from "../context/menu-button-context";
 import { ScrollArea } from "../layouts/scroll-area";
 import { NestedSelect } from "../nested-elements/select";
 import { Variant } from "../types";
+import { useIsDesktop } from "../hooks/use-is-desktop";
 import { ContextMenu } from "./context-menu";
 
 export interface SidebarTab {
@@ -725,33 +726,4 @@ function ContentPane({
       </ScrollArea>
     </section>
   );
-}
-
-/**
- * Local viewport detection for a11y attributes only. Layout itself stays
- * CSS-driven (via the `desktop:` Tailwind variant). Local `matchMedia` —
- * unlike the `useDesktopState` layout atom — works in any render context
- * (Storybook, tests) without the layout root.
- */
-const DESKTOP_QUERY = "(width >= 48rem) and (height >= 48rem)";
-
-function useIsDesktop(): boolean {
-  const [isDesktop, setIsDesktop] = useState(() => {
-    if (typeof window === "undefined") {
-      return false;
-    }
-    return window.matchMedia(DESKTOP_QUERY).matches;
-  });
-  useEffect(() => {
-    const matcher = window.matchMedia(DESKTOP_QUERY);
-    setIsDesktop(matcher.matches);
-    const listener = (event: MediaQueryListEvent) => {
-      setIsDesktop(event.matches);
-    };
-    matcher.addEventListener("change", listener);
-    return () => {
-      matcher.removeEventListener("change", listener);
-    };
-  }, []);
-  return isDesktop;
 }

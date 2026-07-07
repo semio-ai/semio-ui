@@ -6,7 +6,19 @@
 @custom-variant left-sidebar-full (&:where(.left-sidebar-full, .left-sidebar-full *));
 @custom-variant right-sidebar-full (&:where(.right-sidebar-full, .right-sidebar-full *));
 
-@custom-variant desktop (@media (width >= theme(--breakpoint-md)) and (height >= theme(--breakpoint-md)));
+/* Width-only `desktop:` variant, keyed to Tailwind's built-in `--breakpoint-md`
+   (48rem / 768px) — the same token the JS `useIsDesktop` hook reads, so the two
+   never drift. Must reference a *built-in* breakpoint: `theme()` of a custom
+   token added via an imported dependency's @theme does not resolve here, which
+   silently drops the media wrapper and leaves `desktop:` stuck permanently on.
+
+   Uses classic `min-width:` rather than range syntax (`width >= …`): WebKit
+   re-evaluates range-context media queries unreliably on resize (they can latch
+   after the first change and stop responding), whereas `min-width` is solid.
+   Tailwind v4 emits range syntax for its built-in variants, so we spell this one
+   out explicitly. Previously this also gated on height (`and (height >= …)`),
+   which mis-classified wide-but-short windows as mobile. */
+@custom-variant desktop (@media (min-width: theme(--breakpoint-md)));
 
 @custom-variant data-expanded (&[data-ui~="expanded"]);
 @custom-variant data-checked (&[data-ui~="checked"]);
