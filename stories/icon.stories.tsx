@@ -9,6 +9,7 @@ import {
   type IconName,
 } from "@semio/ui";
 import { IconHeart, IconPlus, IconMinus } from "@tabler/icons-react";
+import { figmaNode } from "./figma-links";
 
 /**
  * Visual coverage for the icon registry: the default registry gallery, semantic
@@ -18,6 +19,7 @@ import { IconHeart, IconPlus, IconMinus } from "@tabler/icons-react";
 const meta: Meta<typeof Icon> = {
   component: Icon,
   title: "ui/Icon",
+  parameters: { design: { type: "figma", url: figmaNode("145-40") } },
   decorators: [
     (Story) => (
       <div className="p-6 text-neutral-800 dark:text-neutral-100">
