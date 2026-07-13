@@ -123,7 +123,9 @@ export function Dialog({
               variant,
               "flex flex-col overflow-clip focus:outline-hidden",
               "card animated-modal",
-              "h-fit max-h-screen w-fit",
+              // Cap to the viewport so a long title can't push the dialog (and
+              // its close button) off-screen; the title then clips instead.
+              "h-fit max-h-screen w-fit max-w-[calc(100vw-1rem)]",
             )}
           >
             <div
@@ -141,8 +143,12 @@ export function Dialog({
                 <AlertDialog.Title
                   className={clsx(
                     variant,
-                    "align-center flex text-base/7 font-medium",
-                    "responsive variant-static-text justify-between",
+                    "flex items-center text-base/7 font-medium whitespace-nowrap",
+                    // `min-w-0` + `overflow-hidden` let a long title clip instead
+                    // of forcing the dialog wider than the viewport (which pushed
+                    // the close button off-screen); `whitespace-nowrap` still keeps
+                    // short titles on a single line.
+                    "responsive variant-static-text min-w-0 overflow-hidden",
                   )}
                 >
                   {title}
@@ -150,6 +156,7 @@ export function Dialog({
                 <AlertDialog.Cancel asChild>
                   <Button
                     tabIndex={0}
+                    className="shrink-0"
                     variant={variant}
                     leftIcon="close"
                     altText={cancelText}
