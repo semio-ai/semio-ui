@@ -1,7 +1,4 @@
-import { useEffect } from "react";
-import { useAtom } from "jotai";
 import {
-  desktopAtom,
   useMenuState,
   useLeftWidth,
   useRightWidth,
@@ -10,6 +7,7 @@ import {
   useRightRegionActive,
   useFooterRegionActive,
 } from "./layout-atoms";
+import { useIsDesktop } from "./use-is-desktop";
 
 export interface LayoutState {
   desktop: boolean;
@@ -23,7 +21,7 @@ export interface LayoutState {
 }
 
 export function useLayoutState(): LayoutState {
-  const desktopMatcher = window.matchMedia("((width >= 48rem) and (height >= 48rem))");
+  const desktop = useIsDesktop();
   const menuExpanded = useMenuState();
   const leftWidth = useLeftWidth();
   const rightWidth = useRightWidth();
@@ -32,18 +30,6 @@ export function useLayoutState(): LayoutState {
   const leftRegionActive = useLeftRegionActive();
   const rightRegionActive = useRightRegionActive();
   const footerRegionActive = useFooterRegionActive();
-
-  const [desktop, setDesktop] = useAtom(desktopAtom);
-  useEffect(() => {
-    setDesktop(desktopMatcher.matches);
-    const listener = (e: MediaQueryListEvent) => {
-      setDesktop(e.matches);
-    };
-    desktopMatcher.addEventListener("change", listener);
-    return () => {
-      desktopMatcher.removeEventListener("change", listener);
-    };
-  }, [desktopMatcher, setDesktop]);
 
   return {
     desktop,

@@ -1,13 +1,13 @@
 import { atom, useAtomValue } from "jotai";
 import { ActionItem } from "../layouts/layout/types";
 import { PaneRegion, PaneSpec, ToolbarItem } from "../types";
+import { useIsDesktop } from "./use-is-desktop";
 
 export const menuStateAtom = atom<boolean>(true);
 export const panesAtom = atom<PaneSpec[]>([]);
 export const toolbarItemsAtom = atom<ToolbarItem[]>([]);
 export const actionItemsAtom = atom<ActionItem[]>([]);
 export const homeActionItemAtom = atom<ActionItem | undefined>(undefined);
-export const desktopAtom = atom<boolean>(false);
 
 export const activeLeftPaneAtom = atom<string | undefined>((get) => {
   const panes = get(panesAtom);
@@ -175,6 +175,5 @@ export function useFooterRegionActive() {
 }
 
 export function useDesktopState() {
-  const desktopState = useAtomValue(desktopAtom);
-  return desktopState;
+  return useIsDesktop();
 }
