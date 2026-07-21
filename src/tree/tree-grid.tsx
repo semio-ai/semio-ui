@@ -157,7 +157,14 @@ export function TreeGrid<T>({
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const safeIndex = order.length === 0 ? 0 : Math.min(focusedIndex, order.length - 1);
 
-  const indexOfId = useCallback((id: string) => order.indexOf(id), [order]);
+  // O(1) id → index lookups (used per keystroke / click), instead of an
+  // O(n) `order.indexOf` each time.
+  const indexById = useMemo(() => {
+    const map = new Map<string, number>();
+    order.forEach((id, i) => map.set(id, i));
+    return map;
+  }, [order]);
+  const indexOfId = useCallback((id: string) => indexById.get(id) ?? -1, [indexById]);
 
   const handleRowKeyDown = useCallback(
     (event: KeyboardEvent<HTMLElement>, row: FlatTreeRow<T>) => {

@@ -90,9 +90,18 @@ export function applySelection(
     return { selected: new Set(expand(id)), anchorId: id, scopeChanged: true, scope };
   }
 
-  if (gesture === "range" && state.anchorId) {
+  // Extend from the anchor — but only if the anchor is still part of the
+  // selection. If an external (controlled) update removed it (clear, select-all
+  // replace, scope reset, a canvas click that bypassed `select()`), the anchor
+  // is stale; fall through to `replace` rather than extend from a phantom point.
+  // NOTE: this guards the common invalidation cases only. Full controlled-anchor
+  // semantics (a consumer that owns selection AND anchor) are intentionally
+  // deferred to the first controlled consumer — the animation adoption — so the
+  // API is shaped by real usage rather than guessed at here.
+  const anchorValid = state.anchorId !== null && state.selected.has(state.anchorId);
+  if (gesture === "range" && anchorValid) {
     const next = new Set(state.selected);
-    for (const rangeId of idsInRange(order, state.anchorId, id)) {
+    for (const rangeId of idsInRange(order, state.anchorId!, id)) {
       for (const e of expand(rangeId)) next.add(e);
     }
     // anchor is preserved across a range extend

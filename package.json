@@ -72,7 +72,6 @@
     "tailwindcss": "^4.1.3"
   },
   "devDependencies": {
-    "@playwright/test": "^1.60.0",
     "@semio/eslint-config": "*",
     "@semio/typescript-config": "*",
     "@tailwindcss/cli": "^4.1.3",

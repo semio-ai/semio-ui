@@ -57,6 +57,13 @@ describe("applySelection", () => {
     expect(r.anchorId).toBe("c");
   });
 
+  it("range falls back to replace when the anchor is no longer selected (stale/controlled)", () => {
+    // e.g. an external controlled update dropped 'a' from the selection.
+    const r = applySelection({ selected: new Set(["c"]), anchorId: "a" }, "e", { range: true }, params);
+    expect([...r.selected]).toEqual(["e"]);
+    expect(r.anchorId).toBe("e");
+  });
+
   it("expands group nodes to their descendants", () => {
     const expand = (id: string) => (id === "b" ? ["b", "b1", "b2"] : [id]);
     const r = applySelection(start, "b", {}, { order, expand });
