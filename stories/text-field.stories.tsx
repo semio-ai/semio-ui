@@ -2,6 +2,12 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { TextField, Variant, Size, type TextFieldProps, ICON_CLASS_NAME } from "@semio/ui";
 import { useState, type ReactElement } from "react";
 import { IconSearch } from "@tabler/icons-react";
+import { textFieldVariant } from "./figma-links";
+
+// Per-story Figma design link → the matching TextField preview frame (1:1),
+// instead of the whole variant set. `type` is a const so it satisfies
+// addon-designs' typing. Mirrors button.stories.tsx.
+const design = (url: string) => ({ design: { type: "figma" as const, url } });
 
 const meta: Meta<typeof TextField> = {
   component: TextField,
@@ -55,6 +61,7 @@ function TextFieldWithHooks(props: TextFieldProps): ReactElement {
  * to learn how to use render functions.
  */
 export const Primary: Story = {
+  parameters: design(textFieldVariant.interactPrimary),
   render: (props) => {
     return (
       <div className="w-96">
@@ -75,6 +82,7 @@ export const Primary: Story = {
 };
 
 export const PrimaryNoBg: Story = {
+  parameters: design(textFieldVariant.interactPrimary),
   render: (props) => {
     return (
       <div className="w-96">
@@ -95,6 +103,7 @@ export const PrimaryNoBg: Story = {
 };
 
 export const PrimaryIcon: Story = {
+  parameters: design(textFieldVariant.interactPrimary),
   render: (props) => {
     return (
       <div className="w-96">
@@ -116,6 +125,7 @@ export const PrimaryIcon: Story = {
 };
 
 export const PrimaryIconClearable: Story = {
+  parameters: design(textFieldVariant.interactPrimary),
   render: (props) => {
     return (
       <div className="w-96">
@@ -140,6 +150,7 @@ export const PrimaryIconClearable: Story = {
 };
 
 export const SubtleIconClearable: Story = {
+  parameters: design(textFieldVariant.interactDefault),
   render: (props) => {
     return (
       <div className="w-96">

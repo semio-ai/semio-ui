@@ -27,3 +27,75 @@ export const buttonVariant = {
   borderedPrimary: figmaNode("387-618"),
   borderedSecondary: figmaNode("387-653"),
 } as const;
+
+/**
+ * TextField preview nodes for 1:1 story→design links. Each points at a dedicated
+ * `preview/textfield/interact/<variant>` frame on the Examples page (a single
+ * variant rendered in a **Light** and **Dark** cell, Color-mode pinned per cell),
+ * NOT a variant inside the TextField set — so the Figma embed shows just that
+ * field in both themes rather than zooming to the whole 60-variant set. The
+ * stories all use `outline="interact"`; `always`/`hidden` are shown in the set.
+ */
+export const textFieldVariant = {
+  interactPrimary: figmaNode("498-758"),
+  interactDefault: figmaNode("498-803"),
+} as const;
+
+/**
+ * Checkbox preview nodes for 1:1 story→design links. Each points at a dedicated
+ * `preview/checkbox/<variant>` frame on the Examples page (the checked box in a
+ * **Light** and **Dark** cell, Color-mode pinned per cell), NOT a variant inside
+ * the Checkbox set. Size + disabled stories reuse `primary` (Figma models size as
+ * examples, not an axis — matching Button/TextField).
+ */
+export const checkboxVariant = {
+  primary: figmaNode("504-799"),
+  secondary: figmaNode("504-817"),
+  tertiary: figmaNode("504-834"),
+  success: figmaNode("504-851"),
+  warning: figmaNode("504-868"),
+  error: figmaNode("504-885"),
+  info: figmaNode("504-902"),
+} as const;
+
+/**
+ * Switch preview nodes for 1:1 story→design links. Each points at a dedicated
+ * `preview/switch/<variant>` frame on the Examples page (the on-state switch in a
+ * **Light** and **Dark** cell, Color-mode pinned per cell). Off/disabled stories
+ * reuse `primary`.
+ */
+export const switchVariant = {
+  default: figmaNode("507-918"),
+  primary: figmaNode("507-931"),
+  secondary: figmaNode("507-944"),
+  tertiary: figmaNode("507-957"),
+  error: figmaNode("507-970"),
+} as const;
+
+/**
+ * ToggleSquare preview nodes for 1:1 story→design links. Each points at a dedicated
+ * `preview/togglesquare/<variant>` frame on the Examples page (the on-state toggle in
+ * a **Light** and **Dark** cell, Color-mode pinned per cell). Off/partial/disabled
+ * stories reuse `primary`.
+ */
+export const toggleSquareVariant = {
+  default: figmaNode("508-1038"),
+  primary: figmaNode("508-1059"),
+  secondary: figmaNode("508-1080"),
+  tertiary: figmaNode("508-1101"),
+  error: figmaNode("508-1122"),
+} as const;
+
+/**
+ * Input *presets* — Search / Email / Password / NumberField are not their own
+ * Figma components; they're configurations of the TextField set (+ a label / eye /
+ * units). These point at the `preset/<name>` frames on the "Input presets" board
+ * (Examples page). Only NumberField has Storybook stories today; the others are
+ * documented Figma-side only.
+ */
+export const inputPreset = {
+  search: figmaNode("517-943"),
+  email: figmaNode("517-970"),
+  password: figmaNode("517-1011"),
+  numberField: figmaNode("517-1031"),
+} as const;

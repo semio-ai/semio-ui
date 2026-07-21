@@ -45,6 +45,35 @@ Grounded in a usage audit (56 `<Button>`, 38 files): inverted 61%, default-varia
 
 Reference artifacts in the Figma file: the `Button examples — visuals × states` board (Playground) and the `Icon Library` (🔣 Icons).
 
+## TextField subset (worked example #2 — the inputs recipe)
+
+Reuses the Button recipe almost verbatim (grounded in the usage audit: 21 `<TextField>`, 11 files; mostly `default`/`primary` variant, size Sm/Md, icon+clear common). Confirms the shared classes generalize.
+
+- **Outline** (the `outline` prop, primary axis — maps onto Button's `visuals`): `interact` (default; `variant-responsive-appearing-outline` → **offset ring appears on hover/focus**, same recipe as Button solid focus), `always` (`variant-responsive-persistent-outline` → 1px border, 2px focus, like `inverted-border`), `hidden` (no ring).
+- **Variant:** `default, primary, secondary, tertiary, error` (sets the accent color).
+- **State:** `default, hover, focus, disabled` — modeled as an axis (60 variants = Outline×Variant×State, symmetric with Button) + interactivity.
+- **Bindings:** interact ring stroke → `color/<variant>/bg-hover` (the accent, = variant-600); persistent border → `color/<variant>/bg`; placeholder + left-icon fill → **`color/content/muted`** (first consumer of the new surface/content token); typed-text → `color/content/fg`; font → `typography/font-family`. Radius 2 (`rounded-xs`), height 32 (md), 28×28 icon box at (2,2), 34px icon-side padding.
+- **Properties:** `Placeholder` (TEXT), `Show icon` (BOOL) + `Icon left` (INSTANCE_SWAP over the `Icon/` library). The **clear button** (`onClear`) is modeled as **intrinsic to `State=focus`** (the X appears on focus, matching the code's `peer-focus:grid`), not a separate boolean.
+- **Scoped out (examples/interactivity):** `size` (examples, not an axis — like Button), `bg`/`subtle`/custom `color` (single examples).
+
+Figma set `TextField` (node `496:628`, 🧩 Components) + `preview/textfield/interact/{primary,default}` frames (✨ Examples, Light+Dark cells) for the 1:1 Storybook `design` links. Code Connect: [textfield.figma.tsx](../src/inputs/textfield.figma.tsx). Parity: `textfield` block in `parity:figma` + `figma/textfield-contract.json`.
+
+## Checkbox subset (worked example #3 — the first toggle)
+
+The inputs cluster splits: **Search / Email / Password / NumberField are TextField _presets/compositions_** (Search = `<TextField icon=search onClear>`; Email/Password = `<Label>` + `<TextField>`), not new base components — represented as Example configurations of the TextField set + Label on the **"Input presets" board** (✨ Examples, node `517:941`): `preset/search|email|password|numberfield` frames built from configured TextField instances (+ label caption, eye icon, units). `figma-links.ts` `inputPreset` links these; only NumberField has stories today (wired), the others are Figma-side documentation. The genuinely-distinct primitives are **TextArea** (TextField recipe, multi-line) and the **toggles** (Checkbox, Switch, ToggleSquare). Checkbox is the first toggle built:
+
+- **Variant** (8 — `default…info`, incl. status colors `success`/`warning`/`info`, which the Checkbox stories exercise unlike the action-only Button/TextField): sets the checked fill.
+- **State:** `unchecked` (bg → **`color/surface/inset`**), `checked` (bg → `color/<variant>/bg`, hover→`bg-hover`), `disabled` (bg → `color/surface/base` @ node-opacity 0.5). Hover/focus (the shared `variant-responsive-appearing-outline` ring) via interactivity, not an axis.
+- **Check glyph:** `Icon/selected`, fill bound to `color/<variant>/fg` (white in Light, black in Dark — matches `text-white dark:text-black`), visible in checked/disabled. Box is `sized-width/height` (32 md), radius 2.
+- **Scoped out:** `size` (examples), `sizing`/`asIndicator` (list-item/inner contexts — single examples).
+
+Figma set `Checkbox` (node `503:913`) + `preview/checkbox/<variant>` frames (Light+Dark). Code Connect: [checkbox.figma.tsx](../src/inputs/checkbox.figma.tsx) (Figma `State` axis → code `checked`+`disabled` booleans). Parity: `checkbox` block + `figma/checkbox-contract.json`.
+
+### Switch & ToggleSquare (the rest of the toggle sub-cluster)
+Both reuse `variant-checkbox-bg` (off → `color/surface/inset`, on → `color/<variant>/bg`) + the shared `appearing-outline` ring (interactivity). Built with 5 action variants × the component's states; stories were **authored fresh** (neither had one) and wired the Button way.
+- **Switch** (`507:917`) — rounded track (`cornerRadius 12`) + white/black thumb (`color/default/fg`, flips per mode) that translates on `on`. States: off/on/disabled. [switch.figma.tsx](../src/inputs/switch.figma.tsx), `switch-contract.json`, new `switch.stories.tsx`.
+- **ToggleSquare** (`508:997`) — Checkbox's square + tri-state: `partial` = inset colored border (`box-shadow` in code); on-state icon flips to `color/surface/inset` (= `neutral/200`↔`800`, matching `text-neutral-200 dark:text-neutral-800`). Icon is an `Icon` instance-swap slot (= `children`). States: off/on/partial/disabled. [togglesquare.figma.tsx](../src/inputs/togglesquare.figma.tsx), `togglesquare-contract.json`, new `toggle-square.stories.tsx`.
+
 ## Icon color (the `currentColor` problem)
 Code icons inherit `currentColor` (the context's text color); Figma has no equivalent. Two cases:
 - **In a component** (Button, etc.): the component overrides the icon-slot fill to its own foreground (`color/<variant>/fg`) per-instance — the contextual analog.

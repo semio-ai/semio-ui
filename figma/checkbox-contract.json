@@ -1,0 +1,17 @@
+{
+  "component": "Checkbox",
+  "nodeId": "503:913",
+  "capturedAt": "2026-07-20",
+  "source": "Captured via the Figma MCP (use_figma reads of node 503:913 — the Checkbox component set on the 🧩 Components page of the Semio UI Library file, key supplied at session start, not committed). The Figma component implements a DOCUMENTED SUBSET of the code contract (see packages/ui/docs/figma-design-system-mapping.md). Refresh from the live file before running in CI.",
+  "variantOptions": {
+    "Variant": ["default", "primary", "secondary", "tertiary", "error", "success", "warning", "info"],
+    "State": ["unchecked", "checked", "disabled"]
+  },
+  "properties": [],
+  "sampleVariant": {
+    "cornerRadius": 2,
+    "boxFillVar": "color/primary/bg",
+    "uncheckedFillVar": "color/surface/inset",
+    "checkFillVar": "color/primary/fg"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "component": "Switch",
+  "nodeId": "507:917",
+  "capturedAt": "2026-07-20",
+  "source": "Captured via the Figma MCP (use_figma reads of node 507:917 — the Switch component set on the 🧩 Components page of the Semio UI Library file, key supplied at session start, not committed). The Figma component implements a DOCUMENTED SUBSET of the code contract (see packages/ui/docs/figma-design-system-mapping.md). Refresh from the live file before running in CI.",
+  "variantOptions": {
+    "Variant": ["default", "primary", "secondary", "tertiary", "error"],
+    "State": ["off", "on", "disabled"]
+  },
+  "properties": [],
+  "sampleVariant": {
+    "cornerRadius": 12,
+    "trackFillVar": "color/primary/bg",
+    "offTrackFillVar": "color/surface/inset"
+  }
+}
