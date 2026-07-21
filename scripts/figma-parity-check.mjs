@@ -477,7 +477,36 @@ function checkDialog() {
   return { name: "Dialog", figma, fails, notes, summary: `Variant = ${(fo.Variant||[]).length} · props=[${fprops.join(", ")}]` };
 }
 
-const results = [checkButton(), checkTextField(), checkCheckbox(), checkSwitch(), checkToggleSquare(), checkChip(), checkProgress(), checkProgressCircle(), checkStatus(), checkNestedItem(), ...checkNestedSubtypes(), checkTabs(), checkTooltip(), checkSliderNumberField(), checkLabel(), checkNestedMenu(), checkModal(), checkDialog()];
+// ── Card check (foundation primitive) ─────────────────────────────────────
+// Card is the `.card` CSS class, not a React component — so this guards the
+// live CSS rule against the Figma recipe (drift either way). The variant-themed
+// 2px border in Figma binds to the variant accent (color/<variant>/bg), which
+// mirrors code's --card-border-color = the variant accent-text-color.
+function checkCard() {
+  const fails = [], notes = [];
+  const css = readFileSync(join(root, "public/styles.css"), "utf8");
+  const m = css.match(/\.card\s*\{([\s\S]*?)\}/);
+  const block = m ? m[1] : "";
+  const figma = readFigma("card");
+  const fo = figma.variantOptions || {};
+  const SUBSET = { variants: ["default", "primary", "secondary", "tertiary", "error"] };
+  if (!block) fails.push("could not find the `.card` rule in public/styles.css");
+  if (!eqSet(fo.Variant || [], SUBSET.variants)) fails.push(`Figma Variant axis [${fo.Variant}] != subset [${SUBSET.variants}]`);
+  if (!subsetOf(SUBSET.variants, codeVariants)) fails.push(`subset variants not all in code Variant enum [${codeVariants}]`);
+  if (!/rounded-sm/.test(block)) fails.push(".card lost `rounded-sm` (4px)");
+  if (!/border-2/.test(block)) fails.push(".card lost `border-2` (2px border)");
+  if (!/layout-(dark|light)-inset/.test(block)) fails.push(".card lost `bg-layout-*-inset` (surface/inset)");
+  if (!/shadow-lg/.test(block)) fails.push(".card lost `shadow-lg`");
+  if (!/card-border-color/.test(css)) fails.push("--card-border-color (variant-themed border) no longer defined");
+  notes.push("foundation: the `.card` class — surface/inset bg + 2px variant-accent border + rounded-sm + shadow-lg; shared by floating (Modal/Dialog/Dropdown/Select/Tooltip/Menu) + layout panels");
+  notes.push("Figma border binds per-variant to color/<variant>/bg; shadow via the shared 'elevation/card' effect style");
+  if (figma.sampleVariant.fillVar !== "color/surface/inset") fails.push(`.card not bound to color/surface/inset — figma=${figma.sampleVariant.fillVar}`);
+  if (figma.sampleVariant.cornerRadius !== 4) fails.push(`.card radius differs — code=rounded-sm (4px) figma=${figma.sampleVariant.cornerRadius}px`);
+  if (figma.sampleVariant.shadowStyle !== "elevation/card") fails.push(`.card shadow not the shared 'elevation/card' style — figma=${figma.sampleVariant.shadowStyle}`);
+  return { name: "Card", figma, fails, notes, summary: `Variant = ${(fo.Variant||[]).length} · foundation (.card class, variant-themed border)` };
+}
+
+const results = [checkCard(), checkButton(), checkTextField(), checkCheckbox(), checkSwitch(), checkToggleSquare(), checkChip(), checkProgress(), checkProgressCircle(), checkStatus(), checkNestedItem(), ...checkNestedSubtypes(), checkTabs(), checkTooltip(), checkSliderNumberField(), checkLabel(), checkNestedMenu(), checkModal(), checkDialog()];
 let anyFail = false;
 console.log(`code: variants=[${codeVariants}] · sizes=[${codeSizes}]\n`);
 for (const r of results) {

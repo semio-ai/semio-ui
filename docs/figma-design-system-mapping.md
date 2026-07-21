@@ -32,6 +32,18 @@ Model states with an **interactive component** (toggle), not a state variant axi
 - **variant** (`primary`/`secondary`/`tertiary`/`default`/`error`/…): selects the `color/<variant>/*` token set. In Figma a variant **must be predefined** to be usable (no on-demand like the code prop) — define the ones you need.
 - **size** (`size-xs|sm|md|lg|xl` + `sized-text`/`sized-height`/`sized-width`): dimension tokens. `fit` opts out of fixed sizing.
 
+## Surface / Card foundation (`.card`)
+
+The single most-reused surface in studio. The `.card` CSS class = `bg-layout-*-inset` (→ `surface/inset`) + `border-2` with `--card-border-color` + `rounded-sm` (4px) + `shadow-lg`. Its border is **variant-themeable**: `--card-border-color` resolves to the variant accent-text-color — `default-400/600` (neutral) at rest, `primary-500` / `secondary-500` / … when a variant/`custom-color` is set. It backs both **floating** surfaces (Modal, Dialog, Dropdown, Select, Tooltip, Menu, ContextMenu, Popover, Toast) and **layout panels** (e.g. `table-list`'s `card`/`panel` appearance, general UI panels).
+
+Represented in Figma as a foundation:
+- **`Card`** (`609:1347`) — a base component set, Variant axis `default/primary/secondary/tertiary/error`, an empty themed surface. bg → `surface/inset`, **2px border → `color/<variant>/bg`** (the variant accent, mirroring `--card-border-color`), `rounded-sm` (4px), shadow → the shared **`elevation/card`** effect style. No Code Connect (it's a class, not a React component); guarded by `parity:figma`'s `checkCard` against the live `.card` rule.
+- **`elevation/card`** — a shared Figma **effect style** (`shadow-lg` = the two-layer drop shadow). Every card surface references it, so the elevation is defined once. This is the drift-killer: a single edit re-elevates every surface.
+- All promoted/example surfaces (Modal, Dialog, Dropdown, Select, Tooltip, Menu, usage examples) were re-pointed so their 2px border binds to the variant accent and their shadow references `elevation/card` — no more per-surface baked styling.
+- **Panel** (`612:886`) — a layout-usage example (header + list rows in a `.card`), documenting the non-floating panel use.
+
+Figma can't make the floating components literally *instance* `Card` (instances don't accept slotted children), so standardization is enforced by the shared variables + shared effect style + the `checkCard` recipe guard rather than a composition refactor.
+
 ## Button subset (worked example — what we actually build)
 
 Grounded in a usage audit (56 `<Button>`, 38 files): inverted 61%, default-variant ~95%, sizes Md/Sm/Xs/fit only (Lg/Xl unused), leftIcon 80%.
