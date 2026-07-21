@@ -130,3 +130,18 @@ export const progressCircleVariant = {
   tertiary: figmaNode("530-1200"),
   success: figmaNode("530-1227"),
 } as const;
+
+/** Status (dot) preview frames — `preview/status/<variant>` (Light+Dark). */
+export const statusVariant = {
+  default: figmaNode("546-1077"),
+  primary: figmaNode("546-1086"),
+  secondary: figmaNode("546-1093"),
+  tertiary: figmaNode("546-1102"),
+  error: figmaNode("546-1111"),
+  success: figmaNode("546-1120"),
+  warning: figmaNode("546-1129"),
+  info: figmaNode("546-1138"),
+} as const;
+
+/** Spinner preview frame — `preview/spinner` (static representation of the animated ring). */
+export const spinnerPreview = figmaNode("546-1147");

@@ -9,6 +9,7 @@
   "properties": ["Label", "Show icon", "Icon", "Show delete"],
   "sampleVariant": {
     "cornerRadius": 2,
-    "pillFillVar": "color/primary/bg"
+    "pillFillVar": "color/primary/bg",
+    "iconBoxSize": [28, 28]
   }
 }

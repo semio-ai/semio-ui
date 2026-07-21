@@ -246,6 +246,11 @@ function checkChip() {
   notes.push(`size scoped to examples (code sizes: [${codeSizes}])`);
   if (figma.sampleVariant.cornerRadius !== 2) fails.push(`corner radius differs — code=2px (rounded-xs) figma=${figma.sampleVariant.cornerRadius}px`);
   if (figma.sampleVariant.pillFillVar !== "color/primary/bg") fails.push(`pill fill not bound to color/primary/bg — figma=${figma.sampleVariant.pillFillVar}`);
+  // Geometry guard: the icon/delete chips are `sized-inner-group-item` (h-7 w-7 =
+  // 28×28 square) — catches the HUG-collapse regression where they render as tall
+  // rectangles (16×28) instead of squares.
+  const box = figma.sampleVariant.iconBoxSize || [];
+  if (box[0] !== 28 || box[1] !== 28) fails.push(`icon/delete box not 28×28 square (sized-inner-group-item md) — figma=${JSON.stringify(box)}`);
 
   return { name: "Chip", figma, fails, notes,
     summary: `Variant = ${(fo.Variant||[]).length} · props=[${fprops.join(", ")}]` };
@@ -284,7 +289,23 @@ function checkProgressCircle() {
   return { name: "ProgressCircle", figma, fails, notes, summary: `Variant = ${(fo.Variant||[]).length} · props=[${fprops.join(", ")}]` };
 }
 
-const results = [checkButton(), checkTextField(), checkCheckbox(), checkSwitch(), checkToggleSquare(), checkChip(), checkProgress(), checkProgressCircle()];
+// ── Status check ──────────────────────────────────────────────────────────
+function checkStatus() {
+  const fails = [], notes = [];
+  const src = readFileSync(join(root, "src/feedback/status.tsx"), "utf8");
+  const SUBSET = { variants: ["default", "primary", "secondary", "tertiary", "error", "success", "warning", "info"] };
+  const figma = readFigma("status");
+  const fo = figma.variantOptions || {};
+  if (!eqSet(fo.Variant || [], SUBSET.variants)) fails.push(`Figma Variant axis [${fo.Variant}] != subset [${SUBSET.variants}]`);
+  if (!subsetOf(SUBSET.variants, codeVariants)) fails.push(`subset variants not all in code Variant enum [${codeVariants}]`);
+  if (!/placement/.test(src)) notes.push("placement omitted from Figma (contextual positioning, not a variant)");
+  notes.push("dot indicator modeled; text/count mode shown as an example; size scoped to examples");
+  if (figma.sampleVariant.dotFillVar !== "color/primary/bg") fails.push(`dot fill not bound to color/primary/bg — figma=${figma.sampleVariant.dotFillVar}`);
+  if (figma.sampleVariant.ringVar !== "color/surface/inset") fails.push(`ring not bound to color/surface/inset (= neutral-200/800) — figma=${figma.sampleVariant.ringVar}`);
+  return { name: "Status", figma, fails, notes, summary: `Variant = ${(fo.Variant||[]).length} · props=[(variant axes only)]` };
+}
+
+const results = [checkButton(), checkTextField(), checkCheckbox(), checkSwitch(), checkToggleSquare(), checkChip(), checkProgress(), checkProgressCircle(), checkStatus()];
 let anyFail = false;
 console.log(`code: variants=[${codeVariants}] · sizes=[${codeSizes}]\n`);
 for (const r of results) {
