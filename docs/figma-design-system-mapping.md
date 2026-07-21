@@ -100,7 +100,14 @@ The `nested-elements/*` family (menu building blocks; stable — STUDIO-83 only 
 - **NestedSeparator** (`555:726`) — 1px accent divider (`variant-separator-fill`).
 - **Menu (composed example)** (`556:724`) — the three assembled into a real popup (header + rows incl. a highlighted row + an error "Delete" + a separator), on a white surface with border + shadow. The `ui/Menu` story (Dropdown + `NestedExample`) links here.
 
-Code Connect: [nested-elements.figma.tsx](../src/nested-elements/nested-elements.figma.tsx) (all three). Parity: `nesteditem` block + `figma/nesteditem-contract.json`.
+**Sub-types** (same row chrome + a left selection indicator shown when selected; 2-state sets, `Label` prop):
+- **NestedRadio** (`562:767`) — `radio-selected` dot when selected.
+- **NestedCheckbox** (`562:782`) — `check` when checked (a single labeled item — clean Code Connect map).
+- **NestedSelect** (`563:769`) — indicator swaps `point` (unselected) → `check` (selected).
+
+`NestedRadio`/`NestedSelect` are options-array-driven groups in code (a Figma row = one option), so their Code Connect examples build a one-option group (illustrative). All exercised live in the `ui/Menu` story via `NestedExample`.
+
+Code Connect: [nested-elements.figma.tsx](../src/nested-elements/nested-elements.figma.tsx) (all six). Parity: `nesteditem` + the three sub-type blocks + `figma/nested*-contract.json`.
 
 ## Layout convention (both pages)
 Every component set / example lives in a titled Figma **Section** ("panel") with a uniform light `#f7f7f7` background, laid out in a non-overlapping vertical stack (Components page) or grouped preview grids (Examples page). Component-set frames are transparent so the section is the single backdrop.

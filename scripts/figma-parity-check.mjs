@@ -331,7 +331,29 @@ function checkNestedItem() {
   return { name: "NestedItem", figma, fails, notes, summary: `Variant×State = ${(fo.Variant||[]).length}×${(fo.State||[]).length} · props=[${fprops.join(", ")}]` };
 }
 
-const results = [checkButton(), checkTextField(), checkCheckbox(), checkSwitch(), checkToggleSquare(), checkChip(), checkProgress(), checkProgressCircle(), checkStatus(), checkNestedItem()];
+// ── Nested sub-types (Radio / Checkbox / Select) ──────────────────────────
+// Thin variations on the NestedItem row — same chrome + a left selection
+// indicator. Compact per-component checks: expected 2-state axis + Label prop +
+// the accent binding (guards the indicator/accent from drifting).
+function checkNestedSubtypes() {
+  const specs = [
+    { name: "NestedRadio", file: "nestedradio", states: ["unselected", "selected"] },
+    { name: "NestedCheckbox", file: "nestedcheckbox", states: ["unchecked", "checked"] },
+    { name: "NestedSelect", file: "nestedselect", states: ["unselected", "selected"] },
+  ];
+  return specs.map(({ name, file, states }) => {
+    const fails = [], notes = ["NestedItem row chrome + a left selection indicator (shown when selected)"];
+    const figma = readFigma(file);
+    const fo = figma.variantOptions || {};
+    const fprops = figma.properties || [];
+    if (!eqSet(fo.State || [], states)) fails.push(`Figma State axis [${fo.State}] != [${states}]`);
+    if (!fprops.some((p) => p === "Label" || p.startsWith("Label#"))) fails.push("missing Label property");
+    if (figma.sampleVariant.accentVar !== "color/default/bg-hover") fails.push(`accent not bound to color/default/bg-hover — figma=${figma.sampleVariant.accentVar}`);
+    return { name, figma, fails, notes, summary: `State = [${(fo.State||[]).join(", ")}] · indicator=${figma.sampleVariant.indicator} · props=[${fprops.join(", ")}]` };
+  });
+}
+
+const results = [checkButton(), checkTextField(), checkCheckbox(), checkSwitch(), checkToggleSquare(), checkChip(), checkProgress(), checkProgressCircle(), checkStatus(), checkNestedItem(), ...checkNestedSubtypes()];
 let anyFail = false;
 console.log(`code: variants=[${codeVariants}] · sizes=[${codeSizes}]\n`);
 for (const r of results) {

@@ -1,0 +1,9 @@
+{
+  "component": "NestedCheckbox",
+  "nodeId": "562:782",
+  "capturedAt": "2026-07-21",
+  "source": "use_figma read of node 562:782 (NestedCheckbox set, 🧩 Components). DOCUMENTED SUBSET: NestedItem row chrome + a check indicator shown when checked (default variant). Refresh from the live file before CI.",
+  "variantOptions": { "State": ["unchecked", "checked"] },
+  "properties": ["Label"],
+  "sampleVariant": { "accentVar": "color/default/bg-hover", "indicator": "check" }
+}

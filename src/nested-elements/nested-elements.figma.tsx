@@ -3,6 +3,9 @@ import { Variant } from "../types";
 import { NestedItem } from "./item";
 import { NestedLabel } from "./label";
 import { NestedSeparator } from "./separator";
+import { NestedRadio } from "./radio";
+import { NestedCheckbox } from "./checkbox";
+import { NestedSelect } from "./select";
 
 /**
  * Code Connect for the nested-elements menu primitives (NestedItem / NestedLabel /
@@ -45,4 +48,32 @@ figma.connect(NestedLabel, "<SEMIO_UI_LIBRARY>?node-id=555-724", {
 
 figma.connect(NestedSeparator, "<SEMIO_UI_LIBRARY>?node-id=555-726", {
   example: () => <NestedSeparator />,
+});
+
+// The sub-type rows: NestedItem chrome + a left selection indicator (shown when
+// selected). NestedCheckbox is a single labeled item (clean map); NestedRadio /
+// NestedSelect are options-array-driven groups, so a single Figma row maps to a
+// one-option example (illustrative).
+figma.connect(NestedCheckbox, "<SEMIO_UI_LIBRARY>?node-id=562-782", {
+  props: {
+    label: figma.string("Label"),
+    value: figma.enum("State", { checked: true, unchecked: false }),
+  },
+  example: ({ label, value }) => (
+    <NestedCheckbox label={label} value={value} onChange={() => undefined} />
+  ),
+});
+
+figma.connect(NestedRadio, "<SEMIO_UI_LIBRARY>?node-id=562-767", {
+  props: { label: figma.string("Label") },
+  example: ({ label }) => (
+    <NestedRadio value="" onChange={() => undefined} options={[{ value: label, label }]} />
+  ),
+});
+
+figma.connect(NestedSelect, "<SEMIO_UI_LIBRARY>?node-id=563-769", {
+  props: { label: figma.string("Label") },
+  example: ({ label }) => (
+    <NestedSelect values={[]} onChange={() => undefined} options={[{ value: label, label }]} />
+  ),
 });
