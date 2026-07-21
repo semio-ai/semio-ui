@@ -54,6 +54,11 @@ Components are grouped by concern and all re-exported from the package root:
 - **Floating** — `Dialog`, `Modal`, `Popover`, `Dropdown`, context menus
 - **Feedback** — `Spinner`, progress, status
 - **Layout** — breadcrumbs and other structural primitives
+- **Tree primitives** — composable, assembly-first building blocks for
+  collapsible, selectable, keyboard-navigable hierarchical row lists
+  (`TreeGrid`, `flattenTree`, `useCollapsibleTree`, `useTreeSelection`,
+  `TreeRow` / `TreeIndent` / `TreeToggle`). See the composition guide:
+  [`src/tree/README.md`](src/tree/README.md).
 - **Theming** — the `Theme` / `Variant` / `Size` enums and supporting hooks
 
 ## License
