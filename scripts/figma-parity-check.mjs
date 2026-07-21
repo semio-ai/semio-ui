@@ -305,7 +305,33 @@ function checkStatus() {
   return { name: "Status", figma, fails, notes, summary: `Variant = ${(fo.Variant||[]).length} · props=[(variant axes only)]` };
 }
 
-const results = [checkButton(), checkTextField(), checkCheckbox(), checkSwitch(), checkToggleSquare(), checkChip(), checkProgress(), checkProgressCircle(), checkStatus()];
+// ── NestedItem check ──────────────────────────────────────────────────────
+function checkNestedItem() {
+  const fails = [], notes = [];
+  const src = readFileSync(join(root, "src/nested-elements/item.tsx"), "utf8");
+  const SUBSET = {
+    // menus mostly use the default variant; error = destructive rows. The full
+    // Variant enum is available in code — this is a deliberate common-pattern subset.
+    variants: ["default", "primary", "error"],
+    states: ["default", "highlighted", "disabled"],
+    properties: ["Label", "Show icon", "Icon", "Show shortcut"],
+  };
+  const figma = readFigma("nesteditem");
+  const fo = figma.variantOptions || {};
+  const fprops = figma.properties || [];
+  const hasProp = (name) => fprops.some((p) => p === name || p.startsWith(name + "#"));
+  if (!eqSet(fo.Variant || [], SUBSET.variants)) fails.push(`Figma Variant axis [${fo.Variant}] != subset [${SUBSET.variants}]`);
+  if (!eqSet(fo.State || [], SUBSET.states)) fails.push(`Figma State axis [${fo.State}] != subset [${SUBSET.states}]`);
+  for (const need of SUBSET.properties) if (!hasProp(need)) fails.push(`Figma missing component property: '${need}'`);
+  if (!subsetOf(SUBSET.variants, codeVariants)) fails.push(`subset variants not all in code Variant enum [${codeVariants}]`);
+  if (/\bleft\b/.test(src) && !hasProp("Icon")) fails.push("code `left` icon slot has no Figma 'Icon' instance-swap");
+  notes.push("highlighted = data-highlighted interaction (50% accent bg + fg text); `right` slot is arbitrary JSX, shown as an illustrative shortcut");
+  if (figma.sampleVariant.cornerRadius !== 2) fails.push(`corner radius differs — code=2px (rounded-xs) figma=${figma.sampleVariant.cornerRadius}px`);
+  if (figma.sampleVariant.accentVar !== "color/default/bg-hover") fails.push(`default accent not bound to color/default/bg-hover — figma=${figma.sampleVariant.accentVar}`);
+  return { name: "NestedItem", figma, fails, notes, summary: `Variant×State = ${(fo.Variant||[]).length}×${(fo.State||[]).length} · props=[${fprops.join(", ")}]` };
+}
+
+const results = [checkButton(), checkTextField(), checkCheckbox(), checkSwitch(), checkToggleSquare(), checkChip(), checkProgress(), checkProgressCircle(), checkStatus(), checkNestedItem()];
 let anyFail = false;
 console.log(`code: variants=[${codeVariants}] · sizes=[${codeSizes}]\n`);
 for (const r of results) {

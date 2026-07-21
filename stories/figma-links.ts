@@ -145,3 +145,10 @@ export const statusVariant = {
 
 /** Spinner preview frame — `preview/spinner` (static representation of the animated ring). */
 export const spinnerPreview = figmaNode("546-1147");
+
+/**
+ * Menu — the composed nested-elements example (NestedLabel + NestedItem rows +
+ * NestedSeparator) on the Components page. The primitives only render inside a
+ * Dropdown/ContextMenu, so the menu story links here rather than to a bare row.
+ */
+export const menuExample = figmaNode("556-724");

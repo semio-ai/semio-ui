@@ -1,0 +1,48 @@
+import figma from "@figma/code-connect";
+import { Variant } from "../types";
+import { NestedItem } from "./item";
+import { NestedLabel } from "./label";
+import { NestedSeparator } from "./separator";
+
+/**
+ * Code Connect for the nested-elements menu primitives (NestedItem / NestedLabel /
+ * NestedSeparator). These render inside a Dropdown/ContextMenu (NestedParent
+ * context); the Figma components are the menu-row visuals.
+ *
+ * Validated on the Professional plan via `npx figma connect parse`. File key lives
+ * once in figma.config.json (`documentUrlSubstitutions`), not here.
+ *
+ * NestedItem: `Variant=default` ↔ `variant`; the Figma `State` axis carries the
+ * `data-highlighted` interaction (highlighted = 50% accent bg + white text) and
+ * maps `disabled` to the prop. `Show icon`/`Icon` → the `left` slot; the `right`
+ * slot (shortcut/submenu content) is arbitrary JSX, so it's illustrative only.
+ */
+figma.connect(NestedItem, "<SEMIO_UI_LIBRARY>?node-id=554-772", {
+  props: {
+    children: figma.string("Label"),
+    variant: figma.enum("Variant", {
+      default: Variant.Default,
+      primary: Variant.Primary,
+      error: Variant.Error,
+    }),
+    left: figma.boolean("Show icon", {
+      true: figma.instance("Icon"),
+      false: undefined,
+    }),
+    disabled: figma.enum("State", { disabled: true, default: false, highlighted: false }),
+  },
+  example: ({ children, variant, left, disabled }) => (
+    <NestedItem variant={variant} left={left} disabled={disabled}>
+      {children}
+    </NestedItem>
+  ),
+});
+
+figma.connect(NestedLabel, "<SEMIO_UI_LIBRARY>?node-id=555-724", {
+  props: { children: figma.string("Label") },
+  example: ({ children }) => <NestedLabel>{children}</NestedLabel>,
+});
+
+figma.connect(NestedSeparator, "<SEMIO_UI_LIBRARY>?node-id=555-726", {
+  example: () => <NestedSeparator />,
+});

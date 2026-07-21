@@ -26,7 +26,7 @@ the `figma-component-fidelity` skill (build process + gotchas), and `parity:figm
 
 **Headline findings**
 1. **Inputs share Button's recipe almost verbatim** — the documented next step is also the lowest-risk, fastest-fidelity win. TextField is the anchor; Search/Password/Email/NumberField/TextArea are variations on one base.
-2. **`nested-elements` is the single highest-usage cluster** (NestedItem+Label+Separator+Radio ≈ 142 usages) but the most *composed*/behavioral, and it **overlaps [STUDIO-83](https://linear.app/semio-ai/issue/STUDIO-83)** (shared hierarchical row-list primitives). Coordinate — don't mirror a shape that's about to be refactored.
+2. **`nested-elements` is the single highest-usage cluster** (NestedItem+Label+Separator+Radio ≈ 142 usages) and is **stable** — [STUDIO-83](https://linear.app/semio-ai/issue/STUDIO-83) supersedes only `node-tree.tsx` (and refactors *animation*'s track-list + the *live-data* table into new `@semio/ui/tree/*` primitives); it does **not** touch the `nested-elements/*` menu family. So Phase 3 mirrors nested-elements freely; only `node-tree.tsx` is off-limits (skip it — it's being removed).
 3. **Chips/badges/feedback are small, self-contained, high-reuse** — a whole cluster can be completed quickly for an at-a-glance parity win.
 4. **Floating containers are high-usage but low token-fidelity value** — model as composition examples, not variant-bound components.
 
@@ -64,7 +64,7 @@ building in this same file uses them immediately.
 | **1** | **Inputs** — ✅ **TextField** built (60-variant Outline×Variant×State set, node `496:628`, Code Connect + parity + Storybook links, first `content/muted` consumer). Next: Search/Password/Email/NumberField/TextArea share TextField's base; then Checkbox/Switch/ToggleSquare/ToggleGroup as toggles | TextField done; rest 1–2 sessions | Highest recipe reuse, lowest risk, documented next step |
 | **1b** | **Toggles** — ✅ **Checkbox** (`503:913`), ✅ **Switch** (`507:917`), ✅ **ToggleSquare** (`508:997`) all built with Code Connect + parity + Storybook links (Switch/ToggleSquare stories authored fresh). **Presets** (Search/Email/Password/NumberField) → Example configs of TextField+Label, not new sets. | ✅ done | Distinct toggle shapes; presets need no new component |
 | **2** | **Chips / badges / feedback** — ✅ **Chip** (`523:1050`), **Progress** (`527:730`), **ProgressCircle** (`529:1093`), **Status** (`544:722`), **Spinner** (`545:706`, static) built with Code Connect + Storybook links (+ parity for the token-bound ones); **KeybindingHint** represented as an example frame (text primitive). **Phase 2 complete.** | ✅ done | Small, self-contained, completes a full cluster |
-| **3** | **Menus / list items** (`nested-elements`) — Item/Label/Separator/Radio | 2–3 sessions | Highest usage; **gate on STUDIO-83** direction first |
+| **3** | **Menus / list items** (`nested-elements`) — ✅ **NestedItem** (`554:772`), **NestedLabel** (`555:724`), **NestedSeparator** (`555:726`) + composed **Menu** example (`556:724`) built with Code Connect + parity + `ui/Menu` story link. Follow-ups: NestedRadio/NestedCheckbox/NestedSelect (item sub-types). | core done | Highest usage; stable (STUDIO-83 only supersedes `node-tree.tsx`) |
 | **4** | **Floating containers** — Select, Dropdown, Modal, Dialog as composition examples | 1–2 sessions | High usage, low token value; examples not full variants |
 | — | Layout (ScrollArea/Accordion/…) | out of scope | Structural; no meaningful Figma-component surface |
 

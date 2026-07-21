@@ -92,6 +92,16 @@ Code Connect: both in [progress.figma.tsx](../src/feedback/progress.figma.tsx). 
 - **Spinner** (`545:706`) — a **static** representation of the animated ring (a ~30% blue-500 arc). No props/variants/tokens, so it gets a drop-in [spinner.figma.tsx](../src/feedback/spinner.figma.tsx) + `spinner.stories.tsx` but **no parity block** (nothing token-bound to assert; animation can't be mirrored).
 - **KeybindingHint** — **not a mirrored component**: it renders adaptive inline text (⌘⇧⌥ on Mac, `Ctrl+Shift` on PC), no box/border. Represented as a Figma **example frame** ("KeybindingHint — examples") on the Components page; no Code Connect/parity (a text primitive, not a variant-bound visual).
 
+## Menu / list items — nested-elements (Phase 3)
+
+The `nested-elements/*` family (menu building blocks; stable — STUDIO-83 only supersedes `node-tree.tsx`, not these). Composed inside a Dropdown/ContextMenu (`NestedParent` context):
+- **NestedItem** (`554:772`) — the menu row: 9 variants (`Variant{default,primary,error} × State{default,highlighted,disabled}`). Default = accent text (`color/<variant>/bg-hover`); **highlighted** = 50%-accent background (node-opacity) + `fg` text (the `data-highlighted` interaction); disabled dimmed. `Label` (TEXT) · `Show icon` + `Icon` (INSTANCE_SWAP → `left` slot) · `Show shortcut` (the `right` slot is arbitrary JSX, shown illustratively). rounded-xs, 28px (h-7).
+- **NestedLabel** (`555:724`) — bold section header (`content/fg`), `Label` TEXT prop.
+- **NestedSeparator** (`555:726`) — 1px accent divider (`variant-separator-fill`).
+- **Menu (composed example)** (`556:724`) — the three assembled into a real popup (header + rows incl. a highlighted row + an error "Delete" + a separator), on a white surface with border + shadow. The `ui/Menu` story (Dropdown + `NestedExample`) links here.
+
+Code Connect: [nested-elements.figma.tsx](../src/nested-elements/nested-elements.figma.tsx) (all three). Parity: `nesteditem` block + `figma/nesteditem-contract.json`.
+
 ## Layout convention (both pages)
 Every component set / example lives in a titled Figma **Section** ("panel") with a uniform light `#f7f7f7` background, laid out in a non-overlapping vertical stack (Components page) or grouped preview grids (Examples page). Component-set frames are transparent so the section is the single backdrop.
 
