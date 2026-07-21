@@ -2,12 +2,12 @@ import { useState, type ReactNode } from "react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Button, Modal, Variant, type ModalProps } from "@semio/ui";
 
-import { floatingExample } from "./figma-links";
+import { modalComponent } from "./figma-links";
 
 const design = (url: string) => ({ design: { type: "figma" as const, url } });
 
 const meta: Meta<typeof Modal> = {
-  parameters: design(floatingExample.modal),
+  parameters: design(modalComponent),
   component: Modal,
   title: "ui/Modal",
   decorators: [

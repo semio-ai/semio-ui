@@ -429,7 +429,50 @@ function checkNestedMenu() {
   return { name: "NestedMenu", figma, fails, notes, summary: `State = [${(fo.State||[]).join(", ")}] · props=[${fprops.join(", ")}]` };
 }
 
-const results = [checkButton(), checkTextField(), checkCheckbox(), checkSwitch(), checkToggleSquare(), checkChip(), checkProgress(), checkProgressCircle(), checkStatus(), checkNestedItem(), ...checkNestedSubtypes(), checkTabs(), checkTooltip(), checkSliderNumberField(), checkLabel(), checkNestedMenu()];
+// ── Modal check ───────────────────────────────────────────────────────────
+function checkModal() {
+  const fails = [], notes = [];
+  const src = readFileSync(join(root, "src/floating/modal.tsx"), "utf8");
+  const SUBSET = { variants: ["default", "primary", "error"] };
+  const figma = readFigma("modal");
+  const fo = figma.variantOptions || {};
+  const fprops = figma.properties || [];
+  const hasProp = (name) => fprops.some((p) => p === name || p.startsWith(name + "#"));
+  if (!eqSet(fo.Variant || [], SUBSET.variants)) fails.push(`Figma Variant axis [${fo.Variant}] != subset [${SUBSET.variants}]`);
+  if (!subsetOf(SUBSET.variants, codeVariants)) fails.push(`subset variants not all in code Variant enum [${codeVariants}]`);
+  for (const need of ["Title", "Show description", "Show footer", "Show cancel"]) if (!hasProp(need)) fails.push(`Figma missing component property: '${need}'`);
+  if (!/\bcard\b/.test(src)) fails.push("code Modal lost the `card` container class");
+  if (!/title\??:/.test(src)) fails.push("code Modal lost its `title` prop");
+  if (!/onSubmit\??:/.test(src) || !/onCancel\??:/.test(src)) fails.push("code Modal lost its onSubmit/onCancel footer handlers");
+  notes.push("standardized chrome: header (title + description + X-close) / body slot / footer (Cancel + Submit); title tints via variant-static-text, Submit is a variant Button");
+  notes.push("Variant subset is representative (default/primary/error); code also has secondary/tertiary/info/success/warning");
+  if (figma.sampleVariant.cardFillVar !== "color/surface/base") fails.push(`card not bound to color/surface/base — figma=${figma.sampleVariant.cardFillVar}`);
+  if (figma.sampleVariant.dividerVar !== "color/surface/separator") fails.push(`hairlines not bound to color/surface/separator — figma=${figma.sampleVariant.dividerVar}`);
+  return { name: "Modal", figma, fails, notes, summary: `Variant = ${(fo.Variant||[]).length} · props=[${fprops.join(", ")}]` };
+}
+
+// ── Dialog check ──────────────────────────────────────────────────────────
+function checkDialog() {
+  const fails = [], notes = [];
+  const src = readFileSync(join(root, "src/floating/dialog.tsx"), "utf8");
+  const SUBSET = { variants: ["default", "primary", "error"] };
+  const figma = readFigma("dialog");
+  const fo = figma.variantOptions || {};
+  const fprops = figma.properties || [];
+  const hasProp = (name) => fprops.some((p) => p === name || p.startsWith(name + "#"));
+  if (!eqSet(fo.Variant || [], SUBSET.variants)) fails.push(`Figma Variant axis [${fo.Variant}] != subset [${SUBSET.variants}]`);
+  if (!subsetOf(SUBSET.variants, codeVariants)) fails.push(`subset variants not all in code Variant enum [${codeVariants}]`);
+  for (const need of ["Title", "Show description", "Show cancel"]) if (!hasProp(need)) fails.push(`Figma missing component property: '${need}'`);
+  if (!/\bcard\b/.test(src)) fails.push("code Dialog lost the `card` container class");
+  if (!/hasBody/.test(src)) fails.push("code Dialog lost its optional-body (`hasBody`) logic");
+  notes.push("confirmation chrome sharing Modal's card language; full-width split footer; body optional (confirmation-only shown)");
+  notes.push("error variant = destructive-confirm case; Variant subset representative (code also has secondary/tertiary/info/success/warning)");
+  if (figma.sampleVariant.cardFillVar !== "color/surface/base") fails.push(`card not bound to color/surface/base — figma=${figma.sampleVariant.cardFillVar}`);
+  if (figma.sampleVariant.dividerVar !== "color/surface/separator") fails.push(`hairline not bound to color/surface/separator — figma=${figma.sampleVariant.dividerVar}`);
+  return { name: "Dialog", figma, fails, notes, summary: `Variant = ${(fo.Variant||[]).length} · props=[${fprops.join(", ")}]` };
+}
+
+const results = [checkButton(), checkTextField(), checkCheckbox(), checkSwitch(), checkToggleSquare(), checkChip(), checkProgress(), checkProgressCircle(), checkStatus(), checkNestedItem(), ...checkNestedSubtypes(), checkTabs(), checkTooltip(), checkSliderNumberField(), checkLabel(), checkNestedMenu(), checkModal(), checkDialog()];
 let anyFail = false;
 console.log(`code: variants=[${codeVariants}] · sizes=[${codeSizes}]\n`);
 for (const r of results) {

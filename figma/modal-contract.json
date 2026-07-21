@@ -1,0 +1,9 @@
+{
+  "component": "Modal",
+  "nodeId": "600:1375",
+  "capturedAt": "2026-07-21",
+  "source": "use_figma read of node 600:1375 (Modal set, 🧩 Components). DOCUMENTED SUBSET: the standardized card chrome — header (title + description + X-close) / body slot / footer (Cancel + Submit) — across a representative Variant axis (default/primary/error; code also has secondary/tertiary/info/success/warning). Title tints via variant-static-text, Submit is a variant Button. card = surface/base, hairlines = surface/separator. Refresh from the live file before CI.",
+  "variantOptions": { "Variant": ["default", "primary", "error"] },
+  "properties": ["Title#600:0", "Show description#600:4", "Show footer#600:8", "Show cancel#600:12"],
+  "sampleVariant": { "cardFillVar": "color/surface/base", "dividerVar": "color/surface/separator", "cornerRadius": 8 }
+}

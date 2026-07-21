@@ -109,15 +109,19 @@ The `nested-elements/*` family (menu building blocks; stable — STUDIO-83 only 
 
 Code Connect: [nested-elements.figma.tsx](../src/nested-elements/nested-elements.figma.tsx) (all six). Parity: `nesteditem` + the three sub-type blocks + `figma/nested*-contract.json`.
 
-## Floating containers (Phase 4) — composition examples
+## Floating containers — split by chrome-stability
 
-Overlays/composites with low token-fidelity value, so — like the Input presets — they're **example frames** (not variant-bound components; no Code Connect/parity). On the Components page (next to the `Menu` composed example); the existing stories link here.
-- **Modal** (`567:1146`) — `bg-black/40` backdrop + white card: header (bold title + muted description + X) · hairline (`neutral-500/15`) · body · hairline · footer with real **Button** instances (Cancel `inverted` + Save `primary`).
-- **Dialog** (`568:1154`) — the confirm variant: header + no body + footer (Cancel + `error` Delete).
-- **Dropdown** (`569:1162`) — a Button trigger + a menu popup built from **NestedItem** rows.
-- **Select** (`569:1214`) — an input-like trigger (`surface/inset`, value + ▾) + an open list of **NestedRadio** options (one selected).
+The four floating containers split on one axis: **is the shell fixed and content-agnostic, or is it a dynamic arrangement of already-componentized rows?** The first kind earns a real component; the second stays a composition example. (Originally all four were examples under a blanket "compose in Figma" call — Modal/Dialog were promoted at publish time once it was clear their chrome is the reusable, drift-prone part.)
 
-Stories wired via `figma-links` `floatingExample`. (Dropdown ≈ the `Menu` composed example; Select reuses the nested-select rows.)
+**Promoted to real component sets** (variant-bound, Code Connect + parity + contract):
+- **Modal** (`600:1375`) — the standardized card chrome: header (title + description + X-close) · hairline · body slot · hairline · footer (Cancel + Submit **Button** instances). Variant axis `default/primary/error` (representative; code also has secondary/tertiary/info/success/warning). Props: `Title`, `Show description`, `Show footer`, `Show cancel`. `card` = `surface/base`, hairlines = `surface/separator`, title tints via `variant-static-text`, Submit is a variant Button. [modal.figma.tsx](../src/floating/modal.figma.tsx), `ui/Modal` story linked (`figma-links` `modalComponent`).
+- **Dialog** (`600:1495`) — the confirmation chrome: header + optional body + full-width split footer, sharing Modal's card language with distinct `AlertDialog` semantics. Same variant axis (`error` = destructive-confirm). Props: `Title`, `Show description`, `Show cancel`. [dialog.figma.tsx](../src/floating/dialog.figma.tsx), `ui/Dialog` story linked (`dialogComponent`). A composed **usage example** sits alongside each (the `— usage example (composed)` sections).
+
+**Kept as composition example frames** (no Code Connect/parity — arrangements of existing components over a dynamic, data-driven list):
+- **Dropdown** (`569:1162`) — a Button trigger + a menu popup built from **NestedItem** rows. A component here would be an empty panel with a swap slot; the rows are the components.
+- **Select** (`569:1214`) — an input-like trigger (`surface/inset`, value + ▾) + an open list of **NestedRadio** options + `Chip`s. Trigger + Dropdown + rows, all already mirrored.
+
+Dropdown/Select stories wired via `figma-links` `floatingExample`. (Dropdown ≈ the `Menu` composed example; Select reuses the nested-select rows.)
 
 ## Tabs (layout primitive)
 

@@ -154,13 +154,17 @@ export const spinnerPreview = figmaNode("546-1147");
 export const menuExample = figmaNode("556-724");
 
 /**
- * Floating containers (Phase 4) — composition example frames on the Components
- * page (overlay + card, or trigger + list), not variant-bound components. The
- * stories link here for the design↔code cross-reference.
+ * Floating containers. Two of the four were promoted to real component sets —
+ * Modal and Dialog have a fixed, content-agnostic card shell, so they're
+ * variant-bound components (with a composed usage example alongside). Dropdown
+ * and Select stay as composition example frames: they're arrangements of
+ * already-componentized rows (NestedItem/NestedRadio/Chip) over a dynamic,
+ * data-driven list, which doesn't map cleanly to a static component.
  */
+export const modalComponent = figmaNode("600-1375");
+export const dialogComponent = figmaNode("600-1495");
+
 export const floatingExample = {
-  modal: figmaNode("567-1146"),
-  dialog: figmaNode("568-1154"),
   dropdown: figmaNode("569-1162"),
   select: figmaNode("569-1214"),
 } as const;
