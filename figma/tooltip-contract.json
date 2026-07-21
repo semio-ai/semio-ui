@@ -2,7 +2,7 @@
   "component": "Tooltip",
   "nodeId": "584:829",
   "capturedAt": "2026-07-21",
-  "source": "use_figma read of node 584:829 (Tooltip set, 🧩 Components). DOCUMENTED SUBSET: the `.card` popover across the Variant axis (side fixed; other sides are examples). Body + downward caret are ONE boolean-union silhouette so the outline traces continuously around the caret (mirrors the code Arrow: an open V path stroked on its two diagonals + inset fill, masking the card's bottom border). fill = surface/inset, 2px border = the variant accent (color/<variant>/bg), variant-static-text label, shadow = shared elevation/card. Refresh from the live file before CI.",
+  "source": "use_figma read of node 584:829 (Tooltip set, 🧩 Components). DOCUMENTED SUBSET: the `.card` popover across the Variant axis (side fixed; other sides are examples). Body + downward caret are ONE silhouette vector (rounded-rect body with a caret notch punched into the bottom edge) so the outline traces continuously around the caret, the caret interior is filled with the inset color, and there is no border line across the caret opening (mirrors the code Arrow: a stroked V + inset fill that masks the card's bottom border). fill = surface/inset, 2px border = the variant accent (color/<variant>/bg), variant-static-text label, shadow = shared elevation/card. Refresh from the live file before CI.",
   "variantOptions": { "Variant": ["default", "primary", "secondary", "tertiary", "error"] },
   "properties": [],
   "sampleVariant": { "cardFillVar": "color/surface/inset", "borderTokenPerVariant": "color/<variant>/bg", "textVar": "color/default/bg", "caretIntegrated": true, "shadowStyle": "elevation/card" }

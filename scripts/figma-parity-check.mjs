@@ -383,7 +383,7 @@ function checkTooltip() {
   if (!/\bcard\b/.test(src)) fails.push("code Tooltip lost the `card` container class");
   if (!/colored-carrot-stroke/.test(arrowSrc)) fails.push("code Arrow lost `colored-carrot-stroke` (the caret's variant-accent outline)");
   if (!figma.sampleVariant.caretIntegrated) fails.push("Figma caret is NOT integrated into the card silhouette (outline must trace around the caret, not a separate bordered box)");
-  notes.push("body + caret are one boolean-union silhouette; outline traces around the caret (mirrors Arrow's stroked-V-diagonals + inset fill masking the card border)");
+  notes.push("body + caret are one silhouette vector (caret notch in the bottom edge); outline traces around the filled caret with no line across the opening (mirrors Arrow's stroked-V + inset fill masking the card border)");
   notes.push("variant-static-text label; 2px border = variant accent; shadow via shared elevation/card; side fixed (others are examples)");
   if (figma.sampleVariant.cardFillVar !== "color/surface/inset") fails.push(`card not bound to color/surface/inset — figma=${figma.sampleVariant.cardFillVar}`);
   if (figma.sampleVariant.shadowStyle !== "elevation/card") fails.push(`shadow not the shared 'elevation/card' style — figma=${figma.sampleVariant.shadowStyle}`);
