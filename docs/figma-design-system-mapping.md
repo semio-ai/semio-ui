@@ -74,6 +74,12 @@ Both reuse `variant-checkbox-bg` (off → `color/surface/inset`, on → `color/<
 - **Switch** (`507:917`) — rounded track (`cornerRadius 12`) + white/black thumb (`color/default/fg`, flips per mode) that translates on `on`. States: off/on/disabled. [switch.figma.tsx](../src/inputs/switch.figma.tsx), `switch-contract.json`, new `switch.stories.tsx`.
 - **ToggleSquare** (`508:997`) — Checkbox's square + tri-state: `partial` = inset colored border (`box-shadow` in code); on-state icon flips to `color/surface/inset` (= `neutral/200`↔`800`, matching `text-neutral-200 dark:text-neutral-800`). Icon is an `Icon` instance-swap slot (= `children`). States: off/on/partial/disabled. [togglesquare.figma.tsx](../src/inputs/togglesquare.figma.tsx), `togglesquare-contract.json`, new `toggle-square.stories.tsx`.
 
+## Chip (Phase 2 — chips / badges / feedback)
+
+A static badge (no interactive-state axis): a `color/<variant>/bg` filled pill with white label and optional icon/delete chips (`white/50` inner boxes). Built with the **8 variants** (chips use the status colors — stories cover Primary + Info) and component properties `Label` (TEXT) · `Show icon` (BOOL) + `Icon` (INSTANCE_SWAP) · `Show delete` (BOOL). No `State` axis — `variant-responsive-bg`'s hover shift is left to interactivity if added later.
+
+Figma set `Chip` (node `523:1050`) + `preview/chip/{primary,info}` frames (Light+Dark). Code Connect: [chip.figma.tsx](../src/chip.figma.tsx) — `Show delete` maps to `onDelete`, `Show icon`/`Icon` to the `icon` slot. Parity: `chip` block + `figma/chip-contract.json`. Pill text is a literal white (code uses `text-white/75` in both modes — not the mode-flipping `fg` token).
+
 ## Icon color (the `currentColor` problem)
 Code icons inherit `currentColor` (the context's text color); Figma has no equivalent. Two cases:
 - **In a component** (Button, etc.): the component overrides the icon-slot fill to its own foreground (`color/<variant>/fg`) per-instance — the contextual analog.

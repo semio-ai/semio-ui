@@ -99,3 +99,14 @@ export const inputPreset = {
   password: figmaNode("517-1011"),
   numberField: figmaNode("517-1031"),
 } as const;
+
+/**
+ * Chip preview nodes for 1:1 story→design links. Each points at a dedicated
+ * `preview/chip/<variant>` frame on the Examples page (a full chip — icon + label +
+ * delete — in a **Light** and **Dark** cell, Color-mode pinned per cell). Size /
+ * no-icon / no-delete stories reuse `info`; custom-color reuses `primary`.
+ */
+export const chipVariant = {
+  primary: figmaNode("523-1080"),
+  info: figmaNode("523-1101"),
+} as const;

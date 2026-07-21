@@ -222,7 +222,36 @@ function checkToggleSquare() {
     summary: `Variant×State = ${(fo.Variant||[]).length}×${(fo.State||[]).length} · props=[${fprops.join(", ")}]` };
 }
 
-const results = [checkButton(), checkTextField(), checkCheckbox(), checkSwitch(), checkToggleSquare()];
+// ── Chip check ────────────────────────────────────────────────────────────
+function checkChip() {
+  const fails = [], notes = [];
+  const chipSrc = readFileSync(join(root, "src/chip.tsx"), "utf8");
+
+  const SUBSET = {
+    variants: ["default", "primary", "secondary", "tertiary", "error", "success", "warning", "info"],
+    properties: ["Label", "Show icon", "Icon", "Show delete"],
+  };
+  const figma = readFigma("chip");
+  const fo = figma.variantOptions || {};
+  const fprops = figma.properties || [];
+  const hasProp = (name) => fprops.some((p) => p === name || p.startsWith(name + "#"));
+
+  if (!eqSet(fo.Variant || [], SUBSET.variants)) fails.push(`Figma Variant axis [${fo.Variant}] != subset [${SUBSET.variants}]`);
+  for (const need of SUBSET.properties) if (!hasProp(need)) fails.push(`Figma missing component property: '${need}'`);
+  if (!subsetOf(SUBSET.variants, codeVariants)) fails.push(`subset variants [${SUBSET.variants}] not all in code Variant enum [${codeVariants}]`);
+  if (/\bicon\?:/.test(chipSrc) && !hasProp("Icon")) fails.push("code `icon` has no Figma 'Icon' instance-swap");
+  if (/\bonDelete\?:/.test(chipSrc) && !hasProp("Show delete")) fails.push("code `onDelete` has no Figma 'Show delete' toggle");
+  if (fo.State) fails.push("Figma has a State axis — Chip is a static badge (no interactive-state axis)");
+  else notes.push("no State axis — Chip is a static badge (hover bg-shift via interactivity if added later)");
+  notes.push(`size scoped to examples (code sizes: [${codeSizes}])`);
+  if (figma.sampleVariant.cornerRadius !== 2) fails.push(`corner radius differs — code=2px (rounded-xs) figma=${figma.sampleVariant.cornerRadius}px`);
+  if (figma.sampleVariant.pillFillVar !== "color/primary/bg") fails.push(`pill fill not bound to color/primary/bg — figma=${figma.sampleVariant.pillFillVar}`);
+
+  return { name: "Chip", figma, fails, notes,
+    summary: `Variant = ${(fo.Variant||[]).length} · props=[${fprops.join(", ")}]` };
+}
+
+const results = [checkButton(), checkTextField(), checkCheckbox(), checkSwitch(), checkToggleSquare(), checkChip()];
 let anyFail = false;
 console.log(`code: variants=[${codeVariants}] · sizes=[${codeSizes}]\n`);
 for (const r of results) {

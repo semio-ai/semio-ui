@@ -1,0 +1,14 @@
+{
+  "component": "Chip",
+  "nodeId": "523:1050",
+  "capturedAt": "2026-07-21",
+  "source": "Captured via the Figma MCP (use_figma reads of node 523:1050 — the Chip component set on the 🧩 Components page of the Semio UI Library file, key supplied at session start, not committed). The Figma component implements a DOCUMENTED SUBSET of the code contract (see packages/ui/docs/figma-design-system-mapping.md). Refresh from the live file before running in CI.",
+  "variantOptions": {
+    "Variant": ["default", "primary", "secondary", "tertiary", "error", "success", "warning", "info"]
+  },
+  "properties": ["Label", "Show icon", "Icon", "Show delete"],
+  "sampleVariant": {
+    "cornerRadius": 2,
+    "pillFillVar": "color/primary/bg"
+  }
+}

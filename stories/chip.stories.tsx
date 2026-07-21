@@ -1,5 +1,10 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Chip, Size, Variant } from "@semio/ui";
+import { chipVariant } from "./figma-links";
+
+// Per-story Figma design link → the matching Chip preview frame (1:1).
+// Mirrors button.stories.tsx. Size / no-icon / no-delete stories reuse `info`.
+const design = (url: string) => ({ design: { type: "figma" as const, url } });
 
 const meta: Meta<typeof Chip> = {
   component: Chip,
@@ -24,6 +29,7 @@ type Story = StoryObj<typeof Chip>;
  * to learn how to use render functions.
  */
 export const Primary: Story = {
+  parameters: design(chipVariant.primary),
   render: (props) => <Chip {...props} />,
   name: "Default Chip",
   args: {
@@ -37,6 +43,7 @@ export const Primary: Story = {
 };
 
 export const CustomColor: Story = {
+  parameters: design(chipVariant.primary),
   render: (props) => <Chip {...props} />,
   args: {
     children: "Hello World",
@@ -49,6 +56,7 @@ export const CustomColor: Story = {
 };
 
 export const ExtraSmall: Story = {
+  parameters: design(chipVariant.info),
   render: (props) => <Chip {...props} />,
   args: {
     children: "Hello World",
@@ -62,6 +70,7 @@ export const ExtraSmall: Story = {
 };
 
 export const Small: Story = {
+  parameters: design(chipVariant.info),
   render: (props) => <Chip {...props} />,
   args: {
     children: "Hello World",
@@ -75,6 +84,7 @@ export const Small: Story = {
 };
 
 export const Large: Story = {
+  parameters: design(chipVariant.info),
   render: (props) => <Chip {...props} />,
   args: {
     children: "Hello World",
@@ -88,6 +98,7 @@ export const Large: Story = {
 };
 
 export const ExtraLarge: Story = {
+  parameters: design(chipVariant.info),
   render: (props) => <Chip {...props} />,
   args: {
     children: "Hello World",
@@ -101,6 +112,7 @@ export const ExtraLarge: Story = {
 };
 
 export const NoIcon: Story = {
+  parameters: design(chipVariant.info),
   render: (props) => <Chip {...props} />,
   args: {
     children: "Hello World",
@@ -112,6 +124,7 @@ export const NoIcon: Story = {
 };
 
 export const NoDelete: Story = {
+  parameters: design(chipVariant.info),
   render: (props) => <Chip {...props} />,
   args: {
     children: "Hello World",
