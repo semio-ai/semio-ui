@@ -32,10 +32,13 @@ figma.connect(NestedItem, "<SEMIO_UI_LIBRARY>?node-id=554-772", {
       true: figma.instance("Icon"),
       false: undefined,
     }),
+    // `right` is arbitrary JSX (shortcut hint / submenu chevron); the Show shortcut
+    // toggle gates its presence, shown here with a representative shortcut string.
+    right: figma.boolean("Show shortcut", { true: "⌘K", false: undefined }),
     disabled: figma.enum("State", { disabled: true, default: false, highlighted: false }),
   },
-  example: ({ children, variant, left, disabled }) => (
-    <NestedItem variant={variant} left={left} disabled={disabled}>
+  example: ({ children, variant, left, right, disabled }) => (
+    <NestedItem variant={variant} left={left} right={right} disabled={disabled}>
       {children}
     </NestedItem>
   ),
@@ -64,16 +67,24 @@ figma.connect(NestedCheckbox, "<SEMIO_UI_LIBRARY>?node-id=562-782", {
   ),
 });
 
+// The parser is static (no inline logic in `example`), so State drives value via
+// figma.enum against the option's fixed value: State=selected selects "opt".
 figma.connect(NestedRadio, "<SEMIO_UI_LIBRARY>?node-id=562-767", {
-  props: { label: figma.string("Label") },
-  example: ({ label }) => (
-    <NestedRadio value="" onChange={() => undefined} options={[{ value: label, label }]} />
+  props: {
+    label: figma.string("Label"),
+    value: figma.enum("State", { selected: "opt", unselected: "" }),
+  },
+  example: ({ label, value }) => (
+    <NestedRadio value={value} onChange={() => undefined} options={[{ value: "opt", label }]} />
   ),
 });
 
 figma.connect(NestedSelect, "<SEMIO_UI_LIBRARY>?node-id=563-769", {
-  props: { label: figma.string("Label") },
-  example: ({ label }) => (
-    <NestedSelect values={[]} onChange={() => undefined} options={[{ value: label, label }]} />
+  props: {
+    label: figma.string("Label"),
+    values: figma.enum("State", { selected: ["opt"], unselected: [] }),
+  },
+  example: ({ label, values }) => (
+    <NestedSelect values={values} onChange={() => undefined} options={[{ value: "opt", label }]} />
   ),
 });

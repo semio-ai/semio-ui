@@ -22,7 +22,9 @@ figma.connect(Switch, "<SEMIO_UI_LIBRARY>?node-id=507-917", {
       tertiary: Variant.Tertiary,
       error: Variant.Error,
     }),
-    checked: figma.enum("State", { on: true, off: false, disabled: false }),
+    // The disabled variant is drawn in the on state (dimmed) — matching the
+    // Disabled story — so disabled maps to checked=true.
+    checked: figma.enum("State", { on: true, off: false, disabled: true }),
     disabled: figma.enum("State", { disabled: true, on: false, off: false }),
   },
   example: ({ variant, checked, disabled }) => (

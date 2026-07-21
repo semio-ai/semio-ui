@@ -43,6 +43,8 @@ function MenuRenderer(props: DropdownProps): ReactNode {
 }
 
 export const Default: Story = {
+  // `trigger` and children are supplied inside MenuRenderer (fixed Button + NestedExample),
+  // so only the meaningful control is exposed here.
   render: (args) => <MenuRenderer {...args} />,
-  args: { children: "Menu", trigger: "Menu", variant: Variant.Default },
+  args: { variant: Variant.Default },
 };

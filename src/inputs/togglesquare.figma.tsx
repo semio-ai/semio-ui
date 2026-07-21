@@ -22,7 +22,9 @@ figma.connect(ToggleSquare, "<SEMIO_UI_LIBRARY>?node-id=508-997", {
       tertiary: Variant.Tertiary,
       error: Variant.Error,
     }),
-    value: figma.enum("State", { on: true, off: false, partial: "partial", disabled: false }),
+    // The disabled variant is drawn in the on state (dimmed) — matching the
+    // Disabled story — so disabled maps to value=true.
+    value: figma.enum("State", { on: true, off: false, partial: "partial", disabled: true }),
     disabled: figma.enum("State", { disabled: true, on: false, off: false, partial: false }),
     children: figma.instance("Icon"),
   },

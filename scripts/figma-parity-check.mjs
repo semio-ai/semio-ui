@@ -282,6 +282,7 @@ function checkProgressCircle() {
   const fprops = figma.properties || [];
   const hasProp = (name) => fprops.some((p) => p === name || p.startsWith(name + "#"));
   if (!eqSet(fo.Variant || [], SUBSET.variants)) fails.push(`Figma Variant axis [${fo.Variant}] != subset [${SUBSET.variants}]`);
+  if (!subsetOf(SUBSET.variants, codeVariants)) fails.push(`subset variants [${SUBSET.variants}] not all in code Variant enum [${codeVariants}]`);
   for (const need of SUBSET.properties) if (!hasProp(need)) fails.push(`Figma missing component property: '${need}'`);
   if (/ProgressCircleProps[\s\S]*?\bicon\?:/.test(src) && !hasProp("Icon")) fails.push("code ProgressCircle `icon` has no Figma 'Icon' instance-swap");
   notes.push("ring uses arcData donut segments (track + ~60% demo arc); size scoped to examples");

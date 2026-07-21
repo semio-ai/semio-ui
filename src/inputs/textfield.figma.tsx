@@ -36,8 +36,11 @@ figma.connect(TextField, "<SEMIO_UI_LIBRARY>?node-id=496-628", {
       true: figma.instance("Icon left"),
       false: undefined,
     }),
+    // State carries the appearing-outline interaction (hover/focus) + the disabled
+    // prop; hover/focus aren't code props, so only disabled maps.
+    disabled: figma.enum("State", { disabled: true, default: false, hover: false, focus: false }),
   },
-  example: ({ placeholder, outline, variant, icon }) => (
-    <TextField placeholder={placeholder} outline={outline} variant={variant} icon={icon} />
+  example: ({ placeholder, outline, variant, icon, disabled }) => (
+    <TextField placeholder={placeholder} outline={outline} variant={variant} icon={icon} disabled={disabled} />
   ),
 });
