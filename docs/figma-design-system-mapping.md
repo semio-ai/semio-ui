@@ -109,6 +109,16 @@ The `nested-elements/*` family (menu building blocks; stable — STUDIO-83 only 
 
 Code Connect: [nested-elements.figma.tsx](../src/nested-elements/nested-elements.figma.tsx) (all six). Parity: `nesteditem` + the three sub-type blocks + `figma/nested*-contract.json`.
 
+## Floating containers (Phase 4) — composition examples
+
+Overlays/composites with low token-fidelity value, so — like the Input presets — they're **example frames** (not variant-bound components; no Code Connect/parity). On the Examples page; the existing stories link here.
+- **Modal** (`567:1146`) — `bg-black/40` backdrop + white card: header (bold title + muted description + X) · hairline (`neutral-500/15`) · body · hairline · footer with real **Button** instances (Cancel `inverted` + Save `primary`).
+- **Dialog** (`568:1154`) — the confirm variant: header + no body + footer (Cancel + `error` Delete).
+- **Dropdown** (`569:1162`) — a Button trigger + a menu popup built from **NestedItem** rows.
+- **Select** (`569:1214`) — an input-like trigger (`surface/inset`, value + ▾) + an open list of **NestedRadio** options (one selected).
+
+Stories wired via `figma-links` `floatingExample`. (Dropdown ≈ the `Menu` composed example; Select reuses the nested-select rows.)
+
 ## Layout convention (both pages)
 Every component set / example lives in a titled Figma **Section** ("panel") with a uniform light `#f7f7f7` background, laid out in a non-overlapping vertical stack (Components page) or grouped preview grids (Examples page). Component-set frames are transparent so the section is the single backdrop.
 

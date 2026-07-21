@@ -2,7 +2,12 @@ import { useState, type ReactNode } from "react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Button, Dialog, Variant, type DialogProps } from "@semio/ui";
 
+import { floatingExample } from "./figma-links";
+
+const design = (url: string) => ({ design: { type: "figma" as const, url } });
+
 const meta: Meta<typeof Dialog> = {
+  parameters: design(floatingExample.dialog),
   component: Dialog,
   title: "ui/Dialog",
   decorators: [

@@ -152,3 +152,15 @@ export const spinnerPreview = figmaNode("546-1147");
  * Dropdown/ContextMenu, so the menu story links here rather than to a bare row.
  */
 export const menuExample = figmaNode("556-724");
+
+/**
+ * Floating containers (Phase 4) — composition example frames on the Examples page
+ * (overlay + card, or trigger + list), not variant-bound components. The stories
+ * link here for the design↔code cross-reference.
+ */
+export const floatingExample = {
+  modal: figmaNode("567-1146"),
+  dialog: figmaNode("568-1154"),
+  dropdown: figmaNode("569-1162"),
+  select: figmaNode("569-1214"),
+} as const;
