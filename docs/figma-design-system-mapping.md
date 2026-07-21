@@ -119,6 +119,13 @@ Overlays/composites with low token-fidelity value, so — like the Input presets
 
 Stories wired via `figma-links` `floatingExample`. (Dropdown ≈ the `Menu` composed example; Select reuses the nested-select rows.)
 
+## Tabs (layout primitive)
+
+`Tabs` (`578:841`) — a tab row: a `surface/deep-inset` container with the active-tab **indicator** = `color/<variant>/bg` @ 25% (node-opacity) + a 1px `variant/bg` border, inactive tabs muted (`content/muted`). 5-variant set (active-tab color), labels visuals; icon/`both` visuals + size are examples. Code Connect [tabs.figma.tsx](../src/layouts/tabs.figma.tsx) (data-driven `children`, so an illustrative example), `tabs` parity block + `figma/tabs-contract.json`, `ui/Tabs` story linked.
+
+### Modal variants (SidebarModal / TabbedModal) — composed in Figma, not mirrored
+Both are **compositions of the base `Modal`**, not new chrome: TabbedModal = Modal + this Tabs row; SidebarModal = a Modal shell + a collapsible sidebar-nav + content pane (heavily behavioral). Low-usage. Decision: they're **rebuilt in Figma** from the base Modal + the relevant primitives (the same way code composes them) rather than mirrored as dedicated components — mirroring every modal assembly grows a combinatorial, drift-prone library. Adding the reusable **Tabs** primitive (above) is what makes a tabbed modal easy to compose.
+
 ## Layout convention (both pages)
 Every component set / example lives in a titled Figma **Section** ("panel") with a uniform light `#f7f7f7` background, laid out in a non-overlapping vertical stack (Components page) or grouped preview grids (Examples page). Component-set frames are transparent so the section is the single backdrop.
 

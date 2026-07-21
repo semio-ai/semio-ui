@@ -164,3 +164,7 @@ export const floatingExample = {
   dropdown: figmaNode("569-1162"),
   select: figmaNode("569-1214"),
 } as const;
+
+/** Tabs preview frame — `preview/tabs` (Light+Dark). The reusable tab-row primitive
+ * a tabbed modal composes from (SidebarModal/TabbedModal are composed in Figma). */
+export const tabsPreview = figmaNode("579-1198");

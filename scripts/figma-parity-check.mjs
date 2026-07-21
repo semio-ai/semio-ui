@@ -353,7 +353,23 @@ function checkNestedSubtypes() {
   });
 }
 
-const results = [checkButton(), checkTextField(), checkCheckbox(), checkSwitch(), checkToggleSquare(), checkChip(), checkProgress(), checkProgressCircle(), checkStatus(), checkNestedItem(), ...checkNestedSubtypes()];
+// ── Tabs check ────────────────────────────────────────────────────────────
+function checkTabs() {
+  const fails = [], notes = [];
+  const src = readFileSync(join(root, "src/layouts/tabs.tsx"), "utf8");
+  const SUBSET = { variants: ["default", "primary", "secondary", "tertiary", "error"] };
+  const figma = readFigma("tabs");
+  const fo = figma.variantOptions || {};
+  if (!eqSet(fo.Variant || [], SUBSET.variants)) fails.push(`Figma Variant axis [${fo.Variant}] != subset [${SUBSET.variants}]`);
+  if (!subsetOf(SUBSET.variants, codeVariants)) fails.push(`subset variants not all in code Variant enum [${codeVariants}]`);
+  if (!/variant-static-bg-25/.test(src)) fails.push("code Tabs indicator lost `variant-static-bg-25`");
+  notes.push("active-tab indicator = variant/bg @ 25% + variant border; visuals/size are examples; SidebarModal/TabbedModal compose from Modal + this row in Figma");
+  if (figma.sampleVariant.containerFillVar !== "color/surface/deep-inset") fails.push(`container not bound to color/surface/deep-inset — figma=${figma.sampleVariant.containerFillVar}`);
+  if (figma.sampleVariant.indicatorFillVar !== "color/default/bg") fails.push(`active indicator not bound to color/default/bg — figma=${figma.sampleVariant.indicatorFillVar}`);
+  return { name: "Tabs", figma, fails, notes, summary: `Variant = ${(fo.Variant||[]).length} · props=[(variant axes only)]` };
+}
+
+const results = [checkButton(), checkTextField(), checkCheckbox(), checkSwitch(), checkToggleSquare(), checkChip(), checkProgress(), checkProgressCircle(), checkStatus(), checkNestedItem(), ...checkNestedSubtypes(), checkTabs()];
 let anyFail = false;
 console.log(`code: variants=[${codeVariants}] · sizes=[${codeSizes}]\n`);
 for (const r of results) {
