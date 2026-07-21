@@ -444,9 +444,12 @@ function checkModal() {
   if (!/\bcard\b/.test(src)) fails.push("code Modal lost the `card` container class");
   if (!/title\??:/.test(src)) fails.push("code Modal lost its `title` prop");
   if (!/onSubmit\??:/.test(src) || !/onCancel\??:/.test(src)) fails.push("code Modal lost its onSubmit/onCancel footer handlers");
-  notes.push("standardized chrome: header (title + description + X-close) / body slot / footer (Cancel + Submit); title tints via variant-static-text, Submit is a variant Button");
+  if (!/leftIcon="close"/.test(src)) fails.push("code Modal close is no longer a Button with the `close` icon");
+  notes.push("standardized `.card` chrome: header (title + description + icon-only close Button) / body slot / footer (Cancel + Submit); title tints via variant-static-text, Submit + close are variant Buttons");
   notes.push("Variant subset is representative (default/primary/error); code also has secondary/tertiary/info/success/warning");
-  if (figma.sampleVariant.cardFillVar !== "color/surface/base") fails.push(`card not bound to color/surface/base — figma=${figma.sampleVariant.cardFillVar}`);
+  if (figma.sampleVariant.cardFillVar !== "color/surface/inset") fails.push(`.card not bound to color/surface/inset (= layout-*-inset) — figma=${figma.sampleVariant.cardFillVar}`);
+  if (figma.sampleVariant.borderVar !== "color/surface/separator") fails.push(`.card 2px border not bound to color/surface/separator — figma=${figma.sampleVariant.borderVar}`);
+  if (figma.sampleVariant.cornerRadius !== 4) fails.push(`.card radius differs — code=rounded-sm (4px) figma=${figma.sampleVariant.cornerRadius}px`);
   if (figma.sampleVariant.dividerVar !== "color/surface/separator") fails.push(`hairlines not bound to color/surface/separator — figma=${figma.sampleVariant.dividerVar}`);
   return { name: "Modal", figma, fails, notes, summary: `Variant = ${(fo.Variant||[]).length} · props=[${fprops.join(", ")}]` };
 }
@@ -465,9 +468,11 @@ function checkDialog() {
   for (const need of ["Title", "Show description", "Show cancel"]) if (!hasProp(need)) fails.push(`Figma missing component property: '${need}'`);
   if (!/\bcard\b/.test(src)) fails.push("code Dialog lost the `card` container class");
   if (!/hasBody/.test(src)) fails.push("code Dialog lost its optional-body (`hasBody`) logic");
-  notes.push("confirmation chrome sharing Modal's card language; full-width split footer; body optional (confirmation-only shown)");
+  notes.push("confirmation `.card` chrome sharing Modal's card language; full-width split footer; icon-only close Button; body optional (confirmation-only shown)");
   notes.push("error variant = destructive-confirm case; Variant subset representative (code also has secondary/tertiary/info/success/warning)");
-  if (figma.sampleVariant.cardFillVar !== "color/surface/base") fails.push(`card not bound to color/surface/base — figma=${figma.sampleVariant.cardFillVar}`);
+  if (figma.sampleVariant.cardFillVar !== "color/surface/inset") fails.push(`.card not bound to color/surface/inset (= layout-*-inset) — figma=${figma.sampleVariant.cardFillVar}`);
+  if (figma.sampleVariant.borderVar !== "color/surface/separator") fails.push(`.card 2px border not bound to color/surface/separator — figma=${figma.sampleVariant.borderVar}`);
+  if (figma.sampleVariant.cornerRadius !== 4) fails.push(`.card radius differs — code=rounded-sm (4px) figma=${figma.sampleVariant.cornerRadius}px`);
   if (figma.sampleVariant.dividerVar !== "color/surface/separator") fails.push(`hairline not bound to color/surface/separator — figma=${figma.sampleVariant.dividerVar}`);
   return { name: "Dialog", figma, fails, notes, summary: `Variant = ${(fo.Variant||[]).length} · props=[${fprops.join(", ")}]` };
 }
