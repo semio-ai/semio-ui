@@ -80,6 +80,13 @@ A static badge (no interactive-state axis): a `color/<variant>/bg` filled pill w
 
 Figma set `Chip` (node `523:1050`) + `preview/chip/{primary,info}` frames (Light+Dark). Code Connect: [chip.figma.tsx](../src/chip.figma.tsx) — `Show delete` maps to `onDelete`, `Show icon`/`Icon` to the `icon` slot. Parity: `chip` block + `figma/chip-contract.json`. Pill text is a literal white (code uses `text-white/75` in both modes — not the mode-flipping `fg` token).
 
+### Progress & ProgressCircle (feedback)
+Both are variant-tinted, no interactive-state axis; `progress` is a runtime number, so the Figma sets render a fixed **~60% demo** (not a property).
+- **Progress** bar (`527:730`) — clipped rounded track container; a `track` rect bound to `color/<variant>/bg` at **node-opacity 0.5** (avoids the bound-paint-opacity reset) + an `indicator` rect at full opacity/60% width. `variant-static-bg-50` / `variant-static-bg`.
+- **ProgressCircle** (`529:1093`) — a ring drawn with **`arcData` donut segments** (a fill-based approach; `dashPattern`+rotation fragmented and shifted the arc): full track ring @ 0.5 + a 60% arc from top, both `color/<variant>/bg`. Optional centered `Icon` instance-swap (`Show icon`).
+
+Code Connect: both in [progress.figma.tsx](../src/feedback/progress.figma.tsx). Parity: `progress`/`progresscircle` blocks + `figma/progress-contract.json`, `figma/progresscircle-contract.json`. Stories `progress` + `progress-circle` wired (8 + 4 preview frames).
+
 ## Icon color (the `currentColor` problem)
 Code icons inherit `currentColor` (the context's text color); Figma has no equivalent. Two cases:
 - **In a component** (Button, etc.): the component overrides the icon-slot fill to its own foreground (`color/<variant>/fg`) per-instance — the contextual analog.

@@ -1,6 +1,10 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Progress, type ProgressProps, Size, Variant } from "@semio/ui";
 import { type ReactNode, useEffect, useState } from "react";
+import { progressVariant } from "./figma-links";
+
+// Per-story Figma design link → the matching Progress preview frame (1:1).
+const design = (url: string) => ({ design: { type: "figma" as const, url } });
 
 const meta: Meta<typeof Progress> = {
   component: Progress,
@@ -38,6 +42,7 @@ function ProgressAnimator(props: ProgressProps): ReactNode {
  * to learn how to use render functions.
  */
 export const Primary: Story = {
+  parameters: design(progressVariant.primary),
   render: (args) => <ProgressAnimator {...args} />,
   args: {
     variant: Variant.Primary,
@@ -46,6 +51,7 @@ export const Primary: Story = {
 };
 
 export const Secondary: Story = {
+  parameters: design(progressVariant.secondary),
   render: (args) => <ProgressAnimator {...args} />,
   args: {
     variant: Variant.Secondary,
@@ -54,6 +60,7 @@ export const Secondary: Story = {
 };
 
 export const Tertiary: Story = {
+  parameters: design(progressVariant.tertiary),
   render: (args) => <ProgressAnimator {...args} />,
   args: {
     variant: Variant.Tertiary,
@@ -62,6 +69,7 @@ export const Tertiary: Story = {
 };
 
 export const Info: Story = {
+  parameters: design(progressVariant.info),
   render: (args) => <ProgressAnimator {...args} />,
   args: {
     variant: Variant.Info,
@@ -70,6 +78,7 @@ export const Info: Story = {
 };
 
 export const Warning: Story = {
+  parameters: design(progressVariant.warning),
   render: (args) => <ProgressAnimator {...args} />,
   args: {
     variant: Variant.Warning,
@@ -78,6 +87,7 @@ export const Warning: Story = {
 };
 
 export const Success: Story = {
+  parameters: design(progressVariant.success),
   render: (args) => <ProgressAnimator {...args} />,
   args: {
     variant: Variant.Success,
@@ -86,6 +96,7 @@ export const Success: Story = {
 };
 
 export const Error: Story = {
+  parameters: design(progressVariant.error),
   render: (args) => <ProgressAnimator {...args} />,
   args: {
     variant: Variant.Error,
@@ -94,6 +105,7 @@ export const Error: Story = {
 };
 
 export const ExtraSmall: Story = {
+  parameters: design(progressVariant.success),
   render: (args) => <ProgressAnimator {...args} />,
   args: {
     variant: Variant.Success,
@@ -102,6 +114,7 @@ export const ExtraSmall: Story = {
 };
 
 export const Small: Story = {
+  parameters: design(progressVariant.default),
   render: (args) => <ProgressAnimator {...args} />,
   args: {
     variant: Variant.Default,
@@ -110,6 +123,7 @@ export const Small: Story = {
 };
 
 export const Medium: Story = {
+  parameters: design(progressVariant.default),
   render: (args) => <ProgressAnimator {...args} />,
   args: {
     variant: Variant.Default,
@@ -118,6 +132,7 @@ export const Medium: Story = {
 };
 
 export const Large: Story = {
+  parameters: design(progressVariant.default),
   render: (args) => <ProgressAnimator {...args} />,
   args: {
     variant: Variant.Default,
@@ -126,6 +141,7 @@ export const Large: Story = {
 };
 
 export const ExtraLarge: Story = {
+  parameters: design(progressVariant.default),
   render: (args) => <ProgressAnimator {...args} />,
   args: {
     variant: Variant.Default,

@@ -251,7 +251,40 @@ function checkChip() {
     summary: `Variant = ${(fo.Variant||[]).length} · props=[${fprops.join(", ")}]` };
 }
 
-const results = [checkButton(), checkTextField(), checkCheckbox(), checkSwitch(), checkToggleSquare(), checkChip()];
+// ── Progress (bar) check ──────────────────────────────────────────────────
+function checkProgress() {
+  const fails = [], notes = [];
+  const src = readFileSync(join(root, "src/feedback/progress.tsx"), "utf8");
+  const SUBSET = { variants: ["default", "primary", "secondary", "tertiary", "error", "success", "warning", "info"] };
+  const figma = readFigma("progress");
+  const fo = figma.variantOptions || {};
+  if (!eqSet(fo.Variant || [], SUBSET.variants)) fails.push(`Figma Variant axis [${fo.Variant}] != subset [${SUBSET.variants}]`);
+  if (!subsetOf(SUBSET.variants, codeVariants)) fails.push(`subset variants not all in code Variant enum [${codeVariants}]`);
+  if (!/\bprogress:\s*number/.test(src)) fails.push("code Progress lost its `progress: number` prop");
+  notes.push("progress value is a runtime number — rendered as a fixed ~60% demo, not an axis; size scoped to examples");
+  if (figma.sampleVariant.cornerRadius !== 4) fails.push(`corner radius differs — code=rounded-sm(4) figma=${figma.sampleVariant.cornerRadius}`);
+  if (figma.sampleVariant.indicatorFillVar !== "color/primary/bg") fails.push(`indicator not bound to color/primary/bg — figma=${figma.sampleVariant.indicatorFillVar}`);
+  return { name: "Progress", figma, fails, notes, summary: `Variant = ${(fo.Variant||[]).length} · props=[(variant axes only)]` };
+}
+
+// ── ProgressCircle check ──────────────────────────────────────────────────
+function checkProgressCircle() {
+  const fails = [], notes = [];
+  const src = readFileSync(join(root, "src/feedback/progress.tsx"), "utf8");
+  const SUBSET = { variants: ["default", "primary", "secondary", "tertiary", "error", "success", "warning", "info"], properties: ["Show icon", "Icon"] };
+  const figma = readFigma("progresscircle");
+  const fo = figma.variantOptions || {};
+  const fprops = figma.properties || [];
+  const hasProp = (name) => fprops.some((p) => p === name || p.startsWith(name + "#"));
+  if (!eqSet(fo.Variant || [], SUBSET.variants)) fails.push(`Figma Variant axis [${fo.Variant}] != subset [${SUBSET.variants}]`);
+  for (const need of SUBSET.properties) if (!hasProp(need)) fails.push(`Figma missing component property: '${need}'`);
+  if (/ProgressCircleProps[\s\S]*?\bicon\?:/.test(src) && !hasProp("Icon")) fails.push("code ProgressCircle `icon` has no Figma 'Icon' instance-swap");
+  notes.push("ring uses arcData donut segments (track + ~60% demo arc); size scoped to examples");
+  if (figma.sampleVariant.arcFillVar !== "color/primary/bg") fails.push(`arc not bound to color/primary/bg — figma=${figma.sampleVariant.arcFillVar}`);
+  return { name: "ProgressCircle", figma, fails, notes, summary: `Variant = ${(fo.Variant||[]).length} · props=[${fprops.join(", ")}]` };
+}
+
+const results = [checkButton(), checkTextField(), checkCheckbox(), checkSwitch(), checkToggleSquare(), checkChip(), checkProgress(), checkProgressCircle()];
 let anyFail = false;
 console.log(`code: variants=[${codeVariants}] · sizes=[${codeSizes}]\n`);
 for (const r of results) {

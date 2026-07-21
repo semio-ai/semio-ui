@@ -1,0 +1,14 @@
+{
+  "component": "Progress",
+  "nodeId": "527:730",
+  "capturedAt": "2026-07-21",
+  "source": "Captured via the Figma MCP (use_figma reads of node 527:730 — the Progress (bar) component set on the 🧩 Components page of the Semio UI Library file, key supplied at session start, not committed). DOCUMENTED SUBSET (see packages/ui/docs/figma-design-system-mapping.md). Refresh from the live file before running in CI.",
+  "variantOptions": {
+    "Variant": ["default", "primary", "secondary", "tertiary", "error", "success", "warning", "info"]
+  },
+  "properties": [],
+  "sampleVariant": {
+    "cornerRadius": 4,
+    "indicatorFillVar": "color/primary/bg"
+  }
+}

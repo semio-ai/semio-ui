@@ -110,3 +110,23 @@ export const chipVariant = {
   primary: figmaNode("523-1080"),
   info: figmaNode("523-1101"),
 } as const;
+
+/** Progress bar preview frames — `preview/progress/<variant>` (Light+Dark), fixed ~60% demo. */
+export const progressVariant = {
+  default: figmaNode("530-1028"),
+  primary: figmaNode("530-1041"),
+  secondary: figmaNode("530-1050"),
+  tertiary: figmaNode("530-1063"),
+  error: figmaNode("530-1076"),
+  success: figmaNode("530-1089"),
+  warning: figmaNode("530-1102"),
+  info: figmaNode("530-1115"),
+} as const;
+
+/** ProgressCircle preview frames — `preview/progresscircle/<variant>` (Light+Dark). Size / icon stories reuse `success`. */
+export const progressCircleVariant = {
+  primary: figmaNode("530-1156"),
+  secondary: figmaNode("530-1173"),
+  tertiary: figmaNode("530-1200"),
+  success: figmaNode("530-1227"),
+} as const;
