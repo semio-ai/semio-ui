@@ -154,9 +154,9 @@ export const spinnerPreview = figmaNode("546-1147");
 export const menuExample = figmaNode("556-724");
 
 /**
- * Floating containers (Phase 4) — composition example frames on the Examples page
- * (overlay + card, or trigger + list), not variant-bound components. The stories
- * link here for the design↔code cross-reference.
+ * Floating containers (Phase 4) — composition example frames on the Components
+ * page (overlay + card, or trigger + list), not variant-bound components. The
+ * stories link here for the design↔code cross-reference.
  */
 export const floatingExample = {
   modal: figmaNode("567-1146"),

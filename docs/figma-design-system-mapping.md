@@ -111,7 +111,7 @@ Code Connect: [nested-elements.figma.tsx](../src/nested-elements/nested-elements
 
 ## Floating containers (Phase 4) — composition examples
 
-Overlays/composites with low token-fidelity value, so — like the Input presets — they're **example frames** (not variant-bound components; no Code Connect/parity). On the Examples page; the existing stories link here.
+Overlays/composites with low token-fidelity value, so — like the Input presets — they're **example frames** (not variant-bound components; no Code Connect/parity). On the Components page (next to the `Menu` composed example); the existing stories link here.
 - **Modal** (`567:1146`) — `bg-black/40` backdrop + white card: header (bold title + muted description + X) · hairline (`neutral-500/15`) · body · hairline · footer with real **Button** instances (Cancel `inverted` + Save `primary`).
 - **Dialog** (`568:1154`) — the confirm variant: header + no body + footer (Cancel + `error` Delete).
 - **Dropdown** (`569:1162`) — a Button trigger + a menu popup built from **NestedItem** rows.
