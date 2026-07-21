@@ -1,0 +1,9 @@
+{
+  "component": "Tooltip",
+  "nodeId": "584:829",
+  "capturedAt": "2026-07-21",
+  "source": "use_figma read of node 584:829 (Tooltip set, 🧩 Components). DOCUMENTED SUBSET: the `card` popover (surface/inset bg + 2px border + shadow) with variant-static-text + a downward arrow, across the Variant axis (side fixed; other sides are examples). Refresh from the live file before CI.",
+  "variantOptions": { "Variant": ["default", "primary", "secondary", "tertiary", "error"] },
+  "properties": [],
+  "sampleVariant": { "cardFillVar": "color/surface/inset", "textVar": "color/default/bg" }
+}

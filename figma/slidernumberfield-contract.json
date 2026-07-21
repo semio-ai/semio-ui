@@ -1,0 +1,9 @@
+{
+  "component": "SliderNumberField",
+  "nodeId": "585:833",
+  "capturedAt": "2026-07-21",
+  "source": "use_figma read of node 585:833 (SliderNumberField set, 🧩 Components). DOCUMENTED SUBSET: a field with the variant-input-gradient-bg slider fill (variant/bg to ~60%, faded after) + label + value, across the Variant axis (value/label are examples). Refresh from the live file before CI.",
+  "variantOptions": { "Variant": ["default", "primary", "secondary", "tertiary", "error"] },
+  "properties": [],
+  "sampleVariant": { "fillVar": "color/default/bg" }
+}

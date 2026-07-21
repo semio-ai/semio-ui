@@ -168,3 +168,9 @@ export const floatingExample = {
 /** Tabs preview frame — `preview/tabs` (Light+Dark). The reusable tab-row primitive
  * a tabbed modal composes from (SidebarModal/TabbedModal are composed in Figma). */
 export const tabsPreview = figmaNode("579-1198");
+
+/** Tooltip preview frame — `preview/tooltip` (Light+Dark). */
+export const tooltipPreview = figmaNode("587-1217");
+
+/** SliderNumberField preview frame — `preview/slidernumberfield` (Light+Dark). */
+export const sliderNumberFieldPreview = figmaNode("587-1235");

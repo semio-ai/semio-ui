@@ -370,7 +370,66 @@ function checkTabs() {
   return { name: "Tabs", figma, fails, notes, summary: `Variant = ${(fo.Variant||[]).length} · props=[(variant axes only)]` };
 }
 
-const results = [checkButton(), checkTextField(), checkCheckbox(), checkSwitch(), checkToggleSquare(), checkChip(), checkProgress(), checkProgressCircle(), checkStatus(), checkNestedItem(), ...checkNestedSubtypes(), checkTabs()];
+// ── Tooltip check ─────────────────────────────────────────────────────────
+function checkTooltip() {
+  const fails = [], notes = [];
+  const src = readFileSync(join(root, "src/floating/tooltip.tsx"), "utf8");
+  const SUBSET = { variants: ["default", "primary", "secondary", "tertiary", "error"] };
+  const figma = readFigma("tooltip");
+  const fo = figma.variantOptions || {};
+  if (!eqSet(fo.Variant || [], SUBSET.variants)) fails.push(`Figma Variant axis [${fo.Variant}] != subset [${SUBSET.variants}]`);
+  if (!subsetOf(SUBSET.variants, codeVariants)) fails.push(`subset variants not all in code Variant enum [${codeVariants}]`);
+  if (!/\bcard\b/.test(src)) fails.push("code Tooltip lost the `card` container class");
+  notes.push("variant-static-text (variant-colored) on the card; side fixed (others are examples)");
+  if (figma.sampleVariant.cardFillVar !== "color/surface/inset") fails.push(`card not bound to color/surface/inset — figma=${figma.sampleVariant.cardFillVar}`);
+  return { name: "Tooltip", figma, fails, notes, summary: `Variant = ${(fo.Variant||[]).length} · props=[(variant axes only)]` };
+}
+
+// ── SliderNumberField check ───────────────────────────────────────────────
+function checkSliderNumberField() {
+  const fails = [], notes = [];
+  const src = readFileSync(join(root, "src/inputs/slider-number-field.tsx"), "utf8");
+  const SUBSET = { variants: ["default", "primary", "secondary", "tertiary", "error"] };
+  const figma = readFigma("slidernumberfield");
+  const fo = figma.variantOptions || {};
+  if (!eqSet(fo.Variant || [], SUBSET.variants)) fails.push(`Figma Variant axis [${fo.Variant}] != subset [${SUBSET.variants}]`);
+  if (!subsetOf(SUBSET.variants, codeVariants)) fails.push(`subset variants not all in code Variant enum [${codeVariants}]`);
+  if (!/variant-input-gradient-bg/.test(src)) fails.push("code SliderNumberField lost `variant-input-gradient-bg` (slider fill)");
+  notes.push("slider fill = variant/bg to ~60% + faded; value/label are examples");
+  if (figma.sampleVariant.fillVar !== "color/default/bg") fails.push(`fill not bound to color/default/bg — figma=${figma.sampleVariant.fillVar}`);
+  return { name: "SliderNumberField", figma, fails, notes, summary: `Variant = ${(fo.Variant||[]).length} · props=[(variant axes only)]` };
+}
+
+// ── Label check ───────────────────────────────────────────────────────────
+function checkLabel() {
+  const fails = [], notes = [];
+  const src = readFileSync(join(root, "src/inputs/label.tsx"), "utf8");
+  const figma = readFigma("label");
+  const fprops = figma.properties || [];
+  const hasProp = (name) => fprops.some((p) => p === name || p.startsWith(name + "#"));
+  for (const need of ["Label", "Show message", "Message"]) if (!hasProp(need)) fails.push(`Figma missing component property: '${need}'`);
+  if (!/\bmessage\b/.test(src)) fails.push("code Label lost its `message` prop");
+  notes.push("no variant axis; label text + optional error message");
+  return { name: "Label", figma, fails, notes, summary: `props=[${fprops.join(", ")}]` };
+}
+
+// ── NestedMenu check ──────────────────────────────────────────────────────
+function checkNestedMenu() {
+  const fails = [], notes = [];
+  const src = readFileSync(join(root, "src/nested-elements/menu.tsx"), "utf8");
+  const figma = readFigma("nestedmenu");
+  const fo = figma.variantOptions || {};
+  const fprops = figma.properties || [];
+  const hasProp = (name) => fprops.some((p) => p === name || p.startsWith(name + "#"));
+  if (!eqSet(fo.State || [], ["default", "highlighted"])) fails.push(`Figma State axis [${fo.State}] != [default, highlighted]`);
+  for (const need of ["Label", "Show icon", "Icon"]) if (!hasProp(need)) fails.push(`Figma missing component property: '${need}'`);
+  if (!/\bleft\b/.test(src)) notes.push("code `left` icon slot");
+  notes.push("submenu trigger row: NestedItem chrome + right chevron");
+  if (figma.sampleVariant.accentVar !== "color/default/bg-hover") fails.push(`accent not bound to color/default/bg-hover — figma=${figma.sampleVariant.accentVar}`);
+  return { name: "NestedMenu", figma, fails, notes, summary: `State = [${(fo.State||[]).join(", ")}] · props=[${fprops.join(", ")}]` };
+}
+
+const results = [checkButton(), checkTextField(), checkCheckbox(), checkSwitch(), checkToggleSquare(), checkChip(), checkProgress(), checkProgressCircle(), checkStatus(), checkNestedItem(), ...checkNestedSubtypes(), checkTabs(), checkTooltip(), checkSliderNumberField(), checkLabel(), checkNestedMenu()];
 let anyFail = false;
 console.log(`code: variants=[${codeVariants}] · sizes=[${codeSizes}]\n`);
 for (const r of results) {

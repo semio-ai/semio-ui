@@ -126,6 +126,16 @@ Stories wired via `figma-links` `floatingExample`. (Dropdown ≈ the `Menu` comp
 ### Modal variants (SidebarModal / TabbedModal) — composed in Figma, not mirrored
 Both are **compositions of the base `Modal`**, not new chrome: TabbedModal = Modal + this Tabs row; SidebarModal = a Modal shell + a collapsible sidebar-nav + content pane (heavily behavioral). Low-usage. Decision: they're **rebuilt in Figma** from the base Modal + the relevant primitives (the same way code composes them) rather than mirrored as dedicated components — mirroring every modal assembly grows a combinatorial, drift-prone library. Adding the reusable **Tabs** primitive (above) is what makes a tabbed modal easy to compose.
 
+## Coverage top-ups (high-usage gaps)
+
+Filled from a usage re-audit — commonly used in studio but previously unmirrored:
+- **Tooltip** (`584:829`) — the `card` popover (`surface/inset` bg + 2px border + shadow) with `variant-static-text` (variant-colored) text + a downward carrot arrow. 5-variant set. [tooltip.figma.tsx](../src/floating/tooltip.figma.tsx), `ui/Tooltip` story linked.
+- **SliderNumberField** (`585:833`) — a field with the `variant-input-gradient-bg` slider fill (`color/<variant>/bg` to ~60% + faded after) + label + value. 5-variant set. [slidernumberfield.figma.tsx](../src/inputs/slidernumberfield.figma.tsx), `ui/SliderNumberField` story linked.
+- **Label** (`583:812`) — the form-field label (label text `content/muted` + optional error `Message`). Single component, `Label`/`Show message`/`Message` props — the primitive the Email/Password presets inline. [label.figma.tsx](../src/inputs/label.figma.tsx).
+- **NestedMenu** (`586:833`) — the submenu trigger row (NestedItem chrome + right chevron), states default/highlighted — completes the menu family. In [nested-elements.figma.tsx](../src/nested-elements/nested-elements.figma.tsx).
+
+All in `parity:figma` (`tooltip`/`slidernumberfield`/`label`/`nestedmenu` blocks + contracts). Not built (deliberately): ScrollArea/TableList (structural), HeaderButton/Anchor (Button variants), color pickers / Autocomplete / Combobox (niche).
+
 ## Layout convention (both pages)
 Every component set / example lives in a titled Figma **Section** ("panel") with a uniform light `#f7f7f7` background, laid out in a non-overlapping vertical stack (Components page) or grouped preview grids (Examples page). Component-set frames are transparent so the section is the single backdrop.
 

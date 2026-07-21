@@ -6,6 +6,7 @@ import { NestedSeparator } from "./separator";
 import { NestedRadio } from "./radio";
 import { NestedCheckbox } from "./checkbox";
 import { NestedSelect } from "./select";
+import { NestedMenu } from "./menu";
 
 /**
  * Code Connect for the nested-elements menu primitives (NestedItem / NestedLabel /
@@ -86,5 +87,19 @@ figma.connect(NestedSelect, "<SEMIO_UI_LIBRARY>?node-id=563-769", {
   },
   example: ({ label, values }) => (
     <NestedSelect values={values} onChange={() => undefined} options={[{ value: "opt", label }]} />
+  ),
+});
+
+// NestedMenu: the submenu trigger row (NestedItem chrome + right chevron). The
+// `children` (submenu content) is contextual; `State` is the highlight interaction.
+figma.connect(NestedMenu, "<SEMIO_UI_LIBRARY>?node-id=586-833", {
+  props: {
+    label: figma.string("Label"),
+    left: figma.boolean("Show icon", { true: figma.instance("Icon"), false: undefined }),
+  },
+  example: ({ label, left }) => (
+    <NestedMenu label={label} left={left}>
+      <span />
+    </NestedMenu>
   ),
 });

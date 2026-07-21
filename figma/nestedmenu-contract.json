@@ -1,0 +1,9 @@
+{
+  "component": "NestedMenu",
+  "nodeId": "586:833",
+  "capturedAt": "2026-07-21",
+  "source": "use_figma read of node 586:833 (NestedMenu set, 🧩 Components). The submenu trigger row: NestedItem chrome + a right chevron. States default/highlighted. Refresh from the live file before CI.",
+  "variantOptions": { "State": ["default", "highlighted"] },
+  "properties": ["Label", "Show icon", "Icon"],
+  "sampleVariant": { "accentVar": "color/default/bg-hover" }
+}
