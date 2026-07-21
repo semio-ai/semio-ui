@@ -58,9 +58,17 @@ export function TreeToggle({
       aria-labelledby={ariaLabelledBy}
       aria-controls={ariaControls}
       aria-expanded={expanded}
-      // Stop the pointer-down from reaching row-level selection handlers.
+      // Stop pointer-down AND click from reaching row-level selection handlers
+      // (a click still bubbles even when pointer-down propagation is stopped).
       onPointerDown={(e) => e.stopPropagation()}
-      onClick={isDisabled ? undefined : () => onToggle?.(!expanded)}
+      onClick={
+        isDisabled
+          ? undefined
+          : (e) => {
+              e.stopPropagation();
+              onToggle?.(!expanded);
+            }
+      }
       className={clsx(
         "flex items-center justify-center",
         "size-5 cursor-pointer rounded-xs",

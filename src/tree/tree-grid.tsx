@@ -124,9 +124,13 @@ export function TreeGrid<T>({
 }: TreeGridProps<T>) {
   const collapse = useCollapsibleTree({ collapsed, defaultCollapsed, onCollapsedChange });
 
+  // Depend on the stable `isCollapsed` callback, not the whole controller
+  // object (which is a new reference each render), so this only re-flattens
+  // when the tree or collapse state actually changes.
+  const isCollapsed = collapse.isCollapsed;
   const rows = useMemo(
-    () => flattenTree(nodes, { isCollapsed: collapse.isCollapsed }),
-    [nodes, collapse],
+    () => flattenTree(nodes, { isCollapsed }),
+    [nodes, isCollapsed],
   );
   const order = useMemo(() => rows.map((r) => r.id), [rows]);
 
