@@ -44,10 +44,19 @@ no manual step; a local publish is only a fallback.
 ### One-time setup (manual — repo admin)
 
 1. **Create a Figma access token** (ideally on a shared/service account, not a
-   personal one, so publishing isn't tied to one person): Figma → Settings →
-   Security → *Personal access tokens*. Set scopes:
-   - **Code Connect: Write**
-   - **File content: Read**
+   personal one, so publishing isn't tied to one person): file browser → account
+   menu (top-left) → **Settings → Security tab** → *Personal access tokens* →
+   Generate new token. Set scopes:
+   - **Code Connect: Write** (`code_connect:write`)
+   - **File content: Read** (`file_content:read`)
+
+   > **No "Code Connect" scope group in the list?** The token is being generated
+   > by a **guest** in the Figma Organization — Figma only exposes
+   > `code_connect:write` to full **members**. Guests can view Code Connect but
+   > can't publish. Fix: have an admin change the role guest → member, or (better)
+   > generate the token from a service/bot account that IS an org member and use
+   > it for CI. Do **not** substitute `file_dev_resources:write` — publish needs
+   > `code_connect:write` or it 403s.
 2. **Add it as a GitHub Actions secret** named `FIGMA_ACCESS_TOKEN`
    (repo → Settings → Secrets and variables → Actions), or:
    `gh secret set FIGMA_ACCESS_TOKEN --repo semio-ai/semio_studio`.
