@@ -50,13 +50,20 @@ no manual step; a local publish is only a fallback.
    - **Code Connect: Write** (`code_connect:write`)
    - **File content: Read** (`file_content:read`)
 
-   > **No "Code Connect" scope group in the list?** The token is being generated
-   > by a **guest** in the Figma Organization — Figma only exposes
-   > `code_connect:write` to full **members**. Guests can view Code Connect but
-   > can't publish. Fix: have an admin change the role guest → member, or (better)
-   > generate the token from a service/bot account that IS an org member and use
-   > it for CI. Do **not** substitute `file_dev_resources:write` — publish needs
-   > `code_connect:write` or it 403s.
+   > **No "Code Connect" scope group in the list?** `code_connect:write` only
+   > surfaces when *all* of these hold for the token's account:
+   > 1. **Org member, not guest** (guests can view Code Connect but not publish);
+   > 2. a **Dev or Full seat** assigned — this is separate from the team *role*
+   >    (you can be a team Admin on a Collab/View seat); manage it in the org
+   >    **admin dashboard**;
+   > 3. the token is generated in the **organization** account context, not a
+   >    personal/draft space.
+   >
+   > Best fix for CI: a **service/bot account that's an org member with a Dev/Full
+   > seat** holds the token, so publishing never depends on one person's seat. Do
+   > **not** substitute `file_dev_resources:write` — publish needs
+   > `code_connect:write` or it 403s. If all three hold and it's still missing,
+   > it's usually a plan/seat propagation lag → Figma support.
 2. **Add it as a GitHub Actions secret** named `FIGMA_ACCESS_TOKEN`
    (repo → Settings → Secrets and variables → Actions), or:
    `gh secret set FIGMA_ACCESS_TOKEN --repo semio-ai/semio_studio`.
