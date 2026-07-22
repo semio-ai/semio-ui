@@ -511,7 +511,35 @@ function checkCard() {
   return { name: "Card", figma, fails, notes, summary: `Variant = ${(fo.Variant||[]).length} · foundation (.card class, variant-themed border)` };
 }
 
-const results = [checkCard(), checkButton(), checkTextField(), checkCheckbox(), checkSwitch(), checkToggleSquare(), checkChip(), checkProgress(), checkProgressCircle(), checkStatus(), checkNestedItem(), ...checkNestedSubtypes(), checkTabs(), checkTooltip(), checkSliderNumberField(), checkLabel(), checkNestedMenu(), checkModal(), checkDialog()];
+// ── Typography check (foundation) ─────────────────────────────────────────
+// Typography is CSS/Tailwind, not a React component — so this guards the Figma
+// text-style ramp against the code's actual text scale: `sized-text`
+// (0.6rem/xs/base/xl/2xl) + the common `text-sm`. Tailwind sizes are the stock
+// defaults; the drift anchor is that `sized-text` still maps those utilities.
+function checkTypography() {
+  const fails = [], notes = [];
+  const css = readFileSync(join(root, "public/styles.css"), "utf8");
+  const figma = readFigma("typography");
+  // The set of px sizes the code emits (Tailwind defaults: xs12 sm14 base16 xl20 2xl24, + 0.6rem=9.6).
+  const codeSizes = [9.6, 12, 14, 16, 20, 24];
+  const figSizes = (figma.styles || []).map((s) => s.size);
+  for (const sz of codeSizes) {
+    if (!figSizes.some((f) => Math.abs(f - sz) < 0.05)) fails.push(`no Figma text style at ${sz}px (code text scale uses it)`);
+  }
+  // Source drift anchor — `sized-text` must still map these Tailwind utilities.
+  const i = css.indexOf(".sized-text");
+  const j = css.indexOf("\n  }", i);
+  const sizedText = i >= 0 && j >= 0 ? css.slice(i, j) : "";
+  for (const u of ["text-[0.6rem]", "text-xs", "text-base", "text-xl", "text-2xl"]) {
+    if (!sizedText.includes(u)) fails.push(`sized-text no longer maps \`${u}\``);
+  }
+  if (figma.fontFamilyVar !== "Inter") fails.push(`typography/font-family not Inter — figma=${figma.fontFamilyVar}`);
+  notes.push("Inter is the deliberate proxy for the code's system-sans stack (--font-sans: ui-sans-serif …)");
+  notes.push("line-heights mirror Tailwind: 12/16 · 14/20 · 16/24 · 20/28 · 24/32; 2xs (0.6rem) auto. Weighted styles cover font-medium/semibold usage");
+  return { name: "Typography", figma, fails, notes, summary: `${(figma.styles || []).length} text styles · font=${figma.fontFamilyVar}` };
+}
+
+const results = [checkTypography(), checkCard(), checkButton(), checkTextField(), checkCheckbox(), checkSwitch(), checkToggleSquare(), checkChip(), checkProgress(), checkProgressCircle(), checkStatus(), checkNestedItem(), ...checkNestedSubtypes(), checkTabs(), checkTooltip(), checkSliderNumberField(), checkLabel(), checkNestedMenu(), checkModal(), checkDialog()];
 let anyFail = false;
 console.log(`code: variants=[${codeVariants}] · sizes=[${codeSizes}]\n`);
 for (const r of results) {

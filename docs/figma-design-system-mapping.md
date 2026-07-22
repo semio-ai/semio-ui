@@ -44,6 +44,34 @@ Represented in Figma as a foundation:
 
 Figma can't make the floating components literally *instance* `Card` (instances don't accept slotted children), so standardization is enforced by the shared variables + shared effect style + the `checkCard` recipe guard rather than a composition refactor.
 
+## Typography foundation (the type ramp)
+
+`@semio/ui` has **no formal semantic ramp** — text sizing comes from `sized-text`
+(the component `size` scale) plus ad-hoc Tailwind (`text-sm`/`text-xs` + weights),
+all in the **system-sans stack** (`--font-sans: ui-sans-serif, system-ui, …` — no
+brand font). Represented in Figma as a code-aligned set of **text styles** (the
+typography analog of the `elevation/card` effect style), bound to the
+`typography/font-family` variable:
+
+| Style | size / line-height | maps to |
+|---|---|---|
+| `Text/2xs` | 9.6 / auto | `size-xs` (`text-[0.6rem]`) |
+| `Text/xs` | 12 / 16 | `size-sm`, `text-xs` |
+| `Text/sm` (+ `· Medium`) | 14 / 20 | `text-sm` (heavy ad-hoc use) |
+| `Text/base` (+ `· Medium`, `· Semibold`) | 16 / 24 | `size-md`, `text-base` (default/body) |
+| `Text/xl` | 20 / 28 | `size-lg`, `text-xl` |
+| `Text/2xl` (+ `· Semibold`) | 24 / 32 | `size-xl`, `text-2xl` (headings) |
+
+- **Font = Inter**, the deliberate proxy for the code's system-sans stack (Figma
+  can't render `system-ui`; Inter matches every component in the library). The
+  `typography/font-family` variable was repointed **Montserrat → Inter**, and the
+  five stray Montserrat `Type/*` styles (Display/Heading/Body/Label/Button — which
+  matched neither the code nor the components) were **retired**.
+- Line-heights mirror Tailwind defaults; weighted variants cover the real
+  `font-medium`/`font-semibold` usage. Specimen on the Components page (`639:897`).
+- Guarded by `parity:figma`'s `checkTypography` (every code size has a style;
+  `sized-text` still maps the Tailwind utilities; font var = Inter).
+
 ## Button subset (worked example — what we actually build)
 
 Grounded in a usage audit (56 `<Button>`, 38 files): inverted 61%, default-variant ~95%, sizes Md/Sm/Xs/fit only (Lg/Xl unused), leftIcon 80%.
