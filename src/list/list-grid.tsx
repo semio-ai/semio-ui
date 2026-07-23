@@ -4,6 +4,7 @@ import {
   type MouseEvent,
   type ReactNode,
   useCallback,
+  useEffect,
   useMemo,
   useRef,
   useState,
@@ -46,8 +47,9 @@ export interface ListColumn<T> {
   flex?: boolean;
   /**
    * Hide this column when the grid's container is narrower than the breakpoint
-   * (pure CSS container query). The column must NOT be `flex` — hiding relies on
-   * its `auto` track collapsing to 0 once the cells are `display:none`.
+   * (pure CSS container query). Hiding relies on an `auto` track collapsing to 0
+   * once the cells are `display:none`, so a `hideBelow` column is always an
+   * `auto` track — `flex` is ignored for it.
    */
   hideBelow?: ListBreakpoint;
   /** Cell content. `state` lets a cell reflect focus/selection (the old
@@ -175,7 +177,16 @@ export function ListGrid<T>({
   // Header hover (multiple mode): previews all rows as a group and, on click,
   // toggles select-all — the select-all affordance that replaces the checkbox.
   const [headerHovered, setHeaderHovered] = useState(false);
-  const safeIndex = order.length === 0 ? 0 : Math.min(focusedIndex, order.length - 1);
+  // Clamp to range, then — if that row is disabled (e.g. the initial index 0 on
+  // a disabled first row) — fall back to the first enabled row so the roving
+  // tab-stop is always interactive.
+  const safeIndex = useMemo(() => {
+    if (order.length === 0) return 0;
+    const clamped = Math.min(focusedIndex, order.length - 1);
+    if (!isDisabled(order[clamped])) return clamped;
+    const firstEnabled = order.findIndex((id) => !isDisabled(id));
+    return firstEnabled >= 0 ? firstEnabled : clamped;
+  }, [order, focusedIndex, isDisabled]);
 
   // Clicking outside the grid clears the selection (unless disallowed). The
   // grid element wraps every row + the header, so anything else is "away".
@@ -254,6 +265,7 @@ export function ListGrid<T>({
     },
     [allowTypeAhead, enabledIds, itemById, getSearchText, indexOfId],
   );
+  useEffect(() => () => clearTimeout(queryTimer.current), []);
 
   const handleRowKeyDown = useCallback(
     (event: KeyboardEvent<HTMLElement>, id: string) => {
@@ -365,9 +377,11 @@ export function ListGrid<T>({
     [indexOfId, isDisabled, selectionMode, selection, onAction, disallowEmptySelection],
   );
 
-  // Column tracks: `1fr` for a flex column, else `auto`.
+  // Column tracks: `1fr` for a flex column, else `auto`. A `hideBelow` column is
+  // forced to `auto` regardless of `flex` — collapsing to 0 when hidden requires
+  // an auto track; a `1fr` track would keep reserving width and leave a gap.
   const gridTemplateColumns = useMemo(
-    () => columns.map((c) => (c.flex ? "1fr" : "auto")).join(" "),
+    () => columns.map((c) => (c.flex && !c.hideBelow ? "1fr" : "auto")).join(" "),
     [columns],
   );
   const rowColumns = useMemo(
@@ -392,6 +406,10 @@ export function ListGrid<T>({
       highlightedIndex={safeIndex}
       onHighlightedIndexChange={setFocusedIndex}
       loop={loop}
+      // Keep roving focus moving while these are held so selection-follows-focus
+      // (Shift = range, Cmd/Ctrl = focus-only) works on modified arrows; the
+      // composite otherwise bails on any modifier.
+      modifierKeys={["Shift", "Control", "Meta"]}
     >
       {/* `@container` makes column hiding respond to the grid's own width
           (container query), not the viewport — reliable and JS-free. */}

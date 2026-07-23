@@ -21,6 +21,14 @@ export interface TreeNavRootProps {
   onHighlightedIndexChange: (index: number) => void;
   /** Wrap from last→first and first→last. */
   loop?: boolean;
+  /**
+   * Modifier keys the composite should IGNORE when deciding whether to move
+   * roving focus — i.e. it still navigates while these are held. By default the
+   * composite bails on ANY modifier, so a consumer that layers modifier-aware
+   * selection on arrows (e.g. `ListGrid`'s Shift/Cmd+Arrow) must pass the
+   * modifiers it wants focus to keep moving under (e.g. `["Shift","Meta","Control"]`).
+   */
+  modifierKeys?: ("Shift" | "Control" | "Alt" | "Meta")[];
   /** Extra key handling layered on top of the composite (Left/Right, Enter…). */
   onKeyDown?: (event: KeyboardEvent<HTMLElement>) => void;
   /** ARIA role for the container; defaults to `tree`. */
@@ -36,6 +44,7 @@ export function TreeNavRoot({
   highlightedIndex,
   onHighlightedIndexChange,
   loop = false,
+  modifierKeys,
   onKeyDown,
   role = "tree",
   ariaLabel,
@@ -47,6 +56,7 @@ export function TreeNavRoot({
       orientation="vertical"
       enableHomeAndEndKeys
       loopFocus={loop}
+      modifierKeys={modifierKeys}
       highlightedIndex={highlightedIndex}
       onHighlightedIndexChange={onHighlightedIndexChange}
       render={<div role={role} aria-label={ariaLabel} className={className} onKeyDown={onKeyDown} />}

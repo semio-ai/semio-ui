@@ -56,6 +56,41 @@ test("multiple: Cmd+click toggles, Shift+click replaces with the range", async (
   expect(sorted(onSelectionChange.mock.calls.at(-1)![0])).toEqual(["b", "c"]);
 });
 
+test("multiple: Shift+ArrowDown extends selection by roving (focus must advance)", async () => {
+  const onSelectionChange = vi.fn();
+  render(
+    <ListGrid data={ROWS} getRowId={(r) => r.id} columns={NAME_COL} selectionMode="multiple" onSelectionChange={onSelectionChange} ariaLabel="l" />,
+  );
+  await userEvent.click(options()[0]); // select a, anchor a, focus a
+  await userEvent.keyboard("{Shift>}{ArrowDown}{/Shift}");
+  expect(sorted(onSelectionChange.mock.calls.at(-1)![0])).toEqual(["a", "b"]);
+  // The second extend only reaches c if roving focus actually advanced to b.
+  await userEvent.keyboard("{Shift>}{ArrowDown}{/Shift}");
+  expect(sorted(onSelectionChange.mock.calls.at(-1)![0])).toEqual(["a", "b", "c"]);
+});
+
+test("Cmd+ArrowDown moves roving focus without changing selection", async () => {
+  const onSelectionChange = vi.fn();
+  render(
+    <ListGrid data={ROWS} getRowId={(r) => r.id} columns={NAME_COL} selectionMode="multiple" onSelectionChange={onSelectionChange} ariaLabel="l" />,
+  );
+  await userEvent.click(options()[0]);
+  onSelectionChange.mockClear();
+  await userEvent.keyboard("{Meta>}{ArrowDown}{/Meta}");
+  expect(onSelectionChange).not.toHaveBeenCalled(); // focus-only
+  expect(options()[1].getAttribute("tabindex")).toBe("0"); // focus moved to b
+});
+
+test("first row disabled: the initial roving tab-stop is the first enabled row", () => {
+  render(
+    <ListGrid data={ROWS} getRowId={(r) => r.id} columns={NAME_COL} selectionMode="single" isRowDisabled={(r) => r.id === "a"} ariaLabel="l" />,
+  );
+  const opts = options();
+  expect(opts[0].getAttribute("aria-disabled")).toBe("true");
+  expect(opts[0].getAttribute("tabindex")).toBe("-1"); // disabled 'a' is not the tab stop
+  expect(opts[1].getAttribute("tabindex")).toBe("0"); // first enabled 'b' is
+});
+
 test("selection follows focus: ArrowDown moves selection to the next row (single)", async () => {
   const onSelectionChange = vi.fn();
   render(
