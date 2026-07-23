@@ -83,6 +83,8 @@ Grounded in a usage audit (56 `<Button>`, 38 files): inverted 61%, default-varia
 - **icon:** left-icon slot (first-class) + right-icon slot; `deemphasize` dropped; custom `color` = one example
 - **icon-only (square):** very common — `iconOnly = no children && exactly one icon` ([button.tsx:73](../src/buttons/button.tsx#L73)) → `sized-width` makes a square (Md 32×32) with the icon centered. In Figma it's a **`Show label` boolean** on the component: hiding the text node leaves icon + symmetric padding (8 + 16 + 8 = 32), collapsing to a perfect square. (Component properties can't drive sizing/padding, so the square falls out of symmetric padding, not a fixed dimension.)
 
+- **Horizontal fill:** the button is auto-layout **HUG** by default (fits its content — the correct button default). Content alignment is `primaryAxisAlignItems: CENTER` so a **filled** instance (set to Fill container, e.g. the Dialog's `flex-1` submit) stretches with its label centered — matching the code's `grid place-items-center`. (Was `MIN`/left-packed; centering is a no-op at hug width, only affecting wider/filled buttons.)
+
 Reference artifacts in the Figma file: the `Button examples — visuals × states` board (Playground) and the `Icon Library` (🔣 Icons).
 
 ## TextField subset (worked example #2 — the inputs recipe)
