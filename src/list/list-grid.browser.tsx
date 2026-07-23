@@ -101,6 +101,71 @@ test("selection follows focus: ArrowDown moves selection to the next row (single
   expect(sorted(onSelectionChange.mock.calls.at(-1)![0])).toEqual(["b"]);
 });
 
+test("multiple: Shift+Home / Shift+End extend the range to each edge from the anchor", async () => {
+  const onSelectionChange = vi.fn();
+  render(
+    <ListGrid data={ROWS} getRowId={(r) => r.id} columns={NAME_COL} selectionMode="multiple" onSelectionChange={onSelectionChange} ariaLabel="l" />,
+  );
+  await userEvent.click(options()[1]); // anchor b (middle of a,b,c)
+  await userEvent.keyboard("{Shift>}{Home}{/Shift}");
+  expect(sorted(onSelectionChange.mock.calls.at(-1)![0])).toEqual(["a", "b"]); // b→first
+  await userEvent.keyboard("{Shift>}{End}{/Shift}");
+  expect(sorted(onSelectionChange.mock.calls.at(-1)![0])).toEqual(["b", "c"]); // b→last
+});
+
+test("loop: ArrowUp from the first row wraps to the last (selection follows)", async () => {
+  const onSelectionChange = vi.fn();
+  render(
+    <ListGrid data={ROWS} getRowId={(r) => r.id} columns={NAME_COL} selectionMode="single" loop onSelectionChange={onSelectionChange} ariaLabel="l" />,
+  );
+  await userEvent.click(options()[0]); // focus + select a
+  await userEvent.keyboard("{ArrowUp}");
+  expect(sorted(onSelectionChange.mock.calls.at(-1)![0])).toEqual(["c"]); // wrapped to last (a,b,c)
+  expect(options()[2].getAttribute("tabindex")).toBe("0");
+});
+
+test("controlled: without a parent update, clicking does not drift the rendered selection", async () => {
+  const onSelectionChange = vi.fn();
+  render(
+    <ListGrid
+      data={ROWS}
+      getRowId={(r) => r.id}
+      columns={NAME_COL}
+      selectionMode="single"
+      selected={new Set(["b"])}
+      onSelectionChange={onSelectionChange}
+      ariaLabel="l"
+    />,
+  );
+  await userEvent.click(options()[0]); // request select a
+  expect(sorted(onSelectionChange.mock.calls.at(-1)![0])).toEqual(["a"]); // change is reported…
+  // …but the parent owns state and didn't update, so the render stays on 'b'.
+  expect(options()[1].getAttribute("aria-selected")).toBe("true");
+  expect(options()[0].getAttribute("aria-selected")).toBe("false");
+});
+
+test("hideBelow emits the container-query class on the header and every body cell", () => {
+  const columns: ListColumn<Row>[] = [
+    { key: "name", header: "Name", flex: true, render: (r) => <span>{r.name}</span> },
+    { key: "kind", header: "Kind", hideBelow: "sm", render: () => <span>kind</span> },
+  ];
+  render(<ListGrid data={ROWS} getRowId={(r) => r.id} columns={columns} selectionMode="single" ariaLabel="l" />);
+  // One header cell + one cell per row carry the hidden-below-sm class.
+  const hidden = document.querySelectorAll('[class~="@max-sm:hidden"]');
+  expect(hidden.length).toBe(ROWS.length + 1);
+});
+
+test("all rows disabled: nothing is selectable and there is no crash", () => {
+  const onSelectionChange = vi.fn();
+  render(
+    <ListGrid data={ROWS} getRowId={(r) => r.id} columns={NAME_COL} selectionMode="single" isRowDisabled={() => true} onSelectionChange={onSelectionChange} ariaLabel="l" />,
+  );
+  expect(options()).toHaveLength(ROWS.length);
+  expect(options().every((o) => o.getAttribute("aria-disabled") === "true")).toBe(true);
+  (options()[0] as HTMLElement).click();
+  expect(onSelectionChange).not.toHaveBeenCalled();
+});
+
 test("none mode: click fires onAction and selects nothing", async () => {
   const onAction = vi.fn();
   render(<ListGrid data={ROWS} getRowId={(r) => r.id} columns={NAME_COL} selectionMode="none" onAction={onAction} ariaLabel="l" />);
