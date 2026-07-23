@@ -1,6 +1,8 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import {
   TreeGrid,
+  Variant,
+  defaultResolveRowVisual,
   type FlatTreeRow,
   type ResolveRowVisual,
   type TreeNode,
@@ -200,6 +202,44 @@ export const CustomVisualResolver: Story = {
       getLabel={renderLabel}
       getEditor={renderEditor}
       resolveVisual={trackColorResolver}
+    />
+  ),
+};
+
+// ── 5b. Per-row theme variant / custom color via the design-system fields ──────
+// Confirms the hierarchical primitives support the SAME color capabilities as
+// ListGrid: a resolver can return `{ variant }` (theme palette, dark-mode aware)
+// or `{ color }` (arbitrary), spreading the theme-aware default intensities.
+
+const variantNodes: TreeNode<RowData>[] = [
+  {
+    id: "sensors",
+    data: { label: "sensors" },
+    children: [
+      { id: "sensors/ok", data: { label: "healthy", editor: "slider", color: "#30a46c" } },
+      { id: "sensors/warn", data: { label: "degraded", editor: "slider", color: "#f5a623" } },
+      { id: "sensors/err", data: { label: "faulted", editor: "slider", color: "#e5484d" } },
+    ],
+  },
+];
+
+// Map each row to a theme variant; per-row `color` (the node's own) overrides it.
+const perRowColorResolver: ResolveRowVisual<RowData> = (state, data) => ({
+  ...defaultResolveRowVisual(state, data),
+  variant: Variant.Info,
+  color: data.color,
+});
+
+export const PerRowThemeVariantAndColor: Story = {
+  name: "Per-row theme variant / custom color (design-system fields)",
+  render: () => (
+    <TreeGrid
+      nodes={variantNodes}
+      ariaLabel="Per-row colored tree"
+      getLabel={renderLabel}
+      getEditor={renderEditor}
+      resolveVisual={perRowColorResolver}
+      defaultSelected={["sensors/warn"]}
     />
   ),
 };

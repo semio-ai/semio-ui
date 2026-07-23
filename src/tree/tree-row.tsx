@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import { clsx } from "clsx";
 import { TreeIndent } from "./tree-indent";
 import type { RowVisual } from "./resolve-row-visual";
@@ -79,7 +79,14 @@ export function TreeRow({
 }: TreeRowProps) {
   return (
     <div
-      className={clsx("relative flex h-9 w-full items-center", className)}
+      className={clsx(
+        // `responsive` + the row's variant/custom-color set --accent-color for
+        // this row, so the bar/background below resolve to its theme/custom color.
+        "responsive relative flex h-9 w-full items-center",
+        visual?.color ? "custom-color" : visual?.variant,
+        className,
+      )}
+      style={visual?.color ? ({ "--custom-color": visual.color } as CSSProperties) : undefined}
       role={role}
       aria-level={ariaLevel}
       aria-expanded={ariaExpanded}

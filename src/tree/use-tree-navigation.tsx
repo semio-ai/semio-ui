@@ -21,6 +21,14 @@ export interface TreeNavRootProps {
   onHighlightedIndexChange: (index: number) => void;
   /** Wrap from last→first and first→last. */
   loop?: boolean;
+  /**
+   * Modifier keys the composite should IGNORE when deciding whether to move
+   * roving focus — i.e. it still navigates while these are held. By default the
+   * composite bails on ANY modifier, so a consumer that layers modifier-aware
+   * selection on arrows (e.g. `ListGrid`'s Shift/Cmd+Arrow) must pass the
+   * modifiers it wants focus to keep moving under (e.g. `["Shift","Meta","Control"]`).
+   */
+  modifierKeys?: ("Shift" | "Control" | "Alt" | "Meta")[];
   /** Extra key handling layered on top of the composite (Left/Right, Enter…). */
   onKeyDown?: (event: KeyboardEvent<HTMLElement>) => void;
   /** ARIA role for the container; defaults to `tree`. */
@@ -36,6 +44,7 @@ export function TreeNavRoot({
   highlightedIndex,
   onHighlightedIndexChange,
   loop = false,
+  modifierKeys,
   onKeyDown,
   role = "tree",
   ariaLabel,
@@ -47,6 +56,7 @@ export function TreeNavRoot({
       orientation="vertical"
       enableHomeAndEndKeys
       loopFocus={loop}
+      modifierKeys={modifierKeys}
       highlightedIndex={highlightedIndex}
       onHighlightedIndexChange={onHighlightedIndexChange}
       render={<div role={role} aria-label={ariaLabel} className={className} onKeyDown={onKeyDown} />}
@@ -65,6 +75,9 @@ export interface TreeNavItemProps {
   ariaExpanded?: boolean;
   /** Selection state (selectable rows). */
   ariaSelected?: boolean;
+  /** Non-interactive row: sets `aria-disabled`, which the composite reads to
+   *  skip it during roving navigation. Consumers also guard click/keydown. */
+  disabled?: boolean;
   className?: string;
   /** Row-level key handling (tree keys / selection); colocated with `onClick`. */
   onKeyDown?: (event: KeyboardEvent<HTMLElement>) => void;
@@ -86,6 +99,7 @@ export function TreeNavItem({
   ariaLevel,
   ariaExpanded,
   ariaSelected,
+  disabled,
   className,
   onKeyDown,
   onClick,
@@ -101,6 +115,7 @@ export function TreeNavItem({
           aria-level={ariaLevel}
           aria-expanded={ariaExpanded}
           aria-selected={ariaSelected}
+          aria-disabled={disabled || undefined}
           className={className}
           onKeyDown={onKeyDown}
           onClick={onClick}
