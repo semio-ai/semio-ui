@@ -108,6 +108,20 @@ test("type-ahead moves roving focus to the row whose search text matches", async
   expect(cherry.getAttribute("tabindex")).toBe("0");
 });
 
+test("deselectOnClickAway: clicking outside the list clears the selection", async () => {
+  const onSelectionChange = vi.fn();
+  render(
+    <div>
+      <ListGrid data={ROWS} getRowId={(r) => r.id} columns={NAME_COL} selectionMode="single" onSelectionChange={onSelectionChange} ariaLabel="l" />
+      <button type="button" data-testid="outside">outside</button>
+    </div>,
+  );
+  await userEvent.click(options()[0]);
+  expect(sorted(onSelectionChange.mock.calls.at(-1)![0])).toEqual(["a"]);
+  await userEvent.click(document.querySelector<HTMLElement>('[data-testid="outside"]')!);
+  expect([...onSelectionChange.mock.calls.at(-1)![0]]).toEqual([]);
+});
+
 test("none mode: ArrowDown roves focus without selecting", async () => {
   const onSelectionChange = vi.fn();
   render(

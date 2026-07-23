@@ -10,6 +10,7 @@ import {
 } from "react";
 import { clsx } from "clsx";
 import { Size } from "../types";
+import { useClickAway } from "../hooks/use-click-away";
 import { defaultResolveRowVisual, type ResolveRowVisual } from "../tree/resolve-row-visual";
 import { TreeNavItem, TreeNavRoot } from "../tree/use-tree-navigation";
 import { useTreeSelection } from "../tree/use-tree-selection";
@@ -68,6 +69,9 @@ export interface ListGridProps<T> {
   defaultSelected?: Iterable<string>;
   onSelectionChange?: (next: Set<string>) => void;
   disallowEmptySelection?: boolean;
+  /** Clicking outside the list clears the selection (unless empty selection is
+   *  disallowed). Defaults to true, matching the old TableList. */
+  deselectOnClickAway?: boolean;
   /**
    * Plain arrow navigation also moves selection to the newly-focused row
    * (Finder/listbox "selection follows focus"). Shift+arrow extends, Cmd/Ctrl+
@@ -133,6 +137,7 @@ export function ListGrid<T>({
   defaultSelected,
   onSelectionChange,
   disallowEmptySelection = false,
+  deselectOnClickAway = true,
   selectionFollowsFocus = true,
   onAction,
   allowTypeAhead = true,
@@ -170,6 +175,13 @@ export function ListGrid<T>({
   // toggles select-all — the select-all affordance that replaces the checkbox.
   const [headerHovered, setHeaderHovered] = useState(false);
   const safeIndex = order.length === 0 ? 0 : Math.min(focusedIndex, order.length - 1);
+
+  // Clicking outside the grid clears the selection (unless disallowed). The
+  // grid element wraps every row + the header, so anything else is "away".
+  const gridRef = useRef<HTMLDivElement>(null);
+  useClickAway(gridRef, () => {
+    if (deselectOnClickAway && !disallowEmptySelection && selectionMode !== "none") selection.clear();
+  });
 
   const allEnabledSelected =
     enabledIds.length > 0 && enabledIds.every((id) => selection.isSelected(id));
@@ -376,7 +388,7 @@ export function ListGrid<T>({
     >
       {/* `@container` makes column hiding respond to the grid's own width
           (container query), not the viewport — reliable and JS-free. */}
-      <div className="@container grid" style={{ gridTemplateColumns } as CSSProperties}>
+      <div ref={gridRef} className="@container grid" style={{ gridTemplateColumns } as CSSProperties}>
         {!noHeader && (
           <div
             className={clsx(
