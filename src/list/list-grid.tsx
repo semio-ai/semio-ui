@@ -150,9 +150,16 @@ export function ListGrid<T>({
     data.forEach((item) => map.set(getRowId(item), item));
     return map;
   }, [data, getRowId]);
+  const isDisabled = useCallback(
+    (id: string) => {
+      const item = itemById.get(id);
+      return isRowDisabled !== undefined && item !== undefined && isRowDisabled(item);
+    },
+    [isRowDisabled, itemById],
+  );
   const enabledIds = useMemo(
-    () => (isRowDisabled ? order.filter((id) => !isRowDisabled(itemById.get(id) as T)) : order),
-    [order, isRowDisabled, itemById],
+    () => (isRowDisabled ? order.filter((id) => !isDisabled(id)) : order),
+    [order, isRowDisabled, isDisabled],
   );
 
   const selection = useTreeSelection({
@@ -259,6 +266,7 @@ export function ListGrid<T>({
         if (COMPOSITE_NAV_KEYS.has(event.key)) event.stopPropagation();
         return;
       }
+      if (isDisabled(id)) return;
 
       const mod = event.ctrlKey || event.metaKey;
       switch (event.key) {
@@ -313,6 +321,7 @@ export function ListGrid<T>({
       nextEnabledIndex,
       edgeEnabledIndex,
       indexOfId,
+      isDisabled,
       selectionMode,
       selectionFollowsFocus,
       selection,
@@ -326,6 +335,7 @@ export function ListGrid<T>({
 
   const handleRowClick = useCallback(
     (event: MouseEvent<HTMLElement>, id: string) => {
+      if (isDisabled(id)) return;
       // Clicks that originate in an interactive cell control must not select the
       // row (embedded buttons/menus/inputs keep working).
       if (
@@ -352,7 +362,7 @@ export function ListGrid<T>({
         selection.clear();
       else selection.select(id);
     },
-    [indexOfId, selectionMode, selection, onAction, disallowEmptySelection],
+    [indexOfId, isDisabled, selectionMode, selection, onAction, disallowEmptySelection],
   );
 
   // Column tracks: `1fr` for a flex column, else `auto`.
@@ -451,6 +461,7 @@ export function ListGrid<T>({
               key={id}
               role={selectionMode === "none" ? "row" : "option"}
               ariaSelected={selectionMode === "none" ? undefined : selectedNow}
+              disabled={isDisabled(id)}
               className="col-span-full grid grid-cols-subgrid outline-none focus-visible:ring-2 focus-visible:ring-blue-500/70"
               onKeyDown={(event) => handleRowKeyDown(event, id)}
               onClick={(event) => handleRowClick(event, id)}

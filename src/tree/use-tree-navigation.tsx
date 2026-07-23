@@ -65,6 +65,9 @@ export interface TreeNavItemProps {
   ariaExpanded?: boolean;
   /** Selection state (selectable rows). */
   ariaSelected?: boolean;
+  /** Non-interactive row: sets `aria-disabled`, which the composite reads to
+   *  skip it during roving navigation. Consumers also guard click/keydown. */
+  disabled?: boolean;
   className?: string;
   /** Row-level key handling (tree keys / selection); colocated with `onClick`. */
   onKeyDown?: (event: KeyboardEvent<HTMLElement>) => void;
@@ -86,6 +89,7 @@ export function TreeNavItem({
   ariaLevel,
   ariaExpanded,
   ariaSelected,
+  disabled,
   className,
   onKeyDown,
   onClick,
@@ -101,6 +105,7 @@ export function TreeNavItem({
           aria-level={ariaLevel}
           aria-expanded={ariaExpanded}
           aria-selected={ariaSelected}
+          aria-disabled={disabled || undefined}
           className={className}
           onKeyDown={onKeyDown}
           onClick={onClick}

@@ -159,6 +159,33 @@ test("deselectOnClickAway: clicking outside the list clears the selection", asyn
   expect([...onSelectionChange.mock.calls.at(-1)![0]]).toEqual([]);
 });
 
+test("isRowDisabled: disabled rows are aria-disabled, unclickable, and skipped by roving", async () => {
+  const onSelectionChange = vi.fn();
+  render(
+    <ListGrid
+      data={ROWS}
+      getRowId={(r) => r.id}
+      columns={NAME_COL}
+      selectionMode="single"
+      isRowDisabled={(r) => r.id === "b"}
+      onSelectionChange={onSelectionChange}
+      ariaLabel="l"
+    />,
+  );
+  const opts = options();
+  expect(opts[1].getAttribute("aria-disabled")).toBe("true"); // Banana
+  // aria-disabled isn't user-clickable; a raw click still hits the handler,
+  // which must guard against selecting a disabled row.
+  (opts[1] as HTMLElement).click();
+  expect(onSelectionChange).not.toHaveBeenCalled();
+
+  // Selection-follows-focus skips the disabled row: a → (skip b) → c.
+  await userEvent.click(opts[0]);
+  onSelectionChange.mockClear();
+  await userEvent.keyboard("{ArrowDown}");
+  expect(sorted(onSelectionChange.mock.calls.at(-1)![0])).toEqual(["c"]);
+});
+
 test("none mode: ArrowDown roves focus without selecting", async () => {
   const onSelectionChange = vi.fn();
   render(

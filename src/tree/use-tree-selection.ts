@@ -168,7 +168,8 @@ export interface TreeSelection {
   /** Apply a gesture (default "replace") to `id`. */
   select: (id: string, modifiers?: SelectionModifiers) => void;
   /** Replace the selection wholesale (e.g. select-all). Sets the anchor to
-   *  `anchorId` when given, else leaves it unchanged. */
+   *  `anchorId` when given; otherwise keeps the current anchor only if it's still
+   *  in the new selection, and drops it (to null) when it isn't. */
   setSelection: (ids: Iterable<string>, anchorId?: string | null) => void;
   /** Clear the whole selection. */
   clear: () => void;
