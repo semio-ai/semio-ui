@@ -1,5 +1,11 @@
 import { useState } from "react";
-import { ListGrid, type ListColumn } from "@semio/ui";
+import {
+  ListGrid,
+  type ListColumn,
+  type ResolveRowVisual,
+  Variant,
+  defaultResolveRowVisual,
+} from "@semio/ui";
 
 interface Row {
   id: string;
@@ -159,6 +165,81 @@ export const EditableCells = () => {
             ),
           },
           { key: "kind", header: "Kind", render: (r) => <span className="text-neutral-500">{r.kind}</span> },
+        ]}
+      />
+    </div>
+  );
+};
+
+// Per-row color/variant: each row can carry its own theme variant or arbitrary
+// custom color (consistent with the rest of the UI library and with the
+// hierarchical primitives' arbitrary coloring). The resolver spreads the default
+// (theme-aware accent intensities) and adds a per-row color/variant, so selection
+// + hover render in that row's color. Left column = a swatch of the same color.
+const ROW_VARIANT: Record<string, Variant> = {
+  r1: Variant.Error,
+  r2: Variant.Success,
+  r3: Variant.Info,
+  r4: Variant.Warning,
+  r5: Variant.Primary,
+};
+export const PerRowVariant = () => {
+  const [sel, setSel] = useState<Set<string>>(new Set(["r2"]));
+  const resolveVisual: ResolveRowVisual<Row> = (state, row) => ({
+    ...defaultResolveRowVisual(state, row),
+    variant: ROW_VARIANT[row.id],
+  });
+  return (
+    <div className="w-[520px] p-4">
+      <ListGrid
+        data={ROWS}
+        getRowId={(r) => r.id}
+        selectionMode="single"
+        selected={sel}
+        onSelectionChange={setSel}
+        resolveVisual={resolveVisual}
+        ariaLabel="Per-row variant"
+        columns={[
+          { key: "name", header: "Name", flex: true, render: (r) => <span className="truncate">{r.name}</span> },
+          { key: "kind", header: "Kind", align: "right", render: (r) => <span className="text-neutral-500">{r.kind}</span> },
+        ]}
+      />
+    </div>
+  );
+};
+
+const ROW_COLOR: Record<string, string> = {
+  r1: "#e5484d",
+  r2: "#30a46c",
+  r3: "#0091ff",
+  r4: "#f5a623",
+  r5: "#8e4ec6",
+};
+export const PerRowCustomColor = () => {
+  const [sel, setSel] = useState<Set<string>>(new Set(["r3"]));
+  const resolveVisual: ResolveRowVisual<Row> = (state, row) => ({
+    ...defaultResolveRowVisual(state, row),
+    color: ROW_COLOR[row.id],
+  });
+  return (
+    <div className="w-[520px] p-4">
+      <ListGrid
+        data={ROWS}
+        getRowId={(r) => r.id}
+        selectionMode="single"
+        selected={sel}
+        onSelectionChange={setSel}
+        resolveVisual={resolveVisual}
+        ariaLabel="Per-row custom color"
+        columns={[
+          {
+            key: "dot",
+            header: "",
+            render: (r) => (
+              <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: ROW_COLOR[r.id] }} />
+            ),
+          },
+          { key: "name", header: "Name", flex: true, render: (r) => <span className="truncate">{r.name}</span> },
         ]}
       />
     </div>

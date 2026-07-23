@@ -77,12 +77,17 @@ export function ListRow({
         // Full-bleed to the container — no outer padding, no rounding — matching
         // the hierarchical rows (TreeRow). The selection tint/bar are `inset-0`.
         "relative col-span-full grid grid-cols-subgrid items-center",
+        // `responsive` + the row's variant/custom-color set --accent-color for
+        // this row, so the bar/background resolve to its theme/custom color.
+        "responsive",
+        visual?.color ? "custom-color" : visual?.variant,
         // Row height = one step taller than content (shared tree/list rhythm);
         // `size` still rides along so cell controls inherit the content size.
         ROW_HEIGHT[size],
         size,
         className,
       )}
+      style={visual?.color ? ({ "--custom-color": visual.color } as CSSProperties) : undefined}
     >
       {/* Background tint — always present so selection/hover changes transition. */}
       <div

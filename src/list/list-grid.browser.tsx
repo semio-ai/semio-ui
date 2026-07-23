@@ -1,6 +1,8 @@
 import { expect, test, vi } from "vitest";
 import { render } from "vitest-browser-react";
 import { userEvent } from "@vitest/browser/context";
+import { Variant } from "../types";
+import { defaultResolveRowVisual } from "../tree/resolve-row-visual";
 import { ListGrid, type ListColumn } from "./list-grid";
 
 interface Row {
@@ -106,6 +108,23 @@ test("type-ahead moves roving focus to the row whose search text matches", async
   await userEvent.keyboard("c"); // → Cherry
   const cherry = options().find((o) => o.textContent?.includes("Cherry"))!;
   expect(cherry.getAttribute("tabindex")).toBe("0");
+});
+
+test("per-row visual: each row applies its own variant / custom-color", () => {
+  const resolveVisual = (state: Parameters<typeof defaultResolveRowVisual>[0], row: Row) => ({
+    ...defaultResolveRowVisual(state, row),
+    ...(row.id === "a" ? { color: "rgb(48, 164, 108)" } : {}),
+    ...(row.id === "b" ? { variant: Variant.Success } : {}),
+  });
+  render(
+    <ListGrid data={ROWS} getRowId={(r) => r.id} columns={NAME_COL} selectionMode="single" resolveVisual={resolveVisual} ariaLabel="l" />,
+  );
+  const opts = options();
+  const rowA = opts[0].querySelector<HTMLElement>(".responsive")!;
+  expect(rowA.classList.contains("custom-color")).toBe(true);
+  expect(rowA.style.getPropertyValue("--custom-color")).toBe("rgb(48, 164, 108)");
+  const rowB = opts[1].querySelector<HTMLElement>(".responsive")!;
+  expect(rowB.classList.contains("success")).toBe(true);
 });
 
 test("deselectOnClickAway: clicking outside the list clears the selection", async () => {

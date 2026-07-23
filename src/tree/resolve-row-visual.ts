@@ -1,3 +1,5 @@
+import type { Variant } from "../types";
+
 /**
  * The row's interaction state, as the shared layer understands it. This is the
  * input to a visual resolver — deliberately domain-free (no track color, no
@@ -16,11 +18,26 @@ export interface RowInteractionState {
 }
 
 /**
- * Resolved styling for a row. `bar` colors the left-edge indicator; `background`
- * tints the whole row. `null`/`undefined` means "nothing" (the layer still
- * renders an empty, transition-ready element so state changes animate).
+ * Resolved styling for a row.
+ *
+ * Color is expressed the same way as the rest of the UI library so tables/trees
+ * stay consistent AND each row can be colored independently:
+ * - `variant` picks a theme palette (theme-aware; flips in dark mode).
+ * - `color` overrides with an arbitrary custom color (a per-row hex/rgb, e.g. an
+ *   animation track color). Takes precedence over `variant`.
+ * The row applies these as the design-system `responsive` + variant/`custom-color`
+ * classes, so `bar`/`background` can reference `var(--accent-color)` and resolve
+ * to that row's variant/color.
+ *
+ * `bar` colors the left-edge indicator; `background` tints the whole row.
+ * `null`/`undefined` means "nothing" (the layer still renders an empty,
+ * transition-ready element so state changes animate).
  */
 export interface RowVisual {
+  /** Theme palette for this row (defaults to the neutral `Default`). */
+  variant?: Variant;
+  /** Arbitrary per-row color; overrides `variant`. */
+  color?: string;
   bar?: string | null;
   background?: string | null;
 }
@@ -37,14 +54,23 @@ export type ResolveRowVisual<TData = unknown> = (
   data: TData,
 ) => RowVisual;
 
-/** Neutral fallback: a faint tint on emphasis, a stronger tint + bar on
- *  selection. Theme-agnostic (grey with alpha reads in light and dark). */
+/**
+ * Default: a faint tint on emphasis, a stronger tint + solid bar on selection —
+ * driven by the theme-aware `--accent-color` (via the row's `responsive` class),
+ * so it adapts to light/dark and to any per-row `variant`/`color`. With the
+ * neutral `Default` variant this reads like the previous grey; a consumer's
+ * resolver can return `{ variant }` or `{ color }` per row (spreading this
+ * default) to recolor selection without recomputing intensities.
+ */
 export const defaultResolveRowVisual: ResolveRowVisual = (state) => {
   if (state.selected) {
-    return { bar: "rgb(115 115 115 / 0.9)", background: "rgb(115 115 115 / 0.18)" };
+    return {
+      bar: "var(--accent-color)",
+      background: "color-mix(in oklab, var(--accent-color) 18%, transparent)",
+    };
   }
   if (state.emphasized) {
-    return { background: "rgb(115 115 115 / 0.08)" };
+    return { background: "color-mix(in oklab, var(--accent-color) 8%, transparent)" };
   }
   return { bar: null, background: null };
 };
