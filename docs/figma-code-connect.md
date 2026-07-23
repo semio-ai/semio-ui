@@ -48,6 +48,38 @@ Refs: [Code Connect (Help Center)](https://help.figma.com/hc/en-us/articles/2392
 - **Local `connect:parse` + `parity:figma`** — validate the bindings and guard
   Figma↔code drift (see below); runs in CI regardless of plan.
 
+## Adopting the library in code (Figma → `@semio/ui`, for agents)
+
+Since Code Connect Dev-Mode snippets aren't available on Professional, this is the
+canonical brief to hand an agent (or a developer) translating a design built from
+the Semio UI Library into code. The Figma file **is** `@semio/ui` — build from the
+library components, then map 1:1; don't reproduce styling by hand.
+
+1. **Component mapping.** A Figma component = the same-named export from
+   `@semio/ui` (`Button`, `TextField`, `Modal`, `Dialog`, `Tabs`, `Tooltip`,
+   `SliderNumberField`, `Label`, the `Nested*` menu parts, `Chip`, `Progress`, …).
+   Import from `@semio/ui`.
+2. **Variant / size / state → props.** Figma **Variant** axis → `variant`
+   (`Variant.Primary`, `.Error`, …). Figma **size** (xs/sm/md/lg/xl) → `size`.
+   **State** (hover/focus) is runtime — don't hardcode it; only `disabled` is a
+   prop. Icons: `Button` takes `leftIcon`/`rightIcon` (icon-registry keys),
+   `TextField` takes `icon`; pass the name, never inline SVG.
+3. **Fill vs. constrained (layout convention).** Read the instance's resizing in
+   Figma and mirror it. **Fill container** → fill: inputs (`TextField`,
+   `SliderNumberField`, `Select`, `Label`) are block/fill by default; a full-width
+   **Button** uses `className="w-full"` (or `flex-1` in a flex row, as in
+   `Dialog`). **Fixed/hug** → leave constrained; don't force a width. A filled
+   Button with icons pins them to the left/right edges and centers the label
+   automatically — just pass `leftIcon`/`rightIcon`.
+4. **Tokens — never hardcode.** `variant`/`color` props for color (not hex); the
+   `size`/`sized-text` scale for text (not fixed px); the `card` class (or
+   `Modal`/`Dialog`/`Tooltip`) for surfaces. Font is the system-sans stack — Inter
+   in Figma is only a rendering proxy, so don't set a font family.
+5. **Sources of truth** (no Dev-Mode snippets on Professional):
+   `packages/ui/src/**/*.figma.tsx` (each Figma node → prop mapping),
+   [figma-design-system-mapping.md](./figma-design-system-mapping.md) (per-component
+   recipes + the fill conventions), and the Storybook `design` links.
+
 ## Using it (developers, once on Organization/Enterprise)
 
 1. Have a Dev/Full seat and enable the Semio UI Library in your file
