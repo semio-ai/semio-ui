@@ -195,8 +195,11 @@ Code icons inherit `currentColor` (the context's text color); Figma has no equiv
 - **In a component** (Button, etc.): the component overrides the icon-slot fill to its own foreground (`color/<variant>/fg`) per-instance — the contextual analog.
 - **Standalone** (dropped directly): needs a neutral default. The `Color` collection had only variant button-foregrounds (`color/<variant>/fg` ≈ white), so we added **`color/content/fg`** (Light→`neutral/900`, Dark→`neutral/100`) and bound every `Icon/` component's fills **and** strokes to it (Tabler = stroke, semio = fill). Do **not** bind icons to `color/default/fg` — it's white and renders invisible on light surfaces.
 
+## The skills (distributed via a plugin, not this repo)
+The `figma-component-fidelity` (build a faithful Figma component) and `semio-ui-mockup` (reuse-first mockups + library-gap hook) skills used to live in `.claude/skills/` here; they now ship from the private **`semio-ai/claude-plugins`** marketplace as the `semio-design-system` plugin (`/plugin marketplace add semio-ai/claude-plugins` → `/plugin install semio-design-system@semio`). They still target this repo — their paths/commands are relative to a `semio_studio` checkout. Edit them in that repo, not here.
+
 ## Figma gotchas (carried in the skill)
-`clipsContent` clips offset rings / OUTSIDE strokes (unclip the frame + hugging containers) · paint-opacity resets on variable-bound fills (use node opacity) · pin the Brand mode or tokens resolve inconsistently · enumerate the full prop space (don't bake one visual).
+`clipsContent` clips offset rings / OUTSIDE strokes (unclip the frame + hugging containers) · paint-opacity resets on variable-bound fills (use node opacity) · pin the Brand mode or tokens resolve inconsistently · enumerate the full prop space (don't bake one visual) · SECTION children are section-relative (verify `absoluteBoundingBox`) · `vectorPaths` rejects SVG arc `A` (use cubic bézier).
 
 ## Applying to the next component
 Re-run the usage audit (`~/Projects/semio-button-usage-audit.mjs`, generalizes) for that component to find its real subset — selects/inputs share these classes but have different biases (e.g. inputs lean on `variant-responsive-appearing-outline` for focus). Then build with the recipe above + the skill.
