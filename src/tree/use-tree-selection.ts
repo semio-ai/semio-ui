@@ -58,6 +58,15 @@ export interface ApplySelectionParams {
   expand: (id: string) => string[];
   /** Scope key of a node, for the hierarchy-scope policy. */
   scopeOf?: (id: string) => string | undefined;
+  /**
+   * How a range gesture combines with the existing selection:
+   * - `"extend"` (default) — union the range into the current selection, keeping
+   *   what was already selected. This is the tree's behavior.
+   * - `"replace"` — the selection becomes exactly the range (Finder/file style).
+   *   Flat lists (`ListGrid`) use this.
+   * Either way the anchor is preserved across the range gesture.
+   */
+  rangeMode?: "extend" | "replace";
 }
 
 export interface ApplySelectionResult extends SelectionState {
@@ -78,7 +87,7 @@ export function applySelection(
   modifiers: SelectionModifiers,
   params: ApplySelectionParams,
 ): ApplySelectionResult {
-  const { order, expand, scopeOf } = params;
+  const { order, expand, scopeOf, rangeMode = "extend" } = params;
   const gesture = resolveGesture(modifiers);
   const scope = scopeOf?.(id);
 
@@ -100,11 +109,13 @@ export function applySelection(
   // API is shaped by real usage rather than guessed at here.
   const anchorValid = state.anchorId !== null && state.selected.has(state.anchorId);
   if (gesture === "range" && anchorValid) {
-    const next = new Set(state.selected);
+    // "replace" starts from empty (selection becomes exactly the range);
+    // "extend" starts from the current selection (union the range in).
+    const next = rangeMode === "replace" ? new Set<string>() : new Set(state.selected);
     for (const rangeId of idsInRange(order, state.anchorId!, id)) {
       for (const e of expand(rangeId)) next.add(e);
     }
-    // anchor is preserved across a range extend
+    // anchor is preserved across a range gesture, either mode
     return { selected: next, anchorId: state.anchorId, scopeChanged: false, scope };
   }
 
@@ -143,6 +154,9 @@ export interface UseTreeSelectionOptions {
   /** Hierarchy policy — descendant ids of a group node. When provided,
    *  selecting/toggling a group includes its descendants. */
   getDescendants?: (id: string) => string[];
+  /** Range-gesture combine mode (see {@link ApplySelectionParams.rangeMode}).
+   *  Trees extend (default); flat lists (`ListGrid`) replace. */
+  rangeMode?: "extend" | "replace";
 }
 
 export interface TreeSelection {
@@ -153,6 +167,9 @@ export interface TreeSelection {
   isSelected: (id: string) => boolean;
   /** Apply a gesture (default "replace") to `id`. */
   select: (id: string, modifiers?: SelectionModifiers) => void;
+  /** Replace the selection wholesale (e.g. select-all). Sets the anchor to
+   *  `anchorId` when given, else leaves it unchanged. */
+  setSelection: (ids: Iterable<string>, anchorId?: string | null) => void;
   /** Clear the whole selection. */
   clear: () => void;
 }
@@ -166,6 +183,7 @@ export function useTreeSelection(options: UseTreeSelectionOptions): TreeSelectio
     scopeOf,
     onScopeChange,
     getDescendants,
+    rangeMode,
   } = options;
 
   const [uncontrolled, setUncontrolled] = useState<Set<string>>(
@@ -190,21 +208,31 @@ export function useTreeSelection(options: UseTreeSelectionOptions): TreeSelectio
         order,
         expand,
         scopeOf,
+        rangeMode,
       });
       if (result.scopeChanged) onScopeChange?.(result.scope);
       if (!isControlled) setUncontrolled(result.selected);
       setAnchorId(result.anchorId);
       onSelectionChange?.(result.selected);
     },
-    [anchorId, expand, isControlled, onScopeChange, onSelectionChange, order, scopeOf, selected],
+    [anchorId, expand, isControlled, onScopeChange, onSelectionChange, order, rangeMode, scopeOf, selected],
   );
 
   const isSelected = useCallback((id: string) => selected.has(id), [selected]);
+  const setSelection = useCallback(
+    (ids: Iterable<string>, nextAnchor?: string | null) => {
+      const next = new Set(ids);
+      if (!isControlled) setUncontrolled(next);
+      if (nextAnchor !== undefined) setAnchorId(nextAnchor);
+      onSelectionChange?.(next);
+    },
+    [isControlled, onSelectionChange],
+  );
   const clear = useCallback(() => {
     if (!isControlled) setUncontrolled(new Set());
     setAnchorId(null);
     onSelectionChange?.(new Set());
   }, [isControlled, onSelectionChange]);
 
-  return { selected, anchorId, isSelected, select, clear };
+  return { selected, anchorId, isSelected, select, setSelection, clear };
 }

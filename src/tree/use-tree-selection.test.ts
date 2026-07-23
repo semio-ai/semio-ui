@@ -51,6 +51,23 @@ describe("applySelection", () => {
     expect(r.anchorId).toBe("b");
   });
 
+  it("rangeMode 'replace' makes the selection exactly the range (Finder-style), keeping the anchor", () => {
+    // 'a' was selected but is outside the b→d range; replace drops it.
+    const r = applySelection(
+      { selected: new Set(["a", "b"]), anchorId: "b" },
+      "d",
+      { range: true },
+      { order, expand: noDesc, rangeMode: "replace" },
+    );
+    expect([...r.selected].sort()).toEqual(["b", "c", "d"]);
+    expect(r.anchorId).toBe("b");
+  });
+
+  it("rangeMode defaults to 'extend' (unchanged for TreeGrid)", () => {
+    const r = applySelection({ selected: new Set(["a", "b"]), anchorId: "b" }, "d", { range: true }, params);
+    expect([...r.selected].sort()).toEqual(["a", "b", "c", "d"]);
+  });
+
   it("range with no anchor falls back to replace", () => {
     const r = applySelection(start, "c", { range: true }, params);
     expect([...r.selected]).toEqual(["c"]);
