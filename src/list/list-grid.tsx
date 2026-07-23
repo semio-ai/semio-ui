@@ -106,12 +106,6 @@ const COMPOSITE_NAV_KEYS = new Set(["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowR
 // the SAME seam as `TreeGrid` — no checkbox/radio indicator column. That keeps
 // list and tree one visual system; multi-select uses click / Cmd+click /
 // Shift+click / Cmd+A, exactly like the tree.
-//
-// NOTE — deferred to a follow-up pass (tracked in the STUDIO-91 plan), NOT
-// silently dropped: responsive column hiding (`requiredSize` + container width),
-// consecutive-row radius merging, `appearance` presets (card/panel/inline), and
-// `deselectOnClickAway`. The engine + a11y + the four selection modes land here
-// first; these are pure-visual/renderer concerns layered on next.
 
 /**
  * Flat, column-aligned, selectable, keyboard-navigable list — the flat analog of
@@ -120,7 +114,7 @@ const COMPOSITE_NAV_KEYS = new Set(["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowR
  * adapter. Reliability by construction: focus is declarative (no imperative
  * `ref.focus()`), hover is a separate channel from focus, and keystrokes inside a
  * cell control never trigger row navigation — so in-row inputs/buttons keep their
- * focus and typing is never stolen (the STUDIO-91 flakiness fix).
+ * focus and typing is never stolen.
  *
  * Keyboard: Up/Down/Home/End move focus (composite); in single/multiple with
  * `selectionFollowsFocus`, plain arrows also select, Shift extends (replace-range),
@@ -186,9 +180,12 @@ export function ListGrid<T>({
   const allEnabledSelected =
     enabledIds.length > 0 && enabledIds.every((id) => selection.isSelected(id));
   const toggleAll = useCallback(() => {
-    if (allEnabledSelected) selection.clear();
-    else selection.setSelection(enabledIds, null);
-  }, [allEnabledSelected, enabledIds, selection]);
+    if (allEnabledSelected) {
+      // Honor disallowEmptySelection: when clearing is not allowed, select-all
+      // stays a no-op rather than emptying the selection.
+      if (!disallowEmptySelection) selection.clear();
+    } else selection.setSelection(enabledIds, null);
+  }, [allEnabledSelected, disallowEmptySelection, enabledIds, selection]);
 
   const indexById = useMemo(() => {
     const map = new Map<string, number>();
@@ -330,7 +327,7 @@ export function ListGrid<T>({
   const handleRowClick = useCallback(
     (event: MouseEvent<HTMLElement>, id: string) => {
       // Clicks that originate in an interactive cell control must not select the
-      // row (embedded buttons/menus/inputs keep working) — the R1 reliability guard.
+      // row (embedded buttons/menus/inputs keep working).
       if (
         (event.target as HTMLElement).closest(
           "button, input, select, textarea, [role='menuitem'], [role='menuitemradio'], [data-radix-collection-item]",

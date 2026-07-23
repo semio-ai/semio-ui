@@ -127,6 +127,24 @@ test("per-row visual: each row applies its own variant / custom-color", () => {
   expect(rowB.classList.contains("success")).toBe(true);
 });
 
+test("multiple + disallowEmptySelection: header select-all never empties the selection", async () => {
+  const withHeader: ListColumn<Row>[] = [{ key: "name", header: "Name", flex: true, render: (r) => <span>{r.name}</span> }];
+  render(
+    <ListGrid
+      data={ROWS}
+      getRowId={(r) => r.id}
+      columns={withHeader}
+      selectionMode="multiple"
+      disallowEmptySelection
+      defaultSelected={["a", "b", "c"]}
+      ariaLabel="l"
+    />,
+  );
+  const header = document.querySelector<HTMLElement>('[role="button"][aria-label="Select all"]')!;
+  await userEvent.click(header); // all selected + disallowEmptySelection → no-op, not a clear
+  expect(options().every((o) => o.getAttribute("aria-selected") === "true")).toBe(true);
+});
+
 test("deselectOnClickAway: clicking outside the list clears the selection", async () => {
   const onSelectionChange = vi.fn();
   render(
@@ -152,7 +170,7 @@ test("none mode: ArrowDown roves focus without selecting", async () => {
   expect(onSelectionChange).not.toHaveBeenCalled();
 });
 
-// R1 reliability guard: an interactive control inside a cell must handle its own
+// Reliability guard: an interactive control inside a cell must handle its own
 // click WITHOUT the row treating it as a selection gesture.
 test("clicking an in-row button does not select the row", async () => {
   const onSelectionChange = vi.fn();

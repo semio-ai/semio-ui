@@ -223,7 +223,11 @@ export function useTreeSelection(options: UseTreeSelectionOptions): TreeSelectio
     (ids: Iterable<string>, nextAnchor?: string | null) => {
       const next = new Set(ids);
       if (!isControlled) setUncontrolled(next);
+      // Keep the anchor only if it's still selected; otherwise drop it so a later
+      // range gesture doesn't extend from a row that's no longer in the set. An
+      // explicit `nextAnchor` always wins.
       if (nextAnchor !== undefined) setAnchorId(nextAnchor);
+      else setAnchorId((current) => (current !== null && next.has(current) ? current : null));
       onSelectionChange?.(next);
     },
     [isControlled, onSelectionChange],

@@ -3,9 +3,9 @@ import { render } from "vitest-browser-react";
 import { userEvent } from "@vitest/browser/context";
 import { ListGrid, type ListColumn } from "./list-grid";
 
-// The STUDIO-91 headline: text editing inside a row must survive the list —
-// ListGrid must never steal focus from an in-row control, and a realtime
-// re-render must not drop keystrokes. See the plan's R1/R2 split.
+// Text editing inside a row must survive the list: ListGrid must never steal
+// focus from an in-row control, and a realtime re-render must not drop
+// keystrokes (focus theft and value reset are distinct failure modes).
 
 interface Row {
   id: string;
