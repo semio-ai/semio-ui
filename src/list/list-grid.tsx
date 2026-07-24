@@ -480,13 +480,24 @@ export function ListGrid<T>({
               role={selectionMode === "none" ? "row" : "option"}
               ariaSelected={selectionMode === "none" ? undefined : selectedNow}
               disabled={isDisabled(id)}
-              className="col-span-full grid grid-cols-subgrid outline-none focus-visible:ring-2 focus-visible:ring-blue-500/70"
+              className="col-span-full grid grid-cols-subgrid outline-none group/row"
               onKeyDown={(event) => handleRowKeyDown(event, id)}
               onClick={(event) => handleRowClick(event, id)}
               onMouseEnter={() => setHoveredId(id)}
               onMouseLeave={() => setHoveredId((cur) => (cur === id ? null : cur))}
             >
-              <ListRow columns={rowColumns} cells={cells} visual={visual} size={size} />
+              {/* Keyboard focus indicator lives on the row (not this wrapper) so
+                  it resolves the row's own `--accent-color` — matching the
+                  selection bar/background instead of a fixed hue. An inset
+                  `outline` (not a `ring`/box-shadow) so it paints above the
+                  row's absolute background overlay rather than behind it. */}
+              <ListRow
+                columns={rowColumns}
+                cells={cells}
+                visual={visual}
+                size={size}
+                className="group-focus-visible/row:outline group-focus-visible/row:outline-2 group-focus-visible/row:-outline-offset-2 group-focus-visible/row:outline-[var(--accent-color)]"
+              />
             </TreeNavItem>
           );
         })}
