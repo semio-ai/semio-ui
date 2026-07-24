@@ -288,9 +288,11 @@ export function TreeGrid<T>({
             onMouseEnter={() => setHoveredId(row.id)}
             onMouseLeave={() => setHoveredId((current) => (current === row.id ? null : current))}
           >
-            {/* Keyboard focus ring lives on the row (not this wrapper) so it
-                resolves the row's own `--accent-color` — matching the selection
-                bar/background instead of a fixed hue. */}
+            {/* Keyboard focus indicator lives on the row (not this wrapper) so
+                it resolves the row's own `--accent-color` — matching the
+                selection bar/background instead of a fixed hue. An inset
+                `outline` (not a `ring`/box-shadow) so it paints above the row's
+                absolute background overlay rather than behind it. */}
             <TreeRow
               depth={row.depth}
               ancestorIsLast={guideLines === "last-child" ? row.ancestorIsLast : undefined}
@@ -300,7 +302,7 @@ export function TreeGrid<T>({
               editor={getEditor?.(row)}
               actions={getActions?.(row)}
               visual={visual}
-              className="rounded-xs group-focus-visible/row:ring-2 group-focus-visible/row:ring-[var(--accent-color)] group-focus-visible/row:ring-inset"
+              className="rounded-xs group-focus-visible/row:outline group-focus-visible/row:outline-2 group-focus-visible/row:-outline-offset-2 group-focus-visible/row:outline-[var(--accent-color)]"
             />
           </TreeNavItem>
         );

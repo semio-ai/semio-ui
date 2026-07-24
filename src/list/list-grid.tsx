@@ -486,15 +486,17 @@ export function ListGrid<T>({
               onMouseEnter={() => setHoveredId(id)}
               onMouseLeave={() => setHoveredId((cur) => (cur === id ? null : cur))}
             >
-              {/* Keyboard focus ring lives on the row (not this wrapper) so it
-                  resolves the row's own `--accent-color` — matching the
-                  selection bar/background instead of a fixed hue. */}
+              {/* Keyboard focus indicator lives on the row (not this wrapper) so
+                  it resolves the row's own `--accent-color` — matching the
+                  selection bar/background instead of a fixed hue. An inset
+                  `outline` (not a `ring`/box-shadow) so it paints above the
+                  row's absolute background overlay rather than behind it. */}
               <ListRow
                 columns={rowColumns}
                 cells={cells}
                 visual={visual}
                 size={size}
-                className="group-focus-visible/row:ring-2 group-focus-visible/row:ring-[var(--accent-color)] group-focus-visible/row:ring-inset"
+                className="group-focus-visible/row:outline group-focus-visible/row:outline-2 group-focus-visible/row:-outline-offset-2 group-focus-visible/row:outline-[var(--accent-color)]"
               />
             </TreeNavItem>
           );
