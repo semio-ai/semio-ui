@@ -1,6 +1,11 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Checkbox, type CheckboxProps, Size, Variant } from "@semio/ui";
 import { useState, type ReactNode } from "react";
+import { checkboxVariant } from "./figma-links";
+
+// Per-story Figma design link → the matching Checkbox preview frame (1:1).
+// Mirrors button.stories.tsx / text-field.stories.tsx.
+const design = (url: string) => ({ design: { type: "figma" as const, url } });
 
 const meta: Meta<typeof Checkbox> = {
   component: Checkbox,
@@ -30,6 +35,7 @@ function CheckboxRenderer({ ...props }: CheckboxProps): ReactNode {
  * to learn how to use render functions.
  */
 export const Primary: Story = {
+  parameters: design(checkboxVariant.primary),
   render: (args) => <CheckboxRenderer {...args} />,
   args: {
     checked: true,
@@ -40,6 +46,7 @@ export const Primary: Story = {
 };
 
 export const Secondary: Story = {
+  parameters: design(checkboxVariant.secondary),
   render: (args) => <CheckboxRenderer {...args} />,
   args: {
     checked: true,
@@ -50,6 +57,7 @@ export const Secondary: Story = {
 };
 
 export const Tertiary: Story = {
+  parameters: design(checkboxVariant.tertiary),
   render: (args) => <CheckboxRenderer {...args} />,
   args: {
     checked: true,
@@ -60,6 +68,7 @@ export const Tertiary: Story = {
 };
 
 export const Success: Story = {
+  parameters: design(checkboxVariant.success),
   render: (args) => <CheckboxRenderer {...args} />,
   args: {
     checked: true,
@@ -70,6 +79,7 @@ export const Success: Story = {
 };
 
 export const Warning: Story = {
+  parameters: design(checkboxVariant.warning),
   render: (args) => <CheckboxRenderer {...args} />,
   args: {
     checked: true,
@@ -80,6 +90,7 @@ export const Warning: Story = {
 };
 
 export const Error: Story = {
+  parameters: design(checkboxVariant.error),
   render: (args) => <CheckboxRenderer {...args} />,
   args: {
     checked: true,
@@ -90,6 +101,7 @@ export const Error: Story = {
 };
 
 export const Info: Story = {
+  parameters: design(checkboxVariant.info),
   render: (args) => <CheckboxRenderer {...args} />,
   args: {
     checked: true,
@@ -100,6 +112,7 @@ export const Info: Story = {
 };
 
 export const ExtraSmall: Story = {
+  parameters: design(checkboxVariant.primary),
   render: (args) => <CheckboxRenderer {...args} />,
   args: {
     checked: true,
@@ -110,6 +123,7 @@ export const ExtraSmall: Story = {
 };
 
 export const Small: Story = {
+  parameters: design(checkboxVariant.primary),
   render: (args) => <CheckboxRenderer {...args} />,
   args: {
     checked: true,
@@ -120,6 +134,7 @@ export const Small: Story = {
 };
 
 export const Medium: Story = {
+  parameters: design(checkboxVariant.primary),
   render: (args) => <CheckboxRenderer {...args} />,
   args: {
     checked: true,
@@ -130,6 +145,7 @@ export const Medium: Story = {
 };
 
 export const Large: Story = {
+  parameters: design(checkboxVariant.primary),
   render: (args) => <CheckboxRenderer {...args} />,
   args: {
     checked: true,
@@ -140,6 +156,7 @@ export const Large: Story = {
 };
 
 export const ExtraLarge: Story = {
+  parameters: design(checkboxVariant.primary),
   render: (args) => <CheckboxRenderer {...args} />,
   args: {
     checked: true,
@@ -150,6 +167,7 @@ export const ExtraLarge: Story = {
 };
 
 export const Disabled: Story = {
+  parameters: design(checkboxVariant.primary),
   render: (args) => <CheckboxRenderer {...args} />,
   args: {
     checked: true,

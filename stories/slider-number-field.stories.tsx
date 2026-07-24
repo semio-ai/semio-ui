@@ -2,7 +2,12 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Size, SliderNumberField, type SliderNumberFieldProps } from "@semio/ui";
 import { useState, type ReactElement } from "react";
 
+import { sliderNumberFieldPreview } from "./figma-links";
+
+const design = (url: string) => ({ design: { type: "figma" as const, url } });
+
 const meta: Meta<typeof SliderNumberField> = {
+  parameters: design(sliderNumberFieldPreview),
   component: SliderNumberField,
   title: "ui/SliderNumberField",
   decorators: [

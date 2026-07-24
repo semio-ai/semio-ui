@@ -1,0 +1,13 @@
+{
+  "component": "ProgressCircle",
+  "nodeId": "529:1093",
+  "capturedAt": "2026-07-21",
+  "source": "Captured via the Figma MCP (use_figma reads of node 529:1093 — the ProgressCircle component set on the 🧩 Components page of the Semio UI Library file, key supplied at session start, not committed). DOCUMENTED SUBSET (see packages/ui/docs/figma-design-system-mapping.md). The ring uses arcData donut segments (track + 60%-demo arc). Refresh from the live file before running in CI.",
+  "variantOptions": {
+    "Variant": ["default", "primary", "secondary", "tertiary", "error", "success", "warning", "info"]
+  },
+  "properties": ["Show icon", "Icon"],
+  "sampleVariant": {
+    "arcFillVar": "color/primary/bg"
+  }
+}

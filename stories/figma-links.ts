@@ -27,3 +27,154 @@ export const buttonVariant = {
   borderedPrimary: figmaNode("387-618"),
   borderedSecondary: figmaNode("387-653"),
 } as const;
+
+/**
+ * TextField preview nodes for 1:1 story→design links. Each points at a dedicated
+ * `preview/textfield/interact/<variant>` frame on the Examples page (a single
+ * variant rendered in a **Light** and **Dark** cell, Color-mode pinned per cell),
+ * NOT a variant inside the TextField set — so the Figma embed shows just that
+ * field in both themes rather than zooming to the whole 60-variant set. The
+ * stories all use `outline="interact"`; `always`/`hidden` are shown in the set.
+ */
+export const textFieldVariant = {
+  interactPrimary: figmaNode("498-758"),
+  interactDefault: figmaNode("498-803"),
+} as const;
+
+/**
+ * Checkbox preview nodes for 1:1 story→design links. Each points at a dedicated
+ * `preview/checkbox/<variant>` frame on the Examples page (the checked box in a
+ * **Light** and **Dark** cell, Color-mode pinned per cell), NOT a variant inside
+ * the Checkbox set. Size + disabled stories reuse `primary` (Figma models size as
+ * examples, not an axis — matching Button/TextField).
+ */
+export const checkboxVariant = {
+  primary: figmaNode("504-799"),
+  secondary: figmaNode("504-817"),
+  tertiary: figmaNode("504-834"),
+  success: figmaNode("504-851"),
+  warning: figmaNode("504-868"),
+  error: figmaNode("504-885"),
+  info: figmaNode("504-902"),
+} as const;
+
+/**
+ * Switch preview nodes for 1:1 story→design links. Each points at a dedicated
+ * `preview/switch/<variant>` frame on the Examples page (the on-state switch in a
+ * **Light** and **Dark** cell, Color-mode pinned per cell). Off/disabled stories
+ * reuse `primary`.
+ */
+export const switchVariant = {
+  default: figmaNode("507-918"),
+  primary: figmaNode("507-931"),
+  secondary: figmaNode("507-944"),
+  tertiary: figmaNode("507-957"),
+  error: figmaNode("507-970"),
+} as const;
+
+/**
+ * ToggleSquare preview nodes for 1:1 story→design links. Each points at a dedicated
+ * `preview/togglesquare/<variant>` frame on the Examples page (the on-state toggle in
+ * a **Light** and **Dark** cell, Color-mode pinned per cell). Off/partial/disabled
+ * stories reuse `primary`.
+ */
+export const toggleSquareVariant = {
+  default: figmaNode("508-1038"),
+  primary: figmaNode("508-1059"),
+  secondary: figmaNode("508-1080"),
+  tertiary: figmaNode("508-1101"),
+  error: figmaNode("508-1122"),
+} as const;
+
+/**
+ * Input *presets* — Search / Email / Password / NumberField are not their own
+ * Figma components; they're configurations of the TextField set (+ a label / eye /
+ * units). These point at the `preset/<name>` frames on the "Input presets" board
+ * (Examples page). Only NumberField has Storybook stories today; the others are
+ * documented Figma-side only.
+ */
+export const inputPreset = {
+  search: figmaNode("517-943"),
+  email: figmaNode("517-970"),
+  password: figmaNode("517-1011"),
+  numberField: figmaNode("517-1031"),
+} as const;
+
+/**
+ * Chip preview nodes for 1:1 story→design links. Each points at a dedicated
+ * `preview/chip/<variant>` frame on the Examples page (a full chip — icon + label +
+ * delete — in a **Light** and **Dark** cell, Color-mode pinned per cell). Size /
+ * no-icon / no-delete stories reuse `info`; custom-color reuses `primary`.
+ */
+export const chipVariant = {
+  primary: figmaNode("523-1080"),
+  info: figmaNode("523-1101"),
+} as const;
+
+/** Progress bar preview frames — `preview/progress/<variant>` (Light+Dark), fixed ~60% demo. */
+export const progressVariant = {
+  default: figmaNode("530-1028"),
+  primary: figmaNode("530-1041"),
+  secondary: figmaNode("530-1050"),
+  tertiary: figmaNode("530-1063"),
+  error: figmaNode("530-1076"),
+  success: figmaNode("530-1089"),
+  warning: figmaNode("530-1102"),
+  info: figmaNode("530-1115"),
+} as const;
+
+/** ProgressCircle preview frames — `preview/progresscircle/<variant>` (Light+Dark). Size / icon stories reuse `success`. */
+export const progressCircleVariant = {
+  primary: figmaNode("530-1156"),
+  secondary: figmaNode("530-1173"),
+  tertiary: figmaNode("530-1200"),
+  success: figmaNode("530-1227"),
+} as const;
+
+/** Status (dot) preview frames — `preview/status/<variant>` (Light+Dark). */
+export const statusVariant = {
+  default: figmaNode("546-1077"),
+  primary: figmaNode("546-1086"),
+  secondary: figmaNode("546-1093"),
+  tertiary: figmaNode("546-1102"),
+  error: figmaNode("546-1111"),
+  success: figmaNode("546-1120"),
+  warning: figmaNode("546-1129"),
+  info: figmaNode("546-1138"),
+} as const;
+
+/** Spinner preview frame — `preview/spinner` (static representation of the animated ring). */
+export const spinnerPreview = figmaNode("546-1147");
+
+/**
+ * Menu — the composed nested-elements example (NestedLabel + NestedItem rows +
+ * NestedSeparator) on the Components page. The primitives only render inside a
+ * Dropdown/ContextMenu, so the menu story links here rather than to a bare row.
+ */
+export const menuExample = figmaNode("556-724");
+
+/**
+ * Floating containers. Two of the four were promoted to real component sets —
+ * Modal and Dialog have a fixed, content-agnostic card shell, so they're
+ * variant-bound components (with a composed usage example alongside). Dropdown
+ * and Select stay as composition example frames: they're arrangements of
+ * already-componentized rows (NestedItem/NestedRadio/Chip) over a dynamic,
+ * data-driven list, which doesn't map cleanly to a static component.
+ */
+export const modalComponent = figmaNode("600-1375");
+export const dialogComponent = figmaNode("600-1495");
+
+export const floatingExample = {
+  dropdown: figmaNode("569-1162"),
+  select: figmaNode("569-1214"),
+} as const;
+
+/** Tabs preview frame — `preview/tabs` (Light+Dark). The reusable tab-row primitive
+ * a tabbed modal composes from (SidebarModal/TabbedModal are composed in Figma). */
+export const tabsPreview = figmaNode("579-1198");
+
+/** Tooltip preview frame — `preview/tooltip` (Light+Dark). */
+export const tooltipPreview = figmaNode("587-1217");
+
+/** SliderNumberField preview frame — `preview/slidernumberfield` (Light+Dark). */
+export const sliderNumberFieldPreview = figmaNode("587-1235");

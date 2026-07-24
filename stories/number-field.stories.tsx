@@ -1,6 +1,11 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Size, NumberField, type NumberFieldProps, Variant } from "@semio/ui";
 import { useState, type ReactElement } from "react";
+import { inputPreset } from "./figma-links";
+
+// NumberField is a preset/composition of the TextField set (a numeric field + units),
+// so its design link points at the `preset/numberfield` frame on the Input presets board.
+const design = (url: string) => ({ design: { type: "figma" as const, url } });
 
 const meta: Meta<typeof NumberField> = {
   component: NumberField,
@@ -50,6 +55,7 @@ function NumberFieldWithHooks(props: NumberFieldProps): ReactElement {
  * to learn how to use render functions.
  */
 export const Primary: Story = {
+  parameters: design(inputPreset.numberField),
   render: (props) => {
     return <NumberFieldWithHooks {...props} />;
   },
@@ -65,6 +71,7 @@ export const Primary: Story = {
 };
 
 export const PrimaryLabel: Story = {
+  parameters: design(inputPreset.numberField),
   render: (props) => {
     return <NumberFieldWithHooks {...props} />;
   },
@@ -81,6 +88,7 @@ export const PrimaryLabel: Story = {
 };
 
 export const PrimaryLabelUnits: Story = {
+  parameters: design(inputPreset.numberField),
   render: (props) => {
     return <NumberFieldWithHooks {...props} />;
   },
@@ -98,6 +106,7 @@ export const PrimaryLabelUnits: Story = {
 };
 
 export const CustomLabelUnits: Story = {
+  parameters: design(inputPreset.numberField),
   render: (props) => {
     return <NumberFieldWithHooks {...props} />;
   },

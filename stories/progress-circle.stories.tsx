@@ -8,6 +8,10 @@ import {
   ICON_CLASS_NAME,
 } from "@semio/ui";
 import { IconCheck } from "@tabler/icons-react";
+import { progressCircleVariant } from "./figma-links";
+
+// Per-story Figma design link → the matching ProgressCircle preview frame (1:1).
+const design = (url: string) => ({ design: { type: "figma" as const, url } });
 
 const meta: Meta<typeof ProgressCircle> = {
   component: ProgressCircle,
@@ -45,6 +49,7 @@ function ProgressAnimator(props: ProgressCircleProps): ReactNode {
  * to learn how to use render functions.
  */
 export const Primary: Story = {
+  parameters: design(progressCircleVariant.primary),
   render: (args) => <ProgressAnimator {...args} />,
   args: {
     variant: Variant.Primary,
@@ -53,6 +58,7 @@ export const Primary: Story = {
 };
 
 export const Secondary: Story = {
+  parameters: design(progressCircleVariant.secondary),
   render: (args) => <ProgressAnimator {...args} />,
   args: {
     variant: Variant.Secondary,
@@ -61,6 +67,7 @@ export const Secondary: Story = {
 };
 
 export const Tertiary: Story = {
+  parameters: design(progressCircleVariant.tertiary),
   render: (args) => <ProgressAnimator {...args} />,
   args: {
     variant: Variant.Tertiary,
@@ -69,6 +76,7 @@ export const Tertiary: Story = {
 };
 
 export const ExtraSmall: Story = {
+  parameters: design(progressCircleVariant.success),
   render: (args) => <ProgressAnimator {...args} />,
   args: {
     variant: Variant.Success,
@@ -77,6 +85,7 @@ export const ExtraSmall: Story = {
 };
 
 export const Small: Story = {
+  parameters: design(progressCircleVariant.success),
   render: (args) => <ProgressAnimator {...args} />,
   args: {
     variant: Variant.Success,
@@ -85,6 +94,7 @@ export const Small: Story = {
 };
 
 export const Medium: Story = {
+  parameters: design(progressCircleVariant.success),
   render: (args) => <ProgressAnimator {...args} />,
   args: {
     variant: Variant.Success,
@@ -93,6 +103,7 @@ export const Medium: Story = {
 };
 
 export const Large: Story = {
+  parameters: design(progressCircleVariant.success),
   render: (args) => <ProgressAnimator {...args} />,
   args: {
     variant: Variant.Success,
@@ -101,6 +112,7 @@ export const Large: Story = {
 };
 
 export const ExtraLarge: Story = {
+  parameters: design(progressCircleVariant.success),
   render: (args) => <ProgressAnimator {...args} />,
   args: {
     variant: Variant.Success,
@@ -109,6 +121,7 @@ export const ExtraLarge: Story = {
 };
 
 export const InnerIcon: Story = {
+  parameters: design(progressCircleVariant.success),
   render: (args) => <ProgressAnimator {...args} />,
   args: {
     variant: Variant.Success,

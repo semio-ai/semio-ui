@@ -1,0 +1,9 @@
+{
+  "component": "Dialog",
+  "nodeId": "600:1495",
+  "capturedAt": "2026-07-21",
+  "source": "use_figma read of node 600:1495 (Dialog set, 🧩 Components). DOCUMENTED SUBSET: the confirmation `.card` chrome — header (title + description + icon-only close Button) / footer (Cancel + Submit, full-width split) — across a representative Variant axis (default/primary/error; error is the destructive-confirm case). Shares Modal's card language: surface/inset bg + 2px border (surface/separator) + rounded-sm (4px) + shadow-lg. Body optional in code (confirmation-only shown). hairline = surface/separator. Refresh from the live file before CI.",
+  "variantOptions": { "Variant": ["default", "primary", "error"] },
+  "properties": ["Title#600:16", "Show description#600:20", "Show cancel#600:24"],
+  "sampleVariant": { "cardFillVar": "color/surface/inset", "borderVar": "color/surface/separator", "dividerVar": "color/surface/separator", "cornerRadius": 4 }
+}

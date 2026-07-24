@@ -1,0 +1,9 @@
+{
+  "component": "Card",
+  "nodeId": "609:1347",
+  "capturedAt": "2026-07-21",
+  "source": "use_figma read of node 609:1347 (Card set, 🧩 Components). FOUNDATION PRIMITIVE: the `.card` CSS class represented as a Figma component — an empty themed surface across the Variant axis. bg = surface/inset (= layout-*-inset), 2px border = the variant accent (color/<variant>/bg, mirroring --card-border-color = the variant accent-text-color), rounded-sm (4px), shadow = the shared 'elevation/card' effect style. Shared basis for floating elements (Modal/Dialog/Dropdown/Select/Tooltip/Menu) and layout panels. No Code Connect (it's a class, not a React component). Refresh from the live file before CI.",
+  "variantOptions": { "Variant": ["default", "primary", "secondary", "tertiary", "error"] },
+  "properties": [],
+  "sampleVariant": { "fillVar": "color/surface/inset", "borderTokenPerVariant": "color/<variant>/bg", "cornerRadius": 4, "shadowStyle": "elevation/card" }
+}

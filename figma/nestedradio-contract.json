@@ -1,0 +1,9 @@
+{
+  "component": "NestedRadio",
+  "nodeId": "562:767",
+  "capturedAt": "2026-07-21",
+  "source": "use_figma read of node 562:767 (NestedRadio set, 🧩 Components). DOCUMENTED SUBSET: NestedItem row chrome + a radio-selected indicator shown when selected (default variant). Refresh from the live file before CI.",
+  "variantOptions": { "State": ["unselected", "selected"] },
+  "properties": ["Label"],
+  "sampleVariant": { "accentVar": "color/default/bg-hover", "indicator": "radio-selected" }
+}

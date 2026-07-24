@@ -4,7 +4,12 @@ import { Button, Dropdown, Size, Variant, type DropdownProps, ICON_CLASS_NAME } 
 import { IconChevronDown } from "@tabler/icons-react";
 import { NestedExample } from "./prebuilt/nested-example";
 
+import { floatingExample } from "./figma-links";
+
+const design = (url: string) => ({ design: { type: "figma" as const, url } });
+
 const meta: Meta<typeof Dropdown> = {
+  parameters: design(floatingExample.dropdown),
   component: Dropdown,
   title: "ui/Dropdown",
   decorators: [

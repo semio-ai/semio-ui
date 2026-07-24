@@ -1,0 +1,19 @@
+{
+  "component": "Typography",
+  "specimenNodeId": "639:897",
+  "capturedAt": "2026-07-22",
+  "source": "Local text styles + the Typography variable collection in the Semio UI Library. FOUNDATION: a code-aligned type ramp mirroring @semio/ui's text sizing — the `sized-text` component scale (0.6rem/xs/base/xl/2xl) plus the common `text-sm`, with Tailwind-default line-heights. Font is Inter, the deliberate proxy for the code's system-sans stack (--font-sans: ui-sans-serif, system-ui, …); typography/font-family variable = Inter. Weighted styles cover the real font-medium/semibold usage. Specimen at 639:897. Refresh from the live file before CI.",
+  "fontFamilyVar": "Inter",
+  "styles": [
+    { "name": "Text/2xs", "size": 9.6, "lineHeight": "auto", "weight": "Regular" },
+    { "name": "Text/xs", "size": 12, "lineHeight": 16, "weight": "Regular" },
+    { "name": "Text/sm", "size": 14, "lineHeight": 20, "weight": "Regular" },
+    { "name": "Text/sm · Medium", "size": 14, "lineHeight": 20, "weight": "Medium" },
+    { "name": "Text/base", "size": 16, "lineHeight": 24, "weight": "Regular" },
+    { "name": "Text/base · Medium", "size": 16, "lineHeight": 24, "weight": "Medium" },
+    { "name": "Text/base · Semibold", "size": 16, "lineHeight": 24, "weight": "Semi Bold" },
+    { "name": "Text/xl", "size": 20, "lineHeight": 28, "weight": "Regular" },
+    { "name": "Text/2xl", "size": 24, "lineHeight": 32, "weight": "Regular" },
+    { "name": "Text/2xl · Semibold", "size": 24, "lineHeight": 32, "weight": "Semi Bold" }
+  ]
+}

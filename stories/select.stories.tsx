@@ -3,7 +3,12 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Select, type SelectProps, Size, Variant, ICON_CLASS_NAME } from "@semio/ui";
 import { IconMessageCircle2, IconWorld } from "@tabler/icons-react";
 
+import { floatingExample } from "./figma-links";
+
+const design = (url: string) => ({ design: { type: "figma" as const, url } });
+
 const meta: Meta<typeof Select> = {
+  parameters: design(floatingExample.select),
   component: Select,
   title: "ui/Select",
   decorators: [

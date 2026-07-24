@@ -37,6 +37,8 @@
     "generate:icons": "node scripts/generate-icon-registry.mjs",
     "generate:icon-svgs": "node scripts/generate-icon-svgs.mjs",
     "parity:figma": "node scripts/figma-parity-check.mjs",
+    "connect:parse": "figma connect parse",
+    "connect:publish": "figma connect publish",
     "lint": "eslint . --max-warnings 0",
     "lint:fix": "eslint . --fix",
     "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist",
