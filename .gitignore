@@ -9,3 +9,6 @@ figma/icon-svgs.new-keys.json
 # success, ignored here in case a run crashes before cleanup).
 scripts/.registry-entry.*
 scripts/.registry-bundle.*
+
+# vitest browser-mode failure artifacts
+__screenshots__/
