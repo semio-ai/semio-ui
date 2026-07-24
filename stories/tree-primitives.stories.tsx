@@ -18,8 +18,14 @@ import { type ReactElement, useState } from "react";
  * Ctrl/Cmd = toggle) · Enter enters the row's first control · Escape leaves it.
  * Click selects; Ctrl/Shift-click toggle/range.
  */
+// Per-story Figma design link → the TreeGrid composition example frame.
+const design = (url: string) => ({ design: { type: "figma" as const, url } });
+const FIGMA_TREE_GRID =
+  "https://www.figma.com/design/ExKZLlbGQ3lJxBddvR500j/Semio-UI-Library?node-id=690-1359";
+
 const meta: Meta = {
   title: "ui/TreePrimitives",
+  parameters: design(FIGMA_TREE_GRID),
   decorators: [
     (Story) => (
       <div className="min-h-[28rem] w-full bg-neutral-900 p-5 text-neutral-100">

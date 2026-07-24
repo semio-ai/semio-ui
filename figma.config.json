@@ -1,0 +1,9 @@
+{
+  "codeConnect": {
+    "parser": "react",
+    "include": ["src/**/*.tsx", "src/**/*.ts"],
+    "documentUrlSubstitutions": {
+      "<SEMIO_UI_LIBRARY>": "https://www.figma.com/design/ExKZLlbGQ3lJxBddvR500j/Semio-UI-Library"
+    }
+  }
+}

@@ -34,7 +34,12 @@ const COLUMNS: ListColumn<Row>[] = [
   },
 ];
 
-export default { title: "ui/ListGrid" };
+// Per-story Figma design link → the ListGrid composition example frame.
+const design = (url: string) => ({ design: { type: "figma" as const, url } });
+const FIGMA_LIST_GRID =
+  "https://www.figma.com/design/ExKZLlbGQ3lJxBddvR500j/Semio-UI-Library?node-id=689-1309";
+
+export default { title: "ui/ListGrid", parameters: design(FIGMA_LIST_GRID) };
 
 export const DisplayOnly = () => (
   <div className="w-[520px] p-4">
