@@ -1,7 +1,7 @@
 {
   "name": "@semio/ui",
   "description": "Basic React components, built by Semio with Radix/Tailwind",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/semio-ai/semio_studio.git",
@@ -42,8 +42,11 @@
     "lint": "eslint . --max-warnings 0",
     "lint:fix": "eslint . --fix",
     "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist",
-    "test:unit": "vitest run",
-    "test": "vitest run"
+    "test:unit": "vitest run --project unit",
+    "test:browser": "vitest run --project browser",
+    "test": "vitest run --project unit",
+    "connect:parse": "figma connect parse",
+    "connect:publish": "figma connect publish"
   },
   "dependencies": {
     "@base-ui/react": "^1.4.1",
@@ -80,17 +83,22 @@
     "@semio/eslint-config": "*",
     "@semio/typescript-config": "*",
     "@tailwindcss/cli": "^4.1.3",
+    "@testing-library/react": "^16.0.1",
     "@types/lodash": "^4.17.0",
     "@types/react": "^19.1.0",
     "@types/react-dom": "^19.1.0",
     "@types/three": "^0.170.0",
+    "@vitejs/plugin-react": "^4.2.1",
+    "@vitest/browser": "^3.2.6",
     "autoprefixer": "^10.4.19",
+    "playwright": "^1.60.0",
     "postcss": "^8.5.10",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "tsup": "^8.0.1",
     "typescript": "^5.3.3",
-    "vitest": "^3.2.4"
+    "vitest": "^3.2.4",
+    "vitest-browser-react": "^1.0.1"
   },
   "publishConfig": {
     "access": "public"

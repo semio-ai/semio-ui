@@ -165,6 +165,8 @@ export * from "./keybinding";
 export * from "./keybinding-context";
 
 export * from "./node-tree";
+export * from "./tree";
+export * from "./list";
 export * from "./menu-item";
 export * from "./snippet";
 

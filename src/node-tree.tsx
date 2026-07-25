@@ -108,6 +108,12 @@ function remapChildren(nodeList: any[]): NodeMap {
 /**
  * Renders a tree of nodes.
  *
+ * @deprecated Superseded by the `tree/` primitives (`flattenTree`,
+ * `useCollapsibleTree`, `TreeRow`, `TreeIndent`, `TreeToggle`). This
+ * `any`-typed recursive tree predates them and has no current consumers;
+ * prefer the typed primitives for new hierarchical lists. Slated for removal
+ * once nothing references it.
+ *
  * @param nodeList - The list of nodes to render.
  * @param renderNode - The function that renders each individual node.
  * @returns The rendered tree component.
