@@ -83,6 +83,10 @@ export function TreeRow({
         // `responsive` + the row's variant/custom-color set --accent-color for
         // this row, so the bar/background below resolve to its theme/custom color.
         "responsive relative flex h-9 w-full items-center",
+        // Readable foreground by default, for the same reason as `ListRow`: a row
+        // must not depend on an ancestor supplying one, or it renders as the UA
+        // default black on a dark surface.
+        "text-neutral-900 dark:text-neutral-100",
         visual?.color ? "custom-color" : visual?.variant,
         className,
       )}
