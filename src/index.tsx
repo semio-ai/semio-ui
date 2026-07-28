@@ -85,6 +85,7 @@ export * from "./icons/select-cursor";
 export * from "./icons/slow";
 export * from "./icons/speaker";
 export * from "./icons/speaker-off";
+export * from "./icons/sphere";
 export * from "./icons/static-icon";
 export * from "./icons/vector-angled";
 export * from "./icons/vector-bezier";
