@@ -1,5 +1,27 @@
 # @semio/ui
 
+## 0.1.3
+
+### Patch Changes
+
+- 4aef9ab: `ListRow` and `TreeRow` declare their own foreground colour, so a row stays readable without a themed ancestor.
+
+  Neither component set a text colour, so a row inherited whatever its host page supplied — and a host that supplied none fell through to the user-agent default black: legible on a light surface, unreadable on a dark one. `ListGrid`'s column header cells already declared `text-neutral-500 dark:text-neutral-400`, so a listing rendered outside a themed panel showed legible headers above illegible rows.
+
+  Both row components now set `text-neutral-900 dark:text-neutral-100`.
+
+  Consumers that already wrap these in a themed container are unaffected: `GridPanel`, for instance, supplies exactly that pair, so the value rows were inheriting is the one now declared. Consumers that deliberately recolour rows are also unaffected — a `className` on the row still wins over the default.
+
+  Patch rather than minor: no API surface changes, and selection continues to be expressed through `RowVisual.bar` / `RowVisual.background` rather than through text colour, so no consumer styling contract moves.
+
+- a708b61: `ListGrid` and `TreeGrid` draw the keyboard focus indicator in the row's own accent colour, inset.
+
+  Both hardcoded `focus-visible:ring-2 focus-visible:ring-blue-500/70` on the focusable row wrapper — a raw Tailwind hue rather than a token, and the one element that ignored the row's colour while the selection bar and background already derived from `var(--accent-color)`. The indicator now lives on the row itself and resolves that variable, so it matches the row's variant or custom colour.
+
+  It is also an inset `outline` rather than a `ring`, so it paints above the row's absolute background overlay instead of behind it.
+
+  Released here rather than in its own version: this shipped to `main` in #271 (STUDIO-99) without a changeset, so it was never published and is riding along with this release. Recording it so the changelog reflects what `0.1.3` actually contains.
+
 ## 0.1.2
 
 ### Patch Changes
