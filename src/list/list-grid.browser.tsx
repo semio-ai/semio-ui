@@ -332,6 +332,6 @@ test("a row declares its own text color rather than inheriting from its host", (
   const rowRoot = rows()[0]?.querySelector<HTMLElement>(".responsive");
   expect(rowRoot).toBeTruthy();
   const classes = rowRoot!.className;
-  expect(classes).toMatch(/(?:^|\s)text-\S+/);
-  expect(classes).toMatch(/(?:^|\s)dark:text-\S+/);
+  expect(classes).toMatch(/(?:^|\s)text-neutral-\S+/);
+  expect(classes).toMatch(/(?:^|\s)dark:text-neutral-\S+/);
 });
