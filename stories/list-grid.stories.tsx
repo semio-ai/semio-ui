@@ -273,3 +273,30 @@ export const ResponsiveHiding = () => (
     ))}
   </div>
 );
+
+// A grid on a bare surface — no themed ancestor supplying a text colour, which
+// is how a real page renders it when the listing IS the page rather than a panel
+// inside one. The rows must stay readable in BOTH themes on their own: they used
+// to inherit the document default (black), so the column headers — which declare
+// their own colour — were legible above rows that were not, on dark.
+export const UnthemedSurface = () => (
+  <div className="flex flex-col gap-6">
+    {(["light", "dark"] as const).map((theme) => (
+      <div
+        key={theme}
+        className={theme === "dark" ? "dark bg-layout-dark-base p-4" : "bg-layout-light-base p-4"}
+      >
+        <div className="mb-2 font-mono text-xs text-neutral-500">{theme}</div>
+        {/* Deliberately no text-* class on this wrapper. */}
+        <div className="w-[520px]">
+          <ListGrid
+            data={ROWS}
+            getRowId={(r) => r.id}
+            columns={COLUMNS}
+            ariaLabel={`Unthemed ${theme} list`}
+          />
+        </div>
+      </div>
+    ))}
+  </div>
+);
