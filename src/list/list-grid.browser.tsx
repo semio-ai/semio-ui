@@ -313,3 +313,25 @@ test("clicking an in-row button does not select the row", async () => {
   expect(onButton).toHaveBeenCalledWith("b");
   expect(onSelectionChange).not.toHaveBeenCalled();
 });
+
+// A row must declare its own foreground rather than inheriting its host's.
+// Regression guard: rows previously set no colour at all, so a listing rendered
+// without a themed ancestor fell through to the UA default (black) — fine on
+// light, unreadable on dark, and inconsistent with `ListGrid`'s column headers,
+// which do declare their own.
+//
+// Asserts the utilities are PRESENT rather than checking the computed colour:
+// the browser project deliberately runs without the compiled stylesheet (it
+// tests focus/keyboard behaviour, not paint), so every element computes to the
+// same inherited black and a colour assertion would pass vacuously. Not pinning
+// a specific shade also keeps this alive through a palette change.
+test("a row declares its own text color rather than inheriting from its host", () => {
+  render(<ListGrid data={ROWS} getRowId={(r) => r.id} columns={NAME_COL} ariaLabel="l" />);
+  // `role="row"` sits on the focus wrapper; `ListRow`'s own root is the element
+  // inside it carrying `responsive`.
+  const rowRoot = rows()[0]?.querySelector<HTMLElement>(".responsive");
+  expect(rowRoot).toBeTruthy();
+  const classes = rowRoot!.className;
+  expect(classes).toMatch(/(?:^|\s)text-neutral-\S+/);
+  expect(classes).toMatch(/(?:^|\s)dark:text-neutral-\S+/);
+});

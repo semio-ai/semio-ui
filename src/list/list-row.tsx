@@ -77,6 +77,14 @@ export function ListRow({
         // Full-bleed to the container — no outer padding, no rounding — matching
         // the hierarchical rows (TreeRow). The selection tint/bar are `inset-0`.
         "relative col-span-full grid grid-cols-subgrid items-center",
+        // Readable foreground by default. Without this a row inherits whatever
+        // its host page supplies, and a page that supplies nothing falls through
+        // to the UA default black — fine on light, unreadable on dark. The column
+        // headers in `ListGrid` already declare their own colour, so a listing
+        // rendered outside a themed panel had legible headers above illegible
+        // rows. Selection is expressed by `visual.bar` / `visual.background`,
+        // never by text colour, so setting this unconditionally is safe.
+        "text-neutral-900 dark:text-neutral-100",
         // `responsive` + the row's variant/custom-color set --accent-color for
         // this row, so the bar/background resolve to its theme/custom color.
         "responsive",
