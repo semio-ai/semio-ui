@@ -831,8 +831,12 @@
   .variant-mock-inner-item {
     @apply transition-colors duration-50 ease-in-out;
     @apply rounded-[1px];
-    @apply dark:text-black text-white;
 
+    /* Same solid-accent fill as the toggle pill, so the foreground is derived from
+     * it for the same reason: a theme-flipped white/black pair measured 2.5:1 on
+     * secondary and 3.1:1 on tertiary against the light-mode fill. Icons carry a
+     * lower bar than text (3:1), but secondary failed that too. */
+    color: var(--on-accent-color);
     background-color: var(--accent-color);
   }
 
