@@ -1,0 +1,152 @@
+import type { ReactNode, Ref } from "react";
+import { clsx } from "clsx";
+
+/** Aspect ratios the media slot offers. */
+export type CardMediaAspect = "video" | "square" | "wide";
+
+const MEDIA_ASPECT: Record<CardMediaAspect, string> = {
+  video: "aspect-video",
+  square: "aspect-square",
+  wide: "aspect-[3/1]",
+};
+
+/** How the footer's content distributes along the row. */
+export type CardFooterAlign = "start" | "end" | "between";
+
+const FOOTER_ALIGN: Record<CardFooterAlign, string> = {
+  start: "justify-start",
+  end: "justify-end",
+  between: "justify-between",
+};
+
+export interface CardProps {
+  /**
+   * Preview content, filling the card's top edge with no padding — an image, a
+   * canvas, a placeholder glyph. The slot carries a neutral tint of its own, so an
+   * empty or still-loading media area already looks deliberate; content that
+   * should cover it (a real image) needs `size-full object-cover`.
+   *
+   * Omit both this and {@link mediaCorner} and the slot is not rendered at all,
+   * rather than collapsing to a zero-height band.
+   */
+  media?: ReactNode;
+  /** Aspect ratio of the media slot. Defaults to `video`. */
+  mediaAspect?: CardMediaAspect;
+  /**
+   * Overlaid in the media slot's top-right corner. For a secondary affordance —
+   * an overflow menu, a pin — that should stay clear of the primary action in the
+   * footer. Renders the media slot even when `media` is absent.
+   */
+  mediaCorner?: ReactNode;
+  /** Primary label. Gets the card's title treatment, and truncates. */
+  title?: ReactNode;
+  /** Trailing element on the title row, e.g. a `Chip`. Never truncates. */
+  titleTrailing?: ReactNode;
+  /** Body content below the title — metadata lines and the like. */
+  children?: ReactNode;
+  /**
+   * Pinned to the bottom of the card, below the body. Cards in a grid stretch to
+   * a shared row height, so footers line up across a row regardless of how much
+   * body content each card has.
+   */
+  footer?: ReactNode;
+  /** Footer distribution. Defaults to `end`. */
+  footerAlign?: CardFooterAlign;
+  /** Classes for the outer surface. */
+  className?: string;
+  /** Classes for the padded body column, e.g. to change its spacing. */
+  bodyClassName?: string;
+  ref?: Ref<HTMLDivElement>;
+}
+
+/**
+ * A content card: an optional media slot, a title row, body content, and a footer
+ * pinned to the bottom.
+ *
+ * This is the *structure* only. What goes in each slot — which glyph stands in for
+ * a missing preview, which badge sits beside the title, which actions the footer
+ * holds — is the consumer's, exactly as with {@link ListRow}. Slots are props
+ * rather than compound children, matching the rest of the package.
+ *
+ * **It declares its own foreground.** The `.card` utility class supplies a surface
+ * and a border but no text colour, so a card built on the bare class inherits
+ * whatever its host page provides — and a host that provides nothing falls through
+ * to the user-agent default black: fine on a light surface, unreadable on a dark
+ * one. This is the same trap `ListRow` and `TreeRow` fell into. Declaring the
+ * colour here means a card is readable wherever it is placed, and it is why body
+ * content should state a muted colour outright rather than reaching for `opacity`
+ * — opacity over an inherited black is still black, which is what made the bug
+ * look intentional.
+ *
+ * **Full height by design.** `h-full` so a card fills its grid cell; combined with
+ * the footer's `mt-auto`, that is what aligns footers across a row of cards with
+ * unequal body content.
+ */
+export function Card({
+  media,
+  mediaAspect = "video",
+  mediaCorner,
+  title,
+  titleTrailing,
+  children,
+  footer,
+  footerAlign = "end",
+  className,
+  bodyClassName,
+  ref,
+}: CardProps) {
+  const hasMedia = media !== undefined || mediaCorner !== undefined;
+  const hasTitleRow = title !== undefined || titleTrailing !== undefined;
+
+  return (
+    <div
+      ref={ref}
+      className={clsx(
+        "card flex h-full flex-col overflow-hidden",
+        // See the note above: the surface class carries no foreground, so this must.
+        "text-neutral-900 dark:text-neutral-100",
+        className,
+      )}
+    >
+      {hasMedia && (
+        <div
+          className={clsx(
+            "relative grid shrink-0 place-items-center overflow-hidden",
+            // The empty-media look, so a card without a preview is not a void.
+            "bg-neutral-300/40 dark:bg-neutral-700/40",
+            MEDIA_ASPECT[mediaAspect],
+          )}
+        >
+          {media}
+          {mediaCorner !== undefined && (
+            <div className="absolute top-1.5 right-1.5">{mediaCorner}</div>
+          )}
+        </div>
+      )}
+
+      <div className={clsx("flex flex-1 flex-col gap-2 p-3", bodyClassName)}>
+        {hasTitleRow && (
+          <div className="flex flex-row items-start justify-between gap-2">
+            {title !== undefined && (
+              <span className="min-w-0 truncate text-sm font-medium">{title}</span>
+            )}
+            {titleTrailing !== undefined && <div className="flex-none">{titleTrailing}</div>}
+          </div>
+        )}
+
+        {children}
+
+        {footer !== undefined && (
+          <div
+            className={clsx(
+              "mt-auto flex flex-row items-center gap-1 pt-1",
+              FOOTER_ALIGN[footerAlign],
+            )}
+          >
+            {footer}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
