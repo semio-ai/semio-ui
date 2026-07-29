@@ -147,7 +147,14 @@ export function ToggleGroup({
                 "grid place-items-center transition-colors",
                 (visuals === "icons" || visuals === "labels") && "grid-cols-1 grid-rows-1",
                 visuals === "both" && "grid-cols-[auto_auto] grid-rows-1",
-                value === option.value ? "text-white dark:text-black" : "variant-responsive-text",
+                // The active item sits on the pill, which is filled with this item's
+                // own `--accent-color`; `--on-accent-color` is derived from that fill
+                // so the label stays legible for every variant, both themes, and any
+                // `option.color`. A theme-flipped `text-white dark:text-black` pair
+                // cannot: the light-mode fill is only sometimes the darker of the two.
+                value === option.value
+                  ? "text-[var(--on-accent-color)]"
+                  : "variant-responsive-text",
               )}
               style={
                 option.color
