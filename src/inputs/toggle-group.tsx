@@ -103,6 +103,7 @@ export function ToggleGroup({
           only when it can, instead of depending on an animation completing. */}
       <div
         aria-hidden
+        data-toggle-pill=""
         style={{
           ...(activeOption?.color
             ? ({ "--custom-color": activeOption.color } as CSSProperties)
