@@ -41,13 +41,15 @@ const FIGMA_LIST_GRID =
 
 export default { title: "ui/ListGrid", parameters: design(FIGMA_LIST_GRID) };
 
-export const DisplayOnly = () => (
-  <div className="w-[520px] p-4">
-    <ListGrid data={ROWS} getRowId={(r) => r.id} columns={COLUMNS} ariaLabel="Display list" />
-  </div>
-);
+export function DisplayOnly() {
+  return (
+    <div className="w-[520px] p-4">
+      <ListGrid data={ROWS} getRowId={(r) => r.id} columns={COLUMNS} ariaLabel="Display list" />
+    </div>
+  );
+}
 
-export const SingleSelect = () => {
+export function SingleSelect() {
   const [sel, setSel] = useState<Set<string>>(new Set(["r2"]));
   return (
     <div className="w-[520px] p-4">
@@ -63,40 +65,44 @@ export const SingleSelect = () => {
       />
     </div>
   );
-};
+}
 
-export const MultipleSelect = () => (
-  <div className="w-[520px] p-4">
-    <ListGrid
-      data={ROWS}
-      getRowId={(r) => r.id}
-      columns={COLUMNS}
-      selectionMode="multiple"
-      defaultSelected={["r1", "r2"]}
-      getSearchText={(r) => r.name}
-      ariaLabel="Multi-select list"
-    />
-  </div>
-);
+export function MultipleSelect() {
+  return (
+    <div className="w-[520px] p-4">
+      <ListGrid
+        data={ROWS}
+        getRowId={(r) => r.id}
+        columns={COLUMNS}
+        selectionMode="multiple"
+        defaultSelected={["r1", "r2"]}
+        getSearchText={(r) => r.name}
+        ariaLabel="Multi-select list"
+      />
+    </div>
+  );
+}
 
-export const NoHeaderSingleColumn = () => (
-  <div className="w-[360px] p-4">
-    <ListGrid
-      data={ROWS}
-      getRowId={(r) => r.id}
-      columns={[{ key: "name", flex: true, render: (r) => <span className="truncate">{r.name}</span> }]}
-      selectionMode="single"
-      noHeader
-      defaultSelected={["r3"]}
-      ariaLabel="Compact list"
-    />
-  </div>
-);
+export function NoHeaderSingleColumn() {
+  return (
+    <div className="w-[360px] p-4">
+      <ListGrid
+        data={ROWS}
+        getRowId={(r) => r.id}
+        columns={[{ key: "name", flex: true, render: (r) => <span className="truncate">{r.name}</span> }]}
+        selectionMode="single"
+        noHeader
+        defaultSelected={["r3"]}
+        ariaLabel="Compact list"
+      />
+    </div>
+  );
+}
 
 // Capability check (parity with the old TableList's rich cells): a cell may
 // render ANY content and reflect the row's interaction state via the second
 // `render` arg — here an avatar, a chip, and a "✓ selected" marker.
-export const RichCells = () => {
+export function RichCells() {
   const [sel, setSel] = useState<Set<string>>(new Set(["r2"]));
   return (
     <div className="w-[560px] p-4">
@@ -138,12 +144,12 @@ export const RichCells = () => {
       />
     </div>
   );
-};
+}
 
 // Capability + reliability demo: rows containing editable inputs. Typing (and
 // arrowing at the text boundary) stays in the field — the list never steals
 // focus. Behavior is locked by list-grid-reliability.browser.tsx.
-export const EditableCells = () => {
+export function EditableCells() {
   const [names, setNames] = useState<Record<string, string>>(
     Object.fromEntries(ROWS.map((r) => [r.id, r.name])),
   );
@@ -174,7 +180,7 @@ export const EditableCells = () => {
       />
     </div>
   );
-};
+}
 
 // Per-row color/variant: each row can carry its own theme variant or arbitrary
 // custom color (consistent with the rest of the UI library and with the
@@ -188,7 +194,7 @@ const ROW_VARIANT: Record<string, Variant> = {
   r4: Variant.Warning,
   r5: Variant.Primary,
 };
-export const PerRowVariant = () => {
+export function PerRowVariant() {
   const [sel, setSel] = useState<Set<string>>(new Set(["r2"]));
   const resolveVisual: ResolveRowVisual<Row> = (state, row) => ({
     ...defaultResolveRowVisual(state, row),
@@ -211,7 +217,7 @@ export const PerRowVariant = () => {
       />
     </div>
   );
-};
+}
 
 const ROW_COLOR: Record<string, string> = {
   r1: "#e5484d",
@@ -220,7 +226,7 @@ const ROW_COLOR: Record<string, string> = {
   r4: "#f5a623",
   r5: "#8e4ec6",
 };
-export const PerRowCustomColor = () => {
+export function PerRowCustomColor() {
   const [sel, setSel] = useState<Set<string>>(new Set(["r3"]));
   const resolveVisual: ResolveRowVisual<Row> = (state, row) => ({
     ...defaultResolveRowVisual(state, row),
@@ -249,54 +255,58 @@ export const PerRowCustomColor = () => {
       />
     </div>
   );
-};
+}
 
 // Pure-CSS responsive column hiding via container queries: `Updated` (hideBelow
 // "xs" = 320px) and `Kind` (hideBelow "sm" = 384px) drop out as the grid's own
 // width shrinks — no JS, no ResizeObserver. Each column's `auto` track collapses.
-export const ResponsiveHiding = () => (
-  <div className="flex flex-col gap-6 p-4">
-    {[520, 360, 280].map((w) => (
-      <div key={w}>
-        <div className="mb-1 font-mono text-xs text-neutral-500">{w}px</div>
-        <div style={{ width: w }}>
-          <ListGrid
-            data={ROWS}
-            getRowId={(r) => r.id}
-            columns={COLUMNS}
-            selectionMode="single"
-            defaultSelected={["r1"]}
-            ariaLabel={`List at ${w.toString()}px`}
-          />
+export function ResponsiveHiding() {
+  return (
+    <div className="flex flex-col gap-6 p-4">
+      {[520, 360, 280].map((w) => (
+        <div key={w}>
+          <div className="mb-1 font-mono text-xs text-neutral-500">{w}px</div>
+          <div style={{ width: w }}>
+            <ListGrid
+              data={ROWS}
+              getRowId={(r) => r.id}
+              columns={COLUMNS}
+              selectionMode="single"
+              defaultSelected={["r1"]}
+              ariaLabel={`List at ${w.toString()}px`}
+            />
+          </div>
         </div>
-      </div>
-    ))}
-  </div>
-);
+      ))}
+    </div>
+  );
+}
 
 // A grid on a bare surface — no themed ancestor supplying a text colour, which
 // is how a real page renders it when the listing IS the page rather than a panel
 // inside one. The rows must stay readable in BOTH themes on their own: they used
 // to inherit the document default (black), so the column headers — which declare
 // their own colour — were legible above rows that were not, on dark.
-export const UnthemedSurface = () => (
-  <div className="flex flex-col gap-6">
-    {(["light", "dark"] as const).map((theme) => (
-      <div
-        key={theme}
-        className={theme === "dark" ? "dark bg-layout-dark-base p-4" : "bg-layout-light-base p-4"}
-      >
-        <div className="mb-2 font-mono text-xs text-neutral-500">{theme}</div>
-        {/* Deliberately no text-* class on this wrapper. */}
-        <div className="w-[520px]">
-          <ListGrid
-            data={ROWS}
-            getRowId={(r) => r.id}
-            columns={COLUMNS}
-            ariaLabel={`Unthemed ${theme} list`}
-          />
+export function UnthemedSurface() {
+  return (
+    <div className="flex flex-col gap-6">
+      {(["light", "dark"] as const).map((theme) => (
+        <div
+          key={theme}
+          className={theme === "dark" ? "dark bg-layout-dark-base p-4" : "bg-layout-light-base p-4"}
+        >
+          <div className="mb-2 font-mono text-xs text-neutral-500">{theme}</div>
+          {/* Deliberately no text-* class on this wrapper. */}
+          <div className="w-[520px]">
+            <ListGrid
+              data={ROWS}
+              getRowId={(r) => r.id}
+              columns={COLUMNS}
+              ariaLabel={`Unthemed ${theme} list`}
+            />
+          </div>
         </div>
-      </div>
-    ))}
-  </div>
-);
+      ))}
+    </div>
+  );
+}
