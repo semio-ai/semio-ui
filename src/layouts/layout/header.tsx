@@ -107,7 +107,15 @@ function InnerHeader({ homeIcon }: { homeIcon?: IconValue }) {
           )}
         </Dropdown>
 
-        <div className="desktop:flex hidden h-9 flex-1" />
+        {/* No spacer here. A surface that wants its trailing controls pushed to the
+            right registers a `toolbar-spacer` item, which the loop above renders.
+
+            It used to be hardcoded, so every toolbar got one whether it wanted one or
+            not — and a toolbar whose own content should absorb the free width had to
+            out-grow it, which is why the dashboard's search card carried
+            `grow-[9999]` against this `flex-1`. Two elements competing for the same
+            space is not a layout. Opting in makes "what takes the slack" a property of
+            the surface, which is where it is known. */}
 
         <HeaderButton
           className={clsx("flex-none", !desktop || rightRegionActive ? "hidden" : "grid")}
