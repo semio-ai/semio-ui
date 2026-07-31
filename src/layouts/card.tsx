@@ -176,6 +176,16 @@ export function Card({
             // `relative` twice over: it positions `mediaCorner`, and it lifts this
             // in-flow block above the absolutely-positioned tint layer.
             "relative grid shrink-0 place-items-center overflow-hidden",
+            // The card's INNER radius, on the two corners this slot actually touches:
+            // the card's own radius less its border width, so the curves are
+            // concentric.
+            //
+            // Stated rather than left to the card's `overflow-hidden`, which does not
+            // round a child that establishes its own clip — the media was trimmed to
+            // the padding *box* with square corners, which shows as a hard 90° edge
+            // cutting across the border's curve. Derived from `--radius-sm`, what
+            // `.card` itself uses, so it tracks the card rather than drifting from it.
+            "rounded-t-[calc(var(--radius-sm)-2px)]",
             // The empty-media look, so a card without a preview is not a void.
             "bg-neutral-300/40 dark:bg-neutral-700/40",
             MEDIA_ASPECT[mediaAspect],
