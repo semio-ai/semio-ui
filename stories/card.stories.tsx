@@ -227,3 +227,76 @@ export const InteractiveGrid: Story = {
     );
   },
 };
+
+/**
+ * `primaryAction` renders full-width across the bottom. It is distinct from
+ * `footer` on purpose: it encodes that a card face carries exactly ONE verb, with
+ * anything additional belonging to a preview, the item's own page, or an overflow
+ * menu rather than competing for the face.
+ */
+export const PrimaryAction: Story = {
+  render: () => (
+    <div className="flex w-[38rem] flex-row gap-3">
+      {[
+        { title: "Published asset", verb: "Go to page", icon: "external-link" as const },
+        { title: "Project asset", verb: "Open in project", icon: "chevron-right" as const },
+      ].map((item) => (
+        <div key={item.title} className="w-72">
+          <Card
+            media={<Icon name="box" size="none" className="size-10 opacity-30" />}
+            mediaCorner={
+              <Button size={Size.Sm} visuals="inverted" leftIcon="menu" altText="More actions" />
+            }
+            title={item.title}
+            primaryAction={
+              <Button
+                size={Size.Sm}
+                variant={Variant.Info}
+                visuals="inverted-border"
+                rightIcon={item.icon}
+              >
+                {item.verb}
+              </Button>
+            }
+          >
+            <MetaLine>One verb on the face; the rest lives elsewhere.</MetaLine>
+          </Card>
+        </div>
+      ))}
+    </div>
+  ),
+};
+
+/**
+ * `selected` and `interactive` use the same intensities as
+ * `defaultResolveRowVisual`, so a selected card matches a selected row: an 18%
+ * accent tint plus an accent border, and 8% on hover. Hover the unselected card —
+ * and hover the selected one, which must keep its highlight rather than lose it
+ * under the cursor.
+ */
+export const SelectedAndHover: Story = {
+  render: () => (
+    <div className="flex w-[38rem] flex-row gap-3">
+      {[
+        { title: "Selected", selected: true },
+        { title: "Not selected", selected: false },
+      ].map((item) => (
+        <div key={item.title} className="w-72">
+          <Card
+            media={<Icon name="box" size="none" className="size-10 opacity-30" />}
+            title={item.title}
+            selected={item.selected}
+            interactive
+            primaryAction={
+              <Button size={Size.Sm} variant={Variant.Tertiary} visuals="inverted-border">
+                Open
+              </Button>
+            }
+          >
+            <MetaLine>{item.selected ? "18% accent tint" : "8% on hover"}</MetaLine>
+          </Card>
+        </div>
+      ))}
+    </div>
+  ),
+};

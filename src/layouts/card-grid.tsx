@@ -5,6 +5,7 @@ import {
   useRef,
   useState,
   type KeyboardEvent as ReactKeyboardEvent,
+  type CSSProperties,
   type MouseEvent as ReactMouseEvent,
   type ReactNode,
 } from "react";
@@ -68,6 +69,12 @@ export interface CardGridProps<T> {
    * from the rendered result rather than declared twice.
    */
   className?: string;
+  /**
+   * Inline styles for the grid container. Mostly for callers that set their tracks
+   * without utility classes — including tests, which run without the compiled
+   * stylesheet and would otherwise measure no columns at all.
+   */
+  style?: CSSProperties;
 }
 
 /**
@@ -105,6 +112,7 @@ export function CardGrid<T>({
   getSearchText,
   ariaLabel,
   className,
+  style,
 }: CardGridProps<T>) {
   const gridRef = useRef<HTMLDivElement | null>(null);
 
@@ -164,14 +172,47 @@ export function CardGrid<T>({
     return index === -1 ? 0 : index;
   }, [ids, state.focusedKey]);
 
+  /**
+   * What moved the roving cursor. `onHighlightedIndexChange` reports the new index
+   * but not its cause, and the cause decides whether selection should follow:
+   *
+   * - keyboard, no modifier → follow (Finder-style browsing)
+   * - keyboard with Cmd/Ctrl → focus only, selection untouched
+   * - pointer → do nothing here; `handleClick` owns click selection, and it is the
+   *   only path that respects the embedded-control guard
+   *
+   * Recorded on CAPTURE-phase listeners so it is set before either the composite's
+   * handler or React's bubble-phase ones run — the flag must already be correct by
+   * the time the composite calls back during the same dispatch.
+   */
+  const navSource = useRef<{ pointer: boolean; focusOnly: boolean }>({
+    pointer: false,
+    focusOnly: false,
+  });
+  useEffect(() => {
+    const grid = gridRef.current;
+    if (!grid) return;
+    const onKeyDownCapture = (event: globalThis.KeyboardEvent) => {
+      navSource.current = { pointer: false, focusOnly: event.metaKey || event.ctrlKey };
+    };
+    const onPointerDownCapture = () => {
+      navSource.current = { pointer: true, focusOnly: false };
+    };
+    grid.addEventListener("keydown", onKeyDownCapture, true);
+    grid.addEventListener("pointerdown", onPointerDownCapture, true);
+    return () => {
+      grid.removeEventListener("keydown", onKeyDownCapture, true);
+      grid.removeEventListener("pointerdown", onPointerDownCapture, true);
+    };
+  }, []);
+
   const handleHighlightChange = useCallback(
     (index: number) => {
       const id = ids[index];
       if (id === undefined) return;
       state.setFocusedKey(id);
-      // Selection follows focus unless the viewer is explicitly browsing
-      // (Cmd/Ctrl+Arrow), which the composite still navigates under because
-      // `modifierKeys` lists those modifiers.
+      const { pointer, focusOnly } = navSource.current;
+      if (pointer || focusOnly) return;
       if (selectionFollowsFocus && selectionMode !== "none" && !state.isDisabled(id)) {
         state.select(id);
       }
@@ -212,12 +253,43 @@ export function CardGrid<T>({
     [ids, highlightedIndex, state, onAction, selectionMode, disallowEmptySelection],
   );
 
+  /**
+   * Click selection is spelled out here rather than delegated to
+   * `useListState.handleItemClick`, because in a grid the two paths collide.
+   *
+   * The composite moves roving focus on pointer-down, which fires
+   * `handleHighlightChange` and — with selection following focus — selects the item
+   * *before* the click handler runs. `handleItemClick` then sees it as already
+   * selected and applies its toggle, clearing it. The net effect of a plain click
+   * was an empty selection.
+   *
+   * So: a click always SELECTS, never toggles. That also makes the grid sticky by
+   * default, which is what a click-to-preview surface wants — `Escape` clears, and
+   * `multiple` mode keeps Cmd/Shift for additive gestures.
+   */
   const handleClick = useCallback(
     (event: ReactMouseEvent<HTMLElement>, id: string) => {
       if ((event.target as HTMLElement).closest(INTERACTIVE_SELECTOR)) return;
-      state.handleItemClick(id, event as unknown as MouseEvent);
+      if (state.isDisabled(id)) return;
+
+      if (selectionMode === "none") {
+        // `onAction` is this component's, not the hook's — the hook was never
+        // given one, so delegating here would silently do nothing.
+        onAction?.(id, event);
+        return;
+      }
+      if (selectionMode === "single") {
+        state.select(id);
+        return;
+      }
+      if (event.shiftKey) state.selectRange(state.focusedKey ?? id, id);
+      else if (event.metaKey || event.ctrlKey) state.toggle(id);
+      // A plain click REPLACES the selection. `select` adds in `multiple` mode, and
+      // a range of one is the only replace-with-a-single-item primitive the hook
+      // exposes here — clearing first would emit two changes.
+      else state.selectRange(id, id);
     },
-    [state],
+    [state, selectionMode, onAction],
   );
 
   // ── Click-away ───────────────────────────────────────────────────────────
@@ -232,7 +304,7 @@ export function CardGrid<T>({
   }, [deselectOnClickAway, selectionMode, disallowEmptySelection, state]);
 
   return (
-    <div ref={gridRef} className={clsx("grid", className)}>
+    <div ref={gridRef} className={clsx("grid", className)} style={style}>
       <GridNavRoot
         highlightedIndex={highlightedIndex}
         onHighlightedIndexChange={handleHighlightChange}
