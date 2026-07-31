@@ -52,7 +52,14 @@ export function Chip({ children, variant, size = Size.Md, color, icon, onDelete 
           {resolvedIcon}
         </div>
       )}
-      <div className="dark:text-red/75 px-2 text-white/75">{children}</div>
+      {/* `black` in dark mode, not `red`: this read `dark:text-red/75`, and `text-red`
+          is not a colour Tailwind emits — the scale needs a number — so the
+          declaration was dropped and the chip rendered `text-white/75` in BOTH
+          modes. The variant fill inverts with the theme (light mode gets a mid-tone
+          accent, dark mode a light one), so white was legible on light and vanished
+          on dark. White-on-light / black-on-dark is the pairing the icon and delete
+          slots below already use against the same fill. */}
+      <div className="px-2 text-white/75 dark:text-black/75">{children}</div>
       {onDelete && (
         <button
           type="button"
