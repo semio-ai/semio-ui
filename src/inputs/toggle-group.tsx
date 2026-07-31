@@ -1,9 +1,21 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import {
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+  type ReactNode,
+} from "react";
 import { ToggleGroup as RadixToggleGroup } from "radix-ui";
-import { motion } from "motion/react";
 import { clsx } from "clsx";
 import { Tooltip } from "../floating/tooltip";
 import { Variant, Size } from "../types";
+
+// `useLayoutEffect` is the right primitive for measuring layout before paint, but
+// React warns when it runs where there is no DOM. `@semio/ui` is published, so a
+// consumer may render on a server, and this package's own `unit` test project
+// renders through `renderToStaticMarkup` in node.
+const useIsomorphicLayoutEffect = typeof document === "undefined" ? useEffect : useLayoutEffect;
 
 export interface ToggleGroupProps {
   visuals: "icons" | "labels" | "both";
@@ -39,23 +51,63 @@ export function ToggleGroup({
   const [left, setLeft] = useState(0);
   const [width, setWidth] = useState(0);
 
-  const tabsRef = useRef<HTMLButtonElement[]>([]);
+  const rootRef = useRef<HTMLDivElement | null>(null);
 
-  useEffect(() => {
-    function setTabPosition() {
-      const currentTab = tabsRef.current[itemIndex];
-      setLeft(currentTab?.offsetLeft ?? 0);
-      setWidth(currentTab?.clientWidth ?? 0);
-    }
+  // Track the active item's box so the highlight pill can sit exactly behind it.
+  //
+  // Three things made the old version wrong, and a `labels` group showed all of
+  // them at once as a pill clipping the label it was supposed to sit behind:
+  //
+  // 1. The item was located through a ref callback on `RadixToggleGroup.Item`,
+  //    which `Tooltip` wraps (`Trigger asChild`). Each item is re-queried by
+  //    `data-toggle-item` instead, so a trigger that re-renders and swaps its
+  //    DOM node can't leave us measuring a detached element.
+  // 2. Measuring once on mount plus window `resize` missed the webfont swap,
+  //    which changes text metrics without resizing anything. The observer is on
+  //    the ROOT — stable across item re-renders, and it resizes whenever an item
+  //    does, since the track is inline-flex.
+  // 3. `width` was animated. Interrupting that animation (any re-render during
+  //    the 200ms) left the pill stranded at its start value, so it is applied as
+  //    a plain style now and only `x` animates — which is the slide the control
+  //    actually wants.
+  // 4. Measuring after paint left the pill at `left: 0` for one frame whenever the
+  //    initial value was not the first option. Reading layout to position an
+  //    element is what a layout effect is for, so the browser never paints the
+  //    intermediate position. Guarded because the `unit` project renders these
+  //    components through `renderToStaticMarkup`, where `useLayoutEffect` warns
+  //    and cannot run anyway.
+  useIsomorphicLayoutEffect(() => {
+    const root = rootRef.current;
+    if (!root) return;
 
-    setTabPosition();
-    window.addEventListener("resize", setTabPosition);
+    const measure = () => {
+      const item = root.querySelector<HTMLElement>(`[data-toggle-item="${CSS.escape(value)}"]`);
+      if (!item) {
+        // Nothing matches `value` — options swapped out from under it, or the
+        // value arrived stale from a URL. Clearing the width both hides the pill
+        // and drops the old geometry, so a later valid value cannot be preceded
+        // by a frame at the previous item's position.
+        setWidth(0);
+        return;
+      }
+      setLeft(item.offsetLeft);
+      setWidth(item.clientWidth);
+    };
+    measure();
 
-    return () => window.removeEventListener("resize", setTabPosition);
-  }, [itemIndex]);
+    const observer = new ResizeObserver(measure);
+    observer.observe(root);
+
+    // Fonts land after first paint and change text metrics; `document.fonts`
+    // is the signal for exactly that, and is absent in some test environments.
+    void document.fonts?.ready.then(measure).catch(() => undefined);
+
+    return () => observer.disconnect();
+  }, [value, visuals, size, options.length]);
 
   return (
     <RadixToggleGroup.Root
+      ref={rootRef}
       className={clsx(
         "relative inline-flex items-center overflow-hidden rounded-sm transition-all ",
         bg && "dark:bg-layout-dark-base bg-layout-light-base",
@@ -68,34 +120,44 @@ export function ToggleGroup({
       }}
       aria-label={label ?? "Toggle Group"}
     >
-      <motion.div
-        style={
-          activeOption?.color
-            ? ({
-                "--custom-color": activeOption.color,
-              } as any)
-            : undefined
-        }
+      {/* The highlight pill. Position and size are plain styles with a CSS
+          transition, NOT a JS animation: as a motion element with `initial`,
+          every re-render of this subtree restarted the tween from its start
+          value, so the pill sat permanently stranded a few percent along —
+          behind the wrong item, at the wrong width. Declaring the resolved
+          geometry means the pill is correct on the very first paint and slides
+          only when it can, instead of depending on an animation completing. */}
+      <div
+        aria-hidden
+        data-toggle-pill=""
+        // With no matching option there is nothing to indicate, and a pill with no
+        // variant class would otherwise sit at the last measured position in the
+        // default grey. `hidden` rather than unmounting so the element stays put
+        // for the measuring effect to find.
+        hidden={!activeOption}
+        style={{
+          ...(activeOption?.color
+            ? ({ "--custom-color": activeOption.color } as CSSProperties)
+            : undefined),
+          transform: `translateX(${left.toString()}px)`,
+          // Until the first measurement lands, keep the class's own width rather
+          // than collapsing to zero.
+          ...(width > 0 ? { width } : undefined),
+        }}
         className={clsx(
           activeOption?.color ? "custom-color" : activeOption?.variant,
           size,
-          "absolute",
+          "absolute left-0",
           "sized-inner-group-item rounded-xs",
           "responsive bg-(--accent-color)",
+          // Only transition once measured, so the pill appears in place instead
+          // of sliding in from the left edge on first paint.
+          width > 0 &&
+            "transition-[transform,width] duration-200 ease-in-out motion-reduce:transition-none",
         )}
-        initial={{
-          x: 2,
-        }}
-        animate={{
-          x: left,
-          width,
-          // backgroundColor:
-          //   activeOption?.color ?? variantToVar(activeOption?.variant ?? Variant.Default),
-        }}
-        transition={{ type: "tween", duration: 0.2, ease: "easeInOut" }}
       />
       <div className="z-1 inline-flex items-center justify-center p-0.5">
-        {options.map((option, idx) => (
+        {options.map((option) => (
           <Tooltip
             key={option.value}
             disabled={option.disabled}
@@ -104,9 +166,9 @@ export function ToggleGroup({
           >
             <RadixToggleGroup.Item
               key={option.value}
-              ref={(el: HTMLButtonElement | null) => {
-                if (el) tabsRef.current[idx] = el;
-              }}
+              // The highlight pill measures the active item by this attribute
+              // rather than through a collected ref — see the measuring effect.
+              data-toggle-item={option.value}
               data-state={value === option.value ? "on" : "off"}
               className={clsx(
                 "responsive",
@@ -117,7 +179,14 @@ export function ToggleGroup({
                 "grid place-items-center transition-colors",
                 (visuals === "icons" || visuals === "labels") && "grid-cols-1 grid-rows-1",
                 visuals === "both" && "grid-cols-[auto_auto] grid-rows-1",
-                value === option.value ? "text-white dark:text-black" : "variant-responsive-text",
+                // The active item sits on the pill, which is filled with this item's
+                // own `--accent-color`; `--on-accent-color` is derived from that fill
+                // so the label stays legible for every variant, both themes, and any
+                // `option.color`. A theme-flipped `text-white dark:text-black` pair
+                // cannot: the light-mode fill is only sometimes the darker of the two.
+                value === option.value
+                  ? "text-[var(--on-accent-color)]"
+                  : "variant-responsive-text",
               )}
               style={
                 option.color
