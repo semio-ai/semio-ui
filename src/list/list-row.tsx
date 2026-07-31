@@ -114,7 +114,19 @@ export function ListRow({
         <div
           key={column.key}
           className={clsx(
-            "relative flex min-w-0 items-center truncate",
+            // `self-stretch` so a cell fills the row's height rather than hugging
+            // its content. The row is `items-center`, so without it a cell is
+            // exactly as tall as what it contains — and `truncate`'s
+            // `overflow: hidden` then clips anything painted OUTSIDE the content
+            // box. `Button`'s `inverted-border` visual is an `outline`, and outlines
+            // paint outside the box, so an outlined control in a cell lost its top
+            // and bottom edges and rendered as two floating side strokes. Focus
+            // rings on any embedded control had the same problem. Shrinking the
+            // control does not help: the cell hugs it at every size.
+            //
+            // Content stays centred by the cell's own `items-center`, so the
+            // rendered layout is unchanged — the cell just has room around it now.
+            "relative flex min-w-0 items-center self-stretch truncate",
             // Inner cell padding: content breathing room + the first cell clears
             // the 3px indicator bar, so nothing overlaps it or hits the edges.
             "px-2",
