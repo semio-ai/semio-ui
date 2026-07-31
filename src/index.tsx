@@ -129,6 +129,8 @@ export * from "./inputs/toggle-square";
 export * from "./layouts/accordion";
 export * from "./layouts/breadcrumbs";
 export * from "./layouts/card";
+export * from "./layouts/card-grid";
+export * from "./layouts/use-grid-navigation";
 export * from "./layouts/collapse";
 export * from "./layouts/resizer";
 export * from "./layouts/layout/root";

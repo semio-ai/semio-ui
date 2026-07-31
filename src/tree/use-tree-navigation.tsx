@@ -1,17 +1,23 @@
 import type { KeyboardEvent, MouseEvent, ReactNode } from "react";
-import { CompositeItem, CompositeRoot } from "@base-ui/react/internals/composite";
+import { CompositeItem, CompositeRoot } from "../internals/composite";
 
 /**
- * Roving-focus adapter for hierarchical lists — the **only** module that
- * imports Base UI's `internals/composite`. If that path shifts (or graduates to
- * a public API), this file is the single point of change; everything else
- * consumes `TreeNavRoot` / `TreeNavItem`.
+ * Roving-focus adapter for **hierarchical, vertical** lists.
+ *
+ * The composite primitive is reached through `internals/composite`, the package's
+ * single import site for that unstable path — never directly from here.
  *
  * Base UI's composite gives us the roving core: a single tab stop, Up/Down
  * (vertical orientation), Home/End, disabled-item skipping, and
  * scroll-into-view, all driven by a controlled `highlightedIndex`. Tree-specific
  * keys — Left/Right to collapse/expand, Enter/Space to select, edit-mode entry —
  * are layered by the consumer via `onKeyDown` (see `TreeGrid`).
+ *
+ * This adapter is deliberately vertical-and-tree-shaped rather than a general
+ * roving-focus component. A two-dimensional pattern uses its own sibling adapter
+ * (`layouts/use-grid-navigation`) over the same primitive, because orientation and
+ * ARIA vocabulary are properties of the pattern, not options on a shared one — see
+ * the note in `internals/composite`.
  */
 
 export interface TreeNavRootProps {
@@ -59,7 +65,9 @@ export function TreeNavRoot({
       modifierKeys={modifierKeys}
       highlightedIndex={highlightedIndex}
       onHighlightedIndexChange={onHighlightedIndexChange}
-      render={<div role={role} aria-label={ariaLabel} className={className} onKeyDown={onKeyDown} />}
+      render={
+        <div role={role} aria-label={ariaLabel} className={className} onKeyDown={onKeyDown} />
+      }
     >
       {children}
     </CompositeRoot>

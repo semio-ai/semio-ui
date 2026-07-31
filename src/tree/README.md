@@ -173,7 +173,7 @@ function MyList({ nodes }: { nodes: TreeNode<Row>[] }) {
 | `TreeToggle` | component | disclosure chevron (accessible by default) |
 | `TreeLeafDot` | component | default leaf icon |
 | `TreeRow` | component | presentational row: indent · label · editor · actions, over a bar/background |
-| `TreeNavRoot` / `TreeNavItem` | components | roving-focus adapter over Base UI's composite (the *only* users of `@base-ui/react/internals/composite`) |
+| `TreeNavRoot` / `TreeNavItem` | components | roving-focus adapter for **vertical** hierarchical lists, over Base UI's composite via `internals/composite` — the package's only import site for that unstable path. A two-dimensional pattern gets its own sibling adapter (`layouts/use-grid-navigation`) over the same primitive rather than adding orientation flags here. |
 | `TreeGrid` | component | Option A — all of the above wired together |
 
 ---

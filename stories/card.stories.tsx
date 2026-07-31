@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { Button, Card, Chip, Icon, Size, Variant } from "@semio/ui";
+import { Button, Card, CardGrid, Chip, Icon, Size, Variant } from "@semio/ui";
 
 const meta: Meta<typeof Card> = {
   component: Card,
@@ -168,4 +168,62 @@ export const MediaAspects: Story = {
       ))}
     </div>
   ),
+};
+
+/**
+ * `CardGrid` adds selection and two-dimensional keyboard navigation: Left/Right
+ * step one card, Up/Down step a whole row, Home/End jump to the ends, Enter
+ * activates, and Cmd/Ctrl+Arrow moves focus without changing the selection.
+ *
+ * The row step is derived from the *measured* column count, so it stays correct as
+ * the responsive `grid-cols-*` classes change it — resize the preview and the
+ * vertical arrows follow.
+ */
+export const InteractiveGrid: Story = {
+  render: () => {
+    const items = [
+      "Quori",
+      "Reception Bot",
+      "Wave",
+      "Friendly Face",
+      "Pepper",
+      "Greeter Body",
+      "Idle Blink",
+      "Neutral Face",
+    ].map((name) => ({ id: name.toLowerCase().replace(/\s+/g, "-"), name }));
+
+    return (
+      <div className="w-[52rem]">
+        <CardGrid
+          data={items}
+          getItemId={(item) => item.id}
+          ariaLabel="Example cards"
+          className="grid-cols-2 gap-3 lg:grid-cols-4"
+          selectionMode="single"
+          getSearchText={(item) => item.name}
+        >
+          {(item, { selected }) => (
+            <Card
+              media={<Icon name="box" size="none" className="size-10 opacity-30" />}
+              title={item.name}
+              titleTrailing={
+                <Chip size={Size.Xs} variant={Variant.Tertiary}>
+                  Model
+                </Chip>
+              }
+              selected={selected}
+              interactive
+              primaryAction={
+                <Button size={Size.Sm} variant={Variant.Tertiary} visuals="inverted-border">
+                  Open
+                </Button>
+              }
+            >
+              <MetaLine>{selected ? "Selected" : "Click or arrow to select"}</MetaLine>
+            </Card>
+          )}
+        </CardGrid>
+      </div>
+    );
+  },
 };
