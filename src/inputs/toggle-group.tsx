@@ -1,8 +1,21 @@
-import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import {
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+  type ReactNode,
+} from "react";
 import { ToggleGroup as RadixToggleGroup } from "radix-ui";
 import { clsx } from "clsx";
 import { Tooltip } from "../floating/tooltip";
 import { Variant, Size } from "../types";
+
+// `useLayoutEffect` is the right primitive for measuring layout before paint, but
+// React warns when it runs where there is no DOM. `@semio/ui` is published, so a
+// consumer may render on a server, and this package's own `unit` test project
+// renders through `renderToStaticMarkup` in node.
+const useIsomorphicLayoutEffect = typeof document === "undefined" ? useEffect : useLayoutEffect;
 
 export interface ToggleGroupProps {
   visuals: "icons" | "labels" | "both";
@@ -57,13 +70,26 @@ export function ToggleGroup({
   //    the 200ms) left the pill stranded at its start value, so it is applied as
   //    a plain style now and only `x` animates — which is the slide the control
   //    actually wants.
-  useEffect(() => {
+  // 4. Measuring after paint left the pill at `left: 0` for one frame whenever the
+  //    initial value was not the first option. Reading layout to position an
+  //    element is what a layout effect is for, so the browser never paints the
+  //    intermediate position. Guarded because the `unit` project renders these
+  //    components through `renderToStaticMarkup`, where `useLayoutEffect` warns
+  //    and cannot run anyway.
+  useIsomorphicLayoutEffect(() => {
     const root = rootRef.current;
     if (!root) return;
 
     const measure = () => {
       const item = root.querySelector<HTMLElement>(`[data-toggle-item="${CSS.escape(value)}"]`);
-      if (!item) return;
+      if (!item) {
+        // Nothing matches `value` — options swapped out from under it, or the
+        // value arrived stale from a URL. Clearing the width both hides the pill
+        // and drops the old geometry, so a later valid value cannot be preceded
+        // by a frame at the previous item's position.
+        setWidth(0);
+        return;
+      }
       setLeft(item.offsetLeft);
       setWidth(item.clientWidth);
     };
@@ -104,6 +130,11 @@ export function ToggleGroup({
       <div
         aria-hidden
         data-toggle-pill=""
+        // With no matching option there is nothing to indicate, and a pill with no
+        // variant class would otherwise sit at the last measured position in the
+        // default grey. `hidden` rather than unmounting so the element stays put
+        // for the measuring effect to find.
+        hidden={!activeOption}
         style={{
           ...(activeOption?.color
             ? ({ "--custom-color": activeOption.color } as CSSProperties)

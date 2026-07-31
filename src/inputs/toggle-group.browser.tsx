@@ -1,4 +1,4 @@
-import { expect, test, vi } from "vitest";
+import { afterEach, expect, test, vi } from "vitest";
 import { render } from "vitest-browser-react";
 import { userEvent } from "@vitest/browser/context";
 import { useState } from "react";
@@ -51,10 +51,25 @@ const LAYOUT_SHIM = `
   [data-toggle-pill] { height: 24px; }
 `;
 
-function useLayoutShim(extra = ""): void {
+// Browser mode shares one document across every test in a file, so anything put
+// in `<head>` outlives the test that added it. Left untracked, the widening rule
+// below leaked into the following test — which then measured 28px text while
+// claiming to describe a normal first paint.
+const injected: HTMLStyleElement[] = [];
+
+function injectCss(css: string): void {
   const style = document.createElement("style");
-  style.textContent = LAYOUT_SHIM + extra;
+  style.textContent = css;
   document.head.appendChild(style);
+  injected.push(style);
+}
+
+afterEach(() => {
+  for (const style of injected.splice(0)) style.remove();
+});
+
+function useLayoutShim(extra = ""): void {
+  injectCss(LAYOUT_SHIM + extra);
 }
 
 // Deliberately uneven label lengths: a pill that measured the wrong item, or
@@ -147,9 +162,7 @@ test("pill re-measures when item metrics change without a window resize", async 
   // Stands in for the webfont swap: text metrics change, so items change width,
   // but the window never resizes — the exact case the old mount-plus-`resize`
   // measurement missed and the `ResizeObserver` on the root is there to catch.
-  const widen = document.createElement("style");
-  widen.textContent = `[data-toggle-item] { font-size: 28px; letter-spacing: 2px; }`;
-  document.head.appendChild(widen);
+  injectCss(`[data-toggle-item] { font-size: 28px; letter-spacing: 2px; }`);
 
   await vi.waitFor(() => {
     expect(pillBox().width).toBeGreaterThan(before);
@@ -172,4 +185,46 @@ test("pill width is declared on first paint, not animated up from zero", async (
 
   const declared = Number.parseFloat(pillEl().style.width);
   expect(declared).toBeCloseTo(itemEl("d").clientWidth, 0);
+});
+
+test("pill hides rather than stranding when no option matches the value", async () => {
+  useLayoutShim();
+
+  // A value with no matching option is reachable in practice: options loaded
+  // async, or the value arrived stale from the URL.
+  function Swappable({ value }: { value: string }) {
+    return (
+      <ToggleGroup
+        visuals="labels"
+        size={Size.Md}
+        value={value}
+        onChange={() => undefined}
+        options={OPTIONS}
+        label="Filter"
+      />
+    );
+  }
+
+  const view = render(<Swappable value="d" />);
+  await vi.waitFor(() => expectPillOver("d"));
+  const strandedAt = pillEl().style.transform;
+
+  view.rerender(<Swappable value="does-not-exist" />);
+
+  // Previously the measure call bailed out and left `left`/`width` untouched, so
+  // the pill stayed parked behind "d" — in the default grey, since there is no
+  // active option to take a variant from.
+  await vi.waitFor(() => {
+    expect(pillEl().hidden).toBe(true);
+    expect(pillEl().style.width).toBe("");
+  });
+  expect(pillEl().getBoundingClientRect().width).toBe(0);
+
+  // Recovering must land in the right place, not pass through the stale one.
+  view.rerender(<Swappable value="b" />);
+  await vi.waitFor(() => {
+    expect(pillEl().hidden).toBe(false);
+    expectPillOver("b");
+  });
+  expect(pillEl().style.transform).not.toBe(strandedAt);
 });
