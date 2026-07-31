@@ -37,7 +37,12 @@ function InnerHeader({ homeIcon }: { homeIcon?: IconValue }) {
       <div
         className={clsx(
           "flex h-10 items-center justify-stretch",
-          "desktop:gap-1 desktop:pl-0 w-full flex-row gap-2 pr-1 pl-1",
+          // `desktop:pr-0` to match the existing `desktop:pl-0`: on desktop the
+          // header carries no outer padding, so its contents line up with the
+          // content panel beneath it. The stray `pr-1` left the trailing item 4px
+          // short of that edge — invisible while a spacer sat there, obvious once
+          // the toolbar's own card grew into the gap.
+          "desktop:gap-1 desktop:pr-0 desktop:pl-0 w-full flex-row gap-2 pr-1 pl-1",
         )}
       >
         <span className="desktop:hidden grid flex-none place-items-center">
@@ -118,7 +123,17 @@ function InnerHeader({ homeIcon }: { homeIcon?: IconValue }) {
             the surface, which is where it is known. */}
 
         <HeaderButton
-          className={clsx("flex-none", !desktop || rightRegionActive ? "hidden" : "grid")}
+          className={clsx(
+            "flex-none",
+            // `ml-1` on top of the row's `gap-1` makes 8px — the same separation the
+            // toolbar's own cards keep from each other (`gap-1` plus their `mr-1`).
+            // The row gap alone left this button 4px from the preceding card, which
+            // reads as touching when both carry a border. Margin on the button rather
+            // than padding on the row, so it disappears with the button when a right
+            // pane is open instead of lingering as a phantom inset.
+            "desktop:ml-1",
+            !desktop || rightRegionActive ? "hidden" : "grid",
+          )}
           variant={Variant.Default}
           size={Size.Md}
           label="Toggle Menu"
