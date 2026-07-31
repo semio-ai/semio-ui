@@ -44,9 +44,7 @@
     "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist",
     "test:unit": "vitest run --project unit",
     "test:browser": "vitest run --project browser",
-    "test": "vitest run --project unit",
-    "connect:parse": "figma connect parse",
-    "connect:publish": "figma connect publish"
+    "test": "vitest run --project unit"
   },
   "dependencies": {
     "@base-ui/react": "^1.4.1",
@@ -68,8 +66,10 @@
     "react-dropzone": "^15.0.0",
     "react-hook-form": "^7.53.2",
     "react-imask": "^7.6.0",
+    "react-markdown": "^10.1.0",
     "react-merge-refs": "^2.1.1",
     "react-use-measure": "^2.1.1",
+    "remark-gfm": "^4.0.1",
     "three": "^0.170.0",
     "zustand": "^5.0.2"
   },

@@ -173,6 +173,7 @@ export * from "./tree";
 export * from "./list";
 export * from "./menu-item";
 export * from "./snippet";
+export * from "./markdown";
 
 export * from "./types";
 export * from "./nested-elements/types";
