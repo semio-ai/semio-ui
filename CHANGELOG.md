@@ -1,5 +1,35 @@
 # @semio/ui
 
+## 0.1.4
+
+### Patch Changes
+
+- 2430aa0: `ToggleGroup`'s selected label is legible in light mode, and a new `--on-accent-color` derives any on-accent foreground from the fill.
+
+  The active item's label was hardcoded to `text-white dark:text-black`, the inverse of the theme, while the pill behind it is filled with `--accent-color`. That pairing only works if the accent is the darker of the two in light mode — and it is not, for the warmer brand hues. Measured against the app palette in light mode, white on the pill gives 2.5:1 on `Variant.Secondary` and 3.1:1 on `Variant.Tertiary`; a yellow `option.color` gives 2.3:1.
+
+  `.responsive` now exposes `--on-accent-color`, derived from `--accent-color` itself with a lightness threshold, so the foreground follows whatever the fill actually is:
+  - light mode goes from 2.5:1 to 8.4:1 on secondary, 3.1:1 to 6.9:1 on tertiary, 3.7:1 to 5.6:1 on primary;
+  - pairings that already read well are unchanged, including every dark-mode variant and the neutral default;
+  - arbitrary `option.color` values are handled on the same footing as the named variants, rather than only working when they happen to resolve dark.
+
+  `Select`'s trigger swatch (`variant-mock-inner-item`) carried the same hardcoded pair over the same solid accent fill, and now uses the derived foreground too.
+
+  The token is available to any component drawing content on an accent fill. It is computed entirely in CSS — no JavaScript is involved in resolving it — and was verified to produce identical results in Chromium, Firefox and WebKit. Browsers without relative color syntax (below Safari 16.4, Chrome 119, Firefox 128) fall back to the previous theme-flipped pair, so they see no change rather than a regression.
+
+- 3df8f0f: `ToggleGroup`'s selected-item pill measures reliably instead of clipping its label.
+
+  The pill was sized from a per-item React ref and positioned by an animated `motion.div`. Three things compounded to make it settle at the wrong width — most visibly cutting a label mid-word ("Pu|blished"):
+  - the ref was attached to a trigger that could be wrapped by a `Tooltip` using `asChild`, so it did not always resolve to the rendered element;
+  - the measurement ran once on mount, before the webfont had swapped, so it recorded metrics for the fallback face;
+  - an interrupted enter animation could leave the element mid-flight, and the pill inherited that transient geometry.
+
+  It now resolves items by querying `[data-toggle-item]` from a stable root ref, re-measures on a `ResizeObserver` and after `document.fonts.ready`, and renders as a plain element positioned with a CSS `transform` — a CSS transition rather than a JS animation, so there is no in-flight state to sample. Width is applied rather than animated, and the transition only engages once a real width is known, so the pill does not visibly grow from zero on first paint.
+
+  `motion` is no longer imported by this component.
+
+  The pill is also positioned from a layout effect rather than after paint, so it no longer shows one frame at the left edge when the initial value is not the first option, and it hides itself when no option matches `value` instead of staying parked behind the last match.
+
 ## 0.1.3
 
 ### Patch Changes
