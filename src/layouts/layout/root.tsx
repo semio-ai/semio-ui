@@ -7,6 +7,7 @@ import { PaneRegion } from "../../types";
 import type { IconValue } from "../../icons/registry";
 import { useLayoutState } from "../../hooks/use-layout-state";
 import { PanelContent } from "./panel-content";
+import { SidePaneArea, sidePaneSize, useSidePaneStack } from "./side-pane-area";
 import { Menu } from "./menu";
 import { Header } from "./header";
 
@@ -36,6 +37,7 @@ function InnerLayoutRoot({
   const [contentRef, contentBounds] = useMeasure();
 
   const {
+    desktop,
     contentWidth,
     leftWidth,
     rightWidth,
@@ -43,6 +45,37 @@ function InnerLayoutRoot({
     footerRegionActive,
     rightRegionActive,
   } = useLayoutState();
+
+  // Which pane is showing in the shared side row, and therefore how tall that row
+  // is. Resolved here and passed down so there is one answer: the order is
+  // accumulated across renders, and a second independent reader could disagree
+  // about which pane is on top.
+  const sideStack = useSidePaneStack();
+  const sideSize = sidePaneSize(sideStack);
+
+  // Docked, each side region has its own track and the content makes room for
+  // both. Sharing one row, there is a single track sized by whichever pane is
+  // showing — the same shape the Left region already had at this width, now
+  // carrying the Right region's panes too.
+  const sideTrackVars: CSSProperties = desktop
+    ? ({
+        "--content-size": contentWidth,
+        "--left-size": leftWidth,
+        "--right-size": rightWidth,
+        "--content-right-gap": rightRegionActive ? "var(--padding-width)" : "0px",
+        "--content-left-gap":
+          leftRegionActive && !leftWidth.includes("1fr") && !leftWidth.includes("0fr")
+            ? "var(--padding-width)"
+            : "0px",
+      } as CSSProperties)
+    : ({
+        // `1fr` unless the showing pane asked to be `full`, which is its way of
+        // saying it takes the space the content gives up.
+        "--content-size": sideSize === "1fr" ? "0fr" : "1fr",
+        "--side-size": sideSize,
+        "--content-side-gap":
+          sideSize !== "0fr" && sideSize !== "1fr" ? "var(--padding-width)" : "0px",
+      } as CSSProperties);
 
   useGesture(
     {
@@ -62,14 +95,7 @@ function InnerLayoutRoot({
     <div
       style={
         {
-          "--content-size": contentWidth,
-          "--left-size": leftWidth,
-          "--right-size": rightWidth,
-          "--content-right-gap": rightRegionActive ? "var(--padding-width)" : "0px",
-          "--content-left-gap":
-            leftRegionActive && !leftWidth.includes("1fr") && !leftWidth.includes("0fr")
-              ? "var(--padding-width)"
-              : "0px",
+          ...sideTrackVars,
           "--content-footer-gap": footerRegionActive ? "var(--padding-width)" : "0px",
         } as CSSProperties
       }
@@ -95,15 +121,30 @@ function InnerLayoutRoot({
       {/* Header */}
       <Header homeIcon={homeIcon} />
 
-      {/* Left Sidebar */}
-      <div className={clsx("grid-area-left h-full w-full transition-[width,height]")}>
-        <PanelContent region={PaneRegion.Left} />
-      </div>
+      {/* Side panes. A track each where there is width to dock them; one shared
+          row, holding whichever is showing, where there is not. Same panes, same
+          content, different arrangement.
 
-      {/* Right Sidebar */}
-      <div className={clsx("grid-area-right h-full w-full transition-[width,height]")}>
-        <PanelContent region={PaneRegion.Right} />
-      </div>
+          The two forms swap rather than coexist because the grids define different
+          areas: an element placed into an area the current grid does not name gets
+          auto-placed into whichever cell happens to be free. */}
+      {desktop ? (
+        <>
+          {/* Left Sidebar */}
+          <div className={clsx("grid-area-left h-full w-full transition-[width,height]")}>
+            <PanelContent region={PaneRegion.Left} />
+          </div>
+
+          {/* Right Sidebar */}
+          <div className={clsx("grid-area-right h-full w-full transition-[width,height]")}>
+            <PanelContent region={PaneRegion.Right} />
+          </div>
+        </>
+      ) : (
+        <div className={clsx("grid-area-side relative h-full w-full")}>
+          <SidePaneArea panes={sideStack} />
+        </div>
+      )}
 
       {/* Content */}
       <div

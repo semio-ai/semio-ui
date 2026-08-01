@@ -132,11 +132,19 @@ function InnerHeader({ homeIcon }: { homeIcon?: IconValue }) {
             // than padding on the row, so it disappears with the button when a right
             // pane is open instead of lingering as a phantom inset.
             "desktop:ml-1",
-            !desktop || rightRegionActive ? "hidden" : "grid",
+            // Shown at every width. It used to be desktop-only, which made the
+            // right region *unreachable* on a phone rather than merely arranged
+            // differently — the panes it opens are now sheets, so the control that
+            // opens them has to exist wherever they do. Still hidden while the
+            // region is open, where the pane carries its own way out.
+            rightRegionActive ? "hidden" : "grid",
           )}
           variant={Variant.Default}
           size={Size.Md}
-          label="Toggle Menu"
+          // Named for what it does. It shared "Toggle Menu" with the actions
+          // dropdown beside it, so the two were indistinguishable to anything
+          // that goes by accessible name.
+          label="Toggle side panel"
           icon={
             <Icon
               name="sidebar-toggle"

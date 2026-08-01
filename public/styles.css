@@ -1175,12 +1175,17 @@
        `body`, outside this element, so menus and tooltips are not clipped. */
     overflow-x: clip;
 
+    /* Narrow: there is no width to dock the side regions beside the content, so
+       they share one full-width row under it — `side` rather than `left`, because
+       a Right-region pane lands here too. Only one is shown at a time
+       (`SidePaneArea`), and `--side-size` is whichever pane that is. The footer
+       keeps its own strip: it is full-width in both arrangements. */
     grid-template-areas:
       "header"
       "."
       "content"
       "."
-      "left"
+      "side"
       "."
       "menu"
       "."
@@ -1188,7 +1193,7 @@
     grid-template-columns: calc(100vw - 2 * var(--padding-width));
     grid-template-rows:
       auto var(--padding-width) minmax(0, var(--content-size))
-      var(--content-left-gap) minmax(0, var(--left-size)) var(--padding-width)
+      var(--content-side-gap) minmax(0, var(--side-size)) var(--padding-width)
       auto var(--content-footer-gap) minmax(0, auto);
 
     @variant desktop {
@@ -1226,6 +1231,11 @@
 
     .grid-area-content {
       grid-area: content;
+    }
+
+    /* Narrow layouts only — the wide grid names `left` and `right` instead. */
+    .grid-area-side {
+      grid-area: side;
     }
 
     .grid-area-footer {
