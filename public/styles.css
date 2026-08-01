@@ -1160,6 +1160,21 @@
     --padding-width: 10px;
     padding: var(--padding-width);
 
+    /* Panes animate in from off-layout — the right pane enters at `x: 50`, the
+       left at `x: -50` (`PanelContent`). Without a clip, that translate is part
+       of the document's scrollable overflow, so every pane open and close grew
+       the page ~40px to the right and flashed a horizontal scrollbar; a pane
+       caught mid-transition (a background tab throttles rAF, freezing the
+       animation) left the scrollbar up for good.
+
+       `clip` rather than `hidden`: it does not create a scroll container, so
+       sticky positioning and scroll anchoring inside the panes are unchanged,
+       and nothing can be scrolled programmatically into the clipped strip.
+       X only — the vertical axis is left `visible` so this cannot silently
+       swallow a genuinely too-tall layout. Floating content is portaled to
+       `body`, outside this element, so menus and tooltips are not clipped. */
+    overflow-x: clip;
+
     grid-template-areas:
       "header"
       "."
