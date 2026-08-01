@@ -373,6 +373,13 @@ export function ListGrid<T>({
   const handleRowClick = useCallback(
     (event: MouseEvent<HTMLElement>, id: string) => {
       if (isDisabled(id)) return;
+      // The second click of a double-click still arrives here, and left alone it
+      // would undo the first: in `single` mode a click on the already-selected
+      // row deselects it, so opening a row would also clear it. Let the first
+      // click own the selection and the double-click handler own the outcome.
+      // Guarded on the handler being present so a list without one keeps the
+      // plain two-clicks-is-two-clicks behaviour it has always had.
+      if (onItemDoubleClick && event.detail > 1) return;
       // Clicks that originate in an interactive cell control must not select the
       // row (embedded buttons/menus/inputs keep working).
       if (
@@ -399,7 +406,15 @@ export function ListGrid<T>({
         selection.clear();
       else selection.select(id);
     },
-    [indexOfId, isDisabled, selectionMode, selection, onAction, disallowEmptySelection],
+    [
+      indexOfId,
+      isDisabled,
+      selectionMode,
+      selection,
+      onAction,
+      onItemDoubleClick,
+      disallowEmptySelection,
+    ],
   );
 
   const handleRowDoubleClick = useCallback(
