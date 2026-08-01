@@ -84,6 +84,20 @@ export interface ListGridProps<T> {
   /** Activation (Enter / click in `none` mode / double-purpose). */
   onAction?: (id: string, event: KeyboardEvent | MouseEvent) => void;
 
+  /**
+   * A row was double-clicked. Optional, and deliberately named for the gesture
+   * rather than for a meaning: what a second click *does* is the consumer's
+   * decision, not the list's. In practice it is the desktop-file idiom — one
+   * click selects, two open — which only makes sense where a single click
+   * already selects, so a `selectionMode` of `single`/`multiple`; with `none`,
+   * the first click has already fired {@link onAction}.
+   *
+   * Not wired to keyboard activation: Enter is `onAction`, and a row that
+   * navigated on both would give the same key two meanings depending on which
+   * handler the consumer happened to pass.
+   */
+  onItemDoubleClick?: (id: string, event: MouseEvent) => void;
+
   // Type-ahead
   allowTypeAhead?: boolean;
   getSearchText?: (item: T) => string;
@@ -102,7 +116,14 @@ const TYPE_AHEAD_RESET_MS = 1000;
 /** The keys the Base-UI composite treats as roving navigation. When they come
  *  from an in-row control we stop their propagation so focus never roves out of
  *  a field mid-edit. */
-const COMPOSITE_NAV_KEYS = new Set(["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Home", "End"]);
+const COMPOSITE_NAV_KEYS = new Set([
+  "ArrowUp",
+  "ArrowDown",
+  "ArrowLeft",
+  "ArrowRight",
+  "Home",
+  "End",
+]);
 
 // Selection is reflected by the shared left-bar + background (`resolveVisual`),
 // the SAME seam as `TreeGrid` — no checkbox/radio indicator column. That keeps
@@ -136,6 +157,7 @@ export function ListGrid<T>({
   deselectOnClickAway = true,
   selectionFollowsFocus = true,
   onAction,
+  onItemDoubleClick,
   allowTypeAhead = true,
   getSearchText,
   noHeader = false,
@@ -192,7 +214,8 @@ export function ListGrid<T>({
   // grid element wraps every row + the header, so anything else is "away".
   const gridRef = useRef<HTMLDivElement>(null);
   useClickAway(gridRef, () => {
-    if (deselectOnClickAway && !disallowEmptySelection && selectionMode !== "none") selection.clear();
+    if (deselectOnClickAway && !disallowEmptySelection && selectionMode !== "none")
+      selection.clear();
   });
 
   const allEnabledSelected =
@@ -288,7 +311,8 @@ export function ListGrid<T>({
           const target = order[nextEnabledIndex(indexOfId(id), dir)];
           // Focus itself is moved by the composite; we layer selection on top.
           if (mod || selectionMode === "none" || !selectionFollowsFocus) break;
-          if (event.shiftKey && selectionMode === "multiple") selection.select(target, { range: true });
+          if (event.shiftKey && selectionMode === "multiple")
+            selection.select(target, { range: true });
           else selectOnly(target);
           break;
         }
@@ -296,7 +320,8 @@ export function ListGrid<T>({
         case "End": {
           const target = order[edgeEnabledIndex(event.key === "Home" ? "first" : "last")];
           if (mod || selectionMode === "none" || !selectionFollowsFocus) break;
-          if (event.shiftKey && selectionMode === "multiple") selection.select(target, { range: true });
+          if (event.shiftKey && selectionMode === "multiple")
+            selection.select(target, { range: true });
           else selectOnly(target);
           break;
         }
@@ -377,6 +402,24 @@ export function ListGrid<T>({
     [indexOfId, isDisabled, selectionMode, selection, onAction, disallowEmptySelection],
   );
 
+  const handleRowDoubleClick = useCallback(
+    (event: MouseEvent<HTMLElement>, id: string) => {
+      if (!onItemDoubleClick || isDisabled(id)) return;
+      // Same escape hatch as the click path: a double-click landing on a cell's
+      // own control belongs to that control. Without this, double-clicking a row
+      // menu would both open the menu and fire the row's handler.
+      if (
+        (event.target as HTMLElement).closest(
+          "button, input, select, textarea, [role='menuitem'], [role='menuitemradio'], [data-radix-collection-item]",
+        )
+      ) {
+        return;
+      }
+      onItemDoubleClick(id, event);
+    },
+    [isDisabled, onItemDoubleClick],
+  );
+
   // Column tracks: `1fr` for a flex column, else `auto`. A `hideBelow` column is
   // forced to `auto` regardless of `flex` — collapsing to 0 when hidden requires
   // an auto track; a `1fr` track would keep reserving width and leave a gap.
@@ -413,7 +456,11 @@ export function ListGrid<T>({
     >
       {/* `@container` makes column hiding respond to the grid's own width
           (container query), not the viewport — reliable and JS-free. */}
-      <div ref={gridRef} className="@container grid" style={{ gridTemplateColumns } as CSSProperties}>
+      <div
+        ref={gridRef}
+        className="@container grid"
+        style={{ gridTemplateColumns } as CSSProperties}
+      >
         {!noHeader && (
           <div
             className={clsx(
@@ -446,7 +493,11 @@ export function ListGrid<T>({
                 className={clsx(
                   // px-2 matches the body cells so headers align with their column.
                   "px-2 py-1 text-xs font-semibold uppercase text-neutral-500 dark:text-neutral-400",
-                  column.align === "right" ? "text-right" : column.align === "center" ? "text-center" : "text-left",
+                  column.align === "right"
+                    ? "text-right"
+                    : column.align === "center"
+                      ? "text-center"
+                      : "text-left",
                   column.hideBelow ? HIDE_BELOW_CLASS[column.hideBelow] : undefined,
                 )}
                 style={{ gridColumn: `${(i + 1).toString()} / span 1` } as CSSProperties}
@@ -483,6 +534,7 @@ export function ListGrid<T>({
               className="col-span-full grid grid-cols-subgrid outline-none group/row"
               onKeyDown={(event) => handleRowKeyDown(event, id)}
               onClick={(event) => handleRowClick(event, id)}
+              onDoubleClick={(event) => handleRowDoubleClick(event, id)}
               onMouseEnter={() => setHoveredId(id)}
               onMouseLeave={() => setHoveredId((cur) => (cur === id ? null : cur))}
             >

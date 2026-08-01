@@ -90,6 +90,7 @@ export interface TreeNavItemProps {
   /** Row-level key handling (tree keys / selection); colocated with `onClick`. */
   onKeyDown?: (event: KeyboardEvent<HTMLElement>) => void;
   onClick?: (event: MouseEvent<HTMLElement>) => void;
+  onDoubleClick?: (event: MouseEvent<HTMLElement>) => void;
   onMouseEnter?: () => void;
   onMouseLeave?: () => void;
   children?: ReactNode;
@@ -111,6 +112,7 @@ export function TreeNavItem({
   className,
   onKeyDown,
   onClick,
+  onDoubleClick,
   onMouseEnter,
   onMouseLeave,
   children,
@@ -127,6 +129,7 @@ export function TreeNavItem({
           className={className}
           onKeyDown={onKeyDown}
           onClick={onClick}
+          onDoubleClick={onDoubleClick}
           onMouseEnter={onMouseEnter}
           onMouseLeave={onMouseLeave}
         >

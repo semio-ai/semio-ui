@@ -23,8 +23,18 @@ const ROWS: Row[] = [
 ];
 
 const COLUMNS: ListColumn<Row>[] = [
-  { key: "name", header: "Name", flex: true, render: (r) => <span className="truncate">{r.name}</span> },
-  { key: "kind", header: "Kind", hideBelow: "sm", render: (r) => <span className="text-neutral-500">{r.kind}</span> },
+  {
+    key: "name",
+    header: "Name",
+    flex: true,
+    render: (r) => <span className="truncate">{r.name}</span>,
+  },
+  {
+    key: "kind",
+    header: "Kind",
+    hideBelow: "sm",
+    render: (r) => <span className="text-neutral-500">{r.kind}</span>,
+  },
   {
     key: "updated",
     header: "Updated",
@@ -84,7 +94,9 @@ export const NoHeaderSingleColumn = () => (
     <ListGrid
       data={ROWS}
       getRowId={(r) => r.id}
-      columns={[{ key: "name", flex: true, render: (r) => <span className="truncate">{r.name}</span> }]}
+      columns={[
+        { key: "name", flex: true, render: (r) => <span className="truncate">{r.name}</span> },
+      ]}
       selectionMode="single"
       noHeader
       defaultSelected={["r3"]}
@@ -117,7 +129,12 @@ export const RichCells = () => {
               </span>
             ),
           },
-          { key: "name", header: "Name", flex: true, render: (r) => <span className="truncate">{r.name}</span> },
+          {
+            key: "name",
+            header: "Name",
+            flex: true,
+            render: (r) => <span className="truncate">{r.name}</span>,
+          },
           {
             key: "kind",
             header: "Kind",
@@ -169,7 +186,11 @@ export const EditableCells = () => {
               />
             ),
           },
-          { key: "kind", header: "Kind", render: (r) => <span className="text-neutral-500">{r.kind}</span> },
+          {
+            key: "kind",
+            header: "Kind",
+            render: (r) => <span className="text-neutral-500">{r.kind}</span>,
+          },
         ]}
       />
     </div>
@@ -205,8 +226,18 @@ export const PerRowVariant = () => {
         resolveVisual={resolveVisual}
         ariaLabel="Per-row variant"
         columns={[
-          { key: "name", header: "Name", flex: true, render: (r) => <span className="truncate">{r.name}</span> },
-          { key: "kind", header: "Kind", align: "right", render: (r) => <span className="text-neutral-500">{r.kind}</span> },
+          {
+            key: "name",
+            header: "Name",
+            flex: true,
+            render: (r) => <span className="truncate">{r.name}</span>,
+          },
+          {
+            key: "kind",
+            header: "Kind",
+            align: "right",
+            render: (r) => <span className="text-neutral-500">{r.kind}</span>,
+          },
         ]}
       />
     </div>
@@ -241,10 +272,18 @@ export const PerRowCustomColor = () => {
             key: "dot",
             header: "",
             render: (r) => (
-              <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: ROW_COLOR[r.id] }} />
+              <span
+                className="h-2.5 w-2.5 rounded-full"
+                style={{ backgroundColor: ROW_COLOR[r.id] }}
+              />
             ),
           },
-          { key: "name", header: "Name", flex: true, render: (r) => <span className="truncate">{r.name}</span> },
+          {
+            key: "name",
+            header: "Name",
+            flex: true,
+            render: (r) => <span className="truncate">{r.name}</span>,
+          },
         ]}
       />
     </div>
@@ -273,3 +312,36 @@ export const ResponsiveHiding = () => (
     ))}
   </div>
 );
+
+/**
+ * One click selects, two open — the desktop-file idiom, via the optional
+ * `onItemDoubleClick`.
+ *
+ * The gesture is wired here rather than in the list because what a second click
+ * *means* is the consumer's: in studio it navigates to the row's page. Keyboard
+ * activation stays on `onAction` (Enter), so the two paths remain distinct and a
+ * consumer can adopt either without the other.
+ */
+export const DoubleClickToOpen = () => {
+  const [sel, setSel] = useState<Set<string>>(new Set());
+  const [opened, setOpened] = useState<string | null>(null);
+  return (
+    <div className="w-[520px] space-y-2 p-4">
+      <ListGrid
+        data={ROWS}
+        getRowId={(r) => r.id}
+        columns={COLUMNS}
+        selectionMode="single"
+        selected={sel}
+        onSelectionChange={setSel}
+        onItemDoubleClick={(id) => setOpened(id)}
+        onAction={(id) => setOpened(id)}
+        getSearchText={(r) => r.name}
+        ariaLabel="Double-click to open"
+      />
+      <p className="text-xs opacity-70">
+        {opened ? `Opened: ${opened}` : "Select with one click; open with two (or Enter)."}
+      </p>
+    </div>
+  );
+};

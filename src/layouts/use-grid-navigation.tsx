@@ -108,6 +108,7 @@ export interface GridNavItemProps {
   /** Item-level key handling (selection/activation); colocated with `onClick`. */
   onKeyDown?: (event: KeyboardEvent<HTMLElement>) => void;
   onClick?: (event: MouseEvent<HTMLElement>) => void;
+  onDoubleClick?: (event: MouseEvent<HTMLElement>) => void;
   children?: ReactNode;
 }
 
@@ -128,6 +129,7 @@ export function GridNavItem({
   className,
   onKeyDown,
   onClick,
+  onDoubleClick,
   children,
 }: GridNavItemProps) {
   return (
@@ -143,6 +145,7 @@ export function GridNavItem({
           className={className}
           onKeyDown={onKeyDown}
           onClick={onClick}
+          onDoubleClick={onDoubleClick}
         >
           {children}
         </div>

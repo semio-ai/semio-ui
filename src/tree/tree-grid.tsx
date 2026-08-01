@@ -1,4 +1,11 @@
-import { type KeyboardEvent, type MouseEvent, type ReactNode, useCallback, useMemo, useState } from "react";
+import {
+  type KeyboardEvent,
+  type MouseEvent,
+  type ReactNode,
+  useCallback,
+  useMemo,
+  useState,
+} from "react";
 import { flattenTree, type FlatTreeRow, type TreeNode } from "./flatten-tree";
 import { useCollapsibleTree } from "./use-collapsible-tree";
 import { useTreeSelection } from "./use-tree-selection";
@@ -62,6 +69,18 @@ export interface TreeGridProps<T> {
   className?: string;
   /** Accessible name for the tree container. */
   ariaLabel?: string;
+
+  /**
+   * A row was double-clicked. Optional, and named for the gesture rather than
+   * for a meaning: what a second click *does* is the consumer's decision, not
+   * the tree's. A single click here always selects, so this is the desktop-file
+   * idiom — one click selects, two open.
+   *
+   * A row that can expand already spends its double-click on nothing (the
+   * disclosure toggle is its own control), so this does not collide with
+   * expansion.
+   */
+  onItemDoubleClick?: (id: string, event: MouseEvent<HTMLElement>) => void;
 }
 
 /** Build a group-id → descendant-ids map for selection propagation. */
@@ -121,6 +140,7 @@ export function TreeGrid<T>({
   slotWidth,
   className,
   ariaLabel,
+  onItemDoubleClick,
 }: TreeGridProps<T>) {
   const collapse = useCollapsibleTree({ collapsed, defaultCollapsed, onCollapsedChange });
 
@@ -128,10 +148,7 @@ export function TreeGrid<T>({
   // object (which is a new reference each render), so this only re-flattens
   // when the tree or collapse state actually changes.
   const isCollapsed = collapse.isCollapsed;
-  const rows = useMemo(
-    () => flattenTree(nodes, { isCollapsed }),
-    [nodes, isCollapsed],
-  );
+  const rows = useMemo(() => flattenTree(nodes, { isCollapsed }), [nodes, isCollapsed]);
   const order = useMemo(() => rows.map((r) => r.id), [rows]);
 
   const descendants = useMemo(
@@ -241,6 +258,23 @@ export function TreeGrid<T>({
     [indexOfId, selection],
   );
 
+  const handleRowDoubleClick = useCallback(
+    (event: MouseEvent<HTMLElement>, row: FlatTreeRow<T>) => {
+      if (!onItemDoubleClick) return;
+      // A double-click that lands on the disclosure toggle or any other cell
+      // control belongs to that control, not to the row.
+      if (
+        (event.target as HTMLElement).closest(
+          "button, input, select, textarea, [role='menuitem'], [role='menuitemradio'], [data-radix-collection-item]",
+        )
+      ) {
+        return;
+      }
+      onItemDoubleClick(row.id, event);
+    },
+    [onItemDoubleClick],
+  );
+
   return (
     <TreeNavRoot
       role="tree"
@@ -285,6 +319,7 @@ export function TreeGrid<T>({
             className="outline-none group/row"
             onKeyDown={(event) => handleRowKeyDown(event, row)}
             onClick={(event) => handleRowClick(event, row)}
+            onDoubleClick={(event) => handleRowDoubleClick(event, row)}
             onMouseEnter={() => setHoveredId(row.id)}
             onMouseLeave={() => setHoveredId((current) => (current === row.id ? null : current))}
           >

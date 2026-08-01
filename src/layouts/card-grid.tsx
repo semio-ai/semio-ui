@@ -56,6 +56,13 @@ export interface CardGridProps<T> {
   selectionFollowsFocus?: boolean;
   /** Activation: Enter always, and click when `selectionMode` is `none`. */
   onAction?: (id: string, event: ReactKeyboardEvent | ReactMouseEvent) => void;
+  /**
+   * A card was double-clicked. Optional, and named for the gesture rather than
+   * for a meaning: what a second click *does* is the consumer's decision, not
+   * the grid's. Pairs with a `selectionMode` where the first click selects —
+   * with `none`, that click has already fired {@link onAction}.
+   */
+  onItemDoubleClick?: (id: string, event: ReactMouseEvent) => void;
   /** Wrap navigation from the last item to the first. */
   loop?: boolean;
 
@@ -107,6 +114,7 @@ export function CardGrid<T>({
   deselectOnClickAway = true,
   selectionFollowsFocus = true,
   onAction,
+  onItemDoubleClick,
   loop = false,
   allowTypeAhead = true,
   getSearchText,
@@ -331,6 +339,9 @@ export function CardGrid<T>({
               ariaSelected={selectionMode === "none" ? undefined : state.isSelected(id)}
               disabled={disabled}
               onClick={disabled ? undefined : (event) => handleClick(event, id)}
+              onDoubleClick={
+                disabled || !onItemDoubleClick ? undefined : (event) => onItemDoubleClick(id, event)
+              }
               // The focus ring belongs to the card the consumer renders, not to
               // this wrapper, so the wrapper suppresses its own.
               className="focus-visible:outline-hidden"
