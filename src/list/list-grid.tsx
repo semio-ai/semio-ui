@@ -20,8 +20,14 @@ import { ListRow } from "./list-row";
 export type SelectionMode = "none" | "single" | "multiple";
 
 /** Container-query breakpoints for {@link ListColumn.hideBelow}. Widths match
- *  Tailwind's container sizes (xs 320 · sm 384 · md 448 · lg 512 · xl 576 px). */
-export type ListBreakpoint = "xs" | "sm" | "md" | "lg" | "xl";
+ *  Tailwind's container sizes (xs 320 · sm 384 · md 448 · lg 512 · xl 576 ·
+ *  2xl 672 · 3xl 768 · 4xl 896 px).
+ *
+ *  The wide end matters as much as the narrow: a column that only hides below
+ *  576px stays visible in a 700px list and takes its width out of the flexible
+ *  column instead, so the flexible one — usually the name, the column a reader
+ *  scans by — is squeezed to nothing while secondary columns sit at full width. */
+export type ListBreakpoint = "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl" | "4xl";
 
 /**
  * Literal `@max-*:hidden` classes (NOT built dynamically) so Tailwind's JIT
@@ -36,6 +42,9 @@ const HIDE_BELOW_CLASS: Record<ListBreakpoint, string> = {
   md: "@max-md:hidden",
   lg: "@max-lg:hidden",
   xl: "@max-xl:hidden",
+  "2xl": "@max-2xl:hidden",
+  "3xl": "@max-3xl:hidden",
+  "4xl": "@max-4xl:hidden",
 };
 
 /** A column: layout + a cell renderer that sees the row's interaction state. */
