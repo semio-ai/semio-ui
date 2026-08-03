@@ -4,7 +4,61 @@ import { PaneRegion, PaneSpec, ToolbarItem } from "../types";
 import { useIsDesktop } from "./use-is-desktop";
 
 export const menuStateAtom = atom<boolean>(true);
-export const panesAtom = atom<PaneSpec[]>([]);
+
+const panesBaseAtom = atom<PaneSpec[]>([]);
+
+/** The side regions — the ones that share a row when there is no width to dock them. */
+const SIDE_REGIONS: readonly PaneRegion[] = [PaneRegion.Left, PaneRegion.Right];
+
+const isSideRegion = (region: PaneRegion | undefined): boolean =>
+  region !== undefined && SIDE_REGIONS.includes(region);
+
+/**
+ * Monotonic, module-scoped: it only has to order panes against each other within a
+ * session, and it never resets, so a value can't be reused while the pane holding
+ * it is still open.
+ */
+let nextOpenOrder = 1;
+
+/**
+ * The panes, with `openOrder` maintained on write.
+ *
+ * Stamped here rather than at the call sites because panes are opened from several
+ * of them — the menu, the header toggle, a selection registering its own pane — and
+ * an unstamped path would silently order wrong. Every write goes through this atom,
+ * so this is the one place that sees all of them.
+ *
+ * A pane entering a side region without an order gets the next one; leaving a side
+ * region clears it. That second rule is also how a caller asks for a pane to be
+ * brought to the front: clear the order while leaving the region set, and the pane
+ * is re-stamped as the most recently opened.
+ */
+export const panesAtom = atom(
+  (get) => get(panesBaseAtom),
+  (get, set, next: PaneSpec[]) => {
+    set(
+      panesBaseAtom,
+      next.map((pane) => {
+        if (!isSideRegion(pane.region)) {
+          return pane.openOrder === undefined ? pane : { ...pane, openOrder: undefined };
+        }
+        return pane.openOrder === undefined ? { ...pane, openOrder: nextOpenOrder++ } : pane;
+      }),
+    );
+  },
+);
+
+/**
+ * Open side panes, oldest first — the back-stack, with the last entry on top.
+ *
+ * Only panes with content: `PanelContent` and `SidePaneArea` both skip a pane
+ * without any, so an empty one is not something the viewer can be looking at.
+ */
+export const sidePaneStackAtom = atom<PaneSpec[]>((get) =>
+  get(panesAtom)
+    .filter((pane) => isSideRegion(pane.region) && pane.content !== undefined && !pane.shouldClose)
+    .sort((a, b) => (a.openOrder ?? 0) - (b.openOrder ?? 0)),
+);
 export const toolbarItemsAtom = atom<ToolbarItem[]>([]);
 export const actionItemsAtom = atom<ActionItem[]>([]);
 export const homeActionItemAtom = atom<ActionItem | undefined>(undefined);
@@ -102,6 +156,10 @@ export function useMenuState() {
 export function usePanes() {
   const panes = useAtomValue(panesAtom);
   return panes;
+}
+
+export function useSidePaneStack() {
+  return useAtomValue(sidePaneStackAtom);
 }
 
 export function useToolbarItems() {

@@ -180,4 +180,17 @@ export interface PaneSpec {
   disabled?: boolean;
   region?: PaneRegion;
   shouldClose?: boolean;
+  /**
+   * When this pane was most recently opened into a side region, as a counter.
+   *
+   * Maintained by the layout — do not set it. It exists because the pane array is
+   * ordered by registration, which says nothing about which of two open side panes
+   * the viewer opened last. That only matters where the side regions share one row
+   * and just one of them can be shown, but it has to be recorded when the pane
+   * opens, since by the time it is needed the event is gone.
+   *
+   * Cleared whenever the pane leaves a side region, so "has one" means "is open in
+   * a side region" and the highest is the one on top.
+   */
+  openOrder?: number;
 }

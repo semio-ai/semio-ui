@@ -145,6 +145,30 @@ test("below the breakpoint, both side regions share one row and stack", async ()
   await expect.poll(() => sidePanes().ids).toEqual([]);
 });
 
+test("with both regions open, the toggle of a covered pane brings it forward", async () => {
+  await page.viewport(MOBILE.width, MOBILE.height);
+  renderLayout();
+
+  // Opened in the opposite order to the test above: whichever went last is on top,
+  // so neither region outranks the other.
+  await userEvent.click(page.getByRole("button", { name: "toggle right" }));
+  await expect.poll(sidePanes).toEqual({ ids: ["right-pane"], showing: "right-pane" });
+  await userEvent.click(page.getByRole("button", { name: "toggle left" }));
+  await expect.poll(sidePanes).toEqual({ ids: ["right-pane", "left-pane"], showing: "left-pane" });
+
+  // The right pane is open but covered, so its toggle means "show me that" — not
+  // "close it". Closing something the viewer cannot see changes nothing on screen,
+  // which reads as a dead control and takes two presses to get the pane asked for.
+  await userEvent.click(page.getByRole("button", { name: "toggle right" }));
+  await expect.poll(sidePanes).toEqual({ ids: ["left-pane", "right-pane"], showing: "right-pane" });
+
+  // Now that it IS the one showing, the same toggle closes it and the left pane —
+  // never closed, only covered — comes back.
+  await userEvent.click(page.getByRole("button", { name: "toggle right" }));
+  await expect.poll(sidePanes).toEqual({ ids: ["left-pane"], showing: "left-pane" });
+  await expect.element(page.getByText("Left pane body")).toBeVisible();
+});
+
 test("above the breakpoint, the same panes dock concurrently", async () => {
   await page.viewport(DESKTOP.width, DESKTOP.height);
   renderLayout();
@@ -162,4 +186,13 @@ test("above the breakpoint, the same panes dock concurrently", async () => {
     .poll(() => document.querySelector(".grid-area-right")?.textContent)
     .toContain("Right pane body");
   expect(document.querySelectorAll('[data-testid="side-pane"]')).toHaveLength(0);
+
+  // Both are visible here, so nothing is ever covered and the bring-forward
+  // behaviour must not apply: the left pane was opened first and still has the
+  // lower open order, but its toggle has to close it rather than re-rank it.
+  await userEvent.click(page.getByRole("button", { name: "toggle left" }));
+  await expect
+    .poll(() => document.querySelector(".grid-area-left")?.textContent ?? "")
+    .not.toContain("Left pane body");
+  expect(document.querySelector(".grid-area-right")?.textContent).toContain("Right pane body");
 });

@@ -12,6 +12,25 @@ import {
   actionItemsAtom,
   homeActionItemAtom,
 } from "./layout-atoms";
+import { useIsDesktop } from "./use-is-desktop";
+
+/**
+ * Whether an open side pane has another open side pane on top of it — i.e. a pane
+ * with a higher `openOrder`. Only meaningful where the side regions share a row;
+ * above the breakpoint they have a track each and nothing covers anything.
+ */
+function isCovered(panes: PaneSpec[], id: string): boolean {
+  const order = panes.find((p) => p.id === id)?.openOrder;
+  if (order === undefined) return false;
+  return panes.some(
+    (other) =>
+      other.id !== id &&
+      other.content !== undefined &&
+      !other.shouldClose &&
+      other.openOrder !== undefined &&
+      other.openOrder > order,
+  );
+}
 
 export type ActionItemInput =
   | ActionItem // Full menu item
@@ -62,6 +81,12 @@ export interface LayoutActions {
 export function useLayoutActions(): LayoutActions {
   const menuExpandedRef = useRef<boolean>(false);
   const panesRef = useRef<PaneSpec[]>([]);
+  // Mirrored into a ref rather than closed over, so `togglePaneRegion` keeps a
+  // stable identity across the breakpoint — consumers list it in effect and memo
+  // dependencies.
+  const desktop = useIsDesktop();
+  const desktopRef = useRef(desktop);
+  desktopRef.current = desktop;
   const toolbarItemsRef = useRef<ToolbarItem[]>([]);
   const actionItemsRef = useRef<ActionItem[]>([]);
   const setMenuExpanded = useSetAtom(menuStateAtom);
@@ -233,6 +258,22 @@ export function useLayoutActions(): LayoutActions {
     (region: PaneRegion, id: string, preventSameClose = false) => {
       // First, find if the current pane id is currently in that region;
       const currentPaneInRegion = panesRef.current.find((p) => p.id === id && p.region === region);
+
+      // Open, but covered by a side pane opened more recently. Below the breakpoint
+      // the side regions share one row and only the newest is shown, so toggling
+      // this one means "show me this", not "close this": closing a pane the viewer
+      // cannot see changes nothing on screen, which reads as a dead button and takes
+      // two presses to get the pane they asked for.
+      //
+      // Expressed by clearing `openOrder` while leaving the region set — `panesAtom`
+      // re-stamps it as the most recently opened. Gated on the breakpoint because
+      // above it the regions have a track each and both are already visible, where
+      // the toggle has to keep closing.
+      if (!desktopRef.current && currentPaneInRegion && isCovered(panesRef.current, id)) {
+        setPanes(panesRef.current.map((p) => (p.id === id ? { ...p, openOrder: undefined } : p)));
+        return;
+      }
+
       // Don't close the pane directly, but set the flag so that it knows it should close
       if (currentPaneInRegion && !preventSameClose) {
         const newPanes = panesRef.current.map((p) =>

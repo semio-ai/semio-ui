@@ -1,65 +1,9 @@
-import { useRef } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { clsx } from "clsx";
 import { HeaderButton } from "../../buttons/header-button";
 import { PaneRegion, PaneSpec, Size, Variant } from "../../types";
 import { useLayoutActions } from "../../hooks/use-layout-actions";
-import { usePanes } from "../../hooks/layout-atoms";
 import { Icon } from "../../icons/registry";
-
-/**
- * The regions that dock beside the content when there is width for it. These are
- * the ones that have to go somewhere else when there is not.
- *
- * The footer is not one of them: it is a full-width strip under the content at
- * every size already, so it has no arrangement to adapt.
- */
-const SIDE_REGIONS: readonly PaneRegion[] = [PaneRegion.Left, PaneRegion.Right];
-
-function isOpenSidePane(pane: PaneSpec): boolean {
-  return (
-    pane.region !== undefined &&
-    SIDE_REGIONS.includes(pane.region) &&
-    pane.content !== undefined &&
-    !pane.shouldClose
-  );
-}
-
-/**
- * Every open side pane, oldest first — the back-stack, with the last entry showing.
- *
- * Order has to be remembered because nothing in `PaneSpec` records it: the pane
- * array is keyed by registration, not by when a pane was opened, and a pane can be
- * opened from any of several places (the menu, the header toggle, a selection). So
- * the ids accumulate across renders — surviving ids keep their position, newly
- * opened ones are appended.
- *
- * Computed during render rather than in an effect because the answer has to be
- * right for the first paint of a newly opened pane, or it appears underneath the
- * one it is replacing for a frame. Safe here: it is a pure function of the previous
- * order and the current ids, so re-running it lands on the same answer.
- *
- * Call this in ONE place and pass the result down. Two independent callers would
- * each keep their own ref and could disagree about which pane is on top.
- */
-export function useSidePaneStack(): PaneSpec[] {
-  const panes = usePanes();
-  const open = panes.filter(isOpenSidePane);
-  const openIds = open.map((pane) => pane.id);
-
-  const orderRef = useRef<string[]>([]);
-  const next = [
-    ...orderRef.current.filter((id) => openIds.includes(id)),
-    ...openIds.filter((id) => !orderRef.current.includes(id)),
-  ];
-  const unchanged =
-    next.length === orderRef.current.length && next.every((id, i) => id === orderRef.current[i]);
-  if (!unchanged) orderRef.current = next;
-
-  return orderRef.current
-    .map((id) => open.find((pane) => pane.id === id))
-    .filter((pane): pane is PaneSpec => pane !== undefined);
-}
 
 /**
  * The size the side row should take: whatever the pane currently showing asks for.

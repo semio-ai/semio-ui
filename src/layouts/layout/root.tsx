@@ -6,8 +6,9 @@ import useMeasure, { RectReadOnly } from "react-use-measure";
 import { PaneRegion } from "../../types";
 import type { IconValue } from "../../icons/registry";
 import { useLayoutState } from "../../hooks/use-layout-state";
+import { useSidePaneStack } from "../../hooks/layout-atoms";
 import { PanelContent } from "./panel-content";
-import { SidePaneArea, sidePaneSize, useSidePaneStack } from "./side-pane-area";
+import { SidePaneArea, sidePaneSize } from "./side-pane-area";
 import { Menu } from "./menu";
 import { Header } from "./header";
 
@@ -47,9 +48,7 @@ function InnerLayoutRoot({
   } = useLayoutState();
 
   // Which pane is showing in the shared side row, and therefore how tall that row
-  // is. Resolved here and passed down so there is one answer: the order is
-  // accumulated across renders, and a second independent reader could disagree
-  // about which pane is on top.
+  // is. Derived from pane state, so every reader agrees without coordinating.
   const sideStack = useSidePaneStack();
   const sideSize = sidePaneSize(sideStack);
 
