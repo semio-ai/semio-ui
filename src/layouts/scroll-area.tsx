@@ -71,6 +71,84 @@ interface ScrollAreaProps {
 }
 
 /**
+ * How much a content box may exceed its viewport before that counts as overflow.
+ *
+ * Half a pixel, because the question being answered is only ever "is this a real
+ * overflow or a rounding artefact" — a genuine overflow worth a scrollbar is never
+ * sub-pixel, and nothing useful can be scrolled into view at that size.
+ */
+const OVERFLOW_EPSILON = 0.5;
+
+/**
+ * Whether the viewport's content genuinely exceeds it, measured in **fractional**
+ * pixels.
+ *
+ * `scrollWidth`/`scrollHeight` and `clientWidth`/`clientHeight` are integers by
+ * spec, and where a viewport's box lands on a fractional size — routine at a
+ * fractional device pixel ratio, e.g. a scaled display — WebKit rounds the pair in
+ * opposite directions and reports `scroll = client + 1` for content that fits
+ * exactly. Both scroll libraries decide scrollability from precisely that
+ * comparison (Radix `offsetHeight < scrollHeight`, Base UI `clientHeight >=
+ * scrollHeight`), so both raise a scrollbar for content that fits. Measured in the
+ * app: a 564.198px-tall menu reporting client 564 / scroll 565 with 143.967px of
+ * content, and a 750.870px-wide panel reporting client 751 / scroll 752 with its
+ * content exactly as wide as its box.
+ *
+ * `getBoundingClientRect` is not rounded, so comparing the content box against the
+ * viewport's own box answers the question the integers cannot. Sizes only — a
+ * scrolled viewport moves its content's rect without resizing it, so this is
+ * independent of scroll position.
+ *
+ * Slightly conservative where the viewport carries padding: the content box is
+ * measured against the border box, so an overflow smaller than the padding can go
+ * unnoticed. That is the same sub-pixel range being deliberately ignored.
+ *
+ * Failure mode is a missing scrollbar, never a stuck viewport: the element itself
+ * keeps `overflow: scroll`, so wheel, trackpad and keyboard scrolling are unaffected
+ * by anything decided here.
+ */
+function useContentOverflow(viewport: React.RefObject<HTMLDivElement | null>): {
+  x: boolean;
+  y: boolean;
+} {
+  const [overflow, setOverflow] = useState({ x: false, y: false });
+
+  useEffect(() => {
+    const viewportEl = viewport.current;
+    if (!viewportEl) return;
+
+    const measure = () => {
+      // Radix wraps the children in a single element; that wrapper *is* the
+      // scrollable content.
+      const content = viewportEl.firstElementChild;
+      if (!content) return;
+      const styles = getComputedStyle(viewportEl);
+      const borderX =
+        (parseFloat(styles.borderLeftWidth) || 0) + (parseFloat(styles.borderRightWidth) || 0);
+      const borderY =
+        (parseFloat(styles.borderTopWidth) || 0) + (parseFloat(styles.borderBottomWidth) || 0);
+      const box = viewportEl.getBoundingClientRect();
+      const contentBox = content.getBoundingClientRect();
+      const next = {
+        x: contentBox.width - (box.width - borderX) > OVERFLOW_EPSILON,
+        y: contentBox.height - (box.height - borderY) > OVERFLOW_EPSILON,
+      };
+      setOverflow((prev) => (prev.x === next.x && prev.y === next.y ? prev : next));
+    };
+
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(viewportEl);
+    if (viewportEl.firstElementChild) observer.observe(viewportEl.firstElementChild);
+    return () => {
+      observer.disconnect();
+    };
+  }, [viewport]);
+
+  return overflow;
+}
+
+/**
  * Renders a scrollable area with natural overscroll behavior.
  * Uses padding to create "real" overscroll space that can be synchronized between multiple areas.
  *
@@ -123,6 +201,10 @@ export const InnerScrollArea = forwardRef<ScrollAreaRef, ScrollAreaProps>(
 
     // Ref to access the Radix ScrollArea viewport
     const viewportRef = useRef<HTMLDivElement>(null);
+
+    // Whether the content really overflows, rather than whether the rounded scroll
+    // metrics say so. Gates the scrollbars below.
+    const contentOverflow = useContentOverflow(viewportRef);
 
     // Track user interaction state
     const [isUserScrolling, setIsUserScrolling] = useState(false);
@@ -351,13 +433,30 @@ export const InnerScrollArea = forwardRef<ScrollAreaRef, ScrollAreaProps>(
               overscrollDisabled ? "overscroll-none" : "overscroll-contain",
               orientation === "vertical" && "overflow-x-hidden",
               orientation === "horizontal" && "overflow-y-hidden",
+              // Take an axis out of scrolling entirely when nothing overflows it.
+              //
+              // Not belt-and-braces with the scrollbars gated below — a separate
+              // scrollbar. Radix sets `overflow: scroll` inline on both axes and hides
+              // the browser's own bar with `scrollbar-width: none` plus
+              // `::-webkit-scrollbar { display: none }`. In WebKit that does not work:
+              // verified in Safari 26.6 with both rules present and
+              // `scrollbar-width` computing to `none`, an axis reporting one rounded
+              // pixel of overflow still painted a native bar, with none of ours in the
+              // DOM. Nothing can be styled away that the engine draws outside the
+              // element, so the axis has to stop being scrollable.
+              //
+              // `!` because it has to beat Radix's inline style. Safe by construction:
+              // the axis only loses scrolling while the same measurement says there is
+              // nothing there to scroll to, and regains it the moment content grows.
+              !contentOverflow.x && "overflow-x-hidden!",
+              !contentOverflow.y && "overflow-y-hidden!",
               className,
             )}
           >
             {children}
           </RadixScrollArea.Viewport>
 
-          {(orientation === "both" || orientation === "vertical") && (
+          {(orientation === "both" || orientation === "vertical") && contentOverflow.y && (
             <RadixScrollArea.Scrollbar
               className={clsx(
                 "flex touch-none px-0.5 py-1 select-none",
@@ -366,6 +465,9 @@ export const InnerScrollArea = forwardRef<ScrollAreaRef, ScrollAreaProps>(
                 "data-[orientation=horizontal]:h-2.5 data-[orientation=horizontal]:flex-col data-[orientation=vertical]:w-2.5",
               )}
               orientation="vertical"
+              // Radix identifies only its viewport in the DOM, so without this the
+              // decision above is not observable from a test.
+              data-testid="scroll-area-scrollbar"
             >
               <RadixScrollArea.Thumb
                 className={clsx(
@@ -376,7 +478,7 @@ export const InnerScrollArea = forwardRef<ScrollAreaRef, ScrollAreaProps>(
               />
             </RadixScrollArea.Scrollbar>
           )}
-          {(orientation === "both" || orientation === "horizontal") && (
+          {(orientation === "both" || orientation === "horizontal") && contentOverflow.x && (
             <RadixScrollArea.Scrollbar
               className={clsx(
                 "flex touch-none px-1 py-0.5 select-none",
@@ -385,6 +487,7 @@ export const InnerScrollArea = forwardRef<ScrollAreaRef, ScrollAreaProps>(
                 "data-[orientation=horizontal]:h-2.5 data-[orientation=horizontal]:flex-col data-[orientation=vertical]:w-2.5",
               )}
               orientation="horizontal"
+              data-testid="scroll-area-scrollbar"
             >
               <RadixScrollArea.Thumb
                 className={clsx(
@@ -395,7 +498,9 @@ export const InnerScrollArea = forwardRef<ScrollAreaRef, ScrollAreaProps>(
               />
             </RadixScrollArea.Scrollbar>
           )}
-          <RadixScrollArea.Corner className="bg-black/5" />
+          {contentOverflow.x && contentOverflow.y && (
+            <RadixScrollArea.Corner className="bg-black/5" />
+          )}
         </div>
 
         {footer && (
