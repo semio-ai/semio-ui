@@ -45,6 +45,26 @@ const ROW_HEIGHT: Record<Size, string> = {
   [Size.Xl]: "h-13",
 };
 
+/**
+ * Edge length of a row's media tile — the square a thumbnail, or the glyph
+ * standing in for one, occupies in a cell. Published as `--row-media`, which the
+ * `sized-row-media` utility reads.
+ *
+ * The ROW owns this, not the cell. A cell can only name a number, and a number
+ * states no ratio: two listings at different row sizes reach for the same
+ * comfortable-looking tile and then disagree about the breathing around it, which
+ * reads as the same object rendered two ways. Here it is one 4px step in from the
+ * row on every edge — `ROW_HEIGHT` less 8px — and it sits beside those heights so
+ * that relationship stays checkable in one place rather than inferred from two.
+ */
+const ROW_MEDIA: Record<Size, string> = {
+  [Size.Xs]: "1rem", // 16px in h-6
+  [Size.Sm]: "1.5rem", // 24px in h-8
+  [Size.Md]: "1.75rem", // 28px in h-9
+  [Size.Lg]: "2.25rem", // 36px in h-11
+  [Size.Xl]: "2.75rem", // 44px in h-13
+};
+
 const alignClass = (align: ListRowColumn["align"]) =>
   align === "right"
     ? "justify-end text-right"
@@ -95,7 +115,12 @@ export function ListRow({
         size,
         className,
       )}
-      style={visual?.color ? ({ "--custom-color": visual.color } as CSSProperties) : undefined}
+      style={
+        {
+          ...(visual?.color ? { "--custom-color": visual.color } : {}),
+          "--row-media": ROW_MEDIA[size],
+        } as CSSProperties
+      }
     >
       {/* Background tint — always present so selection/hover changes transition. */}
       <div

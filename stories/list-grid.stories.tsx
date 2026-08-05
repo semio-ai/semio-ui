@@ -1,6 +1,8 @@
 import { useState } from "react";
 import {
+  Icon,
   ListGrid,
+  Size,
   type ListColumn,
   type ResolveRowVisual,
   Variant,
@@ -345,3 +347,66 @@ export const DoubleClickToOpen = () => {
     </div>
   );
 };
+
+/**
+ * A row's media tile is sized by the ROW, via `sized-row-media` — the utility
+ * reads the `--row-media` the row publishes for its `Size`. A cell never names a
+ * square.
+ *
+ * Ratio, not just size: the tile is one 4px step in from the row on every edge at
+ * every step of the scale, so the breathing around it is identical whatever height
+ * a listing runs at. Two listings hardcoding the same comfortable-looking number
+ * is exactly how they come to disagree — the same tile in a taller row is a
+ * different picture.
+ *
+ * Note the tile is a *descendant* of the row, not the element carrying the size
+ * class, which is why this rides on an inherited custom property rather than the
+ * `@variant size-*` mechanism `sized-height` and its siblings use.
+ */
+const MEDIA_COLUMNS: ListColumn<Row>[] = [
+  {
+    key: "name",
+    header: "Name",
+    flex: true,
+    render: (r) => (
+      <span className="flex min-w-0 items-center gap-3">
+        {/* The tile takes no size class of its own — only its rounding. */}
+        <span className="sized-row-media grid shrink-0 place-items-center overflow-hidden rounded-xs bg-neutral-300/60 dark:bg-neutral-700/60">
+          {/* `size="none"` is required: without it the icon keeps its intrinsic
+              sizing and a utility class cannot shrink it. Deliberately a built-in
+              glyph — studio's `entity-*` keys come from its own registry
+              augmentation and do not resolve here. */}
+          <Icon name="robot" size="none" className="size-4 opacity-40" />
+        </span>
+        <span className="truncate">{r.name}</span>
+      </span>
+    ),
+  },
+  {
+    key: "kind",
+    header: "Kind",
+    hideBelow: "sm",
+    render: (r) => <span className="text-xs text-neutral-500">{r.kind}</span>,
+  },
+];
+
+export const RowMediaFollowsRowSize = () => (
+  <div className="flex flex-col gap-6 p-4">
+    {[Size.Sm, Size.Md, Size.Lg, Size.Xl].map((size) => (
+      <div key={size}>
+        <div className="mb-1 font-mono text-xs text-neutral-500">{size}</div>
+        <div className="w-[420px]">
+          <ListGrid
+            data={ROWS.slice(0, 3)}
+            getRowId={(r) => r.id}
+            columns={MEDIA_COLUMNS}
+            size={size}
+            selectionMode="single"
+            defaultSelected={["r1"]}
+            ariaLabel={`Row media at ${size}`}
+          />
+        </div>
+      </div>
+    ))}
+  </div>
+);

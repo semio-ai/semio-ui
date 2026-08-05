@@ -939,6 +939,20 @@
     }
   }
 
+  /* The square a row's media tile occupies — a thumbnail, or the glyph standing
+     in for one. Unlike its `sized-*` siblings the scale is not repeated here:
+     `ListRow` publishes `--row-media` per row `Size`, so the tile derives from
+     the row it is in rather than from a size class the cell has to be told. That
+     is also why it cannot be a `@variant size-*` block like the others — those
+     match the size class on the SAME element, and the tile is a descendant of the
+     row that carries it.
+
+     The fallback is the Lg value, for a tile rendered outside a row. */
+  .sized-row-media {
+    width: var(--row-media, 2.25rem);
+    height: var(--row-media, 2.25rem);
+  }
+
   .sized-text {
     @apply text-base;
 
