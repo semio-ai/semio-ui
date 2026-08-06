@@ -296,10 +296,17 @@ export const GuideLinesLastChild: Story = {
  * so the rows on screen are a slice of it and collapsing a group simply makes that array
  * shorter. Collapse a few groups here and the scrollbar shortens to match. Indentation and
  * guide lines are per-row facts, so a row is unaffected by its neighbours being absent.
+ *
+ * `selectGroupDescendants` is on, so clicking a group selects its whole subtree — a hundred
+ * leaves, of which only a handful exist as elements. Worth showing at this scale precisely
+ * because it is the case where you would expect windowing to have broken it: subtree
+ * selection is computed from the nodes and the id order, never from what is on screen. It
+ * is opt-in and OFF by default, since a group row is otherwise selectable in its own right.
  */
 export const VirtualizedTree: StoryObj = {
   render: () => {
     const scrollRef = useRef<HTMLDivElement>(null);
+    const [selected, setSelected] = useState<Set<string>>(new Set());
     const nodes = useMemo(
       () =>
         Array.from({ length: 100 }, (_unusedGroup, g) => ({
@@ -314,7 +321,9 @@ export const VirtualizedTree: StoryObj = {
     );
     return (
       <div className="w-[420px] p-4">
-        <div className="mb-2 text-xs text-neutral-500">10,100 rows · windowed</div>
+        <div className="mb-2 text-xs text-neutral-500">
+          10,100 rows · windowed · {selected.size.toString()} selected
+        </div>
         <div
           ref={scrollRef}
           className="h-80 overflow-y-auto rounded-sm border border-neutral-500/20"
@@ -323,6 +332,9 @@ export const VirtualizedTree: StoryObj = {
             nodes={nodes}
             virtualized
             scrollRef={scrollRef}
+            selectGroupDescendants
+            selected={selected}
+            onSelectionChange={setSelected}
             ariaLabel="Virtualized tree"
             getLabel={(row) => <span className="truncate text-sm">{row.data.name}</span>}
           />

@@ -1,5 +1,5 @@
 import { useMemo, useRef, useState } from "react";
-import { expect, test } from "vitest";
+import { expect, test, vi } from "vitest";
 import { render } from "vitest-browser-react";
 import { userEvent } from "@vitest/browser/context";
 import { Size } from "../types";
@@ -40,10 +40,14 @@ function Harness({
   build,
   collapsed,
   size,
+  selectGroupDescendants,
+  onSelectionChange,
 }: {
   build: () => TreeNode<Datum>[];
   collapsed?: Iterable<string>;
   size?: Size;
+  selectGroupDescendants?: boolean;
+  onSelectionChange?: (next: Set<string>) => void;
 }) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const nodes = useMemo(build, [build]);
@@ -53,6 +57,8 @@ function Harness({
         nodes={nodes}
         collapsed={collapsed}
         size={size}
+        selectGroupDescendants={selectGroupDescendants}
+        onSelectionChange={onSelectionChange}
         virtualized
         scrollRef={scrollRef}
         ariaLabel="Virtual tree"
@@ -235,4 +241,55 @@ test("End still reaches the last row at a non-default size", async () => {
   expect(last).toBeDefined();
   expect(document.activeElement).toBe(last);
   cleanup();
+});
+
+test("selecting a group selects its whole subtree, including rows that were never rendered", async () => {
+  // `selectGroupDescendants` is built on `collectDescendants`, which walks the NODES —
+  // the tree as given, not the slice on screen — and on `useTreeSelection`, which is pure
+  // id arithmetic with no DOM in it. So the property to pin is that windowing changes
+  // nothing here: a group's hundred children are selected even though about fifteen rows
+  // exist as elements and none of those children are among them.
+  withRowHeightCss();
+  const onSelectionChange = vi.fn();
+  const view = render(
+    <Harness
+      build={() => makeTree(100, 100)}
+      selectGroupDescendants
+      onSelectionChange={onSelectionChange}
+    />,
+  );
+  await settle();
+
+  const mounted = items(view).length;
+  expect(mounted).toBeLessThan(60);
+
+  // The first row is Group 0. Click the row itself, not its disclosure toggle.
+  items(view)[0].click();
+  await settle();
+
+  const selected = onSelectionChange.mock.calls.at(-1)![0] as Set<string>;
+  // The group plus all hundred of its leaves.
+  expect(selected.size).toBe(101);
+  expect(selected.has("g0")).toBe(true);
+  expect(selected.has("g0-c0")).toBe(true);
+  // A leaf far outside the rendered window, which has no element to have been clicked.
+  expect(selected.has("g0-c99")).toBe(true);
+  expect(view.container.querySelector('[data-testid="scroller"]')).toBeTruthy();
+});
+
+test("without the flag, selecting a group selects only the group", async () => {
+  // The default, and the difference worth being explicit about: a group row is selectable
+  // in its own right unless the consumer asks for subtree selection.
+  withRowHeightCss();
+  const onSelectionChange = vi.fn();
+  const view = render(
+    <Harness build={() => makeTree(100, 100)} onSelectionChange={onSelectionChange} />,
+  );
+  await settle();
+
+  items(view)[0].click();
+  await settle();
+
+  const selected = onSelectionChange.mock.calls.at(-1)![0] as Set<string>;
+  expect([...selected]).toEqual(["g0"]);
 });
