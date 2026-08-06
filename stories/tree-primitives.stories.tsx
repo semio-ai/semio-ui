@@ -363,7 +363,7 @@ export const RowSizes: StoryObj = {
               nodes={nodes}
               size={size}
               ariaLabel={`Tree at ${size}`}
-              getLabel={(row) => <span className="truncate text-sm">{row.data.name}</span>}
+              getLabel={(row) => <span className="sized-text truncate">{row.data.name}</span>}
             />
           </div>
         ))}
