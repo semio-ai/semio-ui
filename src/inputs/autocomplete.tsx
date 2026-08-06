@@ -49,7 +49,8 @@ export interface AutocompleteProps<TItem> {
    * omitted, a small bullet renders in the indicator.
    */
   getItemIcon?: (item: TItem) => ReactNode;
-  /** Ref to the underlying input element (for programmatic focus, etc.). */
+  /** Ref to the underlying input element (for programmatic focus, etc.). React 19+:
+   *  `ref` arrives as an ordinary prop, so this is not supported on React 18. */
   ref?: Ref<HTMLInputElement>;
   placeholder?: string;
   size?: Size;
@@ -152,9 +153,7 @@ export function Autocomplete<TItem>({
       autoHighlight
       openOnInputClick
     >
-      <AutocompletePrimitive.InputGroup
-        className={clsx(inputGroupClassName(size), className)}
-      >
+      <AutocompletePrimitive.InputGroup className={clsx(inputGroupClassName(size), className)}>
         {resolvedLeftIcon != null && (
           <span className={leftIconClassName(size, variant)} aria-hidden="true">
             {resolvedLeftIcon}

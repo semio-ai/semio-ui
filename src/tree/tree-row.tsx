@@ -59,6 +59,8 @@ export interface TreeRowProps {
    */
   size?: Size;
   /**
+   * React 19+: `ref` arrives as an ordinary prop, so this is not supported on React 18.
+   *
    * The row element. Used by a windowed tree to measure the real row height, since the
    * height is a `rem` value and its px equivalent depends on the consuming app's root
    * font size.

@@ -35,6 +35,8 @@ export interface ListRowProps {
   role?: string;
   ariaSelected?: boolean;
   /**
+   * React 19+: `ref` arrives as an ordinary prop, so this is not supported on React 18.
+   *
    * The row element. Used by a windowed list to measure the real row height, since
    * {@link ROW_HEIGHT} is a `rem` class and its px value depends on the consuming
    * app's root font size.
