@@ -12,16 +12,16 @@ import {
  * Which slice of a long, **uniform-height** row list is worth rendering, and how
  * much empty space stands in for the rest.
  *
- * Windowing, not a virtualizer. It assumes every row is the same height, which the
- * row primitives guarantee — `ListRow` takes its height from `ROW_HEIGHT[size]` and
- * `TreeRow` is a fixed `h-9`, because a row in this system is deliberately a single
- * line. One measurement therefore describes every row, so there is no per-row
- * measurement cache, no resize bookkeeping, and no dependency to add: a scroll
- * offset and a viewport height are the whole state.
+ * Windowing, not a virtualizer. It assumes every row is the same height, which the row
+ * primitives guarantee — `ListRow` and `TreeRow` both take their height from
+ * `ROW_HEIGHT[size]`, because a row in this system is deliberately a single line. One
+ * measurement therefore describes every row, so there is no per-row measurement cache, no
+ * resize bookkeeping, and no dependency to add: a scroll offset and a viewport height are
+ * the whole state.
  *
  * ## Why the height is measured rather than declared
  *
- * `ROW_HEIGHT` is a Tailwind class, and `h-9` is `2.25rem` — a value that depends on
+ * `ROW_HEIGHT` is a Tailwind class, and `Md` is `h-9` = `2.25rem` — a value that depends on
  * the **consumer's** root font size. A library that hard-coded 36px would put the
  * spacers slightly out of step with the rows in any app that sets `html { font-size }`
  * to anything but 16px, and the error compounds with every row: half a pixel per row

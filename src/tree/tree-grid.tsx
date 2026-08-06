@@ -9,6 +9,8 @@ import {
   useState,
 } from "react";
 import { useRowWindow } from "../hooks/use-row-window";
+import { ROW_HEIGHT_PX } from "../row-metrics";
+import { Size } from "../types";
 import { flattenTree, type FlatTreeRow, type TreeNode } from "./flatten-tree";
 import { useCollapsibleTree } from "./use-collapsible-tree";
 import { useTreeSelection } from "./use-tree-selection";
@@ -19,13 +21,6 @@ import { TreeLeafDot } from "./tree-indent";
 import { TreeNavItem, TreeNavRoot } from "./use-tree-navigation";
 
 const DEFAULT_LEAF_ICON = <TreeLeafDot />;
-
-/**
- * `TreeRow`'s `h-9` in px, for the first paint of a windowed tree — before a real row
- * exists to measure. An estimate resolved at a 16px root font size; `useRowWindow`
- * measures a mounted row and corrects itself.
- */
-const TREE_ROW_HEIGHT_PX = 36;
 
 /** Stand-in for a caller that passed no `scrollRef`; only read while windowing is off. */
 const emptyScrollRef: RefObject<HTMLElement | null> = { current: null };
@@ -76,6 +71,16 @@ export interface TreeGridProps<T> {
    *   line below an ancestor that is its parent's last child.
    */
   guideLines?: "full" | "last-child";
+  /**
+   * Row height / content size, from the rhythm `ListGrid` shares — so a tree and a listing
+   * placed side by side agree about how tall a row is. Defaults to `Md` (`h-9`), the
+   * density the product is anchored to.
+   *
+   * A row stays a single line at every size; this changes the box around the content, not
+   * how much of it fits. Windowing reads the same table for its first-paint estimate, so
+   * the two cannot drift apart.
+   */
+  size?: Size;
   /** Roving focus wraps at the ends. */
   loop?: boolean;
   /**
@@ -86,8 +91,8 @@ export interface TreeGridProps<T> {
    * that array, and collapsing a group simply makes it shorter. Indentation and guide
    * lines are per-row properties, so they survive windowing untouched.
    *
-   * Requires {@link TreeGridProps.scrollRef}. Rows are a fixed height (`TreeRow` is
-   * `h-9`), so this needs no per-row measurement.
+   * Requires {@link TreeGridProps.scrollRef}. Every row is the same height for a given
+   * {@link TreeGridProps.size}, so this needs no per-row measurement.
    */
   virtualized?: boolean;
   /**
@@ -165,6 +170,7 @@ export function TreeGrid<T>({
   onScopeChange,
   selectGroupDescendants = false,
   guideLines = "full",
+  size = Size.Md,
   loop = false,
   virtualized = false,
   scrollRef,
@@ -210,7 +216,7 @@ export function TreeGrid<T>({
   const rowWindow = useRowWindow({
     total: rows.length,
     scrollRef: scrollRef ?? emptyScrollRef,
-    estimatedRowHeight: TREE_ROW_HEIGHT_PX,
+    estimatedRowHeight: ROW_HEIGHT_PX[size],
     overscan,
     // Keeps the keyboard cursor mounted so roving focus can cross a window edge.
     pinnedIndex: safeIndex,
@@ -387,6 +393,7 @@ export function TreeGrid<T>({
               depth={row.depth}
               ancestorIsLast={guideLines === "last-child" ? row.ancestorIsLast : undefined}
               slotWidth={slotWidth}
+              size={size}
               icon={icon}
               label={getLabel(row)}
               editor={getEditor?.(row)}

@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import {
+  Size,
   TreeGrid,
   Variant,
   defaultResolveRowVisual,
@@ -326,6 +327,46 @@ export const VirtualizedTree: StoryObj = {
             getLabel={(row) => <span className="truncate text-sm">{row.data.name}</span>}
           />
         </div>
+      </div>
+    );
+  },
+};
+
+/**
+ * The same tree at every row size.
+ *
+ * `size` is the rhythm `ListGrid` uses, so a tree and a listing at the same size are the
+ * same height — a tree next to a listing should not look like two differently-built things.
+ * `Md` is the default and the anchor the rest of the product is spaced to.
+ *
+ * A row is a single line at every size: these change the box around the content, not how
+ * much of it fits. Content that would need two lines is the consumer's to shorten.
+ */
+export const RowSizes: StoryObj = {
+  render: () => {
+    const nodes: TreeNode<{ name: string }>[] = [
+      {
+        id: "root",
+        data: { name: "Assembly" },
+        children: [
+          { id: "root-a", data: { name: "Left arm" } },
+          { id: "root-b", data: { name: "Right arm" } },
+        ],
+      },
+    ];
+    return (
+      <div className="flex flex-col gap-4 p-4">
+        {[Size.Xs, Size.Sm, Size.Md, Size.Lg, Size.Xl].map((size) => (
+          <div key={size}>
+            <div className="mb-1 text-xs text-neutral-500">{size}</div>
+            <TreeGrid
+              nodes={nodes}
+              size={size}
+              ariaLabel={`Tree at ${size}`}
+              getLabel={(row) => <span className="truncate text-sm">{row.data.name}</span>}
+            />
+          </div>
+        ))}
       </div>
     );
   },

@@ -2,6 +2,11 @@ import type { CSSProperties, ReactNode, Ref } from "react";
 import { clsx } from "clsx";
 import { Size } from "../types";
 import type { RowVisual } from "../tree/resolve-row-visual";
+// The row rhythm is shared with `TreeRow`, so it lives above both of them. Re-exported
+// here because this module was its home and callers import it from this path.
+import { ROW_HEIGHT, ROW_HEIGHT_PX } from "../row-metrics";
+
+export { ROW_HEIGHT, ROW_HEIGHT_PX };
 
 /** Layout description of one column, as the row needs it (no `render`). */
 export interface ListRowColumn {
@@ -36,37 +41,6 @@ export interface ListRowProps {
    */
   ref?: Ref<HTMLDivElement>;
 }
-
-/**
- * Row height per content `Size` — the shared convention: a list/tree row is a
- * container **one 4px step taller** than the content `sized-height` inside it
- * (Xs h-5→h-6 … Md h-8→h-9 … Xl h-12→h-13). Md = `h-9` deliberately matches the
- * fixed-height `TreeRow`, so `ListGrid` and `TreeGrid` share one vertical rhythm.
- */
-const ROW_HEIGHT: Record<Size, string> = {
-  [Size.Xs]: "h-6",
-  [Size.Sm]: "h-8",
-  [Size.Md]: "h-9",
-  [Size.Lg]: "h-11",
-  [Size.Xl]: "h-13",
-};
-
-/**
- * The same heights in px, for the **first paint** of a windowed list — which has to
- * know how tall a row is before it has rendered one to measure.
- *
- * An estimate, not the truth, and named so. These are the `rem` values above resolved
- * at a 16px root, so they are exact in an app that leaves the root font size alone and
- * wrong in one that does not. `useRowWindow` measures a real row and corrects itself;
- * this only has to be close enough that the first window is roughly the right size.
- */
-export const ROW_HEIGHT_PX: Record<Size, number> = {
-  [Size.Xs]: 24,
-  [Size.Sm]: 32,
-  [Size.Md]: 36,
-  [Size.Lg]: 44,
-  [Size.Xl]: 52,
-};
 
 const alignClass = (align: ListRowColumn["align"]) =>
   align === "right"

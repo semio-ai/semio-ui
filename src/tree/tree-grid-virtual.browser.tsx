@@ -2,6 +2,7 @@ import { useMemo, useRef, useState } from "react";
 import { expect, test } from "vitest";
 import { render } from "vitest-browser-react";
 import { userEvent } from "@vitest/browser/context";
+import { Size } from "../types";
 import { TreeGrid } from "./tree-grid";
 import type { TreeNode } from "./flatten-tree";
 
@@ -38,9 +39,11 @@ const renderLabel = (row: { data: Datum }) => <span>{row.data.label}</span>;
 function Harness({
   build,
   collapsed,
+  size,
 }: {
   build: () => TreeNode<Datum>[];
   collapsed?: Iterable<string>;
+  size?: Size;
 }) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const nodes = useMemo(build, [build]);
@@ -49,6 +52,7 @@ function Harness({
       <TreeGrid
         nodes={nodes}
         collapsed={collapsed}
+        size={size}
         virtualized
         scrollRef={scrollRef}
         ariaLabel="Virtual tree"
@@ -61,7 +65,7 @@ function Harness({
 /**
  * The one rule the windowing arithmetic depends on.
  *
- * Windowing assumes uniform row heights, and `TreeRow` guarantees that with `h-9` — but
+ * Windowing assumes uniform row heights, which `TreeRow` guarantees via `ROW_HEIGHT` — but
  * these tests run without the package's stylesheet, so without this every row is
  * content-sized and a group row (which carries a chevron button) is a fraction of a pixel
  * taller than a leaf. Fractions compound over ten thousand rows into a list whose spacers
@@ -69,9 +73,9 @@ function Harness({
  * rather than about the component. Supplying the height restores the precondition the
  * component states.
  */
-function withRowHeightCss() {
+function withRowHeightCss(extra = "") {
   const style = document.createElement("style");
-  style.textContent = ".h-9 { height: 2.25rem; } .flex { display: flex; }";
+  style.textContent = `.h-9 { height: 2.25rem; } .flex { display: flex; } ${extra}`;
   document.head.append(style);
   return () => {
     style.remove();
@@ -199,4 +203,36 @@ test("windowing off renders every visible row", async () => {
   await settle();
   // 5 groups + 50 leaves.
   expect(view.container.querySelectorAll('[role="treeitem"]')).toHaveLength(55);
+});
+
+test("a smaller size gives shorter rows, and the window follows them", async () => {
+  // The row height and the windowing estimate come from ONE table, so choosing a size
+  // cannot leave the spacers describing a different geometry than the rows. `Sm` is `h-8`
+  // against `Md`'s `h-9`, so the same tree is measurably shorter and still adds up.
+  const cleanup = withRowHeightCss(".h-8 { height: 2rem; }");
+  const view = render(<Harness build={() => makeTree(50, 20)} size={Size.Sm} />);
+  await settle();
+
+  const rowHeight = items(view)[0].getBoundingClientRect().height;
+  expect(rowHeight).toBeCloseTo(32, 0);
+
+  // 50 groups + 1000 leaves, at the height the rows actually are.
+  const total = 50 + 50 * 20;
+  expect(Math.abs(scroller(view).scrollHeight - total * rowHeight)).toBeLessThan(rowHeight * 2);
+  cleanup();
+});
+
+test("End still reaches the last row at a non-default size", async () => {
+  const cleanup = withRowHeightCss(".h-13 { height: 3.25rem; }");
+  const view = render(<Harness build={() => makeTree(30, 20)} size={Size.Xl} />);
+  await settle();
+  items(view)[0].focus();
+
+  await userEvent.keyboard("{End}");
+  await settle();
+
+  const last = itemByLabel(view, "Leaf 29.19");
+  expect(last).toBeDefined();
+  expect(document.activeElement).toBe(last);
+  cleanup();
 });
