@@ -1,4 +1,14 @@
-import { type KeyboardEvent, type MouseEvent, type ReactNode, useCallback, useMemo, useState } from "react";
+import {
+  type KeyboardEvent,
+  type MouseEvent,
+  type ReactNode,
+  type RefObject,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+import { useRowWindow } from "../hooks/use-row-window";
 import { flattenTree, type FlatTreeRow, type TreeNode } from "./flatten-tree";
 import { useCollapsibleTree } from "./use-collapsible-tree";
 import { useTreeSelection } from "./use-tree-selection";
@@ -9,6 +19,16 @@ import { TreeLeafDot } from "./tree-indent";
 import { TreeNavItem, TreeNavRoot } from "./use-tree-navigation";
 
 const DEFAULT_LEAF_ICON = <TreeLeafDot />;
+
+/**
+ * `TreeRow`'s `h-9` in px, for the first paint of a windowed tree — before a real row
+ * exists to measure. An estimate resolved at a 16px root font size; `useRowWindow`
+ * measures a mounted row and corrects itself.
+ */
+const TREE_ROW_HEIGHT_PX = 36;
+
+/** Stand-in for a caller that passed no `scrollRef`; only read while windowing is off. */
+const emptyScrollRef: RefObject<HTMLElement | null> = { current: null };
 
 export interface TreeGridProps<T> {
   /** The tree to render. */
@@ -58,6 +78,25 @@ export interface TreeGridProps<T> {
   guideLines?: "full" | "last-child";
   /** Roving focus wraps at the ends. */
   loop?: boolean;
+  /**
+   * Render only the rows near the viewport instead of every visible row.
+   *
+   * A tree windows exactly as a flat list does, because `flattenTree` has already
+   * turned the hierarchy into an array: the rows currently on screen are a slice of
+   * that array, and collapsing a group simply makes it shorter. Indentation and guide
+   * lines are per-row properties, so they survive windowing untouched.
+   *
+   * Requires {@link TreeGridProps.scrollRef}. Rows are a fixed height (`TreeRow` is
+   * `h-9`), so this needs no per-row measurement.
+   */
+  virtualized?: boolean;
+  /**
+   * The element that scrolls, required by {@link TreeGridProps.virtualized}. For a
+   * tree inside a `ScrollArea`, this is that component's `viewportRef`.
+   */
+  scrollRef?: RefObject<HTMLElement | null>;
+  /** Rows rendered beyond each edge of the viewport. Defaults to 6. */
+  overscan?: number;
   slotWidth?: number;
   className?: string;
   /** Accessible name for the tree container. */
@@ -98,6 +137,15 @@ function firstFocusable(root: HTMLElement): HTMLElement | null {
  * collapse/expand the focused group; Space selects (Shift = range, Ctrl/Cmd =
  * toggle); Enter enters the row's first control (edit mode); Escape returns
  * focus to the row.
+ *
+ * ## Scale
+ *
+ * **Renders every visible row by default — it is not windowed unless you ask.** A
+ * collapsed group costs nothing, but an expanded tree of thousands of rows renders all of
+ * them. Pass {@link TreeGridProps.virtualized} with a {@link TreeGridProps.scrollRef} to
+ * render only the rows near the viewport; `flattenTree` already produces the array that
+ * makes this ordinary, and `useRowWindow` is exported for a consumer composing the row
+ * primitives directly rather than using this component.
  */
 export function TreeGrid<T>({
   nodes,
@@ -118,6 +166,9 @@ export function TreeGrid<T>({
   selectGroupDescendants = false,
   guideLines = "full",
   loop = false,
+  virtualized = false,
+  scrollRef,
+  overscan,
   slotWidth,
   className,
   ariaLabel,
@@ -128,10 +179,7 @@ export function TreeGrid<T>({
   // object (which is a new reference each render), so this only re-flattens
   // when the tree or collapse state actually changes.
   const isCollapsed = collapse.isCollapsed;
-  const rows = useMemo(
-    () => flattenTree(nodes, { isCollapsed }),
-    [nodes, isCollapsed],
-  );
+  const rows = useMemo(() => flattenTree(nodes, { isCollapsed }), [nodes, isCollapsed]);
   const order = useMemo(() => rows.map((r) => r.id), [rows]);
 
   const descendants = useMemo(
@@ -156,6 +204,34 @@ export function TreeGrid<T>({
   const [focusedIndex, setFocusedIndex] = useState(0);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const safeIndex = order.length === 0 ? 0 : Math.min(focusedIndex, order.length - 1);
+
+  // Which of the flattened rows to render. Collapsing a group shortens `rows`, so the
+  // total is simply its length — no separate accounting of what is expanded.
+  const rowWindow = useRowWindow({
+    total: rows.length,
+    scrollRef: scrollRef ?? emptyScrollRef,
+    estimatedRowHeight: TREE_ROW_HEIGHT_PX,
+    overscan,
+    // Keeps the keyboard cursor mounted so roving focus can cross a window edge.
+    pinnedIndex: safeIndex,
+    enabled: virtualized && scrollRef !== undefined,
+  });
+
+  // Moving the cursor scrolls to it — what keyboard navigation, type-ahead and Home/End
+  // all rely on when their target is outside the rendered slice.
+  //
+  // The reverse coupling is deliberately NOT an effect. Having the viewport pull the
+  // cursor back whenever it scrolled away meant the two chased each other: a jump to row
+  // 9999 scrolls, and in that same commit the window has not caught up yet, so the
+  // cursor gets dragged back to the top. What the cursor-out-of-view case actually needs
+  // is only that SOMETHING stays tabbable, which `tabStopIndex` below says declaratively.
+  useEffect(() => {
+    if (!virtualized) return;
+    rowWindow.scrollToIndex(safeIndex);
+    // Deliberately keyed on the cursor alone: re-running on window or scroll changes
+    // would scroll during the user's own scrolling.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [safeIndex, virtualized]);
 
   // O(1) id → index lookups (used per keystroke / click), instead of an
   // O(n) `order.indexOf` each time.
@@ -247,11 +323,21 @@ export function TreeGrid<T>({
       ariaLabel={ariaLabel}
       className={className}
       highlightedIndex={safeIndex}
+      // The index space is the flattened row list's, so Home/End reach the real ends
+      // of the tree whether or not it is windowed.
+      total={rows.length}
+      // See `ListGrid`: keeps the list tabbable when the cursor is scrolled out.
+      tabStopIndex={rowWindow.pinnedIndexInWindow ? safeIndex : rowWindow.start}
       onHighlightedIndexChange={setFocusedIndex}
       onKeyDown={handleRootKeyDown}
       loop={loop}
     >
-      {rows.map((row, index) => {
+      {/* Stands in for the rows above the window. See the note in `ListGrid`: a spacer
+          rather than absolute positioning, so rows stay in normal flow. */}
+      {rowWindow.paddingTop > 0 && <div aria-hidden style={{ height: rowWindow.paddingTop }} />}
+
+      {rows.slice(rowWindow.start, rowWindow.end).map((row, offset) => {
+        const index = rowWindow.start + offset;
         const selectedNow = selection.isSelected(row.id);
         const visual = resolveVisual(
           {
@@ -279,6 +365,7 @@ export function TreeGrid<T>({
         return (
           <TreeNavItem
             key={row.id}
+            index={index}
             ariaLevel={row.depth + 1}
             ariaExpanded={row.isGroup ? row.expanded : undefined}
             ariaSelected={selectedNow}
@@ -294,6 +381,9 @@ export function TreeGrid<T>({
                 `outline` (not a `ring`/box-shadow) so it paints above the row's
                 absolute background overlay rather than behind it. */}
             <TreeRow
+              // One row reports the real height the window's arithmetic runs on;
+              // `h-9` is a `rem` value, so the px estimate is root-font-size dependent.
+              ref={offset === 0 ? rowWindow.measureRef : undefined}
               depth={row.depth}
               ancestorIsLast={guideLines === "last-child" ? row.ancestorIsLast : undefined}
               slotWidth={slotWidth}
@@ -307,6 +397,10 @@ export function TreeGrid<T>({
           </TreeNavItem>
         );
       })}
+
+      {rowWindow.paddingBottom > 0 && (
+        <div aria-hidden style={{ height: rowWindow.paddingBottom }} />
+      )}
     </TreeNavRoot>
   );
 }

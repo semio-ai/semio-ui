@@ -40,6 +40,7 @@ export type { WithTooltipContextProps } from "./context/tooltip-context-utils";
 export * from "./hooks/layout-atoms";
 export * from "./hooks/use-add-toast";
 export * from "./hooks/use-click-away";
+export * from "./hooks/use-row-window";
 export * from "./hooks/use-delayed-boolean";
 export * from "./hooks/use-layout-actions";
 export * from "./hooks/use-layout-state";

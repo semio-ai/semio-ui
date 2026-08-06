@@ -1,4 +1,4 @@
-import type { CSSProperties, ReactNode } from "react";
+import type { CSSProperties, ReactNode, Ref } from "react";
 import { clsx } from "clsx";
 import { TreeIndent } from "./tree-indent";
 import type { RowVisual } from "./resolve-row-visual";
@@ -48,6 +48,12 @@ export interface TreeRowProps {
   ariaExpanded?: boolean;
   /** Selection state for a selectable row; only meaningful with a tree role. */
   ariaSelected?: boolean;
+  /**
+   * The row element. Used by a windowed tree to measure the real row height, since
+   * `h-9` is a `rem` value and its px equivalent depends on the consuming app's root
+   * font size.
+   */
+  ref?: Ref<HTMLDivElement>;
 }
 
 /**
@@ -76,9 +82,11 @@ export function TreeRow({
   ariaLevel,
   ariaExpanded,
   ariaSelected,
+  ref,
 }: TreeRowProps) {
   return (
     <div
+      ref={ref}
       className={clsx(
         // `responsive` + the row's variant/custom-color set --accent-color for
         // this row, so the bar/background below resolve to its theme/custom color.

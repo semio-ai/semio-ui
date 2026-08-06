@@ -1,4 +1,4 @@
-import type { CSSProperties, ReactNode } from "react";
+import type { CSSProperties, ReactNode, Ref } from "react";
 import { clsx } from "clsx";
 import { Size } from "../types";
 import type { RowVisual } from "../tree/resolve-row-visual";
@@ -29,6 +29,12 @@ export interface ListRowProps {
   /** Opt-in ARIA (the composed `ListGrid` sets `row`/`option` + selection). */
   role?: string;
   ariaSelected?: boolean;
+  /**
+   * The row element. Used by a windowed list to measure the real row height, since
+   * {@link ROW_HEIGHT} is a `rem` class and its px value depends on the consuming
+   * app's root font size.
+   */
+  ref?: Ref<HTMLDivElement>;
 }
 
 /**
@@ -43,6 +49,23 @@ const ROW_HEIGHT: Record<Size, string> = {
   [Size.Md]: "h-9",
   [Size.Lg]: "h-11",
   [Size.Xl]: "h-13",
+};
+
+/**
+ * The same heights in px, for the **first paint** of a windowed list — which has to
+ * know how tall a row is before it has rendered one to measure.
+ *
+ * An estimate, not the truth, and named so. These are the `rem` values above resolved
+ * at a 16px root, so they are exact in an app that leaves the root font size alone and
+ * wrong in one that does not. `useRowWindow` measures a real row and corrects itself;
+ * this only has to be close enough that the first window is roughly the right size.
+ */
+export const ROW_HEIGHT_PX: Record<Size, number> = {
+  [Size.Xs]: 24,
+  [Size.Sm]: 32,
+  [Size.Md]: 36,
+  [Size.Lg]: 44,
+  [Size.Xl]: 52,
 };
 
 const alignClass = (align: ListRowColumn["align"]) =>
@@ -68,9 +91,11 @@ export function ListRow({
   className,
   role,
   ariaSelected,
+  ref,
 }: ListRowProps) {
   return (
     <div
+      ref={ref}
       role={role}
       aria-selected={ariaSelected}
       className={clsx(

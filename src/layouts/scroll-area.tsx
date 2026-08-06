@@ -8,8 +8,10 @@ import {
   useImperativeHandle,
   useState,
   useEffect,
+  type Ref,
 } from "react";
 import { clsx } from "clsx";
+import { mergeRefs as useMergeRefs } from "react-merge-refs";
 import { ScrollArea as RadixScrollArea } from "radix-ui";
 import useMeasure from "react-use-measure";
 import { useGesture } from "@use-gesture/react";
@@ -64,6 +66,20 @@ interface ScrollAreaProps {
   motionScrollY?: MotionValue<number>;
   motionScrollX?: MotionValue<number>;
 
+  /**
+   * The element that actually scrolls — Radix's viewport, not this component's root.
+   *
+   * Exposed for consumers that must read or window against the real scroll box, such
+   * as a virtualized `ListGrid`/`TreeGrid`, which needs its `scrollTop` and
+   * `clientHeight` continuously rather than at the moments a callback happens to fire.
+   *
+   * Purely additive: the existing scroll-tracking seams — `onScrollChange`,
+   * `onViewportChange`, `motionScrollY`/`motionScrollX` and the imperative
+   * `ScrollAreaRef` — are untouched and remain the way to observe scrolling. This hands
+   * out the node and nothing else.
+   */
+  viewportRef?: Ref<HTMLDivElement>;
+
   // Legacy synchronization (higher latency)
   externalScrollTop?: number;
   externalScrollLeft?: number;
@@ -112,6 +128,7 @@ export const InnerScrollArea = forwardRef<ScrollAreaRef, ScrollAreaProps>(
       onViewportChange,
       motionScrollY,
       motionScrollX,
+      viewportRef: externalViewportRef,
       externalScrollTop,
       externalScrollLeft,
       onScrollSync,
@@ -123,6 +140,8 @@ export const InnerScrollArea = forwardRef<ScrollAreaRef, ScrollAreaProps>(
 
     // Ref to access the Radix ScrollArea viewport
     const viewportRef = useRef<HTMLDivElement>(null);
+    // Hand the same node to the consumer, if one asked for it.
+    const mergedViewportRef = useMergeRefs([viewportRef, externalViewportRef]);
 
     // Track user interaction state
     const [isUserScrolling, setIsUserScrolling] = useState(false);
@@ -345,7 +364,7 @@ export const InnerScrollArea = forwardRef<ScrollAreaRef, ScrollAreaProps>(
 
         <div className="relative min-h-0 min-w-0 flex-1 overflow-hidden">
           <RadixScrollArea.Viewport
-            ref={viewportRef}
+            ref={mergedViewportRef}
             className={clsx(
               "h-full w-full",
               overscrollDisabled ? "overscroll-none" : "overscroll-contain",
