@@ -1,5 +1,6 @@
 import { useState } from "react";
 import {
+  Button,
   Icon,
   ListGrid,
   Size,
@@ -389,6 +390,53 @@ const MEDIA_COLUMNS: ListColumn<Row>[] = [
     render: (r) => <span className="text-xs text-neutral-500">{r.kind}</span>,
   },
 ];
+
+/**
+ * The column header is the SAME fixed height as a row, so putting a control in a
+ * header cell does not grow it.
+ *
+ * Both grids below are `Md`. The second gives its last column a header with a
+ * button in it — the shape a listing uses for a create action that belongs to the
+ * whole list rather than to any row — and the two headers still line up. Sized to
+ * content instead, the plain one was a hair over 24px and the one with a button
+ * ~40px, so two panels sitting side by side were visibly differently built purely
+ * on whether either had an action up there.
+ */
+export const HeaderHeightIsFixed = () => (
+  <div className="flex flex-col gap-6 p-4">
+    {[false, true].map((withAction) => (
+      <div key={String(withAction)}>
+        <div className="mb-1 font-mono text-xs text-neutral-500">
+          {withAction ? "header with a control" : "header with plain text"}
+        </div>
+        <div className="w-[420px]">
+          <ListGrid
+            data={ROWS.slice(0, 2)}
+            getRowId={(r) => r.id}
+            columns={[
+              COLUMNS[0],
+              {
+                key: "action",
+                align: "right",
+                header: withAction ? (
+                  <span className="flex items-center justify-end">
+                    <Button visuals="inverted" altText="Add">
+                      <Icon name="add" size="none" className="size-4" />
+                    </Button>
+                  </span>
+                ) : (
+                  "Kind"
+                ),
+                render: (r) => <span className="text-xs text-neutral-500">{r.kind}</span>,
+              },
+            ]}
+            ariaLabel={withAction ? "With header action" : "Without header action"}
+          />
+        </div>
+      </div>
+    ))}
+  </div>
+);
 
 export const RowMediaFollowsRowSize = () => (
   <div className="flex flex-col gap-6 p-4">

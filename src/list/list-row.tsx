@@ -36,8 +36,13 @@ export interface ListRowProps {
  * container **one 4px step taller** than the content `sized-height` inside it
  * (Xs h-5→h-6 … Md h-8→h-9 … Xl h-12→h-13). Md = `h-9` deliberately matches the
  * fixed-height `TreeRow`, so `ListGrid` and `TreeGrid` share one vertical rhythm.
+ *
+ * Exported because `ListGrid`'s column header takes the same height. A header
+ * that sized to its content was a hair over 24px with plain text in it and ~40px
+ * the moment one cell held a control, so two listings side by side sat at
+ * different heights purely on whether either had an action in its header.
  */
-const ROW_HEIGHT: Record<Size, string> = {
+export const ROW_HEIGHT: Record<Size, string> = {
   [Size.Xs]: "h-6",
   [Size.Sm]: "h-8",
   [Size.Md]: "h-9",

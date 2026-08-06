@@ -15,7 +15,7 @@ import { useClickAway } from "../hooks/use-click-away";
 import { defaultResolveRowVisual, type ResolveRowVisual } from "../tree/resolve-row-visual";
 import { TreeNavItem, TreeNavRoot } from "../tree/use-tree-navigation";
 import { useTreeSelection } from "../tree/use-tree-selection";
-import { ListRow } from "./list-row";
+import { ListRow, ROW_HEIGHT } from "./list-row";
 
 export type SelectionMode = "none" | "single" | "multiple";
 
@@ -489,6 +489,11 @@ export function ListGrid<T>({
           <div
             className={clsx(
               "col-span-full grid grid-cols-subgrid items-center border-b border-neutral-500/20",
+              // The same fixed height as a row, so the header does not grow when a
+              // cell holds a control. A consumer that puts a create action in a
+              // header cell was otherwise buying a taller header than the listing
+              // next to it, which read as the two panels being differently built.
+              ROW_HEIGHT[size],
               // Multiple mode: the header is the select-all affordance — hovering
               // previews every row (light emphasis), clicking toggles all.
               selectionMode === "multiple" && "cursor-pointer",
