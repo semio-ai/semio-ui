@@ -7,7 +7,7 @@ import {
   type ResolveRowVisual,
   type TreeNode,
 } from "@semio/ui";
-import { type ReactElement, useState } from "react";
+import { type ReactElement, useMemo, useRef, useState } from "react";
 
 /**
  * Sanity-check gallery for the shared hierarchical row-list component
@@ -92,7 +92,12 @@ const basicNodes: TreeNode<RowData>[] = [
 
 export const Default: Story = {
   render: () => (
-    <TreeGrid nodes={basicNodes} ariaLabel="Basic tree" getLabel={renderLabel} getEditor={renderEditor} />
+    <TreeGrid
+      nodes={basicNodes}
+      ariaLabel="Basic tree"
+      getLabel={renderLabel}
+      getEditor={renderEditor}
+    />
   ),
 };
 
@@ -113,7 +118,12 @@ const colorNodes: TreeNode<RowData>[] = [
 export const GroupIsAlsoEditable: Story = {
   name: "Group is also editable (color → r/g/b)",
   render: () => (
-    <TreeGrid nodes={colorNodes} ariaLabel="Color tree" getLabel={renderLabel} getEditor={renderEditor} />
+    <TreeGrid
+      nodes={colorNodes}
+      ariaLabel="Color tree"
+      getLabel={renderLabel}
+      getEditor={renderEditor}
+    />
   ),
 };
 
@@ -276,4 +286,47 @@ export const GuideLinesLastChild: Story = {
       guideLines="last-child"
     />
   ),
+};
+
+/**
+ * A ten-thousand-row tree, windowed.
+ *
+ * A tree windows exactly as a flat list does: `flattenTree` has already produced an array,
+ * so the rows on screen are a slice of it and collapsing a group simply makes that array
+ * shorter. Collapse a few groups here and the scrollbar shortens to match. Indentation and
+ * guide lines are per-row facts, so a row is unaffected by its neighbours being absent.
+ */
+export const VirtualizedTree: StoryObj = {
+  render: () => {
+    const scrollRef = useRef<HTMLDivElement>(null);
+    const nodes = useMemo(
+      () =>
+        Array.from({ length: 100 }, (_unusedGroup, g) => ({
+          id: `group-${g.toString()}`,
+          data: { name: `Group ${g.toString()}` },
+          children: Array.from({ length: 100 }, (_unusedLeaf, c) => ({
+            id: `group-${g.toString()}-leaf-${c.toString()}`,
+            data: { name: `Leaf ${g.toString()}.${c.toString()}` },
+          })),
+        })),
+      [],
+    );
+    return (
+      <div className="w-[420px] p-4">
+        <div className="mb-2 text-xs text-neutral-500">10,100 rows · windowed</div>
+        <div
+          ref={scrollRef}
+          className="h-80 overflow-y-auto rounded-sm border border-neutral-500/20"
+        >
+          <TreeGrid
+            nodes={nodes}
+            virtualized
+            scrollRef={scrollRef}
+            ariaLabel="Virtualized tree"
+            getLabel={(row) => <span className="truncate text-sm">{row.data.name}</span>}
+          />
+        </div>
+      </div>
+    );
+  },
 };
