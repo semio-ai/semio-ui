@@ -4,6 +4,7 @@ import { render } from "vitest-browser-react";
 import { userEvent } from "@vitest/browser/context";
 import { Size } from "../types";
 import { ListGrid, type ListColumn } from "./list-grid";
+import "../test-stylesheet";
 
 /**
  * `ListGrid` with `virtualized` — the rows near the viewport only.
@@ -72,35 +73,6 @@ function Harness({
   );
 }
 
-/**
- * The utilities the windowed layout actually depends on.
- *
- * These browser tests run without the package's stylesheet — Tailwind is compiled by
- * the build, not by vitest — so every class in the components is inert here. That is
- * fine for the rest of the suite, which tests focus, keyboard and selection, but the
- * spacer/subgrid arrangement IS a layout claim: the cells line up because the rows are
- * grid items on the parent's tracks, and spacers work because they are grid items too.
- * Injecting the four rules in play keeps that claim testable without pulling a CSS
- * build into the unit suite, and they are copied from the utilities the components
- * name, so a Tailwind change that altered them would show up as a failure here.
- */
-const LAYOUT_CSS = `
-  .grid { display: grid; }
-  .grid-cols-subgrid { grid-template-columns: subgrid; }
-  .col-span-full { grid-column: 1 / -1; }
-  .h-9 { height: 2.25rem; }
-  .truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-`;
-
-function withLayoutCss() {
-  const style = document.createElement("style");
-  style.textContent = LAYOUT_CSS;
-  document.head.append(style);
-  return () => {
-    style.remove();
-  };
-}
-
 /** Let layout effects, the ResizeObserver and a paint settle. */
 const settle = async () => {
   for (let i = 0; i < 3; i++) {
@@ -156,7 +128,6 @@ test("scrolling swaps in the rows for that offset", async () => {
 });
 
 test("cells stay column-aligned across the window", async () => {
-  const cleanup = withLayoutCss();
   const view = render(<Harness rows={makeRows(5_000)} />);
   await settle();
   const rows = [...options(view)];
@@ -164,11 +135,9 @@ test("cells stay column-aligned across the window", async () => {
   const lefts = rows.map((row) => cell(row, 1).getBoundingClientRect().left);
   const first = lefts[0];
   for (const left of lefts) expect(Math.abs(left - first)).toBeLessThan(1);
-  cleanup();
 });
 
 test("a column does not shrink back when a wide row scrolls out of the window", async () => {
-  const cleanup = withLayoutCss();
   const view = render(<Harness rows={makeRows(10_000)} />);
   await settle();
   const sizeCell = () => cell(options(view)[0], 1).getBoundingClientRect().width;
@@ -186,7 +155,6 @@ test("a column does not shrink back when a wide row scrolls out of the window", 
   scroller(view).scrollTop = 9_000 * ROW;
   await settle();
   expect(sizeCell()).toBeGreaterThan(wide - 2);
-  cleanup();
 });
 
 test("the floor is recorded on the grid's own track template", async () => {
@@ -194,7 +162,6 @@ test("the floor is recorded on the grid's own track template", async () => {
   // wide cell has been seen, that track carries a `minmax()` floor. Needs the layout
   // rules, because a floor is measured from the used track widths and an element that is
   // not laid out as a grid has none.
-  const cleanup = withLayoutCss();
   const view = render(<Harness rows={makeRows(10_000)} />);
   await settle();
   const grid = () => view.container.querySelector<HTMLElement>(".grid")!;
@@ -203,28 +170,89 @@ test("the floor is recorded on the grid's own track template", async () => {
   scroller(view).scrollTop = 500 * ROW;
   await settle();
   expect(grid().style.gridTemplateColumns).toContain("minmax");
-  cleanup();
 });
 
-test("a container resize discards the floors, so a narrower list can re-measure", async () => {
-  // `hideBelow` collapses a column by making its cells `display:none`, which only works
-  // if the track can still reach zero — so a floor measured while the column was
-  // visible must not outlive the resize that hid it. Asserted on the track template:
-  // the floor is gone after the width changes, leaving the column free to re-measure
-  // (or to collapse) at the new width.
-  const cleanup = withLayoutCss();
-  const view = render(<Harness rows={makeRows(5_000)} />);
+test("a container resize re-measures the floor instead of holding the old width open", async () => {
+  // The floors must not outlive the width they were measured at — that is what lets a
+  // narrowing list give space back, and what lets `hideBelow` collapse a column to zero.
+  //
+  // Asserted as "smaller than the wide floor", not "absent": clearing is immediately
+  // followed by a legitimate re-measure at the new width, so a floor still being present is
+  // correct. The earlier version of this test demanded no floor at all, which only passed
+  // because measurement returned nothing in a suite that ran without the stylesheet.
+  const view = render(<Harness rows={makeRows(10_000)} />);
   await settle();
   const grid = () => view.container.querySelector<HTMLElement>(".grid")!;
+  const floorOf = () => {
+    const match = /minmax\(([\d.]+)px/.exec(grid().style.gridTemplateColumns);
+    return match ? Number(match[1]) : 0;
+  };
 
   scroller(view).scrollTop = 500 * ROW;
   await settle();
-  expect(grid().style.gridTemplateColumns).toContain("minmax");
+  const wide = floorOf();
+  expect(wide).toBeGreaterThan(100);
 
   view.container.querySelector<HTMLElement>('[data-testid="outer"]')!.style.width = "400px";
   await settle();
-  expect(grid().style.gridTemplateColumns).not.toContain("minmax");
-  cleanup();
+  expect(floorOf()).toBeLessThan(wide);
+});
+
+test("hideBelow still collapses a column in a windowed list", async () => {
+  // The floors and the responsive-hiding container query are the two things competing for
+  // the same track. Only testable now that the real stylesheet is loaded: hiding is a pure
+  // CSS container query, so with inert classes there was nothing to observe.
+  const columns: ListColumn<Row>[] = [
+    { key: "name", header: "Name", flex: true, render: (r) => <span>{r.name}</span> },
+    { key: "size", header: "Size", hideBelow: "xl", render: (r) => <span>{r.size}</span> },
+  ];
+  const view = render(<Harness rows={makeRows(5_000)} columns={columns} width={800} />);
+  await settle();
+  const sizeCell = () => cell(options(view)[0], 1);
+  expect(sizeCell().getBoundingClientRect().width).toBeGreaterThan(0);
+
+  // Below the `xl` container breakpoint (576px) the column's cells go `display: none`.
+  view.container.querySelector<HTMLElement>('[data-testid="outer"]')!.style.width = "420px";
+  await settle();
+  expect(getComputedStyle(sizeCell()).display).toBe("none");
+  expect(sizeCell().getBoundingClientRect().width).toBe(0);
+});
+
+test("spacers put each rendered row at its true offset in the list", async () => {
+  // THE claim windowing rests on, and the one that satisfies a DOM assertion while being
+  // visibly wrong: a row's distance from the top of the grid must equal its index times the
+  // row height, or the rows drift out of step with the scrollbar the further you go.
+  //
+  // The header is measured rather than tolerated. An earlier version allowed a whole row of
+  // slack to absorb it, which made the assertion blind to a one-row spacer error — checked
+  // by introducing one.
+  const view = render(<Harness rows={makeRows(10_000)} />);
+  await settle();
+  scroller(view).scrollTop = 4_000 * ROW;
+  await settle();
+
+  const grid = view.container.querySelector<HTMLElement>(".grid")!;
+  const gridTop = grid.getBoundingClientRect().top;
+  const headerHeight = (grid.firstElementChild as HTMLElement).getBoundingClientRect().height;
+  const rows = [...options(view)];
+  const rowHeight = rows[0].getBoundingClientRect().height;
+  const indexOf = (row: HTMLElement) => Number(row.getAttribute("aria-posinset")) - 1;
+
+  // Absolute placement: the leading spacer really does stand in for the rows above.
+  const firstOffset = rows[0].getBoundingClientRect().top - gridTop;
+  expect(firstOffset).toBeCloseTo(headerHeight + indexOf(rows[0]) * rowHeight, 0);
+
+  // And no accumulated drift across the window.
+  for (const row of rows) {
+    const offset = row.getBoundingClientRect().top - gridTop;
+    expect(offset).toBeCloseTo(headerHeight + indexOf(row) * rowHeight, 0);
+  }
+
+  // The content ends where the trailing spacer says it does, so the scrollbar is not lying.
+  const last = rows.at(-1)!;
+  const remaining = 10_000 - 1 - indexOf(last);
+  const bottomGap = grid.getBoundingClientRect().bottom - last.getBoundingClientRect().bottom;
+  expect(bottomGap).toBeCloseTo(remaining * rowHeight, 0);
 });
 
 test("End moves the cursor and the selection to the last row in the data", async () => {

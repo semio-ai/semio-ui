@@ -4,6 +4,7 @@ import { render } from "vitest-browser-react";
 import { ListRow } from "./list/list-row";
 import { TreeRow } from "./tree/tree-row";
 import { ScrollArea } from "./layouts/scroll-area";
+import "./test-stylesheet";
 
 /**
  * How a ref reaches a component in this package.
@@ -59,9 +60,6 @@ test("TreeRow receives a ref through its props", () => {
 test("a row ref reports the height the window is computed from", () => {
   // The point of the ref, not merely that it fires: `ROW_HEIGHT` is a `rem` class, so only
   // a real measurement knows how tall a row is in an app that changed its root font size.
-  const style = document.createElement("style");
-  style.textContent = ".h-9 { height: 2.25rem; }";
-  document.head.append(style);
   let node: HTMLElement | null = null;
   render(
     <TreeRow
@@ -74,7 +72,6 @@ test("a row ref reports the height the window is computed from", () => {
   );
   expect(node).not.toBeNull();
   expect((node as unknown as HTMLElement).getBoundingClientRect().height).toBeCloseTo(36, 0);
-  style.remove();
 });
 
 test("ScrollArea hands out its scrolling element once, not once per render", async () => {
