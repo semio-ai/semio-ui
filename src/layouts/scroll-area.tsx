@@ -6,12 +6,13 @@ import {
   useCallback,
   forwardRef,
   useImperativeHandle,
+  useMemo,
   useState,
   useEffect,
   type Ref,
 } from "react";
 import { clsx } from "clsx";
-import { mergeRefs as useMergeRefs } from "react-merge-refs";
+import { mergeRefs } from "react-merge-refs";
 import { ScrollArea as RadixScrollArea } from "radix-ui";
 import useMeasure from "react-use-measure";
 import { useGesture } from "@use-gesture/react";
@@ -77,6 +78,12 @@ interface ScrollAreaProps {
    * `onViewportChange`, `motionScrollY`/`motionScrollX` and the imperative
    * `ScrollAreaRef` — are untouched and remain the way to observe scrolling. This hands
    * out the node and nothing else.
+   *
+   * Pass something **stable** — a `useRef` object, or a callback held still with
+   * `useCallback`. React detaches and re-attaches a ref whose identity changed, so an
+   * inline arrow here hands the consumer a `null` on every render of this component. That
+   * is React's behaviour rather than this component's, but it matters more than usual for
+   * this prop: a windowed list reads its entire geometry from the node.
    */
   viewportRef?: Ref<HTMLDivElement>;
 
@@ -141,7 +148,17 @@ export const InnerScrollArea = forwardRef<ScrollAreaRef, ScrollAreaProps>(
     // Ref to access the Radix ScrollArea viewport
     const viewportRef = useRef<HTMLDivElement>(null);
     // Hand the same node to the consumer, if one asked for it.
-    const mergedViewportRef = useMergeRefs([viewportRef, externalViewportRef]);
+    //
+    // Memoized, because `mergeRefs` is a plain function and not a hook: called in the
+    // render body it returns a NEW callback every render, and React responds to a changed
+    // ref callback by detaching the old one — calling it with `null` — before attaching the
+    // new one. A consumer holding this ref would then see its `.current` blink to null on
+    // every unrelated re-render of this component, which for a windowed list is the ref its
+    // whole geometry is read from.
+    const mergedViewportRef = useMemo(
+      () => mergeRefs([viewportRef, externalViewportRef]),
+      [externalViewportRef],
+    );
 
     // Track user interaction state
     const [isUserScrolling, setIsUserScrolling] = useState(false);
