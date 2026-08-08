@@ -90,6 +90,21 @@ export interface RowWindow {
   pinnedIndexInWindow: boolean;
 }
 
+/**
+ * `ResizeObserver`'s `contentRect` excludes border and padding, but the spacers stand in for
+ * whole row boxes, so the difference has to be added back. `borderBoxSize` would say it
+ * directly and is not universally reported, so this reads it off the element instead.
+ */
+function borderBoxExtra(entry: ResizeObserverEntry): number {
+  const styles = getComputedStyle(entry.target);
+  return (
+    (parseFloat(styles.borderTopWidth) || 0) +
+    (parseFloat(styles.borderBottomWidth) || 0) +
+    (parseFloat(styles.paddingTop) || 0) +
+    (parseFloat(styles.paddingBottom) || 0)
+  );
+}
+
 /** Enough rows to cover a typical panel before anything has been measured. */
 const FIRST_PAINT_HEIGHT = 600;
 
@@ -111,39 +126,76 @@ export function useRowWindow({
 
   const effectiveRowHeight = rowHeight > 0 ? rowHeight : estimatedRowHeight;
 
-  // Measured ONCE, not once per window.
+  // Measured from a mounted row, and kept under observation.
   //
-  // `measureRef` lands on whichever row is first in the current slice, so re-measuring
-  // on every window move feeds the row height back from the scroll position: any
-  // variation between rows — and a group row is not always exactly as tall as a leaf —
-  // shifts the height, which shifts the window, which measures a different row. That
-  // loop is how a scroll to the end of a long list arrived at a start index past the end
-  // of the data and rendered nothing at all. Rows are uniform by construction here, so
-  // one credible measurement is the answer, and the only thing that legitimately changes
-  // it is the row `size` — which arrives as a new estimate.
-  const measuredForRef = useRef<number | null>(null);
+  // Two failure modes pull in opposite directions, which is what makes this more than a
+  // one-liner.
+  //
+  // Re-measuring on every window move is wrong: `measureRef` lands on whichever row is
+  // first in the current slice, so the height would be fed back from the scroll position,
+  // and any variation between rows walks the geometry away from the data. That produced a
+  // start index past the end of the list and rendered nothing at all.
+  //
+  // Measuring exactly once is also wrong, and cost a CI run to learn: the first row can
+  // mount BEFORE its styles do — a stylesheet injected asynchronously, a route-level CSS
+  // chunk, a late web font — and a one-shot measurement then locks in the height of an
+  // unstyled row forever. A list whose rows are really 36px tall windowed itself at 18,
+  // so a scroll to row 500 arrived at row 1000.
+  //
+  // So: observe the row that is currently attached, and accept a change only when it is at
+  // least a whole pixel. Rows are uniform by construction, which makes a whole-pixel change
+  // a real change in what a row is — styles arriving, a font swapping, the page zooming —
+  // while the sub-pixel differences between one row and another stay noise and cannot start
+  // the feedback loop.
+  const REMEASURE_THRESHOLD_PX = 1;
+  const observedRef = useRef<{ node: HTMLElement; observer: ResizeObserver } | null>(null);
+
+  const applyMeasurement = useCallback((measured: number) => {
+    // Guarded against 0, which is what a row inside a `display: none` ancestor reports and
+    // would otherwise divide the window into nothing.
+    if (measured <= 0) return;
+    setRowHeight((current) =>
+      Math.abs(measured - current) >= REMEASURE_THRESHOLD_PX ? measured : current,
+    );
+  }, []);
+
   const measureRef = useCallback(
     (node: HTMLElement | null) => {
-      if (!node) return;
-      if (measuredForRef.current === estimatedRowHeight) return;
-      const measured = node.getBoundingClientRect().height;
-      // Guarded against 0, which is what a row inside a `display: none` ancestor reports
-      // and would otherwise divide the window into nothing.
-      if (measured > 0) {
-        measuredForRef.current = estimatedRowHeight;
-        setRowHeight((current) => (current === measured ? current : measured));
+      const previous = observedRef.current;
+      if (previous && previous.node !== node) {
+        previous.observer.disconnect();
+        observedRef.current = null;
       }
+      if (!node || observedRef.current) return;
+      applyMeasurement(node.getBoundingClientRect().height);
+      const observer = new ResizeObserver((entries) => {
+        const entry = entries[0];
+        if (entry) applyMeasurement(entry.contentRect.height + borderBoxExtra(entry));
+      });
+      observer.observe(node);
+      observedRef.current = { node, observer };
     },
-    [estimatedRowHeight],
+    [applyMeasurement],
   );
 
-  // A new estimate means a new row size, so the old measurement no longer describes it.
+  useEffect(
+    () => () => {
+      observedRef.current?.observer.disconnect();
+      observedRef.current = null;
+    },
+    [],
+  );
+
+  // A new estimate means a new row size, so start from it again rather than easing off the
+  // old measurement by less than a pixel at a time.
+  const lastEstimateRef = useRef(estimatedRowHeight);
   useLayoutEffect(() => {
-    if (measuredForRef.current !== null && measuredForRef.current !== estimatedRowHeight) {
-      measuredForRef.current = null;
-      setRowHeight(estimatedRowHeight);
-    }
-  }, [estimatedRowHeight]);
+    if (lastEstimateRef.current === estimatedRowHeight) return;
+    lastEstimateRef.current = estimatedRowHeight;
+    setRowHeight(estimatedRowHeight);
+    const node = observedRef.current?.node;
+    if (node) applyMeasurement(node.getBoundingClientRect().height);
+  }, [estimatedRowHeight, applyMeasurement]);
 
   // The scroll element, resolved into state rather than read straight from the ref.
   //

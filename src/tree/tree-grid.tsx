@@ -8,6 +8,7 @@ import {
   useMemo,
   useState,
 } from "react";
+import { clsx } from "clsx";
 import { useRowWindow } from "../hooks/use-row-window";
 import { ROW_HEIGHT_PX } from "../row-metrics";
 import { Size } from "../types";
@@ -327,7 +328,10 @@ export function TreeGrid<T>({
     <TreeNavRoot
       role="tree"
       ariaLabel={ariaLabel}
-      className={className}
+      // Scroll anchoring off, for the reason spelled out in `ListGrid`: the spacers above
+      // the window change height by design, and the browser compensating for that walks the
+      // list away from where the user left it.
+      className={clsx("[overflow-anchor:none]", className)}
       highlightedIndex={safeIndex}
       // The index space is the flattened row list's, so Home/End reach the real ends
       // of the tree whether or not it is windowed.

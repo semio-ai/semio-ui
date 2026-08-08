@@ -20,12 +20,15 @@ function Probe({
   estimate = ROW,
   overscan = 2,
   pinnedIndex,
+  jitter = 0,
 }: {
   total: number;
   rowHeight?: number;
   estimate?: number;
   overscan?: number;
   pinnedIndex?: number;
+  /** Sub-pixel variation between rows, as an unstyled list really has. */
+  jitter?: number;
 }) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const window = useRowWindow({
@@ -46,7 +49,7 @@ function Probe({
           <div
             key={window.start + i}
             ref={i === 0 ? window.measureRef : undefined}
-            style={{ height: rowHeight }}
+            style={{ height: rowHeight + ((window.start + i) % 2) * jitter }}
             data-row={window.start + i}
           >
             row {window.start + i}
@@ -121,12 +124,15 @@ test("an offset past the end still renders rows rather than a blank spacer", asy
   expect(view.container.querySelectorAll("[data-row]").length).toBeGreaterThan(0);
 });
 
-test("the row height is measured once, not once per window", async () => {
-  // The other half of that defect: re-measuring the first row of each new window fed the
-  // height back from the scroll position, so any variation between rows walked the
-  // geometry away from the data. Rows here differ from the estimate, and the height must
-  // settle on one value and stay there across a scroll.
-  const view = render(<Probe total={1_000} rowHeight={25} estimate={40} />);
+test("sub-pixel variation between rows does not move the measured height", async () => {
+  // The measurement is re-taken whenever the ref lands on a different row, which is what
+  // lets a list notice its styles arriving late — and is also what once fed the height back
+  // from the scroll position, walking the geometry off the end of the data.
+  //
+  // A whole-pixel threshold is what makes both safe at once. Rows here differ by a third of
+  // a pixel, as they do in an unstyled list where a row carrying a button is a hair taller
+  // than one that does not, and the height must not budge across two long scrolls.
+  const view = render(<Probe total={1_000} rowHeight={25} estimate={40} jitter={0.34} />);
   await settle();
   const settled = read(view, "height");
   scroller(view).scrollTop = 500 * 25;
@@ -135,6 +141,24 @@ test("the row height is measured once, not once per window", async () => {
   scroller(view).scrollTop = 900 * 25;
   await settle();
   expect(read(view, "height")).toBe(settled);
+  // Still inside the data, which is what the drift used to break.
+  const [start, end] = read(view, "range")!.split("-").map(Number);
+  expect(start).toBeLessThan(end);
+  expect(end).toBeLessThanOrEqual(1_000);
+});
+
+test("a whole-pixel change in row height IS picked up", async () => {
+  // The other side of the threshold: a real change — styles arriving, a font swapping — must
+  // reach the geometry, or a list of 36px rows keeps windowing itself at 18.
+  const view = render(<Probe total={1_000} rowHeight={20} />);
+  await settle();
+  expect(read(view, "height")).toBe("20");
+  expect(scroller(view).scrollHeight).toBe(1_000 * 20);
+
+  view.rerender(<Probe total={1_000} rowHeight={31} />);
+  await settle();
+  expect(read(view, "height")).toBe("31");
+  expect(scroller(view).scrollHeight).toBe(1_000 * 31);
 });
 
 test("a pinned row near the window is mounted", async () => {

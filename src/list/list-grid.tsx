@@ -617,7 +617,22 @@ export function ListGrid<T>({
       <div
         ref={gridRef}
         className="@container grid"
-        style={{ gridTemplateColumns } as CSSProperties}
+        style={
+          {
+            gridTemplateColumns,
+            // Scroll anchoring is actively harmful to a windowed list. The browser tries to
+            // hold the visible content still when something ABOVE it changes size, and in a
+            // windowed list the thing above is a spacer whose height changes by design every
+            // time the window moves — so the browser "corrects" a scroll offset that was
+            // already correct, and the list walks away from where the user left it. Measured
+            // as a jump from 18,000px to 72,000px across a single window update.
+            //
+            // Excluded here rather than on the scroll container, which belongs to the
+            // consumer: `overflow-anchor: none` on an element takes it and its descendants
+            // out of anchor selection, and every row lives inside this one.
+            overflowAnchor: "none",
+          } as CSSProperties
+        }
       >
         {!noHeader && (
           <div

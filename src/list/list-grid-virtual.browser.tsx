@@ -118,7 +118,9 @@ test("scrolling swaps in the rows for that offset", async () => {
   await settle();
   expect(optionTexts(view)).toContain("Row 0");
 
-  scroller(view).scrollTop = 500 * ROW;
+  // Measured, not assumed: a hardcoded row height made this fail as a baffling
+  // window-offset error on a CI run where the rows were briefly unstyled.
+  scroller(view).scrollTop = 500 * options(view)[0].getBoundingClientRect().height;
   await settle();
 
   const texts = optionTexts(view);
@@ -318,7 +320,7 @@ test("type-ahead jumps to an unrendered row and brings it into view", async () =
 test("a row reports its place in the data, not in the window", async () => {
   const view = render(<Harness rows={makeRows(10_000)} />);
   await settle();
-  scroller(view).scrollTop = 500 * ROW;
+  scroller(view).scrollTop = 500 * options(view)[0].getBoundingClientRect().height;
   await settle();
 
   const row500 = [...options(view)].find(
