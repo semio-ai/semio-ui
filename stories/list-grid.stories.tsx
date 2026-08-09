@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import {
   ListGrid,
   type ListColumn,
@@ -23,8 +23,18 @@ const ROWS: Row[] = [
 ];
 
 const COLUMNS: ListColumn<Row>[] = [
-  { key: "name", header: "Name", flex: true, render: (r) => <span className="truncate">{r.name}</span> },
-  { key: "kind", header: "Kind", hideBelow: "sm", render: (r) => <span className="text-neutral-500">{r.kind}</span> },
+  {
+    key: "name",
+    header: "Name",
+    flex: true,
+    render: (r) => <span className="truncate">{r.name}</span>,
+  },
+  {
+    key: "kind",
+    header: "Kind",
+    hideBelow: "sm",
+    render: (r) => <span className="text-neutral-500">{r.kind}</span>,
+  },
   {
     key: "updated",
     header: "Updated",
@@ -89,7 +99,9 @@ export function NoHeaderSingleColumn() {
       <ListGrid
         data={ROWS}
         getRowId={(r) => r.id}
-        columns={[{ key: "name", flex: true, render: (r) => <span className="truncate">{r.name}</span> }]}
+        columns={[
+          { key: "name", flex: true, render: (r) => <span className="truncate">{r.name}</span> },
+        ]}
         selectionMode="single"
         noHeader
         defaultSelected={["r3"]}
@@ -123,7 +135,12 @@ export function RichCells() {
               </span>
             ),
           },
-          { key: "name", header: "Name", flex: true, render: (r) => <span className="truncate">{r.name}</span> },
+          {
+            key: "name",
+            header: "Name",
+            flex: true,
+            render: (r) => <span className="truncate">{r.name}</span>,
+          },
           {
             key: "kind",
             header: "Kind",
@@ -175,7 +192,11 @@ export function EditableCells() {
               />
             ),
           },
-          { key: "kind", header: "Kind", render: (r) => <span className="text-neutral-500">{r.kind}</span> },
+          {
+            key: "kind",
+            header: "Kind",
+            render: (r) => <span className="text-neutral-500">{r.kind}</span>,
+          },
         ]}
       />
     </div>
@@ -211,8 +232,18 @@ export function PerRowVariant() {
         resolveVisual={resolveVisual}
         ariaLabel="Per-row variant"
         columns={[
-          { key: "name", header: "Name", flex: true, render: (r) => <span className="truncate">{r.name}</span> },
-          { key: "kind", header: "Kind", align: "right", render: (r) => <span className="text-neutral-500">{r.kind}</span> },
+          {
+            key: "name",
+            header: "Name",
+            flex: true,
+            render: (r) => <span className="truncate">{r.name}</span>,
+          },
+          {
+            key: "kind",
+            header: "Kind",
+            align: "right",
+            render: (r) => <span className="text-neutral-500">{r.kind}</span>,
+          },
         ]}
       />
     </div>
@@ -247,10 +278,18 @@ export function PerRowCustomColor() {
             key: "dot",
             header: "",
             render: (r) => (
-              <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: ROW_COLOR[r.id] }} />
+              <span
+                className="h-2.5 w-2.5 rounded-full"
+                style={{ backgroundColor: ROW_COLOR[r.id] }}
+              />
             ),
           },
-          { key: "name", header: "Name", flex: true, render: (r) => <span className="truncate">{r.name}</span> },
+          {
+            key: "name",
+            header: "Name",
+            flex: true,
+            render: (r) => <span className="truncate">{r.name}</span>,
+          },
         ]}
       />
     </div>
@@ -310,3 +349,54 @@ export function UnthemedSurface() {
     </div>
   );
 }
+
+/**
+ * Ten thousand rows, with only the ones near the viewport in the DOM.
+ *
+ * Two things are worth watching. Scroll it: the number of rows in the DOM stays flat while
+ * the scrollbar behaves as if all ten thousand were there. Then watch the `Updated` column,
+ * whose values vary in width — it grows to fit the widest value seen and then stays put,
+ * rather than resizing every time a wider one scrolls into view.
+ *
+ * The scroll container is the consumer's, and the list needs a ref to it. In the app that
+ * is a `ScrollArea`, whose `viewportRef` hands out the element that actually scrolls; here
+ * it is a plain `overflow-y-auto` div.
+ */
+export function Virtualized() {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const rows = useMemo(
+    () =>
+      Array.from({ length: 10_000 }, (_, i) => ({
+        id: `v${i.toString()}`,
+        name: `Item ${i.toString()}`,
+        kind: i % 3 === 0 ? "Robot" : i % 3 === 1 ? "Sensor" : "Service",
+        // Widths vary a lot, which is what makes column stability visible.
+        updated:
+          i % 97 === 0 ? `${(i * 1_237).toLocaleString()} bytes` : `${(i % 60).toString()}m ago`,
+      })),
+    [],
+  );
+  const [sel, setSel] = useState<Set<string>>(new Set());
+  return (
+    <div className="w-[520px] p-4">
+      <div className="mb-2 text-xs text-neutral-500">
+        10,000 rows · windowed · {sel.size.toString()} selected
+      </div>
+      <div ref={scrollRef} className="h-80 overflow-y-auto rounded-sm border border-neutral-500/20">
+        <ListGrid
+          data={rows}
+          getRowId={(r) => r.id}
+          columns={COLUMNS}
+          virtualized
+          scrollRef={scrollRef}
+          selectionMode="multiple"
+          selected={sel}
+          onSelectionChange={setSel}
+          getSearchText={(r) => r.name}
+          ariaLabel="Virtualized list"
+        />
+      </div>
+    </div>
+  );
+}
+Virtualized.parameters = design(FIGMA_LIST_GRID);

@@ -3,8 +3,10 @@ import {
   type KeyboardEvent,
   type MouseEvent,
   type ReactNode,
+  type RefObject,
   useCallback,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -12,10 +14,11 @@ import {
 import { clsx } from "clsx";
 import { Size } from "../types";
 import { useClickAway } from "../hooks/use-click-away";
+import { useRowWindow } from "../hooks/use-row-window";
 import { defaultResolveRowVisual, type ResolveRowVisual } from "../tree/resolve-row-visual";
 import { TreeNavItem, TreeNavRoot } from "../tree/use-tree-navigation";
 import { useTreeSelection } from "../tree/use-tree-selection";
-import { ListRow } from "./list-row";
+import { ListRow, ROW_HEIGHT_PX } from "./list-row";
 
 export type SelectionMode = "none" | "single" | "multiple";
 
@@ -52,6 +55,21 @@ export interface ListColumn<T> {
    * `auto` track — `flex` is ignored for it.
    */
   hideBelow?: ListBreakpoint;
+  /**
+   * Fixed track width (any CSS length), replacing `auto`/`1fr` for this column.
+   *
+   * Rarely needed: the point of `auto` tracks is that a column is as wide as its
+   * content, and {@link ListGridProps.virtualized} keeps that true without letting
+   * the width move around (see the note on track floors). Reach for this only when a
+   * column must be a specific width regardless of content.
+   */
+  width?: string;
+  /**
+   * Lower bound for the track, as a CSS length. Composes with the measured floor a
+   * virtualized list maintains — the wider of the two wins — so this is the way to
+   * stop a column collapsing when its visible cells happen to be empty.
+   */
+  minWidth?: string;
   /** Cell content. `state` lets a cell reflect focus/selection (the old
    *  TableList's 3-arg `render(value, focused, selected)`). */
   render: (item: T, state: { focused: boolean; selected: boolean }) => ReactNode;
@@ -88,6 +106,34 @@ export interface ListGridProps<T> {
   allowTypeAhead?: boolean;
   getSearchText?: (item: T) => string;
 
+  /**
+   * Render only the rows near the viewport instead of all of them.
+   *
+   * Off by default, and deliberately opt-in rather than automatic above some row
+   * count: it requires a scroll container ({@link ListGridProps.scrollRef}) that only
+   * the consumer can identify, and it changes what "as wide as its content" means for
+   * a column, which is a visible trade rather than an optimization to apply behind a
+   * caller's back.
+   *
+   * What it costs: an `auto` column is sized by the cells the browser can see, so
+   * under windowing that is the *rendered* rows, and the column would resize as you
+   * scroll — measured at around 100px of lateral shift on a column holding mixed-width
+   * values, which reads as the table rearranging itself under the reader. So a
+   * windowed list also maintains a **floor** per auto track: the widest that track has
+   * been since the data, the columns, or the container's width last changed. Columns
+   * still size to content and still respond to the container; they just grow into
+   * place and never snap back mid-scroll. {@link ListColumn.minWidth} sets a floor up
+   * front, {@link ListColumn.width} opts out of content sizing entirely.
+   */
+  virtualized?: boolean;
+  /**
+   * The element that scrolls, required by {@link ListGridProps.virtualized}. For a
+   * list inside a `ScrollArea`, this is that component's `viewportRef` — the Radix
+   * viewport is what scrolls, and the `ScrollArea` root is not.
+   */
+  scrollRef?: RefObject<HTMLElement | null>;
+  /** Rows rendered beyond each edge of the viewport. Defaults to 6. */
+  overscan?: number;
   noHeader?: boolean;
   size?: Size;
   loop?: boolean;
@@ -99,10 +145,20 @@ export interface ListGridProps<T> {
 
 const TYPE_AHEAD_RESET_MS = 1000;
 
+/** Stand-in for a caller that passed no `scrollRef`; only read while windowing is off. */
+const emptyScrollRef: RefObject<HTMLElement | null> = { current: null };
+
 /** The keys the Base-UI composite treats as roving navigation. When they come
  *  from an in-row control we stop their propagation so focus never roves out of
  *  a field mid-edit. */
-const COMPOSITE_NAV_KEYS = new Set(["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Home", "End"]);
+const COMPOSITE_NAV_KEYS = new Set([
+  "ArrowUp",
+  "ArrowDown",
+  "ArrowLeft",
+  "ArrowRight",
+  "Home",
+  "End",
+]);
 
 // Selection is reflected by the shared left-bar + background (`resolveVisual`),
 // the SAME seam as `TreeGrid` — no checkbox/radio indicator column. That keeps
@@ -122,6 +178,15 @@ const COMPOSITE_NAV_KEYS = new Set(["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowR
  * `selectionFollowsFocus`, plain arrows also select, Shift extends (replace-range),
  * Cmd/Ctrl moves focus only; Space toggles; Enter activates (`onAction`); Cmd/Ctrl+A
  * selects all (multiple); Escape clears; printable keys type-ahead.
+ *
+ * ## Scale
+ *
+ * **Renders every row by default — it is not windowed unless you ask.** Fine into the
+ * hundreds; at thousands the mount cost and the DOM size are both linear and it is the
+ * wrong component to reach for. Pass {@link ListGridProps.virtualized} with a
+ * {@link ListGridProps.scrollRef} and only the rows near the viewport are rendered, with
+ * selection, type-ahead and Home/End still spanning the whole data set. `useRowWindow` is
+ * exported separately for a consumer composing the row primitives directly.
  */
 export function ListGrid<T>({
   data,
@@ -138,6 +203,9 @@ export function ListGrid<T>({
   onAction,
   allowTypeAhead = true,
   getSearchText,
+  virtualized = false,
+  scrollRef,
+  overscan,
   noHeader = false,
   size = Size.Md,
   loop = false,
@@ -163,6 +231,18 @@ export function ListGrid<T>({
     () => (isRowDisabled ? order.filter((id) => !isDisabled(id)) : order),
     [order, isRowDisabled, isDisabled],
   );
+  // Roving navigation reads disabledness from these indices rather than from each
+  // row's `aria-disabled`, because a windowed list has no element for a row that is
+  // scrolled out. `undefined` when nothing is disabled, which lets the composite fall
+  // back to the attribute and keeps the common case allocation-free.
+  const disabledIndices = useMemo(() => {
+    if (!isRowDisabled) return undefined;
+    const indices: number[] = [];
+    order.forEach((id, index) => {
+      if (isDisabled(id)) indices.push(index);
+    });
+    return indices;
+  }, [order, isRowDisabled, isDisabled]);
 
   const selection = useTreeSelection({
     order,
@@ -192,7 +272,8 @@ export function ListGrid<T>({
   // grid element wraps every row + the header, so anything else is "away".
   const gridRef = useRef<HTMLDivElement>(null);
   useClickAway(gridRef, () => {
-    if (deselectOnClickAway && !disallowEmptySelection && selectionMode !== "none") selection.clear();
+    if (deselectOnClickAway && !disallowEmptySelection && selectionMode !== "none")
+      selection.clear();
   });
 
   const allEnabledSelected =
@@ -288,7 +369,8 @@ export function ListGrid<T>({
           const target = order[nextEnabledIndex(indexOfId(id), dir)];
           // Focus itself is moved by the composite; we layer selection on top.
           if (mod || selectionMode === "none" || !selectionFollowsFocus) break;
-          if (event.shiftKey && selectionMode === "multiple") selection.select(target, { range: true });
+          if (event.shiftKey && selectionMode === "multiple")
+            selection.select(target, { range: true });
           else selectOnly(target);
           break;
         }
@@ -296,7 +378,8 @@ export function ListGrid<T>({
         case "End": {
           const target = order[edgeEnabledIndex(event.key === "Home" ? "first" : "last")];
           if (mod || selectionMode === "none" || !selectionFollowsFocus) break;
-          if (event.shiftKey && selectionMode === "multiple") selection.select(target, { range: true });
+          if (event.shiftKey && selectionMode === "multiple")
+            selection.select(target, { range: true });
           else selectOnly(target);
           break;
         }
@@ -377,13 +460,123 @@ export function ListGrid<T>({
     [indexOfId, isDisabled, selectionMode, selection, onAction, disallowEmptySelection],
   );
 
+  // Which rows to render. Non-virtualized lists get the whole range, so the render
+  // below has one shape rather than two.
+  const rowWindow = useRowWindow({
+    total: data.length,
+    scrollRef: scrollRef ?? emptyScrollRef,
+    estimatedRowHeight: ROW_HEIGHT_PX[size],
+    overscan,
+    // The keyboard cursor stays mounted, so roving focus can cross a window edge.
+    pinnedIndex: safeIndex,
+    enabled: virtualized && scrollRef !== undefined,
+  });
+
+  // Moving the cursor scrolls to it — what keyboard navigation, type-ahead and Home/End
+  // all rely on when their target is outside the rendered slice.
+  //
+  // The reverse coupling is deliberately NOT an effect. Having the viewport pull the
+  // cursor back whenever it scrolled away meant the two chased each other: a jump to row
+  // 9999 scrolls, and in that same commit the window has not caught up yet, so the
+  // cursor gets dragged back to the top. What the cursor-out-of-view case actually needs
+  // is only that SOMETHING stays tabbable, which `tabStopIndex` below says declaratively.
+  useEffect(() => {
+    if (!virtualized) return;
+    rowWindow.scrollToIndex(safeIndex);
+    // Deliberately keyed on the cursor alone: re-running on window or scroll changes
+    // would scroll during the user's own scrolling.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [safeIndex, virtualized]);
+
+  // Measured floors for the auto tracks, so a windowed list's columns stop resizing
+  // as rows scroll past. See `ListGridProps.virtualized` for why this exists; the
+  // short version is that `auto` means "as wide as the cells the browser can see",
+  // and windowing changes which cells those are.
+  const [trackFloors, setTrackFloors] = useState<number[]>([]);
+  const gridWidthRef = useRef(0);
+
   // Column tracks: `1fr` for a flex column, else `auto`. A `hideBelow` column is
   // forced to `auto` regardless of `flex` — collapsing to 0 when hidden requires
   // an auto track; a `1fr` track would keep reserving width and leave a gap.
+  //
+  // A floor is expressed as `minmax(floor, auto)`, which keeps the track content-sized
+  // while stopping it shrinking below what it has already been. A hidden column's floor
+  // is 0 (its cells measure nothing), so `hideBelow` still collapses the track — and
+  // the floors are discarded whenever the container's width changes, which is exactly
+  // when hiding flips.
   const gridTemplateColumns = useMemo(
-    () => columns.map((c) => (c.flex && !c.hideBelow ? "1fr" : "auto")).join(" "),
-    [columns],
+    () =>
+      columns
+        .map((c, i) => {
+          if (c.width !== undefined) return c.width;
+          const base = c.flex && !c.hideBelow ? "1fr" : "auto";
+          const floors: string[] = [];
+          if (c.minWidth !== undefined) floors.push(c.minWidth);
+          const measured = trackFloors[i];
+          if (measured !== undefined && measured > 0) floors.push(`${measured.toString()}px`);
+          if (floors.length === 0) return base;
+          const floor = floors.length === 1 ? floors[0] : `max(${floors.join(", ")})`;
+          return `minmax(${floor}, ${base === "1fr" ? "1fr" : "auto"})`;
+        })
+        .join(" "),
+    [columns, trackFloors],
   );
+
+  // Read the used track widths and keep the high-water mark. Runs when the rendered
+  // window moves (a wider cell can only appear with a new row) or the columns change,
+  // and settles immediately: a floor raises a track's width, so the next read returns
+  // the same number and the state update bails.
+  useLayoutEffect(() => {
+    if (!virtualized) return;
+    const grid = gridRef.current;
+    if (!grid) return;
+    const used = getComputedStyle(grid)
+      .gridTemplateColumns.split(" ")
+      .map((value) => parseFloat(value));
+    setTrackFloors((previous) => {
+      let changed = false;
+      const next = columns.map((column, i) => {
+        // A fixed-width column has nothing to stabilize, and a flexible one is
+        // already `1fr` — pinning a floor on it would stop it giving width back.
+        if (column.width !== undefined || (column.flex && !column.hideBelow)) return 0;
+        // `getComputedStyle` resolves to used pixel values only where the element is
+        // really laid out as a grid; anything else (no stylesheet, `display:none`) parses
+        // to NaN, which must not be recorded as a floor.
+        const raw = used[i];
+        const usedWidth = Number.isFinite(raw) ? raw : 0;
+        const floor = previous[i] ?? 0;
+        const grown = Math.max(floor, usedWidth);
+        if (grown !== floor) changed = true;
+        return grown;
+      });
+      return changed ? next : previous;
+    });
+  }, [virtualized, columns, rowWindow.start, rowWindow.end]);
+
+  // A container-width change invalidates the floors: it is what flips `hideBelow`,
+  // and a floor measured while a column was visible would otherwise hold width open
+  // for a column that is now hidden.
+  useLayoutEffect(() => {
+    if (!virtualized) return;
+    const grid = gridRef.current;
+    if (!grid) return;
+    const observer = new ResizeObserver(() => {
+      const width = grid.getBoundingClientRect().width;
+      if (Math.abs(width - gridWidthRef.current) < 0.5) return;
+      gridWidthRef.current = width;
+      setTrackFloors((previous) => (previous.length === 0 ? previous : []));
+    });
+    observer.observe(grid);
+    return () => {
+      observer.disconnect();
+    };
+  }, [virtualized]);
+
+  // New data can be narrower than the old, so the floors must not outlive it.
+  useLayoutEffect(() => {
+    setTrackFloors((previous) => (previous.length === 0 ? previous : []));
+  }, [data]);
+
   const rowColumns = useMemo(
     () =>
       columns.map((c) => ({
@@ -405,6 +598,14 @@ export function ListGrid<T>({
       className={className}
       highlightedIndex={safeIndex}
       onHighlightedIndexChange={setFocusedIndex}
+      // The index space is the DATA's, not the rendered window's, so Home/End and
+      // the arrow bounds mean the same thing whether or not this list is windowed.
+      total={data.length}
+      disabledIndices={disabledIndices}
+      // With the cursor scrolled out of the window there is no cursor row to carry the
+      // tab stop, so the first rendered row carries it and the list stays reachable by
+      // Tab. Focusing it moves the cursor there, which is what the user meant.
+      tabStopIndex={rowWindow.pinnedIndexInWindow ? safeIndex : rowWindow.start}
       loop={loop}
       // Keep roving focus moving while these are held so selection-follows-focus
       // (Shift = range, Cmd/Ctrl = focus-only) works on modified arrows; the
@@ -413,7 +614,26 @@ export function ListGrid<T>({
     >
       {/* `@container` makes column hiding respond to the grid's own width
           (container query), not the viewport — reliable and JS-free. */}
-      <div ref={gridRef} className="@container grid" style={{ gridTemplateColumns } as CSSProperties}>
+      <div
+        ref={gridRef}
+        className="@container grid"
+        style={
+          {
+            gridTemplateColumns,
+            // Scroll anchoring is actively harmful to a windowed list. The browser tries to
+            // hold the visible content still when something ABOVE it changes size, and in a
+            // windowed list the thing above is a spacer whose height changes by design every
+            // time the window moves — so the browser "corrects" a scroll offset that was
+            // already correct, and the list walks away from where the user left it. Measured
+            // as a jump from 18,000px to 72,000px across a single window update.
+            //
+            // Excluded here rather than on the scroll container, which belongs to the
+            // consumer: `overflow-anchor: none` on an element takes it and its descendants
+            // out of anchor selection, and every row lives inside this one.
+            overflowAnchor: "none",
+          } as CSSProperties
+        }
+      >
         {!noHeader && (
           <div
             className={clsx(
@@ -446,7 +666,11 @@ export function ListGrid<T>({
                 className={clsx(
                   // px-2 matches the body cells so headers align with their column.
                   "px-2 py-1 text-xs font-semibold uppercase text-neutral-500 dark:text-neutral-400",
-                  column.align === "right" ? "text-right" : column.align === "center" ? "text-center" : "text-left",
+                  column.align === "right"
+                    ? "text-right"
+                    : column.align === "center"
+                      ? "text-center"
+                      : "text-left",
                   column.hideBelow ? HIDE_BELOW_CLASS[column.hideBelow] : undefined,
                 )}
                 style={{ gridColumn: `${(i + 1).toString()} / span 1` } as CSSProperties}
@@ -457,7 +681,19 @@ export function ListGrid<T>({
           </div>
         )}
 
-        {data.map((item, index) => {
+        {/* The rows above the window, as one empty grid row. A spacer rather than
+            absolute positioning, because an absolutely-positioned grid item leaves the
+            track sizing it would otherwise take part in — which for rows laid out on
+            `grid-cols-subgrid` means losing column alignment entirely. Spacers keep
+            every row in normal flow, so the subgrid is untouched and windowing costs
+            nothing structurally. `aria-hidden` and no role: these stand in for rows
+            rather than being any. */}
+        {rowWindow.paddingTop > 0 && (
+          <div aria-hidden className="col-span-full" style={{ height: rowWindow.paddingTop }} />
+        )}
+
+        {data.slice(rowWindow.start, rowWindow.end).map((item, offset) => {
+          const index = rowWindow.start + offset;
           const id = getRowId(item);
           const selectedNow = selection.isSelected(id);
           const focusedNow = index === safeIndex;
@@ -477,8 +713,14 @@ export function ListGrid<T>({
           return (
             <TreeNavItem
               key={id}
+              index={index}
               role={selectionMode === "none" ? "row" : "option"}
               ariaSelected={selectionMode === "none" ? undefined : selectedNow}
+              // What a reader is told about the list's size has to be the list, not
+              // the window: with rows mounted only near the viewport, a screen reader
+              // counting the DOM would announce "3 of 12" in a list of ten thousand.
+              ariaSetSize={data.length}
+              ariaPosInSet={index + 1}
               disabled={isDisabled(id)}
               className="col-span-full grid grid-cols-subgrid outline-none group/row"
               onKeyDown={(event) => handleRowKeyDown(event, id)}
@@ -492,6 +734,10 @@ export function ListGrid<T>({
                   `outline` (not a `ring`/box-shadow) so it paints above the
                   row's absolute background overlay rather than behind it. */}
               <ListRow
+                // One row reports the real row height, which is what the window's
+                // arithmetic runs on — `ROW_HEIGHT` is a `rem` class, so the px
+                // estimate is only right at a 16px root font size.
+                ref={offset === 0 ? rowWindow.measureRef : undefined}
                 columns={rowColumns}
                 cells={cells}
                 visual={visual}
@@ -501,6 +747,10 @@ export function ListGrid<T>({
             </TreeNavItem>
           );
         })}
+
+        {rowWindow.paddingBottom > 0 && (
+          <div aria-hidden className="col-span-full" style={{ height: rowWindow.paddingBottom }} />
+        )}
       </div>
     </TreeNavRoot>
   );
