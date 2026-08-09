@@ -1,5 +1,7 @@
-import type { CSSProperties, ReactNode } from "react";
+import type { CSSProperties, ReactNode, Ref } from "react";
 import { clsx } from "clsx";
+import { Size } from "../types";
+import { ROW_HEIGHT } from "../row-metrics";
 import { TreeIndent } from "./tree-indent";
 import type { RowVisual } from "./resolve-row-visual";
 
@@ -48,6 +50,22 @@ export interface TreeRowProps {
   ariaExpanded?: boolean;
   /** Selection state for a selectable row; only meaningful with a tree role. */
   ariaSelected?: boolean;
+  /**
+   * Row height / content size, from the rhythm `ListRow` shares — so a tree and a listing
+   * at the same `Size` are the same height. Defaults to `Md` (`h-9`), the density the rest
+   * of the product is anchored to.
+   *
+   * Changes the box, not the number of lines in it: a row is a single line at every size.
+   */
+  size?: Size;
+  /**
+   * React 19+: `ref` arrives as an ordinary prop, so this is not supported on React 18.
+   *
+   * The row element. Used by a windowed tree to measure the real row height, since the
+   * height is a `rem` value and its px equivalent depends on the consuming app's root
+   * font size.
+   */
+  ref?: Ref<HTMLDivElement>;
 }
 
 /**
@@ -76,13 +94,21 @@ export function TreeRow({
   ariaLevel,
   ariaExpanded,
   ariaSelected,
+  size = Size.Md,
+  ref,
 }: TreeRowProps) {
   return (
     <div
+      ref={ref}
       className={clsx(
         // `responsive` + the row's variant/custom-color set --accent-color for
         // this row, so the bar/background below resolve to its theme/custom color.
-        "responsive relative flex h-9 w-full items-center",
+        "responsive relative flex w-full items-center",
+        // Row height = one step taller than its content, from the shared table; `size`
+        // rides along as a class so controls in the row inherit the content size, exactly
+        // as `ListRow` does it.
+        ROW_HEIGHT[size],
+        size,
         // Readable foreground by default, for the same reason as `ListRow`: a row
         // must not depend on an ancestor supplying one, or it renders as the UA
         // default black on a dark surface.

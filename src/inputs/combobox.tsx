@@ -49,7 +49,8 @@ export interface ComboboxProps<TValue extends string = string> {
   options: ComboboxItems<TValue>;
   value: TValue | null;
   onChange: (value: TValue | null) => void;
-  /** Ref to the underlying input element (for programmatic focus, etc.). */
+  /** Ref to the underlying input element (for programmatic focus, etc.). React 19+:
+   *  `ref` arrives as an ordinary prop, so this is not supported on React 18. */
   ref?: Ref<HTMLInputElement>;
   placeholder?: string;
   size?: Size;
@@ -118,8 +119,7 @@ export function Combobox<TValue extends string>({
     [flatOptions, value],
   );
 
-  const resolvedLeftIcon =
-    leftIcon === undefined ? selectedOption?.icon ?? null : leftIcon;
+  const resolvedLeftIcon = leftIcon === undefined ? (selectedOption?.icon ?? null) : leftIcon;
 
   return (
     <ComboboxPrimitive.Root<ComboboxOption<TValue>, false>
@@ -159,10 +159,7 @@ export function Combobox<TValue extends string>({
       >
         {resolvedLeftIcon != null && (
           <span
-            className={leftIconClassName(
-              size,
-              selectedOption?.variant ?? variant,
-            )}
+            className={leftIconClassName(size, selectedOption?.variant ?? variant)}
             aria-hidden="true"
           >
             {resolveIcon(resolvedLeftIcon)}
@@ -271,11 +268,7 @@ function ComboboxItemRow<TValue extends string>({
     <ComboboxPrimitive.Item
       value={option}
       disabled={option.disabled}
-      style={
-        option.color
-          ? ({ "--custom-color": option.color } as CSSProperties)
-          : undefined
-      }
+      style={option.color ? ({ "--custom-color": option.color } as CSSProperties) : undefined}
       className={itemClassName({ variant: itemVariant, color: option.color })}
       render={(props, state) => (
         <div {...props} data-state={isSelected ? "checked" : "unchecked"}>

@@ -19,5 +19,12 @@
  * as a primitive for patterns to compose, and mirroring that keeps each adapter a
  * dozen readable lines instead of a matrix of flags that grows with every new
  * pattern.
+ *
+ * `useCompositeRoot` is re-exported alongside the components because a **windowed**
+ * adapter cannot use `CompositeRoot`. That component renders `CompositeList`, which
+ * truncates the element array to the set of items registered from the DOM — for a
+ * windowed list, the visible window — collapsing every index calculation onto the
+ * rows that happen to be mounted. An adapter that owns the array itself keeps those
+ * calculations in the data's index space; see `tree/use-tree-navigation`.
  */
-export { CompositeItem, CompositeRoot } from "@base-ui/react/internals/composite";
+export { CompositeItem, CompositeRoot, useCompositeRoot } from "@base-ui/react/internals/composite";

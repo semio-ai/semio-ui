@@ -1,7 +1,12 @@
-import type { CSSProperties, ReactNode } from "react";
+import type { CSSProperties, ReactNode, Ref } from "react";
 import { clsx } from "clsx";
 import { Size } from "../types";
 import type { RowVisual } from "../tree/resolve-row-visual";
+// The row rhythm is shared with `TreeRow`, so it lives above both of them. Re-exported
+// here because this module was its home and callers import it from this path.
+import { ROW_HEIGHT, ROW_HEIGHT_PX } from "../row-metrics";
+
+export { ROW_HEIGHT, ROW_HEIGHT_PX };
 
 /** Layout description of one column, as the row needs it (no `render`). */
 export interface ListRowColumn {
@@ -29,26 +34,15 @@ export interface ListRowProps {
   /** Opt-in ARIA (the composed `ListGrid` sets `row`/`option` + selection). */
   role?: string;
   ariaSelected?: boolean;
+  /**
+   * React 19+: `ref` arrives as an ordinary prop, so this is not supported on React 18.
+   *
+   * The row element. Used by a windowed list to measure the real row height, since
+   * {@link ROW_HEIGHT} is a `rem` class and its px value depends on the consuming
+   * app's root font size.
+   */
+  ref?: Ref<HTMLDivElement>;
 }
-
-/**
- * Row height per content `Size` — the shared convention: a list/tree row is a
- * container **one 4px step taller** than the content `sized-height` inside it
- * (Xs h-5→h-6 … Md h-8→h-9 … Xl h-12→h-13). Md = `h-9` deliberately matches the
- * fixed-height `TreeRow`, so `ListGrid` and `TreeGrid` share one vertical rhythm.
- *
- * Exported because `ListGrid`'s column header takes the same height. A header
- * that sized to its content was a hair over 24px with plain text in it and ~40px
- * the moment one cell held a control, so two listings side by side sat at
- * different heights purely on whether either had an action in its header.
- */
-export const ROW_HEIGHT: Record<Size, string> = {
-  [Size.Xs]: "h-6",
-  [Size.Sm]: "h-8",
-  [Size.Md]: "h-9",
-  [Size.Lg]: "h-11",
-  [Size.Xl]: "h-13",
-};
 
 /**
  * Edge length of a row's media tile — the square a thumbnail, or the glyph
@@ -59,8 +53,9 @@ export const ROW_HEIGHT: Record<Size, string> = {
  * states no ratio: two listings at different row sizes reach for the same
  * comfortable-looking tile and then disagree about the breathing around it, which
  * reads as the same object rendered two ways. Here it is one 4px step in from the
- * row on every edge — `ROW_HEIGHT` less 8px — and it sits beside those heights so
- * that relationship stays checkable in one place rather than inferred from two.
+ * row on every edge — `ROW_HEIGHT` less 8px, in `../row-metrics`. That derivation is
+ * the part worth checking when either table changes: these are literals, so widening a
+ * row height does not widen the tile with it.
  */
 const ROW_MEDIA: Record<Size, string> = {
   [Size.Xs]: "1rem", // 16px in h-6
@@ -93,9 +88,11 @@ export function ListRow({
   className,
   role,
   ariaSelected,
+  ref,
 }: ListRowProps) {
   return (
     <div
+      ref={ref}
       role={role}
       aria-selected={ariaSelected}
       className={clsx(
