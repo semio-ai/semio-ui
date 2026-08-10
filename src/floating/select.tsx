@@ -52,6 +52,36 @@ export interface SelectProps<T extends string | string[]> {
   showChips?: boolean;
   visuals?: SelectVisuals;
   side?: "left" | "right" | "top" | "bottom";
+  /**
+   * Present but not changeable: the menu will not open, and the trigger dims to say so.
+   *
+   * For a value the user may **see** and may not **set** — a rung pinned by a plan or a
+   * policy, a field owned by another actor. Distinct from omitting the control, which
+   * says the value does not apply, and from rendering plain text, which hides that a
+   * control was ever there. A reader who cannot tell the difference between "no setting"
+   * and "a setting you may not change" will assume the former and stop looking.
+   *
+   * Deliberately **not** `pointer-events-none`, unlike the disabled state on menu items.
+   * Radix already refuses to open a disabled trigger, so suppressing pointer events buys
+   * nothing — and it would stop a `Tooltip` over this control from ever firing, which is
+   * the one affordance left for explaining *why* it is disabled. Disabling a control and
+   * withholding the reason is worse than either alone.
+   *
+   * **To attach that tooltip, wrap this in an element — not the `Select` directly.**
+   * `Tooltip` uses Radix's `asChild`, which hands its trigger's ref and pointer handlers
+   * to its child; `Select` is a plain function component that forwards neither, so they
+   * are silently dropped and the tooltip simply never opens. There is no error and the
+   * control looks correct. Verified in `select-disabled.browser.tsx`:
+   *
+   * ```tsx
+   * <Tooltip content="Why this is fixed">
+   *   <span className="inline-flex">
+   *     <Select … disabled />
+   *   </span>
+   * </Tooltip>
+   * ```
+   */
+  disabled?: boolean;
 }
 
 /**
@@ -75,6 +105,7 @@ export function Select<T extends string | string[]>({
   showChips = false,
   visuals = "both",
   side = "bottom",
+  disabled = false,
 }: SelectProps<T>) {
   const multiple = Array.isArray(value);
   const selectedValues: string[] = multiple ? (value as string[]) : [];
@@ -119,6 +150,15 @@ export function Select<T extends string | string[]>({
   const triggerBoxClass = resolveBoxSizingClass(sizing);
 
   const renderSingleOption = (selectOption?: SelectOption) => {
+    // Keyed off `data-disabled`, which Radix stamps on a disabled trigger and which
+    // `asChild` puts on this element — so the appearance follows the primitive's own
+    // state rather than a second copy of the prop that could disagree with it.
+    //
+    // `text-neutral-500/50` matches the dimming menu items already use for disabled, so a
+    // pinned trigger and a disabled option read as the same state. No `pointer-events-none`
+    // here on purpose; see the `disabled` prop's doc.
+    const DISABLED_TRIGGER_CLASS =
+      "data-disabled:cursor-not-allowed data-disabled:text-neutral-500/50";
     if (visuals === "icons") {
       const tooltipContent = selectOption?.label ?? label ?? "Select";
       return (
@@ -135,6 +175,7 @@ export function Select<T extends string | string[]>({
             triggerBoxClass,
             size,
             selectOption?.color ? "custom-color" : (selectOption?.variant ?? Variant.Default),
+            DISABLED_TRIGGER_CLASS,
             className,
           )}
         >
@@ -163,6 +204,7 @@ export function Select<T extends string | string[]>({
           triggerHeightClass,
           size,
           selectOption?.color ? "custom-color" : (selectOption?.variant ?? Variant.Default),
+          DISABLED_TRIGGER_CLASS,
           className,
         )}
       >
@@ -227,6 +269,7 @@ export function Select<T extends string | string[]>({
           trigger={renderSingleOption(triggerOption)}
           variant={triggerOption?.variant ?? variant ?? Variant.Default}
           color={triggerOption?.color ?? undefined}
+          disabled={disabled}
         >
           {label && <NestedLabel>{label}</NestedLabel>}
           {multiple && options.length > 0 && (
