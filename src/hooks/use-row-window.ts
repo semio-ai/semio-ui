@@ -166,7 +166,12 @@ export function useRowWindow({
         previous.observer.disconnect();
         observedRef.current = null;
       }
-      if (!node || observedRef.current) return;
+      // An unwindowed list measures nothing. `rowHeight` feeds the window arithmetic and
+      // only that, and with `enabled` false the whole range renders regardless — so the
+      // observer would cost one `ResizeObserver` per list to compute a number nothing
+      // reads. It also keeps that requirement off consumers who never opted in: a jsdom
+      // test rendering a plain `TreeGrid` has no `ResizeObserver` and does not need one.
+      if (!enabled || !node || observedRef.current) return;
       applyMeasurement(node.getBoundingClientRect().height);
       const observer = new ResizeObserver((entries) => {
         const entry = entries[0];
@@ -175,7 +180,7 @@ export function useRowWindow({
       observer.observe(node);
       observedRef.current = { node, observer };
     },
-    [applyMeasurement],
+    [applyMeasurement, enabled],
   );
 
   useEffect(
