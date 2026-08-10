@@ -1,5 +1,29 @@
 # @semio/ui
 
+## 0.2.0
+
+### Minor Changes
+
+- a21ad69: Optional row windowing for `ListGrid` and `TreeGrid`, so a listing of thousands of rows renders only the rows near the viewport.
+
+  Opt in with `virtualized` plus a `scrollRef` pointing at the element that scrolls; `ScrollArea` now exposes its Radix viewport through a `viewportRef` prop for exactly this. Selection, range selection, type-ahead and Home/End continue to span the whole data set rather than the visible slice, and rows report `aria-setsize`/`aria-posinset` from the data so assistive technology is not told the window's size. The underlying `useRowWindow` hook is exported for consumers composing the row primitives directly instead of using the two composed grids.
+
+  A windowed list also keeps a measured floor per content-sized column, because an `auto` track is only as wide as the cells the browser can see: without it, columns visibly resized as rows scrolled past. Columns still size to their content and still respond to the container's width — they grow into place rather than snapping back. `ListColumn` gains `width` and `minWidth` for callers who want a track pinned outright.
+
+  `TreeGrid` and `TreeRow` also gain `size`, the row-height scale `ListGrid` already had. It was fixed at `h-9` before, which is now the `Md` default and still the density everything else is spaced to — so existing trees are unchanged. The heights themselves moved to a shared `row-metrics` module (exported), because a windowed list derives its first-paint estimate from the same table and the two must not drift: a tree and a listing at the same size are the same height, and a test asserts it at every size. Rows remain a single line at every size — the box changes, not how much content fits.
+
+  Both grids and `TableList` now document that they render every row unless windowed, and `docs/windowed-lists.md` is a guide to assembling one correctly — the scroll-container wiring (including the `ScrollArea` case), what stays whole-dataset, the column-width behaviour, and the à-la-carte route with `useRowWindow`. Its code samples are compile-checked. The tree primitives' README is updated too: its à-la-carte example did not compile against the adapter's new required props.
+
+  A windowed list disables scroll anchoring over its rows. The browser holds visible content still when something above it changes size, and in a windowed list the thing above is a spacer whose height changes by design every time the window moves — so it "corrects" an offset that was already right and the list walks away from where the user left it.
+
+  A windowed list also keeps watching its row height rather than measuring it once. A row can mount before its styles do — a stylesheet injected asynchronously, a route-level CSS chunk, a late web font — and a one-shot measurement then locks in the height of an unstyled row: a list of 36px rows windowed itself at 18, so a scroll to row 500 arrived at row 1000. Changes below a pixel are still ignored, so variation between individual rows cannot feed the geometry back from the scroll position.
+
+  Fixes `ScrollArea` re-handing out its viewport ref on every render. It merged the ref with `mergeRefs` called in the render body, which returns a new callback each time, and React detaches a ref whose identity changed before attaching the new one — so a consumer holding `viewportRef` saw `.current` blink to `null` on every unrelated re-render. Pass a stable ref (a `useRef` object or a `useCallback`) for it to stay stable.
+
+  **Breaking: `react` and `react-dom` peer ranges narrow to `^19.0.0`.** The manifest allowed `^18.2.0`, but several components — `MenuButton`, `Combobox`, `Autocomplete`, `FloatingArrow`, and now `ListRow`/`TreeRow` — take `ref` as an ordinary prop, which only works from React 19. On React 18 such a `ref` is silently dropped, so the old range advertised support that did not exist; for a windowed list it would mean the row-height measurement never running. Each of those props now says so in its own documentation.
+
+  **Breaking, for direct users of the low-level roving-focus adapter only:** `TreeNavRoot` requires `total` (the row count) and `TreeNavItem` requires `index` (its position in the data). The adapter no longer discovers items from the DOM, because that made every index calculation — Home/End, bounds, loop — mean "among the rendered rows". `ListGrid`/`TreeGrid` users are unaffected.
+
 ## 0.1.4
 
 ### Patch Changes
