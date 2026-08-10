@@ -1,6 +1,12 @@
 import { expect, test } from "vitest";
 import { page } from "@vitest/browser/context";
 import { render } from "vitest-browser-react";
+// The real compiled stylesheet. Required here because one of these tests asserts a
+// COLOUR: without it every Tailwind class in the components is inert and both the
+// disabled and enabled labels measure as the default black, so the assertion could
+// only ever agree with itself. See `docs/windowed-lists.md` on why layout and
+// appearance claims use this rather than hand-written stand-in rules.
+import "../test-stylesheet";
 import { Size, Variant } from "../types";
 import { Select } from "./select";
 import { Tooltip } from "./tooltip";
@@ -70,6 +76,50 @@ test("an enabled Select does open — the same click, to show the test can tell"
   await settle();
 
   expect(page.getByRole("menuitemradio").elements().length).toBeGreaterThan(0);
+});
+
+test("the disabled trigger's LABEL dims, not just its container", async () => {
+  // The defect this pins, found by rendering the story and measuring rather than looking:
+  // setting a colour on the trigger dims nothing a reader sees. The label span carries
+  // `highlight-list-item`, which sets its own colour, so it never inherits the ancestor's
+  // — disabled and enabled labels came back the identical `oklch(0.439 0 0)` while the
+  // trigger around them was correctly dimmed.
+  //
+  // Asserted as "differs from the enabled case" rather than against a literal colour, so
+  // it survives a change to the palette and still fails if the dim stops reaching the text.
+  const disabled = render(
+    <Select
+      value="viewer"
+      onChange={() => undefined}
+      options={OPTIONS}
+      size={Size.Sm}
+      variant={Variant.Default}
+      label="Role for Anyone"
+      disabled
+    />,
+  );
+  await expect.element(page.getByText("Viewer")).toBeVisible();
+  const labelOf = (container: HTMLElement) => {
+    const span = container.querySelector<HTMLElement>("span.truncate");
+    if (!span?.parentElement) throw new Error("label not found");
+    return getComputedStyle(span.parentElement).color;
+  };
+  const disabledColor = labelOf(disabled.container);
+  disabled.unmount();
+
+  const enabled = render(
+    <Select
+      value="viewer"
+      onChange={() => undefined}
+      options={OPTIONS}
+      size={Size.Sm}
+      variant={Variant.Default}
+      label="Role for Grace"
+    />,
+  );
+  await expect.element(page.getByText("Viewer")).toBeVisible();
+
+  expect(disabledColor).not.toBe(labelOf(enabled.container));
 });
 
 test("a disabled trigger still fires a Tooltip over it", async () => {

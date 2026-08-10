@@ -198,7 +198,7 @@ export const Disabled: Story = {
             ref and pointer handlers to its child, which `Select` does not forward. Pass
             the Select directly and the tooltip silently never opens. */}
         <Tooltip content="Keeping a published asset private is a paid capability, so this cannot be lowered on the current plan.">
-          <span className="inline-flex">
+          <span className="flex w-full">
             <Select
               value="viewer"
               onChange={() => undefined}
