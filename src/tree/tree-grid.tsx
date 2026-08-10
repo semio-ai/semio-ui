@@ -235,6 +235,9 @@ export function TreeGrid<T>({
     // Keeps the keyboard cursor mounted so roving focus can cross a window edge.
     pinnedIndex: safeIndex,
     enabled: virtualized && scrollRef !== undefined,
+    // Reported separately so `virtualized` without `scrollRef` is diagnosed rather than
+    // silently downgraded to rendering every row.
+    requested: virtualized,
   });
 
   // Moving the cursor scrolls to it — what keyboard navigation, type-ahead and Home/End

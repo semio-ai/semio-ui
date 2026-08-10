@@ -60,6 +60,19 @@ export interface UseRowWindowOptions {
   pinnedIndex?: number;
   /** When false, the window is the whole list and the spacers are zero. */
   enabled?: boolean;
+  /**
+   * Whether the CALLER asked for windowing, as distinct from whether it can happen.
+   *
+   * A composed grid resolves `enabled` from two things — the consumer's `virtualized`
+   * flag and whether a `scrollRef` was supplied — which silently swallows the most
+   * likely mistake: asking for windowing and forgetting the scroll container leaves
+   * `enabled` false, so nothing is misconfigured from this hook's point of view and no
+   * warning fires. Pass the raw request here and that case gets diagnosed.
+   *
+   * Defaults to `enabled`, so a direct caller that resolves its own condition keeps the
+   * existing behaviour and says nothing new.
+   */
+  requested?: boolean;
 }
 
 export interface RowWindow {
@@ -115,14 +128,25 @@ export function useRowWindow({
   overscan = 6,
   pinnedIndex,
   enabled = true,
+  requested = enabled,
 }: UseRowWindowOptions): RowWindow {
   const [rowHeight, setRowHeight] = useState(estimatedRowHeight);
   const [metrics, setMetrics] = useState({ scrollTop: 0, viewportHeight: 0 });
 
-  // The last scroll offset that produced a re-render, as a row number. Scrolling
-  // within one row's worth of pixels cannot change the window, so this collapses a
-  // stream of scroll events into at most one render per row crossed.
-  const lastRowRef = useRef(-1);
+  // The last scroll offset that produced a re-render, as the row range it resolved to.
+  // Scrolling within one row's worth of pixels cannot change the window, so this
+  // collapses a stream of scroll events into at most one render per row crossed.
+  //
+  // BOTH ends are tracked, not just the first row. The exclusive end is derived with
+  // `ceil`, so a sub-row scroll can move it while the first row stays put: at 20px rows
+  // in a 200px viewport, scrolling 0 → 1px keeps the first row at 0 but takes the end
+  // from 10 to 11. Keyed on the first row alone, that update is coalesced away and the
+  // newly-uncovered row renders as trailing spacer until the next row boundary is
+  // crossed. `overscan` hides it — the default of 6 rows more than covers one row of
+  // drift — which is exactly why it needs stating: the bug is only reachable at
+  // `overscan={0}`, so it would surface as one consumer's blank strip rather than as
+  // anything systematic.
+  const lastWindowRef = useRef({ first: -1, end: -1 });
 
   const effectiveRowHeight = rowHeight > 0 ? rowHeight : estimatedRowHeight;
 
@@ -217,11 +241,30 @@ export function useRowWindow({
     if (enabled && !element && process.env.NODE_ENV !== "production") {
       console.warn(
         "useRowWindow: `enabled` is true but `scrollRef` is not attached to an " +
-          "element, so the list cannot be windowed and every row will render. Pass " +
-          "the ref of the element that scrolls (a `ScrollArea`'s `viewportRef`).",
+          "element, so this list cannot be windowed. It does NOT fall back to " +
+          "rendering every row — with no viewport to measure it keeps the " +
+          "first-paint estimate, so only the first screenful renders and the rest of " +
+          "the list stays behind a spacer that nothing will ever scroll. Pass the ref " +
+          "of the element that scrolls (a `ScrollArea`'s `viewportRef`).",
       );
     }
   }, [scrollRef, enabled]);
+
+  // Asked for, and quietly not happening. The branch above cannot catch this: a grid
+  // resolves `enabled` from `virtualized && scrollRef !== undefined`, so omitting the
+  // scroll container makes `enabled` false and there is nothing left to complain about
+  // — the list simply renders every row, correctly but not as asked, at whatever cost
+  // the consumer was trying to avoid.
+  useEffect(() => {
+    if (requested && !enabled && process.env.NODE_ENV !== "production") {
+      console.warn(
+        "useRowWindow: windowing was requested but is not active, because no scroll " +
+          "container was given. Every row will render. If you are using `ListGrid` or " +
+          "`TreeGrid`, pass `scrollRef` alongside `virtualized` — a `ScrollArea`'s " +
+          "`viewportRef`, or a ref on whichever element has the scrollbar.",
+      );
+    }
+  }, [requested, enabled]);
 
   useLayoutEffect(() => {
     if (!enabled) return;
@@ -231,10 +274,21 @@ export function useRowWindow({
     const read = () => {
       const nextTop = element.scrollTop;
       const nextHeight = element.clientHeight;
-      const row = Math.floor(nextTop / effectiveRowHeight);
+      // The same two numbers the window is derived from below, so a change either end
+      // can register. Deliberately not the clamped/overscanned values — those depend on
+      // `total`, and coalescing must compare like with like across renders.
+      const first = Math.floor(nextTop / effectiveRowHeight);
+      const end = Math.ceil((nextTop + nextHeight) / effectiveRowHeight);
       setMetrics((current) => {
-        if (row === lastRowRef.current && current.viewportHeight === nextHeight) return current;
-        lastRowRef.current = row;
+        const previous = lastWindowRef.current;
+        if (
+          first === previous.first &&
+          end === previous.end &&
+          current.viewportHeight === nextHeight
+        ) {
+          return current;
+        }
+        lastWindowRef.current = { first, end };
         return { scrollTop: nextTop, viewportHeight: nextHeight };
       });
     };

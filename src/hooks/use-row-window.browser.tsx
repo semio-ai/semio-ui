@@ -183,3 +183,26 @@ test("an empty list is an empty window, not a negative one", async () => {
   expect(read(view, "range")).toBe("0-0");
   expect(scroller(view).scrollHeight).toBeLessThanOrEqual(VIEWPORT);
 });
+
+test("a sub-row scroll that uncovers a row is not coalesced away", async () => {
+  // Scroll updates are collapsed to at most one render per row crossed, and the key for
+  // that was the FIRST visible row alone. The exclusive end is derived with `ceil`, so one
+  // pixel of scroll can move it while the first row stays put: at 20px rows in a 200px
+  // viewport, 0 → 1px leaves the first row at 0 and takes the end from 10 to 11. Keyed on
+  // the first row, that update was skipped and row 10 stayed behind the trailing spacer
+  // until the next whole row was crossed.
+  //
+  // `overscan={0}` is what makes it observable — the default of 6 rows of slack covers a
+  // single row of drift — so the defect could only ever have surfaced as one consumer's
+  // blank strip rather than as anything the default configuration would show.
+  const view = render(<Probe total={1_000} overscan={0} />);
+  await settle();
+  expect(read(view, "range")).toBe("0-10");
+  expect(view.container.querySelector('[data-row="10"]')).toBeNull();
+
+  scroller(view).scrollTop = 1;
+  await settle();
+
+  expect(read(view, "range")).toBe("0-11");
+  expect(view.container.querySelector('[data-row="10"]')).not.toBeNull();
+});

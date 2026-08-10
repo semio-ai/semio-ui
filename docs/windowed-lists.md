@@ -268,10 +268,25 @@ Assert that the data-wide behaviour survived: a `Shift+End` range that spans unr
 rows, `End` reaching the real last row, type-ahead finding a match thousands of rows
 away.
 
-The environment note: this package's browser tests run **without the compiled
-stylesheet**, so every Tailwind class in the components is inert. That is fine for
-focus, keyboard and selection, but windowing has real layout claims — uniform row
-heights, and cells aligned on shared column tracks. Inject the handful of rules in
-play (`.h-9 { height: 2.25rem }`, `display: grid`, `grid-template-columns: subgrid`,
-`grid-column: 1 / -1`) rather than assuming; see `list-grid-virtual.browser.tsx` and
-`tree-grid-virtual.browser.tsx`.
+The environment note: most of this package's browser tests run **without the compiled
+stylesheet**, so every Tailwind class in the components is inert. That is fine for focus,
+keyboard and selection — and leaving the stylesheet out of those keeps them from quietly
+coming to depend on paint.
+
+Windowing is the exception, because its claims are about real geometry: uniform row
+heights, and cells aligned on shared column tracks. A layout suite gets the **real**
+stylesheet with one import:
+
+```tsx
+import "../test-stylesheet";
+```
+
+That compiles `make-kit/make.css` — the same entry the shipped `dist/semio-ui.css` is
+built from — so a class resolves in the test to what it resolves to in the product. See
+`list-grid-virtual.browser.tsx` and `tree-grid-virtual.browser.tsx`.
+
+**Do not hand-write stand-in rules** (`.h-9 { height: 2.25rem }` and friends). That is
+what these suites used to do, and such a test can only agree with itself: change `h-9` or
+`grid-cols-subgrid` and the stand-in keeps passing while the product breaks. Spacer-based
+positioning is exactly the kind of thing that satisfies a DOM assertion while being
+visibly wrong on screen, which is why the geometry has to be the real one.
