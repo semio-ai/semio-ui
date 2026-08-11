@@ -60,6 +60,20 @@ const settle = async () => {
   }
 };
 
+/**
+ * Wait for a condition, up to a bound.
+ *
+ * The remeasure this file is about is delivered by a `ResizeObserver`, which is a
+ * notification the test cannot schedule against — a fixed number of frames is a guess at
+ * how long it takes, and under a loaded machine it is the wrong guess a few percent of the
+ * time. Returns rather than asserts, so a condition that never arrives still fails on the
+ * real assertion below instead of on a timeout message.
+ */
+const waitFor = async (condition: () => boolean, timeoutMs = 2_000) => {
+  const deadline = performance.now() + timeoutMs;
+  while (!condition() && performance.now() < deadline) await settle();
+};
+
 test("a row height that only settles once styles arrive is picked up", async () => {
   const view = render(<Harness />);
   await settle();
@@ -76,19 +90,29 @@ test("a row height that only settles once styles arrive is picked up", async () 
   expect(unstyledHeight).toBeGreaterThan(0);
   expect(unstyledHeight).toBeLessThan(30);
 
-  // Styles arrive after the fact, exactly as the CI run had them.
+  // Styles arrive after the fact, exactly as the CI run had them. When they actually take
+  // effect is up to the browser, so the row is watched for until it is no longer a bare
+  // line box — a stylesheet that never applies still fails on the assertion below.
   await import("../test-stylesheet");
-  await settle();
+  const firstRow = () => view.container.querySelector<HTMLElement>('[role="option"]')!;
+  await waitFor(() => firstRow().getBoundingClientRect().height > 30);
 
-  const styledHeight = view.container
-    .querySelector<HTMLElement>('[role="option"]')!
-    .getBoundingClientRect().height;
+  const styledHeight = firstRow().getBoundingClientRect().height;
   expect(styledHeight).toBeCloseTo(36, 0);
 
   // The window must now be computed from the real height. Before the fix it kept the
   // 18px measurement, so this scroll landed on row 1000 and the assertion below failed.
+  //
+  // Waited for rather than counted in frames, and deliberately waited for THIS condition
+  // rather than for the row height to land first. The remeasure reaches the window by two
+  // routes — a `ResizeObserver` on the observed row, and `measureRef` re-attaching when the
+  // window moves — and only the second is under the test's control: a browser is free to
+  // defer observer delivery, so a list that is still internally at 18px when the scroll is
+  // issued corrects itself on the commit that scroll causes. Waiting for the row is
+  // therefore both the honest end state and the reachable one; waiting for the height
+  // first could sit on a notification that never comes while the list was fine.
   scroller.scrollTop = 500 * styledHeight;
-  await settle();
+  await waitFor(() => rowOf(500) !== undefined);
   expect(rowOf(500)).toBeDefined();
 
   // …and the content is as tall as the styled list, so the scrollbar tells the truth.
