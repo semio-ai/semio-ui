@@ -428,6 +428,23 @@ export function ListGrid<T>({
     ],
   );
 
+  // Keys that arrive with focus parked on the container rather than on a row.
+  //
+  // A windowed list can be mid-scroll towards the cursor's row, with the row the user was
+  // standing on already unmounted and the new one not yet mounted; `TreeNavRoot` holds
+  // focus on itself for those few milliseconds rather than letting it fall to the body.
+  // Answering against the CURSOR's row is what makes that interval invisible — the
+  // alternative is dropping the keystroke, which is how a type-ahead query used to lose
+  // characters while the list was catching up with it.
+  const handleRootKeyDown = useCallback(
+    (event: KeyboardEvent<HTMLElement>) => {
+      if (event.target !== event.currentTarget) return; // a row handled it
+      const id = order[safeIndex];
+      if (id !== undefined) handleRowKeyDown(event, id);
+    },
+    [order, safeIndex, handleRowKeyDown],
+  );
+
   const handleRowClick = useCallback(
     (event: MouseEvent<HTMLElement>, id: string) => {
       if (isDisabled(id)) return;
@@ -606,6 +623,7 @@ export function ListGrid<T>({
       // tab stop, so the first rendered row carries it and the list stays reachable by
       // Tab. Focusing it moves the cursor there, which is what the user meant.
       tabStopIndex={rowWindow.pinnedIndexInWindow ? safeIndex : rowWindow.start}
+      onKeyDown={handleRootKeyDown}
       loop={loop}
       // Keep roving focus moving while these are held so selection-follows-focus
       // (Shift = range, Cmd/Ctrl = focus-only) works on modified arrows; the
