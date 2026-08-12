@@ -1,4 +1,4 @@
-import { useMemo, useRef } from "react";
+import { useEffect, useLayoutEffect, useMemo, useReducer, useRef, type RefObject } from "react";
 import { expect, test, vi } from "vitest";
 import { render } from "vitest-browser-react";
 import { userEvent } from "@vitest/browser/context";
@@ -272,6 +272,101 @@ test("End moves the cursor and the selection to the last row in the data", async
   );
   expect(last).toBeDefined();
   expect(document.activeElement).toBe(last);
+});
+
+/**
+ * A later sibling of the list, re-rendered by the same scroll event that moves the window.
+ *
+ * React runs layout effects child-before-parent and in tree order, so this one runs at the
+ * END of the very commit that swapped the window — after everything the list does in its
+ * own layout phase. That makes "by the time this commit finished" an observable moment,
+ * which is the only way to state the invariant below without a wall-clock threshold that
+ * would really be measuring how loaded the machine is.
+ */
+function CommitProbe({
+  scrollRef,
+  onCommit,
+}: {
+  scrollRef: RefObject<HTMLElement | null>;
+  onCommit: () => void;
+}) {
+  const [, rerender] = useReducer((n: number) => n + 1, 0);
+  useEffect(() => {
+    const element = scrollRef.current;
+    if (!element) return;
+    const onScroll = () => {
+      rerender();
+    };
+    element.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      element.removeEventListener("scroll", onScroll);
+    };
+  }, [scrollRef]);
+  useLayoutEffect(() => {
+    onCommit();
+  });
+  return null;
+}
+
+test("a cursor move that unmounts the focused row never ends the commit on the body", async () => {
+  // Moving the cursor across the window brings its row in and takes the OLD focused row
+  // out — and removing the focused element drops focus to `document.body`. Whatever puts
+  // focus back has to do it within that same commit, because while focus sits on the body
+  // the list is not listening and any keystroke that arrives is delivered to the body and
+  // silently discarded. Not theoretical: that is how the type-ahead test below lost the
+  // last character of `r7000` on a loaded CI machine, leaving the cursor a keystroke short
+  // at row 700 — a ~10ms hole between the removal and a restore that ran after paint.
+  let removedFocusedRow = false;
+  let removals = 0;
+  let commitsEndingOnBody = 0;
+
+  function ProbedHarness() {
+    const scrollRef = useRef<HTMLDivElement>(null);
+    const rows = useMemo(() => makeRows(10_000), []);
+    return (
+      <div style={{ width: 800 }}>
+        <div ref={scrollRef} style={{ height: VIEWPORT, overflowY: "auto" }} data-testid="scroller">
+          <ListGrid
+            data={rows}
+            getRowId={(r) => r.id}
+            columns={COLUMNS}
+            size={Size.Md}
+            virtualized
+            scrollRef={scrollRef}
+            selectionMode="single"
+            ariaLabel="Virtual list"
+          />
+          <CommitProbe
+            scrollRef={scrollRef}
+            onCommit={() => {
+              if (!removedFocusedRow) return;
+              removedFocusedRow = false;
+              if (document.activeElement === document.body) commitsEndingOnBody++;
+            }}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  const view = render(<ProbedHarness />);
+  await settle();
+  options(view)[0].focus();
+
+  const onFocusOut = (event: Event) => {
+    // A null `relatedTarget` means focus went nowhere — the element was removed.
+    if ((event as FocusEvent).relatedTarget) return;
+    removals++;
+    removedFocusedRow = true;
+  };
+  document.addEventListener("focusout", onFocusOut, true);
+  await userEvent.keyboard("{End}");
+  await settle();
+  document.removeEventListener("focusout", onFocusOut, true);
+
+  // The scenario really happened — without this the assertion below is vacuously true.
+  expect(removals).toBeGreaterThan(0);
+  expect(commitsEndingOnBody).toBe(0);
 });
 
 test("a shift-range spans rows that were never rendered", async () => {

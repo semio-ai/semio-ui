@@ -180,3 +180,57 @@ test("the row reports the list's size, not the window's", () => {
   const view = render(<WindowedNav />);
   expect(rowByText(view, 0)!.getAttribute("aria-setsize")).toBe(String(TOTAL));
 });
+
+/**
+ * Cursor and rendered slice controlled independently, so the gap between "the cursor
+ * moved to a row that is not mounted" and "that row finally mounts" can be held open
+ * for as long as a test likes. `WindowedNav` above cannot express it: it derives its
+ * window from the cursor, so the cursor's row is always present.
+ */
+function DetachedWindowNav({ cursorIndex, rendered }: { cursorIndex: number; rendered: number[] }) {
+  return (
+    <div>
+      <button type="button" data-testid="outside">
+        outside
+      </button>
+      <TreeNavRoot
+        role="listbox"
+        ariaLabel="detached"
+        highlightedIndex={cursorIndex}
+        onHighlightedIndexChange={() => undefined}
+        total={TOTAL}
+      >
+        {rendered.map((index) => (
+          <TreeNavItem key={index} index={index} role="option" ariaSetSize={TOTAL}>
+            <span>row {index}</span>
+          </TreeNavItem>
+        ))}
+      </TreeNavRoot>
+    </div>
+  );
+}
+
+test("focus owed to an unmounted row is cancelled when the user leaves the list", () => {
+  // The debt outlives the render that incurred it — deliberately, because the row it is
+  // owed to usually arrives a commit or two later once the list has scrolled to it. What
+  // must not outlive the user: if they have gone somewhere else in the meantime, the row
+  // mounting is not permission to drag them back. Reachable without a race whenever the
+  // row does not mount promptly — the cursor jumped clear of the window, the list
+  // re-filtered — since a mouse-scroll much later is enough to bring it in.
+  const view = render(<DetachedWindowNav cursorIndex={0} rendered={[0, 1, 2, 3]} />);
+  rowByText(view, 0)!.focus();
+  expect(document.activeElement).toBe(rowByText(view, 0));
+
+  // Cursor moves to a row that is not mounted: focus is now owed to row 500.
+  view.rerender(<DetachedWindowNav cursorIndex={500} rendered={[0, 1, 2, 3]} />);
+
+  // The user leaves for something else entirely, with the debt still outstanding.
+  const outside = view.container.querySelector<HTMLElement>('[data-testid="outside"]')!;
+  outside.focus();
+  expect(document.activeElement).toBe(outside);
+
+  // Row 500 arrives. It must not take focus off what the user is actually using.
+  view.rerender(<DetachedWindowNav cursorIndex={500} rendered={[499, 500, 501]} />);
+  expect(rowByText(view, 500)).toBeDefined();
+  expect(document.activeElement).toBe(outside);
+});
