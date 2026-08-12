@@ -167,14 +167,24 @@ export function TreeNavRoot({
   );
 
   // Whether the keyboard is "in" this list, so a cursor move made while the user was
-  // somewhere else entirely never pulls focus in.
+  // somewhere else entirely never pulls focus in, and the row that focus is owed to once
+  // the list catches up with the cursor (see the effects below). Declared together
+  // because leaving the list has to cancel the debt, which is `handleFocusOut`'s job.
   const hasFocusRef = useRef(false);
+  const owedFocusRef = useRef<number | null>(null);
   const handleFocusIn = useCallback(() => {
     hasFocusRef.current = true;
   }, []);
   const handleFocusOut = useCallback((event: FocusEvent<HTMLElement>) => {
     const next = event.relatedTarget;
-    if (next && !event.currentTarget.contains(next)) hasFocusRef.current = false;
+    if (next && !event.currentTarget.contains(next)) {
+      hasFocusRef.current = false;
+      // Cancel any focus still owed to a row. Leaving it set would let a row that mounts
+      // long afterwards pull focus back out of wherever the user went; a null
+      // `relatedTarget` — the removal case — deliberately does not reach here, because
+      // that debt is still owed.
+      owedFocusRef.current = null;
+    }
   }, []);
 
   // Hand focus to the cursor's row once that row exists.
@@ -218,13 +228,18 @@ export function TreeNavRoot({
   // and because keys aimed at a row (Space, Enter) would act on the wrong one. Keys that
   // land on the root still reach the consumer through `onKeyDown`, which is what lets
   // `ListGrid` answer them against the CURSOR's row rather than the focused element's.
-  const owedFocusRef = useRef<number | null>(null);
   const lastIndexRef = useRef(highlightedIndex);
   const rootRef = useRef<HTMLDivElement>(null);
 
   /** Focus the owed row if it exists, else park on the root so keys stay in the list. */
   const settleFocus = useCallback(
     (owed: number) => {
+      // Guards BOTH halves, and belongs above them. A debt owed to a row is owed to a
+      // keyboard that is still here: once the user has gone elsewhere, delivering it later
+      // is not finishing the job, it is dragging them back. That case is reachable because
+      // the debt outlives the render that incurred it — the row may mount minutes later,
+      // when a mouse-scroll happens to bring it into the window.
+      if (!hasFocusRef.current) return;
       const target = elementsRef.current[owed];
       if (target) {
         owedFocusRef.current = null;
@@ -239,11 +254,7 @@ export function TreeNavRoot({
       // real bug — focus is legitimately elsewhere all the time, most sharply in a dialog
       // this list just opened, and a list whose data changes underneath it (a delete
       // confirmed in that dialog) moves its cursor and would reclaim focus mid-confirmation.
-      // `hasFocusRef` is the second half of the same question: it stays true through a
-      // removal, whose `focusout` carries no `relatedTarget`, and goes false the moment
-      // focus deliberately leaves for somewhere else.
       const active = document.activeElement;
-      if (!hasFocusRef.current) return;
       if (active !== null && active !== document.body) return;
       root.focus({ preventScroll: true });
     },
