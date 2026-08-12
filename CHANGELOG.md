@@ -1,5 +1,17 @@
 # @semio/ui
 
+## 0.2.1
+
+### Patch Changes
+
+- f0a936f: A windowed `ListGrid`/`TreeGrid` no longer drops keystrokes while it scrolls to the cursor, and no longer reclaims focus from wherever the user has gone.
+
+  Moving the keyboard cursor slides the window to follow it, which unmounts the row the user is standing on — and removing the focused element drops focus to `document.body`, where the list is not listening. Every keystroke arriving before focus was restored was delivered to the body and silently discarded. Typing a type-ahead query is the case that shows it: each character moves the cursor further than the list has scrolled, so `r7000` lost its last character and left the cursor at row 700.
+
+  Focus is now restored during the layout phase, so a removal and the refocus answering it happen in one commit with no chance for the event loop to interleave. That alone is not enough — when the cursor moves faster than the list can scroll, the row focus is owed to is not the row that commit is mounting — so when the owed row is absent the list's own container takes focus until it arrives, and keys that land there are answered against the cursor's row. `TreeNavRoot`'s element is now programmatically focusable (`tabIndex={-1}`) for that purpose; it is still never a tab stop, which remains a row's job.
+
+  Two ways focus could be taken from somewhere it belonged are fixed with it. Focus is only reclaimed when it was _lost_ — the body ended up with it because the element holding it was removed — rather than whenever it is merely outside the list, which had a list reclaiming focus from a dialog it had just opened as its own data changed underneath it. And focus owed to a row that has not mounted yet is cancelled when the keyboard leaves the list, so a row mounting long afterwards no longer pulls the user back out of whatever they moved on to.
+
 ## 0.2.0
 
 ### Minor Changes
