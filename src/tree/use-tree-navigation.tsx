@@ -239,10 +239,19 @@ export function TreeNavRoot({
       }
       owedFocusRef.current = owed;
       const root = rootRef.current;
-      // Only when focus has actually escaped. If it is still on a row — the common case,
-      // where the cursor has moved but the window has not yet dropped the old row — that
-      // row is a better place to be than the root, and moving it would be focus theft.
-      if (root && !root.contains(document.activeElement)) root.focus({ preventScroll: true });
+      if (!root) return;
+      // Narrowly: only when focus was LOST, meaning the body ended up with it because the
+      // element holding it was removed. "Not inside this list" is the wrong test and was a
+      // real bug — focus is legitimately elsewhere all the time, most sharply in a dialog
+      // this list just opened, and a list whose data changes underneath it (a delete
+      // confirmed in that dialog) moves its cursor and would reclaim focus mid-confirmation.
+      // `hasFocusRef` is the second half of the same question: it stays true through a
+      // removal, whose `focusout` carries no `relatedTarget`, and goes false the moment
+      // focus deliberately leaves for somewhere else.
+      const active = document.activeElement;
+      if (!hasFocusRef.current) return;
+      if (active !== null && active !== document.body) return;
+      root.focus({ preventScroll: true });
     },
     [elementsRef],
   );
