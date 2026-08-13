@@ -27,24 +27,49 @@ export function PanelContent({ region }: { region: PaneRegion }) {
           // particular, so it scales instead — whether it got there by spanning
           // (`expanded`) or by collapsing the content track (`size: "full"`).
           const variants = getVariants(region, pane.expanded === true || pane.size === "full");
+          const collapsed = pane.collapsed === true;
+          // Collapsing gives up space along ONE axis — the footer's height, a side
+          // pane's width — and looks like leaving while it does it.
+          //
+          // Expressed as an animation target rather than an inline size, so it runs
+          // on the same transition the pane already enters and exits on. Zeroing the
+          // size inline instead made collapsing the one way out of a region that
+          // snapped, while unregistering — the thing collapsing replaces — still
+          // animated. Same intent, visibly different, which reads as a glitch rather
+          // than a choice.
+          //
+          // Collapsing gives up space along ONE axis — the footer's height, a side
+          // pane's width — and it animates, because it stands in for unregistering
+          // and has to read as the same act. Zeroing the size outright made the one
+          // way out of a region that snapped while every other one animated.
+          //
+          // Motion rather than a CSS transition, and `auto` rather than `100%`, for
+          // the footer: its row is sized by the pane's own content, so `h-full`
+          // resolves to `auto` — and CSS cannot interpolate `auto` to a length,
+          // which is why declaring a transition on it silently does nothing. Motion
+          // measures the element and tweens between pixels. A side pane's track is
+          // definite, so `100%` is a real length there.
+          const axis = region === PaneRegion.Footer ? "height" : "width";
+          const openSize = region === PaneRegion.Footer ? "auto" : "100%";
+          const target = collapsed
+            ? { ...variants[0], [axis]: 0 }
+            : { ...variants[1], [axis]: openSize };
           return (
             <motion.div
               // layout
               key={pane.id}
               initial={variants[0]}
-              animate={variants[1]}
+              animate={target}
               exit={variants[0]}
               transition={{ duration: 0.15, ease: "easeInOut" }}
-              // Collapsed: no size, no hit target, not announced — but still
-              // rendered, so its state and anything expensive inside it survive.
-              // Set inline rather than as a utility class so it beats the sizing
-              // classes below deterministically, whatever order they emit in.
-              style={pane.collapsed ? { height: 0, width: 0 } : undefined}
-              aria-hidden={pane.collapsed ? true : undefined}
-              inert={pane.collapsed ? true : undefined}
+              // Unreachable from the moment it is asked to collapse, rather than when
+              // the animation lands: it is on its way out either way, and something
+              // already fading should not still be focusable.
+              aria-hidden={collapsed ? true : undefined}
+              inert={collapsed ? true : undefined}
               className={clsx(
                 "relative w-full",
-                pane.collapsed ? "pointer-events-none" : "pointer-events-auto",
+                collapsed ? "pointer-events-none" : "pointer-events-auto",
                 "responsive card-transparent h-full overflow-clip rounded-md",
                 // Every pane is a query container, NAMED so nested containers in
                 // pane content stay unambiguous: `@[800px]/pane:` asks about the

@@ -50,6 +50,27 @@ const footerGap = (): string => {
 const body = (): HTMLElement | null => el("[data-testid='footer-body']");
 
 /**
+ * Records the footer row's height every frame for long enough to cover the
+ * collapse, starting immediately — so it is already sampling when the click that
+ * begins the animation lands.
+ */
+function sampleFooterHeights(): Promise<number[]> {
+  const heights: number[] = [];
+  return new Promise((resolve) => {
+    const deadline = performance.now() + 400;
+    const tick = () => {
+      heights.push(heightOf(".grid-area-footer"));
+      if (performance.now() < deadline) {
+        requestAnimationFrame(tick);
+      } else {
+        resolve(heights);
+      }
+    };
+    requestAnimationFrame(tick);
+  });
+}
+
+/**
  * Stands in for the animation panel: viewer-produced state that lives in the
  * content rather than the pane spec, and a mount that is not free to repeat.
  */
@@ -150,7 +171,15 @@ test("a collapsed pane gives up its space but keeps its content mounted", async 
   await userEvent.click(page.getByRole("button", { name: "edit note" }));
   await expect.poll(() => body()?.dataset.note).toBe("edited");
 
+  // Collapsing stands in for unregistering, so it has to LOOK like it too. Sampled
+  // rather than asserted on a declaration, because a declaration can be perfectly
+  // correct and still animate nothing: a CSS transition on `height` cannot
+  // interpolate the `auto` this row resolves to, so it silently snaps while
+  // reporting a 150ms duration. Only the intermediate sizes prove otherwise.
+  const sampler = sampleFooterHeights();
   await userEvent.click(page.getByRole("button", { name: "toggle collapse" }));
+  const midFlight = await sampler;
+  expect(midFlight.some((height) => height > 0 && height < FOOTER_HEIGHT)).toBe(true);
 
   // No size, no hit target, not announced — and the region stops holding its gap
   // open, so the layout does not keep a strip of padding for something with none.

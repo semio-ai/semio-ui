@@ -12,6 +12,7 @@ import {
   useLayoutActions,
   useLayoutState,
   usePanes,
+  type LayoutActions,
 } from "@semio/ui";
 
 /**
@@ -57,6 +58,7 @@ interface Probe {
   /** Live geometry of the elements placed into those tracks. */
   leftRect: Rect;
   contentRect: Rect;
+  footerHeight: number;
   viewportWidth: number;
 }
 
@@ -67,6 +69,7 @@ const NO_PROBE: Probe = {
   footerGap: "",
   leftRect: NO_RECT,
   contentRect: NO_RECT,
+  footerHeight: 0,
   viewportWidth: 0,
 };
 
@@ -104,6 +107,7 @@ function useLayoutProbe(): Probe {
         footerGap: styles.getPropertyValue("--content-footer-gap").trim(),
         leftRect: rectOf(rootElement.querySelector(".grid-area-left")),
         contentRect: rectOf(rootElement.querySelector(".grid-area-content")),
+        footerHeight: rectOf(rootElement.querySelector(".grid-area-footer")).height,
         viewportWidth: Math.round(window.innerWidth),
       };
       const serialized = JSON.stringify(next);
@@ -190,38 +194,86 @@ function ContentArea({
  */
 const HEADER_SPACER = [{ id: "spacer", type: "toolbar-spacer" as const }];
 
+/**
+ * Registering panes REPLACES whatever is registered, and each story clears up
+ * after itself on unmount.
+ *
+ * Panes live in a store scoped to the module, not to any one `LayoutRoot` — which
+ * is right for an app, where one layout outlives every surface that registers into
+ * it, and where a surface unregisters on unmount (the studio's `use-selection-pane`
+ * does exactly this). Storybook swaps stories without reloading the module, so
+ * stories that only ever added panes accumulated the previous story's as well.
+ */
+const REPLACE = true;
+
+function clearLayout(
+  setPanes: LayoutActions["setPanes"],
+  setToolbarItems: LayoutActions["setToolbarItems"],
+): void {
+  setPanes([], REPLACE);
+  setToolbarItems([], REPLACE);
+}
+
+function AnimationPanel(): ReactNode {
+  return (
+    <div className="bg-tertiary-500/20 flex h-32 w-full items-end p-3 text-xs">
+      Animation panel — yields its row while the sidebar is expanded, without
+      unmounting.
+    </div>
+  );
+}
+
 /* -------------------------------------------------------------------------- */
 /* 1. Expanding a side pane over the content                                   */
 /* -------------------------------------------------------------------------- */
 
 const EXPAND_PANE_ID = "assets";
 const EXPAND_PANE_WIDTH = "280px";
+const ANIMATION_PANE_ID = "animation";
 
 function ExpandingSidebarApp(): ReactNode {
-  const { setPane, setToolbarItems, togglePaneRegion } = useLayoutActions();
+  const { setPanes, setToolbarItems, togglePaneRegion } = useLayoutActions();
 
   useEffect(() => {
     setToolbarItems(HEADER_SPACER, true);
-    setPane({
-      id: EXPAND_PANE_ID,
-      name: "Assets",
-      icon: <Icon name="square" />,
-      size: EXPAND_PANE_WIDTH,
-      region: PaneRegion.Left,
-      inLeftMenu: true,
-      inRightMenu: false,
-      content: <ExpandingPaneContent />,
-    });
-    setPane({
-      id: "inspector",
-      name: "Inspector",
-      icon: <Icon name="square" />,
-      size: "240px",
-      inLeftMenu: false,
-      inRightMenu: true,
-      content: <div className="bg-info-500/20 h-full w-full p-3 text-xs">Detail pane</div>,
-    });
-  }, [setPane, setToolbarItems]);
+    setPanes(
+      [
+        {
+          id: EXPAND_PANE_ID,
+          name: "Assets",
+          icon: <Icon name="square" />,
+          size: EXPAND_PANE_WIDTH,
+          region: PaneRegion.Left,
+          inLeftMenu: true,
+          inRightMenu: false,
+          content: <ExpandingPaneContent />,
+        },
+        {
+          id: "inspector",
+          name: "Inspector",
+          icon: <Icon name="square" />,
+          size: "240px",
+          inLeftMenu: false,
+          inRightMenu: true,
+          content: <div className="bg-info-500/20 h-full w-full p-3 text-xs">Detail pane</div>,
+        },
+        {
+          id: ANIMATION_PANE_ID,
+          name: "Animation",
+          icon: <Icon name="square" />,
+          size: "auto",
+          region: PaneRegion.Footer,
+          inLeftMenu: false,
+          inRightMenu: false,
+          content: <AnimationPanel />,
+        },
+      ],
+      REPLACE,
+    );
+    return () => {
+      clearLayout(setPanes, setToolbarItems);
+    };
+  }, [setPanes, setToolbarItems]);
 
   // The right pane starts closed so the story opens on the ordinary arrangement;
   // opening it is what shows the span stopping at the right region rather than
@@ -245,12 +297,21 @@ function ExpandingSidebarApp(): ReactNode {
 
 function ExpandingPaneContent(): ReactNode {
   const panes = usePanes();
-  const { setPane } = useLayoutActions();
+  const { setPanes } = useLayoutActions();
   const expanded = panes.find((pane) => pane.id === EXPAND_PANE_ID)?.expanded === true;
 
+  // The whole rearrangement, as one write. Browsing takes the room between the
+  // menu and the detail pane, and the animation panel gives up its row for as long
+  // as that lasts — one intent, so one write, and it must not be possible for half
+  // of it to happen. The panel is COLLAPSED rather than unregistered, so the height
+  // the viewer dragged and everything mounted inside it come back untouched.
   const toggle = useCallback(() => {
-    setPane({ id: EXPAND_PANE_ID, expanded: !expanded });
-  }, [expanded, setPane]);
+    const next = !expanded;
+    setPanes([
+      { id: EXPAND_PANE_ID, expanded: next },
+      { id: ANIMATION_PANE_ID, collapsed: next },
+    ]);
+  }, [expanded, setPanes]);
 
   return (
     <div className="bg-secondary-500/20 flex h-full w-full flex-col gap-2 p-3">
@@ -290,6 +351,7 @@ function ExpandingReadout({
   const { leftExpanded, rightRegionActive } = useLayoutState();
   const panes = usePanes();
   const expanded = panes.find((pane) => pane.id === EXPAND_PANE_ID)?.expanded === true;
+  const animationCollapsed = panes.find((pane) => pane.id === ANIMATION_PANE_ID)?.collapsed === true;
 
   // The width the content track resolves to while nothing is expanded, kept only
   // so the story can show the restore lands back on it. The LIBRARY remembers
@@ -347,6 +409,15 @@ function ExpandingReadout({
           detail={String(leftExpanded)}
         />
         <Check
+          label="Animation panel yields with the expansion"
+          ok={animationCollapsed === expanded}
+          detail={
+            animationCollapsed
+              ? `row ${probe.footerHeight.toString()}px, gap ${probe.footerGap}`
+              : `row ${probe.footerHeight.toString()}px`
+          }
+        />
+        <Check
           label="Restore needs no remembered width"
           ok={expanded || restingRef.current === measuredWidth}
           detail={
@@ -388,7 +459,7 @@ let footerMountCount = 0;
 const FOOTER_PANE_ID = "timeline";
 
 function CollapsingFooterApp(): ReactNode {
-  const { setPane, setToolbarItems, removePane } = useLayoutActions();
+  const { setPane, setPanes, setToolbarItems, removePane } = useLayoutActions();
   const panes = usePanes();
   const footer = panes.find((pane) => pane.id === FOOTER_PANE_ID);
 
@@ -407,19 +478,36 @@ function CollapsingFooterApp(): ReactNode {
   }, [setPane]);
 
   useEffect(() => {
-    register();
     setToolbarItems(HEADER_SPACER, true);
-    setPane({
-      id: "browser",
-      name: "Browser",
-      icon: <Icon name="square" />,
-      size: "240px",
-      region: PaneRegion.Left,
-      inLeftMenu: true,
-      inRightMenu: false,
-      content: <div className="bg-secondary-500/20 h-full w-full p-3 text-xs">Left pane</div>,
-    });
-  }, [register, setPane, setToolbarItems]);
+    setPanes(
+      [
+        {
+          id: FOOTER_PANE_ID,
+          name: "Timeline",
+          icon: <Icon name="square" />,
+          size: "auto",
+          region: PaneRegion.Footer,
+          inLeftMenu: false,
+          inRightMenu: false,
+          content: <ExpensiveFooterContent />,
+        },
+        {
+          id: "browser",
+          name: "Browser",
+          icon: <Icon name="square" />,
+          size: "240px",
+          region: PaneRegion.Left,
+          inLeftMenu: true,
+          inRightMenu: false,
+          content: <div className="bg-secondary-500/20 h-full w-full p-3 text-xs">Left pane</div>,
+        },
+      ],
+      REPLACE,
+    );
+    return () => {
+      clearLayout(setPanes, setToolbarItems);
+    };
+  }, [setPanes, setToolbarItems]);
 
   const collapse = useCallback(() => {
     setPane({ id: FOOTER_PANE_ID, collapsed: footer?.collapsed !== true });
@@ -569,42 +657,50 @@ export const CollapsingFooter: Story = {
 /* -------------------------------------------------------------------------- */
 
 function BatchWriteApp(): ReactNode {
-  const { setPane, setPanes, setToolbarItems } = useLayoutActions();
+  const { setPanes, setToolbarItems } = useLayoutActions();
   const panes = usePanes();
 
   useEffect(() => {
     setToolbarItems(HEADER_SPACER, true);
-    setPane({
-      id: "left",
-      name: "Left",
-      icon: <Icon name="square" />,
-      size: "240px",
-      region: PaneRegion.Left,
-      inLeftMenu: true,
-      inRightMenu: false,
-      content: <div className="bg-secondary-500/20 h-full w-full p-3 text-xs">Left</div>,
-    });
-    setPane({
-      id: "right",
-      name: "Right",
-      icon: <Icon name="square" />,
-      size: "240px",
-      region: PaneRegion.Right,
-      inLeftMenu: false,
-      inRightMenu: true,
-      content: <div className="bg-info-500/20 h-full w-full p-3 text-xs">Right</div>,
-    });
-    setPane({
-      id: "footer",
-      name: "Footer",
-      icon: <Icon name="square" />,
-      size: "auto",
-      region: PaneRegion.Footer,
-      inLeftMenu: false,
-      inRightMenu: false,
-      content: <div className="bg-tertiary-500/20 h-20 w-full p-3 text-xs">Footer</div>,
-    });
-  }, [setPane, setToolbarItems]);
+    setPanes(
+      [
+        {
+          id: "left",
+          name: "Left",
+          icon: <Icon name="square" />,
+          size: "240px",
+          region: PaneRegion.Left,
+          inLeftMenu: true,
+          inRightMenu: false,
+          content: <div className="bg-secondary-500/20 h-full w-full p-3 text-xs">Left</div>,
+        },
+        {
+          id: "right",
+          name: "Right",
+          icon: <Icon name="square" />,
+          size: "240px",
+          region: PaneRegion.Right,
+          inLeftMenu: false,
+          inRightMenu: true,
+          content: <div className="bg-info-500/20 h-full w-full p-3 text-xs">Right</div>,
+        },
+        {
+          id: "footer",
+          name: "Footer",
+          icon: <Icon name="square" />,
+          size: "auto",
+          region: PaneRegion.Footer,
+          inLeftMenu: false,
+          inRightMenu: false,
+          content: <div className="bg-tertiary-500/20 h-20 w-full p-3 text-xs">Footer</div>,
+        },
+      ],
+      REPLACE,
+    );
+    return () => {
+      clearLayout(setPanes, setToolbarItems);
+    };
+  }, [setPanes, setToolbarItems]);
 
   const left = panes.find((pane) => pane.id === "left");
   const footer = panes.find((pane) => pane.id === "footer");
