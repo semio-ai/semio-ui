@@ -179,6 +179,38 @@ export interface PaneSpec {
   inRightMenu: boolean;
   disabled?: boolean;
   region?: PaneRegion;
+  /**
+   * Take the content area's space as well as this pane's own, by spanning onto it.
+   *
+   * Deliberately separate from {@link size} rather than a `size: "full"` value:
+   * `size` keeps describing how wide the pane is when it is NOT expanded, so
+   * restoring needs no remembered width, and the content track keeps computing its
+   * natural size the whole time a pane covers it. That is what keeps the measured
+   * content rect live and truthful under expansion. Collapsing the content track
+   * instead — which is what `size: "full"` does — reports a zero-width rect to
+   * consumers that frame themselves from it, and leaves nothing to restore to if
+   * the window is resized while expanded.
+   *
+   * The pane spans the grid rather than resizing tracks, so the opposite region is
+   * untouched: an expanded left pane reaches the right sidebar and stops there.
+   */
+  expanded?: boolean;
+  /**
+   * Take no space, but stay mounted.
+   *
+   * The way to free a region's space used to be removing the pane, which unmounts
+   * its content — and content does not always come back cheaply or identically. The
+   * studio's animation panel is the case that forced this: its height lives in its
+   * own state, so unregistering it lost the height the viewer had dragged, and
+   * remounting re-created an R3F canvas that measures its container on mount and
+   * can latch onto a mid-cascade size.
+   *
+   * Collapsing instead makes that a RESIZE — the path a resizable pane already
+   * exercises on every drag — rather than a mount. The pane keeps its state, comes
+   * back the size it was, and content that can idle while it has no size should,
+   * the same way an occupant of a covered content area should.
+   */
+  collapsed?: boolean;
   shouldClose?: boolean;
   /**
    * When this pane was most recently opened into a side region, as a counter.

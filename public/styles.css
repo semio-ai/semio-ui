@@ -1255,6 +1255,38 @@
     .grid-area-footer {
       grid-area: footer;
     }
+
+    /* An expanded side pane SPANS onto the content column, instead of the content
+       track collapsing to make room for it.
+
+       The tracks are left exactly as they are, which is the whole point: the
+       content cell keeps its natural width, so the rect measured from it stays
+       live and truthful while a pane covers it. A restore needs no remembered
+       width, and resizing the window mid-expansion just works. Collapsing the
+       track instead — what a legacy `size: "full"` pane does — reports zero width
+       to whatever frames itself from that rect.
+
+       The span stops at the opposite region's line, so an expanded left pane
+       reaches the right sidebar and no further; the gap column between left and
+       content is absorbed into the span rather than left showing through.
+
+       `&.` and not a descendant: the expansion classes are emitted on the layout
+       root itself, which is also the `.app-layout` this block is nested in. Written
+       as `.left-sidebar-full .grid-area-left` these compile to a descendant chain
+       that asks for an `.app-layout` ANCESTOR, and match nothing.
+
+       Scoped to the wide grid, which is the only one naming `left`/`right` areas
+       and therefore the only one where these line names resolve. Narrow, the side
+       regions share one row and nothing renders `.grid-area-left` at all. */
+    @variant desktop {
+      &.left-sidebar-full .grid-area-left {
+        grid-column: left-start / content-end;
+      }
+
+      &.right-sidebar-full .grid-area-right {
+        grid-column: content-start / right-end;
+      }
+    }
   }
 
   .tooltip-content {

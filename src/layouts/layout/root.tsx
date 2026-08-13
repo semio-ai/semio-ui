@@ -14,7 +14,16 @@ import { Header } from "./header";
 
 export interface LayoutRootProps {
   className?: string;
-  children?: ReactNode | ((contentBounds: RectReadOnly) => ReactNode);
+  /**
+   * The content area's occupant, as a node or as a function of the measured
+   * content cell.
+   *
+   * `contentVisible` is false while a pane covers the content — see
+   * `contentVisibleAtom`. `contentBounds` stays truthful either way, so this
+   * second argument is only worth reading by an occupant that can idle while it
+   * cannot be seen; one that ignores it stays correct.
+   */
+  children?: ReactNode | ((contentBounds: RectReadOnly, contentVisible: boolean) => ReactNode);
   homeIcon?: IconValue;
   homeText?: string;
   homeClassName?: string;
@@ -45,6 +54,9 @@ function InnerLayoutRoot({
     leftRegionActive,
     footerRegionActive,
     rightRegionActive,
+    leftExpanded,
+    rightExpanded,
+    contentVisible,
   } = useLayoutState();
 
   // Which pane is showing in the shared side row, and therefore how tall that row
@@ -103,6 +115,12 @@ function InnerLayoutRoot({
         "relative top-0 right-0 left-0 flex h-dvh select-none",
         "bg-layout-light-base dark:bg-layout-dark-base",
         "app-layout",
+        // An expanded pane spans onto the content column rather than resizing any
+        // track, so the placement change is expressed in CSS off these root
+        // classes — which is what the `left-sidebar-full` / `right-sidebar-full`
+        // custom variants were defined for.
+        leftExpanded && "left-sidebar-full",
+        rightExpanded && "right-sidebar-full",
         className,
       )}
     >
@@ -110,7 +128,9 @@ function InnerLayoutRoot({
       {children && (
         <div className="absolute top-0 right-0 bottom-0 left-0">
           {isValidElement(children) && children}
-          {!isValidElement(children) && typeof children === "function" && children(contentBounds)}
+          {!isValidElement(children) &&
+            typeof children === "function" &&
+            children(contentBounds, contentVisible)}
         </div>
       )}
 

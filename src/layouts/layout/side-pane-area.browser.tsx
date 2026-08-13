@@ -4,7 +4,9 @@ import { render } from "vitest-browser-react";
 import { page, userEvent } from "@vitest/browser/context";
 import { PaneRegion } from "../../types";
 import { useLayoutActions } from "../../hooks/use-layout-actions";
+import { usePanes } from "../../hooks/layout-atoms";
 import { Icon } from "../../icons/registry";
+import "../../test-stylesheet";
 import { LayoutRoot } from "./root";
 
 /**
@@ -52,7 +54,8 @@ function hiddenPaneIds(): string[] {
  * layer: the toggles have to stay clickable while a pane is open.
  */
 function PaneHarness() {
-  const { setPanes, togglePaneRegion } = useLayoutActions();
+  const { setPane, setPanes, togglePaneRegion } = useLayoutActions();
+  const collapsed = usePanes().find((pane) => pane.id === "left-pane")?.collapsed === true;
 
   useEffect(() => {
     setPanes(
@@ -87,6 +90,9 @@ function PaneHarness() {
       </button>
       <button type="button" onClick={() => togglePaneRegion(PaneRegion.Right, "right-pane")}>
         toggle right
+      </button>
+      <button type="button" onClick={() => setPane({ id: "left-pane", collapsed: !collapsed })}>
+        collapse left
       </button>
     </div>
   );
@@ -167,6 +173,41 @@ test("with both regions open, the toggle of a covered pane brings it forward", a
   await userEvent.click(page.getByRole("button", { name: "toggle right" }));
   await expect.poll(sidePanes).toEqual({ ids: ["left-pane"], showing: "left-pane" });
   await expect.element(page.getByText("Left pane body")).toBeVisible();
+});
+
+test("in the shared row, a collapsed pane stops showing but stays mounted", async () => {
+  await page.viewport(MOBILE.width, MOBILE.height);
+  renderLayout();
+
+  await userEvent.click(page.getByRole("button", { name: "toggle left" }));
+  await expect.poll(sidePanes).toEqual({ ids: ["left-pane"], showing: "left-pane" });
+
+  // Every pane is a named query container, at BOTH arrangements. Docked and shared
+  // are different wrappers, and pane content asking `@[…]/pane:` must not silently
+  // start resolving against something else as the viewport crosses the breakpoint.
+  const pane = document.querySelector<HTMLElement>('[data-testid="side-pane"]');
+  expect(getComputedStyle(pane!).containerName).toBe("pane");
+
+  await userEvent.click(page.getByRole("button", { name: "collapse left" }));
+
+  // Collapsed means it gave up its space, so the row must not still be sized by it
+  // and it must not still be the pane on top — the docked regions already exclude
+  // collapsed panes from their widths, and the shared row has to agree.
+  await expect
+    .poll(() =>
+      getComputedStyle(document.querySelector<HTMLElement>(".app-layout")!).getPropertyValue(
+        "--side-size",
+      ),
+    )
+    .toBe("0fr");
+  expect(sidePanes().showing).toBeNull();
+  expect(hiddenPaneIds()).toEqual(["left-pane"]);
+
+  // Still there, though — that is the difference from unregistering.
+  await expect.element(page.getByText("Left pane body")).toBeInTheDocument();
+
+  await userEvent.click(page.getByRole("button", { name: "collapse left" }));
+  await expect.poll(sidePanes).toEqual({ ids: ["left-pane"], showing: "left-pane" });
 });
 
 test("above the breakpoint, the same panes dock concurrently", async () => {

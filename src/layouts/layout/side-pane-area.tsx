@@ -6,14 +6,31 @@ import { useLayoutActions } from "../../hooks/use-layout-actions";
 import { Icon } from "../../icons/registry";
 
 /**
+ * The topmost pane actually taking space — the newest one that has not collapsed.
+ *
+ * A collapsed pane stays in the stack because it stays MOUNTED, which is the whole
+ * point of collapsing rather than unregistering. It must not be what the row shows
+ * or sizes itself from, though: taking the last entry unconditionally let a pane
+ * that had given up its space keep the row at its old size and stay interactive —
+ * the docked regions' behaviour inverted, since `leftWidthAtom`/`rightWidthAtom`
+ * exclude collapsed panes.
+ */
+export function showingSidePane(stack: PaneSpec[]): PaneSpec | undefined {
+  for (let index = stack.length - 1; index >= 0; index--) {
+    if (stack[index].collapsed !== true) return stack[index];
+  }
+  return undefined;
+}
+
+/**
  * The size the side row should take: whatever the pane currently showing asks for.
  *
  * Mirrors `leftWidthAtom`/`rightWidthAtom` for the one-row case — `0fr` collapses
- * the row when nothing is open, `1fr` lets a `full` pane take the space the content
- * gives up.
+ * the row when nothing is open, or when everything open has collapsed; `1fr` lets a
+ * `full` pane take the space the content gives up.
  */
 export function sidePaneSize(stack: PaneSpec[]): string {
-  const showing = stack[stack.length - 1];
+  const showing = showingSidePane(stack);
   if (!showing) return "0fr";
   if (showing.size === "full") return "1fr";
   return typeof showing.size === "string" ? showing.size : `${showing.size}px`;
@@ -40,10 +57,14 @@ export function sidePaneSize(stack: PaneSpec[]): string {
 export function SidePaneArea({ panes }: { panes: PaneSpec[] }) {
   const { completePanesClose, togglePaneRegion } = useLayoutActions();
 
+  const showing = showingSidePane(panes);
+
   return (
     <AnimatePresence onExitComplete={completePanesClose}>
-      {panes.map((pane, index) => {
-        const isTop = index === panes.length - 1;
+      {panes.map((pane) => {
+        // By identity, not by position: a collapsed pane can sit above the one
+        // showing and must not become it.
+        const isTop = pane.id === showing?.id;
         return (
           <motion.div
             key={pane.id}
@@ -55,6 +76,7 @@ export function SidePaneArea({ panes }: { panes: PaneSpec[] }) {
             exit={{ opacity: 0, y: 50 }}
             transition={{ duration: 0.15, ease: "easeInOut" }}
             aria-hidden={!isTop}
+            inert={isTop ? undefined : true}
             data-testid="side-pane"
             data-pane-id={pane.id}
             data-pane-showing={isTop ? "" : undefined}
@@ -64,6 +86,12 @@ export function SidePaneArea({ panes }: { panes: PaneSpec[] }) {
               "absolute inset-0",
               "responsive card-transparent h-full w-full overflow-clip rounded-md",
               isTop ? "pointer-events-auto" : "pointer-events-none invisible",
+              // The same named container the docked wrapper declares. Without it a
+              // pane's `@[…]/pane:` rules would resolve against whatever container
+              // happened to be above it — so pane content would silently change
+              // layout as the viewport crossed the breakpoint, which is exactly what
+              // asking about the pane's own width is meant to avoid.
+              "@container/pane",
             )}
           >
             {pane.region === PaneRegion.Right && (
