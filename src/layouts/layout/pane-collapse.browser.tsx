@@ -49,6 +49,10 @@ const footerGap = (): string => {
 
 const body = (): HTMLElement | null => el("[data-testid='footer-body']");
 
+/** The pane wrapper — the element carrying the size, not the content inside it. */
+const paneWrapper = (): HTMLElement | null =>
+  body()?.closest<HTMLElement>("[class*='container/pane']") ?? null;
+
 /**
  * Records the footer row's height every frame for long enough to cover the
  * collapse, starting immediately — so it is already sampling when the click that
@@ -70,11 +74,15 @@ function sampleFooterHeights(): Promise<number[]> {
   });
 }
 
+const TALLER_HEIGHT = 260;
+
 /**
  * Stands in for the animation panel: viewer-produced state that lives in the
- * content rather than the pane spec, and a mount that is not free to repeat.
+ * content rather than the pane spec, a height it decides for itself, and a mount
+ * that is not free to repeat.
  */
 function FooterBody() {
+  const [height, setHeight] = useState(FOOTER_HEIGHT);
   const [note, setNote] = useState("initial");
   // Lazy ref rather than lazy state: this is claimed once per mount and never
   // read as state. The guard also makes it idempotent, so a double-invoked
@@ -91,10 +99,13 @@ function FooterBody() {
       data-testid="footer-body"
       data-mount-index={mountIndex}
       data-note={note}
-      style={{ height: `${FOOTER_HEIGHT.toString()}px` }}
+      style={{ height: `${height.toString()}px` }}
     >
       <button type="button" onClick={() => setNote("edited")}>
         edit note
+      </button>
+      <button type="button" onClick={() => setHeight(TALLER_HEIGHT)}>
+        grow
       </button>
     </div>
   );
@@ -212,4 +223,37 @@ test("a collapsed pane gives up its space but keeps its content mounted", async 
   await expect.poll(() => body()?.dataset.mountIndex).toBe("2");
   expect(body()?.dataset.note).toBe("initial");
   expect(mounts).toBe(2);
+});
+
+test("the footer row follows its content's height, before and after a collapse", async () => {
+  await page.viewport(DESKTOP.width, DESKTOP.height);
+  render(
+    <>
+      <PaneHarness />
+      <LayoutRoot />
+    </>,
+  );
+
+  // The layout does not tell footer content how tall to be, and must not start:
+  // the footer row is `minmax(0, auto)` and no `PaneSpec.size` feeds it, so the
+  // height belongs entirely to whatever is placed there. The studio's animation
+  // panel relies on this — it owns a height the viewer drags and hands an explicit
+  // one to `AnimationSheet`, which is what keeps `@semio/animation` free of any
+  // knowledge of panes and usable somewhere other than this row.
+  await expect.poll(() => heightOf(".grid-area-footer")).toBe(FOOTER_HEIGHT);
+
+  await userEvent.click(page.getByRole("button", { name: "grow" }));
+  await expect.poll(() => heightOf(".grid-area-footer")).toBe(TALLER_HEIGHT);
+
+  // Surviving a collapse is the part that could regress: animating to `auto`
+  // means measuring, and a tween that finished by pinning the measured pixels
+  // would silently make the pane the authority on its content's height.
+  await userEvent.click(page.getByRole("button", { name: "toggle collapse" }));
+  await expect.poll(() => heightOf(".grid-area-footer")).toBe(0);
+  await userEvent.click(page.getByRole("button", { name: "toggle collapse" }));
+  await expect.poll(() => heightOf(".grid-area-footer")).toBe(TALLER_HEIGHT);
+
+  // Nothing definite left behind on the wrapper — `auto` is the pane declining to
+  // have an opinion, which is the whole isolation claim.
+  expect(paneWrapper()?.style.height).toBe("auto");
 });
