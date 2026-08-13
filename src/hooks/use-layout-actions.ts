@@ -76,11 +76,24 @@ export interface LayoutActions {
 }
 
 /**
+ * Merge one spec into the pane set by id, creating it from {@link createPane}
+ * defaults when absent.
+ *
+ * Pure and taking the set as its first argument so it composes: a batch is
+ * `panes.reduce(mergePane, current)`, one fold producing one write, rather than
+ * a write per pane each rebuilding from the same stale starting point.
+ */
+function mergePane(panes: PaneSpec[], pane: PaneSpec | Partial<PaneSpec>): PaneSpec[] {
+  return panes.some((p) => p.id === pane.id)
+    ? panes.map((p) => (p.id === pane.id ? { ...p, ...pane } : p))
+    : [...panes, { ...createPane(), ...pane }];
+}
+
+/**
  * Returns {@link LayoutActions}
  */
 export function useLayoutActions(): LayoutActions {
   const menuExpandedRef = useRef<boolean>(false);
-  const panesRef = useRef<PaneSpec[]>([]);
   // Mirrored into a ref rather than closed over, so `togglePaneRegion` keeps a
   // stable identity across the breakpoint — consumers list it in effect and memo
   // dependencies.
@@ -99,9 +112,6 @@ export function useLayoutActions(): LayoutActions {
     const expandedUnsub = observe((get) => {
       menuExpandedRef.current = get(menuStateAtom);
     });
-    const panesUnsub = observe((get) => {
-      panesRef.current = get(panesAtom);
-    });
     const toolbarItemsUnsub = observe((get) => {
       toolbarItemsRef.current = get(toolbarItemsAtom);
     });
@@ -110,47 +120,50 @@ export function useLayoutActions(): LayoutActions {
     });
     return () => {
       expandedUnsub();
-      panesUnsub();
       toolbarItemsUnsub();
       actionItemsUnsub();
     };
   });
   const setPane = useCallback(
     (pane: PaneSpec | Partial<PaneSpec>) => {
-      const existingPane = panesRef.current.find((p) => p.id === pane.id);
-      const newPanes = existingPane
-        ? panesRef.current.map((p) => (p.id === pane.id ? { ...p, ...pane } : p))
-        : [...panesRef.current, { ...createPane(), ...pane }];
-      setPanes(newPanes);
+      setPanes((current) => mergePane(current, pane));
     },
-    [panesRef, setPanes],
+    [setPanes],
   );
 
   const setPanesNice = useCallback(
     (panes: (PaneSpec | Partial<PaneSpec>)[], replace?: boolean) => {
       if (replace) {
         setPanes(panes.map((pane) => ({ ...createPane(), ...pane })));
-      } else {
-        panes.forEach(setPane);
+        return;
       }
+      // ONE write folding every update, rather than a `setPane` per item.
+      //
+      // Per-item was not observably broken — each write resolved against the atom's
+      // current value, so a batch dispatched from one handler did land in full. It
+      // was, though, N renders for one intent, and every item rebuilt from a ref
+      // mirroring the atom through a subscription, which is a shape that only stays
+      // correct while nothing reads the ref across a boundary the subscription has
+      // not caught up over. The studio hit exactly that and documents it in
+      // `use-selection-pane`. Folding removes the class rather than the instance:
+      // there is no snapshot to be stale because there is no snapshot.
+      setPanes((current) => panes.reduce(mergePane, current));
     },
-    [setPane, setPanes],
+    [setPanes],
   );
 
   const removePane = useCallback(
     (id: string) => {
-      const newPanes = panesRef.current.filter((p) => p.id !== id);
-      setPanes(newPanes);
+      setPanes((current) => current.filter((p) => p.id !== id));
     },
-    [setPanes, panesRef],
+    [setPanes],
   );
 
   const removePanes = useCallback(
     (ids: string[]) => {
-      const newPanes = panesRef.current.filter((p) => !ids.includes(p.id));
-      setPanes(newPanes);
+      setPanes((current) => current.filter((p) => !ids.includes(p.id)));
     },
-    [setPanes, panesRef],
+    [setPanes],
   );
 
   const setToolbarItem = useCallback(
@@ -244,11 +257,10 @@ export function useLayoutActions(): LayoutActions {
   );
 
   const completePanesClose = useCallback(() => {
-    const newPanes = panesRef.current.map((p) =>
-      p.shouldClose ? { ...p, shouldClose: undefined, region: undefined } : p,
+    setPanes((current) =>
+      current.map((p) => (p.shouldClose ? { ...p, shouldClose: undefined, region: undefined } : p)),
     );
-    setPanes(newPanes);
-  }, [panesRef, setPanes]);
+  }, [setPanes]);
 
   const toggleMenu = useCallback(() => {
     setMenuExpanded(!menuExpandedRef.current);
@@ -256,47 +268,50 @@ export function useLayoutActions(): LayoutActions {
 
   const togglePaneRegion = useCallback(
     (region: PaneRegion, id: string, preventSameClose = false) => {
-      // First, find if the current pane id is currently in that region;
-      const currentPaneInRegion = panesRef.current.find((p) => p.id === id && p.region === region);
+      setPanes((current) => {
+        // First, find if the current pane id is currently in that region;
+        const currentPaneInRegion = current.find((p) => p.id === id && p.region === region);
 
-      // Open, but covered by a side pane opened more recently. Below the breakpoint
-      // the side regions share one row and only the newest is shown, so toggling
-      // this one means "show me this", not "close this": closing a pane the viewer
-      // cannot see changes nothing on screen, which reads as a dead button and takes
-      // two presses to get the pane they asked for.
-      //
-      // Expressed by clearing `openOrder` while leaving the region set — `panesAtom`
-      // re-stamps it as the most recently opened. Gated on the breakpoint because
-      // above it the regions have a track each and both are already visible, where
-      // the toggle has to keep closing.
-      if (!desktopRef.current && currentPaneInRegion && isCovered(panesRef.current, id)) {
-        setPanes(panesRef.current.map((p) => (p.id === id ? { ...p, openOrder: undefined } : p)));
-        return;
-      }
+        // Open, but covered by a side pane opened more recently. Below the breakpoint
+        // the side regions share one row and only the newest is shown, so toggling
+        // this one means "show me this", not "close this": closing a pane the viewer
+        // cannot see changes nothing on screen, which reads as a dead button and takes
+        // two presses to get the pane they asked for.
+        //
+        // Expressed by clearing `openOrder` while leaving the region set — `panesAtom`
+        // re-stamps it as the most recently opened. Gated on the breakpoint because
+        // above it the regions have a track each and both are already visible, where
+        // the toggle has to keep closing.
+        if (!desktopRef.current && currentPaneInRegion && isCovered(current, id)) {
+          return current.map((p) => (p.id === id ? { ...p, openOrder: undefined } : p));
+        }
 
-      // Don't close the pane directly, but set the flag so that it knows it should close
-      if (currentPaneInRegion && !preventSameClose) {
-        const newPanes = panesRef.current.map((p) =>
-          // If the pane has content, set it to close. Otherwise, set the region to undefined directly
-          p.id === id
-            ? {
-                ...p,
-                shouldClose: p.content !== undefined,
-                region: p.content ? p.region : undefined,
-              }
-            : p,
-        );
-        setPanes(newPanes);
-      } else if (!currentPaneInRegion) {
-        const newPanes = panesRef.current.map((p) =>
-          p.id === id
-            ? { ...p, region }
-            : { ...p, region: p.region === region ? undefined : p.region },
-        );
-        setPanes(newPanes);
-      }
+        // Don't close the pane directly, but set the flag so that it knows it should close
+        if (currentPaneInRegion && !preventSameClose) {
+          return current.map((p) =>
+            // If the pane has content, set it to close. Otherwise, set the region to undefined directly
+            p.id === id
+              ? {
+                  ...p,
+                  shouldClose: p.content !== undefined,
+                  region: p.content ? p.region : undefined,
+                }
+              : p,
+          );
+        }
+        if (!currentPaneInRegion) {
+          return current.map((p) =>
+            p.id === id
+              ? { ...p, region }
+              : { ...p, region: p.region === region ? undefined : p.region },
+          );
+        }
+        // Already in the region and asked not to close: returning the input is the
+        // no-op `panesAtom` short-circuits on.
+        return current;
+      });
     },
-    [panesRef, setPanes],
+    [setPanes],
   );
 
   return {

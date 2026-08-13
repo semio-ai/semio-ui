@@ -23,7 +23,10 @@ export function PanelContent({ region }: { region: PaneRegion }) {
     <AnimatePresence mode="wait" onExitComplete={completePanesClose}>
       {panes.map((pane) => {
         if (pane.region === region && pane.content && !pane.shouldClose) {
-          const variants = getVariants(region, pane?.size === "full");
+          // A pane taking the content area's space slides in from nowhere in
+          // particular, so it scales instead — whether it got there by spanning
+          // (`expanded`) or by collapsing the content track (`size: "full"`).
+          const variants = getVariants(region, pane.expanded === true || pane.size === "full");
           return (
             <motion.div
               // layout
@@ -32,9 +35,24 @@ export function PanelContent({ region }: { region: PaneRegion }) {
               animate={variants[1]}
               exit={variants[0]}
               transition={{ duration: 0.15, ease: "easeInOut" }}
+              // Collapsed: no size, no hit target, not announced — but still
+              // rendered, so its state and anything expensive inside it survive.
+              // Set inline rather than as a utility class so it beats the sizing
+              // classes below deterministically, whatever order they emit in.
+              style={pane.collapsed ? { height: 0, width: 0 } : undefined}
+              aria-hidden={pane.collapsed ? true : undefined}
+              inert={pane.collapsed ? true : undefined}
               className={clsx(
-                "pointer-events-auto relative w-full",
+                "relative w-full",
+                pane.collapsed ? "pointer-events-none" : "pointer-events-auto",
                 "responsive card-transparent h-full overflow-clip rounded-md",
+                // Every pane is a query container, NAMED so nested containers in
+                // pane content stay unambiguous: `@[800px]/pane:` asks about the
+                // pane's own width. That is the only correct question for a pane
+                // deciding its internal layout — the viewport `desktop:`
+                // breakpoint cannot see a right sidebar taking half the room, and
+                // a pane that can expand changes width without the window moving.
+                "@container/pane",
               )}
             >
               {pane.region === PaneRegion.Right && (
