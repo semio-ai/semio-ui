@@ -59,6 +59,9 @@ interface Probe {
   leftRect: Rect;
   contentRect: Rect;
   footerHeight: number;
+  /** What the animation panel says it is, as opposed to the row it sits in. */
+  animationHeight: number;
+  animationMount: number;
   viewportWidth: number;
 }
 
@@ -70,6 +73,8 @@ const NO_PROBE: Probe = {
   leftRect: NO_RECT,
   contentRect: NO_RECT,
   footerHeight: 0,
+  animationHeight: 0,
+  animationMount: 0,
   viewportWidth: 0,
 };
 
@@ -100,6 +105,7 @@ function useLayoutProbe(): Probe {
       const rootElement = document.querySelector<HTMLElement>(".app-layout");
       if (!rootElement) return;
       const styles = getComputedStyle(rootElement);
+      const animationPanel = document.querySelector<HTMLElement>("[data-testid='animation-panel']");
       const next: Probe = {
         leftVar: styles.getPropertyValue("--left-size").trim(),
         contentVar: styles.getPropertyValue("--content-size").trim(),
@@ -108,6 +114,8 @@ function useLayoutProbe(): Probe {
         leftRect: rectOf(rootElement.querySelector(".grid-area-left")),
         contentRect: rectOf(rootElement.querySelector(".grid-area-content")),
         footerHeight: rectOf(rootElement.querySelector(".grid-area-footer")).height,
+        animationHeight: Number(animationPanel?.dataset.height ?? 0),
+        animationMount: Number(animationPanel?.dataset.mountIndex ?? 0),
         viewportWidth: Math.round(window.innerWidth),
       };
       const serialized = JSON.stringify(next);
@@ -214,11 +222,49 @@ function clearLayout(
   setToolbarItems([], REPLACE);
 }
 
+/**
+ * Module-scoped so it outlives the component, which is the point: a counter in
+ * state could not record the remount it exists to detect.
+ */
+let animationMountCount = 0;
+
+/**
+ * Stands in for the studio's animation panel, and specifically for the two things
+ * that made unregistering it costly: a height the VIEWER produced, which lives in
+ * the panel's own state rather than in the pane spec, and a mount that is not free
+ * to repeat (there, an R3F canvas that measures its container as it mounts).
+ *
+ * The panel declares its height and the row follows — the layout never tells it how
+ * tall to be, which is what lets the real one live somewhere other than this row
+ * without changing.
+ */
 function AnimationPanel(): ReactNode {
+  const [height, setHeight] = useState(128);
+  const mountIndexRef = useRef(0);
+  if (mountIndexRef.current === 0) {
+    animationMountCount += 1;
+    mountIndexRef.current = animationMountCount;
+  }
+
   return (
-    <div className="bg-tertiary-500/20 flex h-32 w-full items-end p-3 text-xs">
-      Animation panel — yields its row while the sidebar is expanded, without
-      unmounting.
+    <div
+      data-testid="animation-panel"
+      data-height={height}
+      data-mount-index={mountIndexRef.current}
+      className="bg-tertiary-500/20 flex w-full flex-col justify-between gap-2 p-3 text-xs"
+      style={{ height: `${height.toString()}px` }}
+    >
+      <span className="font-mono">
+        Animation panel · {height}px · mount #{mountIndexRef.current}
+      </span>
+      <div className="flex flex-row gap-2">
+        <Button size={Size.Sm} variant={Variant.Secondary} onClick={() => setHeight(128)}>
+          Short
+        </Button>
+        <Button size={Size.Sm} variant={Variant.Secondary} onClick={() => setHeight(260)}>
+          Drag taller
+        </Button>
+      </div>
     </div>
   );
 }
@@ -353,6 +399,15 @@ function ExpandingReadout({
   const expanded = panes.find((pane) => pane.id === EXPAND_PANE_ID)?.expanded === true;
   const animationCollapsed = panes.find((pane) => pane.id === ANIMATION_PANE_ID)?.collapsed === true;
 
+  // The height the panel was left at before it gave up its row. Held HERE, by an
+  // observer, precisely because the library holds nothing: if the pane spec were
+  // remembering a height on the panel's behalf, this comparison would be checking
+  // the library against itself.
+  const stashedHeightRef = useRef(0);
+  if (!animationCollapsed && probe.animationHeight > 0) {
+    stashedHeightRef.current = probe.animationHeight;
+  }
+
   // The width the content track resolves to while nothing is expanded, kept only
   // so the story can show the restore lands back on it. The LIBRARY remembers
   // nothing — that is the property being demonstrated.
@@ -418,6 +473,20 @@ function ExpandingReadout({
           }
         />
         <Check
+          label="Panel keeps the height it was left at"
+          ok={probe.animationHeight === stashedHeightRef.current}
+          detail={
+            animationCollapsed
+              ? `holding ${probe.animationHeight.toString()}px while collapsed`
+              : `row follows content at ${probe.animationHeight.toString()}px`
+          }
+        />
+        <Check
+          label="Panel never remounted"
+          ok={probe.animationMount === 1}
+          detail={`mount #${probe.animationMount.toString()}`}
+        />
+        <Check
           label="Restore needs no remembered width"
           ok={expanded || restingRef.current === measuredWidth}
           detail={
@@ -431,6 +500,11 @@ function ExpandingReadout({
         <p className="mb-2">
           Resize the window <strong>while expanded</strong>: the measured rect keeps tracking, which
           is what collapsing the track to <code>0fr</code> cannot do.
+        </p>
+        <p className="mb-2">
+          For the panel&apos;s memory: press <strong>Drag taller</strong> on the animation panel,
+          then <strong>Browse</strong> and back. It returns at the height you left it, still on
+          mount #1 — it was collapsed, not unregistered, so nothing had to be stored or rebuilt.
         </p>
         <Button size={Size.Sm} variant={Variant.Secondary} onClick={onOpenRight}>
           Toggle right pane
