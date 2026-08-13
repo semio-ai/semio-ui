@@ -2,7 +2,6 @@ import {
   createContext,
   useCallback,
   useContext,
-  useEffect,
   useLayoutEffect,
   useMemo,
   useRef,
@@ -174,14 +173,24 @@ export function TreeNavRoot({
   );
 
   // Whether the keyboard is "in" this list, so a cursor move made while the user was
-  // somewhere else entirely never pulls focus in.
+  // somewhere else entirely never pulls focus in, and the row that focus is owed to once
+  // the list catches up with the cursor (see the effects below). Declared together
+  // because leaving the list has to cancel the debt, which is `handleFocusOut`'s job.
   const hasFocusRef = useRef(false);
+  const owedFocusRef = useRef<number | null>(null);
   const handleFocusIn = useCallback(() => {
     hasFocusRef.current = true;
   }, []);
   const handleFocusOut = useCallback((event: FocusEvent<HTMLElement>) => {
     const next = event.relatedTarget;
-    if (next && !event.currentTarget.contains(next)) hasFocusRef.current = false;
+    if (next && !event.currentTarget.contains(next)) {
+      hasFocusRef.current = false;
+      // Cancel any focus still owed to a row. Leaving it set would let a row that mounts
+      // long afterwards pull focus back out of wherever the user went; a null
+      // `relatedTarget` — the removal case — deliberately does not reach here, because
+      // that debt is still owed.
+      owedFocusRef.current = null;
+    }
   }, []);
 
   // Hand focus to the cursor's row once that row exists.
@@ -196,35 +205,97 @@ export function TreeNavRoot({
   // control inside a row — a text field being typed into — and a rule of "put focus back
   // on the cursor" would yank it away on the next realtime re-render, which is the exact
   // focus theft `list-grid-reliability` exists to catch.
-  const owedFocusRef = useRef<number | null>(null);
+  //
+  // ## Why these are layout effects, and why the root is a landing pad
+  //
+  // Removing the focused element drops focus to `document.body`, and in a windowed list
+  // the cursor's own movement is what removes it: the window slides to follow the cursor
+  // and takes the row the user was standing on out of the DOM. While focus is on the body
+  // the list is not listening, and every keystroke that arrives in the meantime is
+  // delivered to the body and silently discarded.
+  //
+  // The obvious half of the answer is to restore focus in the layout phase, so a removal
+  // and the refocus that answers it happen in one synchronous commit with no chance for
+  // the event loop to interleave. That is necessary but not sufficient, and the shortfall
+  // is worth stating because it is what a plausible-looking fix misses: when the cursor
+  // moves FASTER than the list can scroll — every keystroke of a type-ahead query — the
+  // owed row is not the row that this commit is mounting. Typing `r7000` moves the cursor
+  // to row 70, then to row 700 before the window has caught up to 70; the commit that
+  // finally arrives removes the old focused row and mounts row 70, but by then row 700 is
+  // what is owed, so nothing here can be focused and the body holds focus across a whole
+  // scroll-and-commit cycle. Measured at ~10ms, which swallowed the last `0` of `r7000`
+  // and left the cursor a keystroke short at row 700 — the intermittent failure of
+  // `list-grid-virtual`'s type-ahead test.
+  //
+  // So focus is never allowed to reach the body: when the owed row is absent, the ROOT
+  // takes focus until that row arrives. The root is deliberately the landing pad rather
+  // than some nearby mounted row, because a row would sync the cursor to itself through
+  // `TreeNavItem`'s `onFocus` and drag the cursor back from where type-ahead just sent it,
+  // and because keys aimed at a row (Space, Enter) would act on the wrong one. Keys that
+  // land on the root still reach the consumer through `onKeyDown`, which is what lets
+  // `ListGrid` answer them against the CURSOR's row rather than the focused element's.
   const lastIndexRef = useRef(highlightedIndex);
+  const rootRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
+  /** Focus the owed row if it exists, else park on the root so keys stay in the list. */
+  const settleFocus = useCallback(
+    (owed: number) => {
+      // Guards BOTH halves, and belongs above them. A debt owed to a row is owed to a
+      // keyboard that is still here: once the user has gone elsewhere, delivering it later
+      // is not finishing the job, it is dragging them back. That case is reachable because
+      // the debt outlives the render that incurred it — the row may mount minutes later,
+      // when a mouse-scroll happens to bring it into the window.
+      if (!hasFocusRef.current) return;
+      const target = elementsRef.current[owed];
+      if (target) {
+        owedFocusRef.current = null;
+        if (document.activeElement !== target) target.focus();
+        return;
+      }
+      owedFocusRef.current = owed;
+      const root = rootRef.current;
+      if (!root) return;
+      // Narrowly: only when focus was LOST, meaning the body ended up with it because the
+      // element holding it was removed. "Not inside this list" is the wrong test and was a
+      // real bug — focus is legitimately elsewhere all the time, most sharply in a dialog
+      // this list just opened, and a list whose data changes underneath it (a delete
+      // confirmed in that dialog) moves its cursor and would reclaim focus mid-confirmation.
+      const active = document.activeElement;
+      if (active !== null && active !== document.body) return;
+      root.focus({ preventScroll: true });
+    },
+    [elementsRef],
+  );
+
+  useLayoutEffect(() => {
     if (lastIndexRef.current === highlightedIndex) return;
     lastIndexRef.current = highlightedIndex;
     owedFocusRef.current = null;
     if (!hasFocusRef.current) return;
-    const target = elementsRef.current[highlightedIndex];
-    if (!target) {
-      // Not mounted yet; the effect below delivers it when the row arrives.
-      owedFocusRef.current = highlightedIndex;
-      return;
-    }
-    if (document.activeElement !== target) target.focus();
-  }, [highlightedIndex, elementsRef]);
+    settleFocus(highlightedIndex);
+  }, [highlightedIndex, settleFocus]);
 
   // The waiting half. No dependency array: a row mounting is not a value this can watch,
   // and with nothing owed it is a single null check.
-  useEffect(() => {
+  useLayoutEffect(() => {
     const owed = owedFocusRef.current;
     if (owed === null) return;
-    const target = elementsRef.current[owed];
-    if (!target) return;
-    owedFocusRef.current = null;
-    if (document.activeElement !== target) target.focus();
+    settleFocus(owed);
   });
 
-  const { onKeyDown: compositeKeyDown, ...rootProps } = props;
+  // The composite supplies its own root `ref`, so this takes it out of the spread and
+  // merges it — attaching `rootRef` over the top would silently detach the composite from
+  // its own element, which reads as roving navigation simply not working.
+  const { onKeyDown: compositeKeyDown, ref: compositeRef, ...rootProps } = props;
+  const setRootNode = useCallback(
+    (node: HTMLDivElement | null) => {
+      rootRef.current = node;
+      if (typeof compositeRef === "function") return compositeRef(node);
+      if (compositeRef) compositeRef.current = node;
+      return undefined;
+    },
+    [compositeRef],
+  );
   const handleKeyDown = useCallback(
     (event: KeyboardEvent<HTMLElement>) => {
       compositeKeyDown?.(event);
@@ -237,9 +308,13 @@ export function TreeNavRoot({
     <TreeNavContext.Provider value={context}>
       <div
         {...rootProps}
+        ref={setRootNode}
         role={role}
         aria-label={ariaLabel}
         className={className}
+        // Focusable programmatically but never a tab stop — that stays a row's job, so
+        // the list keeps exactly one entry in the tab order.
+        tabIndex={-1}
         onKeyDown={handleKeyDown}
         onFocus={handleFocusIn}
         onBlur={handleFocusOut}
