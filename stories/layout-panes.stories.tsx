@@ -11,6 +11,7 @@ import {
   Variant,
   useLayoutActions,
   useLayoutState,
+  useLeftExpanded,
   usePanes,
   type LayoutActions,
 } from "@semio/ui";
@@ -278,7 +279,7 @@ const EXPAND_PANE_WIDTH = "280px";
 const ANIMATION_PANE_ID = "animation";
 
 function ExpandingSidebarApp(): ReactNode {
-  const { setPanes, setToolbarItems, togglePaneRegion } = useLayoutActions();
+  const { setPane, setPanes, setToolbarItems, togglePaneRegion } = useLayoutActions();
 
   useEffect(() => {
     setToolbarItems(HEADER_SPACER, true);
@@ -328,6 +329,19 @@ function ExpandingSidebarApp(): ReactNode {
     togglePaneRegion(PaneRegion.Right, "inspector");
   }, [togglePaneRegion]);
 
+  // The animation panel's row is DERIVED from whether a pane is expanded over the
+  // content, rather than written alongside each expansion.
+  //
+  // Pairing the two writes at the call site looks tidier and is wrong: expansion
+  // also ends by routes that call site never sees. Closing the sidebar from the
+  // menu left the panel collapsed with nothing on screen still expanded, and it
+  // stayed that way until someone expanded and collapsed again. Deriving gives the
+  // flag exactly one writer, so there is no second place that has to remember.
+  const leftExpanded = useLeftExpanded();
+  useEffect(() => {
+    setPane({ id: ANIMATION_PANE_ID, collapsed: leftExpanded });
+  }, [leftExpanded, setPane]);
+
   return (
     <LayoutRoot homeText="semio">
       {(contentBounds: RectReadOnly, contentVisible: boolean) => (
@@ -343,21 +357,17 @@ function ExpandingSidebarApp(): ReactNode {
 
 function ExpandingPaneContent(): ReactNode {
   const panes = usePanes();
-  const { setPanes } = useLayoutActions();
+  const { setPane } = useLayoutActions();
   const expanded = panes.find((pane) => pane.id === EXPAND_PANE_ID)?.expanded === true;
 
-  // The whole rearrangement, as one write. Browsing takes the room between the
-  // menu and the detail pane, and the animation panel gives up its row for as long
-  // as that lasts — one intent, so one write, and it must not be possible for half
-  // of it to happen. The panel is COLLAPSED rather than unregistered, so the height
-  // the viewer dragged and everything mounted inside it come back untouched.
+  // Only the expansion. The animation panel's row follows from it rather than being
+  // written here — see the effect in `ExpandingSidebarApp` — so this control cannot
+  // get the two out of step, and neither can any other route that ends the
+  // expansion. The panel is COLLAPSED rather than unregistered, so the height the
+  // viewer dragged and everything mounted inside it come back untouched.
   const toggle = useCallback(() => {
-    const next = !expanded;
-    setPanes([
-      { id: EXPAND_PANE_ID, expanded: next },
-      { id: ANIMATION_PANE_ID, collapsed: next },
-    ]);
-  }, [expanded, setPanes]);
+    setPane({ id: EXPAND_PANE_ID, expanded: !expanded });
+  }, [expanded, setPane]);
 
   return (
     <div className="bg-secondary-500/20 flex h-full w-full flex-col gap-2 p-3">

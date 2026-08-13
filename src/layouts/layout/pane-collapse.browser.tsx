@@ -255,5 +255,10 @@ test("the footer row follows its content's height, before and after a collapse",
 
   // Nothing definite left behind on the wrapper — `auto` is the pane declining to
   // have an opinion, which is the whole isolation claim.
-  expect(paneWrapper()?.style.height).toBe("auto");
+  //
+  // Polled, not read once: the tween writes pixels the whole way and only settles
+  // on `auto` at the end, while the row assertion above is satisfied a beat earlier
+  // because it rounds. Read once, this caught a mid-tween `259.653px` about one run
+  // in three — and only under the full suite, never running this file alone.
+  await expect.poll(() => paneWrapper()?.style.height).toBe("auto");
 });

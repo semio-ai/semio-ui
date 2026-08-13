@@ -193,3 +193,31 @@ test("an expanded pane spans over the content instead of collapsing its track", 
   await expect.poll(reportedVisible).toBe("true");
   expect(paneColumns()).toBe(1);
 });
+
+test("closing an expanded pane ends the expansion rather than storing it", async () => {
+  await page.viewport(DESKTOP.width, DESKTOP.height);
+  render(
+    <>
+      <PaneHarness />
+      <LayoutRoot>{Probe}</LayoutRoot>
+    </>,
+  );
+
+  await userEvent.click(page.getByRole("button", { name: "toggle left" }));
+  await userEvent.click(page.getByRole("button", { name: "toggle expand" }));
+  await expect.poll(expandedClass).toBe(true);
+
+  // Closed from the menu, which knows nothing about the expansion.
+  await userEvent.click(page.getByRole("button", { name: "toggle left" }));
+  await expect.poll(() => document.querySelector(".grid-area-left")?.textContent ?? "").toBe("");
+  expect(expandedClass()).toBe(false);
+
+  // Reopening returns the pane at its ORDINARY width. Expansion is how a pane
+  // occupies a region, so a pane in no region cannot still be expanded — left set,
+  // the flag outlives the close and restores an arrangement the viewer thought
+  // they had dismissed, with no control on screen still showing it as on.
+  await userEvent.click(page.getByRole("button", { name: "toggle left" }));
+  await expect.poll(() => widthOf(".grid-area-left")).toBe(PANE_WIDTH);
+  expect(expandedClass()).toBe(false);
+  await expect.poll(reportedVisible).toBe("true");
+});

@@ -32,6 +32,12 @@ let nextOpenOrder = 1;
  * region clears it. That second rule is also how a caller asks for a pane to be
  * brought to the front: clear the order while leaving the region set, and the pane
  * is re-stamped as the most recently opened.
+ *
+ * Leaving a side region also clears {@link PaneSpec.expanded}, for the same reason
+ * and in the same place: expansion is how a pane occupies a region, so a pane in no
+ * region cannot be expanded. Left set, it outlives the close and the pane returns
+ * spanning the content the next time it is opened — an arrangement restored from a
+ * flag the viewer thought they had dismissed.
  */
 export const panesAtom = atom(
   (get) => get(panesBaseAtom),
@@ -54,7 +60,10 @@ export const panesAtom = atom(
       panesBaseAtom,
       resolved.map((pane) => {
         if (!isSideRegion(pane.region)) {
-          return pane.openOrder === undefined ? pane : { ...pane, openOrder: undefined };
+          if (pane.openOrder === undefined && pane.expanded === undefined) {
+            return pane;
+          }
+          return { ...pane, openOrder: undefined, expanded: undefined };
         }
         return pane.openOrder === undefined ? { ...pane, openOrder: nextOpenOrder++ } : pane;
       }),
