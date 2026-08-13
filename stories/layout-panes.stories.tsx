@@ -418,6 +418,16 @@ function ExpandingReadout({
     stashedHeightRef.current = probe.animationHeight;
   }
 
+  // The mount this story instance STARTED with, not the process-wide first. The
+  // counter is module-scoped so it survives the module, and Storybook can leave and
+  // revisit a story without reloading it — on the second visit the panel is
+  // legitimately mount #2, and comparing to a hardcoded 1 would report a remount
+  // that never happened. What matters is that it does not change from here.
+  const baselineMountRef = useRef(0);
+  if (baselineMountRef.current === 0 && probe.animationMount > 0) {
+    baselineMountRef.current = probe.animationMount;
+  }
+
   // The width the content track resolves to while nothing is expanded, kept only
   // so the story can show the restore lands back on it. The LIBRARY remembers
   // nothing — that is the property being demonstrated.
@@ -493,8 +503,8 @@ function ExpandingReadout({
         />
         <Check
           label="Panel never remounted"
-          ok={probe.animationMount === 1}
-          detail={`mount #${probe.animationMount.toString()}`}
+          ok={probe.animationMount === baselineMountRef.current}
+          detail={`mount #${probe.animationMount.toString()} (opened on #${baselineMountRef.current.toString()})`}
         />
         <Check
           label="Restore needs no remembered width"
@@ -675,6 +685,17 @@ function CollapsingReadout({
   const [footerHeight, setFooterHeight] = useState(0);
   const [mountIndex, setMountIndex] = useState(0);
 
+  // The mount this story instance STARTED with. The counter is module-scoped so it
+  // survives the module, and Storybook can leave and revisit a story without
+  // reloading it — on a second visit the content is legitimately mount #2, and
+  // comparing to a hardcoded 1 would report a remount that never happened. The
+  // claim is that collapsing does not change it, so the baseline is what to compare
+  // against; the Unregister control is what deliberately moves it.
+  const baselineMountRef = useRef(0);
+  if (baselineMountRef.current === 0 && mountIndex > 0) {
+    baselineMountRef.current = mountIndex;
+  }
+
   useEffect(() => {
     const read = () => {
       const element = document.querySelector<HTMLElement>("[data-testid='footer-content']");
@@ -693,8 +714,8 @@ function CollapsingReadout({
       <Readout title="Collapsing a pane without unmounting it">
         <Check
           label="Content stays mounted across a collapse"
-          ok={mountIndex === 1}
-          detail={`showing mount #${mountIndex.toString()}, ${footerMountCount.toString()} mounted so far`}
+          ok={mountIndex === baselineMountRef.current}
+          detail={`showing mount #${mountIndex.toString()}, opened on #${baselineMountRef.current.toString()}`}
         />
         <Check
           label="Viewer-set height survives"
@@ -819,8 +840,10 @@ function BatchWriteApp(): ReactNode {
           </Readout>
           <div className="mx-4 max-w-2xl text-xs text-neutral-500">
             <p className="mb-2">
-              Before the fold, each pane in a batch rebuilt from the same pre-batch state and all
-              but the last was silently dropped — the row above would go red on every press.
+              Three panes, one <code>setPanes</code> call, one atom write. The previous per-item
+              implementation passes this too — it was checked against it — so this pins the
+              contract rather than a past defect: a rearrangement is one intent, and it must not
+              become possible for a third of it to happen.
             </p>
             <Button size={Size.Sm} variant={Variant.Primary} onClick={rearrange}>
               {wide ? "Restore" : "Rearrange"}

@@ -183,7 +183,7 @@ export const rightExpandedAtom = atom<boolean>((get) =>
 );
 
 /**
- * Whether anything the viewer can see is in the content area.
+ * Whether anything the viewer can see is in the content area, ON A DOCKED LAYOUT.
  *
  * False when a pane covers it, either by spanning over it (`expanded`) or by
  * collapsing its track (a legacy `size: "full"` pane). This is an OPTIMISATION
@@ -191,6 +191,12 @@ export const rightExpandedAtom = atom<boolean>((get) =>
  * span, so a consumer that ignores this still frames itself correctly — it just
  * keeps drawing something nobody can see. Consumers that can cheaply idle (a 3D
  * canvas, a video, a ticking chart) should.
+ *
+ * Read it through {@link useContentVisible} rather than directly. Expansion is a
+ * docked-layout arrangement — the span rules are scoped to the wide grid, and
+ * narrower the side regions take a row of their own beneath the content and cover
+ * nothing. An atom cannot see the breakpoint, so this one would report a cover that
+ * is not happening; the hook is where that is corrected.
  */
 export const contentVisibleAtom = atom<boolean>((get) => {
   if (get(leftExpandedAtom) || get(rightExpandedAtom)) {
@@ -303,8 +309,21 @@ export function useRightExpanded() {
   return useAtomValue(rightExpandedAtom);
 }
 
+/**
+ * {@link contentVisibleAtom}, corrected for the arrangement actually in use.
+ *
+ * Expansion only covers the content where the side regions are docked beside it.
+ * Narrower they occupy a row of their own beneath the content, so an expanded pane
+ * hides nothing — and reporting otherwise would idle an occupant the viewer is
+ * still looking at, which is worse than the redundant drawing this signal exists to
+ * avoid. Track collapse (`size: "full"`) still counts at both widths, because the
+ * narrow grid gives the content `0fr` for it too.
+ */
 export function useContentVisible() {
-  return useAtomValue(contentVisibleAtom);
+  const desktop = useIsDesktop();
+  const covered = useAtomValue(contentVisibleAtom);
+  const trackCollapsed = useAtomValue(contentWidthAtom) === "0fr";
+  return desktop ? covered : !trackCollapsed;
 }
 
 export function useDesktopState() {
