@@ -112,22 +112,30 @@ function FooterBody() {
 }
 
 function PaneHarness() {
-  const { setPane, removePane } = useLayoutActions();
+  const { setPane, setPanes, removePane } = useLayoutActions();
   const panes = usePanes();
   const collapsed = panes.find((pane) => pane.id === "timeline")?.collapsed === true;
 
   useEffect(() => {
-    setPane({
-      id: "timeline",
-      name: "Timeline",
-      icon: <Icon name="square" />,
-      size: "auto",
-      region: PaneRegion.Footer,
-      inLeftMenu: false,
-      inRightMenu: false,
-      content: <FooterBody />,
-    });
-  }, [setPane]);
+    // REPLACE, so each test starts from the same arrangement rather than
+    // inheriting whatever the previous one left registered — panes live in a
+    // module-scoped store that outlives a render.
+    setPanes(
+      [
+        {
+          id: "timeline",
+          name: "Timeline",
+          icon: <Icon name="square" />,
+          size: "auto",
+          region: PaneRegion.Footer,
+          inLeftMenu: false,
+          inRightMenu: false,
+          content: <FooterBody />,
+        },
+      ],
+      true,
+    );
+  }, [setPanes]);
 
   return (
     <div className="fixed top-0 left-0 z-50 flex gap-2">

@@ -71,30 +71,40 @@ function PaneBody() {
  * layer and these controls have to stay clickable while a pane covers it.
  */
 function PaneHarness() {
-  const { setPane, togglePaneRegion } = useLayoutActions();
+  const { setPane, setPanes, togglePaneRegion } = useLayoutActions();
   const panes = usePanes();
   const expanded = panes.find((pane) => pane.id === "assets")?.expanded === true;
 
   useEffect(() => {
-    setPane({
-      id: "assets",
-      name: "Assets",
-      icon: <Icon name="square" />,
-      size: `${PANE_WIDTH.toString()}px`,
-      inLeftMenu: true,
-      inRightMenu: false,
-      content: <PaneBody />,
-    });
-    setPane({
-      id: "inspector",
-      name: "Inspector",
-      icon: <Icon name="square" />,
-      size: "200px",
-      inLeftMenu: false,
-      inRightMenu: true,
-      content: <p>Inspector body</p>,
-    });
-  }, [setPane]);
+    // REPLACE, so each test starts from the same closed arrangement. Panes live in
+    // a module-scoped store that outlives a render, so merging would inherit
+    // whatever the previous test left open — and a test whose first click was meant
+    // to OPEN a pane would silently close one instead, then race the exit animation
+    // for the state it was asserting on.
+    setPanes(
+      [
+        {
+          id: "assets",
+          name: "Assets",
+          icon: <Icon name="square" />,
+          size: `${PANE_WIDTH.toString()}px`,
+          inLeftMenu: true,
+          inRightMenu: false,
+          content: <PaneBody />,
+        },
+        {
+          id: "inspector",
+          name: "Inspector",
+          icon: <Icon name="square" />,
+          size: "200px",
+          inLeftMenu: false,
+          inRightMenu: true,
+          content: <p>Inspector body</p>,
+        },
+      ],
+      true,
+    );
+  }, [setPanes]);
 
   return (
     <div className="fixed top-0 left-0 z-50 flex gap-2">
