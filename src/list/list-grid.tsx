@@ -62,6 +62,19 @@ export interface ListColumn<T> {
    * (pure CSS container query). Hiding relies on an `auto` track collapsing to 0
    * once the cells are `display:none`, so a `hideBelow` column is always an
    * `auto` track — `flex` is ignored for it.
+   *
+   * **A hidden column's cells stay in the DOM.** `display:none` removes them from
+   * layout, not from the document, so text queries still match their content. Two
+   * consequences worth knowing:
+   *
+   * - A test asserting a value is "shown" can match the hidden copy and pass while
+   *   nothing is visible; and where the value also appears elsewhere, the two
+   *   copies collide as a locator strict-mode violation that neither `.first()`
+   *   nor `exact` resolves, since both matches are genuine. Assert geometry — a
+   *   zero bounding box is the honest signal.
+   * - Screen readers still reach the content. Usually fine for a column whose
+   *   value is duplicated elsewhere in the row, and wrong if hiding was meant to
+   *   remove it rather than to save width.
    */
   hideBelow?: ListBreakpoint;
   /**
