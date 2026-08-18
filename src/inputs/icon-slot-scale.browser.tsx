@@ -43,9 +43,10 @@ function readGlyph(id: string): { px: number; color: string } {
 }
 
 /**
- * The scale. Xs and Lg are unchanged from what 3/5 produced (12 and 24 came out
- * exact); Sm and Md are 16.8 and 19.2 snapped to the step the call sites had
- * already chosen for them by hand.
+ * The scale. Only Xs and Lg came out exact under 3/5 — 12 and 24 — and are unchanged.
+ * Sm and Md were 16.8 and 19.2, snapped to the steps the call sites had already
+ * chosen for them by hand. Xl was 28.8 and snaps to 28; no call site ever pinned an
+ * Xl glyph, so that step is the nearest one rather than a choice being ratified.
  */
 const SCALE = [
   { size: Size.Xs, label: "Xs", px: 12 },
