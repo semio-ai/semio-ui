@@ -101,7 +101,7 @@ function Matrix({ notes }: { notes?: Record<string, string> }) {
           <Button
             size={Size.Sm}
             visuals="inverted"
-            leftIcon={<Icon name="search" size="none" className="size-[14px]" />}
+            leftIcon={<Icon name="search" size="none" className="size-3.5" />}
             altText="Filter"
           />
         </div>
