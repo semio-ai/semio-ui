@@ -3,7 +3,6 @@ import {
   useEffect,
   useMemo,
   useRef,
-  useState,
   type KeyboardEvent as ReactKeyboardEvent,
   type CSSProperties,
   type MouseEvent as ReactMouseEvent,
@@ -174,22 +173,17 @@ export function CardGrid<T>({
       : undefined,
   });
 
-  // ── Measured column count, handed to the composite as `cols` ──────────────
-  const [columns, setColumns] = useState(1);
-  useEffect(() => {
-    const grid = gridRef.current;
-    if (!grid) return;
-    const measure = () => {
-      // `grid-template-columns` resolves to a list of used track sizes, so its
-      // length is the live column count at the current breakpoint.
-      const tracks = getComputedStyle(grid).gridTemplateColumns.trim();
-      setColumns(tracks && tracks !== "none" ? tracks.split(/\s+/).length : 1);
-    };
-    measure();
-    const observer = new ResizeObserver(measure);
-    observer.observe(grid);
-    return () => observer.disconnect();
-  }, []);
+  // No measured column count, and no `ResizeObserver` to keep one current.
+  //
+  // Up/Down used to be the composite's, given `cols` — a number that exists
+  // nowhere in CSS, so it had to be read back out of the resolved
+  // `grid-template-columns` on every resize and handed in. `GridNavRoot` now
+  // resolves the vertical axis from the rendered geometry instead, which cannot
+  // disagree with what is on screen and needs nothing observed.
+  //
+  // It also moves out of a PARTIAL last row, which the arithmetic could not: with
+  // four columns and six items there is no `index + cols` below the fourth card, so
+  // Down simply did nothing.
 
   // The composite drives focus by INDEX; selection is keyed by id. These two
   // conversions are the whole seam between them.
@@ -208,31 +202,24 @@ export function CardGrid<T>({
    * - pointer → do nothing here; `handleClick` owns click selection, and it is the
    *   only path that respects the embedded-control guard
    *
-   * Recorded on CAPTURE-phase listeners so it is set before either the composite's
-   * handler or React's bubble-phase ones run — the flag must already be correct by
-   * the time the composite calls back during the same dispatch.
+   * Recorded on React CAPTURE props, on the outermost element, so it is set before
+   * anything else in this tree sees the event.
+   *
+   * React props rather than native listeners, and that is not a style choice. React
+   * delegates every handler to the ROOT container, so its capture phase runs above
+   * the whole subtree — a React capture prop anywhere inside beats a NATIVE capture
+   * listener attached to an element higher up. These were native listeners on this
+   * element, and `GridNavRoot`'s own React capture handler (which resolves Up/Down)
+   * therefore ran first and read a flag still describing the previous click:
+   * arrowing reported `pointer: true` and selection stopped following focus.
+   *
+   * As React props on an ancestor, ordinary top-down capture ordering applies and
+   * this runs first again.
    */
   const navSource = useRef<{ pointer: boolean; focusOnly: boolean }>({
     pointer: false,
     focusOnly: false,
   });
-  useEffect(() => {
-    const grid = gridRef.current;
-    if (!grid) return;
-    const onKeyDownCapture = (event: globalThis.KeyboardEvent) => {
-      navSource.current = { pointer: false, focusOnly: event.metaKey || event.ctrlKey };
-    };
-    const onPointerDownCapture = () => {
-      navSource.current = { pointer: true, focusOnly: false };
-    };
-    grid.addEventListener("keydown", onKeyDownCapture, true);
-    grid.addEventListener("pointerdown", onPointerDownCapture, true);
-    return () => {
-      grid.removeEventListener("keydown", onKeyDownCapture, true);
-      grid.removeEventListener("pointerdown", onPointerDownCapture, true);
-    };
-  }, []);
-
   const handleHighlightChange = useCallback(
     (index: number) => {
       const id = ids[index];
@@ -333,13 +320,18 @@ export function CardGrid<T>({
   return (
     <div
       ref={gridRef}
+      onKeyDownCapture={(event) => {
+        navSource.current = { pointer: false, focusOnly: event.metaKey || event.ctrlKey };
+      }}
+      onPointerDownCapture={() => {
+        navSource.current = { pointer: true, focusOnly: false };
+      }}
       className={clsx("grid", className)}
       style={{ justifyContent: justify, ...style }}
     >
       <GridNavRoot
         highlightedIndex={highlightedIndex}
         onHighlightedIndexChange={handleHighlightChange}
-        cols={columns}
         loop={loop}
         // Keep roving focus moving while these are held, so Cmd+Arrow (focus only)
         // and Shift+Arrow work; the composite otherwise bails on any modifier.
