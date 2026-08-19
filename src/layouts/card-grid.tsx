@@ -77,9 +77,27 @@ export interface CardGridProps<T> {
    */
   className?: string;
   /**
+   * Where the grid's LEFTOVER width goes, when the tracks do not fill the row.
+   *
+   * Only meaningful with fixed-width tracks. Tracks declared as `1fr` absorb every
+   * spare pixel themselves, so there is no free space left to justify and this does
+   * nothing — which is the arrangement most consumers start from.
+   *
+   * It exists because the answer is a matter of taste rather than of correctness,
+   * and the taste differs per surface: `start` keeps the first card aligned with
+   * whatever heading sits above the grid, `center` looks tidier in isolation but
+   * breaks that alignment, and `space-between` reads well at three or four columns
+   * and badly at two, where the cards fly to opposite edges. Parameterised so a
+   * consumer can try them against real content instead of arguing from a mockup.
+   */
+  justify?: "start" | "center" | "end" | "space-between" | "space-around" | "space-evenly";
+  /**
    * Inline styles for the grid container. Mostly for callers that set their tracks
    * without utility classes — including tests, which run without the compiled
    * stylesheet and would otherwise measure no columns at all.
+   *
+   * Applied AFTER {@link justify}, so a caller that sets `justifyContent` here
+   * still wins.
    */
   style?: CSSProperties;
 }
@@ -120,6 +138,7 @@ export function CardGrid<T>({
   getSearchText,
   ariaLabel,
   className,
+  justify,
   style,
 }: CardGridProps<T>) {
   const gridRef = useRef<HTMLDivElement | null>(null);
@@ -312,7 +331,11 @@ export function CardGrid<T>({
   }, [deselectOnClickAway, selectionMode, disallowEmptySelection, state]);
 
   return (
-    <div ref={gridRef} className={clsx("grid", className)} style={style}>
+    <div
+      ref={gridRef}
+      className={clsx("grid", className)}
+      style={{ justifyContent: justify, ...style }}
+    >
       <GridNavRoot
         highlightedIndex={highlightedIndex}
         onHighlightedIndexChange={handleHighlightChange}

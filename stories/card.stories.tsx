@@ -300,3 +300,52 @@ export const SelectedAndHover: Story = {
     </div>
   ),
 };
+
+/**
+ * Fixed-width tracks, and where the leftover width goes.
+ *
+ * `repeat(auto-fill, minmax(min(280px, 100%), 280px))` keeps every card exactly one
+ * size and lets the COUNT change with the container — the inverse of a
+ * `grid-cols-N` ladder, which fixes the count and lets each card slide. Below one
+ * card's width the `min()` lets the single column shrink, so it scales rather than
+ * overflowing.
+ *
+ * Fixed tracks are what make `justify` mean anything: `1fr` tracks absorb the spare
+ * width themselves and leave nothing to justify. Resize the frame to watch the
+ * column count step, and compare where the slack lands.
+ */
+export const FixedWidthTracks: Story = {
+  parameters: { layout: "padded" },
+  render: () => {
+    const tracks = "repeat(auto-fill, minmax(min(280px, 100%), 280px))";
+    const options = ["start", "center", "space-between"] as const;
+    return (
+      <div className="flex flex-col gap-8">
+        {options.map((justify) => (
+          <div key={justify} className="flex flex-col gap-2">
+            <span className="text-xs text-neutral-500 dark:text-neutral-400">
+              justify=&quot;{justify}&quot;
+            </span>
+            <CardGrid
+              data={[1, 2, 3, 4, 5].map((n) => ({ key: `card-${String(n)}`, n }))}
+              getItemId={(item) => item.key}
+              ariaLabel={`Cards justified ${justify}`}
+              className="gap-3"
+              style={{ gridTemplateColumns: tracks }}
+              justify={justify}
+            >
+              {(item) => (
+                <Card
+                  media={<Icon name="box" size="none" className="size-10 opacity-30" />}
+                  title={`Card ${String(item.n)}`}
+                >
+                  <MetaLine>Always 280px wide</MetaLine>
+                </Card>
+              )}
+            </CardGrid>
+          </div>
+        ))}
+      </div>
+    );
+  },
+};
