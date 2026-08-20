@@ -349,3 +349,77 @@ export const FixedWidthTracks: Story = {
     );
   },
 };
+
+/** A second identity line, as a consumer would write one — `subtitle` styles nothing. */
+function AddressLine({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="truncate text-[11px] leading-3 text-neutral-500 dark:text-neutral-400">
+      {children}
+    </span>
+  );
+}
+
+/**
+ * `subtitle` versus the same line passed as the first body child.
+ *
+ * The difference is the gap and only the gap. The body is a `gap-2` stack, so on the
+ * right the address sits 8px below the name and reads as the first line of the
+ * metadata; `subtitle` shares a wrapper with the title row, so the body's gap falls
+ * below the pair and the two lines read as one name. The right-hand card is what
+ * every consumer wrote before the slot existed.
+ *
+ * Both cards pass the identical `AddressLine`. The slot places, the consumer styles —
+ * which is what lets a listing hand the same component to its rows and its cards and
+ * know the two agree.
+ */
+export const Subtitle: Story = {
+  render: () => (
+    <div className="flex flex-row items-start gap-4">
+      {[
+        { label: "subtitle", asSubtitle: true },
+        { label: "first body child", asSubtitle: false },
+      ].map(({ label, asSubtitle }) => (
+        <div key={label} className="flex w-64 flex-col gap-2">
+          <span className="text-xs text-neutral-500 dark:text-neutral-400">{label}</span>
+          <Card
+            media={<Icon name="box" size="none" className="size-10 opacity-30" />}
+            title="Quori"
+            titleTrailing={
+              <Chip size={Size.Xs} variant={Variant.Tertiary}>
+                Model
+              </Chip>
+            }
+            subtitle={asSubtitle ? <AddressLine>@semio/quori</AddressLine> : undefined}
+            primaryAction={
+              <Button size={Size.Sm} variant={Variant.Tertiary} visuals="inverted-border">
+                Go to page
+              </Button>
+            }
+          >
+            {!asSubtitle && <AddressLine>@semio/quori</AddressLine>}
+            <MetaLine>Owner · v1.2.0</MetaLine>
+          </Card>
+        </div>
+      ))}
+    </div>
+  ),
+};
+
+/**
+ * A subtitle truncates independently of the title, so a long address never pushes a
+ * card wider or wraps to a second line — the `min-w-0` on the shared wrapper is what
+ * makes that resolve rather than overflow.
+ */
+export const SubtitleTruncates: Story = {
+  render: () => (
+    <div className="w-56">
+      <Card
+        media={<Icon name="box" size="none" className="size-10 opacity-30" />}
+        title="Boundary Test Robot With A Long Name"
+        subtitle={<AddressLine>@some-very-long-scope/an-equally-long-asset-name</AddressLine>}
+      >
+        <MetaLine>Owner · v1.2.0</MetaLine>
+      </Card>
+    </div>
+  ),
+};
