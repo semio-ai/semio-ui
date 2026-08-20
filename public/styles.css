@@ -1277,13 +1277,32 @@
         "menu . left   .      content .      right "
         "menu . .      .      .       .      .     "
         "menu . footer footer footer  footer footer";
+      /* The side tracks are `minmax(0, …)`, not bare lengths, so they can give
+         width back.
+
+         `desktop` is width-only at 768px, but this arrangement needs room for the
+         menu rail, a left pane, a content column AND a right pane. Between those
+         two numbers the grid is overconstrained — and a rigid length resolves that
+         by OVERFLOWING. `overflow-x: clip` above then swallowed the overflow, so
+         the right sidebar left the screen entirely; and the menu, squeezed below
+         its content width, was painted over by `Header` and the panes, which are
+         later siblings. Two symptoms, one cause: a track that could not compress.
+
+         Where everything fits, `minmax(0, L)` resolves to exactly `L`, so the roomy
+         layout is untouched. Where it does not, the panes narrow — the honest
+         outcome, and strictly better than one of them vanishing.
+
+         A floor, not the whole answer: the stacked arrangement below `desktop` is
+         the right shape for a genuinely narrow window, and it engages at 768px
+         rather than at the width this grid actually needs. Raising that threshold is
+         a design decision about pane widths, not a bug fix. */
       grid-template-columns:
-        auto var(--padding-width) var(--left-size) var(--content-left-gap) minmax(
+        auto var(--padding-width) minmax(0, var(--left-size)) var(--content-left-gap) minmax(
           0,
           var(--content-size)
         )
         var(--content-right-gap)
-        var(--right-size);
+        minmax(0, var(--right-size));
       grid-template-rows: auto var(--padding-width) 1fr var(--content-footer-gap) minmax(0, auto);
     }
 
