@@ -355,7 +355,19 @@ export function CardGrid<T>({
               disabled={disabled}
               onClick={disabled ? undefined : (event) => handleClick(event, id)}
               onDoubleClick={
-                disabled || !onItemDoubleClick ? undefined : (event) => onItemDoubleClick(id, event)
+                disabled || !onItemDoubleClick
+                  ? undefined
+                  : (event) => {
+                      // The SAME exclusion `handleClick` applies, for the same reason.
+                      // A card carries three verbs — background selects, the image
+                      // inspects, the title navigates — and they stay separate only
+                      // because clicks originating in a link or a button are not the
+                      // card's clicks. The single-click path guarded that and this one
+                      // did not, so double-clicking a title link fired navigation AND
+                      // inspection: exactly the conflation the split exists to prevent.
+                      if ((event.target as HTMLElement).closest(INTERACTIVE_SELECTOR)) return;
+                      onItemDoubleClick(id, event);
+                    }
               }
               // The focus ring belongs to the card the consumer renders, not to
               // this wrapper, so the wrapper suppresses its own.
