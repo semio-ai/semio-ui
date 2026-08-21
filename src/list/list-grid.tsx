@@ -62,6 +62,19 @@ export interface ListColumn<T> {
    * (pure CSS container query). Hiding relies on an `auto` track collapsing to 0
    * once the cells are `display:none`, so a `hideBelow` column is always an
    * `auto` track — `flex` is ignored for it.
+   *
+   * **A hidden column's cells stay in the DOM.** `display:none` removes them from
+   * layout, not from the document, so text queries still match their content. Two
+   * consequences worth knowing:
+   *
+   * - A test asserting a value is "shown" can match the hidden copy and pass while
+   *   nothing is visible; and where the value also appears elsewhere, the two
+   *   copies collide as a locator strict-mode violation that neither `.first()`
+   *   nor `exact` resolves, since both matches are genuine. Assert geometry — a
+   *   zero bounding box is the honest signal.
+   * - Screen readers still reach the content. Usually fine for a column whose
+   *   value is duplicated elsewhere in the row, and wrong if hiding was meant to
+   *   remove it rather than to save width.
    */
   hideBelow?: ListBreakpoint;
   /**
@@ -480,10 +493,15 @@ export function ListGrid<T>({
       // plain two-clicks-is-two-clicks behaviour it has always had.
       if (onItemDoubleClick && event.detail > 1) return;
       // Clicks that originate in an interactive cell control must not select the
-      // row (embedded buttons/menus/inputs keep working).
+      // row (embedded buttons/menus/inputs/links keep working).
+      //
+      // `a[href]` is here because a row's name is a real link: a cell can carry a
+      // gesture that means "go there" beside one that means "select this", and
+      // without this the link would do both — navigating AND moving the selection
+      // out from under the viewer on the way out.
       if (
         (event.target as HTMLElement).closest(
-          "button, input, select, textarea, [role='menuitem'], [role='menuitemradio'], [data-radix-collection-item]",
+          "a[href], button, input, select, textarea, [role='menuitem'], [role='menuitemradio'], [data-radix-collection-item]",
         )
       ) {
         return;
@@ -524,7 +542,7 @@ export function ListGrid<T>({
       // menu would both open the menu and fire the row's handler.
       if (
         (event.target as HTMLElement).closest(
-          "button, input, select, textarea, [role='menuitem'], [role='menuitemradio'], [data-radix-collection-item]",
+          "a[href], button, input, select, textarea, [role='menuitem'], [role='menuitemradio'], [data-radix-collection-item]",
         )
       ) {
         return;

@@ -36,22 +36,43 @@ const options = () => [...document.querySelectorAll('[role="option"]')];
 const focusedName = () => document.activeElement?.textContent?.trim() ?? null;
 const sorted = (s: Set<string>) => [...s].sort((a, b) => a.localeCompare(b));
 
+/**
+ * `display: contents` on the composite's own element, as a real rule.
+ *
+ * `CardGrid` sets it with a utility class, and this project renders without the
+ * compiled stylesheet — so without this the composite's wrapper stays a block, the
+ * items are ITS children rather than the grid's, and nothing is laid out in the
+ * columns the container declares.
+ *
+ * That was invisible while row-stepping came from `grid-template-columns`: the
+ * count was read off a container whose declared tracks laid out exactly one thing,
+ * the wrapper. The assertions agreed with the arithmetic and neither matched the
+ * screen. Now that Up/Down is resolved from geometry, the harness has to produce
+ * the geometry it claims to be testing.
+ */
+function GridStyles() {
+  return <style>{".contents{display:contents}"}</style>;
+}
+
 function renderGrid(props: Partial<Parameters<typeof CardGrid<Item>>[0]> = {}) {
   return render(
-    <CardGrid
-      data={ITEMS}
-      getItemId={(item) => item.id}
-      selectionMode="single"
-      ariaLabel="cards"
-      // Tracks set INLINE, not via `grid-cols-3`: this project renders without
-      // the compiled stylesheet, so a utility class would leave the container
-      // with no resolved columns and the measurement would read 1 — making every
-      // row-step assertion below silently vacuous.
-      style={{ display: "grid", width: 600, gridTemplateColumns: "repeat(3, 1fr)" }}
-      {...props}
-    >
-      {(item) => <div>{item.name}</div>}
-    </CardGrid>,
+    <>
+      <GridStyles />
+      <CardGrid
+        data={ITEMS}
+        getItemId={(item) => item.id}
+        selectionMode="single"
+        ariaLabel="cards"
+        // Tracks set INLINE, not via `grid-cols-3`: this project renders without
+        // the compiled stylesheet, so a utility class would leave the container
+        // with no resolved columns and the measurement would read 1 — making every
+        // row-step assertion below silently vacuous.
+        style={{ display: "grid", width: 600, gridTemplateColumns: "repeat(3, 1fr)" }}
+        {...props}
+      >
+        {(item) => <div>{item.name}</div>}
+      </CardGrid>
+    </>,
   );
 }
 
@@ -111,9 +132,9 @@ test("selection follows focus, so arrowing moves the selection too", async () =>
 });
 
 /**
- * The reason the column count is measured rather than passed as a prop: the same
- * markup navigates differently at a different width. Here the grid is narrowed to
- * two columns, which re-lays the items as
+ * The same markup navigates differently at a different width — which is why the row
+ * step is resolved from the rendered geometry rather than from any declared number.
+ * Here the grid is narrowed to two columns, which re-lays the items as
  *
  *     a  b
  *     c  d
@@ -210,4 +231,32 @@ test("selectionMode=none announces a grid and activates on click", async () => {
   expect(document.querySelectorAll('[role="gridcell"]')).toHaveLength(6);
   await userEvent.click(document.querySelectorAll('[role="gridcell"]')[1]!);
   expect(onAction).toHaveBeenCalledWith("b", expect.anything());
+});
+
+/**
+ * A PARTIAL last row, which index arithmetic could not reach.
+ *
+ * Four columns and six items lays out as
+ *
+ *     a  b  c  d
+ *     e  f
+ *
+ * so there is no `index + cols` below `d` — the old row step had nothing to move
+ * to and did nothing at all. Geometry asks which box is below and takes the nearest
+ * in that row, so the cursor lands on `f`: the card a viewer would point at.
+ *
+ * Asserted in BOTH directions, and the trip does NOT come back to where it started:
+ * `f` sits under `b`, so Up from `f` is `b`, not the `d` we left. That asymmetry is
+ * the correct answer rather than a defect — there is nothing under `d` to return
+ * from — and pinning it is the point, because a column count has no way to express
+ * it and would either refuse to move or invent a symmetry the layout does not have.
+ */
+test("Down from a card with nothing directly beneath lands on the nearest below", async () => {
+  renderGrid({ style: { display: "grid", width: 600, gridTemplateColumns: "repeat(4, 1fr)" } });
+  await userEvent.click(options()[3]); // Delta, end of the full row
+  await userEvent.keyboard("{ArrowDown}");
+  expect(focusedName()).toBe("Foxtrot"); // the nearest card in the short row
+
+  await userEvent.keyboard("{ArrowUp}");
+  expect(focusedName()).toBe("Bravo"); // the card directly above Foxtrot, not Delta
 });

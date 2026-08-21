@@ -42,6 +42,22 @@ export interface CardProps {
   title?: ReactNode;
   /** Trailing element on the title row, e.g. a `Chip`. Never truncates. */
   titleTrailing?: ReactNode;
+  /**
+   * A second identity line, directly beneath the title with **no gap** — an
+   * address, a scope, where the thing lives.
+   *
+   * Distinct from {@link children} because of that gap and nothing else. The body
+   * is a `gap-2` stack, so a second line passed as the first body child sits 8px
+   * under the title and reads as the first of the metadata rather than as part of
+   * the name. This slot shares a wrapper with the title row so the body's gap
+   * falls below the pair, which is what lets a card's name block match the two
+   * tight lines a list row shows.
+   *
+   * Placement only: like {@link children} it states no size and no colour, so a
+   * consumer whose rows and cards must agree can pass one component to both. See
+   * the note on the component about why body content declares its own colour.
+   */
+  subtitle?: ReactNode;
   /** Body content below the title — metadata lines and the like. */
   children?: ReactNode;
   /**
@@ -109,6 +125,7 @@ export function Card({
   mediaCorner,
   title,
   titleTrailing,
+  subtitle,
   children,
   footer,
   footerAlign = "end",
@@ -200,12 +217,27 @@ export function Card({
 
       {/* `relative` lifts the body above the tint layer. */}
       <div className={clsx("relative flex flex-1 flex-col gap-2 p-3", bodyClassName)}>
-        {hasTitleRow && (
-          <div className="flex flex-row items-start justify-between gap-2">
-            {title !== undefined && (
-              <span className="min-w-0 truncate text-sm font-medium">{title}</span>
+        {/* Title row and subtitle in ONE wrapper, so the body's `gap-2` falls below
+            the pair rather than between the two halves of the name. `min-w-0` on the
+            wrapper too, or the subtitle's truncation has nothing to resolve against.
+
+            The subtitle is rendered BARE, with no wrapper of its own. A wrapping
+            block establishes a line box at the inherited line-height, which put 24px
+            of box around a 12px line and left the gap this slot exists to remove
+            almost intact — measured at 9px where the intent was 2. As a direct flex
+            item it is exactly as tall as what the consumer passed, and `stretch` on
+            the cross axis still gives it the full width its `truncate` needs. */}
+        {(hasTitleRow || subtitle !== undefined) && (
+          <div className="flex min-w-0 flex-col">
+            {hasTitleRow && (
+              <div className="flex flex-row items-start justify-between gap-2">
+                {title !== undefined && (
+                  <span className="min-w-0 truncate text-sm font-medium">{title}</span>
+                )}
+                {titleTrailing !== undefined && <div className="flex-none">{titleTrailing}</div>}
+              </div>
             )}
-            {titleTrailing !== undefined && <div className="flex-none">{titleTrailing}</div>}
+            {subtitle}
           </div>
         )}
 

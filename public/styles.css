@@ -1116,6 +1116,14 @@
     @apply block h-[70%] w-[70%] shrink-0;
   }
 
+  /* Deliberately proportional, where `.sized-icon` is a fixed step.
+
+     This slot fills a box its call site draws — a Select's option indicator, a
+     nested row's check — so the glyph is sized relative to THAT box rather than to
+     a control's height, and the two scales answer different questions. A Select's
+     glyph reading smaller than the search field beside it is that difference
+     showing, not the two drifting apart: snapping this to the control scale would
+     make the glyph fight the indicator it sits in. */
   .icon-slot {
     @apply grid h-full w-full place-items-center leading-none;
     @apply [&_svg]:block [&_svg]:h-3/5 [&_svg]:w-3/5 [&_svg]:shrink-0;
@@ -1126,7 +1134,59 @@
      Normalizes any icon set to one size + centers it, so glyphs don't shift. */
   .list-item-icon {
     @apply grid size-5 place-items-center leading-none;
-    @apply [&_svg]:block [&_svg]:h-3/5 [&_svg]:w-3/5 [&_svg]:shrink-0;
+    /* 12px in the 20px box — the same step `.sized-icon` gives an Xs control,
+       spelled explicitly rather than as 3/5, which happens to land on 12 here. */
+    @apply [&_svg]:block [&_svg]:size-3 [&_svg]:shrink-0;
+  }
+
+  /* A control's glyph box: an explicit step per control size, rather than a
+     fraction of the box.
+
+     A fraction lands on fractional pixels at most sizes — 3/5 of a 28px Sm button
+     is 16.8, of a 32px Md button 19.2 — and a fractional glyph box is a subpixel
+     rendering box. It is also why call sites pinned glyphs by hand: every hand-set
+     size in the app was one of those fractions rounded to the nearest step, and
+     they never disagreed about which step.
+
+     Targets `.icon-standard` rather than `svg`, so that an icon whose call site
+     opted out with `size="none"` carries no `.icon-standard` and keeps exactly the
+     size it asked for. That is what lets a deliberate departure — the 10px playback
+     glyphs — survive a change to the standard scale.
+
+     Applied to `.sized-inner-group-item` directly rather than to each of its call
+     sites: chips, tabs, toggle groups, selects and the field adornments are all the
+     same box on the same size scale, and snapping only the ones a reader happened to
+     look at is how the two scales diverged in the first place. `Button` opts in by
+     name because its glyph box is `sized-height sized-width`, not an inner box. */
+  .sized-icon,
+  .sized-inner-group-item {
+    /* 20px */
+    @apply [&_.icon-standard]:size-5;
+
+    @variant size-xs {
+      /* 12px */
+      @apply [&_.icon-standard]:size-3;
+    }
+
+    @variant size-sm {
+      /* 16px */
+      @apply [&_.icon-standard]:size-4;
+    }
+
+    @variant size-md {
+      /* 20px */
+      @apply [&_.icon-standard]:size-5;
+    }
+
+    @variant size-lg {
+      /* 24px */
+      @apply [&_.icon-standard]:size-6;
+    }
+
+    @variant size-xl {
+      /* 28px */
+      @apply [&_.icon-standard]:size-7;
+    }
   }
 
   .input-label-field-units-grid {
@@ -1217,13 +1277,32 @@
         "menu . left   .      content .      right "
         "menu . .      .      .       .      .     "
         "menu . footer footer footer  footer footer";
+      /* The side tracks are `minmax(0, …)`, not bare lengths, so they can give
+         width back.
+
+         `desktop` is width-only at 768px, but this arrangement needs room for the
+         menu rail, a left pane, a content column AND a right pane. Between those
+         two numbers the grid is overconstrained — and a rigid length resolves that
+         by OVERFLOWING. `overflow-x: clip` above then swallowed the overflow, so
+         the right sidebar left the screen entirely; and the menu, squeezed below
+         its content width, was painted over by `Header` and the panes, which are
+         later siblings. Two symptoms, one cause: a track that could not compress.
+
+         Where everything fits, `minmax(0, L)` resolves to exactly `L`, so the roomy
+         layout is untouched. Where it does not, the panes narrow — the honest
+         outcome, and strictly better than one of them vanishing.
+
+         A floor, not the whole answer: the stacked arrangement below `desktop` is
+         the right shape for a genuinely narrow window, and it engages at 768px
+         rather than at the width this grid actually needs. Raising that threshold is
+         a design decision about pane widths, not a bug fix. */
       grid-template-columns:
-        auto var(--padding-width) var(--left-size) var(--content-left-gap) minmax(
+        auto var(--padding-width) minmax(0, var(--left-size)) var(--content-left-gap) minmax(
           0,
           var(--content-size)
         )
         var(--content-right-gap)
-        var(--right-size);
+        minmax(0, var(--right-size));
       grid-template-rows: auto var(--padding-width) 1fr var(--content-footer-gap) minmax(0, auto);
     }
 
