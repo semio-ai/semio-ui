@@ -164,7 +164,7 @@ export interface ListGridProps<T> {
   virtualized?: boolean;
   /**
    * The element that scrolls, required by {@link ListGridProps.virtualized}. For a
-   * list inside a `ScrollArea`, this is that component's `viewportRef` — the Radix
+   * list inside a `ScrollArea`, this is that component's `viewportRef` — the scroll
    * viewport is what scrolls, and the `ScrollArea` root is not.
    */
   scrollRef?: RefObject<HTMLElement | null>;

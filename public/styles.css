@@ -872,29 +872,6 @@
     fill: var(--strong-accent-text-color);
   }
 
-  /*
-   * Radix wraps a ScrollArea viewport's content in a `display: table` div, to
-   * support `min-width: 100%` on the horizontal axis. On a VERTICAL-only area
-   * that wrapper is not merely unnecessary, it is actively wrong: `table`
-   * shrink-wraps, so the wrapper reports a height far smaller than its content
-   * — measured 268px against ~1004px of real content — and `ScrollArea`'s
-   * overflow detection measures exactly that element to decide whether the axis
-   * scrolls. It concludes there is nothing to scroll and latches
-   * `overflow-y: hidden`, at which point the content below the fold is
-   * unreachable by any means.
-   *
-   * A real class rather than an inline arbitrary variant. The variant form
-   * (`[&_[data-radix-scroll-area-viewport]>div]:block!`) was the previous
-   * attempt at this and never reached the DOM — neither the class nor any
-   * generated rule for it was present — which is a failure mode a plain rule
-   * does not have.
-   */
-  .scroll-area-vertical [data-radix-scroll-area-viewport] > div {
-    /* `!important` because Radix sets `display: table` as an INLINE style on
-       this wrapper, which outranks any class rule without it. */
-    display: block !important;
-  }
-
   .card {
     @apply rounded-sm shadow-lg border-2;
     border-color: var(--card-border-color);
