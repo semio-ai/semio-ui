@@ -130,14 +130,13 @@ const OVERFLOW_EPSILON = 0.5;
  * keeps `overflow: scroll`, so wheel, trackpad and keyboard scrolling are unaffected
  * by anything decided here.
  */
-function useContentOverflow(viewport: React.RefObject<HTMLDivElement | null>): {
+function useContentOverflow(viewportEl: HTMLDivElement | null): {
   x: boolean;
   y: boolean;
 } {
   const [overflow, setOverflow] = useState({ x: false, y: false });
 
   useEffect(() => {
-    const viewportEl = viewport.current;
     if (!viewportEl) return;
 
     const measure = () => {
@@ -166,7 +165,13 @@ function useContentOverflow(viewport: React.RefObject<HTMLDivElement | null>): {
     return () => {
       observer.disconnect();
     };
-  }, [viewport]);
+    // The NODE, not a ref holding it. A ref object is stable, so an effect keyed
+    // on one runs exactly once — and if the viewport has not attached by then it
+    // returns early and never looks again, leaving this stuck at its initial
+    // `{x:false, y:false}` for the lifetime of the component. Measured before
+    // the change: every ScrollArea in the app reported no overflow on both axes,
+    // including one whose content was 1004px inside a 716px viewport.
+  }, [viewportEl]);
 
   return overflow;
 }
@@ -225,6 +230,9 @@ export const InnerScrollArea = forwardRef<ScrollAreaRef, ScrollAreaProps>(
 
     // Ref to access the Radix ScrollArea viewport
     const viewportRef = useRef<HTMLDivElement>(null);
+    // Mirrored into state so the overflow measurement can key an effect on the
+    // node actually attaching — see `useContentOverflow`.
+    const [viewportNode, setViewportNode] = useState<HTMLDivElement | null>(null);
     // Hand the same node to the consumer, if one asked for it.
     //
     // Memoized, because `mergeRefs` is a plain function and not a hook: called in the
@@ -234,13 +242,13 @@ export const InnerScrollArea = forwardRef<ScrollAreaRef, ScrollAreaProps>(
     // every unrelated re-render of this component, which for a windowed list is the ref its
     // whole geometry is read from.
     const mergedViewportRef = useMemo(
-      () => mergeRefs([viewportRef, externalViewportRef]),
+      () => mergeRefs([viewportRef, setViewportNode, externalViewportRef]),
       [externalViewportRef],
     );
 
     // Whether the content really overflows, rather than whether the rounded scroll
     // metrics say so. Gates the scrollbars below.
-    const contentOverflow = useContentOverflow(viewportRef);
+    const contentOverflow = useContentOverflow(viewportNode);
 
     // Track user interaction state
     const [isUserScrolling, setIsUserScrolling] = useState(false);
@@ -443,10 +451,14 @@ export const InnerScrollArea = forwardRef<ScrollAreaRef, ScrollAreaProps>(
         className={clsx(
           "relative",
           "overflow-hidden overscroll-none",
-          // Radix injects a `display: table; min-width: 100%` wrapper inside the viewport
-          // to support horizontal scrolling. For vertical-only scroll areas this is unnecessary
-          // and prevents padding/margin from working correctly on content elements.
-          orientation === "vertical" && "[&_[data-radix-scroll-area-viewport]>div]:block!",
+          // Radix injects a `display: table; min-width: 100%` wrapper inside the
+          // viewport to support horizontal scrolling. For a vertical-only area
+          // it breaks two things: padding and margin on content elements, and —
+          // worse — the overflow measurement below, since a table shrink-wraps
+          // and so reports a height much smaller than its content. See
+          // `.scroll-area-vertical` in `styles.css`; it replaces an inline
+          // arbitrary variant that never reached the DOM.
+          orientation === "vertical" && "scroll-area-vertical",
           "flex",
           orientation === "horizontal" ? "flex-row" : "flex-col",
           shrinkHeight ? "h-fit" : "h-full",
