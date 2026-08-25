@@ -15,10 +15,11 @@ import "../test-stylesheet";
  * `scrollWidth`/`scrollHeight` and `clientWidth`/`clientHeight` are integers by spec, and
  * where a viewport's box is a fractional size WebKit rounds the pair in opposite
  * directions, reporting `scroll = client + 1` for content that fits exactly. Both scroll
- * libraries decide scrollability from precisely that comparison (Radix `offsetHeight <
- * scrollHeight`, Base UI `clientHeight >= scrollHeight`), so both raise a scrollbar for
- * content that fits — which is how the app came to show one on a menu holding 144px of
- * content in a 564px box.
+ * Base UI decides scrollability from precisely that comparison (`clientHeight >=
+ * scrollHeight`), so it raises a scrollbar for content that fits — which is how the app
+ * came to show one on a menu holding 144px of content in a 564px box. The fractional
+ * measurement in `ScrollArea` is what overrides that verdict, so it survives the move off
+ * Radix rather than being replaced by `data-has-overflow-y`.
  *
  * ## What can and cannot be observed here
  *
@@ -29,22 +30,23 @@ import "../test-stylesheet";
  * **The rounding artefact itself is not reproducible.** It needs a fractional device pixel
  * ratio and this browser runs at 1. Worse, Chromium does not round the way WebKit does: a
  * 200px viewport holding 200.39px of content reports `scrollHeight` 200, not 201. So a
- * sub-pixel excess is invisible to the integer metrics here, Radix declines to mount a bar
- * for it on its own, and **no assertion about scrollbar presence can see this fix at all**
+ * sub-pixel excess is invisible to the integer metrics here, Base UI declines to mount a
+ * bar for it on its own, and **no assertion about scrollbar presence can see this fix at all**
  * in the fitting or sub-pixel cases. The archived first draft of this file asserted exactly
  * that and passed with the fix fully reverted.
  *
  * **The decision is observable as `overflow` instead.** Gating the scrollbars can only ever
- * subtract from what Radix would mount, so in a browser where Radix already declines, it is
- * unobservable. Taking the axis out of scrolling is not: it is a computed style on the
+ * subtract from what Base UI would mount, so in a browser where Base UI already declines, it
+ * is unobservable. Taking the axis out of scrolling is not: it is a computed style on the
  * viewport, it is ours alone, and it moves the moment the measurement does. So the
  * content-fits direction is asserted through `overflow`, and scrollbar presence is asserted
  * only where it can fail — the overflow direction, where the gate could wrongly suppress a
  * bar that is wanted.
  *
- * Every presence case hovers first: the component is Radix `type="hover"`, which does not
- * mount a scrollbar until the pointer is over the area. Asserting without hovering passes
- * no matter what the component decides, which the hover case below exists to prove.
+ * Every presence case hovers first: the component mounts a scrollbar only while the pointer
+ * is over the area, so a gutter is not painted permanently over every list in the app.
+ * Asserting without hovering passes no matter what the component decides, which the hover
+ * case below exists to prove.
  */
 
 const orientations = () =>
@@ -53,7 +55,7 @@ const orientations = () =>
     .sort((a, b) => a.localeCompare(b));
 
 const viewportOverflow = () => {
-  const vp = document.querySelector<HTMLElement>("[data-radix-scroll-area-viewport]");
+  const vp = document.querySelector<HTMLElement>("[data-scroll-area-viewport]");
   if (!vp) return null;
   const cs = getComputedStyle(vp);
   return { x: cs.overflowX, y: cs.overflowY };
@@ -80,7 +82,7 @@ test("content that fits scrolls on neither axis, and raises no scrollbar", async
     { height: "100px", width: "100px" },
     "fits easily",
   );
-  // `hidden` beats Radix's inline `overflow: scroll`, so the engine has nothing to draw a
+  // `hidden` beats the viewport's inline `overflow: scroll`, so the engine has nothing to draw a
   // native bar for. This is the assertion that can fail; the one below cannot in Chromium.
   await expect.poll(viewportOverflow).toEqual({ x: "hidden", y: "hidden" });
   await expect.poll(orientations).toEqual([]);
@@ -130,9 +132,9 @@ test("the scrollbar is hover-mounted, which is why every case above hovers", asy
       </ScrollArea>
     </div>,
   );
-  // Genuine overflow on both axes, but no pointer over the area. Radix `type="hover"`
-  // keeps the scrollbars unmounted, so a presence assertion made here would pass
-  // regardless of what the overflow check decided.
+  // Genuine overflow on both axes, but no pointer over the area, which keeps the
+  // scrollbars unmounted — so a presence assertion made here would pass regardless of
+  // what the overflow check decided.
   await expect.poll(orientations).toEqual([]);
 });
 
@@ -161,7 +163,7 @@ test("an overflowing axis stays scrollable, and really scrolls", async () => {
 
   // Not just the computed value — the axis has to actually move, or this would be a way of
   // hiding content rather than a way of hiding a scrollbar.
-  const vp = document.querySelector<HTMLElement>("[data-radix-scroll-area-viewport]");
+  const vp = document.querySelector<HTMLElement>("[data-scroll-area-viewport]");
   vp?.scrollTo({ top: 300 });
   await expect.poll(() => vp?.scrollTop).toBeGreaterThan(0);
 });
@@ -187,7 +189,104 @@ test("an axis locked with nothing to scroll regains scrolling when content grows
   view.rerender(<Growable tall />);
   await expect.poll(viewportOverflow).toEqual({ x: "hidden", y: "scroll" });
 
-  const vp = document.querySelector<HTMLElement>("[data-radix-scroll-area-viewport]");
+  const vp = document.querySelector<HTMLElement>("[data-scroll-area-viewport]");
   vp?.scrollTo({ top: 300 });
   await expect.poll(() => vp?.scrollTop).toBeGreaterThan(0);
+});
+
+/**
+ * The other way content becomes unreachable, and the one that needs no rounding artefact
+ * to happen: the scrolling box growing past the box that clips it.
+ *
+ * `height: 100%` resolves against the containing block's *specified* height, so an
+ * ancestor sized by its content — a popup that fits what it holds, a menu, a dialog
+ * capped by `max-height` rather than `height` — makes the percentage resolve to `auto`,
+ * and the viewport grows to its content instead of capping it. Scrollbars and `overflow`
+ * all still look right; the viewport simply extends past the clip, and the stretch beyond
+ * it cannot be brought into view at any scroll position. Measured on a modal before the
+ * fix: a 796px viewport inside a 650px clip, with the last 146px of the form unreachable.
+ */
+test("content stays reachable when an ancestor is sized by its content", async () => {
+  render(
+    // A popup that fits its content but caps: `height: fit-content` with a `max-height`,
+    // which is how every menu and dialog in the app is sized.
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        height: "fit-content",
+        maxHeight: "400px",
+        width: "300px",
+        overflow: "clip",
+      }}
+      data-testid="popup"
+    >
+      <ScrollArea
+        orientation="vertical"
+        header={<div style={{ height: "40px" }}>header</div>}
+        footer={<div style={{ height: "40px" }}>footer</div>}
+      >
+        <div>
+          <div style={{ height: "1990px" }} />
+          <div data-testid="end" style={{ height: "10px" }}>
+            end
+          </div>
+        </div>
+      </ScrollArea>
+    </div>,
+  );
+
+  const vp = () => document.querySelector<HTMLElement>("[data-scroll-area-viewport]");
+  await expect.poll(() => vp()).not.toBeNull();
+
+  // The scrolling box must fit inside the popup that clips it. A viewport taller than its
+  // clip is the defect itself, whatever the scrollbars say.
+  const popup = document.querySelector<HTMLElement>('[data-testid="popup"]')!;
+  await expect
+    .poll(() => vp()!.clientHeight <= Math.ceil(popup.getBoundingClientRect().height))
+    .toBe(true);
+
+  // And the functional claim: scrolled as far as it will go, the end of the content is
+  // actually on screen. This is what "unreachable" means, and it is measured rather than
+  // inferred from `overflow` — a synthetic wheel event drives no native scrolling and
+  // would report zero either way.
+  vp()!.scrollTop = vp()!.scrollHeight;
+  await expect
+    .poll(() => {
+      const end = document.querySelector<HTMLElement>('[data-testid="end"]')!;
+      return Math.round(end.getBoundingClientRect().bottom - popup.getBoundingClientRect().bottom);
+    })
+    .toBeLessThanOrEqual(0);
+});
+
+/**
+ * A vertical-only area has no horizontal axis, and must not acquire one from its content.
+ *
+ * Base UI sets `min-width: fit-content` on the content wrapper so that content wider than
+ * the viewport can drive horizontal scrolling. On an area with `orientation="vertical"`
+ * that is actively wrong: the wrapper sizes to the widest thing inside it, the measurement
+ * sees horizontal overflow, and the axis stays a scroll container — with no horizontal
+ * scrollbar of its own, since those are gated on the orientation. So the area scrolls
+ * sideways and shows nothing for it, which is the WebKit native-bar case in another guise.
+ *
+ * A `nowrap` label is the case that reaches this in the app rather than a contrived one:
+ * it is the standard menu-item pattern, and every menu, dropdown, combobox and modal in
+ * the package is vertical. Its `min-content` width is the whole untruncated label, so
+ * `fit-content` resolves to that, and the label's own `text-overflow` stops clipping at
+ * the popup's width — the ellipsis silently disappears.
+ */
+test("a vertical area does not gain a horizontal axis from a nowrap label", async () => {
+  render(
+    <div style={{ height: "150px", width: "200px" }}>
+      <ScrollArea orientation="vertical">
+        <div style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+          a menu item label far longer than two hundred pixels of available width
+        </div>
+      </ScrollArea>
+    </div>,
+  );
+  const vp = () => document.querySelector<HTMLElement>("[data-scroll-area-viewport]")!;
+  await expect.poll(() => getComputedStyle(vp()).overflowX).toBe("hidden");
+  // Not just the computed style: the box must not have anything to scroll to either.
+  await expect.poll(() => vp().scrollWidth).toBe(vp().clientWidth);
 });

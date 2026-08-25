@@ -13,7 +13,7 @@ import {
 } from "react";
 import { clsx } from "clsx";
 import { mergeRefs } from "react-merge-refs";
-import { ScrollArea as RadixScrollArea } from "radix-ui";
+import { ScrollArea as ScrollAreaPrimitive } from "@base-ui/react/scroll-area";
 import useMeasure from "react-use-measure";
 import { useGesture } from "@use-gesture/react";
 import { useMotionValue, useMotionValueEvent, type MotionValue } from "motion/react";
@@ -68,7 +68,7 @@ interface ScrollAreaProps {
   motionScrollX?: MotionValue<number>;
 
   /**
-   * The element that actually scrolls — Radix's viewport, not this component's root.
+   * The element that actually scrolls — the scroll viewport, not this component's root.
    *
    * Exposed for consumers that must read or window against the real scroll box, such
    * as a virtualized `ListGrid`/`TreeGrid`, which needs its `scrollTop` and
@@ -110,12 +110,16 @@ const OVERFLOW_EPSILON = 0.5;
  * spec, and where a viewport's box lands on a fractional size — routine at a
  * fractional device pixel ratio, e.g. a scaled display — WebKit rounds the pair in
  * opposite directions and reports `scroll = client + 1` for content that fits
- * exactly. Both scroll libraries decide scrollability from precisely that
- * comparison (Radix `offsetHeight < scrollHeight`, Base UI `clientHeight >=
- * scrollHeight`), so both raise a scrollbar for content that fits. Measured in the
- * app: a 564.198px-tall menu reporting client 564 / scroll 565 with 143.967px of
- * content, and a 750.870px-wide panel reporting client 751 / scroll 752 with its
- * content exactly as wide as its box.
+ * exactly. Measured in the app: a 564.198px-tall menu reporting client 564 / scroll
+ * 565 with 143.967px of content, and a 750.870px-wide panel reporting client 751 /
+ * scroll 752 with its content exactly as wide as its box.
+ *
+ * This is why the measurement is made here rather than read off Base UI's
+ * `data-has-overflow-x` / `data-has-overflow-y`, which would otherwise be the obvious
+ * source. Base UI decides an axis from `clientHeight >= scrollHeight` — precisely the
+ * integer comparison above — so its verdict carries the artefact rather than
+ * correcting it, and keying the suppression on those attributes would reintroduce the
+ * phantom bar in the browser the suppression exists for.
  *
  * `getBoundingClientRect` is not rounded, so comparing the content box against the
  * viewport's own box answers the question the integers cannot. Sizes only — a
@@ -130,18 +134,17 @@ const OVERFLOW_EPSILON = 0.5;
  * keeps `overflow: scroll`, so wheel, trackpad and keyboard scrolling are unaffected
  * by anything decided here.
  */
-function useContentOverflow(viewport: React.RefObject<HTMLDivElement | null>): {
+function useContentOverflow(viewportEl: HTMLDivElement | null): {
   x: boolean;
   y: boolean;
 } {
   const [overflow, setOverflow] = useState({ x: false, y: false });
 
   useEffect(() => {
-    const viewportEl = viewport.current;
     if (!viewportEl) return;
 
     const measure = () => {
-      // Radix wraps the children in a single element; that wrapper *is* the
+      // `Content` wraps the children in a single element; that wrapper *is* the
       // scrollable content.
       const content = viewportEl.firstElementChild;
       if (!content) return;
@@ -166,10 +169,25 @@ function useContentOverflow(viewport: React.RefObject<HTMLDivElement | null>): {
     return () => {
       observer.disconnect();
     };
-  }, [viewport]);
+    // The NODE, not a ref holding it. A ref object is stable, so an effect keyed on
+    // one runs exactly once — and if the viewport has not attached by then it returns
+    // early and never looks again, leaving this stuck at its initial `{x:false,
+    // y:false}` for the lifetime of the component. That state locks BOTH axes to
+    // `overflow: hidden`, so the failure is content nobody can reach.
+  }, [viewportEl]);
 
   return overflow;
 }
+
+/**
+ * How long the scrollbars linger after the pointer leaves.
+ *
+ * The scrollbars are mounted only while the pointer is over the area, so that a
+ * gutter is not permanently painted over every list in the app. Unmounting the
+ * instant the pointer leaves makes them flicker when crossing the boundary, which
+ * this delay absorbs.
+ */
+const SCROLLBAR_HIDE_DELAY = 600;
 
 /**
  * Renders a scrollable area with natural overscroll behavior.
@@ -223,8 +241,11 @@ export const InnerScrollArea = forwardRef<ScrollAreaRef, ScrollAreaProps>(
     const [headerRef] = useMeasure();
     const [footerRef] = useMeasure();
 
-    // Ref to access the Radix ScrollArea viewport
+    // Ref to access the scroll viewport
     const viewportRef = useRef<HTMLDivElement>(null);
+    // Mirrored into state so the overflow measurement can key an effect on the node
+    // actually attaching — see `useContentOverflow`.
+    const [viewportNode, setViewportNode] = useState<HTMLDivElement | null>(null);
     // Hand the same node to the consumer, if one asked for it.
     //
     // Memoized, because `mergeRefs` is a plain function and not a hook: called in the
@@ -234,13 +255,46 @@ export const InnerScrollArea = forwardRef<ScrollAreaRef, ScrollAreaProps>(
     // every unrelated re-render of this component, which for a windowed list is the ref its
     // whole geometry is read from.
     const mergedViewportRef = useMemo(
-      () => mergeRefs([viewportRef, externalViewportRef]),
+      () => mergeRefs([viewportRef, setViewportNode, externalViewportRef]),
       [externalViewportRef],
     );
 
     // Whether the content really overflows, rather than whether the rounded scroll
     // metrics say so. Gates the scrollbars below.
-    const contentOverflow = useContentOverflow(viewportRef);
+    const contentOverflow = useContentOverflow(viewportNode);
+
+    // Whether the pointer is over the area, which is what mounts the scrollbars.
+    //
+    // Base UI mounts a scrollbar whenever the axis overflows and expects the page to
+    // hide it with CSS, but this component paints a gutter behind the track
+    // (`showGutter`), so a permanently mounted bar is a permanently visible one on
+    // every overflowing list in the app. Mounting on hover keeps that behaviour.
+    const [pointerOver, setPointerOver] = useState(false);
+    const hideTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+    const showScrollbars = useCallback(() => {
+      clearTimeout(hideTimer.current);
+      setPointerOver(true);
+    }, []);
+    const hideScrollbarsAfterDelay = useCallback(() => {
+      clearTimeout(hideTimer.current);
+      hideTimer.current = setTimeout(() => setPointerOver(false), SCROLLBAR_HIDE_DELAY);
+    }, []);
+    useEffect(() => () => clearTimeout(hideTimer.current), []);
+
+    // Make the thumb measure itself the moment it appears.
+    //
+    // Base UI positions the thumb only from the viewport's scroll handler and a resize
+    // observer, never on mount; Radix positioned it on mount. Since the scrollbar here is
+    // mounted on hover, it is created *after* any scrolling that happened with the pointer
+    // elsewhere — a canvas-driven `motionScrollY`, `scrollTo` through the imperative
+    // handle, `externalScrollTop`, keyboard scrolling, or a windowed list moving itself —
+    // and would otherwise paint at the top of its track while the viewport sits somewhere
+    // else entirely, until the next scroll event corrected it. A scroll event carrying no
+    // actual scrolling is what makes it measure.
+    useEffect(() => {
+      if (!pointerOver || !viewportNode) return;
+      viewportNode.dispatchEvent(new Event("scroll"));
+    }, [pointerOver, viewportNode, contentOverflow.x, contentOverflow.y]);
 
     // Track user interaction state
     const [isUserScrolling, setIsUserScrolling] = useState(false);
@@ -438,15 +492,10 @@ export const InnerScrollArea = forwardRef<ScrollAreaRef, ScrollAreaProps>(
     );
 
     return (
-      <RadixScrollArea.Root
-        type="hover"
+      <ScrollAreaPrimitive.Root
         className={clsx(
           "relative",
           "overflow-hidden overscroll-none",
-          // Radix injects a `display: table; min-width: 100%` wrapper inside the viewport
-          // to support horizontal scrolling. For vertical-only scroll areas this is unnecessary
-          // and prevents padding/margin from working correctly on content elements.
-          orientation === "vertical" && "[&_[data-radix-scroll-area-viewport]>div]:block!",
           "flex",
           orientation === "horizontal" ? "flex-row" : "flex-col",
           shrinkHeight ? "h-fit" : "h-full",
@@ -454,6 +503,9 @@ export const InnerScrollArea = forwardRef<ScrollAreaRef, ScrollAreaProps>(
           wrapperClassName,
         )}
         style={style}
+        // Mounts and unmounts the scrollbars — see `pointerOver`.
+        onPointerEnter={showScrollbars}
+        onPointerLeave={hideScrollbarsAfterDelay}
       >
         {header && (
           <div ref={headerRef} className={clsx("shrink-0", headerClassName)}>
@@ -461,81 +513,138 @@ export const InnerScrollArea = forwardRef<ScrollAreaRef, ScrollAreaProps>(
           </div>
         )}
 
-        <div className="relative min-h-0 min-w-0 flex-1 overflow-hidden">
-          <RadixScrollArea.Viewport
+        {/*
+          A flex box, so the viewport below can take its size from flex layout rather
+          than from a percentage.
+
+          `height: 100%` resolves against the containing block's *specified* height, so
+          anywhere up the tree is content-sized — a popup that fits its content, a menu,
+          a dialog whose height comes from `max-height` rather than `height` — the
+          percentage resolves to `auto` and the "viewport" grows to its content instead
+          of capping it. It is then larger than this box, which clips it, and the content
+          past the clip is unreachable at any scroll position: scrolled fully to the end,
+          the last stretch of it still sits outside the visible region. Flex sizing has no
+          such dependency, and still lets the box hug its content when `shrinkHeight` /
+          `shrinkWidth` ask it to.
+        */}
+        <div
+          className={clsx(
+            "relative flex min-h-0 min-w-0 flex-1 overflow-hidden",
+            orientation === "horizontal" ? "flex-row" : "flex-col",
+          )}
+        >
+          <ScrollAreaPrimitive.Viewport
             ref={mergedViewportRef}
+            // Base UI names the viewport in the DOM only when the root was given an id.
+            // This is the stable handle for the element that actually scrolls, so that
+            // nothing has to spell a library-specific attribute to find it.
+            data-scroll-area-viewport=""
+            // A scroll container has to be reachable by keyboard, or its content is
+            // reachable only by pointer. Base UI sets this itself, but from its own
+            // integer-metric verdict, which disagrees with the measurement below in
+            // exactly the sub-pixel case that verdict gets wrong — leaving a focusable
+            // box with nothing to scroll. Driving it from the same measurement that
+            // decides whether the axis scrolls at all keeps the two consistent.
+            tabIndex={contentOverflow.x || contentOverflow.y ? 0 : -1}
             className={clsx(
-              "h-full w-full",
+              "min-h-0 min-w-0 flex-1",
+              orientation === "horizontal" ? "h-full" : "w-full",
               overscrollDisabled ? "overscroll-none" : "overscroll-contain",
               orientation === "vertical" && "overflow-x-hidden",
               orientation === "horizontal" && "overflow-y-hidden",
               // Take an axis out of scrolling entirely when nothing overflows it.
               //
               // Not belt-and-braces with the scrollbars gated below — a separate
-              // scrollbar. Radix sets `overflow: scroll` inline on both axes and hides
-              // the browser's own bar with `scrollbar-width: none` plus
+              // scrollbar. The viewport carries `overflow: scroll` on both axes and
+              // hides the browser's own bar with `scrollbar-width: none` plus
               // `::-webkit-scrollbar { display: none }`. In WebKit that does not work:
-              // verified in Safari 26.6 with both rules present and
-              // `scrollbar-width` computing to `none`, an axis reporting one rounded
-              // pixel of overflow still painted a native bar, with none of ours in the
-              // DOM. Nothing can be styled away that the engine draws outside the
-              // element, so the axis has to stop being scrollable.
+              // verified in Safari 26.6 with both rules present and `scrollbar-width`
+              // computing to `none`, an axis reporting one rounded pixel of overflow
+              // still painted a native bar, with none of ours in the DOM. Nothing can be
+              // styled away that the engine draws outside the element, so the axis has to
+              // stop being scrollable.
               //
-              // `!` because it has to beat Radix's inline style. Safe by construction:
-              // the axis only loses scrolling while the same measurement says there is
-              // nothing there to scroll to, and regains it the moment content grows.
+              // `!` because it has to beat the inline `overflow: scroll` Base UI sets on
+              // the viewport. Safe by construction: the axis only loses scrolling while
+              // the same measurement says there is nothing there to scroll to, and
+              // regains it the moment content grows.
               !contentOverflow.x && "overflow-x-hidden!",
               !contentOverflow.y && "overflow-y-hidden!",
               className,
             )}
           >
-            {children}
-          </RadixScrollArea.Viewport>
+            {/*
+              Always rendered, though Base UI makes it optional, because the overflow
+              measurement needs exactly one box to compare against the viewport. Being a
+              block div rather than Radix's `display: table` wrapper, it also leaves
+              padding and margin on the children working.
 
-          {(orientation === "both" || orientation === "vertical") && contentOverflow.y && (
-            <RadixScrollArea.Scrollbar
-              className={clsx(
-                "flex touch-none px-0.5 py-1 select-none",
-                "transition-colors duration-160 ease-out",
-                showGutter && "bg-black/5 hover:bg-black/25 dark:bg-white/5 dark:hover:bg-white/25",
-                "data-[orientation=horizontal]:h-2.5 data-[orientation=horizontal]:flex-col data-[orientation=vertical]:w-2.5",
-              )}
-              orientation="vertical"
-              // Radix identifies only its viewport in the DOM, so without this the
-              // decision above is not observable from a test.
-              data-testid="scroll-area-scrollbar"
-            >
-              <RadixScrollArea.Thumb
+              `min-w-0!` on a vertical-only area, because Base UI sets `min-width:
+              fit-content` on this element as an inline style, to let content wider than
+              the viewport drive horizontal scrolling. On an area with no horizontal axis
+              that is actively wrong: the wrapper then sizes to the widest thing inside it
+              — for the standard menu-item pattern, a `nowrap` label, that is the whole
+              untruncated label — so the measurement below sees horizontal overflow, the
+              axis stays a scroll container, and the label's own `text-overflow` stops
+              clipping at the popup's width. The result is a menu that scrolls sideways,
+              with no horizontal scrollbar of its own to show for it, which is the exact
+              case the suppression below exists to prevent. `!` because it has to beat the
+              inline style.
+            */}
+            <ScrollAreaPrimitive.Content className={clsx(orientation === "vertical" && "min-w-0!")}>
+              {children}
+            </ScrollAreaPrimitive.Content>
+          </ScrollAreaPrimitive.Viewport>
+
+          {(orientation === "both" || orientation === "vertical") &&
+            contentOverflow.y &&
+            pointerOver && (
+              <ScrollAreaPrimitive.Scrollbar
                 className={clsx(
-                  "bg-default-500/75 relative flex-1 rounded-sm",
-                  "before:absolute before:top-1/2 before:left-1/2 before:-translate-x-1/2 before:content-['']",
-                  "before:h-full before:min-h-5.5 before:w-full before:min-w-5.5 before:-translate-y-1/2",
+                  "flex touch-none px-0.5 py-1 select-none",
+                  "transition-colors duration-160 ease-out",
+                  showGutter &&
+                    "bg-black/5 hover:bg-black/25 dark:bg-white/5 dark:hover:bg-white/25",
+                  "data-[orientation=horizontal]:h-2.5 data-[orientation=horizontal]:flex-col data-[orientation=vertical]:w-2.5",
                 )}
-              />
-            </RadixScrollArea.Scrollbar>
-          )}
-          {(orientation === "both" || orientation === "horizontal") && contentOverflow.x && (
-            <RadixScrollArea.Scrollbar
-              className={clsx(
-                "flex touch-none px-1 py-0.5 select-none",
-                "transition-colors duration-160 ease-out",
-                showGutter && "bg-black/5 hover:bg-black/25 dark:bg-white/5 dark:hover:bg-white/25",
-                "data-[orientation=horizontal]:h-2.5 data-[orientation=horizontal]:flex-col data-[orientation=vertical]:w-2.5",
-              )}
-              orientation="horizontal"
-              data-testid="scroll-area-scrollbar"
-            >
-              <RadixScrollArea.Thumb
+                orientation="vertical"
+                // The overflow decision above is otherwise not observable from a test.
+                data-testid="scroll-area-scrollbar"
+              >
+                <ScrollAreaPrimitive.Thumb
+                  className={clsx(
+                    "bg-default-500/75 relative flex-1 rounded-sm",
+                    "before:absolute before:top-1/2 before:left-1/2 before:-translate-x-1/2 before:content-['']",
+                    "before:h-full before:min-h-5.5 before:w-full before:min-w-5.5 before:-translate-y-1/2",
+                  )}
+                />
+              </ScrollAreaPrimitive.Scrollbar>
+            )}
+          {(orientation === "both" || orientation === "horizontal") &&
+            contentOverflow.x &&
+            pointerOver && (
+              <ScrollAreaPrimitive.Scrollbar
                 className={clsx(
-                  "bg-default-500/75 relative flex-1 rounded-sm",
-                  "before:absolute before:top-1/2 before:left-1/2 before:-translate-x-1/2 before:content-['']",
-                  "before:h-full before:min-h-5.5 before:w-full before:min-w-5.5 before:-translate-y-1/2",
+                  "flex touch-none px-1 py-0.5 select-none",
+                  "transition-colors duration-160 ease-out",
+                  showGutter &&
+                    "bg-black/5 hover:bg-black/25 dark:bg-white/5 dark:hover:bg-white/25",
+                  "data-[orientation=horizontal]:h-2.5 data-[orientation=horizontal]:flex-col data-[orientation=vertical]:w-2.5",
                 )}
-              />
-            </RadixScrollArea.Scrollbar>
-          )}
-          {contentOverflow.x && contentOverflow.y && (
-            <RadixScrollArea.Corner className="bg-black/5" />
+                orientation="horizontal"
+                data-testid="scroll-area-scrollbar"
+              >
+                <ScrollAreaPrimitive.Thumb
+                  className={clsx(
+                    "bg-default-500/75 relative flex-1 rounded-sm",
+                    "before:absolute before:top-1/2 before:left-1/2 before:-translate-x-1/2 before:content-['']",
+                    "before:h-full before:min-h-5.5 before:w-full before:min-w-5.5 before:-translate-y-1/2",
+                  )}
+                />
+              </ScrollAreaPrimitive.Scrollbar>
+            )}
+          {contentOverflow.x && contentOverflow.y && pointerOver && (
+            <ScrollAreaPrimitive.Corner className="bg-black/5" />
           )}
         </div>
 
@@ -544,7 +653,7 @@ export const InnerScrollArea = forwardRef<ScrollAreaRef, ScrollAreaProps>(
             {footer}
           </div>
         )}
-      </RadixScrollArea.Root>
+      </ScrollAreaPrimitive.Root>
     );
   },
 );

@@ -109,9 +109,9 @@ test("ScrollArea hands out its scrolling element once, not once per render", asy
   const view = render(<Harness />);
   await new Promise((resolve) => requestAnimationFrame(() => resolve(null)));
 
-  const viewport = view.container.querySelector<HTMLElement>("[data-radix-scroll-area-viewport]");
+  const viewport = view.container.querySelector<HTMLElement>("[data-scroll-area-viewport]");
   expect(viewport).not.toBeNull();
-  // The element handed over is Radix's viewport — the box that scrolls — not the root.
+  // The element handed over is the scroll viewport — the box that scrolls — not the root.
   expect(handoffs.at(-1)).toBe(viewport);
   const initialHandoffs = handoffs.length;
 
@@ -121,7 +121,5 @@ test("ScrollArea hands out its scrolling element once, not once per render", asy
   // The re-render neither detached nor re-attached it.
   expect(handoffs.length).toBe(initialHandoffs);
   expect(handoffs).not.toContain(null);
-  expect(view.container.querySelector<HTMLElement>("[data-radix-scroll-area-viewport]")).toBe(
-    viewport,
-  );
+  expect(view.container.querySelector<HTMLElement>("[data-scroll-area-viewport]")).toBe(viewport);
 });
