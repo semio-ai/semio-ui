@@ -53,7 +53,7 @@ function checkButton() {
   const figma = readFigma("button");
   const fo = figma.variantOptions || {};
   const fprops = figma.properties || [];
-  const hasProp = (name) => fprops.some((p) => p === name || p.startsWith(name + "#"));
+  const hasProp = (name) => fprops.some((p) => p === name || p.startsWith(`${name  }#`));
 
   if (!eqSet(fo.Visual || [], SUBSET.visuals)) fails.push(`Figma Visual axis [${fo.Visual}] != subset [${SUBSET.visuals}]`);
   if (!eqSet(fo.Variant || [], SUBSET.variants)) fails.push(`Figma Variant axis [${fo.Variant}] != subset [${SUBSET.variants}]`);
@@ -92,7 +92,7 @@ function checkTextField() {
   const figma = readFigma("textfield");
   const fo = figma.variantOptions || {};
   const fprops = figma.properties || [];
-  const hasProp = (name) => fprops.some((p) => p === name || p.startsWith(name + "#"));
+  const hasProp = (name) => fprops.some((p) => p === name || p.startsWith(`${name  }#`));
 
   // 1. Subset conformance.
   if (!eqSet(fo.Outline || [], SUBSET.outline)) fails.push(`Figma Outline axis [${fo.Outline}] != subset [${SUBSET.outline}]`);
@@ -203,7 +203,7 @@ function checkToggleSquare() {
   const figma = readFigma("togglesquare");
   const fo = figma.variantOptions || {};
   const fprops = figma.properties || [];
-  const hasProp = (name) => fprops.some((p) => p === name || p.startsWith(name + "#"));
+  const hasProp = (name) => fprops.some((p) => p === name || p.startsWith(`${name  }#`));
 
   if (!eqSet(fo.Variant || [], SUBSET.variants)) fails.push(`Figma Variant axis [${fo.Variant}] != subset [${SUBSET.variants}]`);
   if (!eqSet(fo.State || [], SUBSET.states)) fails.push(`Figma State axis [${fo.State}] != subset [${SUBSET.states}]`);
@@ -234,7 +234,7 @@ function checkChip() {
   const figma = readFigma("chip");
   const fo = figma.variantOptions || {};
   const fprops = figma.properties || [];
-  const hasProp = (name) => fprops.some((p) => p === name || p.startsWith(name + "#"));
+  const hasProp = (name) => fprops.some((p) => p === name || p.startsWith(`${name  }#`));
 
   if (!eqSet(fo.Variant || [], SUBSET.variants)) fails.push(`Figma Variant axis [${fo.Variant}] != subset [${SUBSET.variants}]`);
   for (const need of SUBSET.properties) if (!hasProp(need)) fails.push(`Figma missing component property: '${need}'`);
@@ -280,7 +280,7 @@ function checkProgressCircle() {
   const figma = readFigma("progresscircle");
   const fo = figma.variantOptions || {};
   const fprops = figma.properties || [];
-  const hasProp = (name) => fprops.some((p) => p === name || p.startsWith(name + "#"));
+  const hasProp = (name) => fprops.some((p) => p === name || p.startsWith(`${name  }#`));
   if (!eqSet(fo.Variant || [], SUBSET.variants)) fails.push(`Figma Variant axis [${fo.Variant}] != subset [${SUBSET.variants}]`);
   if (!subsetOf(SUBSET.variants, codeVariants)) fails.push(`subset variants [${SUBSET.variants}] not all in code Variant enum [${codeVariants}]`);
   for (const need of SUBSET.properties) if (!hasProp(need)) fails.push(`Figma missing component property: '${need}'`);
@@ -320,7 +320,7 @@ function checkNestedItem() {
   const figma = readFigma("nesteditem");
   const fo = figma.variantOptions || {};
   const fprops = figma.properties || [];
-  const hasProp = (name) => fprops.some((p) => p === name || p.startsWith(name + "#"));
+  const hasProp = (name) => fprops.some((p) => p === name || p.startsWith(`${name  }#`));
   if (!eqSet(fo.Variant || [], SUBSET.variants)) fails.push(`Figma Variant axis [${fo.Variant}] != subset [${SUBSET.variants}]`);
   if (!eqSet(fo.State || [], SUBSET.states)) fails.push(`Figma State axis [${fo.State}] != subset [${SUBSET.states}]`);
   for (const need of SUBSET.properties) if (!hasProp(need)) fails.push(`Figma missing component property: '${need}'`);
@@ -411,7 +411,7 @@ function checkLabel() {
   const src = readFileSync(join(root, "src/inputs/label.tsx"), "utf8");
   const figma = readFigma("label");
   const fprops = figma.properties || [];
-  const hasProp = (name) => fprops.some((p) => p === name || p.startsWith(name + "#"));
+  const hasProp = (name) => fprops.some((p) => p === name || p.startsWith(`${name  }#`));
   for (const need of ["Label", "Show message", "Message"]) if (!hasProp(need)) fails.push(`Figma missing component property: '${need}'`);
   if (!/\bmessage\b/.test(src)) fails.push("code Label lost its `message` prop");
   notes.push("no variant axis; label text + optional error message");
@@ -425,7 +425,7 @@ function checkNestedMenu() {
   const figma = readFigma("nestedmenu");
   const fo = figma.variantOptions || {};
   const fprops = figma.properties || [];
-  const hasProp = (name) => fprops.some((p) => p === name || p.startsWith(name + "#"));
+  const hasProp = (name) => fprops.some((p) => p === name || p.startsWith(`${name  }#`));
   if (!eqSet(fo.State || [], ["default", "highlighted"])) fails.push(`Figma State axis [${fo.State}] != [default, highlighted]`);
   for (const need of ["Label", "Show icon", "Icon"]) if (!hasProp(need)) fails.push(`Figma missing component property: '${need}'`);
   if (!/\bleft\b/.test(src)) notes.push("code `left` icon slot");
@@ -442,7 +442,7 @@ function checkModal() {
   const figma = readFigma("modal");
   const fo = figma.variantOptions || {};
   const fprops = figma.properties || [];
-  const hasProp = (name) => fprops.some((p) => p === name || p.startsWith(name + "#"));
+  const hasProp = (name) => fprops.some((p) => p === name || p.startsWith(`${name  }#`));
   if (!eqSet(fo.Variant || [], SUBSET.variants)) fails.push(`Figma Variant axis [${fo.Variant}] != subset [${SUBSET.variants}]`);
   if (!subsetOf(SUBSET.variants, codeVariants)) fails.push(`subset variants not all in code Variant enum [${codeVariants}]`);
   for (const need of ["Title", "Show description", "Show footer", "Show cancel"]) if (!hasProp(need)) fails.push(`Figma missing component property: '${need}'`);
@@ -467,7 +467,7 @@ function checkDialog() {
   const figma = readFigma("dialog");
   const fo = figma.variantOptions || {};
   const fprops = figma.properties || [];
-  const hasProp = (name) => fprops.some((p) => p === name || p.startsWith(name + "#"));
+  const hasProp = (name) => fprops.some((p) => p === name || p.startsWith(`${name  }#`));
   if (!eqSet(fo.Variant || [], SUBSET.variants)) fails.push(`Figma Variant axis [${fo.Variant}] != subset [${SUBSET.variants}]`);
   if (!subsetOf(SUBSET.variants, codeVariants)) fails.push(`subset variants not all in code Variant enum [${codeVariants}]`);
   for (const need of ["Title", "Show description", "Show cancel"]) if (!hasProp(need)) fails.push(`Figma missing component property: '${need}'`);
@@ -551,7 +551,7 @@ for (const r of results) {
   } else {
     anyFail = true;
     console.log(`  ✗ FAIL — ${r.fails.length} mismatch(es):`);
-    for (const f of r.fails) console.log("    - " + f);
+    for (const f of r.fails) console.log(`    - ${  f}`);
     console.log("");
   }
 }
