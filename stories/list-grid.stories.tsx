@@ -293,6 +293,33 @@ export const PerRowCustomColor = () => {
   );
 };
 
+// A grid on a bare surface — no themed ancestor supplying a text colour, which is
+// how a real page renders it when the listing IS the page rather than a panel
+// inside one. Rows must stay readable in BOTH themes on their own: a row that
+// declares none inherits the document default (black), which puts illegible rows
+// under column headers that do declare their own, on dark.
+export const UnthemedSurface = () => (
+  <div className="flex flex-col gap-6">
+    {(["light", "dark"] as const).map((theme) => (
+      <div
+        key={theme}
+        className={theme === "dark" ? "dark bg-layout-dark-base p-4" : "bg-layout-light-base p-4"}
+      >
+        <div className="mb-2 font-mono text-xs text-neutral-500">{theme}</div>
+        {/* Deliberately no text-* class on this wrapper. */}
+        <div className="w-[520px]">
+          <ListGrid
+            data={ROWS}
+            getRowId={(r) => r.id}
+            columns={COLUMNS}
+            ariaLabel={`Unthemed ${theme} list`}
+          />
+        </div>
+      </div>
+    ))}
+  </div>
+);
+
 // Pure-CSS responsive column hiding via container queries: `Updated` (hideBelow
 // "xs" = 320px) and `Kind` (hideBelow "sm" = 384px) drop out as the grid's own
 // width shrinks — no JS, no ResizeObserver. Each column's `auto` track collapses.

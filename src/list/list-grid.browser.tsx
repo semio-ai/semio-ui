@@ -554,3 +554,27 @@ test("without the handler, a double-click is just two clicks", async () => {
   // `onItemDoubleClick` changes nothing and throws nothing.
   expect(onAction).toHaveBeenCalledWith("b", expect.anything());
 });
+
+// A row must declare its own foreground rather than inheriting its host's.
+// Regression guard: rows previously set no colour at all, so a listing rendered
+// without a themed ancestor fell through to the UA default (black) — fine on
+// light, unreadable on dark, and inconsistent with `ListGrid`'s column headers,
+// which do declare their own. `CHANGELOG.md` publishes that claim from 0.1.3, so
+// it needs something asserting it here.
+//
+// Asserts the utilities are PRESENT rather than checking the computed colour.
+// This file does not import `test-stylesheet`, so every class in it is inert and
+// every element computes to the same inherited black — a colour assertion would
+// pass vacuously. Loading the real sheet just to check a shade would also pin the
+// palette; the class-presence form survives a repalette, which is what the claim
+// is actually about.
+test("a row declares its own text color rather than inheriting from its host", () => {
+  render(<ListGrid data={ROWS} getRowId={(r) => r.id} columns={NAME_COL} ariaLabel="l" />);
+  // `role="row"` sits on the focus wrapper; `ListRow`'s own root is the element
+  // inside it carrying `responsive`.
+  const rowRoot = rows()[0]?.querySelector<HTMLElement>(".responsive");
+  expect(rowRoot).toBeTruthy();
+  const classes = rowRoot!.className;
+  expect(classes).toMatch(/(?:^|\s)text-neutral-\S+/);
+  expect(classes).toMatch(/(?:^|\s)dark:text-neutral-\S+/);
+});
