@@ -72,13 +72,16 @@ const InnerChipInput = forwardRef(
     /**
      * One prompt, in every state.
      *
-     * There were two, and which one showed depended on whether any chip had been
-     * added: the caller's `placeholder` while the field was empty, and a
-     * hardcoded "Type and press Enter..." as soon as it was not — so a caller
-     * could name the field's prompt and then watch it be replaced by wording it
-     * had never chosen. They were styled differently too, the caller's as body
-     * text and the built-in as a real placeholder, which made an empty field
-     * look like it already CONTAINED the word rather than being empty.
+     * Sourcing it from two elements — a span while the field is empty, the
+     * input's own placeholder once it is not — gives the field two of
+     * everything. Two strings, of which a caller can only name one, so its
+     * chosen wording is replaced by wording it did not choose at the moment the
+     * field starts being used. And two colours, because a span inherits body
+     * text where a placeholder is muted, which makes an empty field read as
+     * though it already CONTAINS the word.
+     *
+     * So the prompt is the input's native placeholder wherever there is an
+     * input, and the span stands in only where there is none.
      */
     const prompt =
       placeholder ?? (allowCustomValues ? "Type and press Enter..." : "Select options...");

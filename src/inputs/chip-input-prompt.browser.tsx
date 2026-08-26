@@ -8,15 +8,15 @@ import { Size } from "../types";
 import { ChipInput } from "./chip-input";
 
 /**
- * `ChipInput`'s prompt, across the state change that used to swap it.
+ * `ChipInput`'s prompt, across the state change from empty to holding a chip.
  *
- * The field had two prompts and showed whichever matched its state: the
- * caller's `placeholder` while empty, and a hardcoded "Type and press
- * Enter..." once any chip existed. So a caller could name the prompt, see it
- * honoured, and have it silently replaced by wording it never chose — at the
- * moment the field started being used. They were styled differently too, the
- * caller's as body text and the built-in as a real placeholder, so an empty
- * field read as though it already CONTAINED the word.
+ * The prompt has to be one string in one colour throughout. A field that
+ * sources it from two elements — a span while empty, the input's placeholder
+ * once not — can honour a caller's wording in one state and substitute its own
+ * in the other, and can render one as body text where the other is muted, so an
+ * empty field reads as though it already CONTAINS the word. Both failures are
+ * invisible until the field is used, which is why this crosses the state change
+ * rather than checking either side alone.
  *
  * Asserted in a real browser because both halves are rendered rather than
  * declared: the visible prompt is a native `::placeholder`, which jsdom does
