@@ -25,14 +25,29 @@ const rows = () => [...document.querySelectorAll('[role="row"]')];
 const sorted = (s: Set<string>) => [...s].sort((a, b) => a.localeCompare(b));
 
 test("renders one row per datum with its cell content", () => {
-  render(<ListGrid data={ROWS} getRowId={(r) => r.id} columns={NAME_COL} selectionMode="single" ariaLabel="l" />);
+  render(
+    <ListGrid
+      data={ROWS}
+      getRowId={(r) => r.id}
+      columns={NAME_COL}
+      selectionMode="single"
+      ariaLabel="l"
+    />,
+  );
   expect(options().map((el) => el.textContent?.trim())).toEqual(["Apple", "Banana", "Cherry"]);
 });
 
 test("single-select: clicking a row selects exactly it and sets aria-selected", async () => {
   const onSelectionChange = vi.fn();
   render(
-    <ListGrid data={ROWS} getRowId={(r) => r.id} columns={NAME_COL} selectionMode="single" onSelectionChange={onSelectionChange} ariaLabel="l" />,
+    <ListGrid
+      data={ROWS}
+      getRowId={(r) => r.id}
+      columns={NAME_COL}
+      selectionMode="single"
+      onSelectionChange={onSelectionChange}
+      ariaLabel="l"
+    />,
   );
   await userEvent.click(options()[1]);
   expect(sorted(onSelectionChange.mock.calls.at(-1)![0])).toEqual(["b"]);
@@ -42,7 +57,14 @@ test("single-select: clicking a row selects exactly it and sets aria-selected", 
 test("multiple: Cmd+click toggles, Shift+click replaces with the range", async () => {
   const onSelectionChange = vi.fn();
   render(
-    <ListGrid data={ROWS} getRowId={(r) => r.id} columns={NAME_COL} selectionMode="multiple" onSelectionChange={onSelectionChange} ariaLabel="l" />,
+    <ListGrid
+      data={ROWS}
+      getRowId={(r) => r.id}
+      columns={NAME_COL}
+      selectionMode="multiple"
+      onSelectionChange={onSelectionChange}
+      ariaLabel="l"
+    />,
   );
   await userEvent.click(options()[0]); // a
   await userEvent.keyboard("{Meta>}");
@@ -59,7 +81,14 @@ test("multiple: Cmd+click toggles, Shift+click replaces with the range", async (
 test("multiple: Shift+ArrowDown extends selection by roving (focus must advance)", async () => {
   const onSelectionChange = vi.fn();
   render(
-    <ListGrid data={ROWS} getRowId={(r) => r.id} columns={NAME_COL} selectionMode="multiple" onSelectionChange={onSelectionChange} ariaLabel="l" />,
+    <ListGrid
+      data={ROWS}
+      getRowId={(r) => r.id}
+      columns={NAME_COL}
+      selectionMode="multiple"
+      onSelectionChange={onSelectionChange}
+      ariaLabel="l"
+    />,
   );
   await userEvent.click(options()[0]); // select a, anchor a, focus a
   await userEvent.keyboard("{Shift>}{ArrowDown}{/Shift}");
@@ -72,7 +101,14 @@ test("multiple: Shift+ArrowDown extends selection by roving (focus must advance)
 test("Cmd+ArrowDown moves roving focus without changing selection", async () => {
   const onSelectionChange = vi.fn();
   render(
-    <ListGrid data={ROWS} getRowId={(r) => r.id} columns={NAME_COL} selectionMode="multiple" onSelectionChange={onSelectionChange} ariaLabel="l" />,
+    <ListGrid
+      data={ROWS}
+      getRowId={(r) => r.id}
+      columns={NAME_COL}
+      selectionMode="multiple"
+      onSelectionChange={onSelectionChange}
+      ariaLabel="l"
+    />,
   );
   await userEvent.click(options()[0]);
   onSelectionChange.mockClear();
@@ -83,7 +119,14 @@ test("Cmd+ArrowDown moves roving focus without changing selection", async () => 
 
 test("first row disabled: the initial roving tab-stop is the first enabled row", () => {
   render(
-    <ListGrid data={ROWS} getRowId={(r) => r.id} columns={NAME_COL} selectionMode="single" isRowDisabled={(r) => r.id === "a"} ariaLabel="l" />,
+    <ListGrid
+      data={ROWS}
+      getRowId={(r) => r.id}
+      columns={NAME_COL}
+      selectionMode="single"
+      isRowDisabled={(r) => r.id === "a"}
+      ariaLabel="l"
+    />,
   );
   const opts = options();
   expect(opts[0].getAttribute("aria-disabled")).toBe("true");
@@ -94,7 +137,14 @@ test("first row disabled: the initial roving tab-stop is the first enabled row",
 test("selection follows focus: ArrowDown moves selection to the next row (single)", async () => {
   const onSelectionChange = vi.fn();
   render(
-    <ListGrid data={ROWS} getRowId={(r) => r.id} columns={NAME_COL} selectionMode="single" onSelectionChange={onSelectionChange} ariaLabel="l" />,
+    <ListGrid
+      data={ROWS}
+      getRowId={(r) => r.id}
+      columns={NAME_COL}
+      selectionMode="single"
+      onSelectionChange={onSelectionChange}
+      ariaLabel="l"
+    />,
   );
   await userEvent.click(options()[0]); // select a, focus a
   await userEvent.keyboard("{ArrowDown}");
@@ -104,7 +154,14 @@ test("selection follows focus: ArrowDown moves selection to the next row (single
 test("multiple: Shift+Home / Shift+End extend the range to each edge from the anchor", async () => {
   const onSelectionChange = vi.fn();
   render(
-    <ListGrid data={ROWS} getRowId={(r) => r.id} columns={NAME_COL} selectionMode="multiple" onSelectionChange={onSelectionChange} ariaLabel="l" />,
+    <ListGrid
+      data={ROWS}
+      getRowId={(r) => r.id}
+      columns={NAME_COL}
+      selectionMode="multiple"
+      onSelectionChange={onSelectionChange}
+      ariaLabel="l"
+    />,
   );
   await userEvent.click(options()[1]); // anchor b (middle of a,b,c)
   await userEvent.keyboard("{Shift>}{Home}{/Shift}");
@@ -116,7 +173,15 @@ test("multiple: Shift+Home / Shift+End extend the range to each edge from the an
 test("loop: ArrowUp from the first row wraps to the last (selection follows)", async () => {
   const onSelectionChange = vi.fn();
   render(
-    <ListGrid data={ROWS} getRowId={(r) => r.id} columns={NAME_COL} selectionMode="single" loop onSelectionChange={onSelectionChange} ariaLabel="l" />,
+    <ListGrid
+      data={ROWS}
+      getRowId={(r) => r.id}
+      columns={NAME_COL}
+      selectionMode="single"
+      loop
+      onSelectionChange={onSelectionChange}
+      ariaLabel="l"
+    />,
   );
   await userEvent.click(options()[0]); // focus + select a
   await userEvent.keyboard("{ArrowUp}");
@@ -149,7 +214,15 @@ test("hideBelow emits the container-query class on the header and every body cel
     { key: "name", header: "Name", flex: true, render: (r) => <span>{r.name}</span> },
     { key: "kind", header: "Kind", hideBelow: "sm", render: () => <span>kind</span> },
   ];
-  render(<ListGrid data={ROWS} getRowId={(r) => r.id} columns={columns} selectionMode="single" ariaLabel="l" />);
+  render(
+    <ListGrid
+      data={ROWS}
+      getRowId={(r) => r.id}
+      columns={columns}
+      selectionMode="single"
+      ariaLabel="l"
+    />,
+  );
   // One header cell + one cell per row carry the hidden-below-sm class.
   const hidden = document.querySelectorAll('[class~="@max-sm:hidden"]');
   expect(hidden.length).toBe(ROWS.length + 1);
@@ -158,7 +231,15 @@ test("hideBelow emits the container-query class on the header and every body cel
 test("all rows disabled: nothing is selectable and there is no crash", () => {
   const onSelectionChange = vi.fn();
   render(
-    <ListGrid data={ROWS} getRowId={(r) => r.id} columns={NAME_COL} selectionMode="single" isRowDisabled={() => true} onSelectionChange={onSelectionChange} ariaLabel="l" />,
+    <ListGrid
+      data={ROWS}
+      getRowId={(r) => r.id}
+      columns={NAME_COL}
+      selectionMode="single"
+      isRowDisabled={() => true}
+      onSelectionChange={onSelectionChange}
+      ariaLabel="l"
+    />,
   );
   expect(options()).toHaveLength(ROWS.length);
   expect(options().every((o) => o.getAttribute("aria-disabled") === "true")).toBe(true);
@@ -168,7 +249,16 @@ test("all rows disabled: nothing is selectable and there is no crash", () => {
 
 test("none mode: click fires onAction and selects nothing", async () => {
   const onAction = vi.fn();
-  render(<ListGrid data={ROWS} getRowId={(r) => r.id} columns={NAME_COL} selectionMode="none" onAction={onAction} ariaLabel="l" />);
+  render(
+    <ListGrid
+      data={ROWS}
+      getRowId={(r) => r.id}
+      columns={NAME_COL}
+      selectionMode="none"
+      onAction={onAction}
+      ariaLabel="l"
+    />,
+  );
   await userEvent.click(rows()[1]);
   expect(onAction).toHaveBeenCalledWith("b", expect.anything());
   expect(rows()[1].getAttribute("aria-selected")).toBe(null);
@@ -176,9 +266,18 @@ test("none mode: click fires onAction and selects nothing", async () => {
 
 test("multiple: clicking the header select-all toggles all rows on, then off", async () => {
   const onSelectionChange = vi.fn();
-  const withHeader: ListColumn<Row>[] = [{ key: "name", header: "Name", flex: true, render: (r) => <span>{r.name}</span> }];
+  const withHeader: ListColumn<Row>[] = [
+    { key: "name", header: "Name", flex: true, render: (r) => <span>{r.name}</span> },
+  ];
   render(
-    <ListGrid data={ROWS} getRowId={(r) => r.id} columns={withHeader} selectionMode="multiple" onSelectionChange={onSelectionChange} ariaLabel="l" />,
+    <ListGrid
+      data={ROWS}
+      getRowId={(r) => r.id}
+      columns={withHeader}
+      selectionMode="multiple"
+      onSelectionChange={onSelectionChange}
+      ariaLabel="l"
+    />,
   );
   const header = document.querySelector<HTMLElement>('[role="button"][aria-label="Select all"]');
   expect(header).toBeTruthy();
@@ -191,7 +290,14 @@ test("multiple: clicking the header select-all toggles all rows on, then off", a
 test("multiple: Cmd+A selects all, Escape clears", async () => {
   const onSelectionChange = vi.fn();
   render(
-    <ListGrid data={ROWS} getRowId={(r) => r.id} columns={NAME_COL} selectionMode="multiple" onSelectionChange={onSelectionChange} ariaLabel="l" />,
+    <ListGrid
+      data={ROWS}
+      getRowId={(r) => r.id}
+      columns={NAME_COL}
+      selectionMode="multiple"
+      onSelectionChange={onSelectionChange}
+      ariaLabel="l"
+    />,
   );
   await userEvent.click(options()[0]);
   await userEvent.keyboard("{Meta>}a{/Meta}");
@@ -202,7 +308,14 @@ test("multiple: Cmd+A selects all, Escape clears", async () => {
 
 test("type-ahead moves roving focus to the row whose search text matches", async () => {
   render(
-    <ListGrid data={ROWS} getRowId={(r) => r.id} columns={NAME_COL} selectionMode="single" getSearchText={(r) => r.name} ariaLabel="l" />,
+    <ListGrid
+      data={ROWS}
+      getRowId={(r) => r.id}
+      columns={NAME_COL}
+      selectionMode="single"
+      getSearchText={(r) => r.name}
+      ariaLabel="l"
+    />,
   );
   await userEvent.click(options()[0]); // focus Apple
   await userEvent.keyboard("c"); // → Cherry
@@ -217,7 +330,14 @@ test("per-row visual: each row applies its own variant / custom-color", () => {
     ...(row.id === "b" ? { variant: Variant.Success } : {}),
   });
   render(
-    <ListGrid data={ROWS} getRowId={(r) => r.id} columns={NAME_COL} selectionMode="single" resolveVisual={resolveVisual} ariaLabel="l" />,
+    <ListGrid
+      data={ROWS}
+      getRowId={(r) => r.id}
+      columns={NAME_COL}
+      selectionMode="single"
+      resolveVisual={resolveVisual}
+      ariaLabel="l"
+    />,
   );
   const opts = options();
   const rowA = opts[0].querySelector<HTMLElement>(".responsive")!;
@@ -228,7 +348,9 @@ test("per-row visual: each row applies its own variant / custom-color", () => {
 });
 
 test("multiple + disallowEmptySelection: header select-all never empties the selection", async () => {
-  const withHeader: ListColumn<Row>[] = [{ key: "name", header: "Name", flex: true, render: (r) => <span>{r.name}</span> }];
+  const withHeader: ListColumn<Row>[] = [
+    { key: "name", header: "Name", flex: true, render: (r) => <span>{r.name}</span> },
+  ];
   render(
     <ListGrid
       data={ROWS}
@@ -249,8 +371,17 @@ test("deselectOnClickAway: clicking outside the list clears the selection", asyn
   const onSelectionChange = vi.fn();
   render(
     <div>
-      <ListGrid data={ROWS} getRowId={(r) => r.id} columns={NAME_COL} selectionMode="single" onSelectionChange={onSelectionChange} ariaLabel="l" />
-      <button type="button" data-testid="outside">outside</button>
+      <ListGrid
+        data={ROWS}
+        getRowId={(r) => r.id}
+        columns={NAME_COL}
+        selectionMode="single"
+        onSelectionChange={onSelectionChange}
+        ariaLabel="l"
+      />
+      <button type="button" data-testid="outside">
+        outside
+      </button>
     </div>,
   );
   await userEvent.click(options()[0]);
@@ -289,7 +420,14 @@ test("isRowDisabled: disabled rows are aria-disabled, unclickable, and skipped b
 test("none mode: ArrowDown roves focus without selecting", async () => {
   const onSelectionChange = vi.fn();
   render(
-    <ListGrid data={ROWS} getRowId={(r) => r.id} columns={NAME_COL} selectionMode="none" onSelectionChange={onSelectionChange} ariaLabel="l" />,
+    <ListGrid
+      data={ROWS}
+      getRowId={(r) => r.id}
+      columns={NAME_COL}
+      selectionMode="none"
+      onSelectionChange={onSelectionChange}
+      ariaLabel="l"
+    />,
   );
   await userEvent.click(rows()[0]);
   await userEvent.keyboard("{ArrowDown}");
@@ -304,12 +442,115 @@ test("clicking an in-row button does not select the row", async () => {
   const onButton = vi.fn();
   const columns: ListColumn<Row>[] = [
     { key: "name", flex: true, render: (r) => <span>{r.name}</span> },
-    { key: "action", render: (r) => <button type="button" onClick={() => onButton(r.id)}>act</button> },
+    {
+      key: "action",
+      render: (r) => (
+        <button type="button" onClick={() => onButton(r.id)}>
+          act
+        </button>
+      ),
+    },
   ];
   render(
-    <ListGrid data={ROWS} getRowId={(r) => r.id} columns={columns} selectionMode="single" onSelectionChange={onSelectionChange} ariaLabel="l" />,
+    <ListGrid
+      data={ROWS}
+      getRowId={(r) => r.id}
+      columns={columns}
+      selectionMode="single"
+      onSelectionChange={onSelectionChange}
+      ariaLabel="l"
+    />,
   );
   await userEvent.click(document.querySelectorAll("button")[1] as HTMLElement); // Banana's button
   expect(onButton).toHaveBeenCalledWith("b");
   expect(onSelectionChange).not.toHaveBeenCalled();
+});
+
+test("single: one click selects, a second click opens without clearing the selection", async () => {
+  const onItemDoubleClick = vi.fn();
+  const onSelectionChange = vi.fn();
+  render(
+    <ListGrid
+      data={ROWS}
+      getRowId={(r) => r.id}
+      columns={NAME_COL}
+      selectionMode="single"
+      onSelectionChange={onSelectionChange}
+      onItemDoubleClick={onItemDoubleClick}
+      ariaLabel="l"
+    />,
+  );
+  await userEvent.dblClick(options()[1]);
+  expect(onItemDoubleClick).toHaveBeenCalledWith("b", expect.anything());
+  // The two clicks of a double-click still reach the click handler, and in
+  // single mode the second would normally toggle the row back off. Assert the
+  // row is still selected: opening something you just deselected is incoherent.
+  expect(sorted(onSelectionChange.mock.calls.at(-1)?.[0] as Set<string>)).toEqual(["b"]);
+});
+
+test("double-click on an in-row control belongs to the control, not the row", async () => {
+  const onItemDoubleClick = vi.fn();
+  const onButton = vi.fn();
+  const withButton: ListColumn<Row>[] = [
+    { key: "name", flex: true, render: (r) => <span>{r.name}</span> },
+    {
+      key: "action",
+      render: (r) => (
+        <button type="button" onClick={() => onButton(r.id)}>
+          act
+        </button>
+      ),
+    },
+  ];
+  render(
+    <ListGrid
+      data={ROWS}
+      getRowId={(r) => r.id}
+      columns={withButton}
+      selectionMode="single"
+      onItemDoubleClick={onItemDoubleClick}
+      ariaLabel="l"
+    />,
+  );
+  const button = options()[1].querySelector("button");
+  await userEvent.dblClick(button!);
+  expect(onButton).toHaveBeenCalled();
+  expect(onItemDoubleClick).not.toHaveBeenCalled();
+});
+
+test("double-click does nothing on a disabled row", () => {
+  const onItemDoubleClick = vi.fn();
+  render(
+    <ListGrid
+      data={ROWS}
+      getRowId={(r) => r.id}
+      columns={NAME_COL}
+      selectionMode="single"
+      isRowDisabled={() => true}
+      onItemDoubleClick={onItemDoubleClick}
+      ariaLabel="l"
+    />,
+  );
+  // Raw DOM dispatch, as the other disabled-row test does: `userEvent` refuses
+  // to act on an `aria-disabled` element and would time out rather than assert.
+  options()[1].dispatchEvent(new MouseEvent("dblclick", { bubbles: true, detail: 2 }));
+  expect(onItemDoubleClick).not.toHaveBeenCalled();
+});
+
+test("without the handler, a double-click is just two clicks", async () => {
+  const onAction = vi.fn();
+  render(
+    <ListGrid
+      data={ROWS}
+      getRowId={(r) => r.id}
+      columns={NAME_COL}
+      selectionMode="none"
+      onAction={onAction}
+      ariaLabel="l"
+    />,
+  );
+  await userEvent.dblClick(rows()[1]);
+  // `none` mode fires onAction per click; the point is that the absence of
+  // `onItemDoubleClick` changes nothing and throws nothing.
+  expect(onAction).toHaveBeenCalledWith("b", expect.anything());
 });

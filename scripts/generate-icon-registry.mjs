@@ -75,11 +75,11 @@ const exportRe =
 const custom = []; // { name, key, from }
 for (const entry of readdirSync(ICONS_DIR, { withFileTypes: true })) {
   if (!entry.isFile() || !/\.tsx$/.test(entry.name)) continue;
-  const mod = "../" + entry.name.replace(/\.tsx$/, "");
+  const mod = `../${  entry.name.replace(/\.tsx$/, "")}`;
   const text = readFileSync(join(ICONS_DIR, entry.name), "utf8");
   for (const m of text.matchAll(exportRe)) {
     const names = m[1] ? [m[1]] : m[2].split(",");
-    for (let raw of names) {
+    for (const raw of names) {
       const name = raw.trim().split(/\s+as\s+/).pop().trim();
       if (!name || name.endsWith("Props") || name.endsWith("Type")) continue; // skip type exports
       if (CUSTOM_EXCLUDE.has(name)) continue;
@@ -98,15 +98,15 @@ const HEADER =
 
 // --- 3. Emit tabler.generated.ts ---
 const tablerOut =
-  HEADER +
-  `import {\n${tablerSorted.map((n) => `  ${n},`).join("\n")}\n} from "@tabler/icons-react";\n` +
+  `${HEADER 
+  }import {\n${tablerSorted.map((n) => `  ${n},`).join("\n")}\n} from "@tabler/icons-react";\n` +
   `import type { IconRegistry } from "./types";\n\n` +
   // `satisfies` (not `: IconRegistry`) so the literal keys survive for the
   // `keyof`-derived `IconName` type — an annotation would widen to
   // `Record<string, …>` and erase them.
-  `export const tablerIconRegistry = {\n` +
-  tablerSorted.map((n) => `  "${toKey(n)}": ${n},`).join("\n") +
-  `\n} satisfies IconRegistry;\n`;
+  `export const tablerIconRegistry = {\n${ 
+  tablerSorted.map((n) => `  "${toKey(n)}": ${n},`).join("\n") 
+  }\n} satisfies IconRegistry;\n`;
 writeFileSync(join(OUT_DIR, "tabler.generated.ts"), tablerOut);
 
 // --- 4. Emit semio.generated.ts ---
@@ -120,12 +120,12 @@ const semioImports = [...importsByModule.entries()]
   .map(([mod, names]) => `import { ${names.sort().join(", ")} } from "${mod}";`)
   .join("\n");
 const semioOut =
-  HEADER +
-  semioImports +
-  `\nimport type { IconRegistry } from "./types";\n\n` +
-  `export const semioIconRegistry = {\n` +
-  customUnique.map((c) => `  "${c.key}": ${c.name},`).join("\n") +
-  `\n} satisfies IconRegistry;\n`;
+  `${HEADER +
+  semioImports 
+  }\nimport type { IconRegistry } from "./types";\n\n` +
+  `export const semioIconRegistry = {\n${ 
+  customUnique.map((c) => `  "${c.key}": ${c.name},`).join("\n") 
+  }\n} satisfies IconRegistry;\n`;
 writeFileSync(join(OUT_DIR, "semio.generated.ts"), semioOut);
 
 console.log(

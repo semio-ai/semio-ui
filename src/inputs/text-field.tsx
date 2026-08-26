@@ -12,8 +12,10 @@ import { clsx } from "clsx";
 import { Size, Variant } from "../types";
 import { Icon, resolveIcon, type IconValue } from "../icons/registry";
 
-export interface TextFieldProps
-  extends Omit<InputHTMLAttributes<HTMLInputElement>, "size" | "onChange"> {
+export interface TextFieldProps extends Omit<
+  InputHTMLAttributes<HTMLInputElement>,
+  "size" | "onChange"
+> {
   onChange?: (value: string, event: ChangeEvent<HTMLInputElement>) => void;
   onClear?: (event: MouseEvent<HTMLButtonElement>) => void;
   variant?: Variant;
@@ -21,6 +23,22 @@ export interface TextFieldProps
   icon?: IconValue;
   size?: Size;
   bg?: boolean;
+  /**
+   * How the field sits on its surface.
+   *
+   * - `default` — draws its own outline per {@link outline}, on no fill.
+   * - `inverted` — draws NO outline and sits on a translucent fill that brightens
+   *   on hover, for a field inside a card, toolbar or pane header that already
+   *   owns the only border. Named to match `Button`'s `visuals="inverted"`,
+   *   because reading as one control set with those buttons is the point of it.
+   *
+   * This was copy-pasted utilities in three places before it was a variant — the
+   * toolbar search beside the breadcrumb, the animation sheet's track filter, and
+   * the animation view switcher — which is precisely how the three came to differ
+   * in small ways. Note it is NOT {@link bg}, which paints a lighter fill and
+   * does not respond to hover.
+   */
+  visuals?: "default" | "inverted";
   outline?: "hidden" | "interact" | "always";
   subtle?: boolean;
   wrapperClassName?: string;
@@ -50,6 +68,7 @@ const InnerTextField = forwardRef(
       color,
       icon,
       bg = false,
+      visuals = "default",
       outline = "interact",
       className,
       wrapperClassName,
@@ -80,13 +99,25 @@ const InnerTextField = forwardRef(
             "responsive",
             bg && "bg-neutral-50/20 dark:bg-neutral-950/20",
             "rounded-xs",
-            outline === "interact" &&
+            // `inverted` owns BOTH halves of the recipe. Splitting them is what
+            // let the three hand-rolled copies drift: each had to remember to
+            // suppress the outline as well as add the fill, and a site that got
+            // one right and the other wrong looked almost correct.
+            visuals === "inverted" &&
+              "bg-neutral-500/10 transition-colors duration-50 ease-in-out hover:bg-neutral-500/25",
+            // `inverted` suppresses every outline regardless of `outline`, which
+            // is why each branch excludes it rather than the caller having to
+            // remember to pass `outline="hidden"` alongside it.
+            visuals !== "inverted" &&
+              outline === "interact" &&
               !forwardedProps.readOnly &&
               "variant-responsive-appearing-outline",
-            outline === "always" &&
+            visuals !== "inverted" &&
+              outline === "always" &&
               !forwardedProps.readOnly &&
               "variant-responsive-persistent-outline",
-            outline === "hidden" && "outline-hidden focus:outline-hidden",
+            (visuals === "inverted" || outline === "hidden") &&
+              "outline-hidden focus:outline-hidden",
             size,
             color ? "custom-color" : variant,
             "peer cursor-text disabled:cursor-not-allowed",
