@@ -15,12 +15,12 @@
 // Usage:
 //   node scripts/generate-icon-svgs.mjs            # composed app set (default)
 //   node scripts/generate-icon-svgs.mjs --default  # default registry only
-import * as esbuild from "esbuild";
-import { createElement } from "react";
-import { renderToStaticMarkup } from "react-dom/server";
 import { writeFileSync, rmSync, mkdirSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import * as esbuild from "esbuild";
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const root = join(here, "..");
@@ -110,13 +110,13 @@ for (const [key, Comp] of Object.entries(registry)) {
 }
 
 mkdirSync(FIGMA_DIR, { recursive: true });
-writeFileSync(OUT, JSON.stringify(manifest, null, 2) + "\n");
+writeFileSync(OUT, `${JSON.stringify(manifest, null, 2)  }\n`);
 mkdirSync(SVG_DIR, { recursive: true });
-for (const [key, svg] of Object.entries(manifest)) writeFileSync(join(SVG_DIR, `${key}.svg`), svg + "\n");
+for (const [key, svg] of Object.entries(manifest)) writeFileSync(join(SVG_DIR, `${key}.svg`), `${svg  }\n`);
 
 const defaultSet = new Set(defaultKeys);
 const newKeys = Object.keys(manifest).filter((k) => !defaultSet.has(k));
-writeFileSync(join(FIGMA_DIR, "icon-svgs.new-keys.json"), JSON.stringify(newKeys, null, 2) + "\n");
+writeFileSync(join(FIGMA_DIR, "icon-svgs.new-keys.json"), `${JSON.stringify(newKeys, null, 2)  }\n`);
 
 // Code-side Code-Connect mapping (COMMITTED, not gitignored): the durable
 // Figma→code translation table the agent/dev follows on the Professional plan,
@@ -136,7 +136,7 @@ const mapManifest = {
   icons: codeMap,
 };
 const MAP_OUT = join(FIGMA_DIR, "icon-manifest.json");
-writeFileSync(MAP_OUT, JSON.stringify(mapManifest, null, 2) + "\n");
+writeFileSync(MAP_OUT, `${JSON.stringify(mapManifest, null, 2)  }\n`);
 
 console.log(`${DEFAULT_ONLY ? "default" : "composed"} set: rendered ${Object.keys(manifest).length} icons → ${OUT}`);
 console.log(`  default keys: ${defaultKeys.length} · new (animation+studio): ${newKeys.length}`);
