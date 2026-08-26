@@ -43,7 +43,9 @@ export interface ChipInputProps {
  * @param bg - Whether to show background
  * @param outline - Outline behavior
  * @param subtle - Whether to use subtle text styling
- * @param placeholder - Placeholder text when no chips selected
+ * @param placeholder - Prompt shown while the field accepts more input. Defaults
+ *   by mode, because the two modes ask for different actions: a field that takes
+ *   typing says how to commit it, a field that only opens a menu does not.
  * @param disabled - Whether the component is disabled
  * @param className - Additional CSS classes
  * @param allowCustomValues - Whether to allow typing custom values
@@ -59,7 +61,7 @@ const InnerChipInput = forwardRef(
       bg = false,
       outline = "interact",
       subtle,
-      placeholder = "Select options...",
+      placeholder,
       disabled = false,
       className,
       allowCustomValues = false,
@@ -67,6 +69,19 @@ const InnerChipInput = forwardRef(
     ref: ForwardedRef<HTMLDivElement>,
   ): ReactNode => {
     const [inputValue, setInputValue] = useState("");
+    /**
+     * One prompt, in every state.
+     *
+     * There were two, and which one showed depended on whether any chip had been
+     * added: the caller's `placeholder` while the field was empty, and a
+     * hardcoded "Type and press Enter..." as soon as it was not — so a caller
+     * could name the field's prompt and then watch it be replaced by wording it
+     * had never chosen. They were styled differently too, the caller's as body
+     * text and the built-in as a real placeholder, which made an empty field
+     * look like it already CONTAINED the word rather than being empty.
+     */
+    const prompt =
+      placeholder ?? (allowCustomValues ? "Type and press Enter..." : "Select options...");
     const inputRef = useRef<HTMLInputElement>(null);
 
     const selectedOptions = selectedValues.map((value) => {
@@ -176,11 +191,20 @@ const InnerChipInput = forwardRef(
                 {option.label}
               </Chip>
             ))}
-          {selectedOptions.length === 0 && (!allowCustomValues || !inputValue) && (
+          {/* Only when there is no input to carry a native placeholder. With
+              one, this span would render the same words a second time, beside
+              it. Muted to match `placeholder:text-neutral-400` below: it stands
+              in for a placeholder, so it has to read as one rather than as
+              something already entered. */}
+          {selectedOptions.length === 0 && !allowCustomValues && (
             <span
-              className={clsx(size, "sized-text sized-height flex items-center pl-1 text-left")}
+              className={clsx(
+                size,
+                "sized-text sized-height flex items-center pl-1 text-left",
+                "text-neutral-400 dark:text-neutral-600",
+              )}
             >
-              {placeholder}
+              {prompt}
             </span>
           )}
           {allowCustomValues && (
@@ -196,9 +220,7 @@ const InnerChipInput = forwardRef(
                 "sized-text sized-height min-w-[100px] flex-1 border-none bg-transparent pl-1 outline-none",
                 "placeholder:text-neutral-400 dark:placeholder:text-neutral-600",
               )}
-              placeholder={
-                selectedOptions.length === 0 && !inputValue ? "" : "Type and press Enter..."
-              }
+              placeholder={prompt}
             />
           )}
         </div>
