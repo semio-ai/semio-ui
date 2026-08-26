@@ -10,7 +10,11 @@ popovers, menus, layout primitives, and the shared theme/size/variant system.
 npm install @semio/ui
 ```
 
-Peer dependencies: `react`, `react-dom`, `tailwindcss`.
+Peer dependencies: `react` and `react-dom` (**19 or later**), `tailwindcss`.
+
+React 19 is a hard requirement, not a preference: several components take `ref` as an
+ordinary prop, which is React 19 behaviour — on React 18 such a `ref` is silently
+dropped rather than erroring.
 
 ### Styles
 
@@ -53,12 +57,20 @@ Components are grouped by concern and all re-exported from the package root:
 - **Inputs** — text, image, and file inputs
 - **Floating** — `Dialog`, `Modal`, `Popover`, `Dropdown`, context menus
 - **Feedback** — `Spinner`, progress, status
-- **Layout** — breadcrumbs and other structural primitives
+- **Layout** — `ScrollArea`, breadcrumbs, tabs, accordions and other structural
+  primitives
 - **Tree primitives** — composable, assembly-first building blocks for
   collapsible, selectable, keyboard-navigable hierarchical row lists
   (`TreeGrid`, `flattenTree`, `useCollapsibleTree`, `useTreeSelection`,
   `TreeRow` / `TreeIndent` / `TreeToggle`). See the composition guide:
   [`src/tree/README.md`](src/tree/README.md).
+- **List primitives** — the flat analogue, on the same engine and the same row
+  rhythm: `ListGrid` (columns, selection, type-ahead, responsive column hiding)
+  and the presentational `ListRow`. `TableList` is the superseded predecessor.
+- **Windowing** — `ListGrid` and `TreeGrid` render every row unless asked not to.
+  `virtualized` renders only the rows near the viewport, and `useRowWindow` is
+  exported for consumers composing the row primitives themselves. See
+  [`docs/windowed-lists.md`](docs/windowed-lists.md).
 - **Theming** — the `Theme` / `Variant` / `Size` enums and supporting hooks
 
 ## License

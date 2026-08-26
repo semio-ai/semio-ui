@@ -12,11 +12,7 @@ import { clsx } from "clsx";
 import useMeasure from "react-use-measure";
 import { mergeRefs } from "react-merge-refs";
 import { useClickAway } from "../hooks/use-click-away";
-import {
-  useListState,
-  type ListItem,
-  type SelectionMode,
-} from "../hooks/use-list-state";
+import { useListState, type ListItem, type SelectionMode } from "../hooks/use-list-state";
 import { Size, Variant } from "../types";
 import { Checkbox } from "../inputs/checkbox";
 import { ToggleSquare } from "../inputs/toggle-square";
@@ -187,6 +183,13 @@ export interface TableListProps<T extends ListItem> {
  *   onAction={(key) => openUser(key)}
  * />
  * ```
+ *
+ * ## Scale
+ *
+ * **Renders every row, and cannot be windowed.** There is no row-virtualization seam here
+ * and none is planned: `ListGrid` supersedes this component and does have one
+ * (`virtualized`), so a listing large enough for the difference to matter is a reason to
+ * migrate rather than to extend this.
  */
 export function TableList<T extends ListItem>({
   data,
@@ -536,7 +539,12 @@ function InnerRow<T extends ListItem>({
         // (button, input, dropdown trigger, etc.). This prevents row selection from
         // capturing clicks meant for action buttons within the row.
         const target = e.target as HTMLElement;
-        if (target !== e.currentTarget && target.closest("button, input, select, textarea, [role='menuitem'], [data-radix-collection-item]")) {
+        if (
+          target !== e.currentTarget &&
+          target.closest(
+            "button, input, select, textarea, [role='menuitem'], [data-radix-collection-item]",
+          )
+        ) {
           return;
         }
         (onClick as any as MouseEventHandler<HTMLDivElement>)?.(e);

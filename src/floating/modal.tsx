@@ -36,6 +36,20 @@ export interface ModalProps {
    * in-flight submit.
    */
   closeOnSubmitClick?: boolean;
+  /**
+   * How wide the modal gets on desktop.
+   *
+   * - `"fit"` (default) — sized by its content, floored at `min-w-96`. Right for
+   *   a confirmation or a couple of fields, where a fixed width would leave a
+   *   short sentence stranded in a wide box.
+   * - `"wide"` — the clamped width `SidebarModal` uses, `clamp(40rem, 80vw,
+   *   72rem)`. Right for a form with sections and side-by-side fields, where
+   *   `"fit"` collapses to the widest single control and everything wraps.
+   *
+   * Deliberately opt-in rather than a new default: most modals here are the
+   *  first kind, and widening them all would be a worse fit for each.
+   */
+  size?: "fit" | "wide";
 }
 
 /**
@@ -92,6 +106,7 @@ export function Modal({
   onCancel,
   variant,
   closeOnSubmitClick = true,
+  size = "fit",
 }: ModalProps) {
   const showFooter = onSubmit || onCancel;
   const showHeader = title || description;
@@ -141,8 +156,22 @@ export function Modal({
               variant,
               "h-[calc(100dvh-4px)] w-[calc(100vw-4px)]",
               "desktop:max-w-[calc(100vw-4px)] desktop:max-h-[calc(100dvh-4px)]",
-              "desktop:min-h-72 desktop:min-w-96",
-              "desktop:h-fit desktop:w-fit",
+              "desktop:min-h-72",
+              // A DEFINITE height for the wide form, not `h-fit`. `fit-content`
+              // leaves the popup's height indefinite during layout, so every
+              // percentage and flex basis inside it resolves to `auto` and the
+              // scroller grows to its content instead of capping it — which is
+              // why a tall modal had nothing to scroll. The clamp is
+              // `SidebarModal`'s, which is where this was already solved.
+              size === "wide"
+                ? "desktop:h-[clamp(24rem,75dvh,calc(100dvh-4rem))]"
+                : "desktop:h-fit",
+              // Width is the one dimension that differs by kind of modal; see
+              // the `size` prop. The clamp is `SidebarModal`'s, so the two large
+              // surfaces in the app agree about how wide "large" is.
+              size === "wide"
+                ? "desktop:w-[clamp(40rem,80vw,72rem)]"
+                : "desktop:min-w-96 desktop:w-fit",
               // Slide-up + fade in, slide-down + fade out. Matches the
               // `animated-modal` keyframes that the Radix-backed version
               // used, expressed via base-ui's `data-starting-style` /
@@ -154,12 +183,14 @@ export function Modal({
           >
             <ScrollArea
               orientation="vertical"
-              className={clsx(
-                "h-[calc(100dvh-4px)] w-[calc(100vw-4px)]",
-                "desktop:max-w-[calc(100vw-4px)] desktop:max-h-[calc(100dvh-4px)]",
-                "desktop:min-h-72 desktop:min-w-96",
-                "desktop:h-fit desktop:w-fit",
-              )}
+              // `wrapperClassName`, and no size of its own. `ScrollArea` puts
+              // `className` on its VIEWPORT and `wrapperClassName` on its root;
+              // the popup above already carries every size constraint, so the
+              // scroller's whole job is to fill it. Sizing the viewport instead
+              // made it size from its own content, which is both how the form
+              // came to sit in a narrow column inside a wide dialog and half of
+              // why a tall modal had nothing to scroll (STUDIO-193).
+              wrapperClassName="min-h-0 w-full flex-1"
               header={
                 <div
                   className={clsx(

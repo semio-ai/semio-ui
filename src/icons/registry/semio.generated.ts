@@ -33,6 +33,7 @@ import { SelectCursor } from "../select-cursor";
 import { Slow } from "../slow";
 import { Speaker } from "../speaker";
 import { SpeakerOff } from "../speaker-off";
+import { IconSphere } from "../sphere";
 import { IconUniform } from "../uniform";
 import { IconVectorAngled } from "../vector-angled";
 import { IconVectorBezier } from "../vector-bezier";
@@ -83,6 +84,7 @@ export const semioIconRegistry = {
   "slow": Slow,
   "speaker": Speaker,
   "speaker-off": SpeakerOff,
+  "sphere": IconSphere,
   "uniform": IconUniform,
   "vector-angled": IconVectorAngled,
   "vector-back": IconVectorBack,
