@@ -939,6 +939,20 @@
     }
   }
 
+  /* The square a row's media tile occupies — a thumbnail, or the glyph standing
+     in for one. Unlike its `sized-*` siblings the scale is not repeated here:
+     `ListRow` publishes `--row-media` per row `Size`, so the tile derives from
+     the row it is in rather than from a size class the cell has to be told. That
+     is also why it cannot be a `@variant size-*` block like the others — those
+     match the size class on the SAME element, and the tile is a descendant of the
+     row that carries it.
+
+     The fallback is the Lg value, for a tile rendered outside a row. */
+  .sized-row-media {
+    width: var(--row-media, 2.25rem);
+    height: var(--row-media, 2.25rem);
+  }
+
   .sized-text {
     @apply text-base;
 
@@ -1102,6 +1116,14 @@
     @apply block h-[70%] w-[70%] shrink-0;
   }
 
+  /* Deliberately proportional, where `.sized-icon` is a fixed step.
+
+     This slot fills a box its call site draws — a Select's option indicator, a
+     nested row's check — so the glyph is sized relative to THAT box rather than to
+     a control's height, and the two scales answer different questions. A Select's
+     glyph reading smaller than the search field beside it is that difference
+     showing, not the two drifting apart: snapping this to the control scale would
+     make the glyph fight the indicator it sits in. */
   .icon-slot {
     @apply grid h-full w-full place-items-center leading-none;
     @apply [&_svg]:block [&_svg]:h-3/5 [&_svg]:w-3/5 [&_svg]:shrink-0;
@@ -1112,7 +1134,59 @@
      Normalizes any icon set to one size + centers it, so glyphs don't shift. */
   .list-item-icon {
     @apply grid size-5 place-items-center leading-none;
-    @apply [&_svg]:block [&_svg]:h-3/5 [&_svg]:w-3/5 [&_svg]:shrink-0;
+    /* 12px in the 20px box — the same step `.sized-icon` gives an Xs control,
+       spelled explicitly rather than as 3/5, which happens to land on 12 here. */
+    @apply [&_svg]:block [&_svg]:size-3 [&_svg]:shrink-0;
+  }
+
+  /* A control's glyph box: an explicit step per control size, rather than a
+     fraction of the box.
+
+     A fraction lands on fractional pixels at most sizes — 3/5 of a 28px Sm button
+     is 16.8, of a 32px Md button 19.2 — and a fractional glyph box is a subpixel
+     rendering box. It is also why call sites pinned glyphs by hand: every hand-set
+     size in the app was one of those fractions rounded to the nearest step, and
+     they never disagreed about which step.
+
+     Targets `.icon-standard` rather than `svg`, so that an icon whose call site
+     opted out with `size="none"` carries no `.icon-standard` and keeps exactly the
+     size it asked for. That is what lets a deliberate departure — the 10px playback
+     glyphs — survive a change to the standard scale.
+
+     Applied to `.sized-inner-group-item` directly rather than to each of its call
+     sites: chips, tabs, toggle groups, selects and the field adornments are all the
+     same box on the same size scale, and snapping only the ones a reader happened to
+     look at is how the two scales diverged in the first place. `Button` opts in by
+     name because its glyph box is `sized-height sized-width`, not an inner box. */
+  .sized-icon,
+  .sized-inner-group-item {
+    /* 20px */
+    @apply [&_.icon-standard]:size-5;
+
+    @variant size-xs {
+      /* 12px */
+      @apply [&_.icon-standard]:size-3;
+    }
+
+    @variant size-sm {
+      /* 16px */
+      @apply [&_.icon-standard]:size-4;
+    }
+
+    @variant size-md {
+      /* 20px */
+      @apply [&_.icon-standard]:size-5;
+    }
+
+    @variant size-lg {
+      /* 24px */
+      @apply [&_.icon-standard]:size-6;
+    }
+
+    @variant size-xl {
+      /* 28px */
+      @apply [&_.icon-standard]:size-7;
+    }
   }
 
   .input-label-field-units-grid {
@@ -1160,12 +1234,32 @@
     --padding-width: 10px;
     padding: var(--padding-width);
 
+    /* Panes animate in from off-layout — the right pane enters at `x: 50`, the
+       left at `x: -50` (`PanelContent`). Without a clip, that translate is part
+       of the document's scrollable overflow, so every pane open and close grew
+       the page ~40px to the right and flashed a horizontal scrollbar; a pane
+       caught mid-transition (a background tab throttles rAF, freezing the
+       animation) left the scrollbar up for good.
+
+       `clip` rather than `hidden`: it does not create a scroll container, so
+       sticky positioning and scroll anchoring inside the panes are unchanged,
+       and nothing can be scrolled programmatically into the clipped strip.
+       X only — the vertical axis is left `visible` so this cannot silently
+       swallow a genuinely too-tall layout. Floating content is portaled to
+       `body`, outside this element, so menus and tooltips are not clipped. */
+    overflow-x: clip;
+
+    /* Narrow: there is no width to dock the side regions beside the content, so
+       they share one full-width row under it — `side` rather than `left`, because
+       a Right-region pane lands here too. Only one is shown at a time
+       (`SidePaneArea`), and `--side-size` is whichever pane that is. The footer
+       keeps its own strip: it is full-width in both arrangements. */
     grid-template-areas:
       "header"
       "."
       "content"
       "."
-      "left"
+      "side"
       "."
       "menu"
       "."
@@ -1173,7 +1267,7 @@
     grid-template-columns: calc(100vw - 2 * var(--padding-width));
     grid-template-rows:
       auto var(--padding-width) minmax(0, var(--content-size))
-      var(--content-left-gap) minmax(0, var(--left-size)) var(--padding-width)
+      var(--content-side-gap) minmax(0, var(--side-size)) var(--padding-width)
       auto var(--content-footer-gap) minmax(0, auto);
 
     @variant desktop {
@@ -1183,13 +1277,32 @@
         "menu . left   .      content .      right "
         "menu . .      .      .       .      .     "
         "menu . footer footer footer  footer footer";
+      /* The side tracks are `minmax(0, …)`, not bare lengths, so they can give
+         width back.
+
+         `desktop` is width-only at 768px, but this arrangement needs room for the
+         menu rail, a left pane, a content column AND a right pane. Between those
+         two numbers the grid is overconstrained — and a rigid length resolves that
+         by OVERFLOWING. `overflow-x: clip` above then swallowed the overflow, so
+         the right sidebar left the screen entirely; and the menu, squeezed below
+         its content width, was painted over by `Header` and the panes, which are
+         later siblings. Two symptoms, one cause: a track that could not compress.
+
+         Where everything fits, `minmax(0, L)` resolves to exactly `L`, so the roomy
+         layout is untouched. Where it does not, the panes narrow — the honest
+         outcome, and strictly better than one of them vanishing.
+
+         A floor, not the whole answer: the stacked arrangement below `desktop` is
+         the right shape for a genuinely narrow window, and it engages at 768px
+         rather than at the width this grid actually needs. Raising that threshold is
+         a design decision about pane widths, not a bug fix. */
       grid-template-columns:
-        auto var(--padding-width) var(--left-size) var(--content-left-gap) minmax(
+        auto var(--padding-width) minmax(0, var(--left-size)) var(--content-left-gap) minmax(
           0,
           var(--content-size)
         )
         var(--content-right-gap)
-        var(--right-size);
+        minmax(0, var(--right-size));
       grid-template-rows: auto var(--padding-width) 1fr var(--content-footer-gap) minmax(0, auto);
     }
 
@@ -1213,8 +1326,45 @@
       grid-area: content;
     }
 
+    /* Narrow layouts only — the wide grid names `left` and `right` instead. */
+    .grid-area-side {
+      grid-area: side;
+    }
+
     .grid-area-footer {
       grid-area: footer;
+    }
+
+    /* An expanded side pane SPANS onto the content column, instead of the content
+       track collapsing to make room for it.
+
+       The tracks are left exactly as they are, which is the whole point: the
+       content cell keeps its natural width, so the rect measured from it stays
+       live and truthful while a pane covers it. A restore needs no remembered
+       width, and resizing the window mid-expansion just works. Collapsing the
+       track instead — what a legacy `size: "full"` pane does — reports zero width
+       to whatever frames itself from that rect.
+
+       The span stops at the opposite region's line, so an expanded left pane
+       reaches the right sidebar and no further; the gap column between left and
+       content is absorbed into the span rather than left showing through.
+
+       `&.` and not a descendant: the expansion classes are emitted on the layout
+       root itself, which is also the `.app-layout` this block is nested in. Written
+       as `.left-sidebar-full .grid-area-left` these compile to a descendant chain
+       that asks for an `.app-layout` ANCESTOR, and match nothing.
+
+       Scoped to the wide grid, which is the only one naming `left`/`right` areas
+       and therefore the only one where these line names resolve. Narrow, the side
+       regions share one row and nothing renders `.grid-area-left` at all. */
+    @variant desktop {
+      &.left-sidebar-full .grid-area-left {
+        grid-column: left-start / content-end;
+      }
+
+      &.right-sidebar-full .grid-area-right {
+        grid-column: content-start / right-end;
+      }
     }
   }
 

@@ -25,7 +25,10 @@ export enum NestedParent {
  * @prop label: The label for the checkbox.
  * @prop variant: The variant of the checkbox. Defaults to {@link Variant.Default}
  * @prop onChange: The function to call when the checkbox changes.
- * @prop closeOnSelect: Whether toggling the item closes the menu (defaults to true).
+ * @prop closeOnSelect: Whether toggling the item closes the menu. Defaults to
+ *   FALSE here — a checkbox in a menu is one toggle among several, so closing
+ *   after each would make setting two of them take two trips. (`NestedItem` and
+ *   `NestedRadio` default to true, where the click is the whole interaction.)
  * @prop color: The color of the checkbox. Overridees styling from variants.
  * @prop disabled: Whether the checkbox is disabled.
  * @prop icon: The icon to display next to the checkbox.
@@ -117,7 +120,11 @@ export interface NestedMenuProps {
  * @prop label: [string] The label for the option
  * @prop value: [string] The value for the option. This should match the value specified.
  * @prop disabled: [boolean] Whether the option is disabled.
- * @prop closeOnSelect: [boolean] Have the menu close after selecting this option
+ * @prop closeOnSelect: [boolean] Have the menu close after choosing this
+ *   option. The DEFAULT depends on the component this option is given to,
+ *   because the same option shape serves a single-value and a multi-value
+ *   control: `NestedRadio` closes (one value — picking it is the interaction),
+ *   `NestedSelect` stays open (many values). Set it to override either.
  * @prop variant: [Variant] The variant of the option. Defaults to {@link Variant.Default}
  * @prop color: [string] The color of the option. Overrides styling from variants.
  * @prop icon: [ReactNode] The icon to display next to the option.

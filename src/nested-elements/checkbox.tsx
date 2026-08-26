@@ -17,7 +17,11 @@ export function NestedCheckbox({
   variant,
   disabled,
   onChange,
-  closeOnSelect,
+  // Stays open by default, matching `NestedSelect`: a checkbox in a menu is a
+  // toggle among others, and closing after each one would make setting two of
+  // them take two trips. `NestedItem` and `NestedRadio` default the other way,
+  // because for those the click IS the interaction.
+  closeOnSelect = false,
   value,
   color,
   icon,

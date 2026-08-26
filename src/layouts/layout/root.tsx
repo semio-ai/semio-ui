@@ -6,13 +6,24 @@ import useMeasure, { RectReadOnly } from "react-use-measure";
 import { PaneRegion } from "../../types";
 import type { IconValue } from "../../icons/registry";
 import { useLayoutState } from "../../hooks/use-layout-state";
+import { useSidePaneStack } from "../../hooks/layout-atoms";
 import { PanelContent } from "./panel-content";
+import { SidePaneArea, sidePaneSize } from "./side-pane-area";
 import { Menu } from "./menu";
 import { Header } from "./header";
 
 export interface LayoutRootProps {
   className?: string;
-  children?: ReactNode | ((contentBounds: RectReadOnly) => ReactNode);
+  /**
+   * The content area's occupant, as a node or as a function of the measured
+   * content cell.
+   *
+   * `contentVisible` is false while a pane covers the content — see
+   * `contentVisibleAtom`. `contentBounds` stays truthful either way, so this
+   * second argument is only worth reading by an occupant that can idle while it
+   * cannot be seen; one that ignores it stays correct.
+   */
+  children?: ReactNode | ((contentBounds: RectReadOnly, contentVisible: boolean) => ReactNode);
   homeIcon?: IconValue;
   homeText?: string;
   homeClassName?: string;
@@ -36,13 +47,46 @@ function InnerLayoutRoot({
   const [contentRef, contentBounds] = useMeasure();
 
   const {
+    desktop,
     contentWidth,
     leftWidth,
     rightWidth,
     leftRegionActive,
     footerRegionActive,
     rightRegionActive,
+    leftExpanded,
+    rightExpanded,
+    contentVisible,
   } = useLayoutState();
+
+  // Which pane is showing in the shared side row, and therefore how tall that row
+  // is. Derived from pane state, so every reader agrees without coordinating.
+  const sideStack = useSidePaneStack();
+  const sideSize = sidePaneSize(sideStack);
+
+  // Docked, each side region has its own track and the content makes room for
+  // both. Sharing one row, there is a single track sized by whichever pane is
+  // showing — the same shape the Left region already had at this width, now
+  // carrying the Right region's panes too.
+  const sideTrackVars: CSSProperties = desktop
+    ? ({
+        "--content-size": contentWidth,
+        "--left-size": leftWidth,
+        "--right-size": rightWidth,
+        "--content-right-gap": rightRegionActive ? "var(--padding-width)" : "0px",
+        "--content-left-gap":
+          leftRegionActive && !leftWidth.includes("1fr") && !leftWidth.includes("0fr")
+            ? "var(--padding-width)"
+            : "0px",
+      } as CSSProperties)
+    : ({
+        // `1fr` unless the showing pane asked to be `full`, which is its way of
+        // saying it takes the space the content gives up.
+        "--content-size": sideSize === "1fr" ? "0fr" : "1fr",
+        "--side-size": sideSize,
+        "--content-side-gap":
+          sideSize !== "0fr" && sideSize !== "1fr" ? "var(--padding-width)" : "0px",
+      } as CSSProperties);
 
   useGesture(
     {
@@ -62,14 +106,7 @@ function InnerLayoutRoot({
     <div
       style={
         {
-          "--content-size": contentWidth,
-          "--left-size": leftWidth,
-          "--right-size": rightWidth,
-          "--content-right-gap": rightRegionActive ? "var(--padding-width)" : "0px",
-          "--content-left-gap":
-            leftRegionActive && !leftWidth.includes("1fr") && !leftWidth.includes("0fr")
-              ? "var(--padding-width)"
-              : "0px",
+          ...sideTrackVars,
           "--content-footer-gap": footerRegionActive ? "var(--padding-width)" : "0px",
         } as CSSProperties
       }
@@ -78,6 +115,12 @@ function InnerLayoutRoot({
         "relative top-0 right-0 left-0 flex h-dvh select-none",
         "bg-layout-light-base dark:bg-layout-dark-base",
         "app-layout",
+        // An expanded pane spans onto the content column rather than resizing any
+        // track, so the placement change is expressed in CSS off these root
+        // classes — which is what the `left-sidebar-full` / `right-sidebar-full`
+        // custom variants were defined for.
+        leftExpanded && "left-sidebar-full",
+        rightExpanded && "right-sidebar-full",
         className,
       )}
     >
@@ -85,7 +128,9 @@ function InnerLayoutRoot({
       {children && (
         <div className="absolute top-0 right-0 bottom-0 left-0">
           {isValidElement(children) && children}
-          {!isValidElement(children) && typeof children === "function" && children(contentBounds)}
+          {!isValidElement(children) &&
+            typeof children === "function" &&
+            children(contentBounds, contentVisible)}
         </div>
       )}
 
@@ -95,15 +140,30 @@ function InnerLayoutRoot({
       {/* Header */}
       <Header homeIcon={homeIcon} />
 
-      {/* Left Sidebar */}
-      <div className={clsx("grid-area-left h-full w-full transition-[width,height]")}>
-        <PanelContent region={PaneRegion.Left} />
-      </div>
+      {/* Side panes. A track each where there is width to dock them; one shared
+          row, holding whichever is showing, where there is not. Same panes, same
+          content, different arrangement.
 
-      {/* Right Sidebar */}
-      <div className={clsx("grid-area-right h-full w-full transition-[width,height]")}>
-        <PanelContent region={PaneRegion.Right} />
-      </div>
+          The two forms swap rather than coexist because the grids define different
+          areas: an element placed into an area the current grid does not name gets
+          auto-placed into whichever cell happens to be free. */}
+      {desktop ? (
+        <>
+          {/* Left Sidebar */}
+          <div className={clsx("grid-area-left h-full w-full transition-[width,height]")}>
+            <PanelContent region={PaneRegion.Left} />
+          </div>
+
+          {/* Right Sidebar */}
+          <div className={clsx("grid-area-right h-full w-full transition-[width,height]")}>
+            <PanelContent region={PaneRegion.Right} />
+          </div>
+        </>
+      ) : (
+        <div className={clsx("grid-area-side relative h-full w-full")}>
+          <SidePaneArea panes={sideStack} />
+        </div>
+      )}
 
       {/* Content */}
       <div

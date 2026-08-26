@@ -1,7 +1,12 @@
-import type { CSSProperties, ReactNode } from "react";
+import type { CSSProperties, ReactNode, Ref } from "react";
 import { clsx } from "clsx";
 import { Size } from "../types";
 import type { RowVisual } from "../tree/resolve-row-visual";
+// The row rhythm is shared with `TreeRow`, so it lives above both of them. Re-exported
+// here because this module was its home and callers import it from this path.
+import { ROW_HEIGHT, ROW_HEIGHT_PX } from "../row-metrics";
+
+export { ROW_HEIGHT, ROW_HEIGHT_PX };
 
 /** Layout description of one column, as the row needs it (no `render`). */
 export interface ListRowColumn {
@@ -29,20 +34,35 @@ export interface ListRowProps {
   /** Opt-in ARIA (the composed `ListGrid` sets `row`/`option` + selection). */
   role?: string;
   ariaSelected?: boolean;
+  /**
+   * React 19+: `ref` arrives as an ordinary prop, so this is not supported on React 18.
+   *
+   * The row element. Used by a windowed list to measure the real row height, since
+   * {@link ROW_HEIGHT} is a `rem` class and its px value depends on the consuming
+   * app's root font size.
+   */
+  ref?: Ref<HTMLDivElement>;
 }
 
 /**
- * Row height per content `Size` — the shared convention: a list/tree row is a
- * container **one 4px step taller** than the content `sized-height` inside it
- * (Xs h-5→h-6 … Md h-8→h-9 … Xl h-12→h-13). Md = `h-9` deliberately matches the
- * fixed-height `TreeRow`, so `ListGrid` and `TreeGrid` share one vertical rhythm.
+ * Edge length of a row's media tile — the square a thumbnail, or the glyph
+ * standing in for one, occupies in a cell. Published as `--row-media`, which the
+ * `sized-row-media` utility reads.
+ *
+ * The ROW owns this, not the cell. A cell can only name a number, and a number
+ * states no ratio: two listings at different row sizes reach for the same
+ * comfortable-looking tile and then disagree about the breathing around it, which
+ * reads as the same object rendered two ways. Here it is one 4px step in from the
+ * row on every edge — `ROW_HEIGHT` less 8px, in `../row-metrics`. That derivation is
+ * the part worth checking when either table changes: these are literals, so widening a
+ * row height does not widen the tile with it.
  */
-const ROW_HEIGHT: Record<Size, string> = {
-  [Size.Xs]: "h-6",
-  [Size.Sm]: "h-8",
-  [Size.Md]: "h-9",
-  [Size.Lg]: "h-11",
-  [Size.Xl]: "h-13",
+const ROW_MEDIA: Record<Size, string> = {
+  [Size.Xs]: "1rem", // 16px in h-6
+  [Size.Sm]: "1.5rem", // 24px in h-8
+  [Size.Md]: "1.75rem", // 28px in h-9
+  [Size.Lg]: "2.25rem", // 36px in h-11
+  [Size.Xl]: "2.75rem", // 44px in h-13
 };
 
 const alignClass = (align: ListRowColumn["align"]) =>
@@ -68,15 +88,25 @@ export function ListRow({
   className,
   role,
   ariaSelected,
+  ref,
 }: ListRowProps) {
   return (
     <div
+      ref={ref}
       role={role}
       aria-selected={ariaSelected}
       className={clsx(
         // Full-bleed to the container — no outer padding, no rounding — matching
         // the hierarchical rows (TreeRow). The selection tint/bar are `inset-0`.
         "relative col-span-full grid grid-cols-subgrid items-center",
+        // Readable foreground by default. Without this a row inherits whatever
+        // its host page supplies, and a page that supplies nothing falls through
+        // to the UA default black — fine on light, unreadable on dark. The column
+        // headers in `ListGrid` already declare their own colour, so a listing
+        // rendered outside a themed panel had legible headers above illegible
+        // rows. Selection is expressed by `visual.bar` / `visual.background`,
+        // never by text colour, so setting this unconditionally is safe.
+        "text-neutral-900 dark:text-neutral-100",
         // `responsive` + the row's variant/custom-color set --accent-color for
         // this row, so the bar/background resolve to its theme/custom color.
         "responsive",
@@ -87,7 +117,12 @@ export function ListRow({
         size,
         className,
       )}
-      style={visual?.color ? ({ "--custom-color": visual.color } as CSSProperties) : undefined}
+      style={
+        {
+          ...(visual?.color ? { "--custom-color": visual.color } : {}),
+          "--row-media": ROW_MEDIA[size],
+        } as CSSProperties
+      }
     >
       {/* Background tint — always present so selection/hover changes transition. */}
       <div
@@ -106,7 +141,19 @@ export function ListRow({
         <div
           key={column.key}
           className={clsx(
-            "relative flex min-w-0 items-center truncate",
+            // `self-stretch` so a cell fills the row's height rather than hugging
+            // its content. The row is `items-center`, so without it a cell is
+            // exactly as tall as what it contains — and `truncate`'s
+            // `overflow: hidden` then clips anything painted OUTSIDE the content
+            // box. `Button`'s `inverted-border` visual is an `outline`, and outlines
+            // paint outside the box, so an outlined control in a cell lost its top
+            // and bottom edges and rendered as two floating side strokes. Focus
+            // rings on any embedded control had the same problem. Shrinking the
+            // control does not help: the cell hugs it at every size.
+            //
+            // Content stays centred by the cell's own `items-center`, so the
+            // rendered layout is unchanged — the cell just has room around it now.
+            "relative flex min-w-0 items-center self-stretch truncate",
             // Inner cell padding: content breathing room + the first cell clears
             // the 3px indicator bar, so nothing overlaps it or hits the edges.
             "px-2",

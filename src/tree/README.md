@@ -5,15 +5,15 @@ hierarchical row lists** — the pattern behind the animation track/control list
 and the live-data view.
 
 The design is deliberately **assembly-first**. There is no monolith that owns
-your row content. Instead the *skeleton* is standardized (flattening, collapse,
+your row content. Instead the _skeleton_ is standardized (flattening, collapse,
 selection, roving focus, indentation/guide-lines, the row layout) and everything
 domain-specific is **injected**:
 
-| Seam | What you provide | How |
-| --- | --- | --- |
-| **Row content** | labels, editors, action buttons | `getLabel` / `getEditor` / `getActions` (or `TreeRow`'s `label`/`editor`/`actions` slots) |
-| **Selection state + policy** | the selected set, how hierarchy affects it | controlled `selected` + `onSelectionChange`, `scopeOf`, `selectGroupDescendants` |
-| **State → style** | which colors/tints a row gets | `resolveVisual` (defaults to a neutral resolver) |
+| Seam                         | What you provide                           | How                                                                                       |
+| ---------------------------- | ------------------------------------------ | ----------------------------------------------------------------------------------------- |
+| **Row content**              | labels, editors, action buttons            | `getLabel` / `getEditor` / `getActions` (or `TreeRow`'s `label`/`editor`/`actions` slots) |
+| **Selection state + policy** | the selected set, how hierarchy affects it | controlled `selected` + `onSelectionChange`, `scopeOf`, `selectGroupDescendants`          |
+| **State → style**            | which colors/tints a row gets              | `resolveVisual` (defaults to a neutral resolver)                                          |
 
 There are two ways in: the batteries-included **`TreeGrid`** (use this first),
 or the **à-la-carte hooks + primitives** when you need a custom renderer.
@@ -28,7 +28,10 @@ collapse + selection + roving-focus keyboard nav + the standardized row shape.
 ```tsx
 import { TreeGrid, type TreeNode, type FlatTreeRow } from "@semio/ui";
 
-interface Row { label: string; editor?: "slider" | "swatch" }
+interface Row {
+  label: string;
+  editor?: "slider" | "swatch";
+}
 
 const nodes: TreeNode<Row>[] = [
   {
@@ -36,7 +39,7 @@ const nodes: TreeNode<Row>[] = [
     data: { label: "head" },
     children: [
       { id: "head/pitch", data: { label: "pitch", editor: "slider" } },
-      { id: "head/yaw",   data: { label: "yaw",   editor: "slider" } },
+      { id: "head/yaw", data: { label: "yaw", editor: "slider" } },
     ],
   },
   { id: "name", data: { label: "name" } },
@@ -47,25 +50,19 @@ const renderLabel = (row: FlatTreeRow<Row>) => <span>{row.data.label}</span>;
 const renderEditor = (row: FlatTreeRow<Row>) =>
   row.data.editor === "slider" ? <input type="range" aria-label={row.data.label} /> : undefined;
 
-<TreeGrid
-  nodes={nodes}
-  ariaLabel="Parameters"
-  getLabel={renderLabel}
-  getEditor={renderEditor}
-/>;
+<TreeGrid nodes={nodes} ariaLabel="Parameters" getLabel={renderLabel} getEditor={renderEditor} />;
 ```
 
 A node with `children` is a **group** (gets an expand toggle). A node can be
-*both* a group and editable — return an `editor` for it and it renders a toggle
-*and* a control (e.g. a `color` node with a swatch that expands to `r`/`g`/`b`).
+_both_ a group and editable — return an `editor` for it and it renders a toggle
+_and_ a control (e.g. a `color` node with a swatch that expands to `r`/`g`/`b`).
 
 ### Selection
 
 Uncontrolled (the grid owns it):
 
 ```tsx
-<TreeGrid nodes={nodes} getLabel={renderLabel}
-  onSelectionChange={(ids) => console.log([...ids])} />
+<TreeGrid nodes={nodes} getLabel={renderLabel} onSelectionChange={(ids) => console.log([...ids])} />
 ```
 
 Controlled — keep your own store authoritative (this is how the animation
@@ -75,12 +72,12 @@ editor keeps selection in zustand and just mirrors it):
 <TreeGrid
   nodes={nodes}
   getLabel={renderLabel}
-  selected={selectedIds}                 // Set<string> of node ids
+  selected={selectedIds} // Set<string> of node ids
   onSelectionChange={setSelectedIds}
-  selectGroupDescendants                 // selecting a group selects its subtree
-  scopeOf={(id) => instanceOf(id)}       // selection resets when crossing scopes…
+  selectGroupDescendants // selecting a group selects its subtree
+  scopeOf={(id) => instanceOf(id)} // selection resets when crossing scopes…
   onScopeChange={(scope) => activate(scope)} // …and you're told when it does
-/>;
+/>
 ```
 
 The unit is the **node id**. If your domain selects by something else (the
@@ -92,19 +89,24 @@ animation editor selects `trackId`s), map node → domain inside
 Uncontrolled by default. To persist it, control it:
 
 ```tsx
-<TreeGrid nodes={nodes} getLabel={renderLabel}
-  collapsed={collapsedIds}               // string[] | Set<string> of group ids
-  onCollapsedChange={(next) => persist([...next])} />
+<TreeGrid
+  nodes={nodes}
+  getLabel={renderLabel}
+  collapsed={collapsedIds} // string[] | Set<string> of group ids
+  onCollapsedChange={(next) => persist([...next])}
+/>
 ```
 
 ### Common options
 
-| Prop | Default | Notes |
-| --- | --- | --- |
-| `guideLines` | `"full"` | `"full"` = a rule in every indent column (matches the animation track list). `"last-child"` = file-tree connectors that stop at last children. |
-| `defaultLeafIcon` | small dot | Fallback icon for leaves with no `getLeafIcon`. Pass `null` for bare labels. |
-| `resolveVisual` | neutral | `(state, data) => { bar?, background? }` — maps focus/selected/emphasis/anchor (+ your row data) to the left-bar + background tint. |
-| `loop` | `false` | Roving focus wraps at the ends. |
+| Prop                        | Default   | Notes                                                                                                                                                                                                                              |
+| --------------------------- | --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `guideLines`                | `"full"`  | `"full"` = a rule in every indent column (matches the animation track list). `"last-child"` = file-tree connectors that stop at last children.                                                                                     |
+| `defaultLeafIcon`           | small dot | Fallback icon for leaves with no `getLeafIcon`. Pass `null` for bare labels.                                                                                                                                                       |
+| `resolveVisual`             | neutral   | `(state, data) => { bar?, background? }` — maps focus/selected/emphasis/anchor (+ your row data) to the left-bar + background tint.                                                                                                |
+| `loop`                      | `false`   | Roving focus wraps at the ends.                                                                                                                                                                                                    |
+| `size`                      | `Size.Md` | Row height / content size, from the scale `ListGrid` shares — so a tree and a listing at the same size are the same height. `Md` is `h-9`, the density the rest of the product is spaced to. A row is a single line at every size. |
+| `virtualized` + `scrollRef` | off       | Render only the rows near the viewport. Needs a ref to the element that actually scrolls. See [windowed lists](../../docs/windowed-lists.md).                                                                                      |
 
 ### Keyboard (built in)
 
@@ -119,14 +121,32 @@ returns focus to the row. Click selects; Ctrl/Shift-click toggle/range.
 When you need a custom renderer (multi-column, a totally different row), compose
 the pieces yourself. `TreeGrid`'s source is the reference for this.
 
+`TreeNavRoot` needs `total` (the row count) and each `TreeNavItem` needs its `index`,
+because the roving-focus container keeps its element array in the **data's** index
+space rather than discovering items from the DOM. For a fully-rendered list those are
+just `rows.length` and the map index; for a windowed one they are what makes `Home` /
+`End` and the arrow bounds mean the ends of the list rather than of the visible slice.
+See [windowed lists](../../docs/windowed-lists.md).
+
 ```tsx
+import { useState } from "react";
 import {
-  flattenTree, useCollapsibleTree, useTreeSelection,
-  TreeNavRoot, TreeNavItem, TreeRow, TreeToggle,
+  flattenTree,
+  useCollapsibleTree,
+  useTreeSelection,
+  TreeNavRoot,
+  TreeNavItem,
+  TreeRow,
+  TreeToggle,
   defaultResolveRowVisual,
+  type TreeNode,
 } from "@semio/ui";
 
-function MyList({ nodes }: { nodes: TreeNode<Row>[] }) {
+interface Row {
+  label: string;
+}
+
+export function MyList({ nodes }: { nodes: TreeNode<Row>[] }) {
   const collapse = useCollapsibleTree();
   const rows = flattenTree(nodes, { isCollapsed: collapse.isCollapsed });
   const order = rows.map((r) => r.id);
@@ -134,10 +154,16 @@ function MyList({ nodes }: { nodes: TreeNode<Row>[] }) {
   const [focus, setFocus] = useState(0);
 
   return (
-    <TreeNavRoot role="tree" highlightedIndex={focus} onHighlightedIndexChange={setFocus}>
+    <TreeNavRoot
+      role="tree"
+      highlightedIndex={focus}
+      onHighlightedIndexChange={setFocus}
+      total={rows.length}
+    >
       {rows.map((row, i) => (
         <TreeNavItem
           key={row.id}
+          index={i}
           ariaLevel={row.depth + 1}
           ariaSelected={selection.isSelected(row.id)}
           onClick={(e) => selection.select(row.id, { toggle: e.metaKey, range: e.shiftKey })}
@@ -145,12 +171,19 @@ function MyList({ nodes }: { nodes: TreeNode<Row>[] }) {
           <TreeRow
             depth={row.depth}
             ancestorIsLast={row.ancestorIsLast}
-            icon={row.isGroup
-              ? <TreeToggle expanded={row.expanded} onToggle={() => collapse.toggle(row.id)} />
-              : undefined}
+            icon={
+              row.isGroup ? (
+                <TreeToggle expanded={row.expanded} onToggle={() => collapse.toggle(row.id)} />
+              ) : undefined
+            }
             label={<span>{row.data.label}</span>}
             visual={defaultResolveRowVisual(
-              { focused: i === focus, selected: selection.isSelected(row.id), emphasized: false, anchor: selection.anchorId === row.id },
+              {
+                focused: i === focus,
+                selected: selection.isSelected(row.id),
+                emphasized: false,
+                anchor: selection.anchorId === row.id,
+              },
               row.data,
             )}
           />
@@ -163,20 +196,32 @@ function MyList({ nodes }: { nodes: TreeNode<Row>[] }) {
 
 ### The pieces
 
-| Export | Kind | Responsibility |
-| --- | --- | --- |
-| `flattenTree(roots, { isCollapsed })` | fn | tree → ordered rows (`depth`, `isGroup`, `expanded`, `ancestorIsLast`) |
-| `useCollapsibleTree(opts)` | hook | collapse set, controlled/uncontrolled |
-| `useTreeSelection(opts)` | hook | selection gestures (replace/toggle/range) + anchor + scope policy. `applySelection` is the pure, testable core. |
-| `resolveRowVisual` / `defaultResolveRowVisual` | type / fn | interaction-state → `{ bar, background }` |
-| `TreeIndent` | component | indentation + guide-lines + icon slot |
-| `TreeToggle` | component | disclosure chevron (accessible by default) |
-| `TreeLeafDot` | component | default leaf icon |
-| `TreeRow` | component | presentational row: indent · label · editor · actions, over a bar/background |
-| `TreeNavRoot` / `TreeNavItem` | components | roving-focus adapter over Base UI's composite (the *only* users of `@base-ui/react/internals/composite`) |
-| `TreeGrid` | component | Option A — all of the above wired together |
+| Export                                         | Kind       | Responsibility                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| ---------------------------------------------- | ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `flattenTree(roots, { isCollapsed })`          | fn         | tree → ordered rows (`depth`, `isGroup`, `expanded`, `ancestorIsLast`)                                                                                                                                                                                                                                                                                                                                                                 |
+| `useCollapsibleTree(opts)`                     | hook       | collapse set, controlled/uncontrolled                                                                                                                                                                                                                                                                                                                                                                                                  |
+| `useTreeSelection(opts)`                       | hook       | selection gestures (replace/toggle/range) + anchor + scope policy. `applySelection` is the pure, testable core.                                                                                                                                                                                                                                                                                                                        |
+| `resolveRowVisual` / `defaultResolveRowVisual` | type / fn  | interaction-state → `{ bar, background }`                                                                                                                                                                                                                                                                                                                                                                                              |
+| `TreeIndent`                                   | component  | indentation + guide-lines + icon slot                                                                                                                                                                                                                                                                                                                                                                                                  |
+| `TreeToggle`                                   | component  | disclosure chevron (accessible by default)                                                                                                                                                                                                                                                                                                                                                                                             |
+| `TreeLeafDot`                                  | component  | default leaf icon                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| `TreeRow`                                      | component  | presentational row: indent · label · editor · actions, over a bar/background                                                                                                                                                                                                                                                                                                                                                           |
+| `TreeNavRoot` / `TreeNavItem`                  | components | roving-focus adapter for **vertical** hierarchical lists, over Base UI's composite. Reached through `internals/composite`, the package's single import site for that unstable path. Keeps its element array in the data's index space, hence the required `total` / `index`. A two-dimensional pattern gets its own sibling adapter (`layouts/use-grid-navigation`) over the same primitive rather than adding orientation flags here. |
+| `useRowWindow`                                 | hook       | which slice of a long, uniform-height list to render, and the spacer heights standing in for the rest ([guide](../../docs/windowed-lists.md))                                                                                                                                                                                                                                                                                          |
+| `ROW_HEIGHT` / `ROW_HEIGHT_PX`                 | consts     | the row-height scale shared with `ListRow`, as Tailwind classes and as px estimates                                                                                                                                                                                                                                                                                                                                                    |
+| `TreeGrid`                                     | component  | Option A — all of the above wired together                                                                                                                                                                                                                                                                                                                                                                                             |
 
 ---
+
+## Scale
+
+`TreeGrid` renders every **visible** row: a collapsed group costs nothing, but an
+expanded tree of thousands of rows renders all of them. Pass `virtualized` with a
+`scrollRef` to render only the rows near the viewport — selection, type-ahead and
+`Home`/`End` still span the whole tree. The [windowed lists guide](../../docs/windowed-lists.md)
+covers the assembly, including the à-la-carte route with `useRowWindow`.
+
+Memoize `nodes` either way: the tree is re-flattened whenever their identity changes.
 
 ## Accessibility
 
