@@ -120,7 +120,9 @@ export const Button = forwardRef(
             className={clsx(
               "grid place-items-center",
               size === "fit" ? "h-fit w-fit" : size,
-              size !== "fit" && visuals !== "list-item" && "sized-text sized-height sized-width",
+              size !== "fit" &&
+                visuals !== "list-item" &&
+                "sized-text sized-height sized-width sized-icon",
               size !== "fit" && visuals === "list-item" && "sized-text sized-list-item-indicator",
             )}
           >
@@ -145,7 +147,9 @@ export const Button = forwardRef(
             className={clsx(
               "grid place-items-center",
               size === "fit" ? "h-fit w-fit" : size,
-              size !== "fit" && visuals !== "list-item" && "sized-text sized-height sized-width",
+              size !== "fit" &&
+                visuals !== "list-item" &&
+                "sized-text sized-height sized-width sized-icon",
               size !== "fit" && visuals === "list-item" && "sized-text sized-list-item-indicator",
             )}
           >

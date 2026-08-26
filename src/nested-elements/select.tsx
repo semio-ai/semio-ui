@@ -41,7 +41,12 @@ export function NestedSelect({ variant, disabled, onChange, values, options }: N
             }
           }}
           onSelect={(e: Event) => {
-            if (!option.closeOnSelect) {
+            // Stays open by default, unlike `NestedItem` and `NestedRadio`:
+            // this is the MULTI-value control, so toggling one option is
+            // rarely the end of the interaction and closing after each would
+            // make selecting two things take two trips. Opt in per option
+            // where a group really does hold a single toggle.
+            if (option.closeOnSelect !== true) {
               e.preventDefault();
             }
           }}

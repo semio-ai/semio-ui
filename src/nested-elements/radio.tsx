@@ -42,7 +42,12 @@ export function NestedRadio({ variant, disabled, onChange, value, options }: Nes
               : {}
           }
           onSelect={(e: Event) => {
-            if (!option.closeOnSelect) {
+            // Closes by default: a radio group holds ONE value, so picking a
+            // rung is the whole interaction and there is nothing left to do in
+            // the menu. (The multi-value siblings — `NestedSelect` and
+            // `NestedCheckbox` — default the other way for the opposite
+            // reason.) An option can still opt out explicitly.
+            if (option.closeOnSelect === false) {
               e.preventDefault();
             }
           }}

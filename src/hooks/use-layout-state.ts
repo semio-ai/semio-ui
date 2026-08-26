@@ -6,6 +6,9 @@ import {
   useLeftRegionActive,
   useRightRegionActive,
   useFooterRegionActive,
+  useLeftExpanded,
+  useRightExpanded,
+  useContentVisible,
 } from "./layout-atoms";
 import { useIsDesktop } from "./use-is-desktop";
 
@@ -18,6 +21,12 @@ export interface LayoutState {
   leftRegionActive: boolean;
   rightRegionActive: boolean;
   footerRegionActive: boolean;
+  /** A left pane is spanning over the content area ({@link PaneSpec.expanded}). */
+  leftExpanded: boolean;
+  /** A right pane is spanning over the content area. */
+  rightExpanded: boolean;
+  /** Nothing is covering the content area — see `contentVisibleAtom`. */
+  contentVisible: boolean;
 }
 
 export function useLayoutState(): LayoutState {
@@ -30,6 +39,9 @@ export function useLayoutState(): LayoutState {
   const leftRegionActive = useLeftRegionActive();
   const rightRegionActive = useRightRegionActive();
   const footerRegionActive = useFooterRegionActive();
+  const leftExpanded = useLeftExpanded();
+  const rightExpanded = useRightExpanded();
+  const contentVisible = useContentVisible();
 
   return {
     desktop,
@@ -40,5 +52,8 @@ export function useLayoutState(): LayoutState {
     leftRegionActive,
     rightRegionActive,
     footerRegionActive,
+    leftExpanded,
+    rightExpanded,
+    contentVisible,
   };
 }
