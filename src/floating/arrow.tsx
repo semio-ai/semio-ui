@@ -7,6 +7,7 @@ export interface ArrowProps {
   variant: Variant;
   className?: string;
   color?: string;
+  /** React 19+: `ref` arrives as an ordinary prop. Not supported on React 18. */
   ref?: Ref<SVGSVGElement>;
 }
 

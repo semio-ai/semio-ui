@@ -48,7 +48,8 @@ export interface AutocompleteProps<TItem> {
    * omitted, a small bullet renders in the indicator.
    */
   getItemIcon?: (item: TItem) => IconValue;
-  /** Ref to the underlying input element (for programmatic focus, etc.). */
+  /** Ref to the underlying input element (for programmatic focus, etc.). React 19+:
+   *  `ref` arrives as an ordinary prop, so this is not supported on React 18. */
   ref?: Ref<HTMLInputElement>;
   placeholder?: string;
   size?: Size;
@@ -116,8 +117,7 @@ export function Autocomplete<TItem>({
   const generatedId = useId();
   const inputId = id ?? generatedId;
   const showClear = value.length > 0 && !disabled && !readOnly;
-  const resolvedLeftIcon =
-    leftIcon === undefined ? <Icon name="search" /> : leftIcon;
+  const resolvedLeftIcon = leftIcon === undefined ? <Icon name="search" /> : leftIcon;
 
   useEffect(() => {
     if (!onDebouncedChange) {
@@ -151,9 +151,7 @@ export function Autocomplete<TItem>({
       autoHighlight
       openOnInputClick
     >
-      <AutocompletePrimitive.InputGroup
-        className={clsx(inputGroupClassName(size), className)}
-      >
+      <AutocompletePrimitive.InputGroup className={clsx(inputGroupClassName(size), className)}>
         {resolvedLeftIcon != null && (
           <span className={leftIconClassName(size, variant)} aria-hidden="true">
             {resolveIcon(resolvedLeftIcon)}
@@ -222,9 +220,7 @@ export function Autocomplete<TItem>({
                         <div {...props} data-state="unchecked">
                           <span className={itemIndicatorClassName({ variant })}>
                             <span className="icon-slot">
-                              {getItemIcon?.(item) ?? (
-                                <Icon name="point-filled" />
-                              )}
+                              {getItemIcon?.(item) ?? <Icon name="point-filled" />}
                             </span>
                           </span>
                           {renderItem(item, {

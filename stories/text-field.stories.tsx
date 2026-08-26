@@ -174,3 +174,39 @@ export const SubtleIconClearable: Story = {
     subtle: true,
   },
 };
+
+/**
+ * `visuals="inverted"` — no outline of its own, a translucent fill that brightens
+ * on hover. For a field inside something that already draws the only border: the
+ * toolbar card beside the breadcrumb, a pane header, the animation sheet's track
+ * filter. Named to match `Button`'s `visuals="inverted"`, because reading as one
+ * control set with those buttons is the point of it.
+ *
+ * Rendered here ON a bordered card rather than bare, because bare is exactly
+ * where it looks wrong — the variant assumes a container is supplying the edge,
+ * and a preview without one invites the mistake of using it standalone.
+ *
+ * Distinct from `bg`, which paints a lighter fill and does not respond to hover.
+ */
+export const Inverted: Story = {
+  parameters: design(textFieldVariant.interactDefault),
+  render: (props) => {
+    return (
+      <div className="flex w-96 flex-row items-center gap-1 rounded-sm border border-neutral-500/50 p-1">
+        <TextFieldWithHooks {...props} />
+      </div>
+    );
+  },
+  args: {
+    value: "",
+    placeholder: "Search assets...",
+    icon: <IconSearch className={ICON_CLASS_NAME} />,
+    onChange: (): void => {
+      console.log("Hello World!");
+    },
+    size: Size.Sm,
+    variant: Variant.Default,
+    visuals: "inverted",
+    wrapperClassName: "flex-1",
+  },
+};

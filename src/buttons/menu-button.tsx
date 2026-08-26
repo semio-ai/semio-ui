@@ -50,7 +50,8 @@ export interface MenuButtonProps {
   "aria-controls"?: AriaAttributes["aria-controls"];
   id?: string;
   onKeyDown?: KeyboardEventHandler<HTMLButtonElement>;
-  /** Ref to the underlying `<button>` element. */
+  /** Ref to the underlying `<button>` element. React 19+: `ref` arrives as an
+   *  ordinary prop, so this is not supported on React 18. */
   ref?: Ref<HTMLButtonElement>;
 }
 

@@ -1,6 +1,9 @@
-import { useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import {
+  Button,
+  Icon,
   ListGrid,
+  Size,
   type ListColumn,
   type ResolveRowVisual,
   Variant,
@@ -23,8 +26,18 @@ const ROWS: Row[] = [
 ];
 
 const COLUMNS: ListColumn<Row>[] = [
-  { key: "name", header: "Name", flex: true, render: (r) => <span className="truncate">{r.name}</span> },
-  { key: "kind", header: "Kind", hideBelow: "sm", render: (r) => <span className="text-neutral-500">{r.kind}</span> },
+  {
+    key: "name",
+    header: "Name",
+    flex: true,
+    render: (r) => <span className="truncate">{r.name}</span>,
+  },
+  {
+    key: "kind",
+    header: "Kind",
+    hideBelow: "sm",
+    render: (r) => <span className="text-neutral-500">{r.kind}</span>,
+  },
   {
     key: "updated",
     header: "Updated",
@@ -84,7 +97,9 @@ export const NoHeaderSingleColumn = () => (
     <ListGrid
       data={ROWS}
       getRowId={(r) => r.id}
-      columns={[{ key: "name", flex: true, render: (r) => <span className="truncate">{r.name}</span> }]}
+      columns={[
+        { key: "name", flex: true, render: (r) => <span className="truncate">{r.name}</span> },
+      ]}
       selectionMode="single"
       noHeader
       defaultSelected={["r3"]}
@@ -117,7 +132,12 @@ export const RichCells = () => {
               </span>
             ),
           },
-          { key: "name", header: "Name", flex: true, render: (r) => <span className="truncate">{r.name}</span> },
+          {
+            key: "name",
+            header: "Name",
+            flex: true,
+            render: (r) => <span className="truncate">{r.name}</span>,
+          },
           {
             key: "kind",
             header: "Kind",
@@ -169,7 +189,11 @@ export const EditableCells = () => {
               />
             ),
           },
-          { key: "kind", header: "Kind", render: (r) => <span className="text-neutral-500">{r.kind}</span> },
+          {
+            key: "kind",
+            header: "Kind",
+            render: (r) => <span className="text-neutral-500">{r.kind}</span>,
+          },
         ]}
       />
     </div>
@@ -205,8 +229,18 @@ export const PerRowVariant = () => {
         resolveVisual={resolveVisual}
         ariaLabel="Per-row variant"
         columns={[
-          { key: "name", header: "Name", flex: true, render: (r) => <span className="truncate">{r.name}</span> },
-          { key: "kind", header: "Kind", align: "right", render: (r) => <span className="text-neutral-500">{r.kind}</span> },
+          {
+            key: "name",
+            header: "Name",
+            flex: true,
+            render: (r) => <span className="truncate">{r.name}</span>,
+          },
+          {
+            key: "kind",
+            header: "Kind",
+            align: "right",
+            render: (r) => <span className="text-neutral-500">{r.kind}</span>,
+          },
         ]}
       />
     </div>
@@ -241,10 +275,18 @@ export const PerRowCustomColor = () => {
             key: "dot",
             header: "",
             render: (r) => (
-              <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: ROW_COLOR[r.id] }} />
+              <span
+                className="h-2.5 w-2.5 rounded-full"
+                style={{ backgroundColor: ROW_COLOR[r.id] }}
+              />
             ),
           },
-          { key: "name", header: "Name", flex: true, render: (r) => <span className="truncate">{r.name}</span> },
+          {
+            key: "name",
+            header: "Name",
+            flex: true,
+            render: (r) => <span className="truncate">{r.name}</span>,
+          },
         ]}
       />
     </div>
@@ -273,3 +315,197 @@ export const ResponsiveHiding = () => (
     ))}
   </div>
 );
+
+/**
+ * One click selects, two open — the desktop-file idiom, via the optional
+ * `onItemDoubleClick`.
+ *
+ * The gesture is wired here rather than in the list because what a second click
+ * *means* is the consumer's: in studio it navigates to the row's page. Keyboard
+ * activation stays on `onAction` (Enter), so the two paths remain distinct and a
+ * consumer can adopt either without the other.
+ */
+export const DoubleClickToOpen = () => {
+  const [sel, setSel] = useState<Set<string>>(new Set());
+  const [opened, setOpened] = useState<string | null>(null);
+  return (
+    <div className="w-[520px] space-y-2 p-4">
+      <ListGrid
+        data={ROWS}
+        getRowId={(r) => r.id}
+        columns={COLUMNS}
+        selectionMode="single"
+        selected={sel}
+        onSelectionChange={setSel}
+        onItemDoubleClick={(id) => setOpened(id)}
+        onAction={(id) => setOpened(id)}
+        getSearchText={(r) => r.name}
+        ariaLabel="Double-click to open"
+      />
+      <p className="text-xs opacity-70">
+        {opened ? `Opened: ${opened}` : "Select with one click; open with two (or Enter)."}
+      </p>
+    </div>
+  );
+};
+
+/**
+ * A row's media tile is sized by the ROW, via `sized-row-media` — the utility
+ * reads the `--row-media` the row publishes for its `Size`. A cell never names a
+ * square.
+ *
+ * Ratio, not just size: the tile is one 4px step in from the row on every edge at
+ * every step of the scale, so the breathing around it is identical whatever height
+ * a listing runs at. Two listings hardcoding the same comfortable-looking number
+ * is exactly how they come to disagree — the same tile in a taller row is a
+ * different picture.
+ *
+ * Note the tile is a *descendant* of the row, not the element carrying the size
+ * class, which is why this rides on an inherited custom property rather than the
+ * `@variant size-*` mechanism `sized-height` and its siblings use.
+ */
+const MEDIA_COLUMNS: ListColumn<Row>[] = [
+  {
+    key: "name",
+    header: "Name",
+    flex: true,
+    render: (r) => (
+      <span className="flex min-w-0 items-center gap-3">
+        {/* The tile takes no size class of its own — only its rounding. */}
+        <span className="sized-row-media grid shrink-0 place-items-center overflow-hidden rounded-xs bg-neutral-300/60 dark:bg-neutral-700/60">
+          {/* `size="none"` is required: without it the icon keeps its intrinsic
+              sizing and a utility class cannot shrink it. Deliberately a built-in
+              glyph — studio's `entity-*` keys come from its own registry
+              augmentation and do not resolve here. */}
+          <Icon name="robot" size="none" className="size-4 opacity-40" />
+        </span>
+        <span className="truncate">{r.name}</span>
+      </span>
+    ),
+  },
+  {
+    key: "kind",
+    header: "Kind",
+    hideBelow: "sm",
+    render: (r) => <span className="text-xs text-neutral-500">{r.kind}</span>,
+  },
+];
+
+/**
+ * The column header is the SAME fixed height as a row, so putting a control in a
+ * header cell does not grow it.
+ *
+ * Both grids below are `Md`. The second gives its last column a header with a
+ * button in it — the shape a listing uses for a create action that belongs to the
+ * whole list rather than to any row — and the two headers still line up. Sized to
+ * content instead, the plain one was a hair over 24px and the one with a button
+ * ~40px, so two panels sitting side by side were visibly differently built purely
+ * on whether either had an action up there.
+ */
+export const HeaderHeightIsFixed = () => (
+  <div className="flex flex-col gap-6 p-4">
+    {[false, true].map((withAction) => (
+      <div key={String(withAction)}>
+        <div className="mb-1 font-mono text-xs text-neutral-500">
+          {withAction ? "header with a control" : "header with plain text"}
+        </div>
+        <div className="w-[420px]">
+          <ListGrid
+            data={ROWS.slice(0, 2)}
+            getRowId={(r) => r.id}
+            columns={[
+              COLUMNS[0],
+              {
+                key: "action",
+                align: "right",
+                header: withAction ? (
+                  <span className="flex items-center justify-end">
+                    <Button visuals="inverted" altText="Add">
+                      <Icon name="add" size="none" className="size-4" />
+                    </Button>
+                  </span>
+                ) : (
+                  "Kind"
+                ),
+                render: (r) => <span className="text-xs text-neutral-500">{r.kind}</span>,
+              },
+            ]}
+            ariaLabel={withAction ? "With header action" : "Without header action"}
+          />
+        </div>
+      </div>
+    ))}
+  </div>
+);
+
+export const RowMediaFollowsRowSize = () => (
+  <div className="flex flex-col gap-6 p-4">
+    {[Size.Sm, Size.Md, Size.Lg, Size.Xl].map((size) => (
+      <div key={size}>
+        <div className="mb-1 font-mono text-xs text-neutral-500">{size}</div>
+        <div className="w-[420px]">
+          <ListGrid
+            data={ROWS.slice(0, 3)}
+            getRowId={(r) => r.id}
+            columns={MEDIA_COLUMNS}
+            size={size}
+            selectionMode="single"
+            defaultSelected={["r1"]}
+            ariaLabel={`Row media at ${size}`}
+          />
+        </div>
+      </div>
+    ))}
+  </div>
+);
+
+/**
+ * Ten thousand rows, with only the ones near the viewport in the DOM.
+ *
+ * Two things are worth watching. Scroll it: the number of rows in the DOM stays flat while
+ * the scrollbar behaves as if all ten thousand were there. Then watch the `Updated` column,
+ * whose values vary in width — it grows to fit the widest value seen and then stays put,
+ * rather than resizing every time a wider one scrolls into view.
+ *
+ * The scroll container is the consumer's, and the list needs a ref to it. In the app that
+ * is a `ScrollArea`, whose `viewportRef` hands out the element that actually scrolls; here
+ * it is a plain `overflow-y-auto` div.
+ */
+export function Virtualized() {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const rows = useMemo(
+    () =>
+      Array.from({ length: 10_000 }, (_, i) => ({
+        id: `v${i.toString()}`,
+        name: `Item ${i.toString()}`,
+        kind: i % 3 === 0 ? "Robot" : i % 3 === 1 ? "Sensor" : "Service",
+        // Widths vary a lot, which is what makes column stability visible.
+        updated:
+          i % 97 === 0 ? `${(i * 1_237).toLocaleString()} bytes` : `${(i % 60).toString()}m ago`,
+      })),
+    [],
+  );
+  const [sel, setSel] = useState<Set<string>>(new Set());
+  return (
+    <div className="w-[520px] p-4">
+      <div className="mb-2 text-xs text-neutral-500">
+        10,000 rows · windowed · {sel.size.toString()} selected
+      </div>
+      <div ref={scrollRef} className="h-80 overflow-y-auto rounded-sm border border-neutral-500/20">
+        <ListGrid
+          data={rows}
+          getRowId={(r) => r.id}
+          columns={COLUMNS}
+          virtualized
+          scrollRef={scrollRef}
+          selectionMode="multiple"
+          selected={sel}
+          onSelectionChange={setSel}
+          getSearchText={(r) => r.name}
+          ariaLabel="Virtualized list"
+        />
+      </div>
+    </div>
+  );
+}
+Virtualized.parameters = design(FIGMA_LIST_GRID);
