@@ -172,13 +172,30 @@ export function Modal({
               size === "wide"
                 ? "desktop:w-[clamp(40rem,80vw,72rem)]"
                 : "desktop:min-w-96 desktop:w-fit",
-              // Slide-up + fade in, slide-down + fade out. Matches the
-              // `animated-modal` keyframes that the Radix-backed version
-              // used, expressed via base-ui's `data-starting-style` /
+              // Fade plus a short vertical slide, via base-ui's `data-starting-style` /
               // `data-ending-style` transition hooks.
-              "transition-[opacity,scale] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]",
-              "data-starting-style:opacity-0 data-starting-style:scale-90",
-              "data-ending-style:opacity-0 data-ending-style:scale-90",
+              //
+              // **Translate, never scale, and the difference is not cosmetic.** A scale
+              // transition resizes the whole subtree: at 0.9 a 16px glyph paints at
+              // 14.4px, every intermediate value is fractional too, and the box beneath
+              // it changes size at the same time — so fine artwork visibly slides inside
+              // boxes that never moved, then settles when the transition ends. Sizing
+              // glyphs in whole pixels does not help, because that fixes where they sit
+              // at rest and the animation is what moves them.
+              //
+              // Translate has no such effect. Nothing is resized — a 16px glyph is 16px
+              // at every frame — and the resting state is exactly `translate: none` over
+              // a whole-pixel travel, so the final rasterization is the same one the
+              // element would have had with no animation at all. Motion during the
+              // transition reads as motion, which is the point; it is content shifting
+              // against a stationary box that reads as a defect.
+              //
+              // Keep the distance a whole number of pixels. A fractional travel lands
+              // the element off the pixel grid on the way and can settle visibly at the
+              // end, which is the failure this comment exists to prevent.
+              "transition-[opacity,translate] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]",
+              "data-starting-style:opacity-0 data-starting-style:translate-y-2",
+              "data-ending-style:opacity-0 data-ending-style:translate-y-2",
             )}
           >
             <ScrollArea
