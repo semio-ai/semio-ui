@@ -83,7 +83,16 @@ export const Avatar = forwardRef(
           text: status.text,
           size,
         }
-      : {};
+      : // `display: contents`, so the status-less wrapper adds no box of its own.
+        //
+        // It is a layout fix, not tidiness. Without it this div sits between the
+        // caller's box and the avatar's root while carrying no height, so a root asking
+        // for `size-full` resolves 100% against an auto-height parent and collapses to
+        // its content — an avatar told to fill a 155px card came out 40px tall. A fixed
+        // `size` never showed this, because it never asks its parent anything; only a
+        // container-sized avatar does, which is why it surfaced the moment listings
+        // started filling their own boxes.
+        { className: "contents" };
 
     return (
       <Wrapper {...wrapperProps}>
