@@ -756,22 +756,30 @@
    * character count instead tracks neither the font size nor the padding, and starts
    * clipping as soon as either changes. */
   .sized-status-text {
-    @apply h-4 min-w-4 px-1 text-[10px] leading-none;
+    /* Every value here is rem, type included. The box comes from the spacing scale,
+     * which is rem-based, so an absolute font-size would hold still while the box grew
+     * — a reader who raises their browser's text size would get a larger badge around
+     * the same tiny numeral. Keeping both in rem makes the badge scale as one thing,
+     * which is also how the dot form already behaves.
+     *
+     * The rem values are the px targets divided by 16, so rendering at the default root
+     * size is unchanged: 12/14/16/18/20 box with 8/9/10/11/12 type. */
+    @apply h-4 min-w-4 px-1 text-[0.625rem] leading-none;
 
     @variant size-xs {
-      @apply h-3 min-w-3 px-0.5 text-[8px];
+      @apply h-3 min-w-3 px-0.5 text-[0.5rem];
     }
 
     @variant size-sm {
-      @apply h-3.5 min-w-3.5 px-0.5 text-[9px];
+      @apply h-3.5 min-w-3.5 px-0.5 text-[0.5625rem];
     }
 
     @variant size-md {
-      @apply h-4 min-w-4 px-1 text-[10px];
+      @apply h-4 min-w-4 px-1 text-[0.625rem];
     }
 
     @variant size-lg {
-      @apply h-4.5 min-w-4.5 px-1 text-[11px];
+      @apply h-4.5 min-w-4.5 px-1 text-[0.6875rem];
     }
 
     @variant size-xl {

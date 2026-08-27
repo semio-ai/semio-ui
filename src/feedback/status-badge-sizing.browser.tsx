@@ -102,6 +102,33 @@ test("the counted badge widens for more digits, and stays a circle for one", () 
   expect(three.width, "three digits").toBeGreaterThan(two.width);
 });
 
+// The box comes from the spacing scale, which is rem-based. An absolute font-size would
+// therefore hold still while the box grew, so a reader who raises their browser's text
+// size would get a larger badge around the same tiny numeral. Asserting the RATIO is
+// what catches that: both halves may scale, but they must scale together.
+test("the counted badge scales as one thing with the root font size", () => {
+  const html = document.documentElement;
+  const previous = html.style.fontSize;
+  try {
+    html.style.fontSize = "16px";
+    const base = SIZES.map((size) => withBadge(size, "9", read));
+    html.style.fontSize = "24px";
+    const grown = SIZES.map((size) => withBadge(size, "9", read));
+
+    for (let i = 0; i < SIZES.length; i++) {
+      const label = String(SIZES[i]);
+      // The box must actually respond, or the ratio holds for the wrong reason.
+      expect(grown[i].height, `${label} box did not scale`).toBeGreaterThan(base[i].height);
+      expect(grown[i].height / grown[i].fontSize, `${label} box-to-type ratio`).toBeCloseTo(
+        base[i].height / base[i].fontSize,
+        1,
+      );
+    }
+  } finally {
+    html.style.fontSize = previous;
+  }
+});
+
 // The two forms share a component and must not share a scale. This is the control on the
 // change: it asserts the dot was left exactly where it was.
 test("the dot form keeps its own scale", () => {
