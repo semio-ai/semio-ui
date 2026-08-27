@@ -284,7 +284,14 @@ export function Select<T extends string | string[]>({
 
           <StaticIcon
             size={size}
-            className={clsx("sized-text sized-width", DISABLED_CONTENT_CLASS)}
+            // `sized-icon` opts the caret into the explicit per-size glyph step.
+            // Without it the glyph takes `.icon-standard`, which is 3/5 of its box —
+            // 16.8px in a 28px Sm trigger, centred at a 5.6px offset. The stylesheet
+            // says why that matters where `.sized-icon` is defined: a fractional glyph
+            // box is a subpixel rendering box, so the artwork is rasterized at one
+            // rounding while the control composites and another when it does not, and
+            // the caret appears to shift inside a box that never moved.
+            className={clsx("sized-icon sized-text sized-width", DISABLED_CONTENT_CLASS)}
             variant={selectOption?.variant}
           >
             <Icon name="select-indicator" />
