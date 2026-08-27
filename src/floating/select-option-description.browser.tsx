@@ -47,6 +47,41 @@ async function openMenu(selectedLabel: string) {
   await settle();
 }
 
+test("a description actually reaches the option — the positive claim", async () => {
+  // Every other test here is a NEGATIVE claim, which is deliberate: the risk is that
+  // wrapping items in a tooltip trigger breaks selection or focus. But negatives alone
+  // cannot tell a working feature from a deleted one — with the description never
+  // passed through, or the trigger disarmed, all of them still pass. This is the one
+  // assertion that fails if the tooltip stops being wired at all, which matters
+  // because the rung explanations in the sharing modal live nowhere else.
+  render(
+    <Select
+      value="viewer"
+      onChange={() => undefined}
+      options={DESCRIBED}
+      size={Size.Sm}
+      variant={Variant.Default}
+      label="Role"
+    />,
+  );
+
+  await openMenu("Viewer");
+
+  const admin = page.getByRole("menuitemradio", { name: "Admin" }).element();
+  admin.dispatchEvent(new PointerEvent("pointerenter", { bubbles: true, pointerType: "mouse" }));
+  admin.dispatchEvent(new MouseEvent("mouseenter", { bubbles: true }));
+  admin.dispatchEvent(new MouseEvent("mouseover", { bubbles: true }));
+  (admin as HTMLElement).focus();
+  await new Promise((resolve) => setTimeout(resolve, 800));
+
+  // Asserted through the accessible wiring rather than by finding the text anywhere on
+  // screen: `aria-describedby` is what makes the description reach the option at all,
+  // and a stray match elsewhere in the DOM would not.
+  expect(admin.getAttribute("aria-describedby")).toBeTruthy();
+  const described = document.getElementById(admin.getAttribute("aria-describedby") ?? "");
+  expect(described?.textContent).toContain("Can edit and manage access.");
+});
+
 test("a described option is still a selectable radio item", async () => {
   const onChange = vi.fn();
   render(

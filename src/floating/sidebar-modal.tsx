@@ -212,7 +212,6 @@ export function SidebarModal({
               // against (rather than the modal expanding to fit all tabs).
               "desktop:w-[clamp(40rem,80vw,72rem)]",
               "desktop:h-[clamp(24rem,75dvh,calc(100dvh-4rem))]",
-              // Scale-up + fade in/out. Matches `Modal`.
               // Fade plus a short vertical slide. Translate rather than scale, for the
               // reason spelled out in `Modal`: scaling repaints the whole subtree at a
               // changing size so fine artwork slides inside stationary boxes, while a

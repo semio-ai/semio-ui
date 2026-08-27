@@ -37,7 +37,10 @@ export function NestedRadio({ variant, disabled, onChange, value, options }: Nes
           // short-circuit: it renders the child bare rather than wrapping it in an
           // armed trigger. So an undescribed option is byte-for-byte the item it has
           // always been, and the description costs nothing where it is unused.
-          disabled={option.description === undefined}
+          //
+          // Falsy, not `=== undefined`: a `?? ""` call site would otherwise arm a
+          // trigger that opens an empty tooltip on hover.
+          disabled={!option.description}
           side="right"
         >
           <ItemComponent

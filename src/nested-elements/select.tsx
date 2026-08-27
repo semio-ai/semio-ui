@@ -35,7 +35,7 @@ export function NestedSelect({ variant, disabled, onChange, values, options }: N
           content={option.description}
           // Same short-circuit as `NestedRadio`: no description means Tooltip renders
           // the child bare, so an undescribed option is unchanged.
-          disabled={option.description === undefined}
+          disabled={!option.description}
           side="right"
         >
           <ItemComponent

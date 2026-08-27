@@ -16,21 +16,24 @@ export interface AvatarProps {
    *
    * - `"size"` (default) — from {@link AvatarProps.size}, as a standalone avatar
    *   should.
-   * - `"container"` — from the caller's own class, for a row that publishes a tile
-   *   size of its own. A list row sets `--row-media` and its entity tiles read it via
-   *   `sized-row-media`; an avatar in that row has to be the same square, or a
-   *   listing of people and a listing of things render the same slot at two sizes.
+   * - `"container"` — from the caller's own class, for a box whose shape the caller
+   *   decides: a row's tile (`sized-row-media`, sized by the row's `--row-media`) or a
+   *   card's media slot (`aspect-video w-full`, sized by its aspect ratio).
    *
-   * This is a prop rather than something a caller can do with `className`, and that
-   * is the point: `size` otherwise emits `sized-height sized-width`, which is the same
-   * utility family as `sized-row-media`. Both would apply and the winner would be
-   * decided by their order in the compiled stylesheet — so the caller's class looks
-   * applied, changes nothing, and the avatar silently keeps its intrinsic size.
-   * `"container"` omits Avatar's own pair so there is exactly one source of the
-   * dimensions.
+   * **What it is actually for is the ASPECT-RATIO case.** `size` emits
+   * `sized-height sized-width`, and an explicit `height` beats an `aspect-ratio`
+   * outright — the two are not the same declaration, so no cascade rule resolves it in
+   * the caller's favour. An avatar given `aspect-video w-full` renders 200x32 under
+   * `"size"` and 200x112.5 under `"container"`.
    *
-   * `size` still drives the fallback's type scale, so an avatar sized by its
-   * container should still be passed the size its text should read at.
+   * A same-family width/height class does NOT need this: Tailwind compiles the size
+   * variants as `.sized-height:where(.size-md)`, and `:where()` contributes no
+   * specificity, so `sized-row-media` — emitted later in the sheet — already wins.
+   * Both settings render a row tile at 28px. Reach for `"container"` when the caller
+   * states a RATIO rather than a length.
+   *
+   * `size` still drives the fallback's type scale, so an avatar sized by its container
+   * should still be passed the size its text should read at.
    */
   sizing?: "size" | "container";
   onClick?: MouseEventHandler<HTMLSpanElement>;
@@ -116,8 +119,9 @@ export const Avatar = forwardRef(
             variant,
             "rounded-sm",
             size,
-            // Omitted entirely under `sizing: "container"` — see the prop's doc on why
-            // this cannot be left in and overridden from `className`.
+            // Omitted entirely under `sizing: "container"`. A caller stating a RATIO
+            // cannot beat this from `className` — an explicit height wins over
+            // `aspect-ratio` regardless of order. See the prop's doc.
             sizing === "size" && "sized-height sized-width",
             className,
           )}
