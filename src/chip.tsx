@@ -66,12 +66,11 @@ export function Chip({ children, variant, size = Size.Md, color, icon, onDelete 
         </div>
       )}
       {/* Derived from the fill, at full opacity. The fill is `--standard-color`, which
-          has no dark-mode override — so no foreground chosen by colour scheme can be
-          right in both themes here, whatever pair is picked. The label is an identifier
-          (pose names, binding targets), so it carries the 4.5:1 bar rather than a
-          decorative one, and the 75% alpha this used to carry cost roughly a stop on
-          top of the wrong-extreme problem: alpha composites the label toward its own
-          background, which is where the warm hues reached 1.6:1. */}
+          has no dark-mode override, so no foreground chosen by colour scheme is right in
+          both themes here whatever pair is picked. Full opacity for a second reason:
+          alpha composites a foreground toward the very background it has to contrast
+          against, costing roughly a stop, and the label is an identifier (pose names,
+          binding targets) that carries the 4.5:1 bar rather than a decorative one. */}
       <div className="px-2 text-[var(--on-standard-color)] group-hover/chip:text-[var(--on-accent-color)]">
         {children}
       </div>

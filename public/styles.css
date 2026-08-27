@@ -386,9 +386,9 @@
    * ground it is calibrated against — do not reach for it on a card or a fill.
    *
    * This is the mirror of `--on-accent-color`'s problem rather than an instance of
-   * it. There the fill was theme-invariant and the foreground flipped; here the
-   * foreground is theme-invariant (a variant's accent text shade is the -500 in both
-   * themes) and the GROUND flips. Either way one side moves and the other does not,
+   * it. There a fill holds still while a scheme-chosen foreground flips; here the
+   * foreground holds still (a variant's accent text shade is the -500 in both themes)
+   * and the GROUND flips. Either way one side moves and the other does not,
    * so one theme is wrong for every hue: the bright warm shades land at 1.6:1 on the
    * light inset, and the deepest cool ones at 4.1:1 on the dark one.
    *
@@ -963,8 +963,8 @@
      * default `--strong-accent-text-color` really is an inversion — the -800 in light,
      * the -200 in dark — and a theme-flipped foreground tracks it. For a named variant
      * it is the -600 / -400 of a brand hue, whose lightness does not track the scheme
-     * the way the neutral's does, and white on it measured 2.9:1 on warning and 3.2:1
-     * on success in light mode. Deriving from the fill covers both cases with one rule.
+     * the way the neutral's does: white on it measures 2.9:1 on warning and 3.2:1 on
+     * success in light mode. Deriving from the fill covers both cases with one rule.
      *
      * Declared here rather than at the call site because a caller's `text-*` utility
      * would override this from a later cascade layer whatever its specificity — so a
