@@ -81,8 +81,11 @@ export const Button = forwardRef(
         data-deemphasized={deemphasize}
         className={clsx(
           "responsive cursor-pointer select-none disabled:cursor-default",
-          visuals === "default" &&
-            "variant-responsive-bg variant-responsive-appearing-outline text-white dark:text-black",
+          // No foreground named here: `variant-responsive-bg` declares one for every
+          // state it fills, including hover, disabled and deemphasized. A `text-*`
+          // utility added here would override all of them at once, because utilities
+          // are a later cascade layer than components.
+          visuals === "default" && "variant-responsive-bg variant-responsive-appearing-outline",
           (visuals === "inverted" || visuals === "inverted-border") && "variant-responsive-text",
           visuals === "inverted" && "outline-hidden",
           visuals === "inverted-border" && "variant-responsive-persistent-outline",

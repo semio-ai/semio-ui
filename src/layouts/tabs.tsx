@@ -92,7 +92,14 @@ export function InnerTabsRow({
                 tabChild.variant,
                 "sized-inner-group-item-height",
                 "grid place-items-center transition-colors",
-                selected ? "variant-responsive-text" : "variant-static-text",
+                // Both the label and the active indicator take their colour from the
+                // tab's own variant, so a label can end up on a paler tint of itself.
+                // This class clamps the label's lightness against the list ground it
+                // is read on; an unmodified brand shade there measured 1.6:1 for the
+                // warm hues. It applies to active and inactive alike — the active row
+                // adds only a 25% tint of the same hue, which does not change which
+                // side of the ground the label needs to sit on.
+                "variant-text-on-inset",
                 // `flex-1` distributes free space when tabs fit; `min-w-fit`
                 // keeps each tab at content-size when they don't, allowing the
                 // list to scroll horizontally instead of clipping labels.

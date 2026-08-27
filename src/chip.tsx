@@ -20,7 +20,10 @@ export function Chip({ children, variant, size = Size.Md, color, icon, onDelete 
   return (
     <div
       className={clsx(
-        "variant-responsive-bg variant-responsive-text",
+        // NOT `variant-responsive-text`: it resolves to the same -500 shade this fill
+        // paints with, so anything inheriting it would render at 1:1. The fill
+        // declares a foreground derived from itself, and the label inherits it.
+        "variant-responsive-bg",
         "sized-text sized-height",
         "responsive grid grid-rows-1 place-items-center",
         "gap-2 p-0.5",
@@ -41,25 +44,21 @@ export function Chip({ children, variant, size = Size.Md, color, icon, onDelete 
       }
     >
       {resolvedIcon && (
-        <div
-          className={clsx(
-            "responsive",
-            size,
-            "sized-inner-group-item",
-            "grid place-items-center rounded-[1px] bg-white/50 dark:bg-black/50",
-          )}
-        >
+        // Deliberately NOT `responsive`: that class re-declares the whole variant
+        // token block, so a slot carrying it without the variant class resets
+        // `--standard-color` to the neutral default and derives its foreground from a
+        // fill it is not sitting on. The delete slot below has no `responsive` and
+        // inherits the chip's, so the two tint toward opposite extremes on one chip.
+        <div className={clsx(size, "sized-inner-group-item", "variant-on-fill-slot")}>
           {resolvedIcon}
         </div>
       )}
-      {/* `black` in dark mode, not `red`: this read `dark:text-red/75`, and `text-red`
-          is not a colour Tailwind emits — the scale needs a number — so the
-          declaration was dropped and the chip rendered `text-white/75` in BOTH
-          modes. The variant fill inverts with the theme (light mode gets a mid-tone
-          accent, dark mode a light one), so white was legible on light and vanished
-          on dark. White-on-light / black-on-dark is the pairing the icon and delete
-          slots below already use against the same fill. */}
-      <div className="px-2 text-white/75 dark:text-black/75">{children}</div>
+      {/* No colour of its own — it inherits the one the fill declares, which follows
+          the fill through hover. Full opacity matters independently of which extreme
+          gets chosen: alpha composites a foreground toward the very background it has
+          to contrast against, and the label is an identifier (pose names, binding
+          targets) carrying the 4.5:1 bar rather than a decorative one. */}
+      <div className="px-2">{children}</div>
       {onDelete && (
         <button
           type="button"
@@ -68,11 +67,7 @@ export function Chip({ children, variant, size = Size.Md, color, icon, onDelete 
             e.preventDefault();
             e.stopPropagation();
           }}
-          className={clsx(
-            size,
-            "sized-inner-group-item",
-            "grid place-items-center rounded-[1px] bg-white/50 dark:bg-black/50",
-          )}
+          className={clsx(size, "sized-inner-group-item", "variant-on-fill-slot")}
         >
           <Icon name="close" />
         </button>

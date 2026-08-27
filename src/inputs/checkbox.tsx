@@ -47,7 +47,11 @@ export function Checkbox({
       <RadixCheckbox.Indicator
         // h-full/w-full so the check's `h-4/5` percentage resolves against the
         // sized Root and scales with `size` (the box is `sized-height/width`).
-        className={clsx(variant, "text-white dark:text-black", "grid h-full w-full place-items-center")}
+        //
+        // Deliberately no colour of its own: the Root owns the fill, so the Root
+        // owns the foreground and this inherits it. Both fills the Root can carry
+        // change under `:hover`, which a colour named here could not follow.
+        className={clsx(variant, "grid h-full w-full place-items-center")}
       >
         <Icon name="selected" size="none" className="h-4/5 w-4/5" />
       </RadixCheckbox.Indicator>

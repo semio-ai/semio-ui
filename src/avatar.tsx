@@ -108,7 +108,10 @@ export const Avatar = forwardRef(
               variant,
               size,
               onClick ? "cursor-pointer" : "cursor-default",
-              (visuals === "default" || visuals === "border") && "text-white dark:text-black",
+              // No foreground named here. Which fill this ends up with depends on
+              // `onClick` — `variant-responsive-bg` when clickable, `variant-static-bg`
+              // when not — and only one of those has a hover state. Each declares its
+              // own foreground, so the pair stays consistent either way.
               (visuals === "inverted" || visuals === "inverted-border") &&
                 onClick &&
                 "variant-responsive-text",

@@ -38,13 +38,22 @@ export const Status = forwardRef(
             size,
             "responsive",
             "absolute rounded-full ring-2 ring-neutral-200 dark:ring-neutral-800",
+            // Two forms, two scales. The dot is sized as a mark; the counted form is
+            // sized by the numeral it holds, so its height, type and padding all come
+            // from `sized-status-text` rather than being fixed. Fixed values ignored
+            // `size` entirely and left 7px type in a 2px content box.
+            //
+            // 600 rather than 700: at this size the heavier weight closes up the
+            // counters. Safe to ask for even where a font ships no semibold — CSS
+            // resolves a request above 500 upward, so it lands on 700, a heavier
+            // glyph rather than a broken one. Requesting 500 would be the unsafe
+            // direction: it resolves DOWNWARD, to 400.
             text
-              ? "flex h-[10px] min-w-[10px] flex-row items-center justify-center p-1 text-[7px] font-bold text-white dark:text-black"
+              ? "sized-status-text flex flex-row items-center justify-center font-semibold text-[var(--on-standard-color)]"
               : "sized-status",
             "variant-static-bg",
             getPlacement(placement),
           )}
-          style={text ? { width: text.length * 6 } : undefined}
         >
           {text}
         </div>

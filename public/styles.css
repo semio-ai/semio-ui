@@ -74,16 +74,36 @@
     @apply transition-colors duration-50 ease-in-out rounded-xs;
     @apply disabled:cursor-not-allowed;
 
+    /* Fill and foreground are declared together, and callers name neither.
+     *
+     * A caller CANNOT correctly own half of this pair. A `text-*` utility overrides
+     * these rules no matter their specificity — utilities are a later cascade layer
+     * than components, and layer order is decided before specificity is consulted — so
+     * a caller that sets the rest foreground silently disables every state rule below
+     * it. And the `hover:` variant it would have to add in compensation is NOT wrapped
+     * in `@media (hover: hover)` while this block is, so on a coarse pointer a sticky
+     * `:hover` would swap the foreground while the fill stayed put: the mispairing this
+     * whole mechanism exists to prevent, reintroduced by the fix for it. */
+    color: var(--on-standard-color);
     background-color: var(--standard-color);
     &:hover {
       @media (hover: hover) {
+        /* Hover crosses the derivation's lightness threshold in the opposite direction
+         * for some hues — secondary's -500 takes black, its -600 takes white — so the
+         * foreground has to move with the fill, not just alongside it. */
+        color: var(--on-accent-color);
         background-color: var(--accent-color);
 
+        /* These two branches keep the REST fill, so they keep the rest foreground.
+         * Restoring only the background would leave an accent-derived foreground on a
+         * `--standard-color` fill, which is the same mispairing in a narrower state. */
         &:disabled {
+          color: var(--on-standard-color);
           background-color: color-mix(in oklab, var(--standard-color) 50%, transparent);
         }
 
         &[data-deemphasized="true"] {
+          color: var(--on-standard-color);
           background-color: color-mix(in oklab, var(--standard-color) 50%, transparent);
         }
       }
@@ -95,6 +115,44 @@
 
     &[data-deemphasized="true"] {
       background-color: color-mix(in oklab, var(--standard-color) 50%, transparent);
+    }
+  }
+
+  /* A slot sitting ON one of the variant fills: a tint of that fill's own foreground,
+   * plus that foreground for whatever it holds.
+   *
+   * Tinted toward the foreground rather than toward white or black. A theme-flipped
+   * tint over a fill that does not flip lands on the wrong side in one theme for every
+   * hue — it lightens the warm fills until a glyph on them measures 1.4:1 — whereas
+   * tinting toward the glyph's own colour keeps slot and glyph on the same side of the
+   * fill in both themes. 20%, because a heavier tint moves the slot toward the glyph
+   * fast enough to cost the glyph its own contrast. */
+  .variant-on-fill-slot {
+    @apply transition-colors duration-50 ease-in-out;
+
+    /* Layout belongs to the class, not the call site. When these declarations lived in
+     * a shared `clsx` constant only the colours were carried over here, and the glyph
+     * silently lost its centring in the one slot whose element does not centre content
+     * by default — a `<div>` renders it flush to the corner where a `<button>` does not. */
+    @apply grid place-items-center rounded-[1px];
+
+    /* Layout belongs to the class, not the call site. When these declarations lived in
+     * a shared `clsx` constant only the colours were carried over here, and the glyph
+     * silently lost its centring in the one slot whose element does not centre content
+     * by default — a `<div>` renders it flush to the corner where a `<button>` does not. */
+
+    color: var(--on-standard-color);
+    background-color: color-mix(in oklab, var(--on-standard-color) 20%, transparent);
+
+    /* Follows the host fill's own hover swap. Declared here rather than as a
+     * `group-hover:` utility at the call site, which would not be wrapped in
+     * `@media (hover: hover)` and so would move on a coarse pointer's sticky hover
+     * while the fill it is tinting stayed put. */
+    &:is(:where(.variant-responsive-bg):hover *) {
+      @media (hover: hover) {
+        color: var(--on-accent-color);
+        background-color: color-mix(in oklab, var(--on-accent-color) 20%, transparent);
+      }
     }
   }
 
@@ -281,6 +339,10 @@
   }
 
   .variant-static-bg {
+    /* Static: no `:hover` rule, so the foreground must not have one either. A caller
+     * adding `hover:text-…` here would swap the foreground against a fill that never
+     * moves — which is what a non-clickable `Avatar` renders. */
+    color: var(--on-standard-color);
     background-color: var(--standard-color);
   }
 
@@ -370,6 +432,37 @@
 
   .variant-static-text {
     color: var(--strong-accent-text-color);
+  }
+
+  /* Variant-coloured TEXT on the `layout-*-deep-inset` ground, which is the only
+   * ground it is calibrated against — do not reach for it on a card or a fill.
+   *
+   * This is the mirror of `--on-accent-color`'s problem rather than an instance of
+   * it. There a fill holds still while a scheme-chosen foreground flips; here the
+   * foreground holds still (a variant's accent text shade is the -500 in both themes)
+   * and the GROUND flips. Either way one side moves and the other does not,
+   * so one theme is wrong for every hue: the bright warm shades land at 1.6:1 on the
+   * light inset, and the deepest cool ones at 4.1:1 on the dark one.
+   *
+   * Clamping lightness rather than substituting black or white keeps the hue, which
+   * is the entire purpose of a per-tab variant. The bounds are one-sided so a hue
+   * already dark enough in light mode is left untouched. Where the clamp pushes a
+   * saturated hue outside sRGB the browser gamut-maps it, costing chroma but not
+   * contrast, which is the right trade for text. */
+  .variant-text-on-inset {
+    @apply transition-colors duration-50 ease-in-out;
+    color: oklch(from var(--weak-accent-text-color) min(l, 0.42) c h);
+
+    &:where(.dark, .dark *) {
+      color: oklch(from var(--weak-accent-text-color) max(l, 0.78) c h);
+    }
+
+    /* Pre-relative-color-syntax fallback: the strong shade, which is the darkest the
+     * palette offers in light mode and the lightest in dark. It does not clear AA for
+     * the warm hues, but it is the closest existing token and it moves the right way. */
+    @supports not (color: oklch(from red l 0 0)) {
+      color: var(--strong-accent-text-color);
+    }
   }
 
   .chip {
@@ -650,15 +743,72 @@
     }
   }
 
+  /* The counted form of the same badge. It needs its own scale rather than the dot's:
+   * a dot is sized purely as a mark, while this one has to hold a numeral, so its
+   * height is driven by the type it contains and its width by the digits.
+   *
+   * `leading-none` is what makes the height predictable — it pins the line box to the
+   * font size, so a height chosen here is the whole box and not a guess about the
+   * font's default leading.
+   *
+   * Width is deliberately absent: `min-w` makes a single digit a circle and horizontal
+   * padding lets two or more digits grow it into a pill. A width computed from the
+   * character count instead tracks neither the font size nor the padding, and starts
+   * clipping as soon as either changes. */
+  .sized-status-text {
+    /* Every value here is rem, type included. The box comes from the spacing scale,
+     * which is rem-based, so an absolute font-size would hold still while the box grew
+     * — a reader who raises their browser's text size would get a larger badge around
+     * the same tiny numeral. Keeping both in rem makes the badge scale as one thing,
+     * which is also how the dot form already behaves.
+     *
+     * The rem values are the px targets divided by 16, so rendering at the default root
+     * size is unchanged: 12/14/16/18/20 box with 8/9/10/11/12 type. */
+    @apply h-4 min-w-4 px-1 text-[0.625rem] leading-none;
+
+    @variant size-xs {
+      @apply h-3 min-w-3 px-0.5 text-[0.5rem];
+    }
+
+    @variant size-sm {
+      @apply h-3.5 min-w-3.5 px-0.5 text-[0.5625rem];
+    }
+
+    @variant size-md {
+      @apply h-4 min-w-4 px-1 text-[0.625rem];
+    }
+
+    @variant size-lg {
+      @apply h-4.5 min-w-4.5 px-1 text-[0.6875rem];
+    }
+
+    @variant size-xl {
+      @apply h-5 min-w-5 px-1.5 text-xs;
+    }
+  }
+
   .variant-checkbox-bg {
     @apply dark:bg-layout-dark-inset bg-layout-light-inset transition-colors;
+
+    /* Off-state foreground. The fill here IS theme-flipped — `bg-layout-*-inset` — so a
+     * theme-flipped foreground tracks it correctly, unlike the checked state below.
+     * Declared with the fill rather than at the call site so the two cannot drift, and
+     * so no consumer has to know which of a component's states fill from where. */
+    @apply dark:text-neutral-200 text-neutral-800;
+    @apply dark:data-[state=indeterminate]:text-neutral-200 data-[state=indeterminate]:text-neutral-800;
 
     &:not(*:disabled) {
       &[data-state="checked"],
       &[data-state="on"] {
+        /* The check mark is a child of this element and inherits `color`, so the
+         * foreground is declared here, next to the fill it has to contrast against.
+         * A child that names its own literal colour instead cannot follow the fill
+         * through `:hover`, where the fill crosses to `--accent-color`. */
+        color: var(--on-standard-color);
         background-color: var(--standard-color) !important;
         &:hover {
           @media (hover: hover) {
+            color: var(--on-accent-color);
             background-color: var(--accent-color) !important;
           }
         }
@@ -728,8 +878,6 @@
     @apply group-data-disabled/item:text-neutral-500/50;
     @apply dark:text-default-400 text-default-600;
     @apply dark:group-data-highlighted/item:text-black group-data-highlighted/item:text-white;
-    @apply dark:group-data-[state=checked]/item:text-black group-data-[state=checked]/item:text-white;
-    @apply dark:group-data-[state=indeterminate]/item:text-black group-data-[state=indeterminate]/item:text-white;
     @apply group-data-highlighted/item:group-data-[state=unchecked]/item:text-white;
     @apply dark:group-data-highlighted/item:group-data-[state=unchecked]/item:text-black;
     @apply group-data-[state=unchecked]/item:opacity-50;
@@ -740,7 +888,14 @@
       color: var(--accent-color);
     }
 
+    /* This fill outranks the `bg-layout-*-base` utility above — equal specificity,
+     * later in source — so the checked indicator paints `--accent-color`, and its
+     * foreground is derived from that rather than flipped with the theme. Every
+     * consumer but `NestedCheckbox` puts its variant class on the indicator, so the
+     * fill is a saturated brand hue: white on it measures 2.9:1 on warning and
+     * 3.2:1 on success in light mode. */
     &:is(:where(.group\/item)[data-state="checked"] *) {
+      color: var(--on-accent-color);
       background-color: var(--accent-color);
     }
 
@@ -770,8 +925,15 @@
       color: var(--accent-color);
     }
 
+    /* No shipped component nests this class under a `.group/item` carrying a state,
+     * so today the `bg-layout-*-base` utilities above are what paint a checked
+     * indicator and their theme-flipped foreground is correct against them. This
+     * branch is the one that fires if a consumer does nest it: the fill becomes a
+     * variant hue that does not flip with the theme, so the foreground is derived
+     * here rather than inheriting a pairing chosen for a different fill. */
     &:is(:where(.group\/item)[data-state="checked"] *),
     &:is(:where(.group\/item)[data-state="on"] *) {
+      color: var(--on-accent-color);
       background-color: var(--accent-color);
     }
   }
@@ -892,7 +1054,27 @@
 
   .card-invert {
     @apply rounded-sm shadow-lg;
+
+    /* Inverting against the theme is only half of what this fill does. For the neutral
+     * default `--strong-accent-text-color` really is an inversion — the -800 in light,
+     * the -200 in dark — and a theme-flipped foreground tracks it. For a named variant
+     * it is the -600 / -400 of a brand hue, whose lightness does not track the scheme
+     * the way the neutral's does: white on it measures 2.9:1 on warning and 3.2:1 on
+     * success in light mode. Deriving from the fill covers both cases with one rule.
+     *
+     * Declared here rather than at the call site because a caller's `text-*` utility
+     * would override this from a later cascade layer whatever its specificity — so a
+     * caller naming a literal colour silently reintroduces the failure. */
+    color: oklch(from var(--strong-accent-text-color) clamp(0, calc((var(--on-fill-threshold) - l) * 1000), 1) 0 0);
     background-color: var(--strong-accent-text-color);
+
+    @supports not (color: oklch(from red l 0 0)) {
+      color: white;
+
+      &:where(.dark, .dark *) {
+        color: black;
+      }
+    }
   }
 
   .sized-height {
@@ -1022,6 +1204,12 @@
     --strong-accent-text-color: var(--darkest-accent-text-color);
     --weak-accent-text-color: var(--dark-accent-text-color);
 
+    /* The lightness crossover every on-fill foreground derives against, named once so
+     * the three derivations cannot drift apart. Its justification — 190 of 194 palette
+     * colours get the better-contrasting extreme — is a property of THIS number, so a
+     * copy that missed an edit would be a copy with no evidence behind it. */
+    --on-fill-threshold: 0.57;
+
     /* Foreground for content sitting ON an `--accent-color` fill.
      *
      * It has to be derived from the fill rather than from the theme. `--accent-color`
@@ -1042,16 +1230,34 @@
      * theoretical best of 4.6:1. Working from the fill also means an arbitrary
      * `--custom-color` is handled on the same footing as the named variants.
      */
-    --on-accent-color: oklch(from var(--accent-color) clamp(0, calc((0.57 - l) * 1000), 1) 0 0);
+    --on-accent-color: oklch(from var(--accent-color) clamp(0, calc((var(--on-fill-threshold) - l) * 1000), 1) 0 0);
+
+    /* Foreground for content sitting ON a `--standard-color` fill — what
+     * `variant-responsive-bg`, `variant-static-bg` and a checked `variant-checkbox-bg`
+     * paint with. Same derivation as `--on-accent-color`, applied to the other fill.
+     *
+     * A theme-flipped `text-white dark:text-black` pair is necessarily wrong in one
+     * theme at this fill, for every hue, without measuring anything: `--standard-color`
+     * is the -500 shade and has NO dark-mode override, so the fill is theme-invariant
+     * while the foreground flips. Whichever theme puts the worse-contrasting extreme on
+     * it is the failing one. That cuts both ways — the saturated hues fail in light mode
+     * (warning 1.91:1, success 2.22:1, primary 2.71:1) and the neutral default fails in
+     * dark (4.43:1), because a mid-grey is not light enough for black text either.
+     *
+     * Deriving from the fill also covers an arbitrary `--custom-color`, which no
+     * hardcoded pair can. */
+    --on-standard-color: oklch(from var(--standard-color) clamp(0, calc((var(--on-fill-threshold) - l) * 1000), 1) 0 0);
 
     /* Pre-relative-color-syntax fallback: the old theme-flipped pair, which is right
      * for the neutral default and wrong only for the brightest brand hues. Guarded by
      * `not` so it cannot shadow the derived value above where that value works. */
     @supports not (color: oklch(from red l 0 0)) {
       --on-accent-color: white;
+      --on-standard-color: white;
 
       &:where(.dark, .dark *) {
         --on-accent-color: black;
+        --on-standard-color: black;
       }
     }
 
