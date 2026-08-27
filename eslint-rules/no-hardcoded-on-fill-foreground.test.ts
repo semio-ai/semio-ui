@@ -47,6 +47,36 @@ ruleTester.run("no-hardcoded-on-fill-foreground", rule, {
     { code: `<div className={clsx("check-indicator", "text-[var(--on-accent-color)]")} />` },
     // A fill class with no foreground at all — the foreground lives in the CSS class.
     { code: `<div className="variant-checkbox-bg rounded-xs" />` },
+    // Keywords that name no colour. They defer to whatever the fill class decided,
+    // which is what this rule asks for; flagging them blocks the correct escape hatch.
+    { code: `<div className="variant-responsive-bg text-inherit" />` },
+    { code: `<div className="variant-responsive-bg text-current" />` },
+    // Fills that match the `variant-*-bg` SHAPE but are not what their content is read
+    // against. Reporting these would demand a wrong fix, and a rule that does that gets
+    // disabled. `-header-button-bg` fills from `bg-layout-*-deep-inset`, which flips
+    // WITH the theme, so a theme-flipped foreground on it is correct.
+    { code: `<div className="variant-responsive-header-button-bg text-white dark:text-black" />` },
+    // Transparent at rest.
+    { code: `<div className="variant-responsive-appearing-bg text-white" />` },
+    // A 20% tint, not the fill.
+    { code: `<div className="variant-mock-item-bg text-white" />` },
+    // A 25% tint over whatever is beneath it — the Tabs indicator. What its content is
+    // read against is the composite, which depends on the host, so this rule cannot say
+    // which foreground is right and does not try.
+    { code: `<div className="variant-static-bg-25 text-black" />` },
+    // An accent text class away from any fill: correct and common on a card ground.
+    { code: `<div className="card variant-responsive-text" />` },
+    // Opposite branches of one ternary can never render together. This is `Tooltip`'s
+    // real markup; reporting it would be a demand to break working code.
+    {
+      code: `const C = ({ i }) => <div className={clsx(i ? "card-invert" : "variant-static-text card")} />;`,
+    },
+    // `Button`'s real markup: the fill and the accent-text class belong to different
+    // `visuals` values. Not provably exclusive to a linter, but an accent-text class is
+    // the normal ALTERNATIVE to a fill, so it is only reported in the same scope.
+    {
+      code: `const C = ({ v }) => <button className={clsx(v === "default" && "variant-responsive-bg", v === "inverted" && "variant-responsive-text")} />;`,
+    },
     // A literal foreground with NO fill class. Most of these are correct: content on a
     // neutral or card background flips WITH the theme. Reporting them would make the
     // rule a nuisance and bury the cases that matter.
@@ -66,6 +96,30 @@ ruleTester.run("no-hardcoded-on-fill-foreground", rule, {
   ],
 
   invalid: [
+    // An accent TEXT class on a fill. Worse than a literal, because it looks like the
+    // responsible choice: for a named variant it resolves to the same -500 shade the
+    // fill paints with, so content inheriting it renders at exactly 1:1. This was
+    // `ImageInput`'s fallback initial, invisible in both themes.
+    { code: `<div className="variant-responsive-bg variant-responsive-text" />`, errors: 1 },
+    // Hoisted into a module constant and spread into a `className` elsewhere. The
+    // pairing never appears in a `className` attribute, so an attribute-only rule walks
+    // straight past it — and hoisting shared classes is the natural thing to do.
+    {
+      code: `const SLOT = clsx("variant-on-fill-slot", "text-white");\nexport const C = () => <div className={SLOT} />;`,
+      errors: 1,
+    },
+    // A LITERAL colour under a different `&&` guard from the fill. Not provably
+    // exclusive, and it has no innocent reading, so it is reported — this is exactly
+    // what `Avatar` shipped, with the colour on one guard and the fill on another.
+    {
+      code: `const C = ({ v, o }) => <span className={clsx((v === "default" || v === "border") && "text-white dark:text-black", v === "default" && o && "variant-responsive-bg")} />;`,
+      errors: 2,
+    },
+    // `ToggleSquare`'s shape: fill chosen by a ternary, colour by a separate guard.
+    {
+      code: `const C = ({ a, c }) => <button className={clsx(a ? "grid-list-item-indicator" : "variant-checkbox-bg", !c && "data-[state=checked]:text-neutral-200")} />;`,
+      errors: 1,
+    },
     // The original spelling, at the site it shipped from.
     {
       code: `<button className={clsx("variant-responsive-bg", "text-white dark:text-black")} />`,
@@ -93,11 +147,6 @@ ruleTester.run("no-hardcoded-on-fill-foreground", rule, {
       code: `<div className={clsx(a && "variant-responsive-bg", b ? "text-white" : "text-sm")} />`,
       errors: 1,
     },
-    // A tint suffix on the fill class — matched by shape, not by an enumerated list.
-    { code: `<div className="variant-static-bg-25 text-black" />`, errors: 1 },
-    // A fill class the rule has never been told about, matched by that same shape. This
-    // is what stops the next sibling arriving unprotected.
-    { code: `<div className="variant-future-thing-bg text-white" />`, errors: 1 },
     // An allowlist entry is scoped to its file: the same class elsewhere still reports.
     {
       code: `<div className="card-invert text-white" />`,

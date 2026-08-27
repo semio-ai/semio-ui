@@ -74,26 +74,36 @@
     @apply transition-colors duration-50 ease-in-out rounded-xs;
     @apply disabled:cursor-not-allowed;
 
+    /* Fill and foreground are declared together, and callers name neither.
+     *
+     * A caller CANNOT correctly own half of this pair. A `text-*` utility overrides
+     * these rules no matter their specificity — utilities are a later cascade layer
+     * than components, and layer order is decided before specificity is consulted — so
+     * a caller that sets the rest foreground silently disables every state rule below
+     * it. And the `hover:` variant it would have to add in compensation is NOT wrapped
+     * in `@media (hover: hover)` while this block is, so on a coarse pointer a sticky
+     * `:hover` would swap the foreground while the fill stayed put: the mispairing this
+     * whole mechanism exists to prevent, reintroduced by the fix for it. */
+    color: var(--on-standard-color);
     background-color: var(--standard-color);
     &:hover {
       @media (hover: hover) {
-        /* The fill changes here, so the foreground changes with it: hover crosses the
-         * derivation's lightness threshold in the opposite direction for some hues
-         * (secondary's -500 takes black, its -600 takes white).
-         *
-         * This covers only callers that inherit their foreground. A caller that names
-         * its own `text-*` utility overrides this NO MATTER THE SPECIFICITY — utilities
-         * are a later cascade layer than components, and layer order is decided before
-         * specificity is consulted. Such a caller has to pair its own `hover:` variant
-         * with it; `Button` and `Avatar` do. */
+        /* Hover crosses the derivation's lightness threshold in the opposite direction
+         * for some hues — secondary's -500 takes black, its -600 takes white — so the
+         * foreground has to move with the fill, not just alongside it. */
         color: var(--on-accent-color);
         background-color: var(--accent-color);
 
+        /* These two branches keep the REST fill, so they keep the rest foreground.
+         * Restoring only the background would leave an accent-derived foreground on a
+         * `--standard-color` fill, which is the same mispairing in a narrower state. */
         &:disabled {
+          color: var(--on-standard-color);
           background-color: color-mix(in oklab, var(--standard-color) 50%, transparent);
         }
 
         &[data-deemphasized="true"] {
+          color: var(--on-standard-color);
           background-color: color-mix(in oklab, var(--standard-color) 50%, transparent);
         }
       }
@@ -105,6 +115,32 @@
 
     &[data-deemphasized="true"] {
       background-color: color-mix(in oklab, var(--standard-color) 50%, transparent);
+    }
+  }
+
+  /* A slot sitting ON one of the variant fills: a tint of that fill's own foreground,
+   * plus that foreground for whatever it holds.
+   *
+   * Tinted toward the foreground rather than toward white or black. A theme-flipped
+   * tint over a fill that does not flip lands on the wrong side in one theme for every
+   * hue — it lightens the warm fills until a glyph on them measures 1.4:1 — whereas
+   * tinting toward the glyph's own colour keeps slot and glyph on the same side of the
+   * fill in both themes. 20%, because a heavier tint moves the slot toward the glyph
+   * fast enough to cost the glyph its own contrast. */
+  .variant-on-fill-slot {
+    @apply transition-colors duration-50 ease-in-out;
+    color: var(--on-standard-color);
+    background-color: color-mix(in oklab, var(--on-standard-color) 20%, transparent);
+
+    /* Follows the host fill's own hover swap. Declared here rather than as a
+     * `group-hover:` utility at the call site, which would not be wrapped in
+     * `@media (hover: hover)` and so would move on a coarse pointer's sticky hover
+     * while the fill it is tinting stayed put. */
+    &:is(:where(.variant-responsive-bg):hover *) {
+      @media (hover: hover) {
+        color: var(--on-accent-color);
+        background-color: color-mix(in oklab, var(--on-accent-color) 20%, transparent);
+      }
     }
   }
 
@@ -291,6 +327,10 @@
   }
 
   .variant-static-bg {
+    /* Static: no `:hover` rule, so the foreground must not have one either. A caller
+     * adding `hover:text-…` here would swap the foreground against a fill that never
+     * moves — which is what a non-clickable `Avatar` renders. */
+    color: var(--on-standard-color);
     background-color: var(--standard-color);
   }
 
@@ -969,7 +1009,7 @@
      * Declared here rather than at the call site because a caller's `text-*` utility
      * would override this from a later cascade layer whatever its specificity — so a
      * caller naming a literal colour silently reintroduces the failure. */
-    color: oklch(from var(--strong-accent-text-color) clamp(0, calc((0.57 - l) * 1000), 1) 0 0);
+    color: oklch(from var(--strong-accent-text-color) clamp(0, calc((var(--on-fill-threshold) - l) * 1000), 1) 0 0);
     background-color: var(--strong-accent-text-color);
 
     @supports not (color: oklch(from red l 0 0)) {
@@ -1108,6 +1148,12 @@
     --strong-accent-text-color: var(--darkest-accent-text-color);
     --weak-accent-text-color: var(--dark-accent-text-color);
 
+    /* The lightness crossover every on-fill foreground derives against, named once so
+     * the three derivations cannot drift apart. Its justification — 190 of 194 palette
+     * colours get the better-contrasting extreme — is a property of THIS number, so a
+     * copy that missed an edit would be a copy with no evidence behind it. */
+    --on-fill-threshold: 0.57;
+
     /* Foreground for content sitting ON an `--accent-color` fill.
      *
      * It has to be derived from the fill rather than from the theme. `--accent-color`
@@ -1128,7 +1174,7 @@
      * theoretical best of 4.6:1. Working from the fill also means an arbitrary
      * `--custom-color` is handled on the same footing as the named variants.
      */
-    --on-accent-color: oklch(from var(--accent-color) clamp(0, calc((0.57 - l) * 1000), 1) 0 0);
+    --on-accent-color: oklch(from var(--accent-color) clamp(0, calc((var(--on-fill-threshold) - l) * 1000), 1) 0 0);
 
     /* Foreground for content sitting ON a `--standard-color` fill — what
      * `variant-responsive-bg`, `variant-static-bg` and a checked `variant-checkbox-bg`
@@ -1144,7 +1190,7 @@
      *
      * Deriving from the fill also covers an arbitrary `--custom-color`, which no
      * hardcoded pair can. */
-    --on-standard-color: oklch(from var(--standard-color) clamp(0, calc((0.57 - l) * 1000), 1) 0 0);
+    --on-standard-color: oklch(from var(--standard-color) clamp(0, calc((var(--on-fill-threshold) - l) * 1000), 1) 0 0);
 
     /* Pre-relative-color-syntax fallback: the old theme-flipped pair, which is right
      * for the neutral default and wrong only for the brightest brand hues. Guarded by

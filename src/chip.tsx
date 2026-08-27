@@ -13,26 +13,6 @@ export interface ChipProps {
   onDelete?: MouseEventHandler<HTMLButtonElement>;
 }
 
-/**
- * The icon and delete slots: a tint of the chip's own foreground over the chip's
- * fill, plus that foreground for the glyph.
- *
- * Both halves derive from the fill rather than from the colour scheme, because the
- * fill (`--standard-color`) does not flip with the scheme. A theme-flipped tint over
- * it lands on the wrong side in one theme for every hue — it lightened the warm fills
- * until the glyph measured 1.4:1 — and tinting toward the glyph's own colour instead
- * keeps slot and glyph on the same side of the fill in both themes. The `group-hover`
- * pair follows the fill's own hover swap to `--accent-color`, which crosses the
- * derivation's threshold in the opposite direction for some hues.
- */
-const SLOT_VISUALS = clsx(
-  "grid place-items-center rounded-[1px]",
-  "bg-[color-mix(in_oklab,var(--on-standard-color)_20%,transparent)]",
-  "text-[var(--on-standard-color)]",
-  "group-hover/chip:bg-[color-mix(in_oklab,var(--on-accent-color)_20%,transparent)]",
-  "group-hover/chip:text-[var(--on-accent-color)]",
-);
-
 export function Chip({ children, variant, size = Size.Md, color, icon, onDelete }: ChipProps) {
   // A slot value may be a registry key (string) or a node; resolveIcon turns a
   // key into a self-sizing <Icon>, otherwise passes the node through.
@@ -40,7 +20,10 @@ export function Chip({ children, variant, size = Size.Md, color, icon, onDelete 
   return (
     <div
       className={clsx(
-        "group/chip variant-responsive-bg variant-responsive-text",
+        // NOT `variant-responsive-text`: it resolves to the same -500 shade this fill
+        // paints with, so anything inheriting it would render at 1:1. The fill
+        // declares a foreground derived from itself, and the label inherits it.
+        "variant-responsive-bg",
         "sized-text sized-height",
         "responsive grid grid-rows-1 place-items-center",
         "gap-2 p-0.5",
@@ -61,19 +44,16 @@ export function Chip({ children, variant, size = Size.Md, color, icon, onDelete 
       }
     >
       {resolvedIcon && (
-        <div className={clsx("responsive", size, "sized-inner-group-item", SLOT_VISUALS)}>
+        <div className={clsx("responsive", size, "sized-inner-group-item", "variant-on-fill-slot")}>
           {resolvedIcon}
         </div>
       )}
-      {/* Derived from the fill, at full opacity. The fill is `--standard-color`, which
-          has no dark-mode override, so no foreground chosen by colour scheme is right in
-          both themes here whatever pair is picked. Full opacity for a second reason:
-          alpha composites a foreground toward the very background it has to contrast
-          against, costing roughly a stop, and the label is an identifier (pose names,
-          binding targets) that carries the 4.5:1 bar rather than a decorative one. */}
-      <div className="px-2 text-[var(--on-standard-color)] group-hover/chip:text-[var(--on-accent-color)]">
-        {children}
-      </div>
+      {/* No colour of its own — it inherits the one the fill declares, which follows
+          the fill through hover. Full opacity matters independently of which extreme
+          gets chosen: alpha composites a foreground toward the very background it has
+          to contrast against, and the label is an identifier (pose names, binding
+          targets) carrying the 4.5:1 bar rather than a decorative one. */}
+      <div className="px-2">{children}</div>
       {onDelete && (
         <button
           type="button"
@@ -82,7 +62,7 @@ export function Chip({ children, variant, size = Size.Md, color, icon, onDelete 
             e.preventDefault();
             e.stopPropagation();
           }}
-          className={clsx(size, "sized-inner-group-item", SLOT_VISUALS)}
+          className={clsx(size, "sized-inner-group-item", "variant-on-fill-slot")}
         >
           <Icon name="close" />
         </button>

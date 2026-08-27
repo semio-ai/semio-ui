@@ -81,13 +81,11 @@ export const Button = forwardRef(
         data-deemphasized={deemphasize}
         className={clsx(
           "responsive cursor-pointer select-none disabled:cursor-default",
+          // No foreground named here: `variant-responsive-bg` declares one for every
+          // state it fills, including hover, disabled and deemphasized. A `text-*`
+          // utility added here would override all of them at once, because utilities
+          // are a later cascade layer than components.
           visuals === "default" && "variant-responsive-bg variant-responsive-appearing-outline",
-          // Paired with the fill: the rest fill is `--standard-color` and the hover
-          // fill is `--accent-color`, and the two do not always want the same
-          // extreme. The `hover:` half has to live here rather than in the fill
-          // class, because a utility outranks any components-layer rule.
-          visuals === "default" &&
-            "text-[var(--on-standard-color)] hover:text-[var(--on-accent-color)]",
           (visuals === "inverted" || visuals === "inverted-border") && "variant-responsive-text",
           visuals === "inverted" && "outline-hidden",
           visuals === "inverted-border" && "variant-responsive-persistent-outline",

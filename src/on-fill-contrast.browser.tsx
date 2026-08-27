@@ -364,6 +364,46 @@ test("Button: the foreground follows the fill through hover", async () => {
   }
 });
 
+// The two states that keep the REST fill while `:hover` is active. Both restore the
+// background and must therefore restore the foreground with it — leaving the hover
+// foreground in place would put an accent-derived colour on a `--standard-color` fill,
+// the same mispairing in a narrower state. Neither is reachable from the rest-state
+// tests above, so each is driven through a real pointer.
+test.each([
+  ["disabled", { disabled: true }],
+  ["deemphasized", { deemphasize: true }],
+] as const)("Button: a %s button keeps its rest foreground under hover", async (_label, props) => {
+  for (const theme of THEMES) {
+    for (const variant of [Variant.Default, Variant.Secondary]) {
+      const html = document.documentElement;
+      html.className = theme === "dark" ? "dark" : "";
+      document.body.style.backgroundColor = theme === "dark" ? "#0a0a0a" : "#ffffff";
+      const host = document.createElement("div");
+      document.body.appendChild(host);
+      try {
+        const view = render(
+          <Button variant={variant} size={Size.Md} {...props}>
+            Label
+          </Button>,
+          { container: host },
+        );
+        const button = host.querySelector<HTMLElement>("button")!;
+        await userEvent.hover(button);
+        const onStandard = getComputedStyle(button).getPropertyValue("--on-standard-color").trim();
+        expect(
+          toRgba(getComputedStyle(button).color).slice(0, 3),
+          `${theme}/${String(variant)} took the hover foreground without the hover fill`,
+        ).toEqual(toRgba(onStandard).slice(0, 3));
+        view.unmount();
+      } finally {
+        host.remove();
+        html.className = "";
+        document.body.style.backgroundColor = "";
+      }
+    }
+  }
+});
+
 // Chip's slots are a tint over the chip's own fill, and the glyph sits on the tint —
 // not on the fill. Measured separately because the composited ground differs from the
 // label's, and because a theme-flipped tint over a theme-invariant fill is the same
