@@ -2,6 +2,7 @@ import { DropdownMenu, ContextMenu } from "radix-ui";
 import { type CSSProperties, type MouseEvent } from "react";
 import { clsx } from "clsx";
 import { Icon, resolveIcon } from "../icons/registry";
+import { Tooltip } from "../floating/tooltip";
 import { NestedParent, type NestedRadioProps } from "./types";
 import { useNestedParent } from "./context";
 
@@ -29,71 +30,60 @@ export function NestedRadio({ variant, disabled, onChange, value, options }: Nes
       }}
     >
       {options.map((option) => (
-        <ItemComponent
+        <Tooltip
           key={option.value}
-          value={option.value}
-          disabled={option.disabled || disabled}
-          textValue={option.label}
-          style={
-            option.color
-              ? ({
-                  "--custom-color": option.color,
-                } as CSSProperties)
-              : {}
-          }
-          onSelect={(e: Event) => {
-            // Closes by default: a radio group holds ONE value, so picking a
-            // rung is the whole interaction and there is nothing left to do in
-            // the menu. (The multi-value siblings — `NestedSelect` and
-            // `NestedCheckbox` — default the other way for the opposite
-            // reason.) An option can still opt out explicitly.
-            if (option.closeOnSelect === false) {
-              e.preventDefault();
-            }
-          }}
-          className={clsx(
-            "group/item flex rounded-xs leading-none",
-            "relative px-1.25 pl-7.5 text-sm outline-hidden select-none",
-            "data-disabled:pointer-events-none",
-            "responsive highlight-list-item",
-            option.color ? "custom-color" : (option.variant ?? variant),
-            // A described option is as tall as its two lines; a plain one keeps the
-            // fixed 28px it has always had. `min-h-7` rather than `h-7`, so the two
-            // shapes can share one menu without the second line overflowing a box
-            // sized for one.
-            option.description
-              ? "min-h-7 flex-col justify-center gap-0.5 py-1"
-              : "h-7 items-center",
-          )}
+          content={option.description}
+          // `disabled` when there is nothing to say, which is Tooltip's own
+          // short-circuit: it renders the child bare rather than wrapping it in an
+          // armed trigger. So an undescribed option is byte-for-byte the item it has
+          // always been, and the description costs nothing where it is unused.
+          disabled={option.description === undefined}
+          side="right"
         >
-          <ItemIndicatorComponent
-            forceMount
+          <ItemComponent
+            value={option.value}
+            disabled={option.disabled || disabled}
+            textValue={option.label}
+            style={
+              option.color
+                ? ({
+                    "--custom-color": option.color,
+                  } as CSSProperties)
+                : {}
+            }
+            onSelect={(e: Event) => {
+              // Closes by default: a radio group holds ONE value, so picking a
+              // rung is the whole interaction and there is nothing left to do in
+              // the menu. (The multi-value siblings — `NestedSelect` and
+              // `NestedCheckbox` — default the other way for the opposite
+              // reason.) An option can still opt out explicitly.
+              if (option.closeOnSelect === false) {
+                e.preventDefault();
+              }
+            }}
             className={clsx(
-              "absolute left-1 grid place-items-center",
-              // Pinned to the FIRST line, not to the middle of the item. Centring is
-              // right while every item is one line and wrong as soon as one is two:
-              // the glyph drifts down beside the description and stops reading as a
-              // marker on the label it belongs to.
-              option.description ? "top-1.5" : "top-1/2 -translate-y-1/2",
-              "responsive check-indicator",
+              "group/item flex items-center rounded-xs leading-none",
+              "relative h-7 px-1.25 pl-7.5 text-sm outline-hidden select-none",
+              "data-disabled:pointer-events-none",
+              "responsive highlight-list-item",
               option.color ? "custom-color" : (option.variant ?? variant),
             )}
           >
-            <span className="icon-slot">
-              {resolveIcon(option.icon) ?? <Icon name="radio-selected" />}
-            </span>
-          </ItemIndicatorComponent>
-          {option.label}
-          {option.description && (
-            // Colour stated outright rather than inherited at reduced opacity: over
-            // the item's own `highlight-list-item` colour, opacity tints toward the
-            // menu ground and shifts with the variant. A neutral pair holds the same
-            // relationship to the label in both themes.
-            <span className="text-xs leading-snug font-normal text-neutral-500 dark:text-neutral-400">
-              {option.description}
-            </span>
-          )}
-        </ItemComponent>
+            <ItemIndicatorComponent
+              forceMount
+              className={clsx(
+                "absolute top-1/2 left-1 grid -translate-y-1/2 place-items-center",
+                "responsive check-indicator",
+                option.color ? "custom-color" : (option.variant ?? variant),
+              )}
+            >
+              <span className="icon-slot">
+                {resolveIcon(option.icon) ?? <Icon name="radio-selected" />}
+              </span>
+            </ItemIndicatorComponent>
+            {option.label}
+          </ItemComponent>
+        </Tooltip>
       ))}
     </GroupComponent>
   );

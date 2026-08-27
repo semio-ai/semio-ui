@@ -27,14 +27,18 @@ export interface SelectOption {
   variant?: Variant;
   icon?: IconValue;
   /**
-   * What choosing this option means, shown under its label in the open menu.
+   * What choosing this option means, shown as a TOOLTIP on the option in the open menu.
    *
-   * The trigger deliberately does NOT render this — it shows the selected state, and
-   * a description repeated there would compete for width in a control that may sit in
-   * a table cell. Explanation belongs where the choice is made.
+   * A tooltip rather than a second line of text in the item, because an item that grows
+   * to two lines stops matching the interactive behaviour and rhythm of every other row
+   * in the menu, and forces the menu's sizing around explanatory prose. This keeps the
+   * option exactly the control it was and layers the explanation over it.
    *
-   * Passing one on any option widens the menu (see `DropdownProps.wide`) so ordinary
-   * phrases fit on one line. Keep them short; see `NestedOption.description`.
+   * The trigger never renders it — the trigger shows the selected state.
+   *
+   * Hover- and focus-driven, so it is an AID rather than the only place a fact lives.
+   * Anything a user must know to choose correctly belongs in the label, or beside the
+   * control where it is always visible.
    */
   description?: string;
 }
@@ -159,11 +163,6 @@ export function Select<T extends string | string[]>({
 
   const triggerHeightClass = resolveHeightSizingClass(sizing);
   const triggerBoxClass = resolveBoxSizingClass(sizing);
-
-  // Read off the options rather than taken as a prop: the menu has to be wide enough
-  // for the widest thing in it, and that is a property of the data, not a styling
-  // choice a caller should have to remember to repeat at every call site.
-  const hasDescriptions = options.some((option) => option.description !== undefined);
 
   const renderSingleOption = (selectOption?: SelectOption) => {
     // Keyed off `data-disabled`, which Radix stamps on a disabled trigger and which
@@ -304,7 +303,6 @@ export function Select<T extends string | string[]>({
           variant={triggerOption?.variant ?? variant ?? Variant.Default}
           color={triggerOption?.color ?? undefined}
           disabled={disabled}
-          wide={hasDescriptions}
         >
           {label && <NestedLabel>{label}</NestedLabel>}
           {multiple && options.length > 0 && (

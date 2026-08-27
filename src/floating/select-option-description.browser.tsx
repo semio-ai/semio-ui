@@ -1,70 +1,36 @@
-import { expect, test } from "vitest";
+import { expect, test, vi } from "vitest";
 import { page } from "@vitest/browser/context";
 import { render } from "vitest-browser-react";
-// The real compiled stylesheet, and load-bearing rather than habitual: every claim in
-// this file is about WIDTH and LINE COUNT. With the Tailwind classes inert, the menu has
-// no `min-w-*` at all, every description is the same unstyled full-bleed text, and the
-// "does it wrap?" assertions measure one default against another and can only agree with
-// themselves.
-import "../test-stylesheet";
 import { Size, Variant } from "../types";
 import { Select } from "./select";
 
 /**
- * A described option occupies ONE line, and the menu is wide enough to make that true.
+ * `SelectOption.description` explains an option WITHOUT changing it.
  *
- * `SelectOption.description` puts explanation at the point of decision, which only works
- * if the items read as a list. A menu is normally floored at `min-w-55` (220px) and
- * otherwise tracks its trigger — fine for bare labels, and wrong here: a rung control in
- * a table cell is around 112px, so the floor decides, and at 220px ordinary phrases wrap
- * to different heights per item. That is the failure this file exists to catch, because
- * it is invisible to every behavioural test — an option is present, focusable and
- * selectable whether it occupies one line or three.
+ * The description is layered over the option as a tooltip rather than rendered as a
+ * second line inside it. A two-line item stops matching the interactive rhythm of every
+ * other row in the menu and makes the menu size itself around prose; a tooltip leaves
+ * the option exactly the control it already was.
  *
- * Each test therefore carries its own CONTROL, and the controls are the point: a
- * measurement with nothing to differ from is not a measurement. The long-description case
- * establishes that the one-line assertion can fail at all, and the undescribed menu
- * establishes that the widening is what moved the width.
+ * **That claim is mostly a negative one, so this file is mostly about what did NOT
+ * change.** Wrapping every item in a `Tooltip` puts a Radix trigger — with its own ref
+ * and pointer handlers — onto the same DOM node as the menu item, which is precisely the
+ * kind of change that can break selection, roving focus, type-ahead or the menu's close
+ * behaviour while the tooltip itself works perfectly. A test that only proved the
+ * tooltip appears would miss all of it.
  *
- * **The two claims are separate, and neither substitutes for the other.** The one-line
- * test is a budget on the STRINGS: today's descriptions also clear the narrower 220px
- * floor, by 11px, so it passes with the widening removed and does not pin the width. The
- * width test is what pins the WIDTH. Removing the widening reddens that one alone — which
- * is the evidence that it is load-bearing, and the reason a future reader should not fold
- * the two together.
+ * No stylesheet import here on purpose: every assertion is about behaviour and DOM
+ * identity, not paint. Pulling in the real stylesheet would let these quietly come to
+ * depend on it.
  */
 
-/**
- * The width of the cell the control sits in, in px — roughly a rung control in a grants
- * row.
- *
- * A CONTAINER, not a class on the `Select`. `Select`'s own wrapper is `w-full`, so a
- * `min-w-*` on it does nothing to stop it growing: rendered with no constraint it becomes
- * as wide as the viewport, the menu matches its trigger at 1290px, and every description
- * fits trivially. Constraining the parent is what reproduces the narrow trigger that makes
- * the menu's floor — not the trigger — decide the width.
- */
-const CELL_WIDTH = 112;
-
-/**
- * Wide enough for the `desktop:` variant, which is width-only at 768px.
- *
- * Not a detail — it is the difference between this file measuring anything and measuring
- * nothing. Below 768px the menu takes `w-[calc(available-width - 4px)]` and fills the
- * viewport, so it is ~406px in a default test frame, no `min-w-*` is the deciding
- * constraint, and NOTHING wraps at any description length worth writing. The first
- * version of this file ran at the default size and passed while proving nothing; the
- * width claims only exist on desktop, so the viewport has to be one.
- */
-const DESKTOP = { width: 1280, height: 800 };
-
-const ROLE_OPTIONS = [
+const DESCRIBED = [
   { value: "admin", label: "Admin", description: "Can edit and manage access." },
-  { value: "editor", label: "Editor", description: "Can edit." },
+  { value: "editor", label: "Editor", description: "Can edit, but not share." },
   { value: "viewer", label: "Viewer", description: "Can view." },
 ];
 
-const UNDESCRIBED_OPTIONS = [
+const UNDESCRIBED = [
   { value: "admin", label: "Admin" },
   { value: "editor", label: "Editor" },
   { value: "viewer", label: "Viewer" },
@@ -76,118 +42,125 @@ const settle = async () => {
   }
 };
 
-/** Open the menu by clicking the trigger, which shows the selected option's label. */
 async function openMenu(selectedLabel: string) {
   await page.getByText(selectedLabel).first().click();
   await settle();
 }
 
-/**
- * Every description's laid-out height, read from the elements themselves.
- *
- * Derived rather than hardcoded: the descriptions are `text-xs leading-snug`, and pinning
- * a px number here would turn a type-scale change into a silently passing test. The
- * assertions compare the descriptions against each OTHER, so the claim is "these are all
- * the same number of lines" — which is what a reader actually cares about.
- */
-function descriptionHeights(): number[] {
-  return ROLE_OPTIONS.map(
-    (option) => page.getByText(option.description).element().getBoundingClientRect().height,
-  );
-}
-
-test("every described option occupies the same single line", async () => {
-  await page.viewport(DESKTOP.width, DESKTOP.height);
+test("a described option is still a selectable radio item", async () => {
+  const onChange = vi.fn();
   render(
-    <div style={{ width: CELL_WIDTH }}>
-      <Select
-        value="viewer"
-        onChange={() => undefined}
-        options={ROLE_OPTIONS}
-        size={Size.Sm}
-        variant={Variant.Default}
-        label="Role"
-      />
-    </div>,
+    <Select
+      value="viewer"
+      onChange={onChange}
+      options={DESCRIBED}
+      size={Size.Sm}
+      variant={Variant.Default}
+      label="Role"
+    />,
   );
 
   await openMenu("Viewer");
 
-  const heights = descriptionHeights();
-  // Every description is laid out — a zero height would mean the element is in the DOM
-  // but collapsed, which satisfies an equality check trivially.
-  for (const height of heights) expect(height).toBeGreaterThan(0);
+  // Same role and the same count as an undescribed menu — the tooltip wraps the item
+  // rather than replacing or nesting inside it.
+  expect(page.getByRole("menuitemradio").elements()).toHaveLength(3);
 
-  // The whole claim: none is taller than the shortest, i.e. none wrapped.
-  const singleLine = Math.min(...heights);
-  for (const height of heights) expect(height).toBeCloseTo(singleLine, 0);
+  await page.getByRole("menuitemradio", { name: "Admin" }).click();
+  await settle();
+
+  // Selection still reaches the consumer, with the option's own value.
+  expect(onChange).toHaveBeenCalledWith("admin");
 });
 
-test("a description too long for the menu DOES wrap — the control for the test above", async () => {
-  await page.viewport(DESKTOP.width, DESKTOP.height);
-  // Deliberately far past the budget. If this does not come back taller than a one-line
-  // description, the assertion above is measuring something that cannot vary and proves
-  // nothing about the real descriptions.
-  const overlong =
-    "Can edit the resource, manage who has access to it, change every collaborator's rung, " +
-    "and remove people from the list entirely, which is far more than fits on one line.";
-
+test("a described menu still closes on select, like an undescribed one", async () => {
+  // `NestedRadio` closes on select — one value, so picking it is the whole
+  // interaction. A trigger wrapped around each item could swallow the select event and
+  // leave the menu open, which would look like a styling quirk rather than a broken
+  // control.
   render(
-    <div style={{ width: CELL_WIDTH }}>
-      <Select
-        value="viewer"
-        onChange={() => undefined}
-        options={[
-          { value: "viewer", label: "Viewer", description: "Can view." },
-          { value: "admin", label: "Admin", description: overlong },
-        ]}
-        size={Size.Sm}
-        variant={Variant.Default}
-        label="Role"
-      />
-    </div>,
+    <Select
+      value="viewer"
+      onChange={() => undefined}
+      options={DESCRIBED}
+      size={Size.Sm}
+      variant={Variant.Default}
+      label="Role"
+    />,
+  );
+
+  await openMenu("Viewer");
+  expect(page.getByRole("menuitemradio").elements()).toHaveLength(3);
+
+  await page.getByRole("menuitemradio", { name: "Editor" }).click();
+  await settle();
+
+  expect(page.getByRole("menuitemradio").elements()).toHaveLength(0);
+});
+
+test("a described option keeps its accessible name — the description does not join it", async () => {
+  // If the tooltip's content leaked into the item's accessible name, every option would
+  // announce as label-plus-sentence and `getByRole(name)` lookups across the app would
+  // start matching on prose. The description is supplementary; the name is the label.
+  render(
+    <Select
+      value="viewer"
+      onChange={() => undefined}
+      options={DESCRIBED}
+      size={Size.Sm}
+      variant={Variant.Default}
+      label="Role"
+    />,
   );
 
   await openMenu("Viewer");
 
-  const short = page.getByText("Can view.").element().getBoundingClientRect().height;
-  const long = page.getByText(overlong).element().getBoundingClientRect().height;
-
-  expect(short).toBeGreaterThan(0);
-  expect(long).toBeGreaterThan(short);
+  for (const option of DESCRIBED) {
+    const el = page.getByRole("menuitemradio", { name: option.label }).element();
+    expect(el.textContent?.trim()).toBe(option.label);
+  }
 });
 
-test("descriptions widen the menu past the undescribed floor", async () => {
-  await page.viewport(DESKTOP.width, DESKTOP.height);
-  // Same trigger, same labels, differing only in whether descriptions are present — so a
-  // width difference can only be the widening.
-  const menuWidth = async (options: typeof UNDESCRIBED_OPTIONS) => {
-    const screen = render(
-      <div style={{ width: CELL_WIDTH }}>
-        <Select
-          value="viewer"
-          onChange={() => undefined}
-          options={options}
-          size={Size.Sm}
-          variant={Variant.Default}
-          label="Role"
-        />
-      </div>,
-    );
-    await openMenu("Viewer");
-    // Measured on the menu the options actually sit in, reached from an option rather
-    // than by naming Radix's portal wrapper: the item is ours, the wrapper is the
-    // library's and is free to change.
-    const item = page.getByRole("menuitemradio").first().element();
-    const width = item.closest("[role='menu']")?.getBoundingClientRect().width ?? 0;
-    screen.unmount();
-    await settle();
-    return width;
-  };
+test("an undescribed option renders exactly as it did — no wrapper, no trigger", async () => {
+  // The control for the three tests above. `Tooltip` short-circuits when disabled, so an
+  // option with no description must carry none of the trigger's attributes; if it did,
+  // every existing menu in the app would have quietly changed.
+  render(
+    <Select
+      value="viewer"
+      onChange={() => undefined}
+      options={UNDESCRIBED}
+      size={Size.Sm}
+      variant={Variant.Default}
+      label="Role"
+    />,
+  );
 
-  const described = await menuWidth(ROLE_OPTIONS);
-  const undescribed = await menuWidth(UNDESCRIBED_OPTIONS);
+  await openMenu("Viewer");
 
-  expect(undescribed).toBeGreaterThan(0);
-  expect(described).toBeGreaterThan(undescribed);
+  const items = page.getByRole("menuitemradio").elements();
+  expect(items).toHaveLength(3);
+  for (const item of items) {
+    // Radix's tooltip trigger stamps `data-state` and describes its child; neither
+    // should exist on an option that has nothing to say.
+    expect(item.getAttribute("aria-describedby")).toBeNull();
+  }
+});
+
+test("the trigger shows the selected label, never the description", async () => {
+  render(
+    <Select
+      value="admin"
+      onChange={() => undefined}
+      options={DESCRIBED}
+      size={Size.Sm}
+      variant={Variant.Default}
+      label="Role"
+    />,
+  );
+  await settle();
+
+  await expect.element(page.getByText("Admin").first()).toBeVisible();
+  // Closed menu, so the description exists nowhere on screen.
+  expect(page.getByText("Can edit and manage access.").elements()).toHaveLength(0);
 });

@@ -32,31 +32,6 @@ export interface DropdownProps {
   contentClassName?: string;
   scrollOrientation?: "vertical" | "horizontal" | "both";
   matchTriggerWidth?: boolean;
-  /**
-   * Widen the menu's floor, for items that carry a second line of text.
-   *
-   * A menu is normally floored at `min-w-55` (220px) and otherwise tracks its
-   * trigger, which is right for a list of bare labels: the menu reads as belonging to
-   * the control that opened it. It is wrong once an item has a description under its
-   * label, because a trigger can be very narrow — a rung control in a table cell is
-   * around 112px — so the floor, not the trigger, decides the width.
-   *
-   * **This is headroom, not a repair, and the measurement is the reason.** At the
-   * 220px floor a description gets a 177px box, and the longest rung description in
-   * the product measures 166px — it clears by 11px, under two characters. It fits by
-   * accident: one more word, a longer rung name, or a font whose metrics differ by a
-   * hair wraps it, and because the items are different lengths they wrap to different
-   * heights, which reads as ragged rather than as a list. At `min-w-72` the box is
-   * 245px, so the same string clears by 79px. Descriptions still have a budget, and
-   * `select-option-description.browser.tsx` is what holds them to it.
-   *
-   * Expressed as **one flag choosing between two floors**, rather than as a second
-   * `min-w-*` passed through `contentClassName`. Two utilities from the same family
-   * would both apply, and which won would be decided by their order in the compiled
-   * stylesheet rather than by the order they appear in the class attribute — a
-   * silent dependency on Tailwind's sort.
-   */
-  wide?: boolean;
 }
 
 const Dropdown = forwardRef(
@@ -75,7 +50,6 @@ const Dropdown = forwardRef(
       contentClassName,
       scrollOrientation = "vertical",
       matchTriggerWidth = true,
-      wide = false,
     }: DropdownProps,
     ref: ForwardedRef<HTMLButtonElement>,
   ) => {
@@ -152,8 +126,7 @@ const Dropdown = forwardRef(
               style={color ? ({ "--custom-color": color } as CSSProperties) : {}}
               className={clsx(
                 color ? "custom-color" : variant,
-                "responsive card dropdown-content m-0.5",
-                wide ? "min-w-72" : "min-w-55",
+                "responsive card dropdown-content m-0.5 min-w-55",
                 "max-h-[calc(var(--radix-dropdown-menu-content-available-height)-4px)]",
                 matchTriggerWidth &&
                   "desktop:w-[calc(var(--radix-dropdown-menu-trigger-width)+10px)]",

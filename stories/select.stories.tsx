@@ -248,31 +248,26 @@ const ROLE_OPTIONS = [
 ];
 
 /**
- * Per-option descriptions: what a rung MEANS, at the point it is chosen.
+ * Per-option descriptions, as tooltips.
  *
- * The alternative — and what the grants modal did before this existed — is a static
- * "role guide" block above the list, explaining every rung at once regardless of which
- * one is being set, and occupying the top of the surface to do it. Here the explanation
- * is on every control rather than once, appears exactly when a choice is being made, and
- * needs no hover, so it works on touch.
+ * The extra sentence sits at the point of decision without changing the option. It is
+ * deliberately NOT a second line inside the item: an item that grows to hold prose stops
+ * matching the interactive rhythm of the rows around it, and makes the menu size itself
+ * around explanatory text rather than around its controls.
  *
- * **Descriptions have a width budget.** A menu normally floors at `min-w-55` and
- * otherwise tracks its trigger; passing any description widens it to `min-w-72`, giving a
- * description a 245px box. That is headroom rather than a repair — the longest rung
- * description measures 166px and would also clear the narrow floor, by 11px, which is
- * under two characters. Go past the budget and the text wraps; items of one, two and
- * three lines read as ragged rather than as a list. The third control below is what that
- * looks like, kept here deliberately rather than described.
+ * The second control is the control for that claim — the same options without
+ * descriptions, rendering identically, because `Tooltip` short-circuits when there is
+ * nothing to say rather than wrapping the item in an armed trigger.
  *
- * The trigger never shows a description. It shows the selected state, and a control
- * narrow enough to sit in a table cell has no room to repeat the explanation.
+ * A tooltip needs hover or focus, so treat it as an aid rather than the only home for a
+ * fact. Anything required to choose correctly belongs in the label or beside the control.
  */
 export const OptionDescriptions: Story = {
   render: () => (
     <div className="flex flex-col gap-6">
       <div>
         <div className="mb-1 font-mono text-xs text-neutral-500">
-          described rungs — open it; the menu widens on its own
+          described rungs — hover an option in the open menu
         </div>
         <div className="w-28">
           <SelectWithHooks
@@ -291,35 +286,12 @@ export const OptionDescriptions: Story = {
       </div>
       <div>
         <div className="mb-1 font-mono text-xs text-neutral-500">
-          the same rungs undescribed — the narrower menu, for comparison
+          the same rungs undescribed — unchanged, which is the point
         </div>
         <div className="w-28">
           <SelectWithHooks
             value="viewer"
             options={ROLE_OPTIONS}
-            size={Size.Sm}
-            variant={Variant.Default}
-            label="Role"
-            onChange={() => undefined}
-          />
-        </div>
-      </div>
-      <div>
-        <div className="mb-1 font-mono text-xs text-neutral-500">
-          over budget — what wrapping costs, and why the budget exists
-        </div>
-        <div className="w-28">
-          <SelectWithHooks
-            value="viewer"
-            options={[
-              {
-                label: "Admin",
-                value: "admin",
-                description:
-                  "Can edit the resource, manage who has access to it, change every collaborator's rung, and remove people entirely.",
-              },
-              { label: "Viewer", value: "viewer", description: "Can view." },
-            ]}
             size={Size.Sm}
             variant={Variant.Default}
             label="Role"
