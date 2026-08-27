@@ -129,6 +129,18 @@
    * fast enough to cost the glyph its own contrast. */
   .variant-on-fill-slot {
     @apply transition-colors duration-50 ease-in-out;
+
+    /* Layout belongs to the class, not the call site. When these declarations lived in
+     * a shared `clsx` constant only the colours were carried over here, and the glyph
+     * silently lost its centring in the one slot whose element does not centre content
+     * by default — a `<div>` renders it flush to the corner where a `<button>` does not. */
+    @apply grid place-items-center rounded-[1px];
+
+    /* Layout belongs to the class, not the call site. When these declarations lived in
+     * a shared `clsx` constant only the colours were carried over here, and the glyph
+     * silently lost its centring in the one slot whose element does not centre content
+     * by default — a `<div>` renders it flush to the corner where a `<button>` does not. */
+
     color: var(--on-standard-color);
     background-color: color-mix(in oklab, var(--on-standard-color) 20%, transparent);
 

@@ -408,6 +408,47 @@ test.each([
 // not on the fill. Measured separately because the composited ground differs from the
 // label's, and because a theme-flipped tint over a theme-invariant fill is the same
 // defect one level down.
+// Both slots sit on the same fill, so they must derive the same foreground. Asserting
+// only that each clears a contrast bar passes while they disagree: a slot carrying
+// `responsive` without its variant class resets `--standard-color` to the neutral
+// default, so it derived toward white while its sibling derived toward black — legible
+// individually, obviously wrong side by side.
+test("Chip: both slots derive from the same fill", async () => {
+  for (const theme of THEMES) {
+    for (const variant of VARIANTS) {
+      const seen = await withTheme(
+        theme,
+        <Chip variant={variant} size={Size.Md} icon="user" onDelete={() => undefined}>
+          Pose
+        </Chip>,
+        (root) =>
+          [...root.querySelectorAll<HTMLElement>(".variant-on-fill-slot")].map((slot) => {
+            const style = getComputedStyle(slot);
+            return {
+              fill: style.getPropertyValue("--standard-color").trim(),
+              color: toRgba(style.color).slice(0, 3).join(","),
+              glyphOffset: (() => {
+                const glyph = slot.querySelector("svg");
+                if (!glyph) return null;
+                const a = glyph.getBoundingClientRect();
+                const b = slot.getBoundingClientRect();
+                return `${Math.round(a.left - b.left)},${Math.round(a.top - b.top)}`;
+              })(),
+            };
+          }),
+      );
+      expect(seen.length, `${theme}/${String(variant)} slot count`).toBe(2);
+      expect(seen[1].fill, `${theme}/${String(variant)} fill`).toBe(seen[0].fill);
+      expect(seen[1].color, `${theme}/${String(variant)} foreground`).toBe(seen[0].color);
+      // Same centring too: the layout used to live in a shared class string at the call
+      // site, and one slot silently lost it when that string moved into CSS.
+      expect(seen[1].glyphOffset, `${theme}/${String(variant)} glyph offset`).toBe(
+        seen[0].glyphOffset,
+      );
+    }
+  }
+});
+
 test("Chip: icon and delete slots clear the non-text bar in both themes", async () => {
   for (const theme of THEMES) {
     for (const variant of VARIANTS) {
@@ -416,11 +457,17 @@ test("Chip: icon and delete slots clear the non-text bar in both themes", async 
         <Chip variant={variant} size={Size.Md} icon="user" onDelete={() => undefined}>
           Pose
         </Chip>,
-        (root) => measure(root.querySelector<HTMLElement>("button")!, theme),
+        (root) =>
+          [...root.querySelectorAll<HTMLElement>(".variant-on-fill-slot")].map((s2) =>
+            measure(s2, theme),
+          ),
       );
-      expect(measured.derived, `${theme}/${String(variant)} delete slot`).toBeGreaterThanOrEqual(
-        AA_NON_TEXT,
-      );
+      expect(measured.length, `${theme}/${String(variant)} slot count`).toBe(2);
+      for (const slot of measured) {
+        expect(slot.derived, `${theme}/${String(variant)} slot`).toBeGreaterThanOrEqual(
+          AA_NON_TEXT,
+        );
+      }
     }
   }
 });

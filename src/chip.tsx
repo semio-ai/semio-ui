@@ -44,7 +44,12 @@ export function Chip({ children, variant, size = Size.Md, color, icon, onDelete 
       }
     >
       {resolvedIcon && (
-        <div className={clsx("responsive", size, "sized-inner-group-item", "variant-on-fill-slot")}>
+        // Deliberately NOT `responsive`: that class re-declares the whole variant
+        // token block, so a slot carrying it without the variant class resets
+        // `--standard-color` to the neutral default and derives its foreground from a
+        // fill it is not sitting on. The delete slot below has no `responsive` and
+        // inherits the chip's, so the two tint toward opposite extremes on one chip.
+        <div className={clsx(size, "sized-inner-group-item", "variant-on-fill-slot")}>
           {resolvedIcon}
         </div>
       )}
