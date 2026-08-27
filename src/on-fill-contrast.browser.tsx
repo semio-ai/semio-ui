@@ -8,6 +8,9 @@ import { Button } from "./buttons/button";
 import { Chip } from "./chip";
 import { Status } from "./feedback/status";
 import { Checkbox } from "./inputs/checkbox";
+import { ToggleSquare } from "./inputs/toggle-square";
+import { ImageInput } from "./inputs/image-input";
+import { Tooltip } from "./floating/tooltip";
 import { Tabs } from "./layouts/tabs";
 import { Dropdown } from "./floating/dropdown";
 import { NestedRadio } from "./nested-elements/radio";
@@ -49,13 +52,22 @@ function toRgba(color: string): [number, number, number, number] {
   return [d[0], d[1], d[2], d[3] / 255];
 }
 
-const channel = (c: number) => (c / 255 <= 0.04045 ? c / 255 / 12.92 : ((c / 255 + 0.055) / 1.055) ** 2.4);
-const luminance = ([r, g, b]: number[]) => 0.2126 * channel(r) + 0.7152 * channel(g) + 0.0722 * channel(b);
+const channel = (c: number) =>
+  c / 255 <= 0.04045 ? c / 255 / 12.92 : ((c / 255 + 0.055) / 1.055) ** 2.4;
+const luminance = ([r, g, b]: number[]) =>
+  0.2126 * channel(r) + 0.7152 * channel(g) + 0.0722 * channel(b);
 
 /** Paint `src` over opaque `dst`. */
-function over(src: [number, number, number, number], dst: [number, number, number]): [number, number, number] {
+function over(
+  src: [number, number, number, number],
+  dst: [number, number, number],
+): [number, number, number] {
   const a = src[3];
-  return [src[0] * a + dst[0] * (1 - a), src[1] * a + dst[1] * (1 - a), src[2] * a + dst[2] * (1 - a)];
+  return [
+    src[0] * a + dst[0] * (1 - a),
+    src[1] * a + dst[1] * (1 - a),
+    src[2] * a + dst[2] * (1 - a),
+  ];
 }
 
 /**
@@ -112,7 +124,11 @@ function measure(el: HTMLElement, theme: Theme): Measured {
  * its menu content to `<body>`, so a wrapper-scoped `.dark` would leave every portalled
  * case measuring light mode while reporting dark.
  */
-async function withTheme<T>(theme: Theme, node: React.ReactNode, read: (root: HTMLElement) => T): Promise<T> {
+async function withTheme<T>(
+  theme: Theme,
+  node: React.ReactNode,
+  read: (root: HTMLElement) => T,
+): Promise<T> {
   const html = document.documentElement;
   const previous = html.className;
   html.className = theme === "dark" ? "dark" : "";
@@ -183,7 +199,8 @@ const ON_STANDARD_FILL: {
     ),
     // The label is a child of the chip with its own colour; the chip's own inherited
     // `color` is never painted, so measuring the container reports 1:1 instead.
-    find: (root) => [...root.querySelectorAll<HTMLElement>("div")].find((d) => d.className.includes("px-2"))!,
+    find: (root) =>
+      [...root.querySelectorAll<HTMLElement>("div")].find((d) => d.className.includes("px-2"))!,
   },
   {
     name: "Status badge text",
@@ -195,7 +212,9 @@ const ON_STANDARD_FILL: {
     // Deepest node carrying the text: the outer `relative` wrapper shares its
     // textContent and paints nothing.
     find: (root) => {
-      const all = [...root.querySelectorAll<HTMLElement>("div")].filter((d) => d.textContent === "9");
+      const all = [...root.querySelectorAll<HTMLElement>("div")].filter(
+        (d) => d.textContent === "9",
+      );
       return all[all.length - 1];
     },
   },
@@ -203,6 +222,20 @@ const ON_STANDARD_FILL: {
     name: "Checkbox check mark",
     render: (v) => <Checkbox checked onCheckedChange={() => undefined} variant={v} />,
     find: (root) => root.querySelector<HTMLElement>("[data-state='checked'] > *")!,
+  },
+  {
+    name: "ToggleSquare glyph when checked",
+    render: (v) => (
+      <ToggleSquare value onChange={() => undefined} variant={v} size={Size.Md} label="T" />
+    ),
+    find: (root) => root.querySelector<HTMLElement>("[data-state='checked'], [data-state='on']")!,
+  },
+  {
+    name: "ImageInput fallback initial",
+    render: (v) => (
+      <ImageInput fallback="Ada" variant={v} size={Size.Md} onImageChange={() => undefined} />
+    ),
+    find: (root) => root.querySelector<HTMLElement>("span[class*='variant-responsive-bg']")!,
   },
 ];
 
@@ -215,8 +248,12 @@ test.each(ON_STANDARD_FILL)(
   "$name: the fill does not flip, so its foreground does not either",
   async ({ render: renderNode, find }) => {
     for (const variant of VARIANTS) {
-      const light = await withTheme("light", renderNode(variant), (root) => measure(find(root), "light"));
-      const dark = await withTheme("dark", renderNode(variant), (root) => measure(find(root), "dark"));
+      const light = await withTheme("light", renderNode(variant), (root) =>
+        measure(find(root), "light"),
+      );
+      const dark = await withTheme("dark", renderNode(variant), (root) =>
+        measure(find(root), "dark"),
+      );
       expect(
         dark.derived,
         `${String(variant)}: light ${light.derived.toFixed(2)} vs dark ${dark.derived.toFixed(2)}`,
@@ -226,14 +263,19 @@ test.each(ON_STANDARD_FILL)(
   },
 );
 
-test.each(ON_STANDARD_FILL)("$name: every variant clears AA in both themes", async ({ render: renderNode, find }) => {
-  for (const theme of THEMES) {
-    for (const variant of VARIANTS) {
-      const { derived } = await withTheme(theme, renderNode(variant), (root) => measure(find(root), theme));
-      expect(derived, `${theme}/${String(variant)}`).toBeGreaterThanOrEqual(AA_TEXT);
+test.each(ON_STANDARD_FILL)(
+  "$name: every variant clears AA in both themes",
+  async ({ render: renderNode, find }) => {
+    for (const theme of THEMES) {
+      for (const variant of VARIANTS) {
+        const { derived } = await withTheme(theme, renderNode(variant), (root) =>
+          measure(find(root), theme),
+        );
+        expect(derived, `${theme}/${String(variant)}`).toBeGreaterThanOrEqual(AA_TEXT);
+      }
     }
-  }
-});
+  },
+);
 
 // The cases the tokens exist for, each carrying its own control: the assertion that the
 // pairing they replaced is BELOW the bar is what makes the pass mean anything. Light
@@ -255,9 +297,15 @@ test.each(ON_STANDARD_FILL)(
   "$name: the derived foreground lifts what the flipped pair failed",
   async ({ render: renderNode, find }) => {
     for (const [theme, variant] of RESCUED) {
-      const { derived, flipped } = await withTheme(theme, renderNode(variant), (root) => measure(find(root), theme));
-      expect(flipped, `control — theme-flipped pair on ${theme}/${String(variant)}`).toBeLessThan(AA_TEXT);
-      expect(derived, `derived foreground on ${theme}/${String(variant)}`).toBeGreaterThanOrEqual(AA_TEXT);
+      const { derived, flipped } = await withTheme(theme, renderNode(variant), (root) =>
+        measure(find(root), theme),
+      );
+      expect(flipped, `control — theme-flipped pair on ${theme}/${String(variant)}`).toBeLessThan(
+        AA_TEXT,
+      );
+      expect(derived, `derived foreground on ${theme}/${String(variant)}`).toBeGreaterThanOrEqual(
+        AA_TEXT,
+      );
     }
   },
 );
@@ -291,7 +339,9 @@ test("Button: the foreground follows the fill through hover", async () => {
         expect(
           toRgba(getComputedStyle(button).backgroundColor).slice(0, 3),
           `hover fill did not engage on ${theme}/${String(variant)}`,
-        ).toEqual(toRgba(getComputedStyle(button).getPropertyValue("--accent-color").trim()).slice(0, 3));
+        ).toEqual(
+          toRgba(getComputedStyle(button).getPropertyValue("--accent-color").trim()).slice(0, 3),
+        );
         const { derived } = measure(button, theme);
         if (theme === "light" && variant === Variant.Error) {
           // The hover fill is `--accent-color`, where light-mode Error is the
@@ -328,7 +378,9 @@ test("Chip: icon and delete slots clear the non-text bar in both themes", async 
         </Chip>,
         (root) => measure(root.querySelector<HTMLElement>("button")!, theme),
       );
-      expect(measured.derived, `${theme}/${String(variant)} delete slot`).toBeGreaterThanOrEqual(AA_NON_TEXT);
+      expect(measured.derived, `${theme}/${String(variant)} delete slot`).toBeGreaterThanOrEqual(
+        AA_NON_TEXT,
+      );
     }
   }
 });
@@ -406,9 +458,10 @@ test("Tabs: both rows clear AA in both themes, against the ground each is read o
       const rows = await measureTabs(theme, variant);
       expect(rows).toHaveLength(2);
       for (const { active, derived } of rows) {
-        expect(derived, `${theme}/${String(variant)} ${active ? "active" : "inactive"}`).toBeGreaterThanOrEqual(
-          AA_TEXT,
-        );
+        expect(
+          derived,
+          `${theme}/${String(variant)} ${active ? "active" : "inactive"}`,
+        ).toBeGreaterThanOrEqual(AA_TEXT);
       }
     }
   }
@@ -419,7 +472,10 @@ test("Tabs: both rows clear AA in both themes, against the ground each is read o
 test("Tabs: the clamp rescues the hues the raw shade fails", async () => {
   for (const variant of [Variant.Warning, Variant.Success, Variant.Primary]) {
     const [active] = await measureTabs("light", variant);
-    expect(active.unclamped, `control — unclamped ${String(variant)} on the light list ground`).toBeLessThan(AA_TEXT);
+    expect(
+      active.unclamped,
+      `control — unclamped ${String(variant)} on the light list ground`,
+    ).toBeLessThan(AA_TEXT);
     expect(active.derived, `clamped ${String(variant)}`).toBeGreaterThanOrEqual(AA_TEXT);
   }
 });
@@ -446,4 +502,31 @@ test("Tabs: the clamp never lowers contrast, and barely moves an already-dark hu
 
   const [neutral] = await measureTabs("light", Variant.Default);
   expect(neutral.derived - neutral.unclamped).toBeLessThan(1);
+});
+
+// `card-invert` fills with `--strong-accent-text-color`, a text token used as a fill.
+// For the neutral default that genuinely does invert with the theme — the -800 in light,
+// the -200 in dark — which is why a theme-flipped foreground on it looked correct and
+// was only ever checked there. For a named variant it is a brand hue's -600 / -400,
+// whose lightness does not track the scheme, so the same pair failed: white on light-mode
+// warning measured 2.9:1. Both cases are asserted, because the neutral passing is exactly
+// what hid the rest.
+test("Tooltip: an inverted tooltip derives its foreground for named variants too", async () => {
+  for (const theme of THEMES) {
+    for (const variant of VARIANTS) {
+      const measured = await withTheme(
+        theme,
+        <Tooltip content="Hint" invert variant={variant} controlledState={[true, () => undefined]}>
+          <button>anchor</button>
+        </Tooltip>,
+        (root) => measure(root.querySelector<HTMLElement>(".card-invert")!, theme),
+      );
+      if (theme === "light" && variant === Variant.Error) {
+        // The derivation's documented crossover again — see the hover case above.
+        expect(measured.derived, `${theme}/${String(variant)}`).toBeGreaterThan(4.3);
+      } else {
+        expect(measured.derived, `${theme}/${String(variant)}`).toBeGreaterThanOrEqual(AA_TEXT);
+      }
+    }
+  }
 });

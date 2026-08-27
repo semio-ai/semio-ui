@@ -70,7 +70,7 @@ function Tooltip({
               "sized-text",
               "tooltip-content",
               "inline-flex items-center px-2 py-0.5 select-none",
-              invert ? "card-invert text-white dark:text-black" : "variant-static-text card",
+              invert ? "card-invert" : "variant-static-text card",
               variant,
               "z-10",
             )}

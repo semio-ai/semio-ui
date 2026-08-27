@@ -64,7 +64,11 @@ export function ImageInput({
           "grid size-full",
           "place-items-center rounded-sm select-none",
           "variant-responsive-bg variant-responsive-appearing-outline",
-          "variant-responsive-text",
+          // NOT `variant-responsive-text`, which resolves to `--weak-accent-text-color`
+          // — the same -500 shade `variant-responsive-bg` fills with, so the fallback
+          // initial painted at exactly 1:1 against its own background and was invisible
+          // for every named variant in both themes.
+          "text-[var(--on-standard-color)] hover:text-[var(--on-accent-color)]",
         )}
       >
         {fallbackContent}

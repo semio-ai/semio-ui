@@ -951,7 +951,27 @@
 
   .card-invert {
     @apply rounded-sm shadow-lg;
+
+    /* Inverting against the theme is only half of what this fill does. For the neutral
+     * default `--strong-accent-text-color` really is an inversion — the -800 in light,
+     * the -200 in dark — and a theme-flipped foreground tracks it. For a named variant
+     * it is the -600 / -400 of a brand hue, whose lightness does not track the scheme
+     * the way the neutral's does, and white on it measured 2.9:1 on warning and 3.2:1
+     * on success in light mode. Deriving from the fill covers both cases with one rule.
+     *
+     * Declared here rather than at the call site because a caller's `text-*` utility
+     * would override this from a later cascade layer whatever its specificity — so a
+     * caller naming a literal colour silently reintroduces the failure. */
+    color: oklch(from var(--strong-accent-text-color) clamp(0, calc((0.57 - l) * 1000), 1) 0 0);
     background-color: var(--strong-accent-text-color);
+
+    @supports not (color: oklch(from red l 0 0)) {
+      color: white;
+
+      &:where(.dark, .dark *) {
+        color: black;
+      }
+    }
   }
 
   .sized-height {
