@@ -743,6 +743,42 @@
     }
   }
 
+  /* The counted form of the same badge. It needs its own scale rather than the dot's:
+   * a dot is sized purely as a mark, while this one has to hold a numeral, so its
+   * height is driven by the type it contains and its width by the digits.
+   *
+   * `leading-none` is what makes the height predictable — it pins the line box to the
+   * font size, so a height chosen here is the whole box and not a guess about the
+   * font's default leading.
+   *
+   * Width is deliberately absent: `min-w` makes a single digit a circle and horizontal
+   * padding lets two or more digits grow it into a pill. A width computed from the
+   * character count instead tracks neither the font size nor the padding, and starts
+   * clipping as soon as either changes. */
+  .sized-status-text {
+    @apply h-4 min-w-4 px-1 text-[10px] leading-none;
+
+    @variant size-xs {
+      @apply h-3 min-w-3 px-0.5 text-[8px];
+    }
+
+    @variant size-sm {
+      @apply h-3.5 min-w-3.5 px-0.5 text-[9px];
+    }
+
+    @variant size-md {
+      @apply h-4 min-w-4 px-1 text-[10px];
+    }
+
+    @variant size-lg {
+      @apply h-4.5 min-w-4.5 px-1 text-[11px];
+    }
+
+    @variant size-xl {
+      @apply h-5 min-w-5 px-1.5 text-xs;
+    }
+  }
+
   .variant-checkbox-bg {
     @apply dark:bg-layout-dark-inset bg-layout-light-inset transition-colors;
 
