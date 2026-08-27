@@ -43,11 +43,11 @@ export const Status = forwardRef(
             // from `sized-status-text` rather than being fixed. Fixed values ignored
             // `size` entirely and left 7px type in a 2px content box.
             //
-            // 600 rather than 700: at this size the heavier weight closed up the
-            // counters. Safe to ask for even though not every font has a semibold —
-            // where one is missing, CSS resolves a request above 500 upward, so it
-            // lands on 700, which is what this used to be. The degradation is the
-            // old appearance, not a broken one.
+            // 600 rather than 700: at this size the heavier weight closes up the
+            // counters. Safe to ask for even where a font ships no semibold — CSS
+            // resolves a request above 500 upward, so it lands on 700, a heavier
+            // glyph rather than a broken one. Requesting 500 would be the unsafe
+            // direction: it resolves DOWNWARD, to 400.
             text
               ? "sized-status-text flex flex-row items-center justify-center font-semibold text-[var(--on-standard-color)]"
               : "sized-status",

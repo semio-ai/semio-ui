@@ -440,8 +440,10 @@ test("Chip: both slots derive from the same fill", async () => {
       expect(seen.length, `${theme}/${String(variant)} slot count`).toBe(2);
       expect(seen[1].fill, `${theme}/${String(variant)} fill`).toBe(seen[0].fill);
       expect(seen[1].color, `${theme}/${String(variant)} foreground`).toBe(seen[0].color);
-      // Same centring too: the layout used to live in a shared class string at the call
-      // site, and one slot silently lost it when that string moved into CSS.
+      // Same centring too. A `<button>` centres its content by default and a `<div>`
+      // does not, so a slot missing the centring class misplaces its glyph in exactly
+      // one of the two — which reads as a single crooked icon rather than as a rule
+      // that stopped applying.
       expect(seen[1].glyphOffset, `${theme}/${String(variant)} glyph offset`).toBe(
         seen[0].glyphOffset,
       );

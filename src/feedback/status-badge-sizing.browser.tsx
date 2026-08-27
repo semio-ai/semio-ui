@@ -62,9 +62,9 @@ function withBadge<T>(size: Size, text: string | undefined, take: (el: HTMLEleme
   }
 }
 
-// The counted badge used to hardcode its box, so `size` changed nothing: `xs` and `xl`
-// both rendered 10x10. Asserting the heights are all DISTINCT is what catches a
-// regression to a fixed value — a bare "it is at least N tall" passes on a constant.
+// A fixed box makes the `size` prop a no-op, and every size renders the same square.
+// Asserting the heights are all DISTINCT is what catches that; a bare "it is at least N
+// tall" passes on a constant and would report the prop as working while it does nothing.
 test("the counted badge grows with `size`", () => {
   const heights = SIZES.map((size) => withBadge(size, "9", read).height);
   expect(new Set(heights).size, `heights were ${heights.join(", ")}`).toBe(SIZES.length);
