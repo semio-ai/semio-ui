@@ -274,3 +274,34 @@ export const DefaultExtraLarge: Story = {
     },
   },
 };
+
+/**
+ * Sized by its container rather than by `size`.
+ *
+ * For an avatar in a list row: the row publishes its tile size as `--row-media` and
+ * its entity tiles read it through `sized-row-media`, so a person's avatar has to come
+ * from the same source or people and things render the same slot at two sizes.
+ *
+ * The pair below is the point. Both are handed the identical `sized-row-media` class;
+ * only the second one honours it. With the default `sizing="size"`, Avatar's own
+ * `sized-height sized-width` is in the same utility family and wins by stylesheet
+ * order — so the class looks applied and does nothing.
+ */
+export const ContainerSizing: Story = {
+  render: () => (
+    <div className="flex flex-col gap-4" style={{ ["--row-media" as string]: "1.75rem" }}>
+      <div className="flex items-center gap-3">
+        <Avatar alt="Ada" size={Size.Md} className="sized-row-media" />
+        <span className="font-mono text-xs text-neutral-500">
+          sizing=&quot;size&quot; (default) — 32px; the sized-row-media class is inert
+        </span>
+      </div>
+      <div className="flex items-center gap-3">
+        <Avatar alt="Ada" size={Size.Md} sizing="container" className="sized-row-media" />
+        <span className="font-mono text-xs text-neutral-500">
+          sizing=&quot;container&quot; — 28px, the row&apos;s own tile size
+        </span>
+      </div>
+    </div>
+  ),
+};

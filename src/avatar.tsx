@@ -11,6 +11,28 @@ export interface AvatarProps {
   /** Accessible label for the avatar when used as an interactive element. */
   "aria-label"?: string;
   size?: Size;
+  /**
+   * Where the avatar's dimensions come from.
+   *
+   * - `"size"` (default) — from {@link AvatarProps.size}, as a standalone avatar
+   *   should.
+   * - `"container"` — from the caller's own class, for a row that publishes a tile
+   *   size of its own. A list row sets `--row-media` and its entity tiles read it via
+   *   `sized-row-media`; an avatar in that row has to be the same square, or a
+   *   listing of people and a listing of things render the same slot at two sizes.
+   *
+   * This is a prop rather than something a caller can do with `className`, and that
+   * is the point: `size` otherwise emits `sized-height sized-width`, which is the same
+   * utility family as `sized-row-media`. Both would apply and the winner would be
+   * decided by their order in the compiled stylesheet — so the caller's class looks
+   * applied, changes nothing, and the avatar silently keeps its intrinsic size.
+   * `"container"` omits Avatar's own pair so there is exactly one source of the
+   * dimensions.
+   *
+   * `size` still drives the fallback's type scale, so an avatar sized by its
+   * container should still be passed the size its text should read at.
+   */
+  sizing?: "size" | "container";
   onClick?: MouseEventHandler<HTMLSpanElement>;
   variant?: Variant;
   visuals?: "default" | "border" | "inverted" | "inverted-border";
@@ -42,6 +64,7 @@ export const Avatar = forwardRef(
       "aria-label": ariaLabel,
       icon,
       size = Size.Md,
+      sizing = "size",
       onClick,
       status,
       variant = Variant.Default,
@@ -80,7 +103,15 @@ export const Avatar = forwardRef(
               : undefined
           }
           aria-label={ariaLabel}
-          className={clsx(variant, "rounded-sm", size, "sized-height sized-width", className)}
+          className={clsx(
+            variant,
+            "rounded-sm",
+            size,
+            // Omitted entirely under `sizing: "container"` — see the prop's doc on why
+            // this cannot be left in and overridden from `className`.
+            sizing === "size" && "sized-height sized-width",
+            className,
+          )}
         >
           <AvatarPrimitive.Image
             src={src}
@@ -96,7 +127,10 @@ export const Avatar = forwardRef(
               (visuals === "border" || visuals === "inverted-border") &&
                 !onClick &&
                 "variant-static-persistent-outline",
-              "sized-height sized-width",
+              // Gated with the root's pair, not independently: a fallback or image left
+              // at its intrinsic size inside a container-sized root overflows the box it
+              // is meant to fill.
+              sizing === "size" && "sized-height sized-width",
               "object-cover",
               "rounded-sm",
               className,
@@ -129,7 +163,8 @@ export const Avatar = forwardRef(
                 "variant-static-bg outline -outline-offset-1 outline-white/25 dark:outline-black/25",
               visuals === "inverted-border" && onClick && "variant-responsive-persistent-outline",
               visuals === "inverted-border" && !onClick && "variant-static-persistent-outline",
-              "sized-height sized-width sized-text",
+              sizing === "size" && "sized-height sized-width",
+              "sized-text",
               className,
             )}
           >
