@@ -13,6 +13,26 @@ export interface ChipProps {
   onDelete?: MouseEventHandler<HTMLButtonElement>;
 }
 
+/**
+ * The icon and delete slots: a tint of the chip's own foreground over the chip's
+ * fill, plus that foreground for the glyph.
+ *
+ * Both halves derive from the fill rather than from the colour scheme, because the
+ * fill (`--standard-color`) does not flip with the scheme. A theme-flipped tint over
+ * it lands on the wrong side in one theme for every hue — it lightened the warm fills
+ * until the glyph measured 1.4:1 — and tinting toward the glyph's own colour instead
+ * keeps slot and glyph on the same side of the fill in both themes. The `group-hover`
+ * pair follows the fill's own hover swap to `--accent-color`, which crosses the
+ * derivation's threshold in the opposite direction for some hues.
+ */
+const SLOT_VISUALS = clsx(
+  "grid place-items-center rounded-[1px]",
+  "bg-[color-mix(in_oklab,var(--on-standard-color)_20%,transparent)]",
+  "text-[var(--on-standard-color)]",
+  "group-hover/chip:bg-[color-mix(in_oklab,var(--on-accent-color)_20%,transparent)]",
+  "group-hover/chip:text-[var(--on-accent-color)]",
+);
+
 export function Chip({ children, variant, size = Size.Md, color, icon, onDelete }: ChipProps) {
   // A slot value may be a registry key (string) or a node; resolveIcon turns a
   // key into a self-sizing <Icon>, otherwise passes the node through.
@@ -20,7 +40,7 @@ export function Chip({ children, variant, size = Size.Md, color, icon, onDelete 
   return (
     <div
       className={clsx(
-        "variant-responsive-bg variant-responsive-text",
+        "group/chip variant-responsive-bg variant-responsive-text",
         "sized-text sized-height",
         "responsive grid grid-rows-1 place-items-center",
         "gap-2 p-0.5",
@@ -41,25 +61,20 @@ export function Chip({ children, variant, size = Size.Md, color, icon, onDelete 
       }
     >
       {resolvedIcon && (
-        <div
-          className={clsx(
-            "responsive",
-            size,
-            "sized-inner-group-item",
-            "grid place-items-center rounded-[1px] bg-white/50 dark:bg-black/50",
-          )}
-        >
+        <div className={clsx("responsive", size, "sized-inner-group-item", SLOT_VISUALS)}>
           {resolvedIcon}
         </div>
       )}
-      {/* `black` in dark mode, not `red`: this read `dark:text-red/75`, and `text-red`
-          is not a colour Tailwind emits — the scale needs a number — so the
-          declaration was dropped and the chip rendered `text-white/75` in BOTH
-          modes. The variant fill inverts with the theme (light mode gets a mid-tone
-          accent, dark mode a light one), so white was legible on light and vanished
-          on dark. White-on-light / black-on-dark is the pairing the icon and delete
-          slots below already use against the same fill. */}
-      <div className="px-2 text-white/75 dark:text-black/75">{children}</div>
+      {/* Derived from the fill, at full opacity. The fill is `--standard-color`, which
+          has no dark-mode override — so no foreground chosen by colour scheme can be
+          right in both themes here, whatever pair is picked. The label is an identifier
+          (pose names, binding targets), so it carries the 4.5:1 bar rather than a
+          decorative one, and the 75% alpha this used to carry cost roughly a stop on
+          top of the wrong-extreme problem: alpha composites the label toward its own
+          background, which is where the warm hues reached 1.6:1. */}
+      <div className="px-2 text-[var(--on-standard-color)] group-hover/chip:text-[var(--on-accent-color)]">
+        {children}
+      </div>
       {onDelete && (
         <button
           type="button"
@@ -68,11 +83,7 @@ export function Chip({ children, variant, size = Size.Md, color, icon, onDelete 
             e.preventDefault();
             e.stopPropagation();
           }}
-          className={clsx(
-            size,
-            "sized-inner-group-item",
-            "grid place-items-center rounded-[1px] bg-white/50 dark:bg-black/50",
-          )}
+          className={clsx(size, "sized-inner-group-item", SLOT_VISUALS)}
         >
           <Icon name="close" />
         </button>

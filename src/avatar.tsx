@@ -108,7 +108,11 @@ export const Avatar = forwardRef(
               variant,
               size,
               onClick ? "cursor-pointer" : "cursor-default",
-              (visuals === "default" || visuals === "border") && "text-white dark:text-black",
+              // Paired with the fill, which swaps to `--accent-color` on hover when the
+              // avatar is clickable. The `hover:` half has to be a utility here: a
+              // components-layer rule loses to this class whatever its specificity.
+              (visuals === "default" || visuals === "border") &&
+                "text-[var(--on-standard-color)] hover:text-[var(--on-accent-color)]",
               (visuals === "inverted" || visuals === "inverted-border") &&
                 onClick &&
                 "variant-responsive-text",

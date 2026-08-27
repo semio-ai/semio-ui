@@ -81,8 +81,13 @@ export const Button = forwardRef(
         data-deemphasized={deemphasize}
         className={clsx(
           "responsive cursor-pointer select-none disabled:cursor-default",
+          visuals === "default" && "variant-responsive-bg variant-responsive-appearing-outline",
+          // Paired with the fill: the rest fill is `--standard-color` and the hover
+          // fill is `--accent-color`, and the two do not always want the same
+          // extreme. The `hover:` half has to live here rather than in the fill
+          // class, because a utility outranks any components-layer rule.
           visuals === "default" &&
-            "variant-responsive-bg variant-responsive-appearing-outline text-white dark:text-black",
+            "text-[var(--on-standard-color)] hover:text-[var(--on-accent-color)]",
           (visuals === "inverted" || visuals === "inverted-border") && "variant-responsive-text",
           visuals === "inverted" && "outline-hidden",
           visuals === "inverted-border" && "variant-responsive-persistent-outline",
