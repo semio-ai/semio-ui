@@ -26,6 +26,17 @@ export interface SelectOption {
   color?: string;
   variant?: Variant;
   icon?: IconValue;
+  /**
+   * What choosing this option means, shown under its label in the open menu.
+   *
+   * The trigger deliberately does NOT render this — it shows the selected state, and
+   * a description repeated there would compete for width in a control that may sit in
+   * a table cell. Explanation belongs where the choice is made.
+   *
+   * Passing one on any option widens the menu (see `DropdownProps.wide`) so ordinary
+   * phrases fit on one line. Keep them short; see `NestedOption.description`.
+   */
+  description?: string;
 }
 
 export type SelectVisuals = "icons" | "labels" | "both";
@@ -148,6 +159,11 @@ export function Select<T extends string | string[]>({
 
   const triggerHeightClass = resolveHeightSizingClass(sizing);
   const triggerBoxClass = resolveBoxSizingClass(sizing);
+
+  // Read off the options rather than taken as a prop: the menu has to be wide enough
+  // for the widest thing in it, and that is a property of the data, not a styling
+  // choice a caller should have to remember to repeat at every call site.
+  const hasDescriptions = options.some((option) => option.description !== undefined);
 
   const renderSingleOption = (selectOption?: SelectOption) => {
     // Keyed off `data-disabled`, which Radix stamps on a disabled trigger and which
@@ -288,6 +304,7 @@ export function Select<T extends string | string[]>({
           variant={triggerOption?.variant ?? variant ?? Variant.Default}
           color={triggerOption?.color ?? undefined}
           disabled={disabled}
+          wide={hasDescriptions}
         >
           {label && <NestedLabel>{label}</NestedLabel>}
           {multiple && options.length > 0 && (

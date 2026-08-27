@@ -128,6 +128,8 @@ export interface NestedMenuProps {
  * @prop variant: [Variant] The variant of the option. Defaults to {@link Variant.Default}
  * @prop color: [string] The color of the option. Overrides styling from variants.
  * @prop icon: [ReactNode] The icon to display next to the option.
+ * @prop description: [string] A second line under the label, saying what choosing
+ *   this option means.
  */
 export interface NestedOption {
   label: string;
@@ -137,6 +139,22 @@ export interface NestedOption {
   variant?: Variant;
   color?: string;
   icon?: IconValue;
+  /**
+   * What choosing this option means, rendered under the label.
+   *
+   * For a menu whose labels are not self-explanatory — a permission rung, a mode
+   * with consequences — the explanation belongs here rather than in a block
+   * elsewhere on the surface. Here it sits at the point of decision, appears on
+   * every control built from these options rather than once, and needs no hover,
+   * which is what makes it work on touch.
+   *
+   * **One short line.** A menu carrying descriptions widens to a fixed width so
+   * ordinary phrases fit on one line, but nothing truncates a long one — it wraps,
+   * and items of one, two and three lines read as ragged rather than as a list.
+   * Treat the width as a budget: `select-option-description.browser.tsx` measures
+   * each description against a known single-line height and fails when one wraps.
+   */
+  description?: string;
 }
 
 /**

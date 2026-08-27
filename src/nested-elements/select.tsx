@@ -61,17 +61,23 @@ export function NestedSelect({ variant, disabled, onChange, values, options }: N
               : {}
           }
           className={clsx(
-            "group/item flex items-center rounded-xs leading-none",
-            "relative h-7 px-1.25 pl-7.5 text-sm outline-hidden select-none",
+            "group/item flex rounded-xs leading-none",
+            "relative px-1.25 pl-7.5 text-sm outline-hidden select-none",
             "data-disabled:pointer-events-none",
             "responsive highlight-list-item",
             option.color ? "custom-color" : (option.variant ?? variant),
+            // Matches `NestedRadio` exactly: one option shape serves both controls, so
+            // a description has to lay out the same way in each. See the note there.
+            option.description
+              ? "min-h-7 flex-col justify-center gap-0.5 py-1"
+              : "h-7 items-center",
           )}
         >
           <ItemIndicatorComponent
             forceMount
             className={clsx(
-              "absolute top-1/2 left-1 grid -translate-y-1/2 place-items-center",
+              "absolute left-1 grid place-items-center",
+              option.description ? "top-1.5" : "top-1/2 -translate-y-1/2",
               "responsive check-indicator",
               option.color ? "custom-color" : (option.variant ?? variant),
             )}
@@ -86,6 +92,11 @@ export function NestedSelect({ variant, disabled, onChange, values, options }: N
             </span>
           </ItemIndicatorComponent>
           {option.label}
+          {option.description && (
+            <span className="text-xs leading-snug font-normal text-neutral-500 dark:text-neutral-400">
+              {option.description}
+            </span>
+          )}
         </ItemComponent>
       ))}
     </GroupComponent>
