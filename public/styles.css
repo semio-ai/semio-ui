@@ -694,6 +694,13 @@
   .variant-checkbox-bg {
     @apply dark:bg-layout-dark-inset bg-layout-light-inset transition-colors;
 
+    /* Off-state foreground. The fill here IS theme-flipped — `bg-layout-*-inset` — so a
+     * theme-flipped foreground tracks it correctly, unlike the checked state below.
+     * Declared with the fill rather than at the call site so the two cannot drift, and
+     * so no consumer has to know which of a component's states fill from where. */
+    @apply dark:text-neutral-200 text-neutral-800;
+    @apply dark:data-[state=indeterminate]:text-neutral-200 data-[state=indeterminate]:text-neutral-800;
+
     &:not(*:disabled) {
       &[data-state="checked"],
       &[data-state="on"] {

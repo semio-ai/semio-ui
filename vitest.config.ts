@@ -31,7 +31,11 @@ export default defineConfig({
         extends: true,
         test: {
           name: "unit",
-          include: ["src/**/*.test.ts", "src/**/*.test.tsx"],
+          // `eslint-rules/` is included so the package's own lint rule is falsified by
+          // the same suite as its components. A rule that passes against a known
+          // violation certifies the absence of what it cannot see, so its tests have to
+          // run somewhere that fails the build.
+          include: ["src/**/*.test.ts", "src/**/*.test.tsx", "eslint-rules/**/*.test.ts"],
           exclude: ["**/node_modules/**", "**/dist/**", "src/**/*.browser.tsx"],
         },
       },

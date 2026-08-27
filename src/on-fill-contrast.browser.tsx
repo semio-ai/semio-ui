@@ -395,7 +395,7 @@ test("Menu indicator: the checked fill's foreground is derived from it", async (
     for (const variant of VARIANTS) {
       const measured = await withTheme(
         theme,
-        <Dropdown open variant={variant} trigger={<button>open</button>}>
+        <Dropdown open variant={variant} trigger={<button type="button">open</button>}>
           <NestedRadio
             value="r1"
             variant={variant}
@@ -517,7 +517,7 @@ test("Tooltip: an inverted tooltip derives its foreground for named variants too
       const measured = await withTheme(
         theme,
         <Tooltip content="Hint" invert variant={variant} controlledState={[true, () => undefined]}>
-          <button>anchor</button>
+          <button type="button">anchor</button>
         </Tooltip>,
         (root) => measure(root.querySelector<HTMLElement>(".card-invert")!, theme),
       );

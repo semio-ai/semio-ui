@@ -62,18 +62,12 @@ export function ToggleSquare({
           asIndicator ? "grid-list-item-indicator" : "variant-checkbox-bg",
           !asIndicator && "variant-responsive-appearing-outline",
           "appearance-none",
-          // Checked, the two sizings fill from different places, so the foreground
-          // differs too. `variant-checkbox-bg` fills with `--standard-color`, which has
-          // no dark-mode override — a theme-flipped pair there is wrong in one theme for
-          // every hue. `grid-list-item-indicator` fills with `bg-layout-*-base`, which
-          // does flip, so flipping with it is correct.
-          !color && !asIndicator && "data-[state=checked]:text-[var(--on-standard-color)]",
-          !color && asIndicator && "dark:data-[state=checked]:text-neutral-800",
-          !color && asIndicator && "data-[state=checked]:text-neutral-200",
-          !color && "dark:data-[state=unchecked]:text-neutral-200",
-          !color && "data-[state=unchecked]:text-neutral-800",
-          !color && "dark:data-[state=indeterminate]:text-neutral-200",
-          !color && "data-[state=indeterminate]:text-neutral-800",
+          // No foreground named here. Each of the two sizings fills from a different
+          // place — `variant-checkbox-bg` from `--standard-color`, which does not flip
+          // with the theme, and `grid-list-item-indicator` from `bg-layout-*-base`,
+          // which does — so the right foreground differs between them and neither can
+          // be chosen from this call site. Both classes declare their own, next to the
+          // fill they have to contrast against.
         )}
         style={color ? ({ "--custom-color": color } as CSSProperties) : undefined}
         aria-label={label ?? "Toggle Button"}
