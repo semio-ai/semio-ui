@@ -39,6 +39,24 @@ export interface AutocompleteProps<TItem> {
   /** Delay in milliseconds before `onDebouncedChange` fires. Defaults to 0. */
   debounceMs?: number;
   onSelect: (item: TItem) => void;
+  /**
+   * What the input's text becomes when an item is picked.
+   *
+   * **Defaults to clearing the field, and that default is a bug fix rather than a
+   * preference.** Items are handed to the primitive as objects
+   * (`<Autocomplete.Item value={item}>`), and with nothing to convert them the
+   * primitive serialises the object straight into the input — a picked person turned
+   * the search box into `{"id":"…","userId":"…"}`. It writes that value AFTER
+   * `onSelect` runs, so a consumer clearing its own state in the handler is
+   * overwritten and cannot defend against it.
+   *
+   * This wrapper cannot infer the right string: it knows how to RENDER an item
+   * (`renderItem`) and how to KEY one (`getItemKey`), but neither is display text —
+   * a key is an id, and would be just as wrong in the box. So the default is to write
+   * nothing, and a consumer that wants the chosen label left in the field says which
+   * field that is.
+   */
+  itemToStringValue?: (item: TItem) => string;
   renderItem: (item: TItem, state: AutocompleteItemState) => ReactNode;
   getItemKey: (item: TItem) => string;
   getItemDisabled?: (item: TItem) => boolean;
@@ -87,6 +105,7 @@ export function Autocomplete<TItem>({
   onDebouncedChange,
   debounceMs = 0,
   onSelect,
+  itemToStringValue = () => "",
   renderItem,
   getItemKey,
   getItemDisabled,
@@ -139,6 +158,7 @@ export function Autocomplete<TItem>({
     <AutocompletePrimitive.Root
       mode="none"
       items={items}
+      itemToStringValue={itemToStringValue}
       value={value}
       onValueChange={(next) => onChange(next)}
       open={open}

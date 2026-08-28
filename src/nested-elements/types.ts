@@ -128,6 +128,7 @@ export interface NestedMenuProps {
  * @prop variant: [Variant] The variant of the option. Defaults to {@link Variant.Default}
  * @prop color: [string] The color of the option. Overrides styling from variants.
  * @prop icon: [ReactNode] The icon to display next to the option.
+ * @prop description: [string] A tooltip on the option, saying what choosing it means.
  */
 export interface NestedOption {
   label: string;
@@ -137,6 +138,25 @@ export interface NestedOption {
   variant?: Variant;
   color?: string;
   icon?: IconValue;
+  /**
+   * What choosing this option means, shown as a TOOLTIP on the option.
+   *
+   * **A tooltip, not a second line in the item**, and the distinction is the whole
+   * design. An item that grows to hold prose stops matching the interactive rhythm
+   * of every other row in the menu, and makes the menu size itself around
+   * explanatory text rather than around its controls. Layering the explanation over
+   * the option leaves the option exactly the control it already was.
+   *
+   * It is also **additive by construction**: with no description the option renders
+   * byte-for-byte as before, because `Tooltip` short-circuits when disabled rather
+   * than wrapping the child in an armed trigger.
+   *
+   * **An aid, never the only home for a fact.** It needs hover or focus, so it is
+   * unreachable by a reader who does not go looking. Anything required to choose
+   * correctly belongs in the label, or beside the control where it is always
+   * visible; use this for the extra sentence that helps and is not load-bearing.
+   */
+  description?: string;
 }
 
 /**

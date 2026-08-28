@@ -2,6 +2,7 @@ import { DropdownMenu, ContextMenu } from "radix-ui";
 import { type CSSProperties, type MouseEvent } from "react";
 import { clsx } from "clsx";
 import { Icon, resolveIcon } from "../icons/registry";
+import { Tooltip } from "../floating/tooltip";
 import { NestedParent, type NestedRadioProps } from "./types";
 import { useNestedParent } from "./context";
 
@@ -29,50 +30,63 @@ export function NestedRadio({ variant, disabled, onChange, value, options }: Nes
       }}
     >
       {options.map((option) => (
-        <ItemComponent
+        <Tooltip
           key={option.value}
-          value={option.value}
-          disabled={option.disabled || disabled}
-          textValue={option.label}
-          style={
-            option.color
-              ? ({
-                  "--custom-color": option.color,
-                } as CSSProperties)
-              : {}
-          }
-          onSelect={(e: Event) => {
-            // Closes by default: a radio group holds ONE value, so picking a
-            // rung is the whole interaction and there is nothing left to do in
-            // the menu. (The multi-value siblings — `NestedSelect` and
-            // `NestedCheckbox` — default the other way for the opposite
-            // reason.) An option can still opt out explicitly.
-            if (option.closeOnSelect === false) {
-              e.preventDefault();
-            }
-          }}
-          className={clsx(
-            "group/item flex items-center rounded-xs leading-none",
-            "relative h-7 px-1.25 pl-7.5 text-sm outline-hidden select-none",
-            "data-disabled:pointer-events-none",
-            "responsive highlight-list-item",
-            option.color ? "custom-color" : (option.variant ?? variant),
-          )}
+          content={option.description}
+          // `disabled` when there is nothing to say, which is Tooltip's own
+          // short-circuit: it renders the child bare rather than wrapping it in an
+          // armed trigger. So an undescribed option is byte-for-byte the item it has
+          // always been, and the description costs nothing where it is unused.
+          //
+          // Falsy, not `=== undefined`: a `?? ""` call site would otherwise arm a
+          // trigger that opens an empty tooltip on hover.
+          disabled={!option.description}
+          side="right"
         >
-          <ItemIndicatorComponent
-            forceMount
+          <ItemComponent
+            value={option.value}
+            disabled={option.disabled || disabled}
+            textValue={option.label}
+            style={
+              option.color
+                ? ({
+                    "--custom-color": option.color,
+                  } as CSSProperties)
+                : {}
+            }
+            onSelect={(e: Event) => {
+              // Closes by default: a radio group holds ONE value, so picking a
+              // rung is the whole interaction and there is nothing left to do in
+              // the menu. (The multi-value siblings — `NestedSelect` and
+              // `NestedCheckbox` — default the other way for the opposite
+              // reason.) An option can still opt out explicitly.
+              if (option.closeOnSelect === false) {
+                e.preventDefault();
+              }
+            }}
             className={clsx(
-              "absolute top-1/2 left-1 grid -translate-y-1/2 place-items-center",
-              "responsive check-indicator",
+              "group/item flex items-center rounded-xs leading-none",
+              "relative h-7 px-1.25 pl-7.5 text-sm outline-hidden select-none",
+              "data-disabled:pointer-events-none",
+              "responsive highlight-list-item",
               option.color ? "custom-color" : (option.variant ?? variant),
             )}
           >
-            <span className="icon-slot">
-              {resolveIcon(option.icon) ?? <Icon name="radio-selected" />}
-            </span>
-          </ItemIndicatorComponent>
-          {option.label}
-        </ItemComponent>
+            <ItemIndicatorComponent
+              forceMount
+              className={clsx(
+                "absolute top-1/2 left-1 grid -translate-y-1/2 place-items-center",
+                "responsive check-indicator",
+                option.color ? "custom-color" : (option.variant ?? variant),
+              )}
+            >
+              <span className="icon-slot">
+                {resolveIcon(option.icon) ?? <Icon name="radio-selected" />}
+              </span>
+            </ItemIndicatorComponent>
+            {option.label}
+          </ItemComponent>
+        </Tooltip>
       ))}
     </GroupComponent>
   );

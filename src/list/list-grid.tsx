@@ -92,6 +92,16 @@ export interface ListColumn<T> {
    * stop a column collapsing when its visible cells happen to be empty.
    */
   minWidth?: string;
+  /**
+   * Extra classes on this column's CELL, merged with anything the grid sets itself.
+   *
+   * For the cell box, not its contents — padding and alignment overrides that a
+   * `render` cannot reach, because a cell's own `px-2` sits outside whatever the
+   * renderer returns. The trailing actions column is the case that needs it: at the
+   * default padding a control there is twice as far from the column beside it as from
+   * the row's edge, and reads as belonging to the edge.
+   */
+  className?: string;
   /** Cell content. `state` lets a cell reflect focus/selection (the old
    *  TableList's 3-arg `render(value, focused, selected)`). */
   render: (item: T, state: { focused: boolean; selected: boolean }) => ReactNode;
@@ -677,7 +687,9 @@ export function ListGrid<T>({
       columns.map((c) => ({
         key: c.key,
         align: c.align,
-        className: c.hideBelow ? HIDE_BELOW_CLASS[c.hideBelow] : undefined,
+        // Merged, not chosen between: a column can both hide below a breakpoint and
+        // carry its own cell classes, and this mapping is the only place the two meet.
+        className: clsx(c.hideBelow && HIDE_BELOW_CLASS[c.hideBelow], c.className) || undefined,
       })),
     [columns],
   );

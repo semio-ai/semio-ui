@@ -212,10 +212,14 @@ export function SidebarModal({
               // against (rather than the modal expanding to fit all tabs).
               "desktop:w-[clamp(40rem,80vw,72rem)]",
               "desktop:h-[clamp(24rem,75dvh,calc(100dvh-4rem))]",
-              // Scale-up + fade in/out. Matches `Modal`.
-              "transition-[opacity,scale] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]",
-              "data-starting-style:opacity-0 data-starting-style:scale-90",
-              "data-ending-style:opacity-0 data-ending-style:scale-90",
+              // Fade plus a short vertical slide. Translate rather than scale, for the
+              // reason spelled out in `Modal`: scaling repaints the whole subtree at a
+              // changing size so fine artwork slides inside stationary boxes, while a
+              // whole-pixel translate resizes nothing and rests at exactly zero. Do not
+              // give `scale` back to either of them.
+              "transition-[opacity,translate] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]",
+              "data-starting-style:opacity-0 data-starting-style:translate-y-2",
+              "data-ending-style:opacity-0 data-ending-style:translate-y-2",
             )}
           >
             <MenuButtonProvider

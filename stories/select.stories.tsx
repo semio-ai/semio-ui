@@ -246,3 +246,59 @@ const ROLE_OPTIONS = [
   { value: "editor", label: "Editor" },
   { value: "viewer", label: "Viewer" },
 ];
+
+/**
+ * Per-option descriptions, as tooltips.
+ *
+ * The extra sentence sits at the point of decision without changing the option. It is
+ * deliberately NOT a second line inside the item: an item that grows to hold prose stops
+ * matching the interactive rhythm of the rows around it, and makes the menu size itself
+ * around explanatory text rather than around its controls.
+ *
+ * The second control is the control for that claim — the same options without
+ * descriptions, rendering identically, because `Tooltip` short-circuits when there is
+ * nothing to say rather than wrapping the item in an armed trigger.
+ *
+ * A tooltip needs hover or focus, so treat it as an aid rather than the only home for a
+ * fact. Anything required to choose correctly belongs in the label or beside the control.
+ */
+export const OptionDescriptions: Story = {
+  render: () => (
+    <div className="flex flex-col gap-6">
+      <div>
+        <div className="mb-1 font-mono text-xs text-neutral-500">
+          described rungs — hover an option in the open menu
+        </div>
+        <div className="w-28">
+          <SelectWithHooks
+            value="viewer"
+            options={[
+              { label: "Admin", value: "admin", description: "Can edit and manage access." },
+              { label: "Editor", value: "editor", description: "Can edit, but not share." },
+              { label: "Viewer", value: "viewer", description: "Can view." },
+            ]}
+            size={Size.Sm}
+            variant={Variant.Default}
+            label="Role"
+            onChange={() => undefined}
+          />
+        </div>
+      </div>
+      <div>
+        <div className="mb-1 font-mono text-xs text-neutral-500">
+          the same rungs undescribed — unchanged, which is the point
+        </div>
+        <div className="w-28">
+          <SelectWithHooks
+            value="viewer"
+            options={ROLE_OPTIONS}
+            size={Size.Sm}
+            variant={Variant.Default}
+            label="Role"
+            onChange={() => undefined}
+          />
+        </div>
+      </div>
+    </div>
+  ),
+};

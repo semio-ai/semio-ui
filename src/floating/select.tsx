@@ -26,6 +26,21 @@ export interface SelectOption {
   color?: string;
   variant?: Variant;
   icon?: IconValue;
+  /**
+   * What choosing this option means, shown as a TOOLTIP on the option in the open menu.
+   *
+   * A tooltip rather than a second line of text in the item, because an item that grows
+   * to two lines stops matching the interactive behaviour and rhythm of every other row
+   * in the menu, and forces the menu's sizing around explanatory prose. This keeps the
+   * option exactly the control it was and layers the explanation over it.
+   *
+   * The trigger never renders it — the trigger shows the selected state.
+   *
+   * Hover- and focus-driven, so it is an AID rather than the only place a fact lives.
+   * Anything a user must know to choose correctly belongs in the label, or beside the
+   * control where it is always visible.
+   */
+  description?: string;
 }
 
 export type SelectVisuals = "icons" | "labels" | "both";
@@ -269,7 +284,14 @@ export function Select<T extends string | string[]>({
 
           <StaticIcon
             size={size}
-            className={clsx("sized-text sized-width", DISABLED_CONTENT_CLASS)}
+            // `sized-icon` opts the caret into the explicit per-size glyph step.
+            // Without it the glyph takes `.icon-standard`, which is 3/5 of its box —
+            // 16.8px in a 28px Sm trigger, centred at a 5.6px offset. The stylesheet
+            // says why that matters where `.sized-icon` is defined: a fractional glyph
+            // box is a subpixel rendering box, so the artwork is rasterized at one
+            // rounding while the control composites and another when it does not, and
+            // the caret appears to shift inside a box that never moved.
+            className={clsx("sized-icon sized-text sized-width", DISABLED_CONTENT_CLASS)}
             variant={selectOption?.variant}
           >
             <Icon name="select-indicator" />

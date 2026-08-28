@@ -11,6 +11,31 @@ export interface AvatarProps {
   /** Accessible label for the avatar when used as an interactive element. */
   "aria-label"?: string;
   size?: Size;
+  /**
+   * Where the avatar's dimensions come from.
+   *
+   * - `"size"` (default) — from {@link AvatarProps.size}, as a standalone avatar
+   *   should.
+   * - `"container"` — from the caller's own class, for a box whose shape the caller
+   *   decides: a row's tile (`sized-row-media`, sized by the row's `--row-media`) or a
+   *   card's media slot (`aspect-video w-full`, sized by its aspect ratio).
+   *
+   * **What it is actually for is the ASPECT-RATIO case.** `size` emits
+   * `sized-height sized-width`, and an explicit `height` beats an `aspect-ratio`
+   * outright — the two are not the same declaration, so no cascade rule resolves it in
+   * the caller's favour. An avatar given `aspect-video w-full` renders 200x32 under
+   * `"size"` and 200x112.5 under `"container"`.
+   *
+   * A same-family width/height class does NOT need this: Tailwind compiles the size
+   * variants as `.sized-height:where(.size-md)`, and `:where()` contributes no
+   * specificity, so `sized-row-media` — emitted later in the sheet — already wins.
+   * Both settings render a row tile at 28px. Reach for `"container"` when the caller
+   * states a RATIO rather than a length.
+   *
+   * `size` still drives the fallback's type scale, so an avatar sized by its container
+   * should still be passed the size its text should read at.
+   */
+  sizing?: "size" | "container";
   onClick?: MouseEventHandler<HTMLSpanElement>;
   variant?: Variant;
   visuals?: "default" | "border" | "inverted" | "inverted-border";
@@ -42,6 +67,7 @@ export const Avatar = forwardRef(
       "aria-label": ariaLabel,
       icon,
       size = Size.Md,
+      sizing = "size",
       onClick,
       status,
       variant = Variant.Default,
@@ -60,7 +86,16 @@ export const Avatar = forwardRef(
           text: status.text,
           size,
         }
-      : {};
+      : // `display: contents`, so the status-less wrapper adds no box of its own.
+        //
+        // It is a layout fix, not tidiness. Without it this div sits between the
+        // caller's box and the avatar's root while carrying no height, so a root asking
+        // for `size-full` resolves 100% against an auto-height parent and collapses to
+        // its content — an avatar told to fill a 155px card came out 40px tall. A fixed
+        // `size` never showed this, because it never asks its parent anything; only a
+        // container-sized avatar does, which is why it surfaced the moment listings
+        // started filling their own boxes.
+        { className: "contents" };
 
     return (
       <Wrapper {...wrapperProps}>
@@ -80,7 +115,16 @@ export const Avatar = forwardRef(
               : undefined
           }
           aria-label={ariaLabel}
-          className={clsx(variant, "rounded-sm", size, "sized-height sized-width", className)}
+          className={clsx(
+            variant,
+            "rounded-sm",
+            size,
+            // Omitted entirely under `sizing: "container"`. A caller stating a RATIO
+            // cannot beat this from `className` — an explicit height wins over
+            // `aspect-ratio` regardless of order. See the prop's doc.
+            sizing === "size" && "sized-height sized-width",
+            className,
+          )}
         >
           <AvatarPrimitive.Image
             src={src}
@@ -96,7 +140,10 @@ export const Avatar = forwardRef(
               (visuals === "border" || visuals === "inverted-border") &&
                 !onClick &&
                 "variant-static-persistent-outline",
-              "sized-height sized-width",
+              // Gated with the root's pair, not independently: a fallback or image left
+              // at its intrinsic size inside a container-sized root overflows the box it
+              // is meant to fill.
+              sizing === "size" && "sized-height sized-width",
               "object-cover",
               "rounded-sm",
               className,
@@ -129,7 +176,8 @@ export const Avatar = forwardRef(
                 "variant-static-bg outline -outline-offset-1 outline-white/25 dark:outline-black/25",
               visuals === "inverted-border" && onClick && "variant-responsive-persistent-outline",
               visuals === "inverted-border" && !onClick && "variant-static-persistent-outline",
-              "sized-height sized-width sized-text",
+              sizing === "size" && "sized-height sized-width",
+              "sized-text",
               className,
             )}
           >
