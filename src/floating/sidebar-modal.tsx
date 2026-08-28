@@ -190,7 +190,7 @@ export function SidebarModal({
               "responsive focus:outline-hidden",
               variant,
               // Single `card` surrounds the whole modal — sidebar and content
-              // panes share one bordered surface. On desktop the modal's bg
+              // panes share one surface. On desktop the modal's bg
               // becomes a frosted-glass layer (mirroring `card-transparent`'s
               // recipe); the content pane covers its area with a solid bg so
               // only the SIDEBAR region reads as frosted. Mobile keeps

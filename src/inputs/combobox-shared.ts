@@ -20,9 +20,10 @@ export function popupClassName(opts?: {
   extras?: string;
 }) {
   return clsx(
-    // Variant/custom-color class first — drives `--card-border-color` so the
-    // popup border picks up the same accent as the input/trigger, matching
-    // `Dropdown`'s behavior.
+    // Variant/custom-color class first, so anything inside the popup that reads an
+    // accent resolves it against the same variant as the input/trigger. It no longer
+    // tints the popup's own edge: `.card-overlay` has no border, so the variant
+    // reaches only the content.
     opts?.color ? "custom-color" : opts?.variant ?? Variant.Default,
     "responsive card-overlay dropdown-content",
     "m-0.5 rounded-sm",

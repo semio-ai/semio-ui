@@ -69,8 +69,8 @@ function InteractiveOverlayInstance({ anchor, position }: OverlayInstanceProps) 
             className={clsx(
               Variant.Default,
               isMenu
-                ? "responsive card dropdown-content m-0.5 min-w-56"
-                : "responsive card m-0.5 overflow-clip shadow-lg",
+                ? "responsive card-overlay dropdown-content m-0.5 min-w-56"
+                : "responsive card-overlay m-0.5 overflow-clip shadow-lg",
               isMenu && "max-h-[calc(var(--radix-dropdown-menu-content-available-height)-4px)]",
             )}
           >
@@ -177,7 +177,7 @@ function TooltipInstance({ anchor, position }: OverlayInstanceProps) {
         className={clsx(
           "responsive overflow-clip",
           Variant.Default,
-          "card inline-flex items-center select-none",
+          "card-overlay inline-flex items-center select-none",
           "pointer-events-none",
           "variant-static-text",
           "shadow-lg",

@@ -241,7 +241,7 @@ export function NestedCheckboxTree({
           <PortalComponent>
             <SubContentComponent
               className={clsx(
-                "responsive card dropdown-content",
+                "responsive card-overlay dropdown-content",
                 "min-w-55 p-0.5",
                 option.variant ?? variant,
               )}

@@ -33,8 +33,6 @@ export function Arrow({ variant, filled, className, color, ref, ...props }: Arro
             ? "colored-carrot-invert-fill"
             : "dark:fill-layout-dark-deep-inset fill-layout-light-deep-inset",
         )}
-        strokeLinejoin="round"
-        strokeWidth="2"
       />
     </svg>
   );

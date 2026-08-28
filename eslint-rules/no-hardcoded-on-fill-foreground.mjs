@@ -148,7 +148,7 @@ function isOwnForeground(utility) {
  *
  * The tag is what stops the rule being confidently wrong. A component that switches
  * visuals writes its fill in one branch and its accent-text class in another —
- * `invert ? "card-invert" : "variant-static-text card"` — and those two can never
+ * `invert ? "card-invert" : "variant-static-text card-overlay"` — and those two can never
  * render together. Reporting that pairing is a demand to break working code, which is
  * how a rule gets turned off.
  *

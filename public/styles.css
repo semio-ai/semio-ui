@@ -1038,23 +1038,42 @@
     fill: var(--strong-accent-text-color);
   }
 
+  /* The three surface classes are one ramp, and which one to reach for is decided by
+   * what a surface sits ON, not by what it contains:
+   *
+   *   .card              inset       — content resting in the page
+   *   .card-overlay      deep inset  — content floating OVER the page
+   *   .card-transparent  deep inset at 90% behind a blur — a floating surface that has
+   *                                    to keep what it covers legible underneath it
+   *
+   * EVERY POPUP SURFACE TAKES `.card-overlay`: dropdown, context menu, popover, toast,
+   * tooltip, tracked tooltip, combobox popup, the desktop nested menu, the checkbox
+   * tree's submenu and all three of `tooltip-3d`'s. A popup left on `.card` sits one
+   * step toward the ground instead of away from it, so it is least separated exactly
+   * where it is most likely to open — over a card, or over a parent popup.
+   *
+   * `Modal` and `Dialog` keep `.card` deliberately. They are the one case with a ground
+   * of their own — `bg-black/40` is painted behind them — and in light mode that scrim
+   * is the only boundary in the package that clears 3:1. In dark mode it does not, for
+   * the reason below.
+   *
+   * SEPARATION IS BY LIGHTNESS AND SHADOW ALONE — no border, no outline. That is below
+   * WCAG 1.4.11's 3:1 for a component boundary, and so was the border it replaced;
+   * `floating/surface-separation.browser.tsx` measures every pair against that bar and
+   * carries the figures. Closing the gap means moving the `layout-*` steps apart, which
+   * is a change to the whole ramp rather than to any one class here. */
   .card {
-    @apply rounded-sm shadow-lg; /* border-2;*/
-    /*border-color: var(--card-border-color);*/
+    @apply rounded-sm shadow-lg;
     @apply dark:bg-layout-dark-inset bg-layout-light-inset;
   }
 
   .card-overlay {
-      @apply rounded-sm shadow-lg; /* border-2;*/
-      /*border-color: var(--card-border-color);*/
-      @apply dark:bg-layout-dark-deep-inset bg-layout-light-deep-inset;
+    @apply rounded-sm shadow-lg;
+    @apply dark:bg-layout-dark-deep-inset bg-layout-light-deep-inset;
   }
 
   .card-transparent {
     @apply rounded-md shadow-lg;
-    /*@apply outline-2;*/
-    /*outline-color: var(--card-border-color);*/
-    /*border-color: var(--card-border-color);*/
     @apply dark:bg-layout-dark-deep-inset/90 bg-layout-light-deep-inset/90 backdrop-blur-xl;
   }
 

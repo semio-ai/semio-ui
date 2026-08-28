@@ -135,7 +135,7 @@ const Dropdown = forwardRef(
               )}
             >
               <DropdownPrimitive.Arrow asChild width={12} height={6}>
-                <Arrow filled={false} variant={variant ?? Variant.Default} color={color} />
+                <Arrow filled={false} variant={variant ?? Variant.Default} />
               </DropdownPrimitive.Arrow>
 
               <ScrollArea
