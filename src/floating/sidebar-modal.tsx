@@ -59,6 +59,8 @@ export interface SidebarModalProps {
   contextMenuExtras?: ReactNode;
   variant?: Variant;
   dismissDisabled?: boolean;
+  /** Custom container for the dialog portal. Defaults to `document.body`. */
+  portalContainer?: HTMLElement | null;
 }
 
 const PLACEHOLDER_TAB: SidebarTab = {
@@ -108,6 +110,7 @@ export function SidebarModal({
   contextMenuExtras,
   variant,
   dismissDisabled = false,
+  portalContainer,
 }: SidebarModalProps) {
   const tabList = useMemo<SidebarTab[]>(() => (tabs.length > 0 ? tabs : [PLACEHOLDER_TAB]), [tabs]);
 
@@ -175,7 +178,7 @@ export function SidebarModal({
       }}
       disablePointerDismissal={dismissDisabled}
     >
-      <Dialog.Portal>
+      <Dialog.Portal container={portalContainer ?? undefined}>
         <Dialog.Backdrop
           className={clsx(
             "fixed inset-0 bg-black/40",

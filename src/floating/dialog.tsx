@@ -28,6 +28,8 @@ export interface DialogProps {
    * for the same semantics.
    */
   closeOnSubmitClick?: boolean;
+  /** Custom container for the dialog portal. Defaults to `document.body`. */
+  portalContainer?: HTMLElement | null;
 }
 
 /**
@@ -84,6 +86,7 @@ export function Dialog({
   onCancel,
   variant,
   closeOnSubmitClick = true,
+  portalContainer,
 }: DialogProps) {
   const submitButton = onSubmit && (
     <Button
@@ -107,7 +110,7 @@ export function Dialog({
   const hasFooter = Boolean(onCancel || submitButton);
   return (
     <AlertDialog.Root open={open} onOpenChange={onStateChange}>
-      <AlertDialog.Portal>
+      <AlertDialog.Portal container={portalContainer ?? undefined}>
         <AlertDialog.Overlay
           forceMount
           className={clsx(

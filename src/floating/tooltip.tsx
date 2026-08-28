@@ -12,6 +12,8 @@ export interface TooltipProps {
   variant?: Variant;
   disabled?: boolean;
   invert?: boolean;
+  /** Custom container for the popup portal (e.g. inside a modal). */
+  portalContainer?: HTMLElement | null;
 }
 
 function Tooltip({
@@ -22,6 +24,7 @@ function Tooltip({
   variant,
   disabled,
   invert,
+  portalContainer,
 }: TooltipProps) {
   const [defaultOpen, setDefaultOpen] = useState(false);
   const [open, setOpen] = useState(controlledState?.[0] ?? false);
@@ -60,7 +63,7 @@ function Tooltip({
         <TooltipPrimitive.Trigger disabled={disabled} asChild>
           {children}
         </TooltipPrimitive.Trigger>
-        <TooltipPrimitive.Portal>
+        <TooltipPrimitive.Portal container={portalContainer ?? undefined}>
           <TooltipPrimitive.Content
             side={side}
             sideOffset={6}

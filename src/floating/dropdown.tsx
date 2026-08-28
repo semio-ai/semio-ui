@@ -32,6 +32,8 @@ export interface DropdownProps {
   contentClassName?: string;
   scrollOrientation?: "vertical" | "horizontal" | "both";
   matchTriggerWidth?: boolean;
+  /** Custom container for the popup portal (e.g. inside a modal). */
+  portalContainer?: HTMLElement | null;
 }
 
 const Dropdown = forwardRef(
@@ -50,6 +52,7 @@ const Dropdown = forwardRef(
       contentClassName,
       scrollOrientation = "vertical",
       matchTriggerWidth = true,
+      portalContainer,
     }: DropdownProps,
     ref: ForwardedRef<HTMLButtonElement>,
   ) => {
@@ -116,7 +119,7 @@ const Dropdown = forwardRef(
           >
             {trigger}
           </DropdownPrimitive.Trigger>
-          <DropdownPrimitive.Portal>
+          <DropdownPrimitive.Portal container={portalContainer ?? undefined}>
             <DropdownPrimitive.Content
               align="center"
               side={side}

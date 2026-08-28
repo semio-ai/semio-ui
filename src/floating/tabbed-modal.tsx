@@ -22,6 +22,8 @@ export interface TabbedModalProps {
   variant?: Variant;
   /** See `Modal.closeOnSubmitClick`. Forwarded as-is. */
   closeOnSubmitClick?: boolean;
+  /** Custom container for the dialog portal. Defaults to `document.body`. */
+  portalContainer?: HTMLElement | null;
 }
 
 /**
@@ -101,6 +103,7 @@ export function TabbedModal({
   onCancel,
   variant,
   closeOnSubmitClick,
+  portalContainer,
 }: TabbedModalProps) {
   const { childrenTabs } = useTabsState(children, selected, undefined, "No tabs");
 
@@ -142,6 +145,7 @@ export function TabbedModal({
         onCancel={onCancel}
         variant={variant}
         closeOnSubmitClick={closeOnSubmitClick}
+        portalContainer={portalContainer}
       >
         {tabsContent}
       </Modal>
