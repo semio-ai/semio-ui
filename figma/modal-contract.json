@@ -1,9 +1,24 @@
 {
   "component": "Modal",
   "nodeId": "600:1375",
-  "capturedAt": "2026-07-21",
-  "source": "use_figma read of node 600:1375 (Modal set, 🧩 Components). DOCUMENTED SUBSET: the standardized `.card` chrome — header (title + description + icon-only close Button) / body slot / footer (Cancel + Submit Buttons) — across a representative Variant axis (default/primary/error; code also has secondary/tertiary/info/success/warning). `.card` = surface/inset bg + 2px border (surface/separator) + rounded-sm (4px) + shadow-lg; close is a variant Button with the `close` icon; Submit is a variant Button; hairlines = surface/separator. Refresh from the live file before CI.",
-  "variantOptions": { "Variant": ["default", "primary", "error"] },
-  "properties": ["Title#600:0", "Show description#600:4", "Show footer#600:8", "Show cancel#600:12"],
-  "sampleVariant": { "cardFillVar": "color/surface/inset", "borderVar": "color/surface/separator", "dividerVar": "color/surface/separator", "cornerRadius": 4 }
+  "capturedAt": "2026-08-28",
+  "source": "use_figma read of node 600:1375 (Modal set, 🧩 Components). DOCUMENTED SUBSET: the standardized `.card` chrome — header (title + description + icon-only close Button) / body slot / footer (Cancel + Submit Buttons) — across a representative Variant axis (default/primary/error; code also has secondary/tertiary/info/success/warning). `.card` = surface/inset bg + rounded-sm (4px) + shadow-lg, NO border — it is read against its own bg-black/40 scrim rather than against the page, which is what carries the boundary; close is a variant Button with the `close` icon; Submit is a variant Button; hairlines = surface/separator. Refresh from the live file before CI.",
+  "variantOptions": {
+    "Variant": [
+      "default",
+      "primary",
+      "error"
+    ]
+  },
+  "properties": [
+    "Title#600:0",
+    "Show description#600:4",
+    "Show footer#600:8",
+    "Show cancel#600:12"
+  ],
+  "sampleVariant": {
+    "cardFillVar": "color/surface/inset",
+    "dividerVar": "color/surface/separator",
+    "cornerRadius": 4
+  }
 }

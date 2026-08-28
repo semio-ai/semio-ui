@@ -370,6 +370,17 @@ function checkTabs() {
   return { name: "Tabs", figma, fails, notes, summary: `Variant = ${(fo.Variant||[]).length} · props=[(variant axes only)]` };
 }
 
+/**
+ * Source with comments removed, for guards that look for a CLASS NAME.
+ *
+ * These guards test the file as text, so prose satisfies them: `modal.tsx` documents a
+ * "centred card on desktop", which is enough to convince a bare `card` search that the
+ * class is still applied. Stripping comments first is what makes the guard read code.
+ */
+function code(src) {
+  return src.replace(/\/\*[\s\S]*?\*\//g, " ").replace(/(^|[^:])\/\/[^\n]*/g, "$1 ");
+}
+
 // ── Tooltip check ─────────────────────────────────────────────────────────
 function checkTooltip() {
   const fails = [], notes = [];
@@ -382,7 +393,7 @@ function checkTooltip() {
   if (!subsetOf(SUBSET.variants, codeVariants)) fails.push(`subset variants not all in code Variant enum [${codeVariants}]`);
   // Matched with the hyphen, not `\bcard\b`: a word-boundary `card` also matches inside
   // `card-overlay` and `card-invert`, so it would pass for any surface class at all.
-  if (!/card-overlay/.test(src)) fails.push("code Tooltip lost the `card-overlay` container class");
+  if (!/card-overlay/.test(code(src))) fails.push("code Tooltip lost the `card-overlay` container class");
   if (/colored-carrot-stroke/.test(arrowSrc)) fails.push("code Arrow regained `colored-carrot-stroke` — Figma's caret has no outline");
   if (/stroke-\d/.test(arrowSrc)) fails.push("code Arrow regained a stroke width — Figma's caret has no outline");
   if (!figma.sampleVariant.caretIntegrated) fails.push("Figma caret is NOT integrated into the card silhouette (outline must trace around the caret, not a separate bordered box)");
@@ -449,14 +460,14 @@ function checkModal() {
   if (!eqSet(fo.Variant || [], SUBSET.variants)) fails.push(`Figma Variant axis [${fo.Variant}] != subset [${SUBSET.variants}]`);
   if (!subsetOf(SUBSET.variants, codeVariants)) fails.push(`subset variants not all in code Variant enum [${codeVariants}]`);
   for (const need of ["Title", "Show description", "Show footer", "Show cancel"]) if (!hasProp(need)) fails.push(`Figma missing component property: '${need}'`);
-  if (!/\bcard\b/.test(src)) fails.push("code Modal lost the `card` container class");
+  if (!/\bcard\b(?!-)/.test(code(src))) fails.push("code Modal lost the bare `card` container class");
   if (!/title\??:/.test(src)) fails.push("code Modal lost its `title` prop");
   if (!/onSubmit\??:/.test(src) || !/onCancel\??:/.test(src)) fails.push("code Modal lost its onSubmit/onCancel footer handlers");
   if (!/leftIcon="close"/.test(src)) fails.push("code Modal close is no longer a Button with the `close` icon");
   notes.push("standardized `.card` chrome: header (title + description + icon-only close Button) / body slot / footer (Cancel + Submit); title tints via variant-static-text, Submit + close are variant Buttons");
   notes.push("Variant subset is representative (default/primary/error); code also has secondary/tertiary/info/success/warning");
   if (figma.sampleVariant.cardFillVar !== "color/surface/inset") fails.push(`.card not bound to color/surface/inset (= layout-*-inset) — figma=${figma.sampleVariant.cardFillVar}`);
-  if (figma.sampleVariant.borderVar !== "color/surface/separator") fails.push(`.card 2px border not bound to color/surface/separator — figma=${figma.sampleVariant.borderVar}`);
+  if (figma.sampleVariant.borderVar) fails.push(`Modal contract still records a border — the Figma card has none`);
   if (figma.sampleVariant.cornerRadius !== 4) fails.push(`.card radius differs — code=rounded-sm (4px) figma=${figma.sampleVariant.cornerRadius}px`);
   if (figma.sampleVariant.dividerVar !== "color/surface/separator") fails.push(`hairlines not bound to color/surface/separator — figma=${figma.sampleVariant.dividerVar}`);
   return { name: "Modal", figma, fails, notes, summary: `Variant = ${(fo.Variant||[]).length} · props=[${fprops.join(", ")}]` };
@@ -474,12 +485,12 @@ function checkDialog() {
   if (!eqSet(fo.Variant || [], SUBSET.variants)) fails.push(`Figma Variant axis [${fo.Variant}] != subset [${SUBSET.variants}]`);
   if (!subsetOf(SUBSET.variants, codeVariants)) fails.push(`subset variants not all in code Variant enum [${codeVariants}]`);
   for (const need of ["Title", "Show description", "Show cancel"]) if (!hasProp(need)) fails.push(`Figma missing component property: '${need}'`);
-  if (!/\bcard\b/.test(src)) fails.push("code Dialog lost the `card` container class");
+  if (!/\bcard\b(?!-)/.test(code(src))) fails.push("code Dialog lost the bare `card` container class");
   if (!/hasBody/.test(src)) fails.push("code Dialog lost its optional-body (`hasBody`) logic");
   notes.push("confirmation `.card` chrome sharing Modal's card language; full-width split footer; icon-only close Button; body optional (confirmation-only shown)");
   notes.push("error variant = destructive-confirm case; Variant subset representative (code also has secondary/tertiary/info/success/warning)");
   if (figma.sampleVariant.cardFillVar !== "color/surface/inset") fails.push(`.card not bound to color/surface/inset (= layout-*-inset) — figma=${figma.sampleVariant.cardFillVar}`);
-  if (figma.sampleVariant.borderVar !== "color/surface/separator") fails.push(`.card 2px border not bound to color/surface/separator — figma=${figma.sampleVariant.borderVar}`);
+  if (figma.sampleVariant.borderVar) fails.push(`Dialog contract still records a border — the Figma card has none`);
   if (figma.sampleVariant.cornerRadius !== 4) fails.push(`.card radius differs — code=rounded-sm (4px) figma=${figma.sampleVariant.cornerRadius}px`);
   if (figma.sampleVariant.dividerVar !== "color/surface/separator") fails.push(`hairline not bound to color/surface/separator — figma=${figma.sampleVariant.dividerVar}`);
   return { name: "Dialog", figma, fails, notes, summary: `Variant = ${(fo.Variant||[]).length} · props=[${fprops.join(", ")}]` };
