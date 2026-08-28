@@ -1039,17 +1039,23 @@
   }
 
   .card {
-    @apply rounded-sm shadow-lg border-2;
-    border-color: var(--card-border-color);
+    @apply rounded-sm shadow-lg; /* border-2;*/
+    /*border-color: var(--card-border-color);*/
     @apply dark:bg-layout-dark-inset bg-layout-light-inset;
+  }
+
+  .card-overlay {
+      @apply rounded-sm shadow-lg; /* border-2;*/
+      /*border-color: var(--card-border-color);*/
+      @apply dark:bg-layout-dark-deep-inset bg-layout-light-deep-inset;
   }
 
   .card-transparent {
     @apply rounded-md shadow-lg;
-    @apply outline-2;
-    outline-color: var(--card-border-color);
+    /*@apply outline-2;*/
+    /*outline-color: var(--card-border-color);*/
     /*border-color: var(--card-border-color);*/
-    @apply dark:bg-layout-dark-deep-inset/80 bg-layout-light-deep-inset/80 backdrop-blur-lg;
+    @apply dark:bg-layout-dark-deep-inset/90 bg-layout-light-deep-inset/90 backdrop-blur-xl;
   }
 
   .card-invert {

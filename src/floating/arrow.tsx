@@ -23,13 +23,6 @@ export function Arrow({ variant, filled, className, color, ref, ...props }: Arro
       className={className}
       {...props}
     >
-      {!filled && (
-        <rect
-          width="30"
-          height="2"
-          className="dark:fill-layout-dark-inset fill-layout-light-inset"
-        />
-      )}
       <path
         d="M30 0 L15 9 L0 0"
         style={{ "--custom-color": color } as CSSProperties}
@@ -38,7 +31,7 @@ export function Arrow({ variant, filled, className, color, ref, ...props }: Arro
           color ? "custom-color" : variant,
           filled
             ? "colored-carrot-invert-fill"
-            : "colored-carrot-stroke dark:fill-layout-dark-inset fill-layout-light-inset stroke-3",
+            : "dark:fill-layout-dark-deep-inset fill-layout-light-deep-inset",
         )}
         strokeLinejoin="round"
         strokeWidth="2"

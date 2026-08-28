@@ -26,7 +26,7 @@ function Popover({ trigger, children, open, onStateChange, variant }: PopoverPro
             className={clsx(
               variant,
               "popover-content focus:outline-none",
-              "responsive card",
+              "responsive card-overlay",
               "m-0.5 min-w-55 rounded-sm",
             )}
           >

@@ -24,7 +24,7 @@ export function popupClassName(opts?: {
     // popup border picks up the same accent as the input/trigger, matching
     // `Dropdown`'s behavior.
     opts?.color ? "custom-color" : opts?.variant ?? Variant.Default,
-    "responsive card dropdown-content",
+    "responsive card-overlay dropdown-content",
     "m-0.5 rounded-sm",
     "w-[calc(var(--available-width)-4px)]",
     "desktop:w-[calc(var(--anchor-width)+10px)]",

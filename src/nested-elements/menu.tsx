@@ -105,7 +105,7 @@ export function NestedMenu({
               variant,
               !desktop &&
                 "mb-0.5 w-full rounded-b-xs bg-neutral-400/30 py-0.5 pr-0.5 pl-2 dark:bg-black/30",
-              desktop && "responsive card dropdown-content",
+              desktop && "responsive card-overlay dropdown-content",
               "min-w-55",
               desktop && heightClass,
               desktop && parent === NestedParent.Dropdown

@@ -34,7 +34,7 @@ function ContextMenu({ content, children, variant, color, disabled, onOpenChange
             collisionPadding={2}
             className={clsx(
               color ? "custom-color" : variant,
-              "responsive card dropdown-content m-0.5 min-w-55",
+              "responsive card-overlay dropdown-content m-0.5 min-w-55",
               "max-h-[calc(var(--radix-context-menu-content-available-height)-4px)]",
               "desktop:w-[calc(var(--radix-context-menu-trigger-width)+10px)]",
               "w-[calc(var(--radix-context-menu-content-available-width)-4px)]",

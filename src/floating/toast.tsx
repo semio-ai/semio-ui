@@ -118,7 +118,7 @@ function InnerToast({ data }: { data: ToastData }) {
           "data-[swipe=end]:animate-toastSwipeOut",
           "data-[swipe=cancel]:transition-[transform_200ms_ease-out]",
           data.variant,
-          "card responsive",
+          "card-overlay responsive",
         )}
         initial={{ x: width + margin }}
         animate={{ x: 0 }}
@@ -155,7 +155,7 @@ function InnerToast({ data }: { data: ToastData }) {
                 icon={toastIcon}
               />
             </span>
-            <span className="min-w-0 break-words">{data.title}</span>
+            <span className="min-w-0 wrap-break-word">{data.title}</span>
           </RadixToast.Title>
           <RadixToast.Close asChild>
             <Button
