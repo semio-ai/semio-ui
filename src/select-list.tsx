@@ -1,4 +1,5 @@
 import { ReactNode, useCallback, useMemo } from "react";
+import { clsx } from "clsx";
 import { Size, Variant } from "./types";
 import { ListGrid, type ListColumn } from "./list";
 import { defaultResolveRowVisual, type ResolveRowVisual } from "./tree/resolve-row-visual";
@@ -18,29 +19,6 @@ import { Icon, resolveIcon } from "./icons/registry";
  * shows selection — the shared left-edge bar and tint, tinted by `variant` — not by
  * a bespoke fill or an indicator column.
  */
-// Module scope so their identities are stable across renders: `ListGrid` keys its
-// row/order/column memos off these, and a fresh closure per render would rebuild
-// every one of them on every keystroke in the search field above the list.
-const getRowId = (option: SelectOption) => option.value;
-const isRowDisabled = (option: SelectOption) => option.disabled === true;
-const getSearchText = (option: SelectOption) => option.label;
-
-const COLUMNS: ListColumn<SelectOption>[] = [
-  {
-    key: "item",
-    align: "left",
-    flex: true,
-    render: (option) => (
-      <div className="flex min-w-0 flex-row items-center gap-3">
-        <div className="flex flex-row items-center justify-center rounded-full p-1 text-neutral-500">
-          {resolveIcon(option.icon) ?? <Icon name="point-filled" />}
-        </div>
-        <div className="sized-text truncate select-none">{option.label}</div>
-      </div>
-    ),
-  },
-];
-
 export function SelectList<T extends string | string[]>({
   value,
   onChange,
@@ -85,9 +63,43 @@ export function SelectList<T extends string | string[]>({
   // The whole palette in one line: the shared resolver already knows the
   // intensities for hover and selection, and `variant` picks which
   // `--accent-color` those resolve against.
+  //
+  // A disabled option gets neither. `ListGrid` reports hover for a row it will
+  // refuse to activate, so without this the option would light up under the
+  // pointer and then do nothing when clicked.
   const resolveVisual = useCallback<ResolveRowVisual<SelectOption>>(
-    (state) => ({ ...defaultResolveRowVisual(state, undefined), variant }),
+    (state, option) =>
+      option.disabled
+        ? { variant, bar: null, background: null }
+        : { ...defaultResolveRowVisual(state, option), variant },
     [variant],
+  );
+
+  // `sized-text` resolves against a `size-*` class on the SAME element — the rules
+  // are `.sized-text:where(.size-lg)`, not a descendant selector — so the row's own
+  // size does not reach the label and `size` has to be spelled here to scale it.
+  const columns = useMemo<ListColumn<SelectOption>[]>(
+    () => [
+      {
+        key: "item",
+        align: "left",
+        flex: true,
+        render: (option) => (
+          <div
+            className={clsx(
+              "flex min-w-0 flex-row items-center gap-3",
+              option.disabled && "cursor-not-allowed opacity-50",
+            )}
+          >
+            <div className="flex flex-row items-center justify-center rounded-full p-1 text-neutral-500">
+              {resolveIcon(option.icon) ?? <Icon name="point-filled" />}
+            </div>
+            <div className={clsx(size, "sized-text truncate select-none")}>{option.label}</div>
+          </div>
+        ),
+      },
+    ],
+    [size],
   );
 
   return (
@@ -104,10 +116,17 @@ export function SelectList<T extends string | string[]>({
       selected={selectedKeys}
       onSelectionChange={handleSelectionChange}
       resolveVisual={resolveVisual}
-      columns={COLUMNS}
+      columns={columns}
       onAction={(key) => {
         handleToggle(key);
       }}
     />
   );
 }
+
+// At module scope because they close over nothing, not to satisfy a memo: `ListGrid`
+// keys its row memos on `[data, getRowId]`, and `data` here is `options`, which a
+// caller filtering by a search field replaces on every keystroke anyway.
+const getRowId = (option: SelectOption) => option.value;
+const isRowDisabled = (option: SelectOption) => option.disabled === true;
+const getSearchText = (option: SelectOption) => option.label;

@@ -23,7 +23,10 @@ import { Size } from "./types";
 export interface DropzoneProps<T> {
   onDrop: (files: File[]) => void;
   data: T[];
-  /** Stable id for a row. Must be referentially stable; `ListGrid` keys its memos off it. */
+  /**
+   * Stable id for a row. Paired with `data` in `ListGrid`'s row memos, so a fresh
+   * closure costs a rebuild only where `data` is itself stable across renders.
+   */
   getRowId: (item: T) => string;
   columns: ListColumn<T>[];
   /** Per-row styling. Defaults to the shared hover/selection tint. */
