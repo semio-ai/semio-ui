@@ -210,9 +210,11 @@ async function openRightPaneAndSettle() {
  * A `Modal` covers the whole viewport, so the close button is definitionally underneath it
  * — no positioner geometry to arrange, and the overlap is the one a host actually hits.
  *
- * Run in both themes because `card-transparent` resolves different values under `.dark`,
- * and it is that class's `backdrop-filter` doing the work. A theme variant that dropped
- * the filter would keep every colour assertion passing.
+ * Run in both themes, though the two cannot fail differently as things stand:
+ * `.card-transparent` applies its `backdrop-filter` unconditionally, and the dark variant
+ * reaches only the background colour. The parameterisation is here because the surface
+ * classes *do* resolve per theme, so a theme-conditional filter is a change that would
+ * otherwise be invisible — and it is the kind of change nothing else would catch.
  */
 for (const theme of ["light", "dark"] as const) {
   test(`a modal with no z-index paints over a side pane's z-1 close button (${theme})`, async () => {
@@ -268,10 +270,12 @@ for (const theme of ["light", "dark"] as const) {
  * The popup surface rather than a full-viewport backdrop: a `Dropdown` triggered from
  * inside the pane opens over the pane's own surface.
  *
- * `Dropdown` already ships with no `z-index` of any kind, so this is the shipped
- * zero-config case. It is the control that says `z-index: auto` at body level is
- * sufficient against this chrome — which is what lets `Combobox` drop its `z-50` without
- * a replacement.
+ * A weaker claim than the modal's, and worth being exact about: the pane surface is itself
+ * at `z-index: auto`, so what this pins is that the popup is neither clipped by the pane
+ * it opens from nor painted inside it — not that `auto` beats a positive value. The modal
+ * tests are what carry that, because the close button is the only positive `z-index` in
+ * play; and `apps/studio`'s suite carries the general form, by asserting nothing in the
+ * app reaches the root stacking context with one.
  */
 test("a dropdown with no z-index paints over the pane surface it opens from", async () => {
   await page.viewport(DESKTOP.width, DESKTOP.height);
@@ -315,9 +319,10 @@ test("a dropdown with no z-index paints over the pane surface it opens from", as
 });
 
 /**
- * The same measurement for `Combobox`, whose popup Positioner is the element that carried
- * a hardcoded `z-50`. With the `z-50` gone the popup stacks exactly as `Dropdown` does,
- * and this is what fails if that turns out not to be enough.
+ * The same, weaker, claim for `Combobox`, whose Positioner is the element that carried a
+ * hardcoded `z-50`. With it gone the popup stacks exactly as `Dropdown` does. That the
+ * `z-index` is actually absent is pinned separately below; this one would stay green with
+ * the `z-50` restored, because a popup already in front does not care.
  */
 test("a combobox popup with no z-index paints over the pane surface it opens from", async () => {
   await page.viewport(DESKTOP.width, DESKTOP.height);
@@ -384,9 +389,73 @@ test("portalContainer moves an overlay's portal into the host's element", async 
 
   const host = document.querySelector<HTMLElement>('[data-testid="host-container"]')!;
   expect(host.contains(body()!)).toBe(true);
-  // Control: the default is `<body>`, so containment here is a change and not the
-  // trivially-true statement it would be if the host element were an ancestor anyway.
-  expect(host.contains(document.body)).toBe(false);
+
+  // Control: the same component with no `portalContainer` lands OUTSIDE that element, as
+  // a `<body>`-level sibling. Without it this test says only that a container was used,
+  // not that it changed anything — and `host.contains(document.body)` would have been
+  // false whatever the prop did, since `host` is itself inside `<body>`.
+  // Dismiss the first menu before opening the control's: Radix puts a `DismissableLayer`
+  // over the page while a menu is open, and it swallows the click rather than passing it
+  // through — the second click would time out on an element that is visible and enabled.
+  await userEvent.keyboard("{Escape}");
+  await expect.poll(body).toBeNull();
+
+  render(
+    <Dropdown trigger={<Button size={Size.Md}>open default</Button>}>
+      <div data-testid="default-menu-body">menu body</div>
+    </Dropdown>,
+  );
+  await userEvent.click(page.getByRole("button", { name: "open default" }));
+  const defaultBody = () =>
+    document.querySelector<HTMLElement>('[data-testid="default-menu-body"]');
+  await expect.poll(defaultBody).not.toBeNull();
+  expect(host.contains(defaultBody()!)).toBe(false);
+  expect(defaultBody()!.closest("body > div")?.parentElement).toBe(document.body);
+});
+
+/**
+ * The Combobox popup's removal, pinned as itself.
+ *
+ * Not a stacking claim: the assertions above cover whether `auto` is sufficient, and both
+ * the presence and the absence of a `z-50` satisfy those, because a popup already in front
+ * does not care. What a test can pin is the contract — nothing in this popup's portal
+ * subtree carries a `z-index` — so re-adding one reddens here and reads as the
+ * consumer-visible change it is rather than landing as a tidy-up.
+ *
+ * `Tooltip3D`'s removal needs no equivalent: it is pinned by the ordering assertion in the
+ * 3D test below, which goes red with the `z-50` restored because at 50 the tooltip beats
+ * the modal.
+ */
+test("the Combobox popup's portal subtree carries no z-index", async () => {
+  await page.viewport(DESKTOP.width, DESKTOP.height);
+
+  render(
+    <div className="p-8">
+      <Combobox options={OPTIONS} value="alpha" onChange={() => {}} open />
+    </div>,
+  );
+  const popup = () => document.querySelector<HTMLElement>("[role=listbox]");
+  await expect.poll(popup).not.toBeNull();
+
+  // Every element from the list up to the portal root, rather than "the Positioner" by
+  // name: which element base-ui positions, and how many sit between it and `role=listbox`,
+  // is base-ui's business and moves between versions. What this package owns is that it
+  // puts a `z-index` on none of them — so a value re-added anywhere in the subtree reddens
+  // here, including on the Popup, where it would be inert and easy to mistake for
+  // equivalent.
+  const portalRoot = popup()!.closest("body > div")!;
+  const withZIndex: string[] = [];
+  for (let node: Element | null = popup(); node && node !== portalRoot; node = node.parentElement) {
+    if (getComputedStyle(node).zIndex !== "auto") {
+      withZIndex.push(`${node.tagName.toLowerCase()}=${getComputedStyle(node).zIndex}`);
+    }
+  }
+  expect(withZIndex).toEqual([]);
+
+  // Control: the walk really did traverse the popup's subtree, so an empty result means
+  // "nothing carries one" rather than "the loop never ran".
+  expect(portalRoot.contains(popup()!)).toBe(true);
+  expect(popup()!.parentElement).not.toBe(portalRoot);
 });
 
 /**

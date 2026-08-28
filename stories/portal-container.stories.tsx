@@ -42,7 +42,12 @@ function HostLadder({ onContainer }: { onContainer?: (el: HTMLDivElement | null)
   return (
     <div className="pointer-events-none fixed inset-0 z-100 bg-black/50">
       <p className="p-4 font-mono text-xs text-white">host layer — z-index: 100</p>
-      <div ref={onContainer ?? (() => {})} />
+      {/* `pointer-events-auto` back on, because `pointer-events` INHERITS and base-ui sets
+          none of its own on the positioner or popup — a popup portalled in here would
+          inherit the scrim's `none` and be visible but unclickable. Radix's
+          `DismissableLayer` sets `auto` itself, so its overlays are unaffected either way,
+          which is exactly what makes this easy to miss. */}
+      <div className="pointer-events-auto" ref={onContainer ?? (() => {})} />
     </div>
   );
 }
@@ -63,14 +68,14 @@ export const DefaultPortalVersusAHostContainer: Story = {
       <div className="relative grid h-dvh grid-cols-2 items-start gap-8 p-8 pt-20">
         <div>
           <p className="mb-40 text-sm">Default portal — under the host layer</p>
-          <Combobox options={ITEMS} value={left} onChange={setLeft} open />
+          <Combobox options={ITEMS} value={left} onChange={(next) => setLeft(next ?? "")} open />
         </div>
         <div>
           <p className="mb-40 text-sm">portalContainer — over the host layer</p>
           <Combobox
             options={ITEMS}
             value={right}
-            onChange={setRight}
+            onChange={(next) => setRight(next ?? "")}
             open
             portalContainer={container}
           />

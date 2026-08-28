@@ -271,6 +271,7 @@ export function SidebarModal({
                 isDesktop={isDesktop}
                 tabId={tabId}
                 panelId={panelId}
+                portalContainer={portalContainer}
               />
             </MenuButtonProvider>
             <ContentPane
@@ -307,6 +308,7 @@ function SidebarPane({
   isDesktop,
   tabId,
   panelId,
+  portalContainer,
 }: {
   title: string | ReactNode;
   tabs: SidebarTab[];
@@ -324,6 +326,7 @@ function SidebarPane({
   isDesktop: boolean;
   tabId: (key: string) => string;
   panelId: (key: string) => string;
+  portalContainer?: HTMLElement | null;
 }) {
   const tabListRef = useRef<HTMLDivElement>(null);
 
@@ -531,6 +534,10 @@ function SidebarPane({
       // Disabled on mobile rather than unmounted — see the comment in
       // ContextMenu about not swapping the tree mid-interaction.
       disabled={!isDesktop}
+      // The same container as the dialog itself: a host that moved this modal into its own
+      // stacking context meant the modal's whole overlay surface, and a context menu left
+      // at `<body>` would be the one part of it landing somewhere else.
+      portalContainer={portalContainer}
       content={
         <>
           {contextMenuExtras}
