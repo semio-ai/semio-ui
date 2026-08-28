@@ -2,16 +2,38 @@ import { clsx } from "clsx";
 import { ReactNode } from "react";
 import { useDropzone, type Accept } from "react-dropzone";
 import { IconArrowBigDownLines } from "@tabler/icons-react";
-import { ListItem } from "./hooks/use-list-state";
 import { ScrollArea } from "./layouts/scroll-area";
-import { ColumnDefinition, TableList } from "./layouts/table-list";
+import { ListGrid, type ListColumn } from "./list";
+import type { ResolveRowVisual } from "./tree/resolve-row-visual";
+import { Size } from "./types";
 
-export interface DropzoneProps<T extends ListItem> {
+/**
+ * A drop target and the listing of what has been dropped on it.
+ *
+ * The listing half of this API is `ListGrid`'s, prop for prop — `data`, `getRowId`,
+ * `columns`, `resolveVisual`, `size`, `noHeader` mean here exactly what they mean
+ * there, because a wrapper's public API mirrors the component it renders inside. A
+ * caller who knows how to describe a listing already knows how to describe this one,
+ * and a row here looks like a row anywhere else in the product.
+ *
+ * Row appearance is `resolveVisual`, not a class: the shared left-bar + tint is how
+ * every row-shaped list in the system expresses state, and a per-row class would let
+ * one listing opt out of that and drift.
+ */
+export interface DropzoneProps<T> {
   onDrop: (files: File[]) => void;
   data: T[];
-  columns: ColumnDefinition<T>[];
-  rowClassName?: string;
-  headerClassName?: string;
+  /** Stable id for a row. Must be referentially stable; `ListGrid` keys its memos off it. */
+  getRowId: (item: T) => string;
+  columns: ListColumn<T>[];
+  /** Per-row styling. Defaults to the shared hover/selection tint. */
+  resolveVisual?: ResolveRowVisual<T>;
+  /** Type-ahead target. Defaults to the row id, which is rarely what a reader types. */
+  getSearchText?: (item: T) => string;
+  noHeader?: boolean;
+  size?: Size;
+  /** Accessible name for the listing. */
+  ariaLabel?: string;
   multiple?: boolean;
   accept?: Accept;
   dropText?: string;
@@ -19,12 +41,16 @@ export interface DropzoneProps<T extends ListItem> {
   className?: string;
 }
 
-export function Dropzone<T extends ListItem>({
+export function Dropzone<T>({
   onDrop,
   data,
+  getRowId,
   columns,
-  rowClassName,
-  headerClassName,
+  resolveVisual,
+  getSearchText,
+  noHeader,
+  size,
+  ariaLabel = "Files",
   multiple,
   accept,
   children,
@@ -46,7 +72,6 @@ export function Dropzone<T extends ListItem>({
         "grid-cols-1 grid-rows-[2fr_3fr]",
         "focus:outline-hidden",
         "relative",
-        // !(isDragActive && data.length === 0) && "backdrop-blur-md",
         className,
       )}
     >
@@ -62,12 +87,15 @@ export function Dropzone<T extends ListItem>({
       <input {...getInputProps()} />
       {data.length !== 0 && (
         <ScrollArea orientation="vertical">
-          <TableList
+          <ListGrid
             data={data}
-            // backgroundClassName="backdrop-blur-lg"
+            getRowId={getRowId}
             columns={columns}
-            rowClassName={rowClassName}
-            headerClassName={headerClassName}
+            resolveVisual={resolveVisual}
+            getSearchText={getSearchText}
+            noHeader={noHeader}
+            size={size}
+            ariaLabel={ariaLabel}
           />
         </ScrollArea>
       )}
