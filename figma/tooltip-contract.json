@@ -1,9 +1,22 @@
 {
   "component": "Tooltip",
   "nodeId": "584:829",
-  "capturedAt": "2026-07-21",
-  "source": "use_figma read of node 584:829 (Tooltip set, 🧩 Components). DOCUMENTED SUBSET: the `.card` popover across the Variant axis (side fixed; other sides are examples). Body + downward caret are ONE silhouette vector (rounded-rect body with a caret notch punched into the bottom edge) so the outline traces continuously around the caret, the caret interior is filled with the inset color, and there is no border line across the caret opening (mirrors the code Arrow: a stroked V + inset fill that masks the card's bottom border). fill = surface/inset, 2px border = the variant accent (color/<variant>/bg), variant-static-text label, shadow = shared elevation/card. Refresh from the live file before CI.",
-  "variantOptions": { "Variant": ["default", "primary", "secondary", "tertiary", "error"] },
+  "capturedAt": "2026-08-28",
+  "source": "use_figma read of node 584:829 (Tooltip set, 🧩 Components). DOCUMENTED SUBSET: the `.card-overlay` popover across the Variant axis (side fixed; other sides are examples). Body + downward caret are ONE silhouette vector (rounded-rect body with a caret notch punched into the bottom edge), filled with surface/inset and carrying the shared elevation/card shadow. NO BORDER and no caret outline: separation is by fill and shadow alone, mirroring the code Arrow, whose path is filled to match the surface and is not stroked. The Variant axis drives the LABEL colour only (variant-static-text). Refresh from the live file before CI.",
+  "variantOptions": {
+    "Variant": [
+      "default",
+      "primary",
+      "secondary",
+      "tertiary",
+      "error"
+    ]
+  },
   "properties": [],
-  "sampleVariant": { "cardFillVar": "color/surface/inset", "borderTokenPerVariant": "color/<variant>/bg", "textVar": "color/default/bg", "caretIntegrated": true, "shadowStyle": "elevation/card" }
+  "sampleVariant": {
+    "cardFillVar": "color/surface/inset",
+    "textVar": "color/default/bg",
+    "caretIntegrated": true,
+    "shadowStyle": "elevation/card"
+  }
 }

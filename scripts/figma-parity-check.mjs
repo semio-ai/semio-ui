@@ -380,11 +380,14 @@ function checkTooltip() {
   const arrowSrc = readFileSync(join(root, "src/floating/arrow.tsx"), "utf8");
   if (!eqSet(fo.Variant || [], SUBSET.variants)) fails.push(`Figma Variant axis [${fo.Variant}] != subset [${SUBSET.variants}]`);
   if (!subsetOf(SUBSET.variants, codeVariants)) fails.push(`subset variants not all in code Variant enum [${codeVariants}]`);
-  if (!/\bcard\b/.test(src)) fails.push("code Tooltip lost the `card` container class");
-  if (!/colored-carrot-stroke/.test(arrowSrc)) fails.push("code Arrow lost `colored-carrot-stroke` (the caret's variant-accent outline)");
+  // Matched with the hyphen, not `\bcard\b`: a word-boundary `card` also matches inside
+  // `card-overlay` and `card-invert`, so it would pass for any surface class at all.
+  if (!/card-overlay/.test(src)) fails.push("code Tooltip lost the `card-overlay` container class");
+  if (/colored-carrot-stroke/.test(arrowSrc)) fails.push("code Arrow regained `colored-carrot-stroke` — Figma's caret has no outline");
+  if (/stroke-\d/.test(arrowSrc)) fails.push("code Arrow regained a stroke width — Figma's caret has no outline");
   if (!figma.sampleVariant.caretIntegrated) fails.push("Figma caret is NOT integrated into the card silhouette (outline must trace around the caret, not a separate bordered box)");
-  notes.push("body + caret are one silhouette vector (caret notch in the bottom edge); outline traces around the filled caret with no line across the opening (mirrors Arrow's stroked-V + inset fill masking the card border)");
-  notes.push("variant-static-text label; 2px border = variant accent; shadow via shared elevation/card; side fixed (others are examples)");
+  notes.push("body + caret are one silhouette vector (caret notch in the bottom edge), filled and unstroked — mirrors the code Arrow, whose path is filled to match the surface");
+  notes.push("variant-static-text label carries the variant; no border; shadow via shared elevation/card; side fixed (others are examples)");
   if (figma.sampleVariant.cardFillVar !== "color/surface/inset") fails.push(`card not bound to color/surface/inset — figma=${figma.sampleVariant.cardFillVar}`);
   if (figma.sampleVariant.shadowStyle !== "elevation/card") fails.push(`shadow not the shared 'elevation/card' style — figma=${figma.sampleVariant.shadowStyle}`);
   return { name: "Tooltip", figma, fails, notes, summary: `Variant = ${(fo.Variant||[]).length} · caret integrated into silhouette` };
@@ -485,8 +488,11 @@ function checkDialog() {
 // ── Card check (foundation primitive) ─────────────────────────────────────
 // Card is the `.card` CSS class, not a React component — so this guards the
 // live CSS rule against the Figma recipe (drift either way). The variant-themed
-// 2px border in Figma binds to the variant accent (color/<variant>/bg), which
-// mirrors code's --card-border-color = the variant accent-text-color.
+// `.card` separates by fill and shadow, with no border on either side. It also has no
+// Variant axis: the class declares nothing that varies per variant, so a set of variants
+// would render identically. Both facts are asserted, because each fails silently — a
+// border that came back on one side only would look deliberate, and a re-added variant
+// axis would look like a feature rather than five copies of one surface.
 function checkCard() {
   const fails = [], notes = [];
   const css = readFileSync(join(root, "public/styles.css"), "utf8");
@@ -494,21 +500,20 @@ function checkCard() {
   const block = m ? m[1] : "";
   const figma = readFigma("card");
   const fo = figma.variantOptions || {};
-  const SUBSET = { variants: ["default", "primary", "secondary", "tertiary", "error"] };
   if (!block) fails.push("could not find the `.card` rule in public/styles.css");
-  if (!eqSet(fo.Variant || [], SUBSET.variants)) fails.push(`Figma Variant axis [${fo.Variant}] != subset [${SUBSET.variants}]`);
-  if (!subsetOf(SUBSET.variants, codeVariants)) fails.push(`subset variants not all in code Variant enum [${codeVariants}]`);
+  if (Object.keys(fo).length) fails.push(`Figma Card has a variant axis [${Object.keys(fo)}] — \`.card\` renders identically for every variant`);
   if (!/rounded-sm/.test(block)) fails.push(".card lost `rounded-sm` (4px)");
-  if (!/border-2/.test(block)) fails.push(".card lost `border-2` (2px border)");
+  if (/border-\d/.test(block)) fails.push(".card regained a border — Figma's Card has none");
+  if (/outline-\d/.test(block)) fails.push(".card gained an outline — Figma's Card has none");
   if (!/layout-(dark|light)-inset/.test(block)) fails.push(".card lost `bg-layout-*-inset` (surface/inset)");
   if (!/shadow-lg/.test(block)) fails.push(".card lost `shadow-lg`");
-  if (!/card-border-color/.test(css)) fails.push("--card-border-color (variant-themed border) no longer defined");
-  notes.push("foundation: the `.card` class — surface/inset bg + 2px variant-accent border + rounded-sm + shadow-lg; shared by floating (Modal/Dialog/Dropdown/Select/Tooltip/Menu) + layout panels");
-  notes.push("Figma border binds per-variant to color/<variant>/bg; shadow via the shared 'elevation/card' effect style");
+  notes.push("foundation: the `.card` class — surface/inset bg + rounded-sm + shadow-lg, no border; layout panels, and Modal/Dialog, which paint their own scrim");
+  notes.push("floating surfaces use `.card-overlay` (surface/deep-inset) instead; shadow via the shared 'elevation/card' effect style");
   if (figma.sampleVariant.fillVar !== "color/surface/inset") fails.push(`.card not bound to color/surface/inset — figma=${figma.sampleVariant.fillVar}`);
   if (figma.sampleVariant.cornerRadius !== 4) fails.push(`.card radius differs — code=rounded-sm (4px) figma=${figma.sampleVariant.cornerRadius}px`);
   if (figma.sampleVariant.shadowStyle !== "elevation/card") fails.push(`.card shadow not the shared 'elevation/card' style — figma=${figma.sampleVariant.shadowStyle}`);
-  return { name: "Card", figma, fails, notes, summary: `Variant = ${(fo.Variant||[]).length} · foundation (.card class, variant-themed border)` };
+  if (figma.sampleVariant.borderTokenPerVariant) fails.push("card contract still records a per-variant border token");
+  return { name: "Card", figma, fails, notes, summary: "no variant axis · foundation (.card class, borderless surface)" };
 }
 
 // ── Typography check (foundation) ─────────────────────────────────────────
