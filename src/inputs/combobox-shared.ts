@@ -5,26 +5,33 @@ import { Size, Variant } from "../types";
 export const POPUP_MAX_HEIGHT_CLASS = "max-h-[calc(var(--available-height)-4px)]";
 
 /**
- * Class for the Positioner element. z-index lives here, not on the Popup —
- * Positioner is the actually-positioned (`position: absolute`) element that
- * creates the stacking context. z-index on the non-positioned Popup child
- * is ignored for cross-context stacking against other portaled overlays.
+ * Class for the Positioner element.
+ *
+ * **Carries no `z-index`, and a replacement belongs to the host rather than here.** The
+ * popup portals to the end of `<body>` and stacks at `auto`, which is what every other
+ * overlay in this package does and is sufficient against this app's chrome — measured in
+ * `floating/overlay-stacking.browser.tsx`, which also records the one property holding
+ * that up. A host stacking against something taller passes `portalContainer` and owns the
+ * ordering itself; a number picked here would be a guess about a page the library cannot
+ * see, and would have to keep being raised.
+ *
+ * **If a `z-index` ever does belong on this component, it goes here and not on the Popup.**
+ * Positioner is the actually-positioned (`position: absolute`) element, so it is the one a
+ * `z-index` applies to at all; the same value on the non-positioned Popup child does
+ * nothing. That is also why `popupClassName` cannot reach this — by design, since what it
+ * would reach is the element where the property is inert.
  */
 export function positionerClassName(extras?: string) {
-  return clsx("z-50", extras);
+  return clsx(extras);
 }
 
-export function popupClassName(opts?: {
-  variant?: Variant;
-  color?: string;
-  extras?: string;
-}) {
+export function popupClassName(opts?: { variant?: Variant; color?: string; extras?: string }) {
   return clsx(
     // Variant/custom-color class first, so anything inside the popup that reads an
     // accent resolves it against the same variant as the input/trigger. It no longer
     // tints the popup's own edge: `.card-overlay` has no border, so the variant
     // reaches only the content.
-    opts?.color ? "custom-color" : opts?.variant ?? Variant.Default,
+    opts?.color ? "custom-color" : (opts?.variant ?? Variant.Default),
     "responsive card-overlay dropdown-content",
     "m-0.5 rounded-sm",
     "w-[calc(var(--available-width)-4px)]",
@@ -59,17 +66,13 @@ export function listClassName() {
  * item — base-ui exposes `data-selected` but the project's `check-indicator` /
  * `highlight-list-item` styles key off `data-state`.
  */
-export function itemClassName(opts?: {
-  variant?: Variant;
-  color?: string;
-  extras?: string;
-}) {
+export function itemClassName(opts?: { variant?: Variant; color?: string; extras?: string }) {
   return clsx(
     "group/item flex items-center rounded-xs leading-none",
     "relative h-7 px-1.25 pl-7.5 text-sm outline-hidden select-none",
     "data-disabled:pointer-events-none",
     "responsive highlight-list-item",
-    opts?.color ? "custom-color" : opts?.variant ?? Variant.Default,
+    opts?.color ? "custom-color" : (opts?.variant ?? Variant.Default),
     opts?.extras,
   );
 }
@@ -78,7 +81,7 @@ export function itemIndicatorClassName(opts?: { variant?: Variant; color?: strin
   return clsx(
     "absolute top-1/2 left-1 grid -translate-y-1/2 place-items-center",
     "responsive check-indicator",
-    opts?.color ? "custom-color" : opts?.variant ?? Variant.Default,
+    opts?.color ? "custom-color" : (opts?.variant ?? Variant.Default),
   );
 }
 
@@ -95,11 +98,7 @@ export function groupLabelClassName() {
  * so the message lines up with where item labels would render.
  */
 export function emptyClassName() {
-  return clsx(
-    "flex items-center leading-none",
-    "h-7 px-1.25 pl-7.5 text-sm",
-    "text-neutral-500",
-  );
+  return clsx("flex items-center leading-none", "h-7 px-1.25 pl-7.5 text-sm", "text-neutral-500");
 }
 
 export function statusClassName() {
@@ -107,11 +106,7 @@ export function statusClassName() {
 }
 
 export function inputGroupClassName(size: Size) {
-  return clsx(
-    "relative flex flex-row outline-hidden",
-    "sized-height w-full",
-    size,
-  );
+  return clsx("relative flex flex-row outline-hidden", "sized-height w-full", size);
 }
 
 export function inputClassName(

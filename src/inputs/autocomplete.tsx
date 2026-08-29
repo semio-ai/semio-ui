@@ -93,6 +93,15 @@ export interface AutocompleteProps<TItem> {
   name?: string;
   className?: string;
   inputClassName?: string;
+  /**
+   * Extra classes for the **Popup** — the element carrying the surface: fill, radius,
+   * shadow, padding, max-height.
+   *
+   * Not the Positioner above it, which is the `position: absolute` element. So a
+   * `z-index` here is inert, and there is nothing on the Positioner for it to reach:
+   * that element carries no `z-index` at all. Stacking is the host's, via
+   * `portalContainer`.
+   */
   popupClassName?: string;
   /** Custom container for the popup portal (e.g. inside a modal). */
   portalContainer?: HTMLElement | null;

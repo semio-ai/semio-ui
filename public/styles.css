@@ -1075,6 +1075,28 @@
   .card-transparent {
     @apply rounded-md shadow-lg;
     @apply dark:bg-layout-dark-deep-inset/90 bg-layout-light-deep-inset/90 backdrop-blur-xl;
+
+    /* `backdrop-blur-xl` is LOAD-BEARING for overlay stacking, not only for appearance.
+     * A `backdrop-filter` establishes a stacking context, and this class is what confines
+     * the positive `z-index`es the app's side-pane chrome puts inside it — a pane's close
+     * button is `z-1`. Every overlay in this package portals to the end of `<body>`
+     * carrying no `z-index` of its own, so it stacks at `auto` and loses to any positive
+     * value that reaches the root stacking context.
+     *
+     * It is the ONLY thing confining that chrome here. `@container/pane` sits on the same
+     * element and looks like a second line of defence; it is not — `container-type:
+     * inline-size` computes `contain: none` and establishes no stacking context. Measured
+     * both ways.
+     *
+     * So removing this filter promotes that chrome above Modal, Dialog and every popup at
+     * once. Measured, not inferred: `floating/overlay-stacking.browser.tsx` and the studio
+     * app's `browser-tests/layout/overlay-stacking.browser.ts` both fail on it and name the
+     * missing property. Nothing else does — no type error, and a screenshot of the common
+     * case still looks right, because most chrome does not overlap most popups.
+     *
+     * Replacing the blur with something cheaper is fine as long as the replacement also
+     * establishes a stacking context (`isolation: isolate` is the cheap one). Dropping it
+     * outright is a consumer-visible change to stacking and needs saying as one. */
   }
 
   .card-invert {

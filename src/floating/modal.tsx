@@ -50,6 +50,8 @@ export interface ModalProps {
    *  first kind, and widening them all would be a worse fit for each.
    */
   size?: "fit" | "wide";
+  /** Custom container for the dialog portal. Defaults to `document.body`. */
+  portalContainer?: HTMLElement | null;
 }
 
 /**
@@ -107,6 +109,7 @@ export function Modal({
   variant,
   closeOnSubmitClick = true,
   size = "fit",
+  portalContainer,
 }: ModalProps) {
   const showFooter = onSubmit || onCancel;
   const showHeader = title || description;
@@ -140,7 +143,7 @@ export function Modal({
       // `onOpenChange` guard above covers escape/focus-out too.
       disablePointerDismissal={dismissDisabled}
     >
-      <Dialog.Portal>
+      <Dialog.Portal container={portalContainer ?? undefined}>
         <Dialog.Backdrop
           className={clsx(
             "fixed inset-0 bg-black/40",
