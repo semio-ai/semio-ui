@@ -1,5 +1,6 @@
 /**
- * An element that carries a variant-fill class must not also name its own foreground.
+ * An element that carries a variant-fill class must name NEITHER HALF of the pairing —
+ * not its own foreground, and not its own background.
  *
  * The fill classes paint from `--standard-color` or `--accent-color`. Those are
  * variant-driven and, in `--standard-color`'s case, identical in both themes — so a
@@ -8,7 +9,17 @@
  * against. Each fill class declares a foreground derived from itself, for every state
  * it fills; a caller's job is to name neither half.
  *
- * TWO KINDS ARE REPORTED, because both shipped here:
+ * BOTH DIRECTIONS ARE THE SAME DEFECT. A fill class declares a fill and the foreground
+ * derived from it in one rule. Naming either half separately leaves the two describing
+ * different surfaces, and the half that is left behind still applies — so nothing looks
+ * broken at the call site. Naming the FOREGROUND leaves a colour picked against a
+ * variant or a theme it does not belong to. Naming the BACKGROUND is worse in one
+ * respect: a `bg-*` utility sits in a LATER CASCADE LAYER than a `variant-*` component
+ * class, so it wins outright while the class's `color` stays behind, derived for a fill
+ * nothing paints. Every class is present, every class applies, and the content is read
+ * against a colour it does not sit on.
+ *
+ * THREE KINDS ARE REPORTED, because all three shipped here:
  *
  *  - A LITERAL colour — `text-white`, `text-neutral-200`, `text-[#fff]`. Keying on
  *    `text-white dark:text-black` is evaded by each of the others, and every one of
@@ -18,6 +29,11 @@
  *    accent TEXT shade, which for a named variant is the same -500 the fill paints
  *    with, so content inheriting it renders at exactly 1:1. That is what made
  *    `ImageInput`'s fallback initial invisible.
+ *  - A LITERAL BACKGROUND — `bg-neutral-300/60`, `bg-white`, `bg-[#dcdcdc]`. The fix is
+ *    to DELETE it, not to derive it: the fill class is already painting a ground, and
+ *    a second one in front of it is what breaks the derivation. Naming a foreground to
+ *    match only moves the pairing into the caller, where the variant that chose the
+ *    fill is no longer in scope.
  *
  * WHY A SOURCE RULE RATHER THAN A STYLESHEET CHECK. The fill class and the foreground
  * class are composed at the call site. Nothing in the compiled stylesheet pairs them,
@@ -32,8 +48,11 @@
  * it protects nothing. Adding a solid variant fill means adding it here.
  *
  * WHAT IT CANNOT SEE, and therefore what review still has to:
- *  - A pairing split across components — a fill class here, a foreground arriving
- *    through `className` from a caller there.
+ *  - A pairing split across components — a fill class here, a foreground or a
+ *    background arriving through `className` from a caller there. This is the widest
+ *    gap, not a corner case: a caller hands `Avatar` a class string, `Avatar` puts the
+ *    fill class on the element that receives it, and neither file contains both halves.
+ *    Contrast measured in a browser test is what covers that shape; this rule cannot.
  *  - A class name built at runtime from variables rather than written as a literal.
  *  - `@apply` pairings inside the stylesheet, which are not JavaScript at all.
  *  - A foreground legible against its fill but wrong against something painted over it.
@@ -89,6 +108,16 @@ const LITERAL_COLOR_PATTERN = new RegExp(
 );
 
 /**
+ * A literal background colour: `bg-white`, `bg-neutral-300/60`, `bg-red-500`.
+ * Deliberately NOT `bg-cover` / `bg-center` / `bg-no-repeat` (size, position, repeat),
+ * `bg-linear-to-r` (a gradient direction), or `bg-[var(--standard-color)]` (the fill
+ * token itself, which is what an element deliberately re-painting the fill would use).
+ */
+const LITERAL_BG_PATTERN = new RegExp(
+  `^bg-(white|black|(${PALETTE_NAMES})-\\d{2,3})(\\/\\d{1,3})?$`,
+);
+
+/**
  * `inherit`, `current` and `transparent` name no colour — they defer to whatever the
  * fill class already decided, which is exactly what this rule asks for. Flagging them
  * would block the correct escape hatch.
@@ -96,11 +125,27 @@ const LITERAL_COLOR_PATTERN = new RegExp(
 const DEFERRING_KEYWORDS = new Set(["text-inherit", "text-current", "text-transparent"]);
 
 /**
+ * Background keywords that paint nothing, so the fill behind them is still what content
+ * is read against. `bg-transparent` is how an element deliberately defers to the fill.
+ */
+const DEFERRING_BG_KEYWORDS = new Set(["bg-transparent", "bg-current", "bg-inherit"]);
+
+/** An arbitrary foreground value that is a colour rather than a token or a length. */
+function isArbitraryLiteralColor(utility) {
+  return isArbitraryColorIn(/^text-\[(.+)]$/, utility);
+}
+
+/** The same test for a background: `bg-[#dcdcdc]` is a literal, `bg-[var(--x)]` is not. */
+function isArbitraryLiteralBackground(utility) {
+  return isArbitraryColorIn(/^bg-\[(.+)]$/, utility);
+}
+
+/**
  * An arbitrary value that is a colour rather than a token or a length. A `var(...)`
  * reference is what this rule steers people toward, so it is excluded.
  */
-function isArbitraryLiteralColor(utility) {
-  const match = /^text-\[(.+)]$/.exec(utility);
+function isArbitraryColorIn(pattern, utility) {
+  const match = pattern.exec(utility);
   if (!match) return false;
   const value = match[1];
   if (value.includes("var(")) return false;
@@ -131,6 +176,14 @@ function baseUtility(className) {
 
 function isFillClass(utility) {
   return FILL_CLASSES.has(utility);
+}
+
+function isOwnBackground(utility) {
+  if (DEFERRING_BG_KEYWORDS.has(utility)) return false;
+  // A fill class is not a "background the caller named" — it is the thing being
+  // protected. None currently start with `bg-`, but checking is what keeps that true.
+  if (FILL_CLASSES.has(utility)) return false;
+  return LITERAL_BG_PATTERN.test(utility) || isArbitraryLiteralBackground(utility);
 }
 
 function isOwnForeground(utility) {
@@ -222,7 +275,7 @@ const rule = {
     type: "problem",
     docs: {
       description:
-        "Disallow a literal foreground colour on an element that also carries a variant-fill class",
+        "Disallow a literal foreground or background colour on an element that also carries a variant-fill class",
     },
     schema: [
       {
@@ -251,6 +304,8 @@ const rule = {
     messages: {
       hardcoded:
         "`{{foreground}}` is a literal colour on an element filled by `{{fill}}`. That fill comes from the variant — and `--standard-color` is the same colour in both themes — so a colour picked by hand or by colour scheme is wrong for some variant or some theme. Use `text-[var(--on-standard-color)]` (or `--on-accent-color` for an accent fill), or move the foreground into the class that declares the fill.",
+      hardcodedBackground:
+        "`{{background}}` paints over the fill `{{fill}}` declares, on the same element. A `bg-*` utility sits in a later cascade layer than a `variant-*` class, so it wins the background while that class's derived foreground stays behind — computed for a fill nothing paints, and read against this one instead. Delete it: `{{fill}}` already paints a ground. If this element genuinely must not carry the variant fill, drop `{{fill}}` rather than covering it.",
     },
   },
 
@@ -272,12 +327,15 @@ const rule = {
 
       const fills = [];
       const foregrounds = [];
+      const backgrounds = [];
       for (const literal of literals) {
         for (const raw of literal.value.split(/\s+/)) {
           if (!raw) continue;
           const utility = baseUtility(raw);
           if (isFillClass(utility)) fills.push({ raw, scope: literal.scope });
-          else if (isOwnForeground(utility)) {
+          else if (isOwnBackground(utility)) {
+            backgrounds.push({ raw, node: literal.node, scope: literal.scope });
+          } else if (isOwnForeground(utility)) {
             foregrounds.push({
               raw,
               node: literal.node,
@@ -307,6 +365,24 @@ const rule = {
           node: foreground.node,
           messageId: "hardcoded",
           data: { foreground: foreground.raw, fill: fill.raw },
+        });
+      }
+
+      // A literal BACKGROUND is treated like a literal foreground rather than like an
+      // accent-text class: reported unless the branches rule the pairing out. There is
+      // no innocent reading of a background painted over a fill on the same element —
+      // if it renders, it is the surface the derived foreground was NOT computed for.
+      // Two separate `&&` guards that may both hold is exactly that case.
+      for (const background of backgrounds) {
+        if (isAllowed(background.raw)) continue;
+        const fill = fills.find(
+          (candidate) => !provablyExclusive(candidate.scope, background.scope),
+        );
+        if (!fill) continue;
+        context.report({
+          node: background.node,
+          messageId: "hardcodedBackground",
+          data: { background: background.raw, fill: fill.raw },
         });
       }
     }

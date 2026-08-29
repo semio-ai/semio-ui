@@ -14,7 +14,10 @@ import rule from "./no-hardcoded-on-fill-foreground.mjs";
  *
  * The valid cases matter as much. A rule that fires on `text-sm`, or on the derived
  * token that IS the fix, gets disabled at the first inconvenient site — and then it
- * protects nothing.
+ * protects nothing. That cuts hardest on the background half: `bg-` is mostly NOT a
+ * colour prefix — `bg-cover`, `bg-center`, `bg-no-repeat`, `bg-linear-to-r` — so a
+ * shape match on `bg-*` would fire on positioning utilities that have nothing to do
+ * with the fill, and would be turned off within a day.
  */
 
 RuleTester.afterAll = afterAll;
@@ -93,6 +96,31 @@ ruleTester.run("no-hardcoded-on-fill-foreground", rule, {
       filename: "/repo/packages/ui/src/floating/example.tsx",
       options: [{ allow: EXAMPLE_ALLOW }],
     },
+
+    // --- the BACKGROUND half ---
+    // A literal background with NO fill class. This is the ordinary case — most boxes
+    // in the package paint their own ground and derive nothing.
+    { code: `<div className="bg-neutral-300/60 dark:bg-neutral-700/60" />` },
+    // `bg-` is mostly not a colour prefix. None of these touch the fill, and firing on
+    // them is what would get the rule disabled.
+    { code: `<div className="variant-static-bg bg-cover bg-center bg-no-repeat" />` },
+    { code: `<div className="variant-responsive-bg bg-linear-to-r bg-clip-text" />` },
+    { code: `<div className="card-invert bg-origin-border bg-blend-multiply" />` },
+    // Keywords that paint nothing, so the fill behind them is still what content reads
+    // against. `bg-transparent` is how an element defers to the fill deliberately.
+    { code: `<div className="variant-static-bg bg-transparent" />` },
+    { code: `<div className="variant-checkbox-bg bg-inherit" />` },
+    // The fill token itself, spelled as an arbitrary value. It paints the same colour
+    // the class does, so the derivation still describes what is there.
+    { code: `<div className="variant-static-bg bg-[var(--standard-color)]" />` },
+    // Opposite branches of one ternary can never render together — a "filled" variant
+    // and a "plain" one is the normal way to write this.
+    {
+      code: `const C = ({ f }) => <div className={clsx(f ? "variant-static-bg" : "bg-neutral-100")} />;`,
+    },
+    // A fill that matches the `variant-*-bg` shape but is not in FILL_CLASSES. The
+    // background half inherits that list, so it inherits the reason for it too.
+    { code: `<div className="variant-responsive-header-button-bg bg-white" />` },
   ],
 
   invalid: [
@@ -150,6 +178,47 @@ ruleTester.run("no-hardcoded-on-fill-foreground", rule, {
     // An allowlist entry is scoped to its file: the same class elsewhere still reports.
     {
       code: `<div className="card-invert text-white" />`,
+      filename: "/repo/packages/ui/src/floating/other.tsx",
+      options: [{ allow: EXAMPLE_ALLOW }],
+      errors: 1,
+    },
+
+    // --- the BACKGROUND half ---
+    // The entity tile's spelling, written in one expression. `Avatar`'s fallback paints
+    // `variant-static-bg`, and this covers it — the derived foreground stays behind,
+    // computed for a fill nothing paints. Measured at 1.176:1 in light mode.
+    {
+      code: `<div className={clsx("variant-static-bg", "bg-neutral-300/60 dark:bg-neutral-700/60")} />`,
+      errors: 2,
+    },
+    // Half of it. Dropping the `dark:` half does not make it correct: the fill is
+    // theme-invariant, so one background covers it in both themes.
+    { code: `<div className="variant-static-bg bg-neutral-300/60" />`, errors: 1 },
+    // No opacity modifier at all — an opaque cover is the worst case, not a lesser one.
+    { code: `<div className="variant-responsive-bg bg-white" />`, errors: 1 },
+    // Arbitrary literal colours, which no palette-name list alone would catch.
+    { code: `<div className="card-invert bg-[#dcdcdc]" />`, errors: 1 },
+    { code: `<div className="variant-mock-inner-item bg-[oklch(0.8_0_0)]" />`, errors: 1 },
+    // Hoisted into a module constant and spread into a `className` elsewhere — the
+    // shape a shared box constant takes, and the one an attribute-only rule walks past.
+    {
+      code: `const BOX = clsx("variant-on-fill-slot", "bg-neutral-300/60");\nexport const C = () => <div className={BOX} />;`,
+      errors: 1,
+    },
+    // Fill and background under two separate `&&` guards. Not provably exclusive — both
+    // may hold — and if they do, the background is the surface the foreground was not
+    // derived for. Reported for the same reason a literal foreground is.
+    {
+      code: `const C = ({ v, o }) => <span className={clsx(v === "default" && "variant-responsive-bg", o && "bg-neutral-200")} />;`,
+      errors: 1,
+    },
+    // Naming a foreground to go with the background does not repair it: it moves the
+    // pairing into the caller, where the variant that chose the fill is not in scope.
+    // Both halves report.
+    { code: `<div className="variant-static-bg bg-neutral-300 text-white" />`, errors: 2 },
+    // The background half reads the same allowlist as the foreground half.
+    {
+      code: `<div className="card-invert bg-neutral-300" />`,
       filename: "/repo/packages/ui/src/floating/other.tsx",
       options: [{ allow: EXAMPLE_ALLOW }],
       errors: 1,
