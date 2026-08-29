@@ -5,7 +5,12 @@ import { Variant } from "../types";
 import { Button } from "../buttons/button";
 
 export interface DialogProps {
-  children: ReactNode;
+  /**
+   * Optional body. Omitted for the confirmation-only form, which is the
+   * common case: the header's title/description carry the whole message and
+   * `hasBody` skips the padded body band and its dividers entirely.
+   */
+  children?: ReactNode;
   open: boolean;
   title?: ReactNode;
   description?: string;

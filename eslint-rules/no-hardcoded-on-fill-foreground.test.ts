@@ -1,6 +1,6 @@
 import { RuleTester } from "eslint";
 import tseslint from "typescript-eslint";
-import { afterAll, describe, it } from "vitest";
+import { describe, it } from "vitest";
 // @ts-expect-error -- plain JS rule module, no type declarations
 import rule from "./no-hardcoded-on-fill-foreground.mjs";
 
@@ -20,7 +20,6 @@ import rule from "./no-hardcoded-on-fill-foreground.mjs";
  * with the fill, and would be turned off within a day.
  */
 
-RuleTester.afterAll = afterAll;
 RuleTester.describe = describe;
 RuleTester.it = it;
 

@@ -19,7 +19,7 @@ function stubMatchMedia(initialMatches: boolean) {
       listeners.delete(cb);
     },
   };
-  const matchMedia = vi.fn(() => mql as unknown as MediaQueryList);
+  const matchMedia = vi.fn((_query: string) => mql as unknown as MediaQueryList);
   window.matchMedia = matchMedia as unknown as typeof window.matchMedia;
   return {
     matchMedia,

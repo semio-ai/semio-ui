@@ -41,6 +41,7 @@
     "connect:publish": "figma connect publish",
     "lint": "eslint . --max-warnings 0",
     "lint:fix": "eslint . --fix",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
     "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist",
     "test:unit": "vitest run --project unit",
     "test:browser": "vitest run --project browser",
