@@ -30,10 +30,15 @@ const labelOf = (row: Element) => {
   return el;
 };
 
+// The tint layer's INLINE background, which is the decision `resolveVisual` makes —
+// `"transparent"` for no tint, a `color-mix(...)` string for one. Deliberately not
+// `getComputedStyle`: the mix resolves against `--accent-color`, and a computed read
+// reports plain `rgba(0, 0, 0, 0)` both when no tint was asked for and when the custom
+// property did not resolve, so it cannot tell the two apart.
 const tintOf = (row: Element) => {
-  const el = row.querySelector('[aria-hidden][style*="background-color"]');
+  const el = row.querySelector<HTMLElement>('[aria-hidden][style*="background-color"]');
   if (!el) throw new Error("no tint layer in row");
-  return el;
+  return el.style.backgroundColor;
 };
 
 // Dispatched rather than driven through `userEvent`, because Playwright's actionability
@@ -108,17 +113,13 @@ test("a disabled option is dimmed, is not selectable, and does not tint on hover
   // has no tint" passes on a tree where hover never worked at all — the assertion is a
   // negative, and a negative is satisfied by nothing having happened.
   hover(enabled);
-  await vi.waitFor(() =>
-    expect(getComputedStyle(tintOf(enabled)).backgroundColor).not.toBe("rgba(0, 0, 0, 0)"),
-  );
+  await vi.waitFor(() => expect(tintOf(enabled)).not.toBe("transparent"));
 
   // Now move to the disabled row. The enabled row's tint clearing is what proves the
   // hover actually moved, so the assertion below is about a hover that really happened.
   hover(disabled);
-  await vi.waitFor(() =>
-    expect(getComputedStyle(tintOf(enabled)).backgroundColor).toBe("rgba(0, 0, 0, 0)"),
-  );
-  expect(getComputedStyle(tintOf(disabled)).backgroundColor).toBe("rgba(0, 0, 0, 0)");
+  await vi.waitFor(() => expect(tintOf(enabled)).toBe("transparent"));
+  expect(tintOf(disabled)).toBe("transparent");
 
   click(disabled);
   expect(onChange).not.toHaveBeenCalled();
