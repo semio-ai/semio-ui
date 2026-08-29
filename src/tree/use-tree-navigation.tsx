@@ -116,6 +116,18 @@ export interface TreeNavRootProps {
   onKeyDown?: (event: KeyboardEvent<HTMLElement>) => void;
   /** ARIA role for the container; defaults to `tree`. */
   role?: string;
+  /**
+   * How many rows the grid has in total, for a container whose `role` is `grid`.
+   *
+   * Stated rather than counted, which is what a windowed grid needs: with rows
+   * mounted only near the viewport, assistive technology counting the DOM would
+   * report the window's size as the grid's. Rows carry the matching
+   * {@link TreeNavItemProps.ariaRowIndex}.
+   *
+   * A `listbox` or `tree` container leaves this unset — neither role defines it, and
+   * both place their items with `aria-setsize`/`aria-posinset` on the item instead.
+   */
+  ariaRowCount?: number;
   /** Accessible name for the container. */
   ariaLabel?: string;
   className?: string;
@@ -133,6 +145,7 @@ export function TreeNavRoot({
   modifierKeys,
   onKeyDown,
   role = "tree",
+  ariaRowCount,
   ariaLabel,
   className,
   children,
@@ -310,6 +323,13 @@ export function TreeNavRoot({
         {...rootProps}
         ref={setRootNode}
         role={role}
+        // The composite reports the orientation it was configured with. This adapter is
+        // vertical by construction and never plumbs it, and `tree` and `listbox` are both
+        // vertical by default — so the attribute says nothing they do not already say,
+        // while `grid` does not define it at all. Dropped rather than gated on `role`: no
+        // role this adapter serves gains anything from it.
+        aria-orientation={undefined}
+        aria-rowcount={ariaRowCount}
         aria-label={ariaLabel}
         className={className}
         // Focusable programmatically but never a tab stop — that stays a row's job, so
@@ -344,9 +364,28 @@ export interface TreeNavItemProps {
    * Size of the set this row belongs to, and its 1-based position in it. A windowed
    * list must supply both: assistive technology otherwise counts the mounted rows and
    * reports the window's size as the list's.
+   *
+   * `option` and `treeitem` are placed this way and no other. `row` permits the pair
+   * too, but there it answers a different question — position among **sibling rows at
+   * one level**, which is what a `treegrid` needs and a flat grid does not have. A
+   * flat grid's row is placed by {@link TreeNavItemProps.ariaRowIndex} against the
+   * container's {@link TreeNavRootProps.ariaRowCount}, so supplying both pairs states
+   * one fact in two vocabularies rather than adding anything.
    */
   ariaSetSize?: number;
   ariaPosInSet?: number;
+  /**
+   * This row's 1-based position **in the full data**, for a row whose `role` is
+   * `row`. Absolute rather than window-relative for the same reason
+   * {@link TreeNavItemProps.index} is: the rendered slice begins wherever the scroll
+   * left it, so a position counted from the top of the DOM would name the wrong row.
+   * Pairs with the container's {@link TreeNavRootProps.ariaRowCount}.
+   *
+   * Counted over **every** row the grid owns, header rows included — this and
+   * {@link TreeNavRootProps.ariaRowCount} are one numbering, so a grid that gains or
+   * loses a header row moves both.
+   */
+  ariaRowIndex?: number;
   /** Non-interactive row: sets `aria-disabled`. Declare it in the container's
    *  `disabledIndices` as well, which is what roving navigation reads. Consumers
    *  also guard click/keydown. */
@@ -382,6 +421,7 @@ export function TreeNavItem({
   ariaSelected,
   ariaSetSize,
   ariaPosInSet,
+  ariaRowIndex,
   disabled,
   className,
   onKeyDown,
@@ -418,6 +458,7 @@ export function TreeNavItem({
       aria-selected={ariaSelected}
       aria-setsize={ariaSetSize}
       aria-posinset={ariaPosInSet}
+      aria-rowindex={ariaRowIndex}
       aria-disabled={disabled || undefined}
       className={className}
       onFocus={handleFocus}

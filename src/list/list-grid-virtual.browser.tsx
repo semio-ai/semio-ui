@@ -43,12 +43,14 @@ function Harness({
   columns = COLUMNS,
   width = 800,
   selectionMode = "single",
+  noHeader,
   onSelectionChange,
 }: {
   rows: Row[];
   columns?: ListColumn<Row>[];
   width?: number;
   selectionMode?: "none" | "single" | "multiple";
+  noHeader?: boolean;
   onSelectionChange?: (next: Set<string>) => void;
 }) {
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -63,6 +65,7 @@ function Harness({
           virtualized
           scrollRef={scrollRef}
           selectionMode={selectionMode}
+          noHeader={noHeader}
           onSelectionChange={onSelectionChange}
           getSearchText={(r) => r.id}
           allowTypeAhead
@@ -424,6 +427,79 @@ test("a row reports its place in the data, not in the window", async () => {
   // A screen reader counting the DOM would say "3 of 12"; these say what is true.
   expect(row500.getAttribute("aria-setsize")).toBe("10000");
   expect(row500.getAttribute("aria-posinset")).toBe("501");
+  // `listbox` and `option` define neither half of the grid numbering, nor any cell — so
+  // none of it appears here. Without this half, "withheld from the listbox" and "not
+  // emitted anywhere" are the same green.
+  expect(row500.getAttribute("aria-rowindex")).toBeNull();
+  expect(
+    view.container.querySelector('[role="listbox"]')!.getAttribute("aria-rowcount"),
+  ).toBeNull();
+  expect(view.container.querySelectorAll('[role="gridcell"], [role="columnheader"]')).toHaveLength(
+    0,
+  );
+});
+
+test("a display-only grid states row position in the grid's own vocabulary", async () => {
+  // `selectionMode="none"` is the one mode that is a grid: `grid` > `row` > `gridcell`,
+  // with the header a `columnheader` row. A windowed grid is exactly where the count of
+  // unrendered rows has to come from somewhere other than the DOM, and `aria-rowcount`
+  // with `aria-rowindex` is the only pair a grid has to say it with.
+  const view = render(<Harness rows={makeRows(10_000)} selectionMode="none" />);
+  await settle();
+  const allRows = () => [...view.container.querySelectorAll<HTMLElement>('[role="row"]')];
+  scroller(view).scrollTop = 500 * allRows()[1].getBoundingClientRect().height;
+  await settle();
+
+  const grid = view.container.querySelector<HTMLElement>('[role="grid"]')!;
+  // Ten thousand data rows and the header, which is one of the grid's rows.
+  expect(grid.getAttribute("aria-rowcount")).toBe("10001");
+  // `grid` does not define `aria-orientation`, and the composite reports one for every
+  // role it is given. Asserted on the rendered component because the attribute reaches
+  // the element through a props spread, where nothing at the call site names it.
+  expect(grid.getAttribute("aria-orientation")).toBeNull();
+
+  const [header, ...rendered] = allRows();
+  expect(header.getAttribute("aria-rowindex")).toBe("1");
+  expect(header.querySelectorAll('[role="columnheader"]')).toHaveLength(2);
+
+  // Every rendered row, against the label it is actually showing: numbering the slice
+  // 1..n instead of the data satisfies "each row has an index" and names rows five
+  // hundred off, which is why the window is scrolled first.
+  expect(rendered.length).toBeGreaterThan(1);
+  for (const row of rendered) {
+    const dataIndex = Number(row.querySelector("span")!.textContent!.slice("Row ".length));
+    expect(row.getAttribute("aria-rowindex")).toBe(String(dataIndex + 2));
+    // A `row` owning no cells owns nothing: unroled cells are pruned from the
+    // accessibility tree, and the row index is then stated over an empty row.
+    expect(row.querySelectorAll('[role="gridcell"]')).toHaveLength(2);
+    expect(row.getAttribute("aria-setsize")).toBeNull();
+    expect(row.getAttribute("aria-posinset")).toBeNull();
+  }
+  expect(Number(rendered[0].getAttribute("aria-rowindex"))).toBeGreaterThan(400);
+
+  // The boundary from both ends: the last row's index IS the count. Read from either
+  // side alone, a header counted into one and not the other looks correct.
+  scroller(view).scrollTop = scroller(view).scrollHeight;
+  await settle();
+  const last = allRows().at(-1)!;
+  expect(last.querySelector("span")!.textContent).toBe("Row 9999");
+  expect(last.getAttribute("aria-rowindex")).toBe(grid.getAttribute("aria-rowcount"));
+});
+
+test("a headerless grid numbers from its first data row", async () => {
+  // Both halves move together or neither does. A count that includes a header the rows
+  // do not number around leaves the last row one short of the count, and nothing about
+  // either attribute alone shows it.
+  const view = render(<Harness rows={makeRows(10_000)} selectionMode="none" noHeader />);
+  await settle();
+
+  expect(view.container.querySelector('[role="grid"]')!.getAttribute("aria-rowcount")).toBe(
+    "10000",
+  );
+  expect(view.container.querySelectorAll('[role="columnheader"]')).toHaveLength(0);
+  const first = view.container.querySelector<HTMLElement>('[role="row"]')!;
+  expect(first.querySelector("span")!.textContent).toBe("Row 0");
+  expect(first.getAttribute("aria-rowindex")).toBe("1");
 });
 
 test("windowing off renders every row", async () => {
