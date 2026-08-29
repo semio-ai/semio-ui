@@ -320,6 +320,21 @@ const rule = {
       );
     }
 
+    /**
+     * The fill to report this pairing against.
+     *
+     * A same-scope fill is preferred over any other candidate, so the message names the
+     * class that actually co-occurs rather than whichever fill was written first. On an
+     * element carrying several fills under separate guards — `Avatar`'s fallback picks
+     * between `variant-responsive-bg` and `variant-static-bg` by `onClick` — the first
+     * one is usually not the one the reader needs to look at.
+     */
+    function pickFill(fills, scope, requiresSameScope) {
+      const exact = fills.find((candidate) => sameScope(candidate.scope, scope));
+      if (exact || requiresSameScope) return exact;
+      return fills.find((candidate) => !provablyExclusive(candidate.scope, scope));
+    }
+
     /** Reports every own-foreground class that shares a scope with a fill class. */
     function check(valueNode) {
       const literals = [];
@@ -355,11 +370,7 @@ const rule = {
       if (fills.length === 0) return;
       for (const foreground of foregrounds) {
         if (isAllowed(foreground.raw)) continue;
-        const fill = fills.find((candidate) =>
-          foreground.requiresSameScope
-            ? sameScope(candidate.scope, foreground.scope)
-            : !provablyExclusive(candidate.scope, foreground.scope),
-        );
+        const fill = pickFill(fills, foreground.scope, foreground.requiresSameScope);
         if (!fill) continue;
         context.report({
           node: foreground.node,
@@ -375,9 +386,7 @@ const rule = {
       // Two separate `&&` guards that may both hold is exactly that case.
       for (const background of backgrounds) {
         if (isAllowed(background.raw)) continue;
-        const fill = fills.find(
-          (candidate) => !provablyExclusive(candidate.scope, background.scope),
-        );
+        const fill = pickFill(fills, background.scope, false);
         if (!fill) continue;
         context.report({
           node: background.node,
