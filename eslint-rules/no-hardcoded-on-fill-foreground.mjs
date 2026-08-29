@@ -53,6 +53,13 @@
  *    gap, not a corner case: a caller hands `Avatar` a class string, `Avatar` puts the
  *    fill class on the element that receives it, and neither file contains both halves.
  *    Contrast measured in a browser test is what covers that shape; this rule cannot.
+ *  - A colour FUNCTION outside the shape list. `color-mix(...)` is the live one:
+ *    `bg-[color-mix(in_oklab,white,black)]` is a literal colour and is not matched,
+ *    because the list carries `color(` and these are different functions. Widening the
+ *    list is safe; guessing at the shape instead is what produced the wrong-fix problem
+ *    described above, so it is enumerated rather than inferred.
+ *  - An opacity modifier written as an arbitrary value or forced — `bg-white/[0.55]`,
+ *    `bg-neutral-300/60!`. The modifier is matched as `/` plus one to three digits.
  *  - A class name built at runtime from variables rather than written as a literal.
  *  - `@apply` pairings inside the stylesheet, which are not JavaScript at all.
  *  - A foreground legible against its fill but wrong against something painted over it.

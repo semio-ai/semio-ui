@@ -117,7 +117,7 @@ ruleTester.run("no-hardcoded-on-fill-foreground", rule, {
     // These DO reach the `var()` exclusion: colour-shaped, with the value behind a token.
     // Without that clause both would report, so this pair is what holds it in place.
     { code: `<div className="variant-static-bg bg-[rgb(var(--brand-rgb))]" />` },
-    { code: `<div className="card-invert bg-[color-mix(in_oklab,var(--standard-color),black)]" />` },
+    { code: `<div className="card-invert bg-[oklch(from_var(--standard-color)_l_0_0)]" />` },
     // An allowlist entry suppresses a background the same way it suppresses a
     // foreground. Without the allowlist check on the background half this reports.
     {
