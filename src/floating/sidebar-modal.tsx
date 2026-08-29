@@ -59,6 +59,8 @@ export interface SidebarModalProps {
   contextMenuExtras?: ReactNode;
   variant?: Variant;
   dismissDisabled?: boolean;
+  /** Custom container for the dialog portal. Defaults to `document.body`. */
+  portalContainer?: HTMLElement | null;
 }
 
 const PLACEHOLDER_TAB: SidebarTab = {
@@ -108,6 +110,7 @@ export function SidebarModal({
   contextMenuExtras,
   variant,
   dismissDisabled = false,
+  portalContainer,
 }: SidebarModalProps) {
   const tabList = useMemo<SidebarTab[]>(() => (tabs.length > 0 ? tabs : [PLACEHOLDER_TAB]), [tabs]);
 
@@ -175,7 +178,7 @@ export function SidebarModal({
       }}
       disablePointerDismissal={dismissDisabled}
     >
-      <Dialog.Portal>
+      <Dialog.Portal container={portalContainer ?? undefined}>
         <Dialog.Backdrop
           className={clsx(
             "fixed inset-0 bg-black/40",
@@ -268,6 +271,7 @@ export function SidebarModal({
                 isDesktop={isDesktop}
                 tabId={tabId}
                 panelId={panelId}
+                portalContainer={portalContainer}
               />
             </MenuButtonProvider>
             <ContentPane
@@ -304,6 +308,7 @@ function SidebarPane({
   isDesktop,
   tabId,
   panelId,
+  portalContainer,
 }: {
   title: string | ReactNode;
   tabs: SidebarTab[];
@@ -321,6 +326,7 @@ function SidebarPane({
   isDesktop: boolean;
   tabId: (key: string) => string;
   panelId: (key: string) => string;
+  portalContainer?: HTMLElement | null;
 }) {
   const tabListRef = useRef<HTMLDivElement>(null);
 
@@ -528,6 +534,10 @@ function SidebarPane({
       // Disabled on mobile rather than unmounted — see the comment in
       // ContextMenu about not swapping the tree mid-interaction.
       disabled={!isDesktop}
+      // The same container as the dialog itself: a host that moved this modal into its own
+      // stacking context meant the modal's whole overlay surface, and a context menu left
+      // at `<body>` would be the one part of it landing somewhere else.
+      portalContainer={portalContainer}
       content={
         <>
           {contextMenuExtras}

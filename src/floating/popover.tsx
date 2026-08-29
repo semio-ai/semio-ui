@@ -10,16 +10,25 @@ export interface PopoverProps {
   open?: boolean;
   onStateChange?: (open: boolean) => void;
   variant?: Variant;
+  /** Custom container for the popup portal (e.g. inside a modal). */
+  portalContainer?: HTMLElement | null;
 }
 
-function Popover({ trigger, children, open, onStateChange, variant }: PopoverProps) {
+function Popover({
+  trigger,
+  children,
+  open,
+  onStateChange,
+  variant,
+  portalContainer,
+}: PopoverProps) {
   return (
     <div className="relative inline-block text-left">
       <PopoverPrimitive.Root open={open} onOpenChange={onStateChange}>
         <PopoverPrimitive.Trigger asChild className="focus:outline-none">
           {trigger}
         </PopoverPrimitive.Trigger>
-        <PopoverPrimitive.Portal>
+        <PopoverPrimitive.Portal container={portalContainer ?? undefined}>
           <PopoverPrimitive.Content
             align="center"
             sideOffset={4}

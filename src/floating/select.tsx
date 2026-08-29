@@ -97,6 +97,8 @@ export interface SelectProps<T extends string | string[]> {
    * ```
    */
   disabled?: boolean;
+  /** Custom container for the popup portal (e.g. inside a modal). */
+  portalContainer?: HTMLElement | null;
 }
 
 /**
@@ -121,6 +123,7 @@ export function Select<T extends string | string[]>({
   visuals = "both",
   side = "bottom",
   disabled = false,
+  portalContainer,
 }: SelectProps<T>) {
   const multiple = Array.isArray(value);
   const selectedValues: string[] = multiple ? (value as string[]) : [];
@@ -211,7 +214,7 @@ export function Select<T extends string | string[]>({
             className,
           )}
         >
-          <Tooltip content={tooltipContent}>
+          <Tooltip content={tooltipContent} portalContainer={portalContainer}>
             <div className={clsx("icon-slot", DISABLED_CONTENT_CLASS)}>
               {resolveIcon(selectOption?.icon) || <Icon name="point-filled" />}
             </div>
@@ -310,6 +313,7 @@ export function Select<T extends string | string[]>({
           variant={triggerOption?.variant ?? variant ?? Variant.Default}
           color={triggerOption?.color ?? undefined}
           disabled={disabled}
+          portalContainer={portalContainer}
         >
           {label && <NestedLabel>{label}</NestedLabel>}
           {multiple && options.length > 0 && (

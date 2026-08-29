@@ -63,7 +63,9 @@ This document outlines the design and implementation of a unified tooltip system
 #### TooltipPortal
 - Renders tooltip content in DOM
 - Uses floating-ui for smart positioning
-- Handles z-indexing and collision avoidance
+- Handles collision avoidance. Sets no `z-index`: it renders inside the `TooltipHost`
+  container, which already puts it over the chrome around it, and a positive value there
+  would also beat overlays portalled to `<body>` — which a tooltip should lose to
 
 ## State Management with Zustand
 
