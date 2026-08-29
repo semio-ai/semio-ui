@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { expect, test, vi } from "vitest";
 import { render } from "vitest-browser-react";
+import { userEvent } from "@vitest/browser/context";
 import "./test-stylesheet";
 import { Size } from "./types";
 import { SelectList } from "./select-list";
@@ -41,11 +42,15 @@ const tintOf = (row: Element) => {
   return el.style.backgroundColor;
 };
 
-// Dispatched rather than driven through `userEvent`, because Playwright's actionability
-// check refuses to act on an `aria-disabled` element — which is precisely the row these
-// tests need to poke. The enabled control below goes through the same path so the two
-// results are comparable.
-const hover = (el: Element) => el.dispatchEvent(new MouseEvent("mouseover", { bubbles: true }));
+// Hover moves a REAL pointer, over the row's label rather than the row: a synthetic
+// `mouseover` does not reliably reach React's `onMouseEnter`, and Playwright refuses to
+// act on the `aria-disabled` row itself — but the label inside it is an ordinary element,
+// and the event bubbles to the row from there. Both rows are hovered the same way, so the
+// enabled control and the disabled case are comparable.
+const hover = (row: Element) => userEvent.hover(labelOf(row));
+
+// Click stays synthetic: it only ever has to establish that activation is a no-op, and
+// Playwright would refuse the disabled row outright.
 const click = (el: Element) => el.dispatchEvent(new MouseEvent("click", { bubbles: true }));
 
 /** `SelectList` is controlled, so a spy alone never moves `value`. */
@@ -112,12 +117,12 @@ test("a disabled option is dimmed, is not selectable, and does not tint on hover
   // Hover the ENABLED row first, and wait for its tint. Without that, "the disabled row
   // has no tint" passes on a tree where hover never worked at all — the assertion is a
   // negative, and a negative is satisfied by nothing having happened.
-  hover(enabled);
+  await hover(enabled);
   await vi.waitFor(() => expect(tintOf(enabled)).not.toBe("transparent"));
 
   // Now move to the disabled row. The enabled row's tint clearing is what proves the
   // hover actually moved, so the assertion below is about a hover that really happened.
-  hover(disabled);
+  await hover(disabled);
   await vi.waitFor(() => expect(tintOf(enabled)).toBe("transparent"));
   expect(tintOf(disabled)).toBe("transparent");
 
