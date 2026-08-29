@@ -182,6 +182,92 @@ test("the row reports the list's size, not the window's", () => {
 });
 
 /**
+ * The same moving slice under the **grid** vocabulary — `grid`/`row` rather than
+ * `listbox`/`option`. Its start is deliberately not zero: window-relative numbering
+ * satisfies "every row has an `aria-rowindex`" while naming the wrong row, and only an
+ * offset slice tells the two apart.
+ */
+function WindowedGridNav({ start, windowSize = 10 }: { start: number; windowSize?: number }) {
+  const indices = Array.from({ length: windowSize }, (_, i) => start + i);
+  return (
+    <TreeNavRoot
+      role="grid"
+      ariaRowCount={TOTAL}
+      ariaLabel="windowed grid"
+      highlightedIndex={start}
+      onHighlightedIndexChange={() => undefined}
+      total={TOTAL}
+    >
+      {indices.map((index) => (
+        <TreeNavItem key={index} index={index} role="row" ariaRowIndex={index + 1}>
+          <span>row {index}</span>
+        </TreeNavItem>
+      ))}
+    </TreeNavRoot>
+  );
+}
+
+test("a grid row's index is its place in the data, and it carries no list ARIA", () => {
+  const view = render(<WindowedGridNav start={500} />);
+  const rows = [...view.container.querySelectorAll<HTMLElement>('[role="row"]')];
+  expect(rows).toHaveLength(10);
+
+  // The count of rows a reader is told about is the data's; ten are mounted.
+  expect(view.container.querySelector('[role="grid"]')!.getAttribute("aria-rowcount")).toBe(
+    String(TOTAL),
+  );
+  expect(rows.map((row) => row.getAttribute("aria-rowindex"))).toEqual(
+    Array.from({ length: 10 }, (_, i) => String(501 + i)),
+  );
+
+  // `total` reaches the container's navigation arithmetic and stops there. `row` permits
+  // setsize/posinset, but they place a row among siblings at one level — a `treegrid`'s
+  // question — so on a flat grid they restate `aria-rowindex` in a second vocabulary.
+  for (const row of rows) {
+    expect(row.getAttribute("aria-setsize")).toBeNull();
+    expect(row.getAttribute("aria-posinset")).toBeNull();
+  }
+});
+
+test("the roles that do define the list vocabulary keep it, and take no row index", () => {
+  // The other direction of the assertion above, without which "correctly withheld from
+  // `row`" and "never emitted at all" look identical.
+  const view = render(
+    <>
+      <TreeNavRoot
+        role="tree"
+        ariaLabel="tree"
+        highlightedIndex={0}
+        onHighlightedIndexChange={() => undefined}
+        total={1}
+      >
+        <TreeNavItem index={0} role="treeitem" ariaLevel={1} ariaSetSize={7} ariaPosInSet={3}>
+          <span>branch</span>
+        </TreeNavItem>
+      </TreeNavRoot>
+      <TreeNavRoot
+        role="listbox"
+        ariaLabel="listbox"
+        highlightedIndex={0}
+        onHighlightedIndexChange={() => undefined}
+        total={1}
+      >
+        <TreeNavItem index={0} role="option" ariaSetSize={7} ariaPosInSet={3}>
+          <span>leaf</span>
+        </TreeNavItem>
+      </TreeNavRoot>
+    </>,
+  );
+
+  for (const role of ["treeitem", "option"]) {
+    const item = view.container.querySelector<HTMLElement>(`[role="${role}"]`)!;
+    expect(item.getAttribute("aria-setsize")).toBe("7");
+    expect(item.getAttribute("aria-posinset")).toBe("3");
+    expect(item.getAttribute("aria-rowindex")).toBeNull();
+  }
+});
+
+/**
  * Cursor and rendered slice controlled independently, so the gap between "the cursor
  * moved to a row that is not mounted" and "that row finally mounts" can be held open
  * for as long as a test likes. `WindowedNav` above cannot express it: it derives its

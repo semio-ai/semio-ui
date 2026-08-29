@@ -698,9 +698,23 @@ export function ListGrid<T>({
     return <div className={className}>{notFound}</div>;
   }
 
+  // `selectionMode="none"` is the display-only mode, and the only one that is a grid:
+  // `grid` > `row` > `gridcell`, with the header a `columnheader` row. Every other mode
+  // is a `listbox` of `option`s, which owns no cells and states position with
+  // `aria-setsize`/`aria-posinset` instead. Decided once because the four decisions have
+  // to agree — a `row` with no cells owns nothing, and a row index that skips the header
+  // names the wrong row.
+  const isGrid = selectionMode === "none";
+  const headerIsRow = isGrid && !noHeader;
+  // `aria-rowcount`/`aria-rowindex` are one numbering over every row the grid owns, and
+  // the header is one of them when it is there.
+  const firstDataRowIndex = headerIsRow ? 2 : 1;
+
   return (
     <TreeNavRoot
-      role={selectionMode === "none" ? "grid" : "listbox"}
+      role={isGrid ? "grid" : "listbox"}
+      // A grid states its own size; a listbox has no way to and lets its options do it.
+      ariaRowCount={isGrid ? data.length + (headerIsRow ? 1 : 0) : undefined}
       ariaLabel={ariaLabel}
       className={className}
       highlightedIndex={safeIndex}
@@ -755,7 +769,10 @@ export function ListGrid<T>({
               // previews every row (light emphasis), clicking toggles all.
               selectionMode === "multiple" && "cursor-pointer",
             )}
-            role={selectionMode === "multiple" ? "button" : undefined}
+            // The grid's first row. In `multiple` mode this element is the select-all
+            // control instead, and its container is a listbox with no rows at all.
+            role={selectionMode === "multiple" ? "button" : headerIsRow ? "row" : undefined}
+            aria-rowindex={headerIsRow ? 1 : undefined}
             aria-label={selectionMode === "multiple" ? "Select all" : undefined}
             aria-pressed={selectionMode === "multiple" ? allEnabledSelected : undefined}
             tabIndex={selectionMode === "multiple" ? 0 : undefined}
@@ -776,6 +793,7 @@ export function ListGrid<T>({
             {columns.map((column, i) => (
               <div
                 key={column.key}
+                role={headerIsRow ? "columnheader" : undefined}
                 className={clsx(
                   // px-2 matches the body cells so headers align with their column.
                   "px-2 py-1 text-xs font-semibold uppercase text-neutral-500 dark:text-neutral-400",
@@ -827,13 +845,19 @@ export function ListGrid<T>({
             <TreeNavItem
               key={id}
               index={index}
-              role={selectionMode === "none" ? "row" : "option"}
-              ariaSelected={selectionMode === "none" ? undefined : selectedNow}
-              // What a reader is told about the list's size has to be the list, not
-              // the window: with rows mounted only near the viewport, a screen reader
-              // counting the DOM would announce "3 of 12" in a list of ten thousand.
-              ariaSetSize={data.length}
-              ariaPosInSet={index + 1}
+              role={isGrid ? "row" : "option"}
+              ariaSelected={isGrid ? undefined : selectedNow}
+              // Where a row sits is stated against the DATA, whichever pair carries it:
+              // with rows mounted only near the viewport, a screen reader counting the
+              // DOM would announce "3 of 12" in a list of ten thousand.
+              //
+              // One vocabulary per role, not both. `option` is placed by setsize/posinset.
+              // `row` permits that pair as well, but there it means position among sibling
+              // rows at one level — a `treegrid`'s question, which this flat grid does not
+              // ask; its rows are placed by `aria-rowindex` against the grid's row count.
+              ariaRowIndex={isGrid ? index + firstDataRowIndex : undefined}
+              ariaSetSize={isGrid ? undefined : data.length}
+              ariaPosInSet={isGrid ? undefined : index + 1}
               disabled={isDisabled(id)}
               className="col-span-full grid grid-cols-subgrid outline-none group/row"
               onKeyDown={(event) => handleRowKeyDown(event, id)}
@@ -854,6 +878,7 @@ export function ListGrid<T>({
                 ref={offset === 0 ? rowWindow.measureRef : undefined}
                 columns={rowColumns}
                 cells={cells}
+                cellRole={isGrid ? "gridcell" : undefined}
                 visual={visual}
                 size={size}
                 className="group-focus-visible/row:outline group-focus-visible/row:outline-2 group-focus-visible/row:-outline-offset-2 group-focus-visible/row:outline-[var(--accent-color)]"

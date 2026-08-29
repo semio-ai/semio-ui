@@ -111,7 +111,23 @@ Everything that operates on the data keeps operating on the data:
 | Type-ahead                             | matches the whole data set and scrolls the match into view                                  |
 | `Home` / `End`, arrow bounds, `loop`   | the ends of the **list**, not of the window                                                 |
 | `selectGroupDescendants`               | the whole subtree                                                                           |
-| `aria-setsize` / `aria-posinset`       | reported from the data, so assistive technology is not told the window's size is the list's |
+| A row's position in ARIA               | reported from the data, so assistive technology is not told the window's size is the list's |
+
+Which properties carry that position depends on the role. A `treeitem` or an `option`
+is placed by `aria-setsize`/`aria-posinset`. A `grid` states `aria-rowcount` and its
+rows `aria-rowindex` — one numbering over **every** row the grid owns, so `ListGrid`
+counts its column header as row 1 and a `noHeader` grid numbers from its first datum.
+Both halves move together or the last row comes up one short of the count.
+
+Pick one pair per row rather than supplying both. `row` permits setsize/posinset as
+well, but there they mean position among sibling rows at one level, which is a
+`treegrid`'s question; on a flat grid they restate `aria-rowindex` in a vocabulary
+that implies a hierarchy the grid does not have.
+
+A grid's rows also own **cells**, and have to say so: `gridcell` on each body cell,
+`columnheader` in the header row. A cell with no role is generic, the accessibility
+tree prunes it, and the row is left stating an index over nothing — which reads as a
+correctly numbered, entirely empty grid.
 
 If you find something that narrowed to the visible rows, that is a bug — please file it.
 

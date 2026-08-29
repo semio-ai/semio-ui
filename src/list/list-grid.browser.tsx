@@ -21,7 +21,16 @@ const NAME_COL: ListColumn<Row>[] = [
 ];
 
 const options = () => [...document.querySelectorAll('[role="option"]')];
-const rows = () => [...document.querySelectorAll('[role="row"]')];
+/**
+ * The grid's DATA rows. In `selectionMode="none"` the column header is a `row` as well
+ * — the grid's first — so it is excluded by what it contains rather than by position,
+ * which is what keeps these indices meaning the same thing if a header is added or
+ * dropped: a data row owns `gridcell`s, the header owns `columnheader`s.
+ */
+const rows = () =>
+  [...document.querySelectorAll('[role="row"]')].filter((row) =>
+    row.querySelector('[role="gridcell"]'),
+  );
 const sorted = (s: Set<string>) => [...s].sort((a, b) => a.localeCompare(b));
 
 test("renders one row per datum with its cell content", () => {

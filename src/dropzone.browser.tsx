@@ -26,7 +26,16 @@ const COLUMNS: ListColumn<Row>[] = [
   { key: "detail", align: "right", render: (r) => <span>{r.detail}</span> },
 ];
 
-const rows = () => [...document.querySelectorAll('[role="row"]')];
+/**
+ * The grid's DATA rows. `ListGrid` renders a `grid`, and its column header is one of
+ * that grid's rows — so the header is excluded by what it contains rather than by
+ * position, which keeps these indices meaning the same thing whether or not a
+ * `noHeader` Dropzone is under test: a data row owns `gridcell`s.
+ */
+const rows = () =>
+  [...document.querySelectorAll('[role="row"]')].filter((row) =>
+    row.querySelector('[role="gridcell"]'),
+  );
 
 test("renders one row per datum, with every column's cell", () => {
   render(<Dropzone onDrop={() => {}} data={ROWS} getRowId={(r) => r.id} columns={COLUMNS} />);

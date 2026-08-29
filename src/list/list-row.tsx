@@ -33,6 +33,15 @@ export interface ListRowProps {
   className?: string;
   /** Opt-in ARIA (the composed `ListGrid` sets `row`/`option` + selection). */
   role?: string;
+  /**
+   * ARIA role for each cell — `gridcell` when this row is a `row` in a `grid`.
+   *
+   * A `row` owns cells and states so: without a role on them they are generic, the
+   * accessibility tree prunes them, and the row is left owning nothing. It is the
+   * cells that make a grid navigable, so this is not cosmetic. Left unset under
+   * `option`, which owns no cells and where `gridcell` would be invalid.
+   */
+  cellRole?: string;
   ariaSelected?: boolean;
   /**
    * React 19+: `ref` arrives as an ordinary prop, so this is not supported on React 18.
@@ -87,6 +96,7 @@ export function ListRow({
   size = Size.Md,
   className,
   role,
+  cellRole,
   ariaSelected,
   ref,
 }: ListRowProps) {
@@ -140,6 +150,7 @@ export function ListRow({
       {columns.map((column, i) => (
         <div
           key={column.key}
+          role={cellRole}
           className={clsx(
             // `self-stretch` so a cell fills the row's height rather than hugging
             // its content. The row is `items-center`, so without it a cell is
