@@ -38,7 +38,7 @@ const ruleTester = new RuleTester({
 const EXAMPLE_ALLOW = [
   {
     file: "src/floating/example.tsx",
-    classes: ["text-white"],
+    classes: ["text-white", "bg-neutral-300"],
     reason: "Illustrative entry for the rule's own test; not a real exemption.",
   },
 ];
@@ -110,9 +110,21 @@ ruleTester.run("no-hardcoded-on-fill-foreground", rule, {
     // against. `bg-transparent` is how an element defers to the fill deliberately.
     { code: `<div className="variant-static-bg bg-transparent" />` },
     { code: `<div className="variant-checkbox-bg bg-inherit" />` },
-    // The fill token itself, spelled as an arbitrary value. It paints the same colour
-    // the class does, so the derivation still describes what is there.
+    // The fill token itself. Not reached by the `var()` exclusion — `var(--standard-color)`
+    // is not colour-SHAPED, so the arbitrary-value test rejects it first. Kept because it
+    // is the spelling an element deliberately re-painting the fill would use.
     { code: `<div className="variant-static-bg bg-[var(--standard-color)]" />` },
+    // These DO reach the `var()` exclusion: colour-shaped, with the value behind a token.
+    // Without that clause both would report, so this pair is what holds it in place.
+    { code: `<div className="variant-static-bg bg-[rgb(var(--brand-rgb))]" />` },
+    { code: `<div className="card-invert bg-[color-mix(in_oklab,var(--standard-color),black)]" />` },
+    // An allowlist entry suppresses a background the same way it suppresses a
+    // foreground. Without the allowlist check on the background half this reports.
+    {
+      code: `<div className="card-invert bg-neutral-300" />`,
+      filename: "/repo/packages/ui/src/floating/example.tsx",
+      options: [{ allow: EXAMPLE_ALLOW }],
+    },
     // Opposite branches of one ternary can never render together — a "filled" variant
     // and a "plain" one is the normal way to write this.
     {
@@ -211,6 +223,14 @@ ruleTester.run("no-hardcoded-on-fill-foreground", rule, {
     {
       code: `const C = ({ v, o }) => <span className={clsx(v === "default" && "variant-responsive-bg", o && "bg-neutral-200")} />;`,
       errors: 1,
+    },
+    // Two fills, and the message must name the one that actually co-occurs. Asserting on
+    // `data.fill` rather than a count is the point: every candidate here reports exactly
+    // one error, so a count cannot tell which fill was chosen, and picking the
+    // first-written `variant-responsive-bg` would send the reader to the wrong guard.
+    {
+      code: `const C = ({ v, o }) => <span className={clsx(o && "variant-responsive-bg", v && "variant-static-bg bg-neutral-300")} />;`,
+      errors: [{ messageId: "hardcodedBackground", data: { background: "bg-neutral-300", fill: "variant-static-bg" } }],
     },
     // Naming a foreground to go with the background does not repair it: it moves the
     // pairing into the caller, where the variant that chose the fill is not in scope.

@@ -109,9 +109,14 @@ const LITERAL_COLOR_PATTERN = new RegExp(
 
 /**
  * A literal background colour: `bg-white`, `bg-neutral-300/60`, `bg-red-500`.
- * Deliberately NOT `bg-cover` / `bg-center` / `bg-no-repeat` (size, position, repeat),
- * `bg-linear-to-r` (a gradient direction), or `bg-[var(--standard-color)]` (the fill
- * token itself, which is what an element deliberately re-painting the fill would use).
+ *
+ * Deliberately NOT `bg-cover` / `bg-center` / `bg-no-repeat` (size, position, repeat) or
+ * `bg-linear-to-r` (a gradient direction). The deferring keywords need no separate
+ * guard: `bg-transparent`, `bg-current` and `bg-inherit` name no palette shade and are
+ * not bracketed, so this pattern already rejects them, and so does the arbitrary-value
+ * test below. A guard for them would be dead code asserting a protection it does not
+ * provide — which is what makes the valid fixtures for them worth keeping and the
+ * clause not worth having.
  */
 const LITERAL_BG_PATTERN = new RegExp(
   `^bg-(white|black|(${PALETTE_NAMES})-\\d{2,3})(\\/\\d{1,3})?$`,
@@ -124,11 +129,6 @@ const LITERAL_BG_PATTERN = new RegExp(
  */
 const DEFERRING_KEYWORDS = new Set(["text-inherit", "text-current", "text-transparent"]);
 
-/**
- * Background keywords that paint nothing, so the fill behind them is still what content
- * is read against. `bg-transparent` is how an element deliberately defers to the fill.
- */
-const DEFERRING_BG_KEYWORDS = new Set(["bg-transparent", "bg-current", "bg-inherit"]);
 
 /** An arbitrary foreground value that is a colour rather than a token or a length. */
 function isArbitraryLiteralColor(utility) {
@@ -178,11 +178,15 @@ function isFillClass(utility) {
   return FILL_CLASSES.has(utility);
 }
 
+/**
+ * Whether a caller named this background itself.
+ *
+ * No guard against a fill class reaching here: the collecting loop tests `isFillClass`
+ * FIRST and takes the other branch, so one never does. A guard would read as protection
+ * against a `bg-`-prefixed fill class being added later, and it would not be — such a
+ * class would be classified by that first branch and never reach this function at all.
+ */
 function isOwnBackground(utility) {
-  if (DEFERRING_BG_KEYWORDS.has(utility)) return false;
-  // A fill class is not a "background the caller named" — it is the thing being
-  // protected. None currently start with `bg-`, but checking is what keeps that true.
-  if (FILL_CLASSES.has(utility)) return false;
   return LITERAL_BG_PATTERN.test(utility) || isArbitraryLiteralBackground(utility);
 }
 
