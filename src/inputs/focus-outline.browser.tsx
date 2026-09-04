@@ -73,6 +73,17 @@ async function outlineOf(className: string, focused: boolean): Promise<Outline> 
   const host = document.createElement("div");
   const input = document.createElement("input");
   input.className = `responsive default ${className}`;
+  // ⚠ `pointer-events: none` so `:hover` can never match, and it is load-bearing
+  // rather than tidiness. Both variants carry hover rules — the appearing one
+  // draws a 1px outline on hover, the persistent one lifts its resting colour to
+  // the accent — and every probe here mounts at the body's origin, where the
+  // pointer may simply be sitting. Vitest browser mode shares one page across
+  // files, several of which click, so whether these tests pass depended on where
+  // the previous file left the cursor: `resting outlines differ` failed once with
+  // the appearing variant reporting 1px, on the cold run, and passed alone and on
+  // every warm one. A hover-contaminated read is not a slow read, it is a
+  // different state, so no amount of settling finds it.
+  host.style.pointerEvents = "none";
   host.appendChild(input);
   document.body.appendChild(host);
   hosts.push(host);

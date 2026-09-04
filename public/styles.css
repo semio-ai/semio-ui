@@ -307,8 +307,13 @@
    * transition rather than arriving as a jump.
    */
   .variant-responsive-persistent-outline {
-    @apply transition-[outline-color,outline-width,outline-offset] rounded-xs;
-    @apply outline-solid outline-1 disabled:cursor-not-allowed;
+    /* `duration-50` to match the appearing variant. Without it this took
+       Tailwind's 150ms default, so the two rings arrived at the same place at
+       different speeds — the half of "one focus signal" that a settled
+       measurement cannot see, because settling is exactly what waits the
+       difference out. */
+    @apply transition-[outline-color,outline-width,outline-offset] duration-50 ease-in-out;
+    @apply rounded-xs outline-solid outline-1 disabled:cursor-not-allowed;
     outline-color: var(--standard-color);
 
     &:focus,
