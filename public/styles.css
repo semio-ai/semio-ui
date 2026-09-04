@@ -285,14 +285,36 @@
     outline-color: var(--standard-color);
   }
 
+  /*
+   * A control that shows its own edge at rest.
+   *
+   * The resting line sits ON the box (no offset), because that line IS the
+   * control's edge — it is what says "there is a field here" on a row whose
+   * label sits outside it.
+   *
+   * ⚠ **Focused, this must be indistinguishable from
+   * `variant-responsive-appearing-outline`: same accent colour, same 2px ring,
+   * same 2px offset.** Focus is one signal across the package, and these two
+   * variants differ only in what they show at REST. Signalling it here by
+   * thickening the resting line instead held the ring hard against the fill and
+   * left it grey, so focus read as the field's edge closing in on its own text
+   * with nothing to say why. On a hovered field it read as going BACKWARDS: the
+   * hover rule below already lifts the edge to the accent, and a `:focus` rule
+   * pinning the colour back to `--standard-color` undid that at the moment the
+   * field became the one being typed into.
+   *
+   * The offset is what holds the ring off the fill, so it belongs in the
+   * transition rather than arriving as a jump.
+   */
   .variant-responsive-persistent-outline {
-    @apply transition-[outline-color,outline-width] rounded-xs;
-    @apply outline-solid outline-1 disabled:cursor-not-allowed focus:outline-2;
+    @apply transition-[outline-color,outline-width,outline-offset] rounded-xs;
+    @apply outline-solid outline-1 disabled:cursor-not-allowed;
     outline-color: var(--standard-color);
 
     &:focus,
     &:focus-visible {
-      outline-color: var(--standard-color);
+      @apply not-disabled:outline-2 not-disabled:outline-offset-2;
+      outline-color: var(--accent-color);
     }
 
     &:disabled {
