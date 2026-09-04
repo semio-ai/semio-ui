@@ -78,11 +78,16 @@ async function outlineOf(className: string, focused: boolean): Promise<Outline> 
   hosts.push(host);
   if (focused) input.focus();
 
-  // Transitions are created once the style change is committed, so the engine gets a
-  // frame before it is asked what is running. Asking sooner returns an empty list and
-  // the wait below becomes a no-op.
-  await nextFrame();
-  await nextFrame();
+  // A transition is created during style recalculation, so one is forced here before
+  // asking what is running. Asking first returns an empty list and the wait below
+  // silently becomes a no-op, which reads the outline mid-transition.
+  //
+  // ⚠ Deliberately NOT `requestAnimationFrame`, which is the obvious way to wait for
+  // a style change to land. A hidden page throttles rAF to nothing, so a frame wait
+  // there does not resolve late — it does not resolve at all, and the test hangs to
+  // its timeout rather than failing on a value.
+  void getComputedStyle(input).outlineWidth;
+  await new Promise((resolve) => setTimeout(resolve, 0));
   await Promise.race([
     // `allSettled`: a transition cancelled by another style change rejects, and that
     // is a finished transition for this purpose.
@@ -95,10 +100,6 @@ async function outlineOf(className: string, focused: boolean): Promise<Outline> 
 
   const style = getComputedStyle(input);
   return { width: style.outlineWidth, offset: style.outlineOffset, color: style.outlineColor };
-}
-
-function nextFrame(): Promise<void> {
-  return new Promise((resolve) => requestAnimationFrame(() => resolve()));
 }
 
 test("resting outlines differ — the stylesheet is loaded and the two variants are distinct", async () => {
