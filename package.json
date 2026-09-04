@@ -25,7 +25,8 @@
     "dist/**",
     "src/styles.css",
     "src/theme.css",
-    "NOTICE"
+    "NOTICE",
+    "LICENSE"
   ],
   "sideEffects": [
     "**/*.css"
