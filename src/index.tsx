@@ -10,7 +10,8 @@ export * from "./buttons/menu-button";
 // Feedback
 export * from "./feedback/progress";
 export * from "./feedback/spinner";
-export * from "./feedback/status";
+export * from "./feedback/status-badge";
+export * from "./feedback/status-dot";
 
 // Floating
 export * from "./floating/context-menu";
@@ -162,6 +163,7 @@ export * from "./layouts/tabs";
 
 // Uncategorized or Not Updated
 export * from "./avatar";
+export * from "./media-surface";
 export * from "./inputs/color-picker-popover";
 export * from "./inputs/number-or-list";
 export * from "./dropzone";

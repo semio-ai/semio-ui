@@ -1,19 +1,19 @@
 import figma from "@figma/code-connect";
 import { Variant } from "../types";
-import { Status } from "./status";
+import { StatusBadge } from "./status-badge";
 
 /**
- * Code Connect for Status.
+ * Code Connect for StatusBadge.
  *
  * Validated on the Professional plan via `npx figma connect parse`. File key lives
  * once in figma.config.json (`documentUrlSubstitutions`), not here.
  *
  * The Figma component is the badge **dot** (`variant-static-bg` fill + a
- * `surface/inset` ring); `Variant=primary` ↔ `variant="primary"`. In code Status
+ * `surface/inset` ring); `Variant=primary` ↔ `variant="primary"`. In code StatusBadge
  * wraps `children` (the badged element) and positions the dot at a `placement`
  * corner — those are contextual, so the example passes a placeholder child.
  */
-figma.connect(Status, "<SEMIO_UI_LIBRARY>?node-id=544-722", {
+figma.connect(StatusBadge, "<SEMIO_UI_LIBRARY>?node-id=544-722", {
   props: {
     variant: figma.enum("Variant", {
       default: Variant.Default,
@@ -27,8 +27,8 @@ figma.connect(Status, "<SEMIO_UI_LIBRARY>?node-id=544-722", {
     }),
   },
   example: ({ variant }) => (
-    <Status variant={variant}>
+    <StatusBadge variant={variant}>
       <span />
-    </Status>
+    </StatusBadge>
   ),
 });

@@ -1,7 +1,7 @@
 import { Avatar as AvatarPrimitive } from "radix-ui";
 import { clsx } from "clsx";
 import { ForwardedRef, MouseEventHandler, forwardRef } from "react";
-import { Status } from "./feedback/status";
+import { StatusBadge } from "./feedback/status-badge";
 import { Variant, Size } from "./types";
 
 export interface AvatarProps {
@@ -78,7 +78,7 @@ export const Avatar = forwardRef(
   ) => {
     const fallbackContent = icon ?? alt?.[0] ?? "?";
 
-    const Wrapper = status ? Status : "div";
+    const Wrapper = status ? StatusBadge : "div";
     const wrapperProps = status
       ? {
           variant: status.variant,

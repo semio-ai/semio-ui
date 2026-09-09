@@ -97,18 +97,18 @@ acceptable for `size`/`variant`. Components that take them include, among others
   `Autocomplete`, `ChipInput`, `ToggleGroup`, `ToggleSquare`, `ImageInput`, `Label`
 - **Overlays:** `Dialog`, `Modal`, `SidebarModal`, `TabbedModal`, `Popover`, `Dropdown`, `ContextMenu`,
   `Select`, `SelectTree`, `Tooltip`, `Toast`
-- **Feedback:** `Progress`, `Status`
+- **Feedback:** `Progress`, `StatusBadge`, `StatusDot`
 - **Layouts:** `Tabs`, `TableList`, `Breadcrumbs`, `Separator`, `Resizer`
 - **Other:** `Avatar`, `Chip`, `StaticIcon`
 
 Whenever you set `size`/`variant` on *any* component, import the enum and pass a member:
 
 ```tsx
-import { TextField, Checkbox, Status, Variant, Size } from "@semio/ui";
+import { TextField, Checkbox, StatusDot, Variant, Size } from "@semio/ui";
 
 <TextField size={Size.Sm} />
 <Checkbox size={Size.Md} />
-<Status variant={Variant.Success} size={Size.Lg} />
+<StatusDot variant={Variant.Success} size={Size.Lg} label="Connected" />
 ```
 
 > Note for the curious: the enum values happen to be internal CSS class names (`Size.Md === "size-md"`), which is

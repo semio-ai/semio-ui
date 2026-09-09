@@ -6,7 +6,8 @@ import { Size, Variant } from "./types";
 import { Avatar } from "./avatar";
 import { Button } from "./buttons/button";
 import { Chip } from "./chip";
-import { Status } from "./feedback/status";
+import { StatusBadge } from "./feedback/status-badge";
+import { StatusDot } from "./feedback/status-dot";
 import { Checkbox } from "./inputs/checkbox";
 import { ToggleSquare } from "./inputs/toggle-square";
 import { ImageInput } from "./inputs/image-input";
@@ -203,11 +204,11 @@ const ON_STANDARD_FILL: {
       [...root.querySelectorAll<HTMLElement>("div")].find((d) => d.className.includes("px-2"))!,
   },
   {
-    name: "Status badge text",
+    name: "StatusBadge text",
     render: (v) => (
-      <Status variant={v} text="9">
+      <StatusBadge variant={v} text="9">
         <div style={{ width: 40, height: 40 }} />
-      </Status>
+      </StatusBadge>
     ),
     // Deepest node carrying the text: the outer `relative` wrapper shares its
     // textContent and paints nothing.
@@ -217,6 +218,13 @@ const ON_STANDARD_FILL: {
       );
       return all[all.length - 1];
     },
+  },
+  {
+    name: "StatusDot label",
+    render: (v) => <StatusDot variant={v} size={Size.Md} label="Connected" />,
+    // The root IS the pill: it carries the fill, the derived foreground and the text
+    // in one box, so there is no inner node to prefer.
+    find: (root) => root.querySelector<HTMLElement>("span[class*='rounded-full']")!,
   },
   {
     name: "Checkbox check mark",

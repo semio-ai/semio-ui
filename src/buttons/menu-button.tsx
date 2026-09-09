@@ -7,7 +7,7 @@ import {
 } from "react";
 import { clsx } from "clsx";
 import { Variant } from "../types";
-import { Status } from "../feedback/status";
+import { StatusBadge } from "../feedback/status-badge";
 import { Tooltip } from "../floating/tooltip";
 import { useMenuButtonContext } from "../context/menu-button-context";
 import { resolveIcon, type IconValue } from "../icons/registry";
@@ -78,7 +78,7 @@ export function MenuButton({
 }: MenuButtonProps) {
   const { expanded, desktop, expandedWidthClassName, expandedLabelClassName } =
     useMenuButtonContext();
-  const Wrapper = status ? Status : "div";
+  const Wrapper = status ? StatusBadge : "div";
   // Override the active accent color (set by `variant-responsive-selectable-text`'s
   // `:where(.group/tab)[data-active] *` rule) on mobile, then re-apply at
   // desktop. Tailwind utilities here have higher specificity than the

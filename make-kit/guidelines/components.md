@@ -21,7 +21,7 @@ what exists, grouped by area, so you reach for the right component. **All import
 `TableList`, layout `root` + layout `types`
 
 ## Feedback
-`Progress`, `Spinner`, `Status`
+`Progress`, `Spinner`, `StatusBadge`, `StatusDot`
 
 ## Nested elements (menu/tree building blocks)
 `Checkbox`, `CheckboxTree`, `Radio`, `Select`, `Menu`, `Item`, `Label`, `Separator`, `ColorPicker`,
