@@ -99,7 +99,14 @@ export function Chip({
           gets chosen: alpha composites a foreground toward the very background it has
           to contrast against, and the label is an identifier (pose names, binding
           targets) carrying the 4.5:1 bar rather than a decorative one. */}
-      <div className="sized-chip-label-padding">{children}</div>
+      {/* `data-slot` so a test or a consumer can find the label without naming a
+          utility class. Selecting on the padding class instead couples them to a
+          spacing decision: renaming `px-2` here silently stops such a selector
+          matching, and a `find` that returns nothing reads as a broken component
+          rather than a stale selector. */}
+      <div data-slot="label" className="sized-chip-label-padding">
+        {children}
+      </div>
       {onDelete && (
         <button
           type="button"

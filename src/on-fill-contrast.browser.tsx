@@ -200,8 +200,7 @@ const ON_STANDARD_FILL: {
     ),
     // The label is a child of the chip with its own colour; the chip's own inherited
     // `color` is never painted, so measuring the container reports 1:1 instead.
-    find: (root) =>
-      [...root.querySelectorAll<HTMLElement>("div")].find((d) => d.className.includes("px-2"))!,
+    find: (root) => root.querySelector<HTMLElement>('[data-slot="label"]')!,
   },
   {
     name: "StatusBadge text",
@@ -334,7 +333,7 @@ test("Chip subtle: the neutral ground carries its label, and the dot keeps its o
         >
           Connected
         </Chip>,
-        (root) => measure(root.querySelector<HTMLElement>("div.px-2")!, theme),
+        (root) => measure(root.querySelector<HTMLElement>('[data-slot="label"]')!, theme),
       );
       expect(
         label.derived,
