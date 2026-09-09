@@ -377,6 +377,27 @@
     background-color: color-mix(in oklab, var(--standard-color) 50%, transparent);
   }
 
+  /* A neutral surface that does NOT take the variant's colour: the layout inset fill,
+   * theme-flipped, with a foreground declared against it.
+   *
+   * It exists because a variant fill is an assertion. A solid `variant-*-bg` says the
+   * thing it wraps IS primary, or IS an error; that is right for a state and wrong for
+   * a container whose job is to sit quietly behind content that carries its own
+   * meaning — a status chip whose colour lives in its dot, a checkbox before it is
+   * checked. Painting those with a variant makes the container compete with the mark
+   * it holds.
+   *
+   * Fill and foreground are declared together, as with every other `variant-*-bg`, so
+   * no caller can own half the pair. The pairing is `neutral-800`/`neutral-200`, NOT a
+   * mid grey: a `neutral-500` foreground reads as disabled against these grounds and
+   * measures below the 4.5:1 a label has to clear. Use `text-*` on the CONTENT if
+   * something inside should be quieter. */
+  .variant-subtle-bg {
+    @apply transition-colors duration-50 ease-in-out rounded-xs;
+    @apply dark:bg-layout-dark-inset bg-layout-light-inset;
+    @apply dark:text-neutral-200 text-neutral-800;
+  }
+
   .variant-separator-fill {
     background-color: var(--accent-color);
   }
@@ -635,6 +656,63 @@
     @variant size-xl {
       /* 34px */
       @apply h-8.5;
+    }
+  }
+
+  /* A chip's internal spacing, which has to move with its box.
+   *
+   * Held static, these two are what make a small chip look wrong rather than small:
+   * the distance from a leading mark to the label is this gap PLUS the label's own
+   * padding, so a fixed pair reads as ~16px on an `Xs` chip that is only 20px tall —
+   * the mark ends up nearer the chip's edge than to the word it belongs to.
+   *
+   * The `md` rungs are the values these replaced, so every chip at the default size
+   * is unchanged and only the smaller rungs tighten. */
+  .sized-chip-gap {
+    @apply gap-2;
+
+    @variant size-xs {
+      @apply gap-1;
+    }
+
+    @variant size-sm {
+      @apply gap-1.5;
+    }
+
+    @variant size-md {
+      @apply gap-2;
+    }
+
+    @variant size-lg {
+      @apply gap-2;
+    }
+
+    @variant size-xl {
+      @apply gap-2.5;
+    }
+  }
+
+  .sized-chip-label-padding {
+    @apply px-2;
+
+    @variant size-xs {
+      @apply px-1;
+    }
+
+    @variant size-sm {
+      @apply px-1.5;
+    }
+
+    @variant size-md {
+      @apply px-2;
+    }
+
+    @variant size-lg {
+      @apply px-2;
+    }
+
+    @variant size-xl {
+      @apply px-2.5;
     }
   }
 
