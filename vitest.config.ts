@@ -25,6 +25,34 @@ export default defineConfig({
   // Configured here rather than as a `postcss.config.*` file so the package build is
   // untouched; it already precompiles the stylesheet through the Tailwind CLI.
   css: { postcss: { plugins: [tailwindcss()] } },
+
+  // Pin every `@base-ui/react` subpath this package imports, so Vite pre-bundles them
+  // before the run instead of discovering them during it.
+  //
+  // Discovered mid-run, a dep is optimized while the suite is already executing, and
+  // the optimized bundle and the still-source copy then hold DIFFERENT React
+  // instances. Every test in the affected files dies at once with "Invalid hook call
+  // … more than one copy of React" or a null-hook TypeError — so a new import reads
+  // as though it broke unrelated components, and the files it takes down have nothing
+  // to do with the change.
+  //
+  // Two things make it worth pinning rather than clearing the cache each time. It only
+  // appears when a subpath is NEW, so it lands on whoever adds one and looks like
+  // their bug; and a warm cache hides it completely, so it survives a green local run.
+  //
+  // ⚠ Add to this list when importing a `@base-ui/react` subpath the package has not
+  // used before. The studio app keeps the same list for the same reason.
+  optimizeDeps: {
+    include: [
+      "@base-ui/react/autocomplete",
+      "@base-ui/react/avatar",
+      "@base-ui/react/combobox",
+      "@base-ui/react/dialog",
+      "@base-ui/react/internals/composite",
+      "@base-ui/react/scroll-area",
+      "@base-ui/react/tabs",
+    ],
+  },
   test: {
     projects: [
       {

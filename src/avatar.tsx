@@ -1,4 +1,4 @@
-import { Avatar as AvatarPrimitive } from "radix-ui";
+import { Avatar as AvatarPrimitive } from "@base-ui/react/avatar";
 import { clsx } from "clsx";
 import { ForwardedRef, MouseEventHandler, forwardRef } from "react";
 import { StatusBadge } from "./feedback/status-badge";
