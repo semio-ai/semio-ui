@@ -1363,6 +1363,34 @@
     @apply text-neutral-500 dark:text-neutral-400;
   }
 
+  /* ⚠ THE MUTED PAIR ABOVE FAILS WCAG AA IN LIGHT MODE, AND THAT IS A DECISION.
+   *
+   * `label` and `caption` share `neutral-500` / `neutral-400`. Measured against the
+   * grounds the app paints, not against white:
+   *
+   *   light  `.card` (layout-light-inset)   3.76:1   APCA Lc 55.0   — AA wants 4.5:1
+   *          layout-light-base              2.95:1   Lc 41.5
+   *          white                          4.73:1   Lc 69.5        — the only pass
+   *   dark   every ground                4.87–6.91   Lc 44.8–51.3   — passes throughout
+   *
+   * `.card` is the surface behind every modal, dialog, dropdown, tooltip and panel, so
+   * the 3.76 is where most of the app's captions actually sit, not an edge case. At
+   * 12px there is no large-text allowance.
+   *
+   * It stays because the two goals here are in tension and only one of them is a
+   * number. `neutral-600` clears AA on every ground, and costs roughly half the
+   * separation from `body` — the body↔muted gap drops from Lc 29.6 to 15.8 — which is
+   * what makes a caption read as secondary rather than as slightly lighter prose. The
+   * judgement is that these remain legible, and Lc 55 is above APCA's floor for text
+   * even though the WCAG ratio is not.
+   *
+   * ⚠ **So do not "fix" this from a contrast audit alone.** The number is known. What
+   * makes it safe to leave is that it is now declared once: changing the muted rung is
+   * an edit here, not a sweep of the call sites. If you are revisiting it, the
+   * measurements and the side-by-side are on the Figma board "Muted roles — which rung,
+   * on the grounds we ship", and the thing to weigh is the body separation, not the
+   * ground ratio on its own. */
+
   /* Running prose: a description, an explanation, a paragraph the reader is meant to
    * read rather than scan.
    *
