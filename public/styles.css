@@ -1139,7 +1139,10 @@
      * Declared here rather than at the call site because a caller's `text-*` utility
      * would override this from a later cascade layer whatever its specificity — so a
      * caller naming a literal colour silently reintroduces the failure. */
-    color: oklch(from var(--strong-accent-text-color) clamp(0, calc((var(--on-fill-threshold) - l) * 1000), 1) 0 0);
+    color: oklch(
+      from var(--strong-accent-text-color) clamp(0, calc((var(--on-fill-threshold) - l) * 1000), 1)
+        0 0
+    );
     background-color: var(--strong-accent-text-color);
 
     @supports not (color: oklch(from red l 0 0)) {
@@ -1389,7 +1392,9 @@
      * theoretical best of 4.6:1. Working from the fill also means an arbitrary
      * `--custom-color` is handled on the same footing as the named variants.
      */
-    --on-accent-color: oklch(from var(--accent-color) clamp(0, calc((var(--on-fill-threshold) - l) * 1000), 1) 0 0);
+    --on-accent-color: oklch(
+      from var(--accent-color) clamp(0, calc((var(--on-fill-threshold) - l) * 1000), 1) 0 0
+    );
 
     /* Foreground for content sitting ON a `--standard-color` fill — what
      * `variant-responsive-bg`, `variant-static-bg` and a checked `variant-checkbox-bg`
@@ -1405,7 +1410,9 @@
      *
      * Deriving from the fill also covers an arbitrary `--custom-color`, which no
      * hardcoded pair can. */
-    --on-standard-color: oklch(from var(--standard-color) clamp(0, calc((var(--on-fill-threshold) - l) * 1000), 1) 0 0);
+    --on-standard-color: oklch(
+      from var(--standard-color) clamp(0, calc((var(--on-fill-threshold) - l) * 1000), 1) 0 0
+    );
 
     /* Pre-relative-color-syntax fallback: the old theme-flipped pair, which is right
      * for the neutral default and wrong only for the brightest brand hues. Guarded by
