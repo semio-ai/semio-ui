@@ -197,6 +197,6 @@ export const textRole = {
   set: figmaNode("786-903"),
   /** Docs: the three content-colour levels the roles bind to, Light and Dark. */
   contentColours: figmaNode("779-894"),
-  /** Docs: ramp A (ships) vs B/C (what APCA argues for), with Lc and WCAG per level. */
+  /** Docs: the body-legibility candidates A / A′ / A″, with Lc and WCAG per level. A′ ships. */
   rampComparison: figmaNode("790-894"),
 } as const;
