@@ -130,6 +130,50 @@ describe("selection follows the role, not the size", () => {
   });
 });
 
+/**
+ * Reads a role class on a PLAIN element — no `Text`, no base class, nothing the
+ * component would have added.
+ *
+ * Every other read in this file goes through `Text`, which emits more than one class.
+ * That makes the whole suite blind to what a caller gets from the class alone, and the
+ * class alone is a documented entry point: `text.tsx` and the Figma contract both say a
+ * hand-written element or a Code Connect mapping can reach for it instead of the
+ * component. A shared declaration carried only by a component-emitted class would
+ * satisfy every assertion below and still leave that caller unstyled.
+ */
+const readBareClass = (theme: Theme, role: TextRole) =>
+  withTheme(theme, <span className={role}>sample</span>, (host) => {
+    const el = host.querySelector<HTMLElement>(`.${role}`);
+    if (!el) throw new Error(`no element carrying ${role}`);
+    if (el.className !== role) throw new Error(`expected only "${role}", got "${el.className}"`);
+    const style = getComputedStyle(el);
+    return {
+      color: style.color,
+      selectionTint: style.getPropertyValue("--text-role-selection-color").trim(),
+    };
+  });
+
+describe("a role class works without the component", () => {
+  /**
+   * ⚠ The tint is a custom property fed to `color-mix()`. When it resolves empty the
+   * `color-mix()` is invalid and `::selection` falls back to the browser default — which
+   * is invisible in a screenshot and passes every other test in this file, because they
+   * all render through `Text`.
+   */
+  test.each(ROLES)("%s carries the selection tint with no other class present", (role) => {
+    const light = readBareClass("light", role).selectionTint;
+    const dark = readBareClass("dark", role).selectionTint;
+    expect(light).not.toBe("");
+    expect(dark).not.toBe("");
+    expect(light).not.toBe(dark);
+  });
+
+  /** The paint has to come from the class too, not only from what the component adds. */
+  test.each(ROLES)("%s paints per theme with no other class present", (role) => {
+    expect(readBareClass("light", role).color).not.toBe(readBareClass("dark", role).color);
+  });
+});
+
 describe("the selection tint resolves outside a .responsive subtree", () => {
   /**
    * `--accent-color` is declared on `.responsive`, which `LayoutRoot` does NOT carry, so

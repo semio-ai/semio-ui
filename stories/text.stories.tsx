@@ -32,7 +32,7 @@ const NOTES: Partial<Record<TextRole, string>> = {
   [TextRole.Value]: "14px · full contrast · selectable",
   [TextRole.Label]: "12px · muted · uppercase · CHROME",
   [TextRole.Caption]: "12px · muted · selectable",
-  [TextRole.Body]: "14px · mid contrast · selectable",
+  [TextRole.Body]: "14px · near value, for reading at length · selectable",
 };
 
 const ROLES = Object.values(TextRole).map((role) => ({

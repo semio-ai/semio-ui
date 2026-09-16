@@ -1299,16 +1299,32 @@
    * copy — and it is declared per theme, because a single mid-grey is too dark to
    * read through in dark mode and too light in light mode.
    *
-   * ⚠ **Keyed on the base `.text-role` class, which `Text` emits alongside the role's
-   * own class, rather than on a list of the role selectors.** A list has to be edited
-   * every time a role is added, and forgetting costs nothing at the time — the new role
-   * paints correctly and silently selects in the browser default. Anything true of every
-   * role belongs here; anything true of one belongs in its own block below.
+   * ⚠ **Matched on the role class itself, by prefix — NOT on a base class the
+   * component adds, and NOT on a list of the role selectors.** Each alternative drops
+   * one of the two things this block has to do at once:
+   *
+   * - A base class emitted only by `Text` leaves a hand-written
+   *   `class="text-role-caption"` with the property undeclared, so `color-mix()` gets
+   *   an empty argument and selection paints the browser default. That is the exact
+   *   defect the per-theme fallback exists to prevent, and it lands on the usage the
+   *   class exists for — a plain element, or a Code Connect mapping, reaching for the
+   *   class without the component.
+   * - A list of the four role selectors has to be edited every time a role is added,
+   *   and forgetting costs nothing at the time: the new role paints correctly and
+   *   silently selects in the browser default.
+   *
+   * The prefix match is the only form that does both — a role added below is covered
+   * by construction, and it is covered whether or not a component put the class there.
+   * Anything true of every role belongs here; anything true of one belongs in its own
+   * block below.
    *
    * ADDING A ROLE is therefore two edits: a member on `TextRole`, and one block below.
    * Everything else follows — this block, the story, and the browser tests all derive
-   * from the enum, and the light/dark test reddens if the new block is missing. */
-  .text-role {
+   * from the enum. A role added with no block reddens twice: the light/dark browser
+   * test, and `parity:figma`, which requires a `.text-role-<name>` rule per enum
+   * member. */
+  [class^="text-role-"],
+  [class*=" text-role-"] {
     --text-role-selection-color: var(--accent-color, var(--color-default-600));
 
     &:where(.dark, .dark *) {
@@ -1358,7 +1374,14 @@
    * So this takes the contrast that reads best for a block of text (APCA Lc 102 light,
    * 90 dark) rather than a step down for separation's sake. A step down would buy a
    * distinction from `value` that nothing needs and cost legibility at the length this
-   * role is for. */
+   * role is for.
+   *
+   * The other reason to hold prose back — that a full-contrast block competes with the
+   * headings around it — was checked and does not apply here: studio's headings are
+   * mostly drawn MUTED (`text-neutral-500`), so prose at 800 already sits darker than
+   * the heading above it, and the few that are full contrast are `text-black` /
+   * `text-white`, which 800/200 is plainly separate from. If headings are ever brought
+   * onto a role of their own, that is the point to re-ask this. */
   .text-role-body {
     @apply text-sm select-text;
     @apply text-neutral-800 dark:text-neutral-200;

@@ -1029,9 +1029,27 @@ function checkText() {
   // role. One transform, stated once: strip the `text-role-` prefix.
   const codeRoles = enumValues(src, "TextRole").map((v) => v.replace("text-role-", ""));
   const figmaRoles = (figma.variantOptions || {}).Role || [];
+
+  // ⚠ Establish that BOTH sides are non-empty before comparing them. `eqSet` of two
+  // empty lists is true, so a reader that silently returned nothing — a renamed enum, a
+  // contract that parsed to `{}` — would make every check below vacuous and the whole
+  // component report green. An empty side is the failure, not the absence of one.
+  if (codeRoles.length === 0) fails.push("read no TextRole members from src/text.tsx");
+  if (figmaRoles.length === 0) fails.push("contract has no variantOptions.Role");
   if (!eqSet(figmaRoles, codeRoles))
     fails.push(`Figma Role axis [${figmaRoles}] != code TextRole [${codeRoles}]`);
   if (!hasProp("Label")) fails.push("Figma missing component property: 'Label'");
+
+  // The per-variant rows are what the note below reports. An axis option with no row is
+  // a contract describing fewer roles than it claims, and a row missing its token would
+  // otherwise throw while building that note — a guard that crashes reports nothing,
+  // which is the one outcome worse than a FAIL line.
+  const variants = figma.variants || [];
+  for (const role of figmaRoles) {
+    const v = variants.find((x) => x.role === role);
+    if (!v) fails.push(`contract Role option '${role}' has no entry in variants[]`);
+    else if (!v.colorToken) fails.push(`contract variant '${role}' has no colorToken`);
+  }
 
   // The one pair still maintained by hand: a member on the enum and a block in the
   // stylesheet. Everything else derives from the enum, so this is the only place a role
@@ -1042,7 +1060,7 @@ function checkText() {
     }
   }
   notes.push(
-    `roles resolve to ${(figma.variants || []).map((v) => `${v.role}→${v.colorToken.replace("color/content/", "")}`).join(", ")}`,
+    `roles resolve to ${variants.map((v) => `${v.role}→${(v.colorToken || "?").replace("color/content/", "")}`).join(", ")}`,
   );
   notes.push(
     "selection is NOT modelled in Figma — no `::selection`/`user-select` equivalent; the browser tests check it",
