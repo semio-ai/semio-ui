@@ -1260,6 +1260,91 @@
       @apply size-56;
     }
   }
+
+  /* ── Text roles ───────────────────────────────────────────────────────────
+   *
+   * Four named roles for body text, each resolving to a rung of the size scale, a
+   * light/dark colour pair, and whether the text can be selected.
+   *
+   * **A role, not a size.** A size cannot answer the question these classes exist to
+   * answer. A fact's value and the label naming it are both 14px neutral-900 — the
+   * scale says they are the same thing, and they are not: the value is content a
+   * reader will want to copy, the label is chrome that happens to be words. Selection,
+   * contrast and emphasis all follow from what the text IS, so that is what the caller
+   * names. Several roles may land on one rung; that is the point, not a collision.
+   *
+   * **Why a class and not utilities spread by a component.** Both halves of a
+   * light/dark pair live in ONE class here, so a caller's `text-*` utility overrides
+   * the pair WHOLLY — utilities sit in a later cascade layer than components, so the
+   * utility wins in both themes. A component that spread `text-neutral-900
+   * dark:text-neutral-100` into its own class list would instead be half-overridden:
+   * the caller's `text-neutral-500` and the component's `dark:text-neutral-100` are
+   * two different utilities in the same layer, both survive, and the result is a
+   * light-mode change with dark mode left behind — which is precisely the defect
+   * class this work exists to remove. The class is what makes the escape hatch
+   * all-or-nothing.
+   *
+   * **Selection is part of the role.** `LayoutRoot` sets `select-none` on the app
+   * root so the product reads as an application rather than a document; content opts
+   * back in, chrome does not. That opt-in is a direct declaration on the text element
+   * and the root's is inherited, so the direct one wins regardless of layer.
+   *
+   * The tint is the one text inputs already use (`variant-text-caret-color`), so a
+   * selection drag that crosses from a field into surrounding copy does not change
+   * colour halfway. `--accent-color` is only defined inside `.responsive`, which the
+   * layout root does NOT carry, so the fallback is what actually paints for ordinary
+   * copy — and it is declared per theme, because a single mid-grey is too dark to
+   * read through in dark mode and too light in light mode. */
+  .text-role-value,
+  .text-role-label,
+  .text-role-caption,
+  .text-role-body {
+    --text-role-selection-color: var(--accent-color, var(--color-default-600));
+
+    &:where(.dark, .dark *) {
+      --text-role-selection-color: var(--accent-color, var(--color-default-400));
+    }
+
+    &::selection,
+    & *::selection {
+      background-color: color-mix(in oklab, var(--text-role-selection-color) 75%, transparent);
+    }
+  }
+
+  /* The primary reading of a thing: a fact's value, a name, a field's content.
+   * Selectable — this is the text a reader came to copy. */
+  .text-role-value {
+    @apply text-sm select-text;
+    @apply text-neutral-900 dark:text-neutral-100;
+  }
+
+  /* The name of something, in the app's own voice: a section heading, a fact's label,
+   * a column head. Chrome, so NOT selectable — dragging across a fact list should take
+   * the values and leave the scaffolding behind.
+   *
+   * Uppercase at a small size with loosened tracking, which is what separates it from
+   * `caption` — the two share a rung and a colour, and without the case change a label
+   * and the sentence explaining it would be indistinguishable. */
+  .text-role-label {
+    @apply text-xs font-semibold tracking-wide uppercase;
+    @apply text-neutral-500 dark:text-neutral-400;
+  }
+
+  /* Secondary content attached to something else: a subtitle, a timestamp, the
+   * sentence under a setting. Selectable — it is content, not scaffolding. */
+  .text-role-caption {
+    @apply text-xs select-text;
+    @apply text-neutral-500 dark:text-neutral-400;
+  }
+
+  /* Running prose: a description, an explanation, a paragraph the reader is meant to
+   * read rather than scan. Sits between `value` and `caption` in contrast because a
+   * block of text at full contrast competes with the headings around it, and at
+   * `caption`'s contrast it stops being comfortable to read at length. */
+  .text-role-body {
+    @apply text-sm select-text;
+    @apply text-neutral-700 dark:text-neutral-300;
+  }
 }
 
 @layer utilities {

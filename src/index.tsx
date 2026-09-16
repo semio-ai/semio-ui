@@ -160,6 +160,9 @@ export * from "./layouts/stepper";
 export * from "./layouts/table-list";
 export * from "./layouts/tabs";
 
+// Typography
+export * from "./text";
+
 // Uncategorized or Not Updated
 export * from "./avatar";
 export * from "./inputs/color-picker-popover";
