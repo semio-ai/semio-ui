@@ -112,9 +112,15 @@ describe("selection follows the role, not the size", () => {
    * The control for the three above. Without it, a `select-none` wrapper that silently
    * stopped applying would make them pass for the wrong reason — every element is
    * selectable by default, so "is selectable" is the ambient answer.
+   *
+   * ⚠ `toBe("none")`, not `not.toBe("text")`. Measured in Chromium, a label computes
+   * `none` inside the wrapper and `auto` without it, and `not.toBe("text")` is satisfied
+   * by both — so the negated form passes in exactly the scenario this control exists to
+   * detect. It also fails to notice `select-auto` landing on `.text-role-label`, which
+   * would make chrome selectable in the product with the suite still green.
    */
   test("chrome stays unselectable, so the wrapper is really in force", () => {
-    expect(readRole("light", TextRole.Label).userSelect).not.toBe("text");
+    expect(readRole("light", TextRole.Label).userSelect).toBe("none");
   });
 });
 
