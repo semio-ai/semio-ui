@@ -1348,12 +1348,20 @@
   }
 
   /* Running prose: a description, an explanation, a paragraph the reader is meant to
-   * read rather than scan. Sits between `value` and `caption` in contrast because a
-   * block of text at full contrast competes with the headings around it, and at
-   * `caption`'s contrast it stops being comfortable to read at length. */
+   * read rather than scan.
+   *
+   * Close to `value` in contrast, and that is deliberate. `value` is mostly the AMBIENT
+   * foreground — it is set on a container and inherited by a whole subtree — rather than
+   * a peer sitting beside prose, so the two rarely need telling apart. What does sit
+   * adjacent, and must stay distinguishable, is prose against `caption`.
+   *
+   * So this takes the contrast that reads best for a block of text (APCA Lc 102 light,
+   * 90 dark) rather than a step down for separation's sake. A step down would buy a
+   * distinction from `value` that nothing needs and cost legibility at the length this
+   * role is for. */
   .text-role-body {
     @apply text-sm select-text;
-    @apply text-neutral-700 dark:text-neutral-300;
+    @apply text-neutral-800 dark:text-neutral-200;
   }
 }
 
