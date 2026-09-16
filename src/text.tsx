@@ -16,6 +16,12 @@ import { clsx } from "clsx";
  * where the rung, the light/dark colour pair and the selection rule are declared
  * together. See the block comment there for why the pairing has to live in a class
  * rather than in utilities this component spreads.
+ *
+ * **Adding a role is a member here plus one block in the stylesheet.** Nothing else
+ * enumerates them: the shared declarations key on the base `.text-role` class the
+ * component emits, and the browser tests and the Storybook story both derive their lists
+ * from `Object.values(TextRole)`. A role added without its stylesheet block reddens the
+ * light/dark test rather than shipping unstyled.
  */
 export enum TextRole {
   /**
@@ -125,7 +131,12 @@ export function Text({
   ref,
 }: TextProps) {
   return (
-    <Component className={clsx(role, className)} title={title} id={id} ref={ref as Ref<never>}>
+    <Component
+      className={clsx("text-role", role, className)}
+      title={title}
+      id={id}
+      ref={ref as Ref<never>}
+    >
       {children}
     </Component>
   );

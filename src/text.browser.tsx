@@ -14,7 +14,13 @@ import "./test-stylesheet";
  */
 
 type Theme = "light" | "dark";
-const ROLES = [TextRole.Value, TextRole.Label, TextRole.Caption, TextRole.Body];
+/**
+ * Every role, derived rather than listed — a role added to the enum is covered by each
+ * `test.each(ROLES)` below without anyone remembering to add it here. That matters most
+ * for the light/dark pair test, which is what fails when a new role has no stylesheet
+ * block: it would otherwise ship painting like whatever it inherits.
+ */
+const ROLES = Object.values(TextRole);
 
 /**
  * Renders under a theme, inside the app's real selection condition.

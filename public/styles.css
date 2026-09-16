@@ -1297,11 +1297,18 @@
    * colour halfway. `--accent-color` is only defined inside `.responsive`, which the
    * layout root does NOT carry, so the fallback is what actually paints for ordinary
    * copy — and it is declared per theme, because a single mid-grey is too dark to
-   * read through in dark mode and too light in light mode. */
-  .text-role-value,
-  .text-role-label,
-  .text-role-caption,
-  .text-role-body {
+   * read through in dark mode and too light in light mode.
+   *
+   * ⚠ **Keyed on the base `.text-role` class, which `Text` emits alongside the role's
+   * own class, rather than on a list of the role selectors.** A list has to be edited
+   * every time a role is added, and forgetting costs nothing at the time — the new role
+   * paints correctly and silently selects in the browser default. Anything true of every
+   * role belongs here; anything true of one belongs in its own block below.
+   *
+   * ADDING A ROLE is therefore two edits: a member on `TextRole`, and one block below.
+   * Everything else follows — this block, the story, and the browser tests all derive
+   * from the enum, and the light/dark test reddens if the new block is missing. */
+  .text-role {
     --text-role-selection-color: var(--accent-color, var(--color-default-600));
 
     &:where(.dark, .dark *) {

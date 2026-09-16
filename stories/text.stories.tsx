@@ -19,12 +19,23 @@ const meta: Meta<typeof Text> = {
 export default meta;
 type Story = StoryObj<typeof Text>;
 
-const ROLES: { role: TextRole; name: string; note: string }[] = [
-  { role: TextRole.Value, name: "value", note: "14px · full contrast · selectable" },
-  { role: TextRole.Label, name: "label", note: "12px · muted · uppercase · CHROME" },
-  { role: TextRole.Caption, name: "caption", note: "12px · muted · selectable" },
-  { role: TextRole.Body, name: "body", note: "14px · mid contrast · selectable" },
-];
+/**
+ * What each role resolves to, for the reader. Optional: a role with no entry still
+ * appears below, carrying a placeholder — the list itself comes from the enum, so a role
+ * added during a migration shows up here without anyone remembering this file.
+ */
+const NOTES: Partial<Record<TextRole, string>> = {
+  [TextRole.Value]: "14px · full contrast · selectable",
+  [TextRole.Label]: "12px · muted · uppercase · CHROME",
+  [TextRole.Caption]: "12px · muted · selectable",
+  [TextRole.Body]: "14px · mid contrast · selectable",
+};
+
+const ROLES = Object.values(TextRole).map((role) => ({
+  role,
+  name: role.replace("text-role-", ""),
+  note: NOTES[role] ?? "⚠ no note yet — add one to NOTES in text.stories.tsx",
+}));
 
 /**
  * One themed panel.
