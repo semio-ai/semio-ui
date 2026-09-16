@@ -178,3 +178,25 @@ export const tooltipPreview = figmaNode("587-1217");
 
 /** SliderNumberField preview frame — `preview/slidernumberfield` (Light+Dark). */
 export const sliderNumberFieldPreview = figmaNode("587-1235");
+
+/**
+ * Text — the role component set, plus the two docs boards behind its colour decisions.
+ *
+ * Points at the SET rather than a per-role preview frame, unlike Button/Chip. Those
+ * link one frame per variant because Figma's embed zooms to the containing frame, so a
+ * node inside a set shows the whole set. Here the whole set IS the subject: the roles
+ * are only meaningful beside each other — `value` and `body` share a rung and differ by
+ * contrast, `label` and `caption` share a rung and a colour and differ by case.
+ *
+ * ⚠ Selection is NOT modelled in Figma. `::selection` and `user-select` have no
+ * equivalent there, so whether a role is selectable lives only in the `.text-role-*`
+ * classes — the design link cannot confirm it, and the browser tests are what do.
+ */
+export const textRole = {
+  /** The `Text` component set — all four roles. */
+  set: figmaNode("786-903"),
+  /** Docs: the three content-colour levels the roles bind to, Light and Dark. */
+  contentColours: figmaNode("779-894"),
+  /** Docs: ramp A (ships) vs B/C (what APCA argues for), with Lc and WCAG per level. */
+  rampComparison: figmaNode("790-894"),
+} as const;

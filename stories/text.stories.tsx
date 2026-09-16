@@ -1,6 +1,7 @@
 import { useCallback, useRef } from "react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Button, Text, TextRole } from "@semio/ui";
+import { textRole } from "./figma-links";
 
 /**
  * The four text roles, side by side in both themes.
@@ -15,6 +16,9 @@ const meta: Meta<typeof Text> = {
   component: Text,
   title: "ui/Text",
 };
+
+/** Per-story Figma design link, as in button/chip stories. */
+const design = (url: string) => ({ design: { type: "figma" as const, url } });
 
 export default meta;
 type Story = StoryObj<typeof Text>;
@@ -81,6 +85,7 @@ function RoleList() {
 
 export const Roles: Story = {
   name: "Roles, light and dark",
+  parameters: design(textRole.set),
   render: () => (
     <div className="grid gap-4 p-5 sm:grid-cols-2">
       <Panel theme="light">
@@ -139,6 +144,7 @@ function FactList() {
  */
 export const Selection: Story = {
   name: "Selection follows the role",
+  parameters: design(textRole.set),
   render: function SelectionStory() {
     return (
       <div className="flex flex-col gap-4 p-5">
@@ -198,6 +204,7 @@ function SelectablePanel({ theme }: { theme: "light" | "dark" }) {
  */
 export const Overriding: Story = {
   name: "Overriding a role",
+  parameters: design(textRole.contentColours),
   render: () => (
     <div className="grid gap-4 p-5 sm:grid-cols-2">
       {(["light", "dark"] as const).map((theme) => (
