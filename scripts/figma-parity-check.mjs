@@ -30,9 +30,9 @@ const enumValues = (src, name) => {
   // and a parity check comparing against a short list passes for the wrong reason.
   const open = src.search(new RegExp(`export enum ${name}\\s*{`));
   if (open < 0) return [];
-  let i = src.indexOf("{", open),
-    depth = 0,
-    end = -1;
+  const i = src.indexOf("{", open);
+  let depth = 0;
+  let end = -1;
   for (let j = i; j < src.length; j++) {
     if (src[j] === "{") depth++;
     else if (src[j] === "}" && --depth === 0) {
