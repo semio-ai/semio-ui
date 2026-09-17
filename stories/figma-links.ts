@@ -180,7 +180,7 @@ export const tooltipPreview = figmaNode("587-1217");
 export const sliderNumberFieldPreview = figmaNode("587-1235");
 
 /**
- * Text — the role component set, plus the two docs boards behind its colour decisions.
+ * Text — the role component set, and the specimen showing what each role resolves to.
  *
  * Points at the SET rather than a per-role preview frame, unlike Button/Chip. Those
  * link one frame per variant because Figma's embed zooms to the containing frame, so a
@@ -193,10 +193,16 @@ export const sliderNumberFieldPreview = figmaNode("587-1235");
  * classes — the design link cannot confirm it, and the browser tests are what do.
  */
 export const textRole = {
-  /** The `Text` component set — all four roles. */
+  /** The `Text` component set — all four roles, each row labelled with what it resolves to. */
   set: figmaNode("786-903"),
-  /** Docs: the three content-colour levels the roles bind to, Light and Dark. */
-  contentColours: figmaNode("779-894"),
-  /** Docs: the body-legibility candidates A / A′ / A″, with Lc and WCAG per level. A′ ships. */
-  rampComparison: figmaNode("790-894"),
+  /**
+   * The specimen on the Examples page: every role in both themes, labelled, with what it
+   * is for and placeholder copy at its real size.
+   *
+   * The library file carries the design as it stands, not how it got there — so the
+   * boards that compared candidate ramps and recorded which was chosen do not live in
+   * Figma. Those arguments belong where someone changing the code will meet them, which
+   * is the comments on the `.text-role-*` blocks in `packages/ui/public/styles.css`.
+   */
+  specimen: figmaNode("835-1401"),
 } as const;

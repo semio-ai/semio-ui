@@ -204,7 +204,7 @@ function SelectablePanel({ theme }: { theme: "light" | "dark" }) {
  */
 export const Overriding: Story = {
   name: "Overriding a role",
-  parameters: design(textRole.contentColours),
+  parameters: design(textRole.set),
   render: () => (
     <div className="grid gap-4 p-5 sm:grid-cols-2">
       {(["light", "dark"] as const).map((theme) => (
