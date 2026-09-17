@@ -45,9 +45,11 @@ const ROLES = Object.values(TextRole).map((role) => ({
  * One themed panel.
  *
  * ⚠ The `select-none` is not styling — it reproduces `LayoutRoot`, which sets it on the
- * app root so the product reads as an application rather than a document. Without it
- * every role here would be selectable and the selection story below would show nothing,
- * which is the one way this story could look right while telling you nothing.
+ * app root so the product reads as an application rather than a document. It is here so
+ * the selection story below shows what the product shows: the roles that opt back in with
+ * `select-text` highlight, and everything around them does not. Chrome's own
+ * unselectability does NOT depend on it — `text-role-label` carries `select-none` itself,
+ * which is what makes the class safe to use outside this root.
  */
 function Panel({ theme, children }: { theme: "light" | "dark"; children: React.ReactNode }) {
   return (

@@ -48,6 +48,31 @@ function withTheme<T>(theme: Theme, node: React.ReactNode, read: (root: HTMLElem
   }
 }
 
+/**
+ * The same, WITHOUT the `select-none` wrapper.
+ *
+ * The wrapper is the app's condition, not the class's: `LayoutRoot` is one place a role
+ * class can appear, and the class is documented as usable anywhere. So a role's answer to
+ * "can a reader select this?" has to come from the role, and the only way to measure that
+ * is to take the ambient `select-none` away and read what is left.
+ */
+function withoutSelectNone<T>(theme: Theme, node: React.ReactNode, read: (root: HTMLElement) => T) {
+  const html = document.documentElement;
+  const previous = html.className;
+  html.className = theme === "dark" ? "dark" : "";
+  const host = document.createElement("div");
+  document.body.appendChild(host);
+  try {
+    const view = render(<>{node}</>, { container: host });
+    const result = read(host);
+    view.unmount();
+    return result;
+  } finally {
+    host.remove();
+    html.className = previous;
+  }
+}
+
 const readRole = (theme: Theme, role: TextRole, className?: string) =>
   withTheme(
     theme,
@@ -120,15 +145,64 @@ describe("selection follows the role, not the size", () => {
    * stopped applying would make them pass for the wrong reason — every element is
    * selectable by default, so "is selectable" is the ambient answer.
    *
-   * ⚠ `toBe("none")`, not `not.toBe("text")`. Measured in Chromium, a label computes
-   * `none` inside the wrapper and `auto` without it, and `not.toBe("text")` is satisfied
-   * by both — so the negated form passes in exactly the scenario this control exists to
-   * detect. It also fails to notice `select-auto` landing on `.text-role-label`, which
-   * would make chrome selectable in the product with the suite still green.
+   * ⚠ It reads an element carrying NO role class, which is the only reading that still
+   * measures the wrapper. A label would do it too on a stylesheet where chrome's
+   * unselectability is inherited from the root — and that is exactly the arrangement the
+   * unwrapped test below rejects, so once the label carries `select-none` itself, reading
+   * a label here would be satisfied by the label's own class and stop being a control at
+   * all.
+   *
+   * ⚠ `toBe("none")`, not `not.toBe("text")`. Measured in Chromium, an unstyled element
+   * computes `none` inside the wrapper and `auto` without it, and `not.toBe("text")` is
+   * satisfied by both — so the negated form passes in exactly the scenario this control
+   * exists to detect.
    */
-  test("chrome stays unselectable, so the wrapper is really in force", () => {
-    expect(readRole("light", TextRole.Label).userSelect).toBe("none");
+  test("the app's select-none root is really in force", () => {
+    const ambient = withTheme(
+      "light",
+      <span data-testid="unclassed">x</span>,
+      (host) =>
+        getComputedStyle(host.querySelector<HTMLElement>("[data-testid='unclassed']")!).userSelect,
+    );
+    expect(ambient).toBe("none");
   });
+});
+
+describe("selectability is the role's own, not the root's", () => {
+  const readUnwrapped = (role: TextRole) =>
+    withoutSelectNone("light", <span className={role}>sample</span>, (host) => {
+      const el = host.querySelector<HTMLElement>(`.${role}`);
+      if (!el) throw new Error(`no element carrying ${role}`);
+      const style = getComputedStyle(el);
+      return style.userSelect || style.webkitUserSelect;
+    });
+
+  /**
+   * ⚠ **A property a role claims has to be measured where the role is the only thing
+   * supplying it.** Chrome is documented as unselectable, and `LayoutRoot` sets
+   * `select-none` app-wide — so a label read inside anything reproducing that root reports
+   * `none` whether or not the class contributes a thing, and the reading certifies the
+   * wrapper.
+   *
+   * It matters outside that root: a class used on its own, or a subtree that opts back in
+   * with `select-text`, leaves a label with no `select-none` of its own draggable, and the
+   * usual reading cannot see it.
+   */
+  test("label is unselectable with no select-none ancestor", () => {
+    expect(readUnwrapped(TextRole.Label)).toBe("none");
+  });
+
+  /**
+   * The control, in the identical unwrapped condition. Without it the test above would
+   * pass against a stylesheet that made every role unselectable — which is the opposite
+   * defect and just as silent.
+   */
+  test.each([TextRole.Value, TextRole.Caption, TextRole.Body])(
+    "%s stays selectable in the same unwrapped condition",
+    (role) => {
+      expect(readUnwrapped(role)).toBe("text");
+    },
+  );
 });
 
 /**
@@ -340,6 +414,91 @@ describe("variant and mode", () => {
     expect(stated.color).not.toBe(plain.color);
   });
 
+  /**
+   * ⚠ **Static is a qualifier on `variant`, so on its own it must cost the text nothing.**
+   * `--variant-text-color` is declared only inside `.responsive`, and a static role with no
+   * variant emits no `responsive` class — so without a fallback the `color` declaration is
+   * invalid at computed-value time and the text INHERITS, silently dropping the role's
+   * paint. That contradicts the prop's own documentation, and no screenshot of a page whose
+   * surrounding text is already near the role's colour would show it.
+   *
+   * The magenta parent is what makes the failure legible rather than a near-miss: the
+   * broken form takes it, the fixed form does not, and the last assertion proves the parent
+   * colour genuinely reaches an element that has no colour of its own.
+   */
+  test.each(ROLES)("%s with Static and no variant paints as the role does", (role) => {
+    const surrounding = "rgb(255, 0, 255)";
+    const read = (theme: Theme, node: React.ReactNode) =>
+      withTheme(
+        theme,
+        <div style={{ color: surrounding }}>{node}</div>,
+        (host) => getComputedStyle(host.querySelector<HTMLElement>(`.${role}`)!).color,
+      );
+
+    for (const theme of ["light", "dark"] as Theme[]) {
+      const ambient = read(theme, <Text role={role}>x</Text>);
+      const stated = read(
+        theme,
+        <Text role={role} mode={VariantMode.Static}>
+          x
+        </Text>,
+      );
+      expect(stated).toBe(ambient);
+      expect(stated).not.toBe(surrounding);
+    }
+
+    // The control for the read itself: an element with no colour rule of its own does take
+    // the parent's colour, so "not magenta" above is a result rather than an ambient truth.
+    const bare = withTheme(
+      "light",
+      <div style={{ color: surrounding }}>
+        <span data-testid="uncoloured">x</span>
+      </div>,
+      (host) =>
+        getComputedStyle(host.querySelector<HTMLElement>("[data-testid='uncoloured']")!).color,
+    );
+    expect(bare).toBe(surrounding);
+  });
+
+  /**
+   * ⚠ And the other half: Static with no variant must still show the variant it is sitting
+   * in. This is what rules out the obvious repair for the test above — emitting `responsive`
+   * unconditionally — because that re-roots the accent context onto the element at the
+   * DEFAULT variant, and a validation line inside an error panel would go grey.
+   */
+  test.each(["light", "dark"] as Theme[])(
+    "in %s, Static with no variant takes the surrounding variant's colour",
+    (theme) => {
+      const role = TextRole.Caption;
+      const inContext = withTheme(
+        theme,
+        <div className="responsive error">
+          <Text role={role} mode={VariantMode.Static}>
+            x
+          </Text>
+        </div>,
+        (host) => getComputedStyle(host.querySelector<HTMLElement>(`.${role}`)!).color,
+      );
+      const statedError = render1(
+        theme,
+        <Text role={role} variant={Variant.Error} mode={VariantMode.Static}>
+          x
+        </Text>,
+        role,
+      ).color;
+      const noContext = render1(
+        theme,
+        <Text role={role} mode={VariantMode.Static}>
+          x
+        </Text>,
+        role,
+      ).color;
+
+      expect(inContext).toBe(statedError);
+      expect(inContext).not.toBe(noContext);
+    },
+  );
+
   /** Naming a variant without Static leaves the text alone and only moves the selection. */
   test("variant alone retints the selection and leaves the text colour", () => {
     const plain = render1("light", <Text role={TextRole.Body}>x</Text>, TextRole.Body);
@@ -428,6 +587,47 @@ describe("the component", () => {
     expect(dt).not.toBeNull();
     expect(dt?.classList.contains("truncate")).toBe(true);
     expect(dt?.classList.contains(TextRole.Label)).toBe(true);
+  });
+
+  /**
+   * ⚠ The props a caller reaches the DOM with are open, not an allowlist.
+   *
+   * A component that names its props one by one drops every attribute nobody thought to
+   * add, and does it **silently** — `data-testid` missing is a test that cannot find the
+   * element, `aria-label` missing is a screen reader announcing nothing, and neither
+   * changes a pixel. The assertions below are one of each kind plus a native handler, so
+   * narrowing the props back to a list reddens here rather than in whatever consumer first
+   * needed one.
+   */
+  test("forwards data-*, aria-*, style and handlers to the element", () => {
+    let clicks = 0;
+    const { container } = render(
+      <Text
+        role={TextRole.Value}
+        data-testid="subject"
+        aria-label="Owner name"
+        aria-hidden
+        style={{ letterSpacing: "3px" }}
+        onClick={() => {
+          clicks += 1;
+        }}
+      >
+        value
+      </Text>,
+    );
+    const el = container.querySelector<HTMLElement>("[data-testid='subject']");
+    expect(el).not.toBeNull();
+    expect(el?.getAttribute("aria-label")).toBe("Owner name");
+    expect(el?.getAttribute("aria-hidden")).toBe("true");
+    expect(el?.style.letterSpacing).toBe("3px");
+    el?.click();
+    expect(clicks).toBe(1);
+  });
+
+  /** `role` stays the TextRole prop, so nothing leaks an ARIA role onto the run of text. */
+  test("does not emit a DOM role attribute", () => {
+    const { container } = render(<Text role={TextRole.Label}>Owner</Text>);
+    expect(container.querySelector("span")?.hasAttribute("role")).toBe(false);
   });
 
   test("passes a ref through as an ordinary React 19 prop", () => {
