@@ -51,7 +51,24 @@ export function Chip({
         // Both grounds declare their own foreground, so exactly one is applied and
         // never both — a chip carrying two fills would take its background from one
         // and its text colour from whichever lost, with nothing reporting it.
-        visuals === "default" ? "variant-responsive-bg" : "variant-subtle-bg",
+        //
+        // Which of the two variant fills applies turns on INTERACTIVITY, not on
+        // appearance. `onDelete` is the only handler a chip takes, so a chip without
+        // one cannot be acted on at all — and `variant-responsive-bg` carries a
+        // `:hover` rule that swaps fill and foreground together, which on a plain
+        // label promises a click that does nothing. `variant-static-bg` is the same
+        // colour pair with no hover rule; a non-clickable `Avatar` already picks
+        // between the two this way, for this reason.
+        visuals === "default" && onDelete !== undefined && "variant-responsive-bg",
+        visuals === "default" && onDelete === undefined && "variant-static-bg",
+        visuals !== "default" && "variant-subtle-bg",
+        // The chip states its own radius rather than inheriting whichever fill it
+        // took. `variant-responsive-bg` and `variant-subtle-bg` both happen to declare
+        // `rounded-xs`, but `variant-static-bg` declares nothing except the colour
+        // pair — deliberately, so it can serve shapes as different as a chip and a
+        // round avatar. Left to the fill, a deletable chip would be rounded and an
+        // identical plain one square.
+        "rounded-xs",
         "sized-text sized-height",
         "responsive grid grid-rows-1 place-items-center",
         "sized-chip-gap p-0.5",
