@@ -235,16 +235,12 @@ describe("a role's colour is a lightness, and the variant supplies the hue", () 
 
   /** The lightness is the role's; only chroma and hue come from the variant. */
   test.each(["primary", "error", "success"])(
-    "under %s every role keeps its own lightness and takes the variant's hue",
+    "under %s the muted pair keeps its lightness and takes the variant's hue",
     (variant) => {
-      for (const [role, expected] of [
-        [TextRole.Value, 0.205],
-        [TextRole.Body, 0.269],
-        [TextRole.Caption, 0.556],
-      ] as const) {
+      for (const role of [TextRole.Caption, TextRole.Label]) {
         const tinted = parts(readInVariant("light", role, variant));
         const plain = parts(readInVariant("light", role, ""));
-        expect(tinted.l).toBeCloseTo(expected, 3);
+        expect(tinted.l).toBeCloseTo(0.556, 3);
         expect(tinted.c).toBeGreaterThan(0);
         expect(tinted.h).not.toBe(plain.h);
       }
@@ -252,12 +248,24 @@ describe("a role's colour is a lightness, and the variant supplies the hue", () 
   );
 
   /**
-   * The hierarchy is what a per-variant RUNG could not hold: a rung is a position in one
-   * family's ramp, and the families are anchored at different lightnesses, so the gap
-   * between body and caption varied by more than 4x across variants. Assigning the
-   * lightness makes it identical by construction — which is the whole claim.
+   * ⚠ `value` and `body` do NOT derive, and that is the design rather than an omission.
+   * They are defined by being high-contrast, which puts them at lightnesses where sRGB has
+   * almost no chroma left: at `value` in dark the gamut keeps 9% of primary's chroma and 8%
+   * of error's, landing the two 0.007 apart — indistinguishable. Deriving them would offer
+   * a colour the gamut cannot supply and flatten two variants into one.
+   *
+   * Without this test, widening the selector back to every role would look like an
+   * improvement and reintroduce exactly that.
    */
+  test.each(["primary", "error", "success"])("under %s value and body stay neutral", (variant) => {
+    for (const role of [TextRole.Value, TextRole.Body]) {
+      expect(parts(readInVariant("light", role, variant)).c).toBe(0);
+      expect(parts(readInVariant("dark", role, variant)).c).toBe(0);
+    }
+  });
+
   test("body and caption keep the same separation under every variant", () => {
+    // body is neutral by design, so this is really "the muted pair holds its lightness".
     const variants = ["", "primary", "error", "success", "warning"];
     const gaps = variants.map((v) => {
       const body = parts(readInVariant("light", TextRole.Body, v)).l;

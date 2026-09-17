@@ -1342,8 +1342,6 @@
   .text-role-value {
     @apply text-sm select-text;
     @apply text-neutral-900 dark:text-neutral-100;
-    --text-role-l: 20.5%;
-    --text-role-l-dark: 97%;
   }
 
   /* The name of something, in the app's own voice: a section heading, a fact's label,
@@ -1419,17 +1417,16 @@
   .text-role-body {
     @apply text-sm select-text;
     @apply text-neutral-800 dark:text-neutral-200;
-    --text-role-l: 26.9%;
-    --text-role-l-dark: 92.2%;
   }
 
-  /* THE ROLE'S COLOUR IS A LIGHTNESS, NOT A RUNG.
+  /* A MUTED ROLE'S COLOUR IS A LIGHTNESS, NOT A RUNG.
    *
-   * Each role above declares a target lightness and the neutral pair that lightness
-   * corresponds to. The pair is the fallback; this block is what actually paints, taking
-   * the lightness from the role and the chroma and hue from whatever variant is in
-   * context. In a `.responsive primary` subtree a caption is primary-hued at exactly the
-   * lightness a neutral caption would have had.
+   * `label` and `caption` declare a target lightness alongside the neutral pair that
+   * lightness corresponds to. The pair is the fallback; the block below is what paints,
+   * taking the lightness from the role and the chroma and hue from whatever variant is in
+   * context — so in a `.responsive primary` subtree a caption is primary-hued at exactly
+   * the lightness a neutral caption would have had. `value` and `body` do not derive; the
+   * block below says why.
    *
    * ⚠ **Naming a rung per variant does not work, and cannot be made to.** `text-<variant>-500`
    * looks like the obvious spelling, but a rung is a position in ONE family's ramp, and the
@@ -1446,11 +1443,26 @@
    * rungs above exactly. One rule covers grey and colour alike, which is the whole point.
    *
    * The `@supports` gate is required rather than decorative: without relative colour syntax
-   * the declarations below are invalid and the `@apply` pairs above remain in force, which
-   * is why every role still names its pair. */
+   * the declarations below are invalid and the `@apply` pairs remain in force, which is why
+   * the muted pair still names its neutral colours rather than relying on the derivation. */
   @supports (color: oklch(from red l c h)) {
-    [class^="text-role-"],
-    [class*=" text-role-"] {
+    /* ⚠ THE MUTED PAIR ONLY. `value` and `body` are deliberately excluded, and a new role
+     * belongs here only if it is muted.
+     *
+     * A role that derives has to sit at a lightness where sRGB still has chroma to give.
+     * `value` and `body` are defined by being high-contrast, which puts them near the
+     * lightness extremes, and there is almost no chroma available at L 97 or L 20.5 — you
+     * cannot have a saturated near-white. Measured on the shipping palette: at `value` in
+     * dark mode the gamut keeps 9% of primary's chroma and 8% of error's, and the two land
+     * 0.007 apart in the a/b plane, which is indistinguishable. Deriving them would offer a
+     * variant colour the gamut cannot supply, and flatten two variants into one while
+     * appearing to honour both.
+     *
+     * `muted` keeps 72–100% in light and 73–100% in dark, because it sits in the middle of
+     * the range. It is also the role where the variant mattered: the hierarchy spread that
+     * motivated deriving at all was the body↔muted gap. */
+    .text-role-label,
+    .text-role-caption {
       /* `--accent-color` is only declared inside `.responsive`; ordinary copy falls back to
        * the default variant's own accent, which is what makes grey text grey. */
       color: oklch(from var(--accent-color, var(--color-default-600)) var(--text-role-l) c h);
