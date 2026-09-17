@@ -258,13 +258,23 @@ describe("a role's colour is a lightness, and the variant supplies the hue", () 
    * lightness makes it identical by construction — which is the whole claim.
    */
   test("body and caption keep the same separation under every variant", () => {
-    const gaps = ["", "primary", "error", "success", "warning"].map((v) => {
+    const variants = ["", "primary", "error", "success", "warning"];
+    const gaps = variants.map((v) => {
       const body = parts(readInVariant("light", TextRole.Body, v)).l;
       const caption = parts(readInVariant("light", TextRole.Caption, v)).l;
       return Number((caption - body).toFixed(4));
     });
     expect(new Set(gaps).size).toBe(1);
     expect(gaps[0]).toBeGreaterThan(0.2);
+
+    // ⚠ The control, and this test is worthless without it. With the derivation
+    // disabled every variant falls back to the same neutral pair, so the gaps come out
+    // identical for the one reason this test is not trying to demonstrate. Requiring the
+    // variants to actually be tinted separates "all equal because it works" from "all
+    // equal because nothing happened".
+    for (const v of variants.filter(Boolean)) {
+      expect(parts(readInVariant("light", TextRole.Caption, v)).c).toBeGreaterThan(0);
+    }
   });
 });
 
