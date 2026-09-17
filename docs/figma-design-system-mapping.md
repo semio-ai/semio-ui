@@ -147,7 +147,7 @@ Code Connect: both in [progress.figma.tsx](../src/feedback/progress.figma.tsx). 
 
 ### StatusBadge, Spinner & KeybindingHint (feedback, closing Phase 2)
 
-- **StatusBadge** (`544:722`) — the badge **dot**: an 8-variant set, dot bound to `color/<variant>/bg` with a 2px ring bound to **`color/surface/inset`** (= `ring-neutral-200 dark:ring-neutral-800`, exactly). The text/count mode and `placement` corners are contextual, shown as examples/story args, not axes. Code Connect [status-badge.figma.tsx](../src/feedback/status-badge.figma.tsx) (variant only; child is contextual), `status` parity block, `status.stories.tsx` authored.
+- **StatusBadge** (`544:722`) — the badge **dot**: an 8-variant set, dot bound to `color/<variant>/bg` with a 2px ring bound to **`color/surface/inset`** (= `ring-neutral-200 dark:ring-neutral-800`, exactly). The text/count mode and `placement` corners are contextual, shown as examples/story args, not axes. Code Connect [status-badge.figma.tsx](../src/feedback/status-badge.figma.tsx) (variant only; child is contextual), `status` parity block, `status-badge.stories.tsx` authored.
 - **Spinner** (`545:706`) — a **static** representation of the animated ring (a ~30% blue-500 arc). No props/variants/tokens, so it gets a drop-in [spinner.figma.tsx](../src/feedback/spinner.figma.tsx) + `spinner.stories.tsx` but **no parity block** (nothing token-bound to assert; animation can't be mirrored).
 - **KeybindingHint** — **not a mirrored component**: it renders adaptive inline text (⌘⇧⌥ on Mac, `Ctrl+Shift` on PC), no box/border. Represented as a Figma **example frame** ("KeybindingHint — examples") on the Components page; no Code Connect/parity (a text primitive, not a variant-bound visual).
 
