@@ -1,5 +1,6 @@
 import type { ReactNode, Ref } from "react";
 import { clsx } from "clsx";
+import type { Variant } from "./types";
 
 /**
  * What a piece of text IS, which is what decides how it is painted and whether it can
@@ -18,10 +19,15 @@ import { clsx } from "clsx";
  * rather than in utilities this component spreads.
  *
  * **Adding a role is a member here plus one block in the stylesheet.** Nothing else
- * enumerates them: the shared declarations key on the base `.text-role` class the
- * component emits, and the browser tests and the Storybook story both derive their lists
- * from `Object.values(TextRole)`. A role added without its stylesheet block reddens the
+ * enumerates them: the shared declarations match on the `text-role-` class PREFIX, so a
+ * new role picks them up whether or not this component put the class there, and the
+ * browser tests and the Storybook story both derive their lists from
+ * `Object.values(TextRole)`. A role added without its stylesheet block reddens the
  * light/dark test rather than shipping unstyled.
+ *
+ * ⚠ A role that should take the ambient variant on its own colour also needs adding to
+ * the muted selector in the stylesheet. Only the muted pair derives; `value` and `body`
+ * are deliberately excluded, and the block there says why.
  */
 export enum TextRole {
   /**
@@ -55,6 +61,39 @@ export enum TextRole {
   Body = "text-role-body",
 }
 
+/**
+ * How far the active {@link Variant} is allowed to show on this text.
+ *
+ * A qualifier on `variant`, not a prominence axis of its own: with no variant in play the
+ * two settings look the same, because both resolve against the default accent. That is why
+ * it is named for the variant's mode of use rather than for how loud the text is.
+ */
+export enum VariantMode {
+  /**
+   * Default. The variant shows only where the role already lets it: in the selection
+   * tint, and — for the muted roles — as the hue of the role's own colour, at the
+   * lightness that role would have had anyway.
+   *
+   * Named for the level rather than for the selection, because the selection is not the
+   * whole of it: a `caption` in a `primary` pane is primary-hued at rest, not only when
+   * a reader drags across it.
+   *
+   * ⚠ On {@link TextRole.Label} the selection half cannot show — a label is chrome and
+   * carries `select-none`, so there is nothing to tint. The muted hue still applies.
+   */
+  Ambient = "ambient",
+
+  /**
+   * The text itself carries the variant's colour — an error message that is red because it
+   * is an error, rather than a neutral line that happens to sit in an error panel.
+   *
+   * Resolved through the lightness clamp rather than the raw accent-text token, so it stays
+   * legible on any ground. The raw token is calibrated against the deep-inset surface only
+   * and measures 1.6:1 for the warm hues elsewhere.
+   */
+  Static = "static",
+}
+
 /** The elements {@link Text} will render as. Text containers only. */
 export type TextElement = "span" | "p" | "div" | "h1" | "h2" | "h3" | "h4" | "dt" | "dd";
 
@@ -81,6 +120,24 @@ export interface TextProps {
    * heading outline contains; it changes nothing visual.
    */
   as?: TextElement;
+
+  /**
+   * Which variant's colours this text draws on. **Omit it to inherit the surrounding
+   * context**, which is the common case — a caption inside a `primary` pane is primary
+   * without anyone saying so.
+   *
+   * Name it when the text carries a variant its container does not: a validation message
+   * that is `Error` inside an ordinary form, without wrapping it in a `responsive error`
+   * element. {@link Variant.Default} is the explicit opt-out — a timestamp that should stay
+   * neutral even though it sits in an error panel.
+   */
+  variant?: Variant;
+
+  /**
+   * How far that variant shows. Defaults to {@link VariantMode.Ambient} — present, but
+   * only as far as the role already allows.
+   */
+  mode?: VariantMode;
 
   children?: ReactNode;
 
@@ -124,6 +181,8 @@ export interface TextProps {
 export function Text({
   role,
   as: Component = "span",
+  variant,
+  mode = VariantMode.Ambient,
   children,
   className,
   title,
@@ -132,7 +191,20 @@ export function Text({
 }: TextProps) {
   return (
     <Component
-      className={clsx("text-role", role, className)}
+      className={clsx(
+        role,
+        // `responsive` is what DECLARES the variant custom properties — the `@variant`
+        // blocks are nested inside it, so a bare variant class sets nothing. Emitting both
+        // re-roots the accent context on this element, which is why it is only done when a
+        // variant is named: without it the text inherits the surrounding one, and that is
+        // the behaviour a caller gets by leaving the prop off.
+        variant && `responsive ${variant}`,
+        // The clamped variant text, rather than the raw accent-text token: the clamp keeps
+        // the hue while guaranteeing the contrast, which the token does not away from the
+        // one ground it was calibrated against.
+        mode === VariantMode.Static && "variant-text-on-inset",
+        className,
+      )}
       title={title}
       id={id}
       ref={ref as Ref<never>}

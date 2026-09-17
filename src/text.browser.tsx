@@ -1,6 +1,7 @@
 import { expect, test, describe } from "vitest";
 import { render } from "vitest-browser-react";
-import { Text, TextRole } from "./text";
+import { Text, TextRole, VariantMode } from "./text";
+import { Variant } from "./types";
 import "./test-stylesheet";
 
 /**
@@ -310,6 +311,109 @@ describe("a caller's text utility overrides the role in BOTH themes", () => {
     expect(overriddenLight).toBe(overriddenDark);
     expect(overriddenLight).not.toBe(plainLight);
     expect(overriddenDark).not.toBe(plainDark);
+  });
+});
+
+describe("variant and mode", () => {
+  const render1 = (theme: Theme, node: React.ReactNode, cls: string) =>
+    withTheme(theme, node, (host) => {
+      const el = host.querySelector<HTMLElement>(`.${cls}`);
+      if (!el) throw new Error(`no element carrying ${cls}`);
+      const s = getComputedStyle(el);
+      return { color: s.color, tint: s.getPropertyValue("--text-role-selection-color").trim() };
+    });
+
+  /**
+   * The point of the prop: a validation message that is Error inside an ordinary form,
+   * without wrapping it in a `responsive error` element. Today that is hand-spelled at
+   * eleven sites as `clsx("responsive variant-static-text text-xs", Variant.Error)`.
+   */
+  test("variant colours the text when mode is Static, with no surrounding context", () => {
+    const plain = render1("light", <Text role={TextRole.Caption}>x</Text>, TextRole.Caption);
+    const stated = render1(
+      "light",
+      <Text role={TextRole.Caption} variant={Variant.Error} mode={VariantMode.Static}>
+        x
+      </Text>,
+      TextRole.Caption,
+    );
+    expect(stated.color).not.toBe(plain.color);
+  });
+
+  /** Naming a variant without Static leaves the text alone and only moves the selection. */
+  test("variant alone retints the selection and leaves the text colour", () => {
+    const plain = render1("light", <Text role={TextRole.Body}>x</Text>, TextRole.Body);
+    const tinted = render1(
+      "light",
+      <Text role={TextRole.Body} variant={Variant.Error}>
+        x
+      </Text>,
+      TextRole.Body,
+    );
+    expect(tinted.color).toBe(plain.color);
+    expect(tinted.tint).not.toBe(plain.tint);
+  });
+
+  /**
+   * ⚠ Variant.Default is the opt-OUT, and it has to work from inside a variant subtree —
+   * a timestamp in an error panel that should stay neutral. Without this the only escape
+   * is a className, which is the drift this component exists to remove.
+   */
+  test("Variant.Default opts out of an inherited variant", () => {
+    const inherited = withTheme(
+      "light",
+      <div className="responsive error">
+        <Text role={TextRole.Caption}>x</Text>
+      </div>,
+      (h) => getComputedStyle(h.querySelector<HTMLElement>(`.${TextRole.Caption}`)!).color,
+    );
+    const optedOut = withTheme(
+      "light",
+      <div className="responsive error">
+        <Text role={TextRole.Caption} variant={Variant.Default}>
+          x
+        </Text>
+      </div>,
+      (h) => getComputedStyle(h.querySelector<HTMLElement>(`.${TextRole.Caption}`)!).color,
+    );
+    const neutral = render1("light", <Text role={TextRole.Caption}>x</Text>, TextRole.Caption);
+    expect(inherited).not.toBe(neutral.color);
+    expect(optedOut).toBe(neutral.color);
+  });
+
+  /**
+   * ⚠ A variant DOES reach a label's own colour, because `label` is one of the muted roles
+   * and the muted derivation applies the variant's hue at the role's lightness. What a
+   * label cannot show is the SELECTION half of Ambient — it is chrome and carries
+   * `select-none`, so there is nothing to tint.
+   *
+   * This test exists because the first version of it asserted the opposite, and the
+   * component's own prop documentation claimed the default left the text alone. It did not
+   * for two of the four roles, and nothing else would have caught the contradiction.
+   */
+  test("on label the ambient variant reaches the text but not the selection", () => {
+    const plain = render1("light", <Text role={TextRole.Label}>x</Text>, TextRole.Label);
+    const ambient = render1(
+      "light",
+      <Text role={TextRole.Label} variant={Variant.Error}>
+        x
+      </Text>,
+      TextRole.Label,
+    );
+    // The hue lands on the text; the lightness is still the role's.
+    expect(ambient.color).not.toBe(plain.color);
+    // But there is no selection for the tint half to paint.
+    expect(readRole("light", TextRole.Label).userSelect).toBe("none");
+
+    // Static goes further: the clamped variant colour rather than the role's lightness.
+    const stated = render1(
+      "light",
+      <Text role={TextRole.Label} variant={Variant.Error} mode={VariantMode.Static}>
+        x
+      </Text>,
+      TextRole.Label,
+    );
+    expect(stated.color).not.toBe(ambient.color);
   });
 });
 

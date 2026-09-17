@@ -478,18 +478,7 @@
    * contrast, which is the right trade for text. */
   .variant-text-on-inset {
     @apply transition-colors duration-50 ease-in-out;
-    color: oklch(from var(--weak-accent-text-color) min(l, 0.42) c h);
-
-    &:where(.dark, .dark *) {
-      color: oklch(from var(--weak-accent-text-color) max(l, 0.78) c h);
-    }
-
-    /* Pre-relative-color-syntax fallback: the strong shade, which is the darkest the
-     * palette offers in light mode and the lightest in dark. It does not clear AA for
-     * the warm hues, but it is the closest existing token and it moves the right way. */
-    @supports not (color: oklch(from red l 0 0)) {
-      color: var(--strong-accent-text-color);
-    }
+    color: var(--variant-text-color);
   }
 
   .chip {
@@ -1461,8 +1450,13 @@
      * `muted` keeps 72–100% in light and 73–100% in dark, because it sits in the middle of
      * the range. It is also the role where the variant mattered: the hierarchy spread that
      * motivated deriving at all was the body↔muted gap. */
-    .text-role-label,
-    .text-role-caption {
+    /* ⚠ `:not(.variant-text-on-inset)` is load-bearing. Both this block and that class set
+     * `color` in the components layer, and this one is declared later, so without the
+     * exclusion the derivation wins and `VariantMode.Static` silently does nothing on the
+     * two roles it is most wanted for. The derivation steps aside when a colour has been
+     * stated outright. */
+    .text-role-label:not(.variant-text-on-inset),
+    .text-role-caption:not(.variant-text-on-inset) {
       /* `--accent-color` is only declared inside `.responsive`; ordinary copy falls back to
        * the default variant's own accent, which is what makes grey text grey. */
       color: oklch(from var(--accent-color, var(--color-default-600)) var(--text-role-l) c h);
@@ -1473,6 +1467,13 @@
         );
       }
     }
+  }
+  /* A STATED variant colour has to beat the role's own, and the role blocks are declared
+   * later in this layer than `variant-text-on-inset`, so that class alone loses. Matching
+   * both together raises the specificity above either. */
+  [class^="text-role-"].variant-text-on-inset,
+  [class*=" text-role-"].variant-text-on-inset {
+    color: var(--variant-text-color);
   }
 }
 
@@ -1491,6 +1492,13 @@
     --card-border-color: var(--light-accent-text-color);
     --strong-accent-text-color: var(--darkest-accent-text-color);
     --weak-accent-text-color: var(--dark-accent-text-color);
+    /* Variant text, clamped so the hue survives and the contrast is guaranteed. Declared
+     * once here because two places paint it — `variant-text-on-inset` and the text roles'
+     * stated mode — and a clamp copied into both drifts the moment one is tuned. */
+    --variant-text-color: var(--strong-accent-text-color);
+    @supports (color: oklch(from red l c h)) {
+      --variant-text-color: oklch(from var(--weak-accent-text-color) min(l, 0.42) c h);
+    }
 
     /* The lightness crossover every on-fill foreground derives against, named once so
      * the three derivations cannot drift apart. Its justification — 190 of 194 palette
@@ -1557,6 +1565,10 @@
       --accent-color: var(--light-color);
       --strong-accent-text-color: var(--lightest-accent-text-color);
       --weak-accent-text-color: var(--light-accent-text-color);
+      --variant-text-color: var(--strong-accent-text-color);
+      @supports (color: oklch(from red l c h)) {
+        --variant-text-color: oklch(from var(--weak-accent-text-color) max(l, 0.78) c h);
+      }
       --card-border-color: var(--dark-accent-text-color);
     }
 
