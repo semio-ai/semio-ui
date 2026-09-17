@@ -190,6 +190,84 @@ describe("the selection tint resolves outside a .responsive subtree", () => {
   });
 });
 
+/**
+ * Reads the role inside a variant context, which is how a role gets its colour.
+ *
+ * The wrapper needs BOTH `responsive` and the variant class: the `@variant` blocks that
+ * define a variant's colours are nested inside `.responsive`, so a bare `primary` declares
+ * nothing and the read would silently measure the default.
+ */
+const readInVariant = (theme: Theme, role: TextRole, variant: string) =>
+  withTheme(
+    theme,
+    <div className={variant ? `responsive ${variant}` : ""}>
+      <Text role={role}>sample</Text>
+    </div>,
+    (host) => getComputedStyle(host.querySelector<HTMLElement>(`.${role}`)!).color,
+  );
+
+/** oklch(L C H) -> the three numbers, so lightness and hue can be asserted separately. */
+const parts = (css: string) => {
+  const m = /oklch\(([\d.]+)\s+([\d.]+)\s+([\d.]+)/.exec(css);
+  if (!m) throw new Error(`not an oklch colour: ${css}`);
+  return { l: Number(m[1]), c: Number(m[2]), h: Number(m[3]) };
+};
+
+describe("a role's colour is a lightness, and the variant supplies the hue", () => {
+  /**
+   * ⚠ The control for everything below. The default variant's accent has ZERO chroma, so
+   * deriving a colour from it must reproduce the neutral rung the role names as its
+   * fallback — otherwise the derivation has silently changed what ships for every existing
+   * caller, which no other assertion here would notice.
+   */
+  test.each([
+    [TextRole.Value, 0.205, 0.97],
+    [TextRole.Body, 0.269, 0.922],
+    [TextRole.Caption, 0.556, 0.708],
+  ])("%s outside any variant is exactly its neutral rung", (role, light, dark) => {
+    const l = parts(readInVariant("light", role, ""));
+    const d = parts(readInVariant("dark", role, ""));
+    expect(l.c).toBe(0);
+    expect(d.c).toBe(0);
+    expect(l.l).toBeCloseTo(light, 3);
+    expect(d.l).toBeCloseTo(dark, 3);
+  });
+
+  /** The lightness is the role's; only chroma and hue come from the variant. */
+  test.each(["primary", "error", "success"])(
+    "under %s every role keeps its own lightness and takes the variant's hue",
+    (variant) => {
+      for (const [role, expected] of [
+        [TextRole.Value, 0.205],
+        [TextRole.Body, 0.269],
+        [TextRole.Caption, 0.556],
+      ] as const) {
+        const tinted = parts(readInVariant("light", role, variant));
+        const plain = parts(readInVariant("light", role, ""));
+        expect(tinted.l).toBeCloseTo(expected, 3);
+        expect(tinted.c).toBeGreaterThan(0);
+        expect(tinted.h).not.toBe(plain.h);
+      }
+    },
+  );
+
+  /**
+   * The hierarchy is what a per-variant RUNG could not hold: a rung is a position in one
+   * family's ramp, and the families are anchored at different lightnesses, so the gap
+   * between body and caption varied by more than 4x across variants. Assigning the
+   * lightness makes it identical by construction — which is the whole claim.
+   */
+  test("body and caption keep the same separation under every variant", () => {
+    const gaps = ["", "primary", "error", "success", "warning"].map((v) => {
+      const body = parts(readInVariant("light", TextRole.Body, v)).l;
+      const caption = parts(readInVariant("light", TextRole.Caption, v)).l;
+      return Number((caption - body).toFixed(4));
+    });
+    expect(new Set(gaps).size).toBe(1);
+    expect(gaps[0]).toBeGreaterThan(0.2);
+  });
+});
+
 describe("a caller's text utility overrides the role in BOTH themes", () => {
   /**
    * The reason the pair lives in a components-layer class rather than in utilities the

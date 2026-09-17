@@ -1342,6 +1342,8 @@
   .text-role-value {
     @apply text-sm select-text;
     @apply text-neutral-900 dark:text-neutral-100;
+    --text-role-l: 20.5%;
+    --text-role-l-dark: 97%;
   }
 
   /* The name of something, in the app's own voice: a section heading, a fact's label,
@@ -1354,6 +1356,8 @@
   .text-role-label {
     @apply text-xs font-semibold tracking-wide uppercase;
     @apply text-neutral-500 dark:text-neutral-400;
+    --text-role-l: 55.6%;
+    --text-role-l-dark: 70.8%;
   }
 
   /* Secondary content attached to something else: a subtitle, a timestamp, the
@@ -1361,6 +1365,8 @@
   .text-role-caption {
     @apply text-xs select-text;
     @apply text-neutral-500 dark:text-neutral-400;
+    --text-role-l: 55.6%;
+    --text-role-l-dark: 70.8%;
   }
 
   /* ⚠ THE MUTED PAIR ABOVE FAILS WCAG AA IN LIGHT MODE, AND THAT IS A DECISION.
@@ -1413,6 +1419,48 @@
   .text-role-body {
     @apply text-sm select-text;
     @apply text-neutral-800 dark:text-neutral-200;
+    --text-role-l: 26.9%;
+    --text-role-l-dark: 92.2%;
+  }
+
+  /* THE ROLE'S COLOUR IS A LIGHTNESS, NOT A RUNG.
+   *
+   * Each role above declares a target lightness and the neutral pair that lightness
+   * corresponds to. The pair is the fallback; this block is what actually paints, taking
+   * the lightness from the role and the chroma and hue from whatever variant is in
+   * context. In a `.responsive primary` subtree a caption is primary-hued at exactly the
+   * lightness a neutral caption would have had.
+   *
+   * ⚠ **Naming a rung per variant does not work, and cannot be made to.** `text-<variant>-500`
+   * looks like the obvious spelling, but a rung is a position in ONE family's ramp, and the
+   * families are anchored at the brand's own lightnesses — `neutral-500` is L 55.6 where
+   * `secondary-500` is L 78.0. Measured across the palette, the body↔muted gap that makes a
+   * caption read as secondary ranges from Lc 9.8 to 46.7 depending on the variant; at the
+   * bottom of that range the two are indistinguishable. Assigning the lightness collapses
+   * that spread to 8.0 in light and 16.3 in dark, because every family now sits at the same
+   * lightness per role by construction. Regularising the ramps does NOT fix it — that was
+   * measured too, and moved the light spread from 24.1 to 22.9.
+   *
+   * **The default variant is not a special case.** Its accent resolves to `default-600` /
+   * `default-400`, which have zero chroma, so assigning a lightness reproduces the neutral
+   * rungs above exactly. One rule covers grey and colour alike, which is the whole point.
+   *
+   * The `@supports` gate is required rather than decorative: without relative colour syntax
+   * the declarations below are invalid and the `@apply` pairs above remain in force, which
+   * is why every role still names its pair. */
+  @supports (color: oklch(from red l c h)) {
+    [class^="text-role-"],
+    [class*=" text-role-"] {
+      /* `--accent-color` is only declared inside `.responsive`; ordinary copy falls back to
+       * the default variant's own accent, which is what makes grey text grey. */
+      color: oklch(from var(--accent-color, var(--color-default-600)) var(--text-role-l) c h);
+
+      &:where(.dark, .dark *) {
+        color: oklch(
+          from var(--accent-color, var(--color-default-400)) var(--text-role-l-dark) c h
+        );
+      }
+    }
   }
 }
 
