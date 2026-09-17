@@ -25,8 +25,19 @@ const root = join(here, "..");
 // enum VALUES (the css-class strings, e.g. Primary = "primary"), which is what
 // the Figma axes use — not the member names.
 const enumValues = (src, name) => {
-  const m = src.match(new RegExp(`export enum ${name}\\s*{([\\s\\S]*?)}`));
-  return m ? [...m[1].matchAll(/=\s*"([^"]+)"/g)].map((x) => x[1]) : [];
+  // Brace-BALANCED, not lazy-to-the-first `}`. A JSDoc `{@link Foo.Bar}` inside a member
+  // comment closes a lazy match early, which silently returns a PREFIX of the members —
+  // and a parity check comparing against a short list passes for the wrong reason.
+  const open = src.search(new RegExp(`export enum ${name}\\s*{`));
+  if (open < 0) return [];
+  const i = src.indexOf("{", open);
+  let depth = 0, end = -1;
+  for (let j = i; j < src.length; j++) {
+    if (src[j] === "{") depth++;
+    else if (src[j] === "}" && --depth === 0) { end = j; break; }
+  }
+  if (end < 0) return [];
+  return [...src.slice(i + 1, end).matchAll(/=\s*"([^"]+)"/g)].map((x) => x[1]);
 };
 const eqSet = (a, b) => { const B = new Set(b); return a.length === b.length && a.every((x) => B.has(x)); };
 const subsetOf = (sub, sup) => sub.every((x) => sup.includes(x));
@@ -555,7 +566,47 @@ function checkTypography() {
   return { name: "Typography", figma, fails, notes, summary: `${(figma.styles || []).length} text styles · font=${figma.fontFamilyVar}` };
 }
 
-const results = [checkTypography(), checkCard(), checkButton(), checkTextField(), checkCheckbox(), checkSwitch(), checkToggleSquare(), checkChip(), checkProgress(), checkProgressCircle(), checkStatus(), checkNestedItem(), ...checkNestedSubtypes(), checkTabs(), checkTooltip(), checkSliderNumberField(), checkLabel(), checkNestedMenu(), checkModal(), checkDialog()];
+function checkText() {
+  const fails = [], notes = [];
+  const src = readFileSync(join(root, "src/text.tsx"), "utf8");
+  const css = readFileSync(join(root, "public/styles.css"), "utf8");
+  const figma = readFigma("text");
+  const fprops = figma.properties || [];
+  const hasProp = (name) => fprops.some((p) => p === name || p.startsWith(`${name}#`));
+  // `TextRole`'s VALUES are the css class names; the Figma variant option is the bare
+  // role. One transform, stated once: strip the `text-role-` prefix.
+  const codeRoles = enumValues(src, "TextRole").map((v) => v.replace("text-role-", ""));
+  const figmaRoles = (figma.variantOptions || {}).Role || [];
+  // ⚠ Establish that BOTH sides are non-empty before comparing them. `eqSet` of two empty
+  // lists is true, so a reader that silently returned nothing — a renamed enum, a contract
+  // that parsed to `{}` — would make every check below vacuous and the component report
+  // green. An empty side is the failure, not the absence of one.
+  if (codeRoles.length === 0) fails.push("read no TextRole members from src/text.tsx");
+  if (figmaRoles.length === 0) fails.push("contract has no variantOptions.Role");
+  if (!eqSet(figmaRoles, codeRoles)) fails.push(`Figma Role axis [${figmaRoles}] != code TextRole [${codeRoles}]`);
+  if (!hasProp("Label")) fails.push("Figma missing component property: 'Label'");
+  // The per-variant rows are what the note below reports. An axis option with no row is a
+  // contract describing fewer roles than it claims, and a row missing its token would
+  // otherwise throw while building that note — a guard that crashes reports nothing, which
+  // is the one outcome worse than a FAIL line.
+  const variants = figma.variants || [];
+  for (const role of figmaRoles) {
+    const v = variants.find((x) => x.role === role);
+    if (!v) fails.push(`contract Role option '${role}' has no entry in variants[]`);
+    else if (!v.colorToken) fails.push(`contract variant '${role}' has no colorToken`);
+  }
+  // The one pair still maintained by hand: a member on the enum and a block in the
+  // stylesheet. Everything else derives from the enum, so this is the only place a role can
+  // go half-added — and a role with no block paints like whatever it inherits.
+  for (const role of codeRoles) {
+    if (!new RegExp(`\\.text-role-${role}\\s*\\{`).test(css)) fails.push(`code TextRole '${role}' has no .text-role-${role} block in public/styles.css`);
+  }
+  notes.push(`roles resolve to ${variants.map((v) => `${v.role}→${(v.colorToken || "?").replace("color/content/", "")}`).join(", ")}`);
+  notes.push("selection is NOT modelled in Figma — no `::selection`/`user-select` equivalent; the browser tests check it");
+  return { name: "Text", figma, fails, notes, summary: `Role = ${figmaRoles.length} · props=[${fprops.join(", ")}]` };
+}
+
+const results = [checkTypography(), checkCard(), checkButton(), checkTextField(), checkCheckbox(), checkSwitch(), checkToggleSquare(), checkChip(), checkProgress(), checkProgressCircle(), checkStatus(), checkNestedItem(), ...checkNestedSubtypes(), checkTabs(), checkTooltip(), checkSliderNumberField(), checkLabel(), checkNestedMenu(), checkModal(), checkDialog(), checkText()];
 let anyFail = false;
 console.log(`code: variants=[${codeVariants}] · sizes=[${codeSizes}]\n`);
 for (const r of results) {

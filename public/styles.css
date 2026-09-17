@@ -499,18 +499,7 @@
    * contrast, which is the right trade for text. */
   .variant-text-on-inset {
     @apply transition-colors duration-50 ease-in-out;
-    color: oklch(from var(--weak-accent-text-color) min(l, 0.42) c h);
-
-    &:where(.dark, .dark *) {
-      color: oklch(from var(--weak-accent-text-color) max(l, 0.78) c h);
-    }
-
-    /* Pre-relative-color-syntax fallback: the strong shade, which is the darkest the
-     * palette offers in light mode and the lightest in dark. It does not clear AA for
-     * the warm hues, but it is the closest existing token and it moves the right way. */
-    @supports not (color: oklch(from red l 0 0)) {
-      color: var(--strong-accent-text-color);
-    }
+    color: var(--variant-text-color);
   }
 
   .chip {
@@ -1217,7 +1206,10 @@
      * Declared here rather than at the call site because a caller's `text-*` utility
      * would override this from a later cascade layer whatever its specificity — so a
      * caller naming a literal colour silently reintroduces the failure. */
-    color: oklch(from var(--strong-accent-text-color) clamp(0, calc((var(--on-fill-threshold) - l) * 1000), 1) 0 0);
+    color: oklch(
+      from var(--strong-accent-text-color) clamp(0, calc((var(--on-fill-threshold) - l) * 1000), 1)
+        0 0
+    );
     background-color: var(--strong-accent-text-color);
 
     @supports not (color: oklch(from red l 0 0)) {
@@ -1338,6 +1330,229 @@
       @apply size-56;
     }
   }
+
+  /* ── Text roles ───────────────────────────────────────────────────────────
+   *
+   * Four named roles for body text, each resolving to a rung of the size scale, a
+   * light/dark colour pair, and whether the text can be selected.
+   *
+   * **A role, not a size.** A size cannot answer the question these classes exist to
+   * answer. A fact's value and the label naming it are both 14px neutral-900 — the
+   * scale says they are the same thing, and they are not: the value is content a
+   * reader will want to copy, the label is chrome that happens to be words. Selection,
+   * contrast and emphasis all follow from what the text IS, so that is what the caller
+   * names. Several roles may land on one rung; that is the point, not a collision.
+   *
+   * **Why a class and not utilities spread by a component.** Both halves of a
+   * light/dark pair live in ONE class here, so a caller's `text-*` utility overrides
+   * the pair WHOLLY — utilities sit in a later cascade layer than components, so the
+   * utility wins in both themes. A component that spread `text-neutral-900
+   * dark:text-neutral-100` into its own class list would instead be half-overridden:
+   * the caller's `text-neutral-500` and the component's `dark:text-neutral-100` are
+   * two different utilities in the same layer, both survive, and the result is a
+   * light-mode change with dark mode left behind — which is precisely the defect
+   * class this work exists to remove. The class is what makes the escape hatch
+   * all-or-nothing.
+   *
+   * **Selection is part of the role.** `LayoutRoot` sets `select-none` on the app
+   * root so the product reads as an application rather than a document; content opts
+   * back in, chrome does not. That opt-in is a direct declaration on the text element
+   * and the root's is inherited, so the direct one wins regardless of layer.
+   *
+   * The tint is the one text inputs already use (`variant-text-caret-color`), so a
+   * selection drag that crosses from a field into surrounding copy does not change
+   * colour halfway. `--accent-color` is only defined inside `.responsive`, which the
+   * layout root does NOT carry, so the fallback is what actually paints for ordinary
+   * copy — and it is declared per theme, because a single mid-grey is too dark to
+   * read through in dark mode and too light in light mode.
+   *
+   * ⚠ **Matched on the role class itself, by prefix — NOT on a base class the
+   * component adds, and NOT on a list of the role selectors.** Each alternative drops
+   * one of the two things this block has to do at once:
+   *
+   * - A base class emitted only by `Text` leaves a hand-written
+   *   `class="text-role-caption"` with the property undeclared, so `color-mix()` gets
+   *   an empty argument and selection paints the browser default. That is the exact
+   *   defect the per-theme fallback exists to prevent, and it lands on the usage the
+   *   class exists for — a plain element, or a Code Connect mapping, reaching for the
+   *   class without the component.
+   * - A list of the four role selectors has to be edited every time a role is added,
+   *   and forgetting costs nothing at the time: the new role paints correctly and
+   *   silently selects in the browser default.
+   *
+   * The prefix match is the only form that does both — a role added below is covered
+   * by construction, and it is covered whether or not a component put the class there.
+   * Anything true of every role belongs here; anything true of one belongs in its own
+   * block below.
+   *
+   * ADDING A ROLE is therefore two edits: a member on `TextRole`, and one block below.
+   * Everything else follows — this block, the story, and the browser tests all derive
+   * from the enum. A role added with no block reddens twice: the light/dark browser
+   * test, and `parity:figma`, which requires a `.text-role-<name>` rule per enum
+   * member. */
+  [class^="text-role-"],
+  [class*=" text-role-"] {
+    --text-role-selection-color: var(--accent-color, var(--color-default-600));
+
+    &:where(.dark, .dark *) {
+      --text-role-selection-color: var(--accent-color, var(--color-default-400));
+    }
+
+    &::selection,
+    & *::selection {
+      background-color: color-mix(in oklab, var(--text-role-selection-color) 75%, transparent);
+    }
+  }
+
+  /* The primary reading of a thing: a fact's value, a name, a field's content.
+   * Selectable — this is the text a reader came to copy. */
+  .text-role-value {
+    @apply text-sm select-text;
+    @apply text-neutral-900 dark:text-neutral-100;
+  }
+
+  /* The name of something, in the app's own voice: a section heading, a fact's label,
+   * a column head. Chrome, so NOT selectable — dragging across a fact list should take
+   * the values and leave the scaffolding behind.
+   *
+   * Uppercase at a small size with loosened tracking, which is what separates it from
+   * `caption` — the two share a rung and a colour, and without the case change a label
+   * and the sentence explaining it would be indistinguishable. */
+  .text-role-label {
+    @apply text-xs font-semibold tracking-wide uppercase;
+    @apply text-neutral-500 dark:text-neutral-400;
+    --text-role-l: 55.6%;
+    --text-role-l-dark: 70.8%;
+  }
+
+  /* Secondary content attached to something else: a subtitle, a timestamp, the
+   * sentence under a setting. Selectable — it is content, not scaffolding. */
+  .text-role-caption {
+    @apply text-xs select-text;
+    @apply text-neutral-500 dark:text-neutral-400;
+    --text-role-l: 55.6%;
+    --text-role-l-dark: 70.8%;
+  }
+
+  /* ⚠ THE MUTED PAIR ABOVE FAILS WCAG AA IN LIGHT MODE, AND THAT IS A DECISION.
+   *
+   * `label` and `caption` share `neutral-500` / `neutral-400`. Measured against the
+   * grounds the app paints, not against white:
+   *
+   *   light  `.card` (layout-light-inset)   3.76:1   APCA Lc 55.0   — AA wants 4.5:1
+   *          layout-light-base              2.95:1   Lc 41.5
+   *          white                          4.73:1   Lc 69.5        — the only pass
+   *   dark   every ground                4.87–6.91   Lc 44.8–51.3   — passes throughout
+   *
+   * `.card` is the surface behind every modal, dialog, dropdown, tooltip and panel, so
+   * the 3.76 is where most of the app's captions actually sit, not an edge case. At
+   * 12px there is no large-text allowance.
+   *
+   * It stays because the two goals here are in tension and only one of them is a
+   * number. `neutral-600` clears AA on every ground, and costs roughly half the
+   * separation from `body` — the body↔muted gap drops from Lc 29.6 to 15.8 — which is
+   * what makes a caption read as secondary rather than as slightly lighter prose. The
+   * judgement is that these remain legible, and Lc 55 is above APCA's floor for text
+   * even though the WCAG ratio is not.
+   *
+   * ⚠ **So do not "fix" this from a contrast audit alone.** The number is known. What
+   * makes it safe to leave is that it is now declared once: changing the muted rung is
+   * an edit here, not a sweep of the call sites. If you are revisiting it, the
+   * measurements and the side-by-side are on the Figma board "Muted roles — which rung,
+   * on the grounds we ship", and the thing to weigh is the body separation, not the
+   * ground ratio on its own. */
+
+  /* Running prose: a description, an explanation, a paragraph the reader is meant to
+   * read rather than scan.
+   *
+   * Close to `value` in contrast, and that is deliberate. `value` is mostly the AMBIENT
+   * foreground — it is set on a container and inherited by a whole subtree — rather than
+   * a peer sitting beside prose, so the two rarely need telling apart. What does sit
+   * adjacent, and must stay distinguishable, is prose against `caption`.
+   *
+   * So this takes the contrast that reads best for a block of text (APCA Lc 102 light,
+   * 90 dark) rather than a step down for separation's sake. A step down would buy a
+   * distinction from `value` that nothing needs and cost legibility at the length this
+   * role is for.
+   *
+   * The other reason to hold prose back — that a full-contrast block competes with the
+   * headings around it — was checked and does not apply here: studio's headings are
+   * mostly drawn MUTED (`text-neutral-500`), so prose at 800 already sits darker than
+   * the heading above it, and the few that are full contrast are `text-black` /
+   * `text-white`, which 800/200 is plainly separate from. If headings are ever brought
+   * onto a role of their own, that is the point to re-ask this. */
+  .text-role-body {
+    @apply text-sm select-text;
+    @apply text-neutral-800 dark:text-neutral-200;
+  }
+
+  /* A MUTED ROLE'S COLOUR IS A LIGHTNESS, NOT A RUNG.
+   *
+   * `label` and `caption` declare a target lightness alongside the neutral pair that
+   * lightness corresponds to. The pair is the fallback; the block below is what paints,
+   * taking the lightness from the role and the chroma and hue from whatever variant is in
+   * context — so in a `.responsive primary` subtree a caption is primary-hued at exactly
+   * the lightness a neutral caption would have had. `value` and `body` do not derive; the
+   * block below says why.
+   *
+   * ⚠ **Naming a rung per variant does not work, and cannot be made to.** `text-<variant>-500`
+   * looks like the obvious spelling, but a rung is a position in ONE family's ramp, and the
+   * families are anchored at the brand's own lightnesses — `neutral-500` is L 55.6 where
+   * `secondary-500` is L 78.0. Measured across the palette, the body↔muted gap that makes a
+   * caption read as secondary ranges from Lc 9.8 to 46.7 depending on the variant; at the
+   * bottom of that range the two are indistinguishable. Assigning the lightness collapses
+   * that spread to 8.0 in light and 16.3 in dark, because every family now sits at the same
+   * lightness per role by construction. Regularising the ramps does NOT fix it — that was
+   * measured too, and moved the light spread from 24.1 to 22.9.
+   *
+   * **The default variant is not a special case.** Its accent resolves to `default-600` /
+   * `default-400`, which have zero chroma, so assigning a lightness reproduces the neutral
+   * rungs above exactly. One rule covers grey and colour alike, which is the whole point.
+   *
+   * The `@supports` gate is required rather than decorative: without relative colour syntax
+   * the declarations below are invalid and the `@apply` pairs remain in force, which is why
+   * the muted pair still names its neutral colours rather than relying on the derivation. */
+  @supports (color: oklch(from red l c h)) {
+    /* ⚠ THE MUTED PAIR ONLY. `value` and `body` are deliberately excluded, and a new role
+     * belongs here only if it is muted.
+     *
+     * A role that derives has to sit at a lightness where sRGB still has chroma to give.
+     * `value` and `body` are defined by being high-contrast, which puts them near the
+     * lightness extremes, and there is almost no chroma available at L 97 or L 20.5 — you
+     * cannot have a saturated near-white. Measured on the shipping palette: at `value` in
+     * dark mode the gamut keeps 9% of primary's chroma and 8% of error's, and the two land
+     * 0.007 apart in the a/b plane, which is indistinguishable. Deriving them would offer a
+     * variant colour the gamut cannot supply, and flatten two variants into one while
+     * appearing to honour both.
+     *
+     * `muted` keeps 72–100% in light and 73–100% in dark, because it sits in the middle of
+     * the range. It is also the role where the variant mattered: the hierarchy spread that
+     * motivated deriving at all was the body↔muted gap. */
+    /* ⚠ `:not(.variant-text-on-inset)` is load-bearing. Both this block and that class set
+     * `color` in the components layer, and this one is declared later, so without the
+     * exclusion the derivation wins and `VariantMode.Static` silently does nothing on the
+     * two roles it is most wanted for. The derivation steps aside when a colour has been
+     * stated outright. */
+    .text-role-label:not(.variant-text-on-inset),
+    .text-role-caption:not(.variant-text-on-inset) {
+      /* `--accent-color` is only declared inside `.responsive`; ordinary copy falls back to
+       * the default variant's own accent, which is what makes grey text grey. */
+      color: oklch(from var(--accent-color, var(--color-default-600)) var(--text-role-l) c h);
+
+      &:where(.dark, .dark *) {
+        color: oklch(
+          from var(--accent-color, var(--color-default-400)) var(--text-role-l-dark) c h
+        );
+      }
+    }
+  }
+  /* A STATED variant colour has to beat the role's own, and the role blocks are declared
+   * later in this layer than `variant-text-on-inset`, so that class alone loses. Matching
+   * both together raises the specificity above either. */
+  [class^="text-role-"].variant-text-on-inset,
+  [class*=" text-role-"].variant-text-on-inset {
+    color: var(--variant-text-color);
+  }
 }
 
 @layer utilities {
@@ -1355,6 +1570,13 @@
     --card-border-color: var(--light-accent-text-color);
     --strong-accent-text-color: var(--darkest-accent-text-color);
     --weak-accent-text-color: var(--dark-accent-text-color);
+    /* Variant text, clamped so the hue survives and the contrast is guaranteed. Declared
+     * once here because two places paint it — `variant-text-on-inset` and the text roles'
+     * stated mode — and a clamp copied into both drifts the moment one is tuned. */
+    --variant-text-color: var(--strong-accent-text-color);
+    @supports (color: oklch(from red l c h)) {
+      --variant-text-color: oklch(from var(--weak-accent-text-color) min(l, 0.42) c h);
+    }
 
     /* The lightness crossover every on-fill foreground derives against, named once so
      * the three derivations cannot drift apart. Its justification — 190 of 194 palette
@@ -1382,7 +1604,9 @@
      * theoretical best of 4.6:1. Working from the fill also means an arbitrary
      * `--custom-color` is handled on the same footing as the named variants.
      */
-    --on-accent-color: oklch(from var(--accent-color) clamp(0, calc((var(--on-fill-threshold) - l) * 1000), 1) 0 0);
+    --on-accent-color: oklch(
+      from var(--accent-color) clamp(0, calc((var(--on-fill-threshold) - l) * 1000), 1) 0 0
+    );
 
     /* Foreground for content sitting ON a `--standard-color` fill — what
      * `variant-responsive-bg`, `variant-static-bg` and a checked `variant-checkbox-bg`
@@ -1398,7 +1622,9 @@
      *
      * Deriving from the fill also covers an arbitrary `--custom-color`, which no
      * hardcoded pair can. */
-    --on-standard-color: oklch(from var(--standard-color) clamp(0, calc((var(--on-fill-threshold) - l) * 1000), 1) 0 0);
+    --on-standard-color: oklch(
+      from var(--standard-color) clamp(0, calc((var(--on-fill-threshold) - l) * 1000), 1) 0 0
+    );
 
     /* Pre-relative-color-syntax fallback: the old theme-flipped pair, which is right
      * for the neutral default and wrong only for the brightest brand hues. Guarded by
@@ -1417,6 +1643,10 @@
       --accent-color: var(--light-color);
       --strong-accent-text-color: var(--lightest-accent-text-color);
       --weak-accent-text-color: var(--light-accent-text-color);
+      --variant-text-color: var(--strong-accent-text-color);
+      @supports (color: oklch(from red l c h)) {
+        --variant-text-color: oklch(from var(--weak-accent-text-color) max(l, 0.78) c h);
+      }
       --card-border-color: var(--dark-accent-text-color);
     }
 
