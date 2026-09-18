@@ -53,6 +53,26 @@ function brandRamps(file: string): Map<string, string> {
   return ramps;
 }
 
+/**
+ * A `#rrggbb` literal's oklch lightness, 0–1.
+ *
+ * sRGB → linear → OKLab, whose `L` is the lightness axis the ramps are interpolated along.
+ * Written out rather than taken from a colour library because the conversion is fixed and
+ * short, and a test that reaches for a dependency the package does not declare resolves
+ * through workspace hoisting — which works until it does not.
+ */
+function oklchLightness(hex: string): number {
+  const linear = (offset: number) => {
+    const channel = Number.parseInt(hex.slice(offset, offset + 2), 16) / 255;
+    return channel <= 0.040_45 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4;
+  };
+  const [r, g, b] = [linear(1), linear(3), linear(5)];
+  const l = Math.cbrt(0.412_221_470_8 * r + 0.536_332_536_3 * g + 0.051_445_992_9 * b);
+  const m = Math.cbrt(0.211_903_498_2 * r + 0.680_699_545_1 * g + 0.107_396_956_6 * b);
+  const s = Math.cbrt(0.088_302_461_9 * r + 0.281_718_837_6 * g + 0.629_978_700_5 * b);
+  return 0.210_454_255_3 * l + 0.793_617_785 * m - 0.004_072_046_8 * s;
+}
+
 describe("the brand ramps agree across every app that declares them", () => {
   const source = brandRamps(SOURCE_OF_TRUTH);
 
@@ -75,22 +95,49 @@ describe("the brand ramps agree across every app that declares them", () => {
   });
 
   /**
-   * A ramp has to run light to dark without reversing, because a component picking two
-   * rungs apart is relying on the order for its contrast. `tertiary` is the family where
-   * that is worth pinning: 300 sitting lighter than 400 is invisible in isolation and only
-   * shows as two adjacent swatches out of sequence.
+   * ⚠ **Every rung of every family runs strictly darker than the one before it.**
+   *
+   * A rung number is a position in one family's ramp, and anything that picks two rungs
+   * apart — a hover shade, a border against its fill — is relying on that order for its
+   * separation. A pair out of sequence closes or inverts the gap wherever those two rungs
+   * are used together, and it is invisible in isolation: a single swatch looks like a
+   * perfectly good colour, and only the two side by side read as out of order.
+   *
+   * Asserted over the whole ramp rather than a named pair, so the family a future
+   * regeneration reverses does not have to be the one anticipated here. Lightness is oklch
+   * L, which is the axis the ramps are built along; WCAG relative luminance is a different
+   * measure and can order two hues differently from the one the derivation used.
    */
-  test.each([SOURCE_OF_TRUTH, ...COPIES])("%s keeps tertiary monotonic at 300 → 400", (file) => {
+  test.each([SOURCE_OF_TRUTH, ...COPIES])("%s keeps every ramp monotonic", (file) => {
     const ramps = brandRamps(file);
-    const luminance = (hex: string) => {
-      const channel = (from: number) => {
-        const c = Number.parseInt(hex.slice(from, from + 2), 16) / 255;
-        return c <= 0.040_45 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
-      };
-      return 0.2126 * channel(1) + 0.7152 * channel(3) + 0.0722 * channel(5);
-    };
-    expect(luminance(ramps.get("--color-tertiary-300")!)).toBeGreaterThan(
-      luminance(ramps.get("--color-tertiary-400")!),
-    );
+
+    for (const family of ["primary", "secondary", "tertiary"]) {
+      const rungs = [...ramps]
+        .flatMap(([property, hex]) => {
+          const rung = new RegExp(`^--color-${family}-(\\d+)$`).exec(property);
+          return rung ? [{ rung: Number(rung[1]), hex }] : [];
+        })
+        .sort((a, b) => a.rung - b.rung);
+
+      // The control. A regex that stopped matching would leave an empty list, and a loop
+      // over nothing reports a reversed ramp as being in perfect order.
+      expect(rungs.map((r) => r.rung)).toStrictEqual([
+        50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950,
+      ]);
+
+      for (let i = 1; i < rungs.length; i++) {
+        const lighter = rungs[i - 1];
+        const darker = rungs[i];
+        expect({
+          family,
+          pair: `${lighter.rung} → ${darker.rung}`,
+          ordered: oklchLightness(lighter.hex) > oklchLightness(darker.hex),
+        }).toStrictEqual({
+          family,
+          pair: `${lighter.rung} → ${darker.rung}`,
+          ordered: true,
+        });
+      }
+    }
   });
 });
