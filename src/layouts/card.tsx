@@ -29,6 +29,21 @@ export interface CardProps {
    * Omit both this and {@link mediaCorner} and the slot is not rendered at all,
    * rather than collapsing to a zero-height band.
    */
+  /**
+   * A full-bleed row across the card's top edge, ABOVE {@link media}.
+   *
+   * For a card whose subject is named before it is shown — a header row carrying a
+   * type mark and a name, matching a detail pane that heads itself the same way.
+   * The alternative is the {@link title} slot, which sits in the body BELOW the
+   * media; both exist because which reads correctly depends on whether the picture
+   * or the name is the thing being scanned for.
+   *
+   * Supplying this moves the card's top rounding onto it, and the media meets it
+   * square — otherwise two rounded edges would stack a few pixels apart. The
+   * consumer states the row's own height, fill and padding; this slot states only
+   * where it sits and that it spans the full width.
+   */
+  header?: ReactNode;
   media?: ReactNode;
   /** Aspect ratio of the media slot. Defaults to `video`. */
   mediaAspect?: CardMediaAspect;
@@ -120,6 +135,7 @@ export interface CardProps {
  * unequal body content.
  */
 export function Card({
+  header,
   media,
   mediaAspect = "video",
   mediaCorner,
@@ -187,6 +203,32 @@ export function Card({
           )}
         />
       )}
+      {header !== undefined && (
+        // `relative` to lift it above the tint layer, as the media and body do. The
+        // inner radius is the card's own less its border width, so the curves stay
+        // concentric — the same derivation the media slot uses, moved up here
+        // because this is now the slot touching those corners.
+        <div className="relative shrink-0 overflow-hidden rounded-t-[calc(var(--radius-sm)-2px)]">
+          {header}
+          {/* The header's own tint, because the card's sits BELOW the content and a
+              header row paints an opaque fill over it — so the one place the card
+              did not appear to respond to hover was the row naming what you were
+              hovering. Stacked ABOVE the row rather than below it, which is the
+              difference from the body: there is a fill here to cover, so a wash over
+              the whole row including its text is the only version that shows. At 8%
+              that reads as the row lighting up, not as text dimming. */}
+          {(interactive || selected) && (
+            <div
+              aria-hidden
+              className={clsx(
+                "pointer-events-none absolute inset-0 transition-colors duration-150 ease-out",
+                selected ? "bg-(--accent-color)/18" : "group-hover:bg-(--accent-color)/8",
+              )}
+            />
+          )}
+        </div>
+      )}
+
       {hasMedia && (
         <div
           className={clsx(
@@ -202,7 +244,10 @@ export function Card({
             // the padding *box* with square corners, which shows as a hard 90° edge
             // cutting across the border's curve. Derived from `--radius-sm`, what
             // `.card` itself uses, so it tracks the card rather than drifting from it.
-            "rounded-t-[calc(var(--radius-sm)-2px)]",
+            // Only when the media IS the card's top edge. With a header above it the
+            // rounding belongs to that row, and rounding both stacks two curves a
+            // few pixels apart.
+            header === undefined && "rounded-t-[calc(var(--radius-sm)-2px)]",
             // The empty-media look, so a card without a preview is not a void.
             "bg-neutral-300/40 dark:bg-neutral-700/40",
             MEDIA_ASPECT[mediaAspect],
