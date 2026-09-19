@@ -225,6 +225,10 @@ describe("a role's colour is a lightness, and the variant supplies the hue", () 
     [TextRole.Value, 0.205, 0.97],
     [TextRole.Body, 0.269, 0.922],
     [TextRole.Caption, 0.556, 0.708],
+    // `note` is `body`'s rung at `caption`'s lightness, and the lightness is the half a
+    // size assertion cannot see. Pinned here so a role defined as "muted at reading size"
+    // cannot quietly drift onto the reading-size COLOUR and still look correct.
+    [TextRole.Note, 0.556, 0.708],
   ])("%s outside any variant is exactly its neutral rung", (role, light, dark) => {
     const l = parts(readInVariant("light", role, ""));
     const d = parts(readInVariant("dark", role, ""));
@@ -234,11 +238,19 @@ describe("a role's colour is a lightness, and the variant supplies the hue", () 
     expect(d.l).toBeCloseTo(dark, 3);
   });
 
-  /** The lightness is the role's; only chroma and hue come from the variant. */
+  /**
+   * The lightness is the role's; only chroma and hue come from the variant.
+   *
+   * ⚠ This list is hand-written where the tests above derive theirs from the enum, and it
+   * has to be: which roles derive is a DECISION, not a property of being a role — the
+   * test below exists to hold `value` and `body` out of it. So a muted role added to the
+   * stylesheet's selector and not to this list passes every enumerated test and has its
+   * derivation checked by nothing.
+   */
   test.each(["primary", "error", "success"])(
-    "under %s the muted pair keeps its lightness and takes the variant's hue",
+    "under %s the muted roles keep their lightness and take the variant's hue",
     (variant) => {
-      for (const role of [TextRole.Caption, TextRole.Label]) {
+      for (const role of [TextRole.Caption, TextRole.Label, TextRole.Note]) {
         const tinted = parts(readInVariant("light", role, variant));
         const plain = parts(readInVariant("light", role, ""));
         expect(tinted.l).toBeCloseTo(0.556, 3);
