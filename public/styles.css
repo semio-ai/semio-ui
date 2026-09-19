@@ -1409,6 +1409,11 @@
   .text-role-value {
     @apply text-sm select-text;
     @apply text-neutral-900 dark:text-neutral-100;
+    --text-role-color: var(--color-neutral-900);
+
+    &:where(.dark, .dark *) {
+      --text-role-color: var(--color-neutral-100);
+    }
   }
 
   /* The name of something, in the app's own voice: a section heading, a fact's label,
@@ -1421,8 +1426,20 @@
   .text-role-label {
     @apply text-xs font-semibold tracking-wide uppercase;
     @apply text-neutral-500 dark:text-neutral-400;
+    /* Chrome is unselectable in its own right, not because of where it happens to sit.
+     * `LayoutRoot` carries `select-none` app-wide, so a label inside the product is
+     * already unselectable and this line changes nothing there — which is precisely why
+     * it has to be here: the class is documented as usable alone, and a hand-written
+     * `class="text-role-label"` outside that root, or inside any subtree that opts back
+     * in with `select-text`, would otherwise be draggable. */
+    @apply select-none;
     --text-role-l: 55.6%;
     --text-role-l-dark: 70.8%;
+    --text-role-color: var(--color-neutral-500);
+
+    &:where(.dark, .dark *) {
+      --text-role-color: var(--color-neutral-400);
+    }
   }
 
   /* Secondary content attached to something else: a subtitle, a timestamp, the
@@ -1432,6 +1449,11 @@
     @apply text-neutral-500 dark:text-neutral-400;
     --text-role-l: 55.6%;
     --text-role-l-dark: 70.8%;
+    --text-role-color: var(--color-neutral-500);
+
+    &:where(.dark, .dark *) {
+      --text-role-color: var(--color-neutral-400);
+    }
   }
 
   /* ⚠ THE MUTED PAIR ABOVE FAILS WCAG AA IN LIGHT MODE, AND THAT IS A DECISION.
@@ -1485,6 +1507,11 @@
   .text-role-body {
     @apply text-sm select-text;
     @apply text-neutral-800 dark:text-neutral-200;
+    --text-role-color: var(--color-neutral-800);
+
+    &:where(.dark, .dark *) {
+      --text-role-color: var(--color-neutral-200);
+    }
   }
 
   /* The application speaking in its own right — an empty state, a stated absence, an
@@ -1568,10 +1595,30 @@
   }
   /* A STATED variant colour has to beat the role's own, and the role blocks are declared
    * later in this layer than `variant-text-on-inset`, so that class alone loses. Matching
-   * both together raises the specificity above either. */
+   * both together raises the specificity above either.
+   *
+   * ⚠ **The fallback is what makes the static mode safe with no variant named.**
+   * `--variant-text-color` is declared ONLY inside `.responsive`, and a static role with
+   * no variant emits no `responsive` class — so outside a `.responsive` subtree the
+   * property resolves to nothing, `color` becomes invalid at computed-value time, and the
+   * text falls back to INHERITING, losing the role's colour entirely. `--text-role-color`
+   * restates each role's own pair, so that case lands on the colour the role would have
+   * painted anyway. That is the documented contract: with no variant in play, the two
+   * modes look the same.
+   *
+   * Inside a `.responsive` subtree the property IS declared and inherits, so the fallback
+   * never fires and a static role with no variant still takes the ambient variant's
+   * colour. Making the component emit `responsive` unconditionally would break that — it
+   * re-roots the accent context onto the element at the DEFAULT variant, so the text
+   * would go neutral in an error panel.
+   *
+   * The token restating the pair is a duplicate of the `@apply` above it, and the pairing
+   * of the two is measured rather than trusted: `text.browser.tsx` asserts that a static
+   * role with no variant matches the ambient one per role and per theme, so moving one
+   * and not the other reddens. */
   [class^="text-role-"].variant-text-on-inset,
   [class*=" text-role-"].variant-text-on-inset {
-    color: var(--variant-text-color);
+    color: var(--variant-text-color, var(--text-role-color));
   }
 }
 
