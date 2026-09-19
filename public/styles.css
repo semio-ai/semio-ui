@@ -1530,6 +1530,11 @@
     @apply text-neutral-500 dark:text-neutral-400;
     --text-role-l: 55.6%;
     --text-role-l-dark: 70.8%;
+    --text-role-color: var(--color-neutral-500);
+
+    &:where(.dark, .dark *) {
+      --text-role-color: var(--color-neutral-400);
+    }
   }
 
   /* A MUTED ROLE'S COLOUR IS A LIGHTNESS, NOT A RUNG.

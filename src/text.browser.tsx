@@ -133,7 +133,7 @@ describe("selection follows the role, not the size", () => {
     expect(caption.textTransform).toBe("none");
   });
 
-  test.each([TextRole.Value, TextRole.Caption, TextRole.Body])(
+  test.each([TextRole.Value, TextRole.Caption, TextRole.Body, TextRole.Note])(
     "%s opts back in under the app's select-none root",
     (role) => {
       expect(readRole("light", role).userSelect).toBe("text");
@@ -197,7 +197,7 @@ describe("selectability is the role's own, not the root's", () => {
    * pass against a stylesheet that made every role unselectable — which is the opposite
    * defect and just as silent.
    */
-  test.each([TextRole.Value, TextRole.Caption, TextRole.Body])(
+  test.each([TextRole.Value, TextRole.Caption, TextRole.Body, TextRole.Note])(
     "%s stays selectable in the same unwrapped condition",
     (role) => {
       expect(readUnwrapped(role)).toBe("text");
