@@ -1,4 +1,4 @@
-import type { ReactNode, Ref } from "react";
+import type { HTMLAttributes, ReactNode, Ref } from "react";
 import { clsx } from "clsx";
 import type { Variant } from "./types";
 
@@ -90,6 +90,10 @@ export enum VariantMode {
    * Resolved through the lightness clamp rather than the raw accent-text token, so it stays
    * legible on any ground. The raw token is calibrated against the deep-inset surface only
    * and measures 1.6:1 for the warm hues elsewhere.
+   *
+   * With **no** `variant` named it takes whichever variant is in context, and falls back to
+   * the role's own colour where there is none — so setting it alone never costs the text
+   * its paint. The stylesheet's `variant-text-on-inset` block carries the mechanism.
    */
   Static = "static",
 }
@@ -97,7 +101,22 @@ export enum VariantMode {
 /** The elements {@link Text} will render as. Text containers only. */
 export type TextElement = "span" | "p" | "div" | "h1" | "h2" | "h3" | "h4" | "dt" | "dd";
 
-export interface TextProps {
+/**
+ * Everything a text container natively accepts, minus the three this component owns.
+ *
+ * - `role` is shadowed by {@link TextProps.role} — see the prop's own note.
+ * - `className` is re-declared below so it can document what it lands on.
+ * - `color` is the presentational HTML attribute, and a colour named there would sit
+ *   outside the role's light/dark pair in exactly the way the roles exist to prevent.
+ *
+ * Widening to the native attributes rather than listing them is what lets a caller reach
+ * the DOM at all: `data-testid`, `aria-label`, `aria-hidden`, `style`, `onClick` and the
+ * rest are how a run of text is targeted by a test, named to a screen reader, or made
+ * interactive, and an allowlist silently drops every attribute nobody thought to add.
+ */
+type NativeTextProps = Omit<HTMLAttributes<HTMLElement>, "role" | "className" | "color">;
+
+export interface TextProps extends NativeTextProps {
   /**
    * What this text is. Required, with no default: the default would be the one thing a
    * caller could skip deciding, and deciding it is the entire job — an unconsidered role
@@ -153,12 +172,6 @@ export interface TextProps {
    */
   className?: string;
 
-  /** Native `title`, for the tooltip a truncated line needs. */
-  title?: string;
-
-  /** Native `id`, for `aria-labelledby` / `aria-describedby` on a surrounding control. */
-  id?: string;
-
   /** React 19+: `ref` arrives as an ordinary prop, so this is not supported on React 18. */
   ref?: Ref<HTMLElement>;
 }
@@ -185,12 +198,16 @@ export function Text({
   mode = VariantMode.Ambient,
   children,
   className,
-  title,
-  id,
   ref,
+  ...rest
 }: TextProps) {
   return (
     <Component
+      // Native attributes first, so nothing a caller passes can displace the role class
+      // or the ref — `className` and `ref` are destructured above and therefore absent
+      // from `rest`, but spreading last would still let a future addition to that list
+      // land after them silently.
+      {...rest}
       className={clsx(
         role,
         // `responsive` is what DECLARES the variant custom properties — the `@variant`
@@ -205,8 +222,6 @@ export function Text({
         mode === VariantMode.Static && "variant-text-on-inset",
         className,
       )}
-      title={title}
-      id={id}
       ref={ref as Ref<never>}
     >
       {children}
