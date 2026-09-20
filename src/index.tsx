@@ -34,6 +34,7 @@ export * from "./constants/icon";
 
 // Context
 export * from "./context/menu-button-context";
+export * from "./context/ui-store-provider";
 export * from "./context/tooltip-context-utils";
 export type { WithTooltipContextProps } from "./context/tooltip-context-utils";
 

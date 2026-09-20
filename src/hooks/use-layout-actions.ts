@@ -1,5 +1,5 @@
 import { useEffect, useRef, useCallback } from "react";
-import { useSetAtom } from "jotai";
+import { useSetAtom, useStore } from "jotai";
 import { observe } from "jotai-effect";
 import { createPane } from "../functions/create-pane";
 import { createActionItem } from "../functions/create-action-item";
@@ -102,28 +102,42 @@ export function useLayoutActions(): LayoutActions {
   desktopRef.current = desktop;
   const toolbarItemsRef = useRef<ToolbarItem[]>([]);
   const actionItemsRef = useRef<ActionItem[]>([]);
+  // The store these atoms are actually read and written through — the one from the
+  // nearest `UiStoreProvider`, or the default store when there is none. `observe`
+  // below has to be told it: left to itself it subscribes to the default store, so
+  // under a provider the mirrors would track state nothing writes to, and every
+  // action reading a ref — the menu toggle, toolbar and action-item merges — would
+  // fold its update into an empty snapshot.
+  const store = useStore();
   const setMenuExpanded = useSetAtom(menuStateAtom);
   const setPanes = useSetAtom(panesAtom);
   const setToolbarItems = useSetAtom(toolbarItemsAtom);
   const setActionItems = useSetAtom(actionItemsAtom);
   const setHomeActionItem = useSetAtom(homeActionItemAtom);
 
+  // Mirror the three atoms this hook reads through refs, subscribed on the store
+  // resolved above. The subscriptions belong to that one store and to nothing else
+  // in the render: every other value the effect touches is either a `useRef`
+  // container or a module-level atom, both stable for the hook's lifetime. So
+  // `[store]` is the full dependency set, and the mirrors tear down and resubscribe
+  // only when the store itself changes. Omitting the array instead re-runs this on
+  // every render, dropping and rebuilding three subscriptions each time.
   useEffect(() => {
     const expandedUnsub = observe((get) => {
       menuExpandedRef.current = get(menuStateAtom);
-    });
+    }, store);
     const toolbarItemsUnsub = observe((get) => {
       toolbarItemsRef.current = get(toolbarItemsAtom);
-    });
+    }, store);
     const actionItemsUnsub = observe((get) => {
       actionItemsRef.current = get(actionItemsAtom);
-    });
+    }, store);
     return () => {
       expandedUnsub();
       toolbarItemsUnsub();
       actionItemsUnsub();
     };
-  });
+  }, [store]);
   const setPane = useCallback(
     (pane: PaneSpec | Partial<PaneSpec>) => {
       setPanes((current) => mergePane(current, pane));
