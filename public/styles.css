@@ -1043,37 +1043,6 @@
     @apply dark:group-data-highlighted/item:group-data-[state=unchecked]/item:text-black;
   }
 
-  .table-list {
-    .table-list-text {
-      @apply transition-colors duration-50 ease-in-out;
-      @apply data-disabled:text-neutral-500/50;
-      @apply dark:group-data-highlighted/row:text-black group-data-highlighted/row:text-white;
-      @apply dark:group-data-[state=checked]/row:text-black group-data-[state=checked]/row:text-white;
-      @apply dark:focus:text-black focus:text-white;
-      color: var(--accent-color);
-    }
-
-    .table-list-item {
-      @apply transition-colors duration-50 ease-in-out;
-      @apply cursor-pointer;
-      @apply data-disabled:text-neutral-500/50;
-      @apply dark:data-highlighted:text-black data-highlighted:text-white;
-      @apply dark:data-[state=checked]:text-black data-[state=checked]:text-white;
-      color: var(--accent-color);
-      &[data-highlighted] {
-        background-color: color-mix(in oklab, var(--accent-color) 40%, transparent);
-      }
-
-      &[data-state="checked"] {
-        background-color: color-mix(in oklab, var(--accent-color) 60%, transparent);
-        &[data-highlighted] {
-          background-color: color-mix(in oklab, var(--accent-color) 80%, transparent);
-          @apply outline-2 dark:outline-black outline-white outline-offset-[-3px];
-        }
-      }
-    }
-  }
-
   .responsive-accent-bg {
     background-color: color-mix(in oklab, var(--accent-color) 80%, transparent);
   }

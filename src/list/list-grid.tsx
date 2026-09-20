@@ -103,8 +103,8 @@ export interface ListColumn<T> {
    * the row's edge, and reads as belonging to the edge.
    */
   className?: string;
-  /** Cell content. `state` lets a cell reflect focus/selection (the old
-   *  TableList's 3-arg `render(value, focused, selected)`). */
+  /** Cell content. `state` lets a cell reflect focus and selection without
+   *  reading them from anywhere else. */
   render: (item: T, state: { focused: boolean; selected: boolean }) => ReactNode;
 }
 
@@ -123,7 +123,7 @@ export interface ListGridProps<T> {
   onSelectionChange?: (next: Set<string>) => void;
   disallowEmptySelection?: boolean;
   /** Clicking outside the list clears the selection (unless empty selection is
-   *  disallowed). Defaults to true, matching the old TableList. */
+   *  disallowed). Defaults to true. */
   deselectOnClickAway?: boolean;
   /**
    * Plain arrow navigation also moves selection to the newly-focused row

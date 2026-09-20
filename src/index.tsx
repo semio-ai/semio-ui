@@ -156,10 +156,9 @@ export * from "./nested-elements/select";
 export * from "./nested-elements/separator";
 export * from "./layouts/stepper";
 // `./hooks/use-list-state` is deliberately NOT exported: it is the legacy list
-// engine behind `TableList`, and `CardGrid` still uses it for its own navigation
-// adapter. Keeping it off the public surface means no new consumer can reach for
-// it while that last internal use is unwound.
-export * from "./layouts/table-list";
+// engine, and `CardGrid` still uses it for its own navigation adapter. Keeping it
+// off the public surface means no new consumer can reach for it while that last
+// internal use is unwound.
 export * from "./layouts/tabs";
 
 // Typography
