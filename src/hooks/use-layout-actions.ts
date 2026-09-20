@@ -115,6 +115,13 @@ export function useLayoutActions(): LayoutActions {
   const setActionItems = useSetAtom(actionItemsAtom);
   const setHomeActionItem = useSetAtom(homeActionItemAtom);
 
+  // Mirror the three atoms this hook reads through refs, subscribed on the store
+  // resolved above. The subscriptions belong to that one store and to nothing else
+  // in the render: every other value the effect touches is either a `useRef`
+  // container or a module-level atom, both stable for the hook's lifetime. So
+  // `[store]` is the full dependency set, and the mirrors tear down and resubscribe
+  // only when the store itself changes. Omitting the array instead re-runs this on
+  // every render, dropping and rebuilding three subscriptions each time.
   useEffect(() => {
     const expandedUnsub = observe((get) => {
       menuExpandedRef.current = get(menuStateAtom);
@@ -130,7 +137,7 @@ export function useLayoutActions(): LayoutActions {
       toolbarItemsUnsub();
       actionItemsUnsub();
     };
-  });
+  }, [store]);
   const setPane = useCallback(
     (pane: PaneSpec | Partial<PaneSpec>) => {
       setPanes((current) => mergePane(current, pane));
