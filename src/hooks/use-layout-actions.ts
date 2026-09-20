@@ -1,5 +1,5 @@
 import { useEffect, useRef, useCallback } from "react";
-import { useSetAtom } from "jotai";
+import { useSetAtom, useStore } from "jotai";
 import { observe } from "jotai-effect";
 import { createPane } from "../functions/create-pane";
 import { createActionItem } from "../functions/create-action-item";
@@ -102,6 +102,13 @@ export function useLayoutActions(): LayoutActions {
   desktopRef.current = desktop;
   const toolbarItemsRef = useRef<ToolbarItem[]>([]);
   const actionItemsRef = useRef<ActionItem[]>([]);
+  // The store these atoms are actually read and written through — the one from the
+  // nearest `UiStoreProvider`, or the default store when there is none. `observe`
+  // below has to be told it: left to itself it subscribes to the default store, so
+  // under a provider the mirrors would track state nothing writes to, and every
+  // action reading a ref — the menu toggle, toolbar and action-item merges — would
+  // fold its update into an empty snapshot.
+  const store = useStore();
   const setMenuExpanded = useSetAtom(menuStateAtom);
   const setPanes = useSetAtom(panesAtom);
   const setToolbarItems = useSetAtom(toolbarItemsAtom);
@@ -111,13 +118,13 @@ export function useLayoutActions(): LayoutActions {
   useEffect(() => {
     const expandedUnsub = observe((get) => {
       menuExpandedRef.current = get(menuStateAtom);
-    });
+    }, store);
     const toolbarItemsUnsub = observe((get) => {
       toolbarItemsRef.current = get(toolbarItemsAtom);
-    });
+    }, store);
     const actionItemsUnsub = observe((get) => {
       actionItemsRef.current = get(actionItemsAtom);
-    });
+    }, store);
     return () => {
       expandedUnsub();
       toolbarItemsUnsub();
