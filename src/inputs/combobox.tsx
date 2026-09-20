@@ -133,12 +133,21 @@ export function Combobox<TValue extends string>({
 
   return (
     <ComboboxPrimitive.Root<ComboboxOption<TValue>, false>
-      // Pass `flatOptions` (not raw `options`) — when grouped, `options` is
-      // `ComboboxGroup[]` whose entries lack a `value`, which would break
-      // base-ui's `itemToStringValue` / `isItemEqualToValue` callbacks. We
-      // still render groups in the List below; this prop is only for the
-      // store's flat item set.
-      items={flatOptions}
+      // **Grouped options reach the root AS GROUPS**, and flat ones flat.
+      //
+      // `List`'s children function iterates whatever the ROOT was given, so this
+      // prop decides what the grouped branch below receives. Handed a flat list it
+      // is called with OPTIONS where it expects groups: `group.label` is undefined
+      // and `group.items` is undefined, so every heading renders empty while the
+      // options themselves still list — grouping that silently degrades to none.
+      //
+      // Passing groups is safe for the callbacks under them. base-ui detects a
+      // group by the presence of an `items` array (`isGroupedItems`), flattens
+      // them for its own store, and applies `itemToStringLabel`/`itemToStringValue`
+      // to the LEAVES. It also filters per group and drops a group whose items all
+      // filter out, which is why an empty group renders nothing rather than a
+      // heading over a void.
+      items={grouped ? (options as ComboboxGroup<TValue>[]) : flatOptions}
       value={selectedOption}
       onValueChange={(next) => {
         if (next == null) {
