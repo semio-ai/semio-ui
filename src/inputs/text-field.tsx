@@ -96,7 +96,7 @@ const InnerTextField = forwardRef(
           {...forwardedProps}
           onChange={(event) => onChange?.(event.target.value, event)}
           className={clsx(
-            "responsive",
+            "variant-scope",
             bg && "bg-neutral-50/20 dark:bg-neutral-950/20",
             "rounded-xs",
             // `inverted` owns BOTH halves of the recipe. Splitting them is what
@@ -134,7 +134,7 @@ const InnerTextField = forwardRef(
             className={clsx(
               color ? "custom-color" : variant,
               size,
-              "responsive pointer-events-none absolute top-0.5 left-0.5 grid place-items-center",
+              "variant-scope pointer-events-none absolute top-0.5 left-0.5 grid place-items-center",
               "sized-inner-group-item variant-responsive-input-extra-text rounded-[1px]",
             )}
           >
@@ -148,7 +148,7 @@ const InnerTextField = forwardRef(
               color ? "custom-color" : variant,
               size,
               "absolute top-0.5 right-0.5 hidden place-items-center peer-focus:grid",
-              "responsive transition-all transition-discrete delay-75",
+              "variant-scope transition-all transition-discrete delay-75",
               "sized-inner-group-item variant-responsive-input-extra-button-text rounded-[1px]",
             )}
             onClick={(e) => {

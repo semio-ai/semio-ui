@@ -51,7 +51,7 @@ export function ToggleSquare({
           onChange(next === "indeterminate" ? true : Boolean(next));
         }}
         className={clsx(
-          "responsive",
+          "variant-scope",
           size,
           color ? "custom-color" : variant,
           sizing === "default" && "sized-height sized-width",

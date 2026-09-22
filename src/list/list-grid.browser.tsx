@@ -349,10 +349,10 @@ test("per-row visual: each row applies its own variant / custom-color", () => {
     />,
   );
   const opts = options();
-  const rowA = opts[0].querySelector<HTMLElement>(".responsive")!;
+  const rowA = opts[0].querySelector<HTMLElement>(".variant-scope")!;
   expect(rowA.classList.contains("custom-color")).toBe(true);
   expect(rowA.style.getPropertyValue("--custom-color")).toBe("rgb(48, 164, 108)");
-  const rowB = opts[1].querySelector<HTMLElement>(".responsive")!;
+  const rowB = opts[1].querySelector<HTMLElement>(".variant-scope")!;
   expect(rowB.classList.contains("success")).toBe(true);
 });
 
@@ -580,8 +580,8 @@ test("without the handler, a double-click is just two clicks", async () => {
 test("a row declares its own text color rather than inheriting from its host", () => {
   render(<ListGrid data={ROWS} getRowId={(r) => r.id} columns={NAME_COL} ariaLabel="l" />);
   // `role="row"` sits on the focus wrapper; `ListRow`'s own root is the element
-  // inside it carrying `responsive`.
-  const rowRoot = rows()[0]?.querySelector<HTMLElement>(".responsive");
+  // inside it carrying `variant-scope`.
+  const rowRoot = rows()[0]?.querySelector<HTMLElement>(".variant-scope");
   expect(rowRoot).toBeTruthy();
   const classes = rowRoot!.className;
   expect(classes).toMatch(/(?:^|\s)text-neutral-\S+/);

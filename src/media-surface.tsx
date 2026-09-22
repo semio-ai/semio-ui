@@ -82,7 +82,7 @@ export function MediaSurface({
       ref={ref}
       className={clsx(
         variant,
-        "responsive",
+        "variant-scope",
         "variant-static-bg",
         // ⚠ `block` is load-bearing, not tidiness. Radix renders the root as a `span`,
         // and `aspect-ratio` does not apply to a non-replaced INLINE box — so a caller

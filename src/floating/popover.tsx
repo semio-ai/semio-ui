@@ -35,7 +35,7 @@ function Popover({
             className={clsx(
               variant,
               "popover-content focus:outline-none",
-              "responsive card-overlay",
+              "variant-scope card-overlay",
               "m-0.5 min-w-55 rounded-sm",
             )}
           >

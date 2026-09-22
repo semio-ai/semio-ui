@@ -20,7 +20,7 @@ export function NestedSeparator({ variant }: NestedSeparatorProps) {
       className={clsx(
         "m-1.25 h-px",
         variant,
-        "responsive variant-separator-fill pointer-events-none select-none",
+        "variant-scope variant-separator-fill pointer-events-none select-none",
       )}
     />
   );

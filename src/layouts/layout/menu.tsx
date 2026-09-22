@@ -98,7 +98,7 @@ function InnerMenu({
       >
         <ScrollArea
           wrapperClassName={clsx(
-            "responsive card-transparent flex min-w-10",
+            "variant-scope card-transparent flex min-w-10",
             "h-11 w-full justify-center align-middle",
             "desktop:h-full desktop:w-10 desktop:group-data-expanded/menu:w-fit desktop:justify-start",
           )}

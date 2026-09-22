@@ -190,7 +190,7 @@ export function SidebarModal({
           <Dialog.Popup
             aria-describedby={undefined}
             className={clsx(
-              "responsive focus:outline-hidden",
+              "variant-scope focus:outline-hidden",
               variant,
               // Single `card` surrounds the whole modal — sidebar and content
               // panes share one surface. On desktop the modal's bg
@@ -461,7 +461,7 @@ function SidebarPane({
             <Dialog.Title
               className={clsx(
                 variant,
-                "responsive variant-static-text",
+                "variant-scope variant-static-text",
                 "text-base/7 font-medium",
                 sidebarExpanded ? "min-w-0 flex-1 truncate" : "sr-only",
               )}
@@ -473,7 +473,7 @@ function SidebarPane({
                 aria-hidden="true"
                 className={clsx(
                   variant,
-                  "responsive variant-static-text",
+                  "variant-scope variant-static-text",
                   // Match the sizing of `MenuButton` icons in the rows below
                   // — h-9 w-9 box gives `icon-standard` (`h-3/5 w-3/5`) a
                   // definite parent to scale against.
@@ -710,7 +710,7 @@ function ContentPane({
             <h2
               className={clsx(
                 variant,
-                "responsive variant-static-text",
+                "variant-scope variant-static-text",
                 "min-w-0 flex-1 truncate text-base/7 font-medium",
               )}
             >

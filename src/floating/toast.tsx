@@ -118,7 +118,7 @@ function InnerToast({ data }: { data: ToastData }) {
           "data-[swipe=end]:animate-toastSwipeOut",
           "data-[swipe=cancel]:transition-[transform_200ms_ease-out]",
           data.variant,
-          "card-overlay responsive",
+          "card-overlay variant-scope",
         )}
         initial={{ x: width + margin }}
         animate={{ x: 0 }}
@@ -144,7 +144,7 @@ function InnerToast({ data }: { data: ToastData }) {
             className={clsx(
               "flex min-w-0 flex-row items-center gap-3 text-[15px]",
               data.variant,
-              "variant-static-text responsive",
+              "variant-static-text variant-scope",
             )}
           >
             <span className="flex shrink-0">

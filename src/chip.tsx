@@ -70,7 +70,7 @@ export function Chip({
         // identical plain one square.
         "rounded-xs",
         "sized-text sized-height",
-        "responsive grid grid-rows-1 place-items-center",
+        "variant-scope grid grid-rows-1 place-items-center",
         "sized-chip-gap p-0.5",
         resolvedIcon && children && onDelete && "grid-cols-[auto_1fr_auto]",
         resolvedIcon && children && !onDelete && "grid-cols-[auto_1fr]",
@@ -89,10 +89,10 @@ export function Chip({
       }
     >
       {resolvedIcon && (
-        // Deliberately NOT `responsive`: that class re-declares the whole variant
+        // Deliberately NOT `variant-scope`: that class re-declares the whole variant
         // token block, so a slot carrying it without the variant class resets
         // `--standard-color` to the neutral default and derives its foreground from a
-        // fill it is not sitting on. The delete slot below has no `responsive` and
+        // fill it is not sitting on. The delete slot below has no `variant-scope` and
         // inherits the chip's, so the two tint toward opposite extremes on one chip.
         <div
           className={clsx(

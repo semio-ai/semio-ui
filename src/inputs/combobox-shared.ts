@@ -32,7 +32,7 @@ export function popupClassName(opts?: { variant?: Variant; color?: string; extra
     // tints the popup's own edge: `.card-overlay` has no border, so the variant
     // reaches only the content.
     opts?.color ? "custom-color" : (opts?.variant ?? Variant.Default),
-    "responsive card-overlay dropdown-content",
+    "variant-scope card-overlay dropdown-content",
     "m-0.5 rounded-sm",
     "w-[calc(var(--available-width)-4px)]",
     "desktop:w-[calc(var(--anchor-width)+10px)]",
@@ -71,7 +71,7 @@ export function itemClassName(opts?: { variant?: Variant; color?: string; extras
     "group/item flex items-center rounded-xs leading-none",
     "relative h-7 px-1.25 pl-7.5 text-sm outline-hidden select-none",
     "data-disabled:pointer-events-none",
-    "responsive highlight-list-item",
+    "variant-scope highlight-list-item",
     opts?.color ? "custom-color" : (opts?.variant ?? Variant.Default),
     opts?.extras,
   );
@@ -80,7 +80,7 @@ export function itemClassName(opts?: { variant?: Variant; color?: string; extras
 export function itemIndicatorClassName(opts?: { variant?: Variant; color?: string }) {
   return clsx(
     "absolute top-1/2 left-1 grid -translate-y-1/2 place-items-center",
-    "responsive check-indicator",
+    "variant-scope check-indicator",
     opts?.color ? "custom-color" : (opts?.variant ?? Variant.Default),
   );
 }
@@ -128,7 +128,7 @@ export function inputClassName(
     rightPadded = true,
   } = opts ?? {};
   return clsx(
-    "responsive",
+    "variant-scope",
     bg && "bg-neutral-50/20 dark:bg-neutral-950/20",
     "rounded-xs",
     outline === "interact" && !readOnly && "variant-responsive-appearing-outline",
@@ -149,7 +149,7 @@ export function leftIconClassName(size: Size, variant: Variant) {
   return clsx(
     variant,
     size,
-    "responsive pointer-events-none absolute top-0.5 left-0.5 grid place-items-center",
+    "variant-scope pointer-events-none absolute top-0.5 left-0.5 grid place-items-center",
     "sized-inner-group-item variant-responsive-input-extra-text rounded-[1px]",
   );
 }
@@ -159,7 +159,7 @@ export function rightButtonClassName(size: Size, variant: Variant) {
     variant,
     size,
     "absolute top-0.5 right-0.5 grid place-items-center",
-    "responsive transition-all transition-discrete delay-75",
+    "variant-scope transition-all transition-discrete delay-75",
     "sized-inner-group-item variant-responsive-input-extra-button-text rounded-[1px]",
     "outline-hidden",
   );

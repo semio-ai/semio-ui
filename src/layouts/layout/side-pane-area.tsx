@@ -84,7 +84,7 @@ export function SidePaneArea({ panes }: { panes: PaneSpec[] }) {
               // Absolute so the stack occupies one box rather than several rows;
               // the container is the positioned ancestor.
               "absolute inset-0",
-              "responsive card-transparent h-full w-full overflow-clip rounded-md",
+              "variant-scope card-transparent h-full w-full overflow-clip rounded-md",
               isTop ? "pointer-events-auto" : "pointer-events-none invisible",
               // The same named container the docked wrapper declares. Without it a
               // pane's `@[…]/pane:` rules would resolve against whatever container

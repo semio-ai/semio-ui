@@ -164,7 +164,7 @@ const InnerChipInput = forwardRef(
         role={allowCustomValues && !disabled ? "button" : undefined}
         tabIndex={allowCustomValues && !disabled ? 0 : undefined}
         className={clsx(
-          "responsive relative grid grid-cols-[minmax(0,1fr)_auto] gap-1",
+          "variant-scope relative grid grid-cols-[minmax(0,1fr)_auto] gap-1",
           bg && "bg-neutral-50/20 dark:bg-neutral-950/20",
           "rounded-xs",
           outline === "interact" && "parent-outline variant-responsive-appearing-outline",

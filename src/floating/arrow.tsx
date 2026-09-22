@@ -27,7 +27,7 @@ export function Arrow({ variant, filled, className, color, ref, ...props }: Arro
         d="M30 0 L15 9 L0 0"
         style={{ "--custom-color": color } as CSSProperties}
         className={clsx(
-          "responsive",
+          "variant-scope",
           color ? "custom-color" : variant,
           filled
             ? "colored-carrot-invert-fill"

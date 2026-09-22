@@ -64,7 +64,7 @@ export function InnerTabsRow({
         <TabsPrimitive.Indicator
           renderBeforeHydration
           className={clsx(
-            "responsive absolute",
+            "variant-scope absolute",
             "sized-inner-group-item rounded-xs",
             "variant-static-bg-25",
             "variant-static-persistent-outline",
@@ -87,7 +87,7 @@ export function InnerTabsRow({
             <TabsPrimitive.Tab
               data-state={tabIdx === activeIndex ? "on" : "off"}
               className={clsx(
-                "responsive z-1",
+                "variant-scope z-1",
                 size,
                 tabChild.variant,
                 "sized-inner-group-item-height",
@@ -109,7 +109,7 @@ export function InnerTabsRow({
             >
               <div
                 className={clsx(
-                  "responsive grid place-items-center",
+                  "variant-scope grid place-items-center",
                   size,
                   (visuals === "icons" || visuals === "labels") && "grid-cols-1 grid-rows-1",
                   visuals === "both" && "grid-cols-[auto_auto] grid-rows-1",

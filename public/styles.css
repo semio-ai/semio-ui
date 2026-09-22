@@ -1330,7 +1330,7 @@
    *
    * The tint is the one text inputs already use (`variant-text-caret-color`), so a
    * selection drag that crosses from a field into surrounding copy does not change
-   * colour halfway. `--accent-color` is only defined inside `.responsive`, which the
+   * colour halfway. `--accent-color` is only defined inside `.variant-scope`, which the
    * layout root does NOT carry, so the fallback is what actually paints for ordinary
    * copy — and it is declared per theme, because a single mid-grey is too dark to
    * read through in dark mode and too light in light mode.
@@ -1511,7 +1511,7 @@
    * `label`, `caption` and `note` declare a target lightness alongside the neutral pair
    * that lightness corresponds to. The pair is the fallback; the block below is what paints,
    * taking the lightness from the role and the chroma and hue from whatever variant is in
-   * context — so in a `.responsive primary` subtree a caption is primary-hued at exactly
+   * context — so in a `.variant-scope primary` subtree a caption is primary-hued at exactly
    * the lightness a neutral caption would have had. `value` and `body` do not derive; the
    * block below says why.
    *
@@ -1556,7 +1556,7 @@
     .text-role-label:not(.variant-text-on-inset),
     .text-role-caption:not(.variant-text-on-inset),
     .text-role-note:not(.variant-text-on-inset) {
-      /* `--accent-color` is only declared inside `.responsive`; ordinary copy falls back to
+      /* `--accent-color` is only declared inside `.variant-scope`; ordinary copy falls back to
        * the default variant's own accent, which is what makes grey text grey. */
       color: oklch(from var(--accent-color, var(--color-default-600)) var(--text-role-l) c h);
 
@@ -1572,17 +1572,17 @@
    * both together raises the specificity above either.
    *
    * ⚠ **The fallback is what makes the static mode safe with no variant named.**
-   * `--variant-text-color` is declared ONLY inside `.responsive`, and a static role with
-   * no variant emits no `responsive` class — so outside a `.responsive` subtree the
+   * `--variant-text-color` is declared ONLY inside `.variant-scope`, and a static role with
+   * no variant emits no `variant-scope` class — so outside a `.variant-scope` subtree the
    * property resolves to nothing, `color` becomes invalid at computed-value time, and the
    * text falls back to INHERITING, losing the role's colour entirely. `--text-role-color`
    * restates each role's own pair, so that case lands on the colour the role would have
    * painted anyway. That is the documented contract: with no variant in play, the two
    * modes look the same.
    *
-   * Inside a `.responsive` subtree the property IS declared and inherits, so the fallback
+   * Inside a `.variant-scope` subtree the property IS declared and inherits, so the fallback
    * never fires and a static role with no variant still takes the ambient variant's
-   * colour. Making the component emit `responsive` unconditionally would break that — it
+   * colour. Making the component emit `variant-scope` unconditionally would break that — it
    * re-roots the accent context onto the element at the DEFAULT variant, so the text
    * would go neutral in an error panel.
    *
@@ -1597,13 +1597,26 @@
 }
 
 @layer utilities {
-  .responsive {
+  /* The variant context root. `variant-scope` declares the custom properties every
+   * `variant-responsive-*` / `variant-static-*` treatment resolves against —
+   * `--accent-color`, `--variant-text-color`, the on-fill foregrounds — so a
+   * `variant-scope primary` element re-roots the accent for everything beneath it.
+   *
+   * A treatment class alone sets nothing: `variant-responsive-bg` reads
+   * `--accent-color` rather than declaring a colour of its own, so it paints
+   * whatever the nearest `variant-scope` ancestor supplies — the default accent if
+   * none does.
+   *
+   * A treatment's own name carries the interactivity axis, which this root does not:
+   * `variant-responsive-*` changes with hover, press and selection state;
+   * `variant-static-*` does not. */
+  .variant-scope {
     --standard-color: var(--color-default-500);
     --light-color: var(--color-default-400);
     --dark-color: var(--color-default-600);
     --opacity: 100%;
     --accent-color: var(--dark-color);
-    --responsive-color: var(--standard-color);
+    --variant-scope-color: var(--standard-color);
     --lightest-accent-text-color: var(--color-default-200);
     --darkest-accent-text-color: var(--color-default-800);
     --light-accent-text-color: var(--color-default-400);

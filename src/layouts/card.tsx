@@ -159,7 +159,7 @@ export function Card({
   return (
     <div
       ref={ref}
-      // `responsive` + `custom-color`-free: selection is drawn with the accent ring
+      // `variant-scope` + `custom-color`-free: selection is drawn with the accent ring
       // the rest of the package uses for a chosen item, rather than a bespoke
       // colour, so a selected card matches a selected row.
       data-selected={selected ? "true" : undefined}
@@ -167,10 +167,10 @@ export function Card({
         "card relative flex h-full flex-col overflow-hidden",
         // See the note above: the surface class carries no foreground, so this must.
         "text-neutral-900 dark:text-neutral-100",
-        // `responsive` sets `--accent-color`, which the tint layer below resolves
+        // `variant-scope` sets `--accent-color`, which the tint layer below resolves
         // against — so selection adapts to the theme and to any variant, exactly as
         // a row's does.
-        (interactive || selected) && "responsive",
+        (interactive || selected) && "variant-scope",
         // `group` so the tint layer can react to hovering the CARD. The layer is
         // `pointer-events-none`, so a `hover:` on it would never fire.
         interactive && "group cursor-pointer",

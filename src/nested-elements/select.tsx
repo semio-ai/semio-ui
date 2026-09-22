@@ -72,7 +72,7 @@ export function NestedSelect({ variant, disabled, onChange, values, options }: N
               "group/item flex items-center rounded-xs leading-none",
               "relative h-7 px-1.25 pl-7.5 text-sm outline-hidden select-none",
               "data-disabled:pointer-events-none",
-              "responsive highlight-list-item",
+              "variant-scope highlight-list-item",
               option.color ? "custom-color" : (option.variant ?? variant),
             )}
           >
@@ -80,7 +80,7 @@ export function NestedSelect({ variant, disabled, onChange, values, options }: N
               forceMount
               className={clsx(
                 "absolute top-1/2 left-1 grid -translate-y-1/2 place-items-center",
-                "responsive check-indicator",
+                "variant-scope check-indicator",
                 option.color ? "custom-color" : (option.variant ?? variant),
               )}
             >
