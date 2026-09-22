@@ -16,6 +16,7 @@ import { Size } from "../types";
 import { useClickAway } from "../hooks/use-click-away";
 import { useRowWindow } from "../hooks/use-row-window";
 import { defaultResolveRowVisual, type ResolveRowVisual } from "../tree/resolve-row-visual";
+import { ContextMenu } from "../floating/context-menu";
 import { TreeNavItem, TreeNavRoot } from "../tree/use-tree-navigation";
 import { useTreeSelection } from "../tree/use-tree-selection";
 import { ListRow, ROW_HEIGHT, ROW_HEIGHT_PX } from "./list-row";
@@ -102,8 +103,8 @@ export interface ListColumn<T> {
    * the row's edge, and reads as belonging to the edge.
    */
   className?: string;
-  /** Cell content. `state` lets a cell reflect focus/selection (the old
-   *  TableList's 3-arg `render(value, focused, selected)`). */
+  /** Cell content. `state` lets a cell reflect focus and selection without
+   *  reading them from anywhere else. */
   render: (item: T, state: { focused: boolean; selected: boolean }) => ReactNode;
 }
 
@@ -122,7 +123,7 @@ export interface ListGridProps<T> {
   onSelectionChange?: (next: Set<string>) => void;
   disallowEmptySelection?: boolean;
   /** Clicking outside the list clears the selection (unless empty selection is
-   *  disallowed). Defaults to true, matching the old TableList. */
+   *  disallowed). Defaults to true. */
   deselectOnClickAway?: boolean;
   /**
    * Plain arrow navigation also moves selection to the newly-focused row
@@ -147,6 +148,20 @@ export interface ListGridProps<T> {
    * handler the consumer happened to pass.
    */
   onItemDoubleClick?: (id: string, event: MouseEvent) => void;
+  /**
+   * The menu a row opens on right-click, as its ITEMS.
+   *
+   * Takes the content rather than a handler so a listing hands the same node to this
+   * and to the row's own `⋮`: the two are one menu reached two ways, and the only way
+   * to guarantee that is for there to be one node.
+   *
+   * Wrapped around `ListRow` rather than around the row's focus wrapper, because the
+   * floating component renders no element of its own — its trigger clones the child —
+   * so the row stays a direct child of the grid and keeps its `grid-cols-subgrid`
+   * tracks. An element in between would take it out of the subgrid and every column
+   * would stop lining up.
+   */
+  rowMenu?: (item: T) => ReactNode;
 
   // Type-ahead
   allowTypeAhead?: boolean;
@@ -248,6 +263,7 @@ export function ListGrid<T>({
   selectionFollowsFocus = true,
   onAction,
   onItemDoubleClick,
+  rowMenu,
   allowTypeAhead = true,
   getSearchText,
   virtualized = false,
@@ -871,18 +887,35 @@ export function ListGrid<T>({
                   selection bar/background instead of a fixed hue. An inset
                   `outline` (not a `ring`/box-shadow) so it paints above the
                   row's absolute background overlay rather than behind it. */}
-              <ListRow
-                // One row reports the real row height, which is what the window's
-                // arithmetic runs on — `ROW_HEIGHT` is a `rem` class, so the px
-                // estimate is only right at a 16px root font size.
-                ref={offset === 0 ? rowWindow.measureRef : undefined}
-                columns={rowColumns}
-                cells={cells}
-                cellRole={isGrid ? "gridcell" : undefined}
-                visual={visual}
-                size={size}
-                className="group-focus-visible/row:outline group-focus-visible/row:outline-2 group-focus-visible/row:-outline-offset-2 group-focus-visible/row:outline-[var(--accent-color)]"
-              />
+              {rowMenu ? (
+                <ContextMenu content={rowMenu(item)}>
+                  <ListRow
+                    // One row reports the real row height, which is what the window's
+                    // arithmetic runs on — `ROW_HEIGHT` is a `rem` class, so the px
+                    // estimate is only right at a 16px root font size.
+                    ref={offset === 0 ? rowWindow.measureRef : undefined}
+                    columns={rowColumns}
+                    cells={cells}
+                    cellRole={isGrid ? "gridcell" : undefined}
+                    visual={visual}
+                    size={size}
+                    className="group-focus-visible/row:outline group-focus-visible/row:outline-2 group-focus-visible/row:-outline-offset-2 group-focus-visible/row:outline-[var(--accent-color)]"
+                  />
+                </ContextMenu>
+              ) : (
+                <ListRow
+                  // One row reports the real row height, which is what the window's
+                  // arithmetic runs on — `ROW_HEIGHT` is a `rem` class, so the px
+                  // estimate is only right at a 16px root font size.
+                  ref={offset === 0 ? rowWindow.measureRef : undefined}
+                  columns={rowColumns}
+                  cells={cells}
+                  cellRole={isGrid ? "gridcell" : undefined}
+                  visual={visual}
+                  size={size}
+                  className="group-focus-visible/row:outline group-focus-visible/row:outline-2 group-focus-visible/row:-outline-offset-2 group-focus-visible/row:outline-[var(--accent-color)]"
+                />
+              )}
             </TreeNavItem>
           );
         })}

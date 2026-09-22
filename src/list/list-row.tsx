@@ -1,4 +1,4 @@
-import type { CSSProperties, ReactNode, Ref } from "react";
+import type { CSSProperties, HTMLAttributes, ReactNode, Ref } from "react";
 import { clsx } from "clsx";
 import { Size } from "../types";
 import type { RowVisual } from "../tree/resolve-row-visual";
@@ -17,7 +17,7 @@ export interface ListRowColumn {
   className?: string;
 }
 
-export interface ListRowProps {
+export interface ListRowProps extends NativeRowProps {
   /** Column layout, in display order. Drives the subgrid cell alignment. */
   columns: ListRowColumn[];
   /** Rendered cell content, parallel to {@link columns}. */
@@ -52,6 +52,25 @@ export interface ListRowProps {
    */
   ref?: Ref<HTMLDivElement>;
 }
+
+/**
+ * Everything a row element natively accepts, minus the four this component owns.
+ *
+ * Widening to the native attributes rather than listing them is what lets a row be a
+ * TRIGGER. A floating component — Radix's `asChild`, Base UI's `render` — puts its own
+ * pointer handlers, `data-state` and ref onto the element it was given, and a closed
+ * prop list drops every one of them silently: the row still renders, still reads
+ * correctly, and simply never opens its menu.
+ *
+ * A row cannot take the usual escape hatch either. The wrapper that works for a
+ * `Button` breaks a row outright, because rows lay their cells on the parent's tracks
+ * with `grid-cols-subgrid` — an element between the grid and the row takes the row out
+ * of that subgrid and every column stops lining up.
+ *
+ * `role`, `className` and `ref` are re-declared above so they can document what they
+ * land on; `children` is not accepted at all, because a row's content is its `cells`.
+ */
+type NativeRowProps = Omit<HTMLAttributes<HTMLDivElement>, "role" | "className" | "children">;
 
 /**
  * Edge length of a row's media tile — the square a thumbnail, or the glyph
@@ -99,9 +118,15 @@ export function ListRow({
   cellRole,
   ariaSelected,
   ref,
+  ...rest
 }: ListRowProps) {
   return (
     <div
+      // Native attributes first, so nothing a caller passes can displace the row's
+      // own layout classes, its ref or its ARIA. Those four are destructured above and
+      // therefore absent from `rest`; spreading last would still let a future addition
+      // to that list land after them silently.
+      {...rest}
       ref={ref}
       role={role}
       aria-selected={ariaSelected}

@@ -377,6 +377,27 @@
     background-color: color-mix(in oklab, var(--standard-color) 50%, transparent);
   }
 
+  /* A neutral surface that does NOT take the variant's colour: the layout inset fill,
+   * theme-flipped, with a foreground declared against it.
+   *
+   * It exists because a variant fill is an assertion. A solid `variant-*-bg` says the
+   * thing it wraps IS primary, or IS an error; that is right for a state and wrong for
+   * a container whose job is to sit quietly behind content that carries its own
+   * meaning — a status chip whose colour lives in its dot, a checkbox before it is
+   * checked. Painting those with a variant makes the container compete with the mark
+   * it holds.
+   *
+   * Fill and foreground are declared together, as with every other `variant-*-bg`, so
+   * no caller can own half the pair. The pairing is `neutral-800`/`neutral-200`, NOT a
+   * mid grey: a `neutral-500` foreground reads as disabled against these grounds and
+   * measures below the 4.5:1 a label has to clear. Use `text-*` on the CONTENT if
+   * something inside should be quieter. */
+  .variant-subtle-bg {
+    @apply transition-colors duration-50 ease-in-out rounded-xs;
+    @apply dark:bg-layout-dark-inset bg-layout-light-inset;
+    @apply dark:text-neutral-200 text-neutral-800;
+  }
+
   .variant-separator-fill {
     background-color: var(--accent-color);
   }
@@ -624,6 +645,63 @@
     @variant size-xl {
       /* 34px */
       @apply h-8.5;
+    }
+  }
+
+  /* A chip's internal spacing, which has to move with its box.
+   *
+   * Held static, these two are what make a small chip look wrong rather than small:
+   * the distance from a leading mark to the label is this gap PLUS the label's own
+   * padding, so a fixed pair reads as ~16px on an `Xs` chip that is only 20px tall —
+   * the mark ends up nearer the chip's edge than to the word it belongs to.
+   *
+   * The `md` rungs are the values these replaced, so every chip at the default size
+   * is unchanged and only the smaller rungs tighten. */
+  .sized-chip-gap {
+    @apply gap-2;
+
+    @variant size-xs {
+      @apply gap-1;
+    }
+
+    @variant size-sm {
+      @apply gap-1.5;
+    }
+
+    @variant size-md {
+      @apply gap-2;
+    }
+
+    @variant size-lg {
+      @apply gap-2;
+    }
+
+    @variant size-xl {
+      @apply gap-2.5;
+    }
+  }
+
+  .sized-chip-label-padding {
+    @apply px-2;
+
+    @variant size-xs {
+      @apply px-1;
+    }
+
+    @variant size-sm {
+      @apply px-1.5;
+    }
+
+    @variant size-md {
+      @apply px-2;
+    }
+
+    @variant size-lg {
+      @apply px-2;
+    }
+
+    @variant size-xl {
+      @apply px-2.5;
     }
   }
 
@@ -963,37 +1041,6 @@
     @apply dark:group-data-[state=checked]/item:text-black group-data-[state=checked]/item:text-white;
     @apply group-data-highlighted/item:group-data-[state=unchecked]/item:text-white;
     @apply dark:group-data-highlighted/item:group-data-[state=unchecked]/item:text-black;
-  }
-
-  .table-list {
-    .table-list-text {
-      @apply transition-colors duration-50 ease-in-out;
-      @apply data-disabled:text-neutral-500/50;
-      @apply dark:group-data-highlighted/row:text-black group-data-highlighted/row:text-white;
-      @apply dark:group-data-[state=checked]/row:text-black group-data-[state=checked]/row:text-white;
-      @apply dark:focus:text-black focus:text-white;
-      color: var(--accent-color);
-    }
-
-    .table-list-item {
-      @apply transition-colors duration-50 ease-in-out;
-      @apply cursor-pointer;
-      @apply data-disabled:text-neutral-500/50;
-      @apply dark:data-highlighted:text-black data-highlighted:text-white;
-      @apply dark:data-[state=checked]:text-black data-[state=checked]:text-white;
-      color: var(--accent-color);
-      &[data-highlighted] {
-        background-color: color-mix(in oklab, var(--accent-color) 40%, transparent);
-      }
-
-      &[data-state="checked"] {
-        background-color: color-mix(in oklab, var(--accent-color) 60%, transparent);
-        &[data-highlighted] {
-          background-color: color-mix(in oklab, var(--accent-color) 80%, transparent);
-          @apply outline-2 dark:outline-black outline-white outline-offset-[-3px];
-        }
-      }
-    }
   }
 
   .responsive-accent-bg {
@@ -1380,8 +1427,8 @@
 
   /* ⚠ THE MUTED PAIR ABOVE FAILS WCAG AA IN LIGHT MODE, AND THAT IS A DECISION.
    *
-   * `label` and `caption` share `neutral-500` / `neutral-400`. Measured against the
-   * grounds the app paints, not against white:
+   * `label`, `caption` and `note` share `neutral-500` / `neutral-400`. Measured against
+   * the grounds the app paints, not against white:
    *
    *   light  `.card` (layout-light-inset)   3.76:1   APCA Lc 55.0   — AA wants 4.5:1
    *          layout-light-base              2.95:1   Lc 41.5
@@ -1390,7 +1437,8 @@
    *
    * `.card` is the surface behind every modal, dialog, dropdown, tooltip and panel, so
    * the 3.76 is where most of the app's captions actually sit, not an edge case. At
-   * 12px there is no large-text allowance.
+   * 12px there is no large-text allowance, and `note`'s 14px does not reach one either —
+   * AA's threshold is 18px, or 14px bold.
    *
    * It stays because the two goals here are in tension and only one of them is a
    * number. `neutral-600` clears AA on every ground, and costs roughly half the
@@ -1435,10 +1483,33 @@
     }
   }
 
+  /* The application speaking in its own right — an empty state, a stated absence, an
+   * instruction above a field. `body`'s rung with `caption`'s colour, which is the
+   * combination the other four leave out and the one a listing needs constantly: a
+   * description and the sentence standing in for a missing one sit in the same slot, and
+   * telling them apart is the whole job.
+   *
+   * It derives its hue with the muted pair below rather than with `body`, because it is
+   * at the muted LIGHTNESS — that is what makes deriving safe here and not for `body`,
+   * where the contrast extremes leave the gamut no chroma to take. The AA note above
+   * covers this role too: it is the same colour on the same grounds, and 14px is still
+   * below the large-text allowance, so the ratio is unchanged and so is the judgement. */
+  .text-role-note {
+    @apply text-sm select-text;
+    @apply text-neutral-500 dark:text-neutral-400;
+    --text-role-l: 55.6%;
+    --text-role-l-dark: 70.8%;
+    --text-role-color: var(--color-neutral-500);
+
+    &:where(.dark, .dark *) {
+      --text-role-color: var(--color-neutral-400);
+    }
+  }
+
   /* A MUTED ROLE'S COLOUR IS A LIGHTNESS, NOT A RUNG.
    *
-   * `label` and `caption` declare a target lightness alongside the neutral pair that
-   * lightness corresponds to. The pair is the fallback; the block below is what paints,
+   * `label`, `caption` and `note` declare a target lightness alongside the neutral pair
+   * that lightness corresponds to. The pair is the fallback; the block below is what paints,
    * taking the lightness from the role and the chroma and hue from whatever variant is in
    * context — so in a `.responsive primary` subtree a caption is primary-hued at exactly
    * the lightness a neutral caption would have had. `value` and `body` do not derive; the
@@ -1483,7 +1554,8 @@
      * two roles it is most wanted for. The derivation steps aside when a colour has been
      * stated outright. */
     .text-role-label:not(.variant-text-on-inset),
-    .text-role-caption:not(.variant-text-on-inset) {
+    .text-role-caption:not(.variant-text-on-inset),
+    .text-role-note:not(.variant-text-on-inset) {
       /* `--accent-color` is only declared inside `.responsive`; ordinary copy falls back to
        * the default variant's own accent, which is what makes grey text grey. */
       color: oklch(from var(--accent-color, var(--color-default-600)) var(--text-role-l) c h);

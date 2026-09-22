@@ -304,7 +304,7 @@ function checkProgressCircle() {
 // ── Status check ──────────────────────────────────────────────────────────
 function checkStatus() {
   const fails = [], notes = [];
-  const src = readFileSync(join(root, "src/feedback/status.tsx"), "utf8");
+  const src = readFileSync(join(root, "src/feedback/status-badge.tsx"), "utf8");
   const SUBSET = { variants: ["default", "primary", "secondary", "tertiary", "error", "success", "warning", "info"] };
   const figma = readFigma("status");
   const fo = figma.variantOptions || {};
@@ -314,7 +314,7 @@ function checkStatus() {
   notes.push("dot indicator modeled; text/count mode shown as an example; size scoped to examples");
   if (figma.sampleVariant.dotFillVar !== "color/primary/bg") fails.push(`dot fill not bound to color/primary/bg — figma=${figma.sampleVariant.dotFillVar}`);
   if (figma.sampleVariant.ringVar !== "color/surface/inset") fails.push(`ring not bound to color/surface/inset (= neutral-200/800) — figma=${figma.sampleVariant.ringVar}`);
-  return { name: "Status", figma, fails, notes, summary: `Variant = ${(fo.Variant||[]).length} · props=[(variant axes only)]` };
+  return { name: "StatusBadge", figma, fails, notes, summary: `Variant = ${(fo.Variant||[]).length} · props=[(variant axes only)]` };
 }
 
 // ── NestedItem check ──────────────────────────────────────────────────────

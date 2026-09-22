@@ -18,10 +18,10 @@ what exists, grouped by area, so you reach for the right component. **All import
 
 ## Layouts
 `Accordion`, `Breadcrumbs`, `Collapse`, `Resizer`, `ScrollArea`, `Separator`, `Stepper`, `Tabs`,
-`TableList`, layout `root` + layout `types`
+`ListGrid`, `TreeGrid`, layout `root` + layout `types`
 
 ## Feedback
-`Progress`, `Spinner`, `Status`
+`Progress`, `Spinner`, `StatusBadge`, `StatusDot`
 
 ## Nested elements (menu/tree building blocks)
 `Checkbox`, `CheckboxTree`, `Radio`, `Select`, `Menu`, `Item`, `Label`, `Separator`, `ColorPicker`,
@@ -32,9 +32,8 @@ what exists, grouped by area, so you reach for the right component. **All import
 `Keybinding` (+ `keybinding-context`)
 
 ## Hooks (use these instead of bespoke state)
-`useTheme`, `useSystemThemePreference`, `useTabsState`, `useListState`, `useTableListState`,
-`useLayoutState`, `useLayoutActions`, `useWindowSize`, `useClickAway`, `useDelayedBoolean`,
-`use-add-toast`, layout atoms
+`useTheme`, `useSystemThemePreference`, `useTabsState`, `useLayoutState`, `useLayoutActions`,
+`useWindowSize`, `useClickAway`, `useDelayedBoolean`, `use-add-toast`, layout atoms
 
 ## Shared types & enums — these are NOMINAL ENUMS, pass members not strings
 `Variant`, `Size`, `Theme`, `TimeDisplay`, `PaneRegion`, `ToolbarItem` / `ToolbarWidget` / `ToolbarSpacer`,

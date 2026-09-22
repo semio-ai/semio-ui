@@ -3,7 +3,7 @@ import { forwardRef } from "react";
 import { clsx } from "clsx";
 import { Size, Variant } from "../types";
 
-export interface StatusProps {
+export interface StatusBadgeProps {
   variant?: Variant;
   size?: Size;
   placement?: "top-left" | "top-right" | "bottom-left" | "bottom-right";
@@ -13,7 +13,7 @@ export interface StatusProps {
   className?: string;
 }
 
-export const Status = forwardRef(
+export const StatusBadge = forwardRef(
   (
     {
       variant = Variant.Default,
@@ -23,7 +23,7 @@ export const Status = forwardRef(
       children,
       hidden,
       className,
-    }: StatusProps,
+    }: StatusBadgeProps,
     ref: ForwardedRef<HTMLDivElement>,
   ) => {
     if (hidden) {
@@ -62,7 +62,7 @@ export const Status = forwardRef(
   },
 );
 
-Status.displayName = "Status";
+StatusBadge.displayName = "StatusBadge";
 
 function getPlacement(
   placement: "top-left" | "top-right" | "bottom-left" | "bottom-right",

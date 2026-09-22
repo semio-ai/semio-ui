@@ -6,7 +6,8 @@ import { Size, Variant } from "./types";
 import { Avatar } from "./avatar";
 import { Button } from "./buttons/button";
 import { Chip } from "./chip";
-import { Status } from "./feedback/status";
+import { StatusBadge } from "./feedback/status-badge";
+import { StatusDot } from "./feedback/status-dot";
 import { Checkbox } from "./inputs/checkbox";
 import { ToggleSquare } from "./inputs/toggle-square";
 import { ImageInput } from "./inputs/image-input";
@@ -199,15 +200,14 @@ const ON_STANDARD_FILL: {
     ),
     // The label is a child of the chip with its own colour; the chip's own inherited
     // `color` is never painted, so measuring the container reports 1:1 instead.
-    find: (root) =>
-      [...root.querySelectorAll<HTMLElement>("div")].find((d) => d.className.includes("px-2"))!,
+    find: (root) => root.querySelector<HTMLElement>('[data-slot="label"]')!,
   },
   {
-    name: "Status badge text",
+    name: "StatusBadge text",
     render: (v) => (
-      <Status variant={v} text="9">
+      <StatusBadge variant={v} text="9">
         <div style={{ width: 40, height: 40 }} />
-      </Status>
+      </StatusBadge>
     ),
     // Deepest node carrying the text: the outer `relative` wrapper shares its
     // textContent and paints nothing.
@@ -317,6 +317,59 @@ test.each(ON_STANDARD_FILL)(
 // Driven through a real pointer. Resolving the tokens by hand instead — reading the
 // non-hover computed colour and pairing it with the hover fill — reproduces the defect
 // this asserts is gone, and reports it whether or not it is still there.
+test("Chip subtle: the neutral ground carries its label, and the dot keeps its own colour", async () => {
+  for (const theme of THEMES) {
+    for (const variant of VARIANTS) {
+      // The LABEL is measured against the neutral ground. Unlike a variant fill, this
+      // ground is theme-flipped, so the pair has to move together — a foreground that
+      // stayed put would be measured here on whichever theme it was not chosen for.
+      const label = await withTheme(
+        theme,
+        <Chip
+          variant={variant}
+          size={Size.Xs}
+          visuals="subtle"
+          icon={<StatusDot variant={variant} />}
+        >
+          Connected
+        </Chip>,
+        (root) => measure(root.querySelector<HTMLElement>('[data-slot="label"]')!, theme),
+      );
+      expect(
+        label.derived,
+        `subtle chip label on ${theme}/${String(variant)} is below AA`,
+      ).toBeGreaterThanOrEqual(AA_TEXT);
+
+      // The claim that makes the composition work at all: the chip's ground is
+      // neutral and the dot's is the variant's, so the dot must NOT have been
+      // repainted by the slot. `variant-on-fill-slot` forces `color`, and the dot
+      // paints `background-color` — this is what proves those stay independent.
+      const dot = await withTheme(
+        theme,
+        <>
+          <Chip
+            variant={variant}
+            size={Size.Xs}
+            visuals="subtle"
+            icon={<StatusDot variant={variant} />}
+          >
+            Connected
+          </Chip>
+          <StatusDot variant={variant} />
+        </>,
+        (root) => {
+          const dots = [...root.querySelectorAll<HTMLElement>("span[class*='sized-status']")];
+          return dots.map((d) => getComputedStyle(d).backgroundColor);
+        },
+      );
+      expect(
+        dot[0],
+        `the dot inside a subtle chip lost its own colour on ${theme}/${String(variant)}`,
+      ).toBe(dot[dot.length - 1]);
+    }
+  }
+});
+
 test("Button: the foreground follows the fill through hover", async () => {
   for (const theme of THEMES) {
     for (const variant of [Variant.Default, Variant.Secondary, Variant.Error]) {

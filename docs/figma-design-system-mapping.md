@@ -145,9 +145,9 @@ Both are variant-tinted, no interactive-state axis; `progress` is a runtime numb
 
 Code Connect: both in [progress.figma.tsx](../src/feedback/progress.figma.tsx). Parity: `progress`/`progresscircle` blocks + `figma/progress-contract.json`, `figma/progresscircle-contract.json`. Stories `progress` + `progress-circle` wired (8 + 4 preview frames).
 
-### Status, Spinner & KeybindingHint (feedback, closing Phase 2)
+### StatusBadge, Spinner & KeybindingHint (feedback, closing Phase 2)
 
-- **Status** (`544:722`) — the badge **dot**: an 8-variant set, dot bound to `color/<variant>/bg` with a 2px ring bound to **`color/surface/inset`** (= `ring-neutral-200 dark:ring-neutral-800`, exactly). The text/count mode and `placement` corners are contextual, shown as examples/story args, not axes. Code Connect [status.figma.tsx](../src/feedback/status.figma.tsx) (variant only; child is contextual), `status` parity block, `status.stories.tsx` authored.
+- **StatusBadge** (`544:722`) — the badge **dot**: an 8-variant set, dot bound to `color/<variant>/bg` with a 2px ring bound to **`color/surface/inset`** (= `ring-neutral-200 dark:ring-neutral-800`, exactly). The text/count mode and `placement` corners are contextual, shown as examples/story args, not axes. Code Connect [status-badge.figma.tsx](../src/feedback/status-badge.figma.tsx) (variant only; child is contextual), `status` parity block, `status-badge.stories.tsx` authored.
 - **Spinner** (`545:706`) — a **static** representation of the animated ring (a ~30% blue-500 arc). No props/variants/tokens, so it gets a drop-in [spinner.figma.tsx](../src/feedback/spinner.figma.tsx) + `spinner.stories.tsx` but **no parity block** (nothing token-bound to assert; animation can't be mirrored).
 - **KeybindingHint** — **not a mirrored component**: it renders adaptive inline text (⌘⇧⌥ on Mac, `Ctrl+Shift` on PC), no box/border. Represented as a Figma **example frame** ("KeybindingHint — examples") on the Components page; no Code Connect/parity (a text primitive, not a variant-bound visual).
 
@@ -208,7 +208,7 @@ Filled from a usage re-audit — commonly used in studio but previously unmirror
 - **Label** (`583:812`) — the form-field label (label text `content/muted` + optional error `Message`). Single component, `Label`/`Show message`/`Message` props — the primitive the Email/Password presets inline. [label.figma.tsx](../src/inputs/label.figma.tsx).
 - **NestedMenu** (`586:833`) — the submenu trigger row (NestedItem chrome + right chevron), states default/highlighted — completes the menu family. In [nested-elements.figma.tsx](../src/nested-elements/nested-elements.figma.tsx).
 
-All in `parity:figma` (`tooltip`/`slidernumberfield`/`label`/`nestedmenu` blocks + contracts). Not built (deliberately): ScrollArea/TableList (structural), HeaderButton/Anchor (Button variants), color pickers / Autocomplete / Combobox (niche).
+All in `parity:figma` (`tooltip`/`slidernumberfield`/`label`/`nestedmenu` blocks + contracts). Not built (deliberately): ScrollArea (structural), HeaderButton/Anchor (Button variants), color pickers / Autocomplete / Combobox (niche).
 
 ## Layout convention (both pages)
 

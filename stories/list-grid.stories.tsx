@@ -108,9 +108,9 @@ export const NoHeaderSingleColumn = () => (
   </div>
 );
 
-// Capability check (parity with the old TableList's rich cells): a cell may
-// render ANY content and reflect the row's interaction state via the second
-// `render` arg — here an avatar, a chip, and a "✓ selected" marker.
+// Capability check: a cell may render ANY content and reflect the row's
+// interaction state via the second `render` arg — here an avatar, a chip, and a
+// "✓ selected" marker.
 export const RichCells = () => {
   const [sel, setSel] = useState<Set<string>>(new Set(["r2"]));
   return (

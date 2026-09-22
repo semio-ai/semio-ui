@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { Accordion, TableList, type ColumnDefinition } from "@semio/ui";
+import { Accordion, ListGrid, type ListColumn } from "@semio/ui";
 import { TableData } from "./prebuilt/table-data";
 
 const meta: Meta<typeof Accordion> = {
@@ -21,7 +21,9 @@ interface Pokemon {
   types: string[];
 }
 
-const POKEMON_COLUMNS: ColumnDefinition<Pokemon>[] = [
+const POKEMON_ROW_ID = (row: Pokemon) => row.key;
+
+const POKEMON_COLUMNS: ListColumn<Pokemon>[] = [
   {
     key: "img",
     header: "",
@@ -43,7 +45,7 @@ const POKEMON_COLUMNS: ColumnDefinition<Pokemon>[] = [
 // Group Pokemon by their primary type
 const pokemonByType = TableData.reduce((acc: Record<string, typeof TableData>, pokemon) => {
   const primaryType = pokemon.types[0].toLowerCase() as "fire" | "water" | "grass";
-   
+
   if (!acc[primaryType]) {
     acc[primaryType] = [];
   }
@@ -138,15 +140,16 @@ export const SinglePokemon: Story = {
   },
 };
 
-export const PokemonWithTableList: Story = {
+export const PokemonWithListGrid: Story = {
   args: {
     items: Object.entries(pokemonByType).map(([type, pokemon]) => ({
       key: type,
       header: `${type} Type Pokemon`,
       content: (
-        <TableList
+        <ListGrid
           noHeader
           data={pokemon}
+          getRowId={POKEMON_ROW_ID}
           columns={POKEMON_COLUMNS}
           notFound={
             <div className="flex h-10 flex-row items-center justify-center text-center text-neutral-500">
@@ -159,16 +162,17 @@ export const PokemonWithTableList: Story = {
   },
 };
 
-export const PokemonWithTableListDefaultOpen: Story = {
+export const PokemonWithListGridDefaultOpen: Story = {
   args: {
     defaultOpen: true,
     items: Object.entries(pokemonByType).map(([type, pokemon]) => ({
       key: type,
       header: `${type} Type Pokemon (${pokemon.length.toString()})`,
       content: (
-        <TableList
+        <ListGrid
           noHeader
           data={pokemon}
+          getRowId={POKEMON_ROW_ID}
           columns={POKEMON_COLUMNS}
           notFound={
             <div className="flex h-10 flex-row items-center justify-center text-center text-neutral-500">
@@ -191,9 +195,10 @@ export const StickyHeaders: Story = {
       header: `${type} Type`,
       content: (
         <div>
-          <TableList
+          <ListGrid
             noHeader
             data={pokemon}
+            getRowId={POKEMON_ROW_ID}
             columns={POKEMON_COLUMNS}
             notFound={
               <div className="flex h-10 flex-row items-center justify-center text-center text-neutral-500">
@@ -224,7 +229,7 @@ export const StickyWithOffset: Story = {
       header: `${type} Type`,
       content: (
         <div>
-          <TableList noHeader data={pokemon} columns={POKEMON_COLUMNS} />
+          <ListGrid noHeader data={pokemon} getRowId={POKEMON_ROW_ID} columns={POKEMON_COLUMNS} />
         </div>
       ),
     })),

@@ -59,6 +59,24 @@ export enum TextRole {
    * {@link TextRole.Caption}, and **selectable**.
    */
   Body = "text-role-body",
+
+  /**
+   * The application speaking in its own right, at the size prose is read at: an empty
+   * state, a stated absence, an instruction above a field. Muted like
+   * {@link TextRole.Caption}, sized like {@link TextRole.Body}, and **selectable**.
+   *
+   * **The axis this completes is voice, not prominence.** {@link TextRole.Value} and
+   * {@link TextRole.Body} are the subject's own words — a fact it holds, a description
+   * it wrote — and {@link TextRole.Label} is the application naming one of them. This
+   * is the application saying something itself, which happens at the length and rung of
+   * prose rather than of a field name.
+   *
+   * ⚠ **Not a quieter `body`.** A subject's own prose stays at `body` however short it
+   * is; what puts text here is that the subject did not write it. Choosing on
+   * prominence instead is how "no description is available" and a real description end
+   * up at the same rung, which is the one distinction this role exists to draw.
+   */
+  Note = "text-role-note",
 }
 
 /**

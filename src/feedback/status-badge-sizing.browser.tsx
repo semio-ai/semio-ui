@@ -2,10 +2,10 @@ import { expect, test } from "vitest";
 import { render } from "vitest-browser-react";
 import "../test-stylesheet";
 import { Size, Variant } from "../types";
-import { Status } from "./status";
+import { StatusBadge } from "./status-badge";
 
 /**
- * `Status` has two forms and they are sized by different rules: the dot is a mark, and
+ * `StatusBadge` has two forms and they are sized by different rules: the dot is a mark, and
  * the counted badge is a box around a numeral. This pins the counted one.
  *
  * The real stylesheet is imported deliberately — every claim here is about geometry
@@ -44,9 +44,9 @@ function withBadge<T>(size: Size, text: string | undefined, take: (el: HTMLEleme
   document.body.appendChild(host);
   try {
     const view = render(
-      <Status variant={Variant.Primary} size={size} text={text}>
+      <StatusBadge variant={Variant.Primary} size={size} text={text}>
         <div style={{ width: 40, height: 40 }} />
-      </Status>,
+      </StatusBadge>,
       { container: host },
     );
     // The badge is the node carrying `rounded-full`; the outer `relative` wrapper shares
