@@ -27,7 +27,15 @@ export interface MediaSurfaceProps {
   variant?: Variant;
   /** The box: the caller states size or aspect ratio, and any radius. */
   className?: string;
-  ref?: Ref<HTMLDivElement>;
+  /**
+   * The rendered node, which is a `<span>`.
+   *
+   * Base UI's avatar root renders a span, so naming a div here would hand consumers
+   * a type the DOM never produces. It type-checks either way — `HTMLSpanElement`
+   * adds nothing to `HTMLElement`, so a div is structurally a subtype of it — which
+   * is exactly why the declaration has to be right rather than merely accepted.
+   */
+  ref?: Ref<HTMLSpanElement>;
 }
 
 /**

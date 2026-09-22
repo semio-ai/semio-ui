@@ -108,7 +108,7 @@ import { TextField, Checkbox, StatusDot, Variant, Size } from "@semio/ui";
 
 <TextField size={Size.Sm} />
 <Checkbox size={Size.Md} />
-<StatusDot variant={Variant.Success} size={Size.Lg} label="Connected" />
+<StatusDot variant={Variant.Success} size={Size.Lg} srLabel="Connected" />
 ```
 
 > Note for the curious: the enum values happen to be internal CSS class names (`Size.Md === "size-md"`), which is
