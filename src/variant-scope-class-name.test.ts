@@ -5,17 +5,21 @@ import { describe, expect, test } from "vitest";
 
 /**
  * Guards the variant context root class's name: `variant-scope`, never the bare
- * word `responsive`.
+ * word `responsive`. Scoped to every workspace package's `src` and every app's
+ * `src` (auto-discovered from `packages/*` and `apps/*`), because the class is
+ * consumed wherever `@semio/ui`'s stylesheet is imported, not only from `@semio/ui`
+ * and `@semio/studio` — `@semio/animation` applies it directly to its own toolbar
+ * markup, and any future consumer can too.
  *
  * `responsive` still appears correctly throughout this codebase — the
  * `variant-responsive-*` / `variant-static-*` treatment axis, `.responsive-accent-bg`,
- * `@vizx/responsive`, and ordinary prose about breakpoints or perceived latency — so
- * this matches the bare, hyphen-free token only (`(?<![-\w])responsive(?![-\w])`),
- * which is what a class name or a CSS selector looks like and what a treatment
- * name or a sentence does not.
+ * `@vizx/responsive`, an unrelated `visibility: "responsive"` enum member, and
+ * ordinary prose about breakpoints or perceived latency — so this matches the bare,
+ * hyphen-free token only (`(?<![-\w])responsive(?![-\w])`), which is what a class
+ * name or a CSS selector looks like and what a treatment name, an enum member or a
+ * sentence does not.
  *
- * The remaining bare-word matches are prose about responsiveness in the ordinary
- * sense (a breakpoint, a container query, how quickly something reacts), not the
+ * The remaining bare-word matches are prose or an unrelated identifier, not the
  * class. They are named here by an exact substring rather than excluded by file, so
  * an unrelated edit to the same file does not silently widen the allowance, and a
  * new bare `responsive` class added anywhere else still reddens this test.
@@ -23,29 +27,54 @@ import { describe, expect, test } from "vitest";
 
 const REPO_ROOT = fileURLToPath(new URL("../../..", import.meta.url));
 const STYLES_PATH = "packages/ui/public/styles.css";
-const SOURCE_DIRS = ["packages/ui/src", "apps/studio/src"];
 // This file's own prose about the token it guards would otherwise flag itself.
 const SELF = fileURLToPath(import.meta.url);
+
+/** Every `packages/<name>/src` and `apps/<name>/src` that exists, so a new
+ *  workspace member is covered without editing this list. */
+function sourceDirs(): string[] {
+  return ["packages", "apps"].flatMap((group) =>
+    readdirSync(join(REPO_ROOT, group), { withFileTypes: true })
+      .filter((entry) => entry.isDirectory())
+      .map((entry) => `${group}/${entry.name}/src`)
+      .filter((dir) => {
+        try {
+          return readdirSync(join(REPO_ROOT, dir)) !== undefined;
+        } catch {
+          return false; // no `src` directory — apps/docs is Storybook-shaped, not src-shaped.
+        }
+      }),
+  );
+}
 
 const BARE_TOKEN = /(?<![-\w])responsive(?![-\w])/;
 
 const KNOWN_PROSE = [
-  // floating/modal.tsx — the modal's own layout responds to viewport width, not the variant root.
+  // packages/ui/src/floating/modal.tsx — the modal's own layout responds to viewport width, not the variant root.
   "Includes automatic scroll handling, responsive",
-  // floating/sidebar-modal.tsx — the collapse/expand width transition reacts to state, not the class.
+  // packages/ui/src/floating/sidebar-modal.tsx — the collapse/expand width transition reacts to state, not the class.
   "descendant `data-expanded` selectors and the responsive",
-  // floating/tooltip-3d/use-tooltip-trigger.ts — the tooltip hides promptly; no class involved.
+  // packages/ui/src/floating/tooltip-3d/use-tooltip-trigger.ts — the tooltip hides promptly; no class involved.
   "Immediate hide for responsive feel",
-  // layouts/card-grid.tsx — the measured column count follows Tailwind's own breakpoint classes.
+  // packages/ui/src/layouts/card-grid.tsx — the measured column count follows Tailwind's own breakpoint classes.
   "responsive classes, so the number in effect depends",
-  // list/list-grid-virtual.browser.tsx — a `hideBelow` container query, not the variant root.
+  // packages/ui/src/list/list-grid-virtual.browser.tsx — a `hideBelow` container query, not the variant root.
   "The floors and the responsive-hiding container query",
-  // list/list-row.tsx — a `@max-*:hidden` container query for column hiding at a breakpoint.
+  // packages/ui/src/list/list-row.tsx — a `@max-*:hidden` container query for column hiding at a breakpoint.
   "a container-query `@max-*:hidden` for responsive",
-  // studio/.../listing-card-grid.tsx — the `grid-cols` track ladder, a Tailwind breakpoint concern.
+  // apps/studio/src/.../listing-card-grid.tsx — the `grid-cols` track ladder, a Tailwind breakpoint concern.
   "the selection contract and the responsive",
-  // studio/.../use-project-asset-sharing.test.tsx — quoting a hypothetical change description.
+  // apps/studio/src/.../use-project-asset-sharing.test.tsx — quoting a hypothetical change description.
   'a "make the delete feel responsive" change',
+  // packages/animation/src/.../frustum-background.tsx — a `visibility` prop's enum member, not a class.
+  '"opaque" | "transparent" | "responsive"',
+  'visibility = "responsive"',
+  'visibility: "opaque" | "transparent" | "responsive"',
+  // packages/core/src/functions/blob-budget.ts and its test — a deadline that *feels* prompt, no class involved.
+  'responsive" change. The Storage SDK',
+  "Sizing it to *feel* responsive instead would abort",
+  // packages/utils/src/use-media-query.ts — a hook for CSS media-query breakpoints, unrelated to the class.
+  "Custom hook to handle responsive media queries",
 ];
 
 function sourceFiles(dir: string): string[] {
@@ -77,12 +106,23 @@ describe("the variant context root class is named variant-scope, never responsiv
     expect(found).toEqual([]);
   });
 
-  for (const dir of SOURCE_DIRS) {
+  for (const dir of sourceDirs()) {
     test(`${dir} carries no bare \`responsive\` class outside the known prose`, () => {
       const found = sourceFiles(dir).flatMap((file) => violations(file));
       expect(found).toEqual([]);
     });
   }
+
+  /**
+   * ⚠ A second control, for `sourceDirs()` itself. The loop above silently checks
+   * nothing if discovery ever returned an empty list — a renamed `packages/`, a
+   * typo'd group name — and an empty `for` still reports every enclosing `describe`
+   * as passing. This pins that discovery found a realistic number of directories,
+   * not zero and not one.
+   */
+  test("source directory discovery found more than one workspace member", () => {
+    expect(sourceDirs().length).toBeGreaterThan(5);
+  });
 
   /**
    * ⚠ The control. Without it, an allowance list that had grown to swallow every real
