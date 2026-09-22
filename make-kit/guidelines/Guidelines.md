@@ -98,7 +98,7 @@ acceptable for `size`/`variant`. Components that take them include, among others
 - **Overlays:** `Dialog`, `Modal`, `SidebarModal`, `TabbedModal`, `Popover`, `Dropdown`, `ContextMenu`,
   `Select`, `SelectTree`, `Tooltip`, `Toast`
 - **Feedback:** `Progress`, `StatusBadge`, `StatusDot`
-- **Layouts:** `Tabs`, `TableList`, `Breadcrumbs`, `Separator`, `Resizer`
+- **Layouts:** `Tabs`, `ListGrid`, `TreeGrid`, `Breadcrumbs`, `Separator`, `Resizer`
 - **Other:** `Avatar`, `Chip`, `StaticIcon`
 
 Whenever you set `size`/`variant` on *any* component, import the enum and pass a member:
@@ -130,8 +130,9 @@ Two of Semio's components map to your Figma library (Button + Icon), so get thes
 - Need a labeled input? Use `TextField` / `Label` from the package, not a raw `<input>`.
 - Need a dropdown, menu, dialog, popover, tooltip, toast, tabs, accordion, breadcrumbs, stepper, table list?
   They all exist — import them (see `components.md`). Don't rebuild overlays with raw divs and z-index.
-- Need state for tabs/lists/layout? Use the exported hooks (`useTabsState`, `useListState`,
-  `useTableListState`, `useLayoutState`, `use-add-toast`, etc.).
+- Need state for tabs/layout? Use the exported hooks (`useTabsState`, `useLayoutState`,
+  `use-add-toast`, etc.). A list owns its own state: `ListGrid` and `TreeGrid` take
+  `selected`/`defaultSelected` directly, so there is no list-state hook to reach for.
 
 ## What NOT to do
 

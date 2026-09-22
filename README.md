@@ -66,7 +66,7 @@ Components are grouped by concern and all re-exported from the package root:
   [`src/tree/README.md`](src/tree/README.md).
 - **List primitives** — the flat analogue, on the same engine and the same row
   rhythm: `ListGrid` (columns, selection, type-ahead, responsive column hiding)
-  and the presentational `ListRow`. `TableList` is the superseded predecessor.
+  and the presentational `ListRow`.
 - **Windowing** — `ListGrid` and `TreeGrid` render every row unless asked not to.
   `virtualized` renders only the rows near the viewport, and `useRowWindow` is
   exported for consumers composing the row primitives themselves. See

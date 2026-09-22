@@ -208,7 +208,7 @@ Filled from a usage re-audit — commonly used in studio but previously unmirror
 - **Label** (`583:812`) — the form-field label (label text `content/muted` + optional error `Message`). Single component, `Label`/`Show message`/`Message` props — the primitive the Email/Password presets inline. [label.figma.tsx](../src/inputs/label.figma.tsx).
 - **NestedMenu** (`586:833`) — the submenu trigger row (NestedItem chrome + right chevron), states default/highlighted — completes the menu family. In [nested-elements.figma.tsx](../src/nested-elements/nested-elements.figma.tsx).
 
-All in `parity:figma` (`tooltip`/`slidernumberfield`/`label`/`nestedmenu` blocks + contracts). Not built (deliberately): ScrollArea/TableList (structural), HeaderButton/Anchor (Button variants), color pickers / Autocomplete / Combobox (niche).
+All in `parity:figma` (`tooltip`/`slidernumberfield`/`label`/`nestedmenu` blocks + contracts). Not built (deliberately): ScrollArea (structural), HeaderButton/Anchor (Button variants), color pickers / Autocomplete / Combobox (niche).
 
 ## Layout convention (both pages)
 
