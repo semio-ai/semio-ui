@@ -47,7 +47,7 @@ Why this matters for scale: adding an icon becomes one flow — *register in cod
 
 - Import the Phase 1 SVGs into the "Semio UI Library" file; each becomes a component **named by key** (the import naming carries over).
 - Give icon-bearing components (Button `leftIcon`/`rightIcon`, menu/select/input `icon` slots) an **instance-swap** property pointing at the icon set. This is the "pick an icon" dropdown and works on **any plan**.
-- The file's 🔣 Icons page holds one `Icon/<key>` component per composed-registry key, in three grids by owning package (default / animation / studio) sorted by key. Each is a 24×24 component whose solid paints are bound to `color/content/fg`; a duotone glyph's secondary shape keeps the SVG's 50% opacity.
+- The file's 🔣 Icons page holds 341 `Icon/<key>` components — one per composed-registry key (332) plus 9 retired keys with no registry entry, which stay until STUDIO-295 removes them — in three grids by owning package (default / animation / studio) sorted by key. Each is a 24×24 component whose solid paints are bound to `color/content/fg`; a duotone glyph's secondary shape keeps the SVG's 50% opacity.
 - Import a glyph with `createNodeFromSvg` → `createComponentFromNode`, then bind each solid paint to `color/content/fg`. Re-apply a paint's `stroke-opacity`/`fill-opacity` after binding, because assigning a bound paint resets its opacity to 1. Bake anything the app applies in CSS into the SVG first — a root `transform: rotate(…)` style, or the `icon-duotone-inverted` opacity swap — because Figma has no stylesheet and would import the un-transformed glyph.
 
 Multi-person notes:

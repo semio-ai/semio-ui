@@ -10,7 +10,7 @@ the `figma-component-fidelity` skill (build process + gotchas), and `parity:figm
 
 ## What's already done (the template + rails)
 
-- **Icon library** — one `Icon/<key>` component per composed-registry key (332) on the 🔣 Icons page, plus 9 retired keys awaiting a deletion decision; `color/content/fg` token; Code Connect ([icon.figma.tsx](../src/icons/registry/icon.figma.tsx)). *(STUDIO-11, done.)*
+- **Icon library** — 341 `Icon/<key>` components on the 🔣 Icons page: one per composed-registry key (332) plus 9 retired keys that have no registry entry and stay until STUDIO-295 removes them; `color/content/fg` token; Code Connect ([icon.figma.tsx](../src/icons/registry/icon.figma.tsx)). *(STUDIO-11, done.)*
 - **Button** — the faithful template: `Visual × Variant × State`, icon slots, interactive states, [button.figma.tsx](../src/buttons/button.figma.tsx), Layer-1 parity + `figma/button-contract.json` snapshot.
 - **Rails, reusable as-is per component:** the fidelity skill, the shared class→Figma recipe, `figma.config.json` + `npx figma connect parse` (validated on Pro), the Storybook design-link harness, and the two-layer parity check.
 
