@@ -31,16 +31,20 @@ const ROLES = Object.values(TextRole);
  * a test that leaves the wrapper out. The theme class goes on `<html>` to match how the
  * app sets it.
  */
-function withTheme<T>(theme: Theme, node: React.ReactNode, read: (root: HTMLElement) => T): T {
+async function withTheme<T>(
+  theme: Theme,
+  node: React.ReactNode,
+  read: (root: HTMLElement) => T,
+): Promise<T> {
   const html = document.documentElement;
   const previous = html.className;
   html.className = theme === "dark" ? "dark" : "";
   const host = document.createElement("div");
   document.body.appendChild(host);
   try {
-    const view = render(<div className="select-none">{node}</div>, { container: host });
+    const view = await render(<div className="select-none">{node}</div>, { container: host });
     const result = read(host);
-    view.unmount();
+    await view.unmount();
     return result;
   } finally {
     host.remove();
@@ -56,16 +60,20 @@ function withTheme<T>(theme: Theme, node: React.ReactNode, read: (root: HTMLElem
  * "can a reader select this?" has to come from the role, and the only way to measure that
  * is to take the ambient `select-none` away and read what is left.
  */
-function withoutSelectNone<T>(theme: Theme, node: React.ReactNode, read: (root: HTMLElement) => T) {
+async function withoutSelectNone<T>(
+  theme: Theme,
+  node: React.ReactNode,
+  read: (root: HTMLElement) => T,
+) {
   const html = document.documentElement;
   const previous = html.className;
   html.className = theme === "dark" ? "dark" : "";
   const host = document.createElement("div");
   document.body.appendChild(host);
   try {
-    const view = render(<>{node}</>, { container: host });
+    const view = await render(<>{node}</>, { container: host });
     const result = read(host);
-    view.unmount();
+    await view.unmount();
     return result;
   } finally {
     host.remove();
@@ -73,8 +81,8 @@ function withoutSelectNone<T>(theme: Theme, node: React.ReactNode, read: (root: 
   }
 }
 
-const readRole = (theme: Theme, role: TextRole, className?: string) =>
-  withTheme(
+const readRole = async (theme: Theme, role: TextRole, className?: string) =>
+  await withTheme(
     theme,
     <Text role={role} className={className}>
       sample
@@ -98,16 +106,16 @@ describe("a role carries both halves of its theme pair", () => {
    * The defect this whole change exists to remove: a foreground reviewed in one mode and
    * shipped in two. A role whose `dark:` half went missing measures identically here.
    */
-  test.each(ROLES)("%s paints differently in light and dark", (role) => {
-    const light = readRole("light", role);
-    const dark = readRole("dark", role);
+  test.each(ROLES)("%s paints differently in light and dark", async (role) => {
+    const light = await readRole("light", role);
+    const dark = await readRole("dark", role);
     expect(light.color).not.toBe(dark.color);
   });
 
   /** The colour has to be a real one, not the default black every unstyled test reports. */
-  test("the stylesheet is actually loaded, so the test above can fail", () => {
-    expect(readRole("light", TextRole.Value).color).not.toBe("rgb(0, 0, 0)");
-    expect(readRole("light", TextRole.Value).fontSize).toBe("14px");
+  test("the stylesheet is actually loaded, so the test above can fail", async () => {
+    expect((await readRole("light", TextRole.Value)).color).not.toBe("rgb(0, 0, 0)");
+    expect((await readRole("light", TextRole.Value)).fontSize).toBe("14px");
   });
 });
 
@@ -117,16 +125,16 @@ describe("selection follows the role, not the size", () => {
    * identical rung, identical colour, and opposite answers to "can a reader select it?".
    * Anything keyed on size would have to give them the same answer.
    */
-  test("caption and label are the same size and colour", () => {
-    const caption = readRole("light", TextRole.Caption);
-    const label = readRole("light", TextRole.Label);
+  test("caption and label are the same size and colour", async () => {
+    const caption = await readRole("light", TextRole.Caption);
+    const label = await readRole("light", TextRole.Label);
     expect(label.fontSize).toBe(caption.fontSize);
     expect(label.color).toBe(caption.color);
   });
 
-  test("and still differ on selectability and case", () => {
-    const caption = readRole("light", TextRole.Caption);
-    const label = readRole("light", TextRole.Label);
+  test("and still differ on selectability and case", async () => {
+    const caption = await readRole("light", TextRole.Caption);
+    const label = await readRole("light", TextRole.Label);
     expect(caption.userSelect).toBe("text");
     expect(label.userSelect).not.toBe("text");
     expect(label.textTransform).toBe("uppercase");
@@ -135,8 +143,8 @@ describe("selection follows the role, not the size", () => {
 
   test.each([TextRole.Value, TextRole.Caption, TextRole.Body, TextRole.Note])(
     "%s opts back in under the app's select-none root",
-    (role) => {
-      expect(readRole("light", role).userSelect).toBe("text");
+    async (role) => {
+      expect((await readRole("light", role)).userSelect).toBe("text");
     },
   );
 
@@ -157,8 +165,8 @@ describe("selection follows the role, not the size", () => {
    * satisfied by both — so the negated form passes in exactly the scenario this control
    * exists to detect.
    */
-  test("the app's select-none root is really in force", () => {
-    const ambient = withTheme(
+  test("the app's select-none root is really in force", async () => {
+    const ambient = await withTheme(
       "light",
       <span data-testid="unclassed">x</span>,
       (host) =>
@@ -169,8 +177,8 @@ describe("selection follows the role, not the size", () => {
 });
 
 describe("selectability is the role's own, not the root's", () => {
-  const readUnwrapped = (role: TextRole) =>
-    withoutSelectNone("light", <span className={role}>sample</span>, (host) => {
+  const readUnwrapped = async (role: TextRole) =>
+    await withoutSelectNone("light", <span className={role}>sample</span>, (host) => {
       const el = host.querySelector<HTMLElement>(`.${role}`);
       if (!el) throw new Error(`no element carrying ${role}`);
       const style = getComputedStyle(el);
@@ -188,8 +196,8 @@ describe("selectability is the role's own, not the root's", () => {
    * with `select-text`, leaves a label with no `select-none` of its own draggable, and the
    * usual reading cannot see it.
    */
-  test("label is unselectable with no select-none ancestor", () => {
-    expect(readUnwrapped(TextRole.Label)).toBe("none");
+  test("label is unselectable with no select-none ancestor", async () => {
+    expect(await readUnwrapped(TextRole.Label)).toBe("none");
   });
 
   /**
@@ -199,8 +207,8 @@ describe("selectability is the role's own, not the root's", () => {
    */
   test.each([TextRole.Value, TextRole.Caption, TextRole.Body, TextRole.Note])(
     "%s stays selectable in the same unwrapped condition",
-    (role) => {
-      expect(readUnwrapped(role)).toBe("text");
+    async (role) => {
+      expect(await readUnwrapped(role)).toBe("text");
     },
   );
 });
@@ -216,8 +224,8 @@ describe("selectability is the role's own, not the root's", () => {
  * component. A shared declaration carried only by a component-emitted class would
  * satisfy every assertion below and still leave that caller unstyled.
  */
-const readBareClass = (theme: Theme, role: TextRole) =>
-  withTheme(theme, <span className={role}>sample</span>, (host) => {
+const readBareClass = async (theme: Theme, role: TextRole) =>
+  await withTheme(theme, <span className={role}>sample</span>, (host) => {
     const el = host.querySelector<HTMLElement>(`.${role}`);
     if (!el) throw new Error(`no element carrying ${role}`);
     if (el.className !== role) throw new Error(`expected only "${role}", got "${el.className}"`);
@@ -235,17 +243,19 @@ describe("a role class works without the component", () => {
    * is invisible in a screenshot and passes every other test in this file, because they
    * all render through `Text`.
    */
-  test.each(ROLES)("%s carries the selection tint with no other class present", (role) => {
-    const light = readBareClass("light", role).selectionTint;
-    const dark = readBareClass("dark", role).selectionTint;
+  test.each(ROLES)("%s carries the selection tint with no other class present", async (role) => {
+    const light = (await readBareClass("light", role)).selectionTint;
+    const dark = (await readBareClass("dark", role)).selectionTint;
     expect(light).not.toBe("");
     expect(dark).not.toBe("");
     expect(light).not.toBe(dark);
   });
 
   /** The paint has to come from the class too, not only from what the component adds. */
-  test.each(ROLES)("%s paints per theme with no other class present", (role) => {
-    expect(readBareClass("light", role).color).not.toBe(readBareClass("dark", role).color);
+  test.each(ROLES)("%s paints per theme with no other class present", async (role) => {
+    expect((await readBareClass("light", role)).color).not.toBe(
+      (await readBareClass("dark", role)).color,
+    );
   });
 });
 
@@ -256,9 +266,9 @@ describe("the selection tint resolves outside a .variant-scope subtree", () => {
    * the property would resolve empty and selection would paint the browser default —
    * which is invisible in a screenshot, and is exactly what this change set out to fix.
    */
-  test.each(ROLES)("%s resolves a tint in both themes, and they differ", (role) => {
-    const light = readRole("light", role).selectionTint;
-    const dark = readRole("dark", role).selectionTint;
+  test.each(ROLES)("%s resolves a tint in both themes, and they differ", async (role) => {
+    const light = (await readRole("light", role)).selectionTint;
+    const dark = (await readRole("dark", role)).selectionTint;
     expect(light).not.toBe("");
     expect(dark).not.toBe("");
     expect(light).not.toBe(dark);
@@ -272,8 +282,8 @@ describe("the selection tint resolves outside a .variant-scope subtree", () => {
  * define a variant's colours are nested inside `.variant-scope`, so a bare `primary` declares
  * nothing and the read would silently measure the default.
  */
-const readInVariant = (theme: Theme, role: TextRole, variant: string) =>
-  withTheme(
+const readInVariant = async (theme: Theme, role: TextRole, variant: string) =>
+  await withTheme(
     theme,
     <div className={variant ? `variant-scope ${variant}` : ""}>
       <Text role={role}>sample</Text>
@@ -303,9 +313,9 @@ describe("a role's colour is a lightness, and the variant supplies the hue", () 
     // size assertion cannot see. Pinned here so a role defined as "muted at reading size"
     // cannot quietly drift onto the reading-size COLOUR and still look correct.
     [TextRole.Note, 0.556, 0.708],
-  ])("%s outside any variant is exactly its neutral rung", (role, light, dark) => {
-    const l = parts(readInVariant("light", role, ""));
-    const d = parts(readInVariant("dark", role, ""));
+  ])("%s outside any variant is exactly its neutral rung", async (role, light, dark) => {
+    const l = parts(await readInVariant("light", role, ""));
+    const d = parts(await readInVariant("dark", role, ""));
     expect(l.c).toBe(0);
     expect(d.c).toBe(0);
     expect(l.l).toBeCloseTo(light, 3);
@@ -323,10 +333,10 @@ describe("a role's colour is a lightness, and the variant supplies the hue", () 
    */
   test.each(["primary", "error", "success"])(
     "under %s the muted roles keep their lightness and take the variant's hue",
-    (variant) => {
+    async (variant) => {
       for (const role of [TextRole.Caption, TextRole.Label, TextRole.Note]) {
-        const tinted = parts(readInVariant("light", role, variant));
-        const plain = parts(readInVariant("light", role, ""));
+        const tinted = parts(await readInVariant("light", role, variant));
+        const plain = parts(await readInVariant("light", role, ""));
         expect(tinted.l).toBeCloseTo(0.556, 3);
         expect(tinted.c).toBeGreaterThan(0);
         expect(tinted.h).not.toBe(plain.h);
@@ -344,21 +354,25 @@ describe("a role's colour is a lightness, and the variant supplies the hue", () 
    * Without this test, widening the selector back to every role would look like an
    * improvement and reintroduce exactly that.
    */
-  test.each(["primary", "error", "success"])("under %s value and body stay neutral", (variant) => {
-    for (const role of [TextRole.Value, TextRole.Body]) {
-      expect(parts(readInVariant("light", role, variant)).c).toBe(0);
-      expect(parts(readInVariant("dark", role, variant)).c).toBe(0);
-    }
-  });
+  test.each(["primary", "error", "success"])(
+    "under %s value and body stay neutral",
+    async (variant) => {
+      for (const role of [TextRole.Value, TextRole.Body]) {
+        expect(parts(await readInVariant("light", role, variant)).c).toBe(0);
+        expect(parts(await readInVariant("dark", role, variant)).c).toBe(0);
+      }
+    },
+  );
 
-  test("body and caption keep the same separation under every variant", () => {
+  test("body and caption keep the same separation under every variant", async () => {
     // body is neutral by design, so this is really "the muted pair holds its lightness".
     const variants = ["", "primary", "error", "success", "warning"];
-    const gaps = variants.map((v) => {
-      const body = parts(readInVariant("light", TextRole.Body, v)).l;
-      const caption = parts(readInVariant("light", TextRole.Caption, v)).l;
-      return Number((caption - body).toFixed(4));
-    });
+    const gaps: number[] = [];
+    for (const variant of variants) {
+      const body = parts(await readInVariant("light", TextRole.Body, variant)).l;
+      const caption = parts(await readInVariant("light", TextRole.Caption, variant)).l;
+      gaps.push(Number((caption - body).toFixed(4)));
+    }
     expect(new Set(gaps).size).toBe(1);
     expect(gaps[0]).toBeGreaterThan(0.2);
 
@@ -368,7 +382,7 @@ describe("a role's colour is a lightness, and the variant supplies the hue", () 
     // variants to actually be tinted separates "all equal because it works" from "all
     // equal because nothing happened".
     for (const v of variants.filter(Boolean)) {
-      expect(parts(readInVariant("light", TextRole.Caption, v)).c).toBeGreaterThan(0);
+      expect(parts(await readInVariant("light", TextRole.Caption, v)).c).toBeGreaterThan(0);
     }
   });
 });
@@ -387,13 +401,13 @@ describe("a caller's text utility overrides the role in BOTH themes", () => {
    * The control is the same role measured without the utility, which must still differ by
    * theme. Without it this test would pass against a role that had no dark half at all.
    */
-  test("overridden light and dark match each other, while the role's own do not", () => {
-    const plainLight = readRole("light", TextRole.Value).color;
-    const plainDark = readRole("dark", TextRole.Value).color;
+  test("overridden light and dark match each other, while the role's own do not", async () => {
+    const plainLight = (await readRole("light", TextRole.Value)).color;
+    const plainDark = (await readRole("dark", TextRole.Value)).color;
     expect(plainLight).not.toBe(plainDark);
 
-    const overriddenLight = readRole("light", TextRole.Value, "text-neutral-500").color;
-    const overriddenDark = readRole("dark", TextRole.Value, "text-neutral-500").color;
+    const overriddenLight = (await readRole("light", TextRole.Value, "text-neutral-500")).color;
+    const overriddenDark = (await readRole("dark", TextRole.Value, "text-neutral-500")).color;
     expect(overriddenLight).toBe(overriddenDark);
     expect(overriddenLight).not.toBe(plainLight);
     expect(overriddenDark).not.toBe(plainDark);
@@ -401,8 +415,8 @@ describe("a caller's text utility overrides the role in BOTH themes", () => {
 });
 
 describe("variant and mode", () => {
-  const render1 = (theme: Theme, node: React.ReactNode, cls: string) =>
-    withTheme(theme, node, (host) => {
+  const render1 = async (theme: Theme, node: React.ReactNode, cls: string) =>
+    await withTheme(theme, node, (host) => {
       const el = host.querySelector<HTMLElement>(`.${cls}`);
       if (!el) throw new Error(`no element carrying ${cls}`);
       const s = getComputedStyle(el);
@@ -414,9 +428,9 @@ describe("variant and mode", () => {
    * without wrapping it in a `variant-scope error` element. Today that is hand-spelled at
    * eleven sites as `clsx("variant-scope variant-static-text text-xs", Variant.Error)`.
    */
-  test("variant colours the text when mode is Static, with no surrounding context", () => {
-    const plain = render1("light", <Text role={TextRole.Caption}>x</Text>, TextRole.Caption);
-    const stated = render1(
+  test("variant colours the text when mode is Static, with no surrounding context", async () => {
+    const plain = await render1("light", <Text role={TextRole.Caption}>x</Text>, TextRole.Caption);
+    const stated = await render1(
       "light",
       <Text role={TextRole.Caption} variant={Variant.Error} mode={VariantMode.Static}>
         x
@@ -438,18 +452,18 @@ describe("variant and mode", () => {
    * broken form takes it, the fixed form does not, and the last assertion proves the parent
    * colour genuinely reaches an element that has no colour of its own.
    */
-  test.each(ROLES)("%s with Static and no variant paints as the role does", (role) => {
+  test.each(ROLES)("%s with Static and no variant paints as the role does", async (role) => {
     const surrounding = "rgb(255, 0, 255)";
-    const read = (theme: Theme, node: React.ReactNode) =>
-      withTheme(
+    const read = async (theme: Theme, node: React.ReactNode) =>
+      await withTheme(
         theme,
         <div style={{ color: surrounding }}>{node}</div>,
         (host) => getComputedStyle(host.querySelector<HTMLElement>(`.${role}`)!).color,
       );
 
     for (const theme of ["light", "dark"] as Theme[]) {
-      const ambient = read(theme, <Text role={role}>x</Text>);
-      const stated = read(
+      const ambient = await read(theme, <Text role={role}>x</Text>);
+      const stated = await read(
         theme,
         <Text role={role} mode={VariantMode.Static}>
           x
@@ -461,7 +475,7 @@ describe("variant and mode", () => {
 
     // The control for the read itself: an element with no colour rule of its own does take
     // the parent's colour, so "not magenta" above is a result rather than an ambient truth.
-    const bare = withTheme(
+    const bare = await withTheme(
       "light",
       <div style={{ color: surrounding }}>
         <span data-testid="uncoloured">x</span>
@@ -480,9 +494,9 @@ describe("variant and mode", () => {
    */
   test.each(["light", "dark"] as Theme[])(
     "in %s, Static with no variant takes the surrounding variant's colour",
-    (theme) => {
+    async (theme) => {
       const role = TextRole.Caption;
-      const inContext = withTheme(
+      const inContext = await withTheme(
         theme,
         <div className="variant-scope error">
           <Text role={role} mode={VariantMode.Static}>
@@ -491,19 +505,23 @@ describe("variant and mode", () => {
         </div>,
         (host) => getComputedStyle(host.querySelector<HTMLElement>(`.${role}`)!).color,
       );
-      const statedError = render1(
-        theme,
-        <Text role={role} variant={Variant.Error} mode={VariantMode.Static}>
-          x
-        </Text>,
-        role,
+      const statedError = (
+        await render1(
+          theme,
+          <Text role={role} variant={Variant.Error} mode={VariantMode.Static}>
+            x
+          </Text>,
+          role,
+        )
       ).color;
-      const noContext = render1(
-        theme,
-        <Text role={role} mode={VariantMode.Static}>
-          x
-        </Text>,
-        role,
+      const noContext = (
+        await render1(
+          theme,
+          <Text role={role} mode={VariantMode.Static}>
+            x
+          </Text>,
+          role,
+        )
       ).color;
 
       expect(inContext).toBe(statedError);
@@ -512,9 +530,9 @@ describe("variant and mode", () => {
   );
 
   /** Naming a variant without Static leaves the text alone and only moves the selection. */
-  test("variant alone retints the selection and leaves the text colour", () => {
-    const plain = render1("light", <Text role={TextRole.Body}>x</Text>, TextRole.Body);
-    const tinted = render1(
+  test("variant alone retints the selection and leaves the text colour", async () => {
+    const plain = await render1("light", <Text role={TextRole.Body}>x</Text>, TextRole.Body);
+    const tinted = await render1(
       "light",
       <Text role={TextRole.Body} variant={Variant.Error}>
         x
@@ -530,15 +548,15 @@ describe("variant and mode", () => {
    * a timestamp in an error panel that should stay neutral. Without this the only escape
    * is a className, which is the drift this component exists to remove.
    */
-  test("Variant.Default opts out of an inherited variant", () => {
-    const inherited = withTheme(
+  test("Variant.Default opts out of an inherited variant", async () => {
+    const inherited = await withTheme(
       "light",
       <div className="variant-scope error">
         <Text role={TextRole.Caption}>x</Text>
       </div>,
       (h) => getComputedStyle(h.querySelector<HTMLElement>(`.${TextRole.Caption}`)!).color,
     );
-    const optedOut = withTheme(
+    const optedOut = await withTheme(
       "light",
       <div className="variant-scope error">
         <Text role={TextRole.Caption} variant={Variant.Default}>
@@ -547,7 +565,11 @@ describe("variant and mode", () => {
       </div>,
       (h) => getComputedStyle(h.querySelector<HTMLElement>(`.${TextRole.Caption}`)!).color,
     );
-    const neutral = render1("light", <Text role={TextRole.Caption}>x</Text>, TextRole.Caption);
+    const neutral = await render1(
+      "light",
+      <Text role={TextRole.Caption}>x</Text>,
+      TextRole.Caption,
+    );
     expect(inherited).not.toBe(neutral.color);
     expect(optedOut).toBe(neutral.color);
   });
@@ -562,9 +584,9 @@ describe("variant and mode", () => {
    * component's own prop documentation claimed the default left the text alone. It did not
    * for two of the four roles, and nothing else would have caught the contradiction.
    */
-  test("on label the ambient variant reaches the text but not the selection", () => {
-    const plain = render1("light", <Text role={TextRole.Label}>x</Text>, TextRole.Label);
-    const ambient = render1(
+  test("on label the ambient variant reaches the text but not the selection", async () => {
+    const plain = await render1("light", <Text role={TextRole.Label}>x</Text>, TextRole.Label);
+    const ambient = await render1(
       "light",
       <Text role={TextRole.Label} variant={Variant.Error}>
         x
@@ -574,10 +596,10 @@ describe("variant and mode", () => {
     // The hue lands on the text; the lightness is still the role's.
     expect(ambient.color).not.toBe(plain.color);
     // But there is no selection for the tint half to paint.
-    expect(readRole("light", TextRole.Label).userSelect).toBe("none");
+    expect((await readRole("light", TextRole.Label)).userSelect).toBe("none");
 
     // Static goes further: the clamped variant colour rather than the role's lightness.
-    const stated = render1(
+    const stated = await render1(
       "light",
       <Text role={TextRole.Label} variant={Variant.Error} mode={VariantMode.Static}>
         x
@@ -589,8 +611,8 @@ describe("variant and mode", () => {
 });
 
 describe("the component", () => {
-  test("renders the element `as` names and puts className on it", () => {
-    const { container } = render(
+  test("renders the element `as` names and puts className on it", async () => {
+    const { container } = await render(
       <Text role={TextRole.Label} as="dt" className="truncate">
         Owner
       </Text>,
@@ -611,9 +633,9 @@ describe("the component", () => {
    * narrowing the props back to a list reddens here rather than in whatever consumer first
    * needed one.
    */
-  test("forwards data-*, aria-*, style and handlers to the element", () => {
+  test("forwards data-*, aria-*, style and handlers to the element", async () => {
     let clicks = 0;
-    const { container } = render(
+    const { container } = await render(
       <Text
         role={TextRole.Value}
         data-testid="subject"
@@ -637,14 +659,14 @@ describe("the component", () => {
   });
 
   /** `role` stays the TextRole prop, so nothing leaks an ARIA role onto the run of text. */
-  test("does not emit a DOM role attribute", () => {
-    const { container } = render(<Text role={TextRole.Label}>Owner</Text>);
+  test("does not emit a DOM role attribute", async () => {
+    const { container } = await render(<Text role={TextRole.Label}>Owner</Text>);
     expect(container.querySelector("span")?.hasAttribute("role")).toBe(false);
   });
 
-  test("passes a ref through as an ordinary React 19 prop", () => {
+  test("passes a ref through as an ordinary React 19 prop", async () => {
     let received: HTMLElement | null = null;
-    render(
+    await render(
       <Text
         role={TextRole.Value}
         ref={(node) => {

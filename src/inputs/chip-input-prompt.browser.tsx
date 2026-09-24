@@ -33,8 +33,8 @@ const promptOf = (root: HTMLElement) => {
   };
 };
 
-test("the prompt keeps the caller's wording and colour once a chip exists", () => {
-  const view = render(
+test("the prompt keeps the caller's wording and colour once a chip exists", async () => {
+  const view = await render(
     <ChipInput
       selectedValues={[]}
       options={[]}
@@ -48,7 +48,7 @@ test("the prompt keeps the caller's wording and colour once a chip exists", () =
   const empty = promptOf(view.container);
   expect(empty.text).toBe(CALLER_PROMPT);
 
-  view.rerender(
+  await view.rerender(
     <ChipInput
       selectedValues={["robotics"]}
       options={[]}

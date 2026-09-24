@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { getDefaultStore } from "jotai";
 import { expect, test } from "vitest";
 import { render } from "vitest-browser-react";
-import { page, userEvent } from "@vitest/browser/context";
+import { page, userEvent } from "vitest/browser";
 import { PaneRegion } from "../../types";
 import { useLayoutActions } from "../../hooks/use-layout-actions";
 import { panesAtom, usePanes } from "../../hooks/layout-atoms";
@@ -108,7 +108,7 @@ function PaneHarness() {
 
 test("one setPanes call applies every update in the batch", async () => {
   await page.viewport(DESKTOP.width, DESKTOP.height);
-  render(
+  await render(
     <>
       <PaneHarness />
       <LayoutRoot />

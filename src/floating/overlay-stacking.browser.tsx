@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { expect, test } from "vitest";
 import { render } from "vitest-browser-react";
-import { page, userEvent } from "@vitest/browser/context";
+import { page, userEvent } from "vitest/browser";
 import { PaneRegion, Size } from "../types";
 import { useLayoutActions } from "../hooks/use-layout-actions";
 import { Icon } from "../icons/registry";
@@ -221,7 +221,7 @@ for (const theme of ["light", "dark"] as const) {
     await page.viewport(DESKTOP.width, DESKTOP.height);
     document.documentElement.classList.toggle("dark", theme === "dark");
 
-    const { rerender } = render(
+    const { rerender } = await render(
       <>
         <PaneHarness />
         <LayoutRoot />
@@ -281,7 +281,7 @@ test("a dropdown with no z-index paints over the pane surface it opens from", as
   await page.viewport(DESKTOP.width, DESKTOP.height);
   document.documentElement.classList.remove("dark");
 
-  render(
+  await render(
     <>
       <PaneHarness
         paneContent={
@@ -328,7 +328,7 @@ test("a combobox popup with no z-index paints over the pane surface it opens fro
   await page.viewport(DESKTOP.width, DESKTOP.height);
   document.documentElement.classList.remove("dark");
 
-  render(
+  await render(
     <>
       <PaneHarness
         paneContent={
@@ -381,7 +381,7 @@ test("portalContainer moves an overlay's portal into the host's element", async 
     );
   }
 
-  render(<Host />);
+  await render(<Host />);
   await userEvent.click(page.getByRole("button", { name: "open menu" }));
 
   const body = () => document.querySelector<HTMLElement>('[data-testid="menu-body"]');
@@ -400,7 +400,7 @@ test("portalContainer moves an overlay's portal into the host's element", async 
   await userEvent.keyboard("{Escape}");
   await expect.poll(body).toBeNull();
 
-  render(
+  await render(
     <Dropdown trigger={<Button size={Size.Md}>open default</Button>}>
       <div data-testid="default-menu-body">menu body</div>
     </Dropdown>,
@@ -429,7 +429,7 @@ test("portalContainer moves an overlay's portal into the host's element", async 
 test("the Combobox popup's portal subtree carries no z-index", async () => {
   await page.viewport(DESKTOP.width, DESKTOP.height);
 
-  render(
+  await render(
     <div className="p-8">
       <Combobox options={OPTIONS} value="alpha" onChange={() => {}} open />
     </div>,
@@ -480,7 +480,7 @@ test("a 3D tooltip paints over the app chrome, and under a body-level modal", as
   await page.viewport(DESKTOP.width, DESKTOP.height);
   document.documentElement.classList.remove("dark");
 
-  const { rerender } = render(
+  const { rerender } = await render(
     <>
       <PaneHarness />
       <TooltipHost className="h-full w-full">

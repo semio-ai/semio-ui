@@ -1,6 +1,6 @@
 import { afterEach, expect, test, vi } from "vitest";
 import { render } from "vitest-browser-react";
-import { userEvent } from "@vitest/browser/context";
+import { userEvent } from "vitest/browser";
 import { useState } from "react";
 import { Size, Variant } from "../types";
 import { ToggleGroup } from "./toggle-group";
@@ -138,7 +138,7 @@ function expectPillOver(value: string): void {
 
 test("pill covers the active item, whose trigger is wrapped by Tooltip", async () => {
   useLayoutShim();
-  render(<Harness />);
+  await render(<Harness />);
 
   // Every item is inside `Tooltip` → Radix `Trigger asChild`, which is what made
   // a collected ref unreliable. Waiting rather than asserting immediately allows
@@ -151,7 +151,7 @@ test("pill covers the active item, whose trigger is wrapped by Tooltip", async (
 
 test("pill follows the selection to each item's own box", async () => {
   useLayoutShim();
-  render(<Harness />);
+  await render(<Harness />);
   await vi.waitFor(() => expectPillOver("a"));
 
   for (const value of ["c", "d", "b", "a"]) {
@@ -162,7 +162,7 @@ test("pill follows the selection to each item's own box", async () => {
 
 test("pill re-measures when item metrics change without a window resize", async () => {
   useLayoutShim();
-  render(<Harness />);
+  await render(<Harness />);
   await vi.waitFor(() => expectPillOver("a"));
 
   const before = pillBox().width;
@@ -180,7 +180,7 @@ test("pill re-measures when item metrics change without a window resize", async 
 
 test("pill width is declared on first paint, not animated up from zero", async () => {
   useLayoutShim();
-  render(<Harness initial="d" />);
+  await render(<Harness initial="d" />);
 
   // The stranded-tween failure showed as a pill left at its `initial` geometry.
   // Width must therefore be a resolved inline style, and the transition must
@@ -213,11 +213,11 @@ test("pill hides rather than stranding when no option matches the value", async 
     );
   }
 
-  const view = render(<Swappable value="d" />);
+  const view = await render(<Swappable value="d" />);
   await vi.waitFor(() => expectPillOver("d"));
   const strandedAt = pillEl().style.transform;
 
-  view.rerender(<Swappable value="does-not-exist" />);
+  await view.rerender(<Swappable value="does-not-exist" />);
 
   // Previously the measure call bailed out and left `left`/`width` untouched, so
   // the pill stayed parked behind "d" — in the default grey, since there is no
@@ -229,7 +229,7 @@ test("pill hides rather than stranding when no option matches the value", async 
   expect(pillEl().getBoundingClientRect().width).toBe(0);
 
   // Recovering must land in the right place, not pass through the stale one.
-  view.rerender(<Swappable value="b" />);
+  await view.rerender(<Swappable value="b" />);
   await vi.waitFor(() => {
     expect(pillEl().hidden).toBe(false);
     expectPillOver("b");

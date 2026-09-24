@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { expect, test } from "vitest";
 import { render } from "vitest-browser-react";
-import { page, userEvent } from "@vitest/browser/context";
+import { page, userEvent } from "vitest/browser";
 import { Combobox, type ComboboxGroup } from "./combobox";
 import "../test-stylesheet";
 
@@ -44,7 +44,7 @@ function GroupedHarness() {
 }
 
 test("a grouped combobox shows each group's label above its own options", async () => {
-  render(<GroupedHarness />);
+  await render(<GroupedHarness />);
 
   await userEvent.click(page.getByRole("button", { name: "Toggle options" }));
   await expect.poll(() => document.querySelector("[role=listbox]")).not.toBeNull();
@@ -61,7 +61,7 @@ test("a grouped combobox shows each group's label above its own options", async 
 });
 
 test("a grouped combobox still selects the option that was clicked", async () => {
-  render(<GroupedHarness />);
+  await render(<GroupedHarness />);
 
   await userEvent.click(page.getByRole("button", { name: "Toggle options" }));
   await page.getByRole("option", { name: "Published Model" }).click();

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { expect, test } from "vitest";
 import { render } from "vitest-browser-react";
-import { page, userEvent } from "@vitest/browser/context";
+import { page, userEvent } from "vitest/browser";
 import { PaneRegion } from "../../types";
 import { useLayoutActions } from "../../hooks/use-layout-actions";
 import { usePanes } from "../../hooks/layout-atoms";
@@ -174,7 +174,7 @@ function PaneHarness() {
 
 test("a collapsed pane gives up its space but keeps its content mounted", async () => {
   await page.viewport(DESKTOP.width, DESKTOP.height);
-  render(
+  await render(
     <>
       <PaneHarness />
       <LayoutRoot />
@@ -235,7 +235,7 @@ test("a collapsed pane gives up its space but keeps its content mounted", async 
 
 test("the footer row follows its content's height, before and after a collapse", async () => {
   await page.viewport(DESKTOP.width, DESKTOP.height);
-  render(
+  await render(
     <>
       <PaneHarness />
       <LayoutRoot />

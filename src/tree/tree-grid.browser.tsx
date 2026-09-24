@@ -1,6 +1,6 @@
 import { expect, test, vi } from "vitest";
 import { render } from "vitest-browser-react";
-import { userEvent } from "@vitest/browser/context";
+import { userEvent } from "vitest/browser";
 import { TreeGrid } from "./tree-grid";
 import type { TreeNode } from "./flatten-tree";
 
@@ -38,8 +38,8 @@ const sorted = (set: Set<string>) => [...set].sort((a, b) => a.localeCompare(b))
 const treeitems = () => document.querySelectorAll('[role="treeitem"]');
 const labels = () => [...treeitems()].map((el) => el.textContent?.trim());
 
-test("renders the flattened tree with levels and an expandable group", () => {
-  render(<Grid />);
+test("renders the flattened tree with levels and an expandable group", async () => {
+  await render(<Grid />);
   expect(labels()).toEqual(["head", "pitch", "yaw", "root"]);
   const head = treeitems()[0];
   expect(head.getAttribute("aria-level")).toBe("1");
@@ -48,7 +48,7 @@ test("renders the flattened tree with levels and an expandable group", () => {
 });
 
 test("Left collapses the focused group and Right expands it", async () => {
-  render(<Grid />);
+  await render(<Grid />);
   await userEvent.click(document.querySelectorAll('[role="treeitem"]')[0] as HTMLElement);
 
   await userEvent.keyboard("{ArrowLeft}");
@@ -61,7 +61,7 @@ test("Left collapses the focused group and Right expands it", async () => {
 
 test("click selects a row; ArrowDown moves focus without selecting; Space selects the focused row", async () => {
   const onSelectionChange = vi.fn();
-  render(<Grid onSelectionChange={onSelectionChange} />);
+  await render(<Grid onSelectionChange={onSelectionChange} />);
 
   await userEvent.click(treeitems()[0] as HTMLElement); // select 'head'
   expect([...onSelectionChange.mock.lastCall![0]]).toEqual(["head"]);
@@ -77,7 +77,7 @@ test("click selects a row; ArrowDown moves focus without selecting; Space select
 
 test("Ctrl+Space toggles selection membership", async () => {
   const onSelectionChange = vi.fn();
-  render(<Grid onSelectionChange={onSelectionChange} />);
+  await render(<Grid onSelectionChange={onSelectionChange} />);
 
   await userEvent.click(treeitems()[1] as HTMLElement); // select 'pitch'
   await userEvent.keyboard("{ArrowDown}"); // focus 'yaw'
@@ -85,14 +85,14 @@ test("Ctrl+Space toggles selection membership", async () => {
   expect(sorted(onSelectionChange.mock.lastCall![0])).toEqual(["head/pitch", "head/yaw"]);
 });
 
-test("leaf rows get a default icon in the reserved slot", () => {
-  render(<Grid />);
+test("leaf rows get a default icon in the reserved slot", async () => {
+  await render(<Grid />);
   // head/pitch, head/yaw, root are leaves → 3 default dots (the head group gets a chevron).
   expect(document.querySelectorAll(".tree-leaf-dot").length).toBe(3);
 });
 
-test("defaultLeafIcon={null} suppresses the leaf icon for bare labels", () => {
-  render(<TreeGrid nodes={tree} ariaLabel="bare" getLabel={renderLabel} defaultLeafIcon={null} />);
+test("defaultLeafIcon={null} suppresses the leaf icon for bare labels", async () => {
+  await render(<TreeGrid nodes={tree} ariaLabel="bare" getLabel={renderLabel} defaultLeafIcon={null} />);
   expect(document.querySelectorAll(".tree-leaf-dot").length).toBe(0);
 });
 
@@ -113,8 +113,8 @@ const nested: TreeNode<Row>[] = [
   },
 ];
 
-test("guideLines='full' (default) draws a guide in every indentation column", () => {
-  render(<TreeGrid nodes={nested} ariaLabel="full" getLabel={renderLabel} />);
+test("guideLines='full' (default) draws a guide in every indentation column", async () => {
+  await render(<TreeGrid nodes={nested} ariaLabel="full" getLabel={renderLabel} />);
   // 'c' is at depth 2 → 2 ancestor columns, both ruled regardless of last-child.
   const c = [...document.querySelectorAll('[role="treeitem"]')].find(
     (r) => r.textContent?.includes("c"),
@@ -122,8 +122,8 @@ test("guideLines='full' (default) draws a guide in every indentation column", ()
   expect(c.querySelectorAll(".w-px").length).toBe(2);
 });
 
-test("guideLines='last-child' omits the continuation below last-child ancestors", () => {
-  render(<TreeGrid nodes={nested} ariaLabel="lc" getLabel={renderLabel} guideLines="last-child" />);
+test("guideLines='last-child' omits the continuation below last-child ancestors", async () => {
+  await render(<TreeGrid nodes={nested} ariaLabel="lc" getLabel={renderLabel} guideLines="last-child" />);
   // 'a' and 'a/b' are each their parent's last child → both continuation lines
   // are omitted, so 'c' shows no guides.
   const c = [...document.querySelectorAll('[role="treeitem"]')].find(
@@ -134,7 +134,7 @@ test("guideLines='last-child' omits the continuation below last-child ancestors"
 
 test("Shift+Space extends a range from the anchor", async () => {
   const onSelectionChange = vi.fn();
-  render(<Grid onSelectionChange={onSelectionChange} />);
+  await render(<Grid onSelectionChange={onSelectionChange} />);
 
   await userEvent.click(treeitems()[1] as HTMLElement); // anchor 'pitch'
   await userEvent.keyboard("{ArrowDown}"); // focus 'yaw'

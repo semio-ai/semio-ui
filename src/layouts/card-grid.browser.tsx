@@ -1,6 +1,6 @@
 import { expect, test, vi } from "vitest";
 import { render } from "vitest-browser-react";
-import { userEvent } from "@vitest/browser/context";
+import { userEvent } from "vitest/browser";
 import { CardGrid } from "./card-grid";
 
 /**
@@ -76,8 +76,8 @@ function renderGrid(props: Partial<Parameters<typeof CardGrid<Item>>[0]> = {}) {
   );
 }
 
-test("renders one option per datum, with a single tab stop", () => {
-  renderGrid();
+test("renders one option per datum, with a single tab stop", async () => {
+  await renderGrid();
   expect(options().map((el) => el.textContent?.trim())).toEqual([
     "Alpha",
     "Bravo",
@@ -92,14 +92,14 @@ test("renders one option per datum, with a single tab stop", () => {
 
 test("clicking selects exactly that item and sets aria-selected", async () => {
   const onSelectionChange = vi.fn();
-  renderGrid({ onSelectionChange });
+  await renderGrid({ onSelectionChange });
   await userEvent.click(options()[1]);
   expect(sorted(onSelectionChange.mock.calls.at(-1)![0])).toEqual(["b"]);
   expect(options()[1].getAttribute("aria-selected")).toBe("true");
 });
 
 test("ArrowRight/ArrowLeft step one item", async () => {
-  renderGrid();
+  await renderGrid();
   await userEvent.click(options()[0]);
   await userEvent.keyboard("{ArrowRight}");
   expect(focusedName()).toBe("Bravo");
@@ -112,7 +112,7 @@ test("ArrowRight/ArrowLeft step one item", async () => {
  * directly below — not on `b`. A linear implementation moves to `b` and fails here.
  */
 test("ArrowDown/ArrowUp step a whole row, not a neighbour", async () => {
-  renderGrid();
+  await renderGrid();
   await userEvent.click(options()[0]); // Alpha (row 0, col 0)
 
   await userEvent.keyboard("{ArrowDown}");
@@ -124,7 +124,7 @@ test("ArrowDown/ArrowUp step a whole row, not a neighbour", async () => {
 
 test("selection follows focus, so arrowing moves the selection too", async () => {
   const onSelectionChange = vi.fn();
-  renderGrid({ onSelectionChange });
+  await renderGrid({ onSelectionChange });
   await userEvent.click(options()[0]);
   await userEvent.keyboard("{ArrowDown}");
   expect(sorted(onSelectionChange.mock.calls.at(-1)![0])).toEqual(["d"]);
@@ -145,7 +145,9 @@ test("selection follows focus, so arrowing moves the selection too", async () =>
  * is the case that would fail silently in production at one breakpoint.
  */
 test("the row step tracks the column count actually in effect", async () => {
-  renderGrid({ style: { display: "grid", width: 400, gridTemplateColumns: "repeat(2, 1fr)" } });
+  await renderGrid({
+    style: { display: "grid", width: 400, gridTemplateColumns: "repeat(2, 1fr)" },
+  });
   await userEvent.click(options()[0]); // Alpha
   await userEvent.keyboard("{ArrowDown}");
   expect(focusedName()).toBe("Charlie"); // +2 at two columns, not +3
@@ -154,7 +156,7 @@ test("the row step tracks the column count actually in effect", async () => {
 test("Enter activates without changing the selection", async () => {
   const onAction = vi.fn();
   const onSelectionChange = vi.fn();
-  renderGrid({ onAction, onSelectionChange });
+  await renderGrid({ onAction, onSelectionChange });
   await userEvent.click(options()[2]); // Charlie
   onSelectionChange.mockClear();
 
@@ -166,7 +168,7 @@ test("Enter activates without changing the selection", async () => {
 
 test("Cmd+Arrow moves focus without disturbing the selection", async () => {
   const onSelectionChange = vi.fn();
-  renderGrid({ onSelectionChange });
+  await renderGrid({ onSelectionChange });
   await userEvent.click(options()[0]); // selects a
   onSelectionChange.mockClear();
 
@@ -180,7 +182,7 @@ test("Cmd+Arrow moves focus without disturbing the selection", async () => {
 test("a click inside an embedded control does not change the selection", async () => {
   const onSelectionChange = vi.fn();
   const onButton = vi.fn();
-  render(
+  await render(
     <CardGrid
       data={ITEMS}
       getItemId={(item) => item.id}
@@ -208,7 +210,7 @@ test("a click inside an embedded control does not change the selection", async (
 
 test("disabled items are skipped by navigation and cannot be selected", async () => {
   const onSelectionChange = vi.fn();
-  renderGrid({
+  await renderGrid({
     isItemDisabled: (item) => item.id === "b",
     onSelectionChange,
   });
@@ -226,7 +228,7 @@ test("disabled items are skipped by navigation and cannot be selected", async ()
 
 test("selectionMode=none announces a grid and activates on click", async () => {
   const onAction = vi.fn();
-  renderGrid({ selectionMode: "none", onAction });
+  await renderGrid({ selectionMode: "none", onAction });
   expect(document.querySelector('[role="grid"]')).not.toBeNull();
   expect(document.querySelectorAll('[role="gridcell"]')).toHaveLength(6);
   await userEvent.click(document.querySelectorAll('[role="gridcell"]')[1]!);
@@ -252,7 +254,9 @@ test("selectionMode=none announces a grid and activates on click", async () => {
  * it and would either refuse to move or invent a symmetry the layout does not have.
  */
 test("Down from a card with nothing directly beneath lands on the nearest below", async () => {
-  renderGrid({ style: { display: "grid", width: 600, gridTemplateColumns: "repeat(4, 1fr)" } });
+  await renderGrid({
+    style: { display: "grid", width: 600, gridTemplateColumns: "repeat(4, 1fr)" },
+  });
   await userEvent.click(options()[3]); // Delta, end of the full row
   await userEvent.keyboard("{ArrowDown}");
   expect(focusedName()).toBe("Foxtrot"); // the nearest card in the short row

@@ -1,6 +1,6 @@
 import { expect, test } from "vitest";
 import { render } from "vitest-browser-react";
-import { page, userEvent } from "@vitest/browser/context";
+import { page, userEvent } from "vitest/browser";
 import { ScrollArea } from "./scroll-area";
 // The real compiled stylesheet. Without it `h-full`/`flex-1` do not exist, every box
 // collapses to content size, and the fitting and overflowing cases measure the same
@@ -66,7 +66,7 @@ async function renderAndHover(
   content: { height: string; width: string },
   label: string,
 ) {
-  render(
+  await render(
     <div style={{ height: viewport.height, width: viewport.width }}>
       <ScrollArea>
         <div style={{ height: content.height, width: content.width }}>{label}</div>
@@ -125,7 +125,7 @@ test("a real overflow on both axes raises both", async () => {
 });
 
 test("the scrollbar is hover-mounted, which is why every case above hovers", async () => {
-  render(
+  await render(
     <div style={{ height: "200px", width: "300px" }}>
       <ScrollArea>
         <div style={{ height: "900px", width: "900px" }}>unhovered</div>
@@ -179,14 +179,14 @@ test("an axis locked with nothing to scroll regains scrolling when content grows
     );
   }
 
-  const view = render(<Growable tall={false} />);
+  const view = await render(<Growable tall={false} />);
   await userEvent.hover(page.getByText("grow me"));
   await expect.poll(viewportOverflow).toEqual({ x: "hidden", y: "hidden" });
 
   // The `ResizeObserver` re-measure is what makes locking the axis safe rather than a way
   // of stranding content: without it, an area that started out fitting would never scroll
   // again no matter how much content arrived.
-  view.rerender(<Growable tall />);
+  await view.rerender(<Growable tall />);
   await expect.poll(viewportOverflow).toEqual({ x: "hidden", y: "scroll" });
 
   const vp = document.querySelector<HTMLElement>("[data-scroll-area-viewport]");
@@ -207,7 +207,7 @@ test("an axis locked with nothing to scroll regains scrolling when content grows
  * fix: a 796px viewport inside a 650px clip, with the last 146px of the form unreachable.
  */
 test("content stays reachable when an ancestor is sized by its content", async () => {
-  render(
+  await render(
     // A popup that fits its content but caps: `height: fit-content` with a `max-height`,
     // which is how every menu and dialog in the app is sized.
     <div
@@ -276,7 +276,7 @@ test("content stays reachable when an ancestor is sized by its content", async (
  * the popup's width — the ellipsis silently disappears.
  */
 test("a vertical area does not gain a horizontal axis from a nowrap label", async () => {
-  render(
+  await render(
     <div style={{ height: "150px", width: "200px" }}>
       <ScrollArea orientation="vertical">
         <div style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>

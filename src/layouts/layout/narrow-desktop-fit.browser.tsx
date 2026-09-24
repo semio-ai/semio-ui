@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { expect, test } from "vitest";
 import { render } from "vitest-browser-react";
-import { page } from "@vitest/browser/context";
+import { page } from "vitest/browser";
 import { PaneRegion } from "../../types";
 import { useLayoutActions } from "../../hooks/use-layout-actions";
 import { Icon } from "../../icons/registry";
@@ -87,7 +87,7 @@ function BothPanesOpen() {
 
 test("a cramped desktop layout compresses its panes instead of painting outside itself", async () => {
   await page.viewport(ROOMY.width, ROOMY.height);
-  render(
+  await render(
     <>
       <BothPanesOpen />
       <LayoutRoot />

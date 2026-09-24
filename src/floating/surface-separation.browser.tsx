@@ -409,14 +409,16 @@ test.each(THEMES)("%s: the arrow fill matches the surface it hangs off", async (
     if (theme === "dark") host.className = "dark";
     document.body.appendChild(host);
     try {
-      const view = render(<Arrow filled={filled} variant={Variant.Default} />, { container: host });
+      const view = await render(<Arrow filled={filled} variant={Variant.Default} />, {
+        container: host,
+      });
       await new Promise((resolve) => requestAnimationFrame(() => resolve(null)));
 
       const path = host.querySelector("path")!;
       expect(getComputedStyle(path).fill, `${theme}: arrow filled=${filled}`).toBe(
         paintOf(theme, className).background,
       );
-      view.unmount();
+      await view.unmount();
     } finally {
       host.remove();
     }

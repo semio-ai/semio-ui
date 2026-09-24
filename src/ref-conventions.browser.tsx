@@ -26,9 +26,9 @@ import "./test-stylesheet";
  * The code has effectively moved on; the range has not.
  */
 
-test("ListRow receives a ref through its props", () => {
+test("ListRow receives a ref through its props", async () => {
   let received: HTMLElement | null = null;
-  render(
+  await render(
     <ListRow
       columns={[{ key: "a" }]}
       cells={[<span key="a">cell</span>]}
@@ -42,9 +42,9 @@ test("ListRow receives a ref through its props", () => {
   expect((received as unknown as HTMLElement).textContent).toBe("cell");
 });
 
-test("TreeRow receives a ref through its props", () => {
+test("TreeRow receives a ref through its props", async () => {
   let received: HTMLElement | null = null;
-  render(
+  await render(
     <TreeRow
       depth={0}
       label={<span>label</span>}
@@ -57,11 +57,11 @@ test("TreeRow receives a ref through its props", () => {
   expect((received as unknown as HTMLElement).textContent).toBe("label");
 });
 
-test("a row ref reports the height the window is computed from", () => {
+test("a row ref reports the height the window is computed from", async () => {
   // The point of the ref, not merely that it fires: `ROW_HEIGHT` is a `rem` class, so only
   // a real measurement knows how tall a row is in an app that changed its root font size.
   let node: HTMLElement | null = null;
-  render(
+  await render(
     <TreeRow
       depth={0}
       label={<span>x</span>}
@@ -106,7 +106,7 @@ test("ScrollArea hands out its scrolling element once, not once per render", asy
       </div>
     );
   }
-  const view = render(<Harness />);
+  const view = await render(<Harness />);
   await new Promise((resolve) => requestAnimationFrame(() => resolve(null)));
 
   const viewport = view.container.querySelector<HTMLElement>("[data-scroll-area-viewport]");

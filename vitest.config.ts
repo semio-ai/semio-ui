@@ -1,4 +1,5 @@
 import { defineConfig } from "vitest/config";
+import { playwright } from "@vitest/browser-playwright";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/postcss";
 
@@ -79,7 +80,8 @@ export default defineConfig({
           include: ["src/**/*.browser.tsx"],
           browser: {
             enabled: true,
-            provider: "playwright",
+            provider: playwright(),
+            locators: { exact: false },
             instances: [{ browser: "chromium" }],
             headless: true,
           },

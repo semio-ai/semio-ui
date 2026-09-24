@@ -1,6 +1,6 @@
 import { expect, test } from "vitest";
 import { render } from "vitest-browser-react";
-import { userEvent } from "@vitest/browser/context";
+import { userEvent } from "vitest/browser";
 import "./test-stylesheet";
 import { Size, Variant } from "./types";
 import { Avatar } from "./avatar";
@@ -137,10 +137,10 @@ async function withTheme<T>(
   const host = document.createElement("div");
   document.body.appendChild(host);
   try {
-    const view = render(<>{node}</>, { container: host });
+    const view = await render(<>{node}</>, { container: host });
     await new Promise((resolve) => requestAnimationFrame(() => resolve(null)));
     const result = read(document.body);
-    view.unmount();
+    await view.unmount();
     return result;
   } finally {
     host.remove();
@@ -379,7 +379,7 @@ test("Button: the foreground follows the fill through hover", async () => {
       const host = document.createElement("div");
       document.body.appendChild(host);
       try {
-        const view = render(
+        const view = await render(
           <Button variant={variant} size={Size.Md}>
             Label
           </Button>,
@@ -407,7 +407,7 @@ test("Button: the foreground follows the fill through hover", async () => {
         } else {
           expect(derived, `hover ${theme}/${String(variant)}`).toBeGreaterThanOrEqual(AA_TEXT);
         }
-        view.unmount();
+        await view.unmount();
       } finally {
         host.remove();
         html.className = "";
@@ -434,7 +434,7 @@ test.each([
       const host = document.createElement("div");
       document.body.appendChild(host);
       try {
-        const view = render(
+        const view = await render(
           <Button variant={variant} size={Size.Md} {...props}>
             Label
           </Button>,
@@ -447,7 +447,7 @@ test.each([
           toRgba(getComputedStyle(button).color).slice(0, 3),
           `${theme}/${String(variant)} took the hover foreground without the hover fill`,
         ).toEqual(toRgba(onStandard).slice(0, 3));
-        view.unmount();
+        await view.unmount();
       } finally {
         host.remove();
         html.className = "";

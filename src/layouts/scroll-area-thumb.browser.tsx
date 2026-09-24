@@ -1,6 +1,6 @@
 import { expect, test } from "vitest";
 import { render } from "vitest-browser-react";
-import { page, userEvent } from "@vitest/browser/context";
+import { page, userEvent } from "vitest/browser";
 import { ScrollArea } from "./scroll-area";
 // Real geometry: the thumb's position is a computed transform, so the compiled
 // stylesheet has to be present or the track has no height to be positioned within.
@@ -19,7 +19,7 @@ import "../test-stylesheet";
  * corrects it — so the wrong state is the one a user sees on arriving.
  */
 test("the thumb reflects a scroll that happened before it was mounted", async () => {
-  render(
+  await render(
     <div style={{ height: "150px", width: "200px" }}>
       <ScrollArea>
         <div style={{ height: "1500px" }}>tall</div>

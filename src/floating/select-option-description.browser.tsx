@@ -1,5 +1,5 @@
 import { expect, test, vi } from "vitest";
-import { page } from "@vitest/browser/context";
+import { page } from "vitest/browser";
 import { render } from "vitest-browser-react";
 import { Size, Variant } from "../types";
 import { Select } from "./select";
@@ -54,7 +54,7 @@ test("a description actually reaches the option — the positive claim", async (
   // passed through, or the trigger disarmed, all of them still pass. This is the one
   // assertion that fails if the tooltip stops being wired at all, which matters
   // because the rung explanations in the sharing modal live nowhere else.
-  render(
+  await render(
     <Select
       value="viewer"
       onChange={() => undefined}
@@ -84,7 +84,7 @@ test("a description actually reaches the option — the positive claim", async (
 
 test("a described option is still a selectable radio item", async () => {
   const onChange = vi.fn();
-  render(
+  await render(
     <Select
       value="viewer"
       onChange={onChange}
@@ -113,7 +113,7 @@ test("a described menu still closes on select, like an undescribed one", async (
   // interaction. A trigger wrapped around each item could swallow the select event and
   // leave the menu open, which would look like a styling quirk rather than a broken
   // control.
-  render(
+  await render(
     <Select
       value="viewer"
       onChange={() => undefined}
@@ -137,7 +137,7 @@ test("a described option keeps its accessible name — the description does not 
   // If the tooltip's content leaked into the item's accessible name, every option would
   // announce as label-plus-sentence and `getByRole(name)` lookups across the app would
   // start matching on prose. The description is supplementary; the name is the label.
-  render(
+  await render(
     <Select
       value="viewer"
       onChange={() => undefined}
@@ -160,7 +160,7 @@ test("an undescribed option renders exactly as it did — no wrapper, no trigger
   // The control for the three tests above. `Tooltip` short-circuits when disabled, so an
   // option with no description must carry none of the trigger's attributes; if it did,
   // every existing menu in the app would have quietly changed.
-  render(
+  await render(
     <Select
       value="viewer"
       onChange={() => undefined}
@@ -183,7 +183,7 @@ test("an undescribed option renders exactly as it did — no wrapper, no trigger
 });
 
 test("the trigger shows the selected label, never the description", async () => {
-  render(
+  await render(
     <Select
       value="admin"
       onChange={() => undefined}

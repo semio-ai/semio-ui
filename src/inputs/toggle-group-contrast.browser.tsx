@@ -57,7 +57,7 @@ async function measure(theme: "light" | "dark", variant: Variant): Promise<Measu
   if (theme === "dark") host.className = "dark";
   document.body.appendChild(host);
   try {
-    const view = render(
+    const view = await render(
       <ToggleGroup
         visuals="labels"
         size={Size.Md}
@@ -86,7 +86,7 @@ async function measure(theme: "light" | "dark", variant: Variant): Promise<Measu
       flipped: contrast(theme === "dark" ? "black" : "white", fill),
       foreground: toRgb(foreground),
     };
-    view.unmount();
+    await view.unmount();
     return result;
   } finally {
     host.remove();
