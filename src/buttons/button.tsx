@@ -80,7 +80,7 @@ export const Button = forwardRef(
         aria-label={altText}
         data-deemphasized={deemphasize}
         className={clsx(
-          "responsive cursor-pointer select-none disabled:cursor-default",
+          "variant-scope cursor-pointer select-none disabled:cursor-default",
           // No foreground named here: `variant-responsive-bg` declares one for every
           // state it fills, including hover, disabled and deemphasized. A `text-*`
           // utility added here would override all of them at once, because utilities

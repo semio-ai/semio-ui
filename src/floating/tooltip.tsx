@@ -69,7 +69,7 @@ function Tooltip({
             sideOffset={6}
             className={clsx(
               Size.Sm as string,
-              "responsive",
+              "variant-scope",
               "sized-text",
               "tooltip-content",
               "inline-flex items-center px-2 py-0.5 select-none",

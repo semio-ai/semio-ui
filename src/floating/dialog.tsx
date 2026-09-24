@@ -127,7 +127,7 @@ export function Dialog({
           <AlertDialog.Content
             forceMount
             className={clsx(
-              "responsive",
+              "variant-scope",
               variant,
               "flex flex-col overflow-clip focus:outline-hidden",
               "card animated-modal",
@@ -156,7 +156,7 @@ export function Dialog({
                     // of forcing the dialog wider than the viewport (which pushed
                     // the close button off-screen); `whitespace-nowrap` still keeps
                     // short titles on a single line.
-                    "responsive variant-static-text min-w-0 overflow-hidden",
+                    "variant-scope variant-static-text min-w-0 overflow-hidden",
                   )}
                 >
                   {title}

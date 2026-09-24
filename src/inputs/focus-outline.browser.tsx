@@ -72,7 +72,7 @@ interface Outline {
 async function outlineOf(className: string, focused: boolean): Promise<Outline> {
   const host = document.createElement("div");
   const input = document.createElement("input");
-  input.className = `responsive default ${className}`;
+  input.className = `variant-scope default ${className}`;
   // ⚠ `pointer-events: none` so `:hover` can never match, and it is load-bearing
   // rather than tidiness. Both variants carry hover rules — the appearing one
   // draws a 1px outline on hover, the persistent one lifts its resting colour to

@@ -172,7 +172,7 @@ export function NestedCheckboxTree({
               "flex items-center rounded-xs leading-none",
               "relative min-h-7 min-w-0 px-1.25 py-1 pl-7.5 text-sm outline-hidden select-none",
               "data-disabled:pointer-events-none",
-              "responsive highlight-list-item",
+              "variant-scope highlight-list-item",
               option.color ? "custom-color" : (option.variant ?? variant),
             )}
             style={
@@ -198,7 +198,7 @@ export function NestedCheckboxTree({
               tabIndex={0}
               className={clsx(
                 "absolute top-1/2 left-1 grid -translate-y-1/2 cursor-pointer place-items-center",
-                "responsive check-indicator",
+                "variant-scope check-indicator",
                 option.color ? "custom-color" : (option.variant ?? variant),
               )}
               onClick={(e) => {
@@ -231,7 +231,7 @@ export function NestedCheckboxTree({
             <div
               className={clsx(
                 "ml-auto inline-flex shrink-0 items-center justify-center pl-5",
-                "responsive text-variant",
+                "variant-scope text-variant",
                 option.variant ?? variant,
               )}
             >
@@ -241,7 +241,7 @@ export function NestedCheckboxTree({
           <PortalComponent>
             <SubContentComponent
               className={clsx(
-                "responsive card-overlay dropdown-content",
+                "variant-scope card-overlay dropdown-content",
                 "min-w-55 p-0.5",
                 option.variant ?? variant,
               )}
@@ -277,7 +277,7 @@ export function NestedCheckboxTree({
             "group/item flex items-center rounded-xs leading-none",
             "relative min-h-7 min-w-0 px-1.25 py-1 pl-7.5 text-sm outline-hidden select-none",
             "data-disabled:pointer-events-none",
-            "responsive highlight-list-item",
+            "variant-scope highlight-list-item",
             option.color ? "custom-color" : (option.variant ?? variant),
           )}
         >
@@ -285,7 +285,7 @@ export function NestedCheckboxTree({
             forceMount
             className={clsx(
               "absolute top-1/2 left-1 grid -translate-y-1/2 place-items-center",
-              "responsive check-indicator",
+              "variant-scope check-indicator",
               option.color ? "custom-color" : (option.variant ?? variant),
             )}
           >

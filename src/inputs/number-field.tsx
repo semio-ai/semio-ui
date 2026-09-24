@@ -163,7 +163,7 @@ const InnerNumberField = forwardRef(
         data-highlighted={highlight || focusState !== FocusState.Blurred ? "" : undefined}
         style={{ "--custom-color": effectiveColor, "--progress": "25%" } as CSSProperties}
         className={clsx(
-          "responsive",
+          "variant-scope",
           effectiveColor ? "custom-color" : effectiveVariant,
           "group/input-wrapper px-0.5 py-0 select-none",
           label && units && "input-label-field-units-grid",
@@ -209,7 +209,7 @@ const InnerNumberField = forwardRef(
             className={clsx(
               effectiveColor ? "custom-color" : effectiveVariant,
               size,
-              "responsive grid-area-label sized-text place-items-center rounded-[1px] px-0.5 text-left",
+              "variant-scope grid-area-label sized-text place-items-center rounded-[1px] px-0.5 text-left",
               "sized-inner-group-item variant-text-caret-color font-mono group-has-focus/input-wrapper:bg-neutral-900/20",
               "text-white/50 focus:text-white/75 focus:outline-none dark:focus:text-white/75",
               "select-none group-has-focus/input-wrapper:pointer-events-auto group-has-focus/input-wrapper:select-auto",
@@ -227,7 +227,7 @@ const InnerNumberField = forwardRef(
           value={displayedTextValue}
           onChange={onChangeInner}
           className={clsx(
-            "responsive grid-area-field w-full min-w-0",
+            "variant-scope grid-area-field w-full min-w-0",
             "focus:outline-hidden",
             "cursor-text disabled:cursor-not-allowed",
             "sized-text sized-height px-0.5 text-right",

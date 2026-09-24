@@ -49,7 +49,7 @@ export function ImageInput({
         className={clsx(
           size,
           variant,
-          "responsive cursor-pointer",
+          "variant-scope cursor-pointer",
           "sized-image-input",
           "variant-responsive-appearing-outline",
           "object-cover object-center",
@@ -60,7 +60,7 @@ export function ImageInput({
         className={clsx(
           size,
           variant,
-          "responsive cursor-pointer",
+          "variant-scope cursor-pointer",
           "grid size-full",
           "place-items-center rounded-sm select-none",
           // The fill declares the foreground. Specifically NOT `variant-responsive-text`,

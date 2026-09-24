@@ -31,7 +31,7 @@ export function Checkbox({
       checked={checked}
       onCheckedChange={onCheckedChange}
       className={clsx(
-        "responsive",
+        "variant-scope",
         size,
         variant,
         sizing === "default" && "sized-height sized-width",

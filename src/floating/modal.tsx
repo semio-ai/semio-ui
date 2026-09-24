@@ -154,7 +154,7 @@ export function Modal({
         <Dialog.Viewport className="fixed inset-0 grid place-items-center p-0">
           <Dialog.Popup
             className={clsx(
-              "responsive flex flex-col focus:outline-hidden",
+              "variant-scope flex flex-col focus:outline-hidden",
               "card overflow-clip",
               variant,
               "h-[calc(100dvh-4px)] w-[calc(100vw-4px)]",
@@ -227,7 +227,7 @@ export function Modal({
                         className={clsx(
                           variant,
                           "align-center flex text-base/7 font-medium",
-                          "responsive variant-static-text justify-between",
+                          "variant-scope variant-static-text justify-between",
                         )}
                       >
                         {title}

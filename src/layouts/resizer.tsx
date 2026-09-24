@@ -76,7 +76,7 @@ function InnerResizer({
         orientation === "vertical" && !showEllipses && "h-0.5",
         orientation === "horizontal" && !showEllipses && "w-0.5",
         "variant-responsive-appearing-bg group/trigger touch-none transition delay-150",
-        "responsive grid place-items-center gap-0.5",
+        "variant-scope grid place-items-center gap-0.5",
         variant,
       )}
     >

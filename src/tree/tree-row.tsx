@@ -101,9 +101,9 @@ export function TreeRow({
     <div
       ref={ref}
       className={clsx(
-        // `responsive` + the row's variant/custom-color set --accent-color for
+        // `variant-scope` + the row's variant/custom-color set --accent-color for
         // this row, so the bar/background below resolve to its theme/custom color.
-        "responsive relative flex w-full items-center",
+        "variant-scope relative flex w-full items-center",
         // Row height = one step taller than its content, from the shared table; `size`
         // rides along as a class so controls in the row inherit the content size, exactly
         // as `ListRow` does it.

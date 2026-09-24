@@ -246,7 +246,7 @@ export function SelectTree({
         } as CSSProperties
       }
       className={clsx(
-        "responsive variant-mock-item-bg rounded-xs",
+        "variant-scope variant-mock-item-bg rounded-xs",
         "variant-responsive-text variant-responsive-appearing-outline",
         "flex min-w-0 flex-1 flex-row items-center pr-0 pl-1",
         "sized-height",
@@ -266,7 +266,7 @@ export function SelectTree({
           className={clsx(
             size,
             triggerDisplay.color ? "custom-color" : triggerDisplay.variant,
-            "responsive sized-mock-inner-item",
+            "variant-scope sized-mock-inner-item",
             "grid shrink-0 place-items-center",
             "variant-mock-inner-item",
           )}
@@ -282,7 +282,7 @@ export function SelectTree({
           className={clsx(
             size,
             "flex min-w-0 flex-1 items-center pr-0 pl-3",
-            "responsive highlight-list-item",
+            "variant-scope highlight-list-item",
             "sized-height",
             "sized-text",
             triggerDisplay.color ? "custom-color" : Variant.Default,

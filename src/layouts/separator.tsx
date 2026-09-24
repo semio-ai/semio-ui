@@ -37,7 +37,7 @@ export function Separator({
           className={clsx(
             "flex flex-1 data-[orientation=horizontal]:h-px data-[orientation=vertical]:w-px",
             color ? "custom-color" : variant,
-            "variant-separator-fill responsive",
+            "variant-separator-fill variant-scope",
           )}
         />
         {children}
@@ -46,7 +46,7 @@ export function Separator({
           className={clsx(
             "flex flex-1 data-[orientation=horizontal]:h-px data-[orientation=vertical]:w-px",
             color ? "custom-color" : variant,
-            "variant-separator-fill responsive",
+            "variant-separator-fill variant-scope",
           )}
         />
       </div>
@@ -64,7 +64,7 @@ export function Separator({
           "data-[orientation=horizontal]:h-[1px] data-[orientation=vertical]:w-[1px]",
           // "data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full",
           color ? "custom-color" : variant,
-          "variant-separator-fill responsive",
+          "variant-separator-fill variant-scope",
           className,
         )}
       />

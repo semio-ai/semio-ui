@@ -69,8 +69,8 @@ function InteractiveOverlayInstance({ anchor, position }: OverlayInstanceProps) 
             className={clsx(
               Variant.Default,
               isMenu
-                ? "responsive card-overlay dropdown-content m-0.5 min-w-56"
-                : "responsive card-overlay m-0.5 overflow-clip shadow-lg",
+                ? "variant-scope card-overlay dropdown-content m-0.5 min-w-56"
+                : "variant-scope card-overlay m-0.5 overflow-clip shadow-lg",
               isMenu && "max-h-[calc(var(--radix-dropdown-menu-content-available-height)-4px)]",
             )}
           >
@@ -180,7 +180,7 @@ function TooltipInstance({ anchor, position }: OverlayInstanceProps) {
     <div ref={refs.setFloating} style={floatingStyles}>
       <motion.div
         className={clsx(
-          "responsive overflow-clip",
+          "variant-scope overflow-clip",
           Variant.Default,
           "card-overlay inline-flex items-center select-none",
           "pointer-events-none",

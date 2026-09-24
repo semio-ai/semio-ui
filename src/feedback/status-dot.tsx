@@ -62,7 +62,7 @@ export function StatusDot({
   return (
     <span
       ref={ref}
-      className={clsx(variant, size, "responsive", "inline-flex shrink-0", className)}
+      className={clsx(variant, size, "variant-scope", "inline-flex shrink-0", className)}
     >
       <span
         aria-hidden

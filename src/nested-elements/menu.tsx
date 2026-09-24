@@ -61,7 +61,7 @@ export function NestedMenu({
           "group/item flex items-center rounded-xs leading-none",
           "relative h-7 w-full px-1.25 pl-7.5 text-sm outline-hidden select-none",
           "data-disabled:pointer-events-none",
-          "responsive highlight-list-item",
+          "variant-scope highlight-list-item",
           variant,
         )}
       >
@@ -69,7 +69,7 @@ export function NestedMenu({
           <div
             className={clsx(
               "absolute top-1/2 left-1 inline-flex -translate-y-1/2 items-center justify-center",
-              "responsive list-item-extra highlight-list-item",
+              "variant-scope list-item-extra highlight-list-item",
               variant,
             )}
           >
@@ -85,7 +85,7 @@ export function NestedMenu({
         <div
           className={clsx(
             "absolute top-1/2 right-1 inline-flex -translate-y-1/2 items-center justify-center",
-            "responsive list-item-extra",
+            "variant-scope list-item-extra",
             variant,
           )}
         >
@@ -105,7 +105,7 @@ export function NestedMenu({
               variant,
               !desktop &&
                 "mb-0.5 w-full rounded-b-xs bg-neutral-400/30 py-0.5 pr-0.5 pl-2 dark:bg-black/30",
-              desktop && "responsive card-overlay dropdown-content",
+              desktop && "variant-scope card-overlay dropdown-content",
               "min-w-55",
               desktop && heightClass,
               desktop && parent === NestedParent.Dropdown

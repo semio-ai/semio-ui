@@ -81,7 +81,7 @@ type Theme = "light" | "dark";
 /**
  * Mount `className` under a theme and read what it paints.
  *
- * `responsive` is added because every floating surface carries it and it is where the
+ * `variant-scope` is added because every floating surface carries it and it is where the
  * variant custom properties are declared — `--card-border-color` among them. A probe
  * without it resolves those to the initial value and measures pure black, which looks
  * like a plausible colour rather than like a missing one.
@@ -94,7 +94,7 @@ function paintOf(theme: Theme, className: string) {
   const host = document.createElement("div");
   if (theme === "dark") host.className = "dark";
   const element = document.createElement("div");
-  element.className = `responsive ${className}`;
+  element.className = `variant-scope ${className}`;
   host.appendChild(element);
   document.body.appendChild(host);
   try {
@@ -142,7 +142,7 @@ function tokenOf(theme: Theme, token: string): string {
   const host = document.createElement("div");
   if (theme === "dark") host.className = "dark";
   const element = document.createElement("div");
-  element.className = "responsive";
+  element.className = "variant-scope";
   element.style.color = `var(${token})`;
   host.appendChild(element);
   document.body.appendChild(host);

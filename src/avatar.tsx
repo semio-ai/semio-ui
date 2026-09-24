@@ -130,7 +130,7 @@ export const Avatar = forwardRef(
             src={src}
             alt={alt}
             className={clsx(
-              "responsive",
+              "variant-scope",
               size,
               variant,
               onClick ? "cursor-pointer" : "cursor-default",
@@ -151,7 +151,7 @@ export const Avatar = forwardRef(
           />
           <AvatarPrimitive.Fallback
             className={clsx(
-              "responsive",
+              "variant-scope",
               variant,
               size,
               onClick ? "cursor-pointer" : "cursor-default",

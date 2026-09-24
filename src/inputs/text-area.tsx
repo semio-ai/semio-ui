@@ -72,7 +72,7 @@ const InnerTextArea = forwardRef(
           } as CSSProperties
         }
         className={clsx(
-          "responsive",
+          "variant-scope",
           bg && "bg-neutral-50/20 dark:bg-neutral-950/20",
           "rounded-xs",
           // Both classes together or neither: `sized-text` reads the scale from
