@@ -19,7 +19,7 @@ Because every Figma icon component is **named by its registry key** (see [icon-r
 ```
 
 - `source` = the registry that wins resolution (`studio` > `animation` > `default`), i.e. which package owns the key.
-- 223 entries = the full composed app set (default 118 + animation + studio).
+- 332 entries = the full composed app set (default 213 + animation 60 + studio 59).
 
 Regenerate with the registries (one command, same one that emits the SVGs):
 

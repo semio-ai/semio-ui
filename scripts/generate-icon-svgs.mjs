@@ -15,6 +15,8 @@
 // Usage:
 //   node scripts/generate-icon-svgs.mjs            # composed app set (default)
 //   node scripts/generate-icon-svgs.mjs --default  # default registry only
+//   node scripts/generate-icon-svgs.mjs --out-dir <path>  # write outputs to <path> instead
+//                                                          # (a staleness check's temp dir)
 import { writeFileSync, rmSync, mkdirSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -25,9 +27,12 @@ import { renderToStaticMarkup } from "react-dom/server";
 const here = dirname(fileURLToPath(import.meta.url));
 const root = join(here, "..");
 const DEFAULT_ONLY = process.argv.includes("--default");
+const outDirIndex = process.argv.indexOf("--out-dir");
 // All Figma bridge artifacts live under packages/ui/figma/ (committed manifest +
 // gitignored generated SVGs). The scripts stay in scripts/; only outputs go here.
-const FIGMA_DIR = join(root, "figma");
+// `--out-dir` redirects every output under a caller-supplied root, so a staleness
+// check can regenerate into a temp dir without touching the real one.
+const FIGMA_DIR = outDirIndex >= 0 ? process.argv[outDirIndex + 1] : join(root, "figma");
 const OUT = join(FIGMA_DIR, "icon-svgs.generated.json");
 // Individual files for Figma import (multi-select drag → one component per file,
 // named by key). Regenerable; gitignored.
@@ -71,7 +76,10 @@ try {
     jsx: "automatic",
     external: ["react", "react-dom"],
     mainFields: ["module", "main"],
-    conditions: ["import", "module", "default"],
+    // `source` first so `@semio/ui` resolves from `src/` rather than `dist/` — this
+    // script then needs no prior `turbo run build`, matching every other vitest/tooling
+    // entry point in the repo (all pinned to the `source` condition for the same reason).
+    conditions: ["source", "import", "module", "default"],
     outfile: TMP,
     logLevel: "silent",
   });
@@ -111,6 +119,11 @@ for (const [key, Comp] of Object.entries(registry)) {
 
 mkdirSync(FIGMA_DIR, { recursive: true });
 writeFileSync(OUT, `${JSON.stringify(manifest, null, 2)  }\n`);
+// Rebuilt from scratch each run: a renamed or retired key must not leave its old export
+// behind for a designer to import by mistake — `mkdir` alone only adds files, so a
+// previous run's SVGs for keys the registry no longer has would otherwise persist
+// indefinitely in a long-lived checkout.
+rmSync(SVG_DIR, { recursive: true, force: true });
 mkdirSync(SVG_DIR, { recursive: true });
 for (const [key, svg] of Object.entries(manifest)) writeFileSync(join(SVG_DIR, `${key}.svg`), `${svg  }\n`);
 

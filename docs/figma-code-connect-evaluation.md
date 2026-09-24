@@ -82,7 +82,7 @@ Separately from Code Connect, Figma now exposes an **MCP server** that lets an e
 
 We piloted this directly: an agent created three components in the "Semio UI Library" file, named by registry key (`search`, `chevron-down`, `box`), generated faithfully from our code's SVGs — spanning both icon sources (Tabler, semio-custom) and styles (stroke, fill). It worked first try on Professional.
 
-**What this changes:** building the keyed icon library (the ~223 components) is **largely agent-automatable today**, not the manual design slog assumed earlier. The agent can also write to the canvas using existing design-system variables (the pilot's Button readout already surfaced our color/font variables).
+**What this changes:** building the keyed icon library (the ~332 components) is **largely agent-automatable today**, not the manual design slog assumed earlier. The agent can also write to the canvas using existing design-system variables (the pilot's Button readout already surfaced our color/font variables).
 
 **What the pilot also confirmed the upgrade is *narrowly* for:** when an engineer inspects a design *without* Code Connect, the handoff shows a **generic reconstruction**, not our API:
 - an icon reads back as `Box` / `Search` as an `<img>`, not `<Icon name="box" />`;
@@ -125,7 +125,7 @@ So the Organization upgrade's specific payoff is **turning that handoff readout 
 
 ## What an upgrade does *not* remove (still required either way)
 
-- The **Figma icon library must be built** — ~223 icon components named by key. Pilot-tested: this is **largely agent-automatable on Professional** via the Figma MCP server (no upgrade needed for this part), with light design cleanup. (See the pilot section above and the companion engineering plan.)
+- The **Figma icon library must be built** — ~332 icon components named by key. Pilot-tested: this is **largely agent-automatable on Professional** via the Figma MCP server (no upgrade needed for this part), with light design cleanup. (See the pilot section above and the companion engineering plan.)
 - A small amount of **repo setup** for Code Connect, which only activates on the higher tier. It's been scoped so it's a drop-in when/if we upgrade — nothing built now is wasted.
 
 ---
