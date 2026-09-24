@@ -15,9 +15,11 @@
 // Figma MCP before running in CI.
 //
 // Usage: node scripts/figma-parity-check.mjs
-import { readFileSync } from "node:fs";
+import { readFileSync, mkdtempSync, rmSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import { tmpdir } from "node:os";
+import { execFileSync } from "node:child_process";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const root = join(here, "..");
@@ -606,7 +608,52 @@ function checkText() {
   return { name: "Text", figma, fails, notes, summary: `Role = ${figmaRoles.length} · props=[${fprops.join(", ")}]` };
 }
 
-const results = [checkTypography(), checkCard(), checkButton(), checkTextField(), checkCheckbox(), checkSwitch(), checkToggleSquare(), checkChip(), checkProgress(), checkProgressCircle(), checkStatus(), checkNestedItem(), ...checkNestedSubtypes(), checkTabs(), checkTooltip(), checkSliderNumberField(), checkLabel(), checkNestedMenu(), checkModal(), checkDialog(), checkText()];
+// ── Icon manifest staleness check ─────────────────────────────────────────
+// `figma/icon-manifest.json` is a generated, committed artifact (the code↔Figma
+// key lookup table — see docs/icon-figma-handoff.md), not read live from Figma
+// like the contract snapshots above. It goes stale silently: nothing else fails
+// when the composed icon registry changes and nobody re-runs the generator. So
+// this regenerates it into a throwaway directory and diffs by KEY rather than
+// full-file equality — a byte-for-byte diff would also flag SVG re-renders that
+// don't change the manifest's key/source/component fields, which is noise this
+// check has no opinion on.
+function checkIconManifest() {
+  const fails = [], notes = [];
+  const committed = JSON.parse(readFileSync(join(root, "figma", "icon-manifest.json"), "utf8"));
+  const tmp = mkdtempSync(join(tmpdir(), "icon-manifest-check-"));
+  let fresh;
+  try {
+    execFileSync(process.execPath, [join(root, "scripts", "generate-icon-svgs.mjs"), "--out-dir", tmp], { cwd: root, stdio: "pipe" });
+    fresh = JSON.parse(readFileSync(join(tmp, "icon-manifest.json"), "utf8"));
+  } catch (e) {
+    fails.push(`regenerating the manifest failed: ${e.message}`);
+  } finally {
+    rmSync(tmp, { recursive: true, force: true });
+  }
+  if (fresh) {
+    const committedByKey = new Map(committed.icons.map((i) => [i.key, i]));
+    const freshByKey = new Map(fresh.icons.map((i) => [i.key, i]));
+    const added = [...freshByKey.keys()].filter((k) => !committedByKey.has(k)).sort();
+    const removed = [...committedByKey.keys()].filter((k) => !freshByKey.has(k)).sort();
+    const changed = [...freshByKey.keys()]
+      .filter((k) => committedByKey.has(k))
+      .filter((k) => committedByKey.get(k).source !== freshByKey.get(k).source)
+      .sort();
+    if (added.length) fails.push(`registry has ${added.length} key(s) missing from the committed manifest: ${added.join(", ")}`);
+    if (removed.length) fails.push(`committed manifest has ${removed.length} key(s) no longer in the registry: ${removed.join(", ")}`);
+    for (const k of changed) fails.push(`'${k}' source changed ${committedByKey.get(k).source} → ${freshByKey.get(k).source} in the committed manifest`);
+    if (committed.count !== fresh.count) fails.push(`committed count=${committed.count} != regenerated count=${fresh.count}`);
+    notes.push(`regenerated ${fresh.count} keys into a temp dir via generate-icon-svgs.mjs and diffed by key against the committed file`);
+  }
+  return {
+    name: "IconManifest",
+    figma: { capturedAt: "n/a — compared against a fresh `generate-icon-svgs.mjs` run, not a Figma snapshot" },
+    fails, notes,
+    summary: `committed=${committed.count} keys`,
+  };
+}
+
+const results = [checkTypography(), checkCard(), checkButton(), checkTextField(), checkCheckbox(), checkSwitch(), checkToggleSquare(), checkChip(), checkProgress(), checkProgressCircle(), checkStatus(), checkNestedItem(), ...checkNestedSubtypes(), checkTabs(), checkTooltip(), checkSliderNumberField(), checkLabel(), checkNestedMenu(), checkModal(), checkDialog(), checkText(), checkIconManifest()];
 let anyFail = false;
 console.log(`code: variants=[${codeVariants}] · sizes=[${codeSizes}]\n`);
 for (const r of results) {
