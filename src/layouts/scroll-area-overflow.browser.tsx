@@ -45,8 +45,8 @@ import "../test-stylesheet";
  *
  * Every presence case hovers first: the component mounts a scrollbar only while the pointer
  * is over the area, so a gutter is not painted permanently over every list in the app.
- * Asserting without hovering passes no matter what the component decides, which the hover
- * case below exists to prove.
+ * Hover-sensitive assertions must move the pointer explicitly: React cleanup does not reset
+ * the browser's pointer position. The hover case below checks both entering and leaving.
  */
 
 const orientations = () =>
@@ -124,17 +124,27 @@ test("a real overflow on both axes raises both", async () => {
   await expect.poll(orientations).toEqual(["horizontal", "vertical"]);
 });
 
-test("the scrollbar is hover-mounted, which is why every case above hovers", async () => {
+test("scrollbars mount on hover and unmount after the pointer leaves", async () => {
   await render(
-    <div style={{ height: "200px", width: "300px" }}>
-      <ScrollArea>
-        <div style={{ height: "900px", width: "900px" }}>unhovered</div>
-      </ScrollArea>
-    </div>,
+    <>
+      <button type="button">Outside the scroll area</button>
+      <div style={{ height: "200px", width: "300px" }}>
+        <ScrollArea>
+          <div style={{ height: "900px", width: "900px" }}>Overflowing content</div>
+        </ScrollArea>
+      </div>
+    </>,
   );
-  // Genuine overflow on both axes, but no pointer over the area, which keeps the
-  // scrollbars unmounted — so a presence assertion made here would pass regardless of
-  // what the overflow check decided.
+  const outside = page.getByRole("button", { name: "Outside the scroll area", exact: true });
+  const inside = page.getByText("Overflowing content", { exact: true });
+
+  await userEvent.hover(outside);
+  await expect.poll(orientations).toEqual([]);
+
+  await userEvent.hover(inside);
+  await expect.poll(orientations).toEqual(["horizontal", "vertical"]);
+
+  await userEvent.hover(outside);
   await expect.poll(orientations).toEqual([]);
 });
 
