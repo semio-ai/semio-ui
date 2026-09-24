@@ -125,7 +125,7 @@ So the Organization upgrade's specific payoff is **turning that handoff readout 
 
 ## What an upgrade does *not* remove (still required either way)
 
-- The **Figma icon library must be built** — ~332 icon components named by key. Pilot-tested: this is **largely agent-automatable on Professional** via the Figma MCP server (no upgrade needed for this part), with light design cleanup. (See the pilot section above and the companion engineering plan.)
+- The **Figma icon library** — one component per registry key (332), named by key. It is built and kept in sync agent-side on Professional via the Figma MCP server; no upgrade is needed for this part. (See the pilot section above and the companion engineering plan.)
 - A small amount of **repo setup** for Code Connect, which only activates on the higher tier. It's been scoped so it's a drop-in when/if we upgrade — nothing built now is wasted.
 
 ---
