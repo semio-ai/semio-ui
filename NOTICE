@@ -20,12 +20,21 @@ satisfied by the stated form and not by a paraphrase of it.
 ### Tabler Icons — MIT
 - Copyright (c) 2020-2026 Paweł Kuna — <https://tabler.io/icons>
 - Distributed via [`@tabler/icons-react`](https://www.npmjs.com/package/@tabler/icons-react), MIT License.
-- Used for the bulk of the `@semio/ui` default icon registry and many `@semio/animation` / Studio registry entries.
+- Retained for legacy and example glyphs in the `@semio/ui` compatibility registry.
 
 ### Solar Icons — CC BY 4.0
 - **"Solar Icons" by [480 Design](https://www.figma.com/community/file/1166831539721848736)**, licensed under [Creative Commons Attribution 4.0 International (CC BY 4.0)](https://creativecommons.org/licenses/by/4.0/).
 - Distributed via [`@solar-icons/react-perf`](https://www.npmjs.com/package/@solar-icons/react-perf): the **package code is MIT** — Copyright (c) 2024 Hakim Saoudi — while the **icon designs are CC BY 4.0** (see that package's `LICENSE-THIRD-PARTY`).
-- Used in the `@semio/animation` and Studio icon registries (transport, editor actions, units, legal glyphs, etc.). `@semio/ui` additionally uses the package's `IconProps` type for a few in-house glyphs drawn in a matching style.
-- **Modifications:** re-exported as React components and rendered at custom sizes / recolored via `currentColor`. No changes to the underlying glyph geometry beyond what the package provides.
+- Used in the UI, Animation, and Studio icon registries (shared controls, transport, editor actions, units, and legal glyphs). Custom glyphs use the package's `IconProps` contract.
+- **Modifications:** re-exported as React components and rendered at custom sizes / recolored via `currentColor`. Semio adaptations include the BoxMinimalistic outer contour without internal edges, plus custom Solar-style affordances. File-add and exclamation-mark SVGs are included from the official Solar catalogue; the supplied SVG artwork is rendered with its original geometry.
 
 The Figma "Semio UI Library" file mirrors these icons and carries the same attribution on its Icons page.
+
+Additional vendored Solar LineDuotone glyphs: sidebar-open, sidebar-close,
+panels-top-left, videocamera-off. Source: https://github.com/saoudi-h/solar-icons/tree/main/packages/core/svgs
+Solar Icons by 480 Design, CC BY 4.0; React adaptation uses currentColor.
+
+Supplied Solar-style adaptations include time-display-milliseconds, time-display-seconds,
+time-display-frames, time-display-seconds-frames, time-display-ticks, sort-updated,
+and the model file-type sphere;
+geometry and opacity are preserved while colors inherit currentColor.

@@ -1,6 +1,7 @@
 import { forwardRef, type ForwardedRef } from "react";
-import { IconCheck, IconExclamationMark, type IconProps } from "@tabler/icons-react";
+import type { IconProps } from "@solar-icons/react-perf";
 import { Variant } from "../types";
+import { IconCheck, IconExclamationMark } from "./shared-glyphs";
 
 export interface IconVariantProps extends IconProps {
   className?: string;

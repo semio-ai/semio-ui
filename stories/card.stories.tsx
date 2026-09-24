@@ -238,8 +238,8 @@ export const PrimaryAction: Story = {
   render: () => (
     <div className="flex w-[38rem] flex-row gap-3">
       {[
-        { title: "Published asset", verb: "Go to page", icon: "external-link" as const },
-        { title: "Project asset", verb: "Open in project", icon: "chevron-right" as const },
+        { title: "Published asset", verb: "Go to page", icon: "internal-link" as const },
+        { title: "Project asset", verb: "Open in project", icon: "drill-in" as const },
       ].map((item) => (
         <div key={item.title} className="w-72">
           <Card

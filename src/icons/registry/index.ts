@@ -8,3 +8,5 @@ export { roleIconRegistry } from "./roles";
 export { DisclosureIcon, type DisclosureIconProps } from "./disclosure";
 export { KeyIcon, type KeyIconProps } from "./key-icon";
 export type { IconComponent, IconRegistry, IconRegistryKeys } from "./types";
+
+export { createSolarIcon } from "./solar-glyph";

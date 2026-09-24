@@ -38,6 +38,48 @@ export function Example() {
 }
 ```
 
+### Playback speed icons
+
+`Icon` resolves `playback-0.1`, `playback-0.5`, `playback-1.0`,
+`playback-1.5`, and `playback-2.0` from the default registry.
+The corresponding `Playback01x`, `Playback05x`, `Playback10x`, `Playback15x`,
+and `Playback20x` exports accept Solar `IconProps` (`size`, `color`, `alt`,
+`mirrored`, SVG attributes, and a forwarded ref), with an 18px default size.
+The decimal dot inherits `currentColor`, and the multiplication mark uses 50% opacity.
+
+### Icon styling
+
+Approved stock glyphs live in `src/icons/registry/solar.tsx`; semantic roles
+remain in `roles.ts`. Both `sidebar-toggle` and `chevron-right-pipe` resolve to
+the same glyph: an opaque chevron and a half-opacity bar. The role key lets
+consumers override sidebar behavior independently of generic glyph use.
+
+Custom affordances use an 18px default on a 24-unit canvas with 1.5-unit strokes.
+The vector family retains its 32-unit geometry and uses equivalent 2-unit
+strokes. `IconHandleIndicator` retains its own stateful geometry and styling.
+Data-vector axes use half opacity; data points remain opaque. File drop targets
+use a downward incoming-file cue; export/download actions have separate keys.
+
+The `robot`, `folder-closed`, `folder-open`, `box-plus`, and `hand` keys use supplied
+SVG artwork with its original geometry, transforms, and opacity. Their black
+paints inherit `currentColor`; all accept the shared Solar props and default to 18px.
+
+Reviewed user, moon, sun/moon, and replacement glyphs preserve the supplied SVG
+artwork. Selection, nested lists, and bare percent marks use the shared Solar
+conventions; graph and vertical-layout glyphs retain their custom geometry.
+
+Vertex and Bézier glyphs keep their geometry with Solar-equivalent strokes and 18px defaults. Disclosure states share one AltArrowDown component to preserve rotation. Sidebar open/close, PanelsTopLeft, and VideocameraOff use vendored Solar LineDuotone SVGs.
+
+Built-in registry maps have disjoint keys. The generator omits Tabler fallbacks
+when UI supplies a custom or Solar glyph. Shared Solar sizing and duotone styling
+ship with UI; downstream packages add semantic keys without replacing UI choices.
+
+Semantic icons use explicit action/state roles (for example, `mute` and
+`state-muted`) and shared placeholder roles. Visual compatibility keys carry
+deprecation annotations in the generated registry. See
+[the registry guide](docs/icon-registry.md#semantic-roles-and-compatibility-glyphs).
+
+
 ### Nominal enums
 
 `Theme`, `Variant`, and `Size` are **nominal** enums: you must reference a

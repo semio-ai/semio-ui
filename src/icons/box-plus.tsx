@@ -1,36 +1,40 @@
-import { forwardRef, type ForwardedRef } from "react";
-import { type IconProps } from "@tabler/icons-react";
-import { clsx } from "clsx";
+import { createGlyph } from "./_internal/create-glyph";
 
-const IconBoxPlus = forwardRef(
-  ({ className, ...props }: IconProps, ref: ForwardedRef<SVGSVGElement>) => {
-    return (
-      <svg
-        ref={ref}
-        xmlns="http://www.w3.org/2000/svg"
-        className={clsx("icon icon-tabler", className)}
-        width={props.size ?? 24}
-        height={props.size ?? 24}
-        viewBox="0 0 24 24"
+/** Artwork from the supplied box-plus.svg; transforms and opacity are preserved. */
+export const IconBoxPlus = createGlyph(
+  "IconBoxPlus",
+  <g
+    fill="currentColor"
+    stroke="none"
+    strokeLinejoin="miter"
+    strokeMiterlimit={4}
+    fillRule="evenodd"
+    clipRule="evenodd"
+    strokeLinecap="round"
+  >
+    <path
+      d="M21,7.5L12,12M12,12L3,7.5M12,12L12,21.5"
+      fill="none"
+      fillRule="nonzero"
+      stroke="currentColor"
+      strokeOpacity="0.5"
+      strokeWidth="1.5"
+    />
+    <path
+      d="M15.953,20.421L15.578,20.618C13.822,21.539 12.944,22 12,22C11.056,22 10.178,21.539 8.422,20.618L6.422,19.569C4.271,18.439 3.195,17.875 2.597,16.86C2,15.846 2,14.583 2,12.059L2,11.941C2,9.417 2,8.154 2.597,7.14C3.195,6.125 4.271,5.561 6.422,4.432L8.422,3.382C10.178,2.461 11.056,2 12,2C12.944,2 13.822,2.461 15.578,3.382L17.578,4.432C19.729,5.561 20.805,6.125 21.403,7.14C22,8.154 22,9.417 22,11.941L22,12.059C22,14.583 22,15.846 21.403,16.86C21.364,16.926 21.323,16.99 21.281,17.052"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+    />
+    <g transform="matrix(1,0,0,1,10,4)">
+      <path
+        d="M11,15L9,15M9,15L7,15M9,15L9,13M9,15L9,17"
         fill="none"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        <path
-          className="transition-[fill]"
-          fill={props.color ?? "currentColor"}
-          d="M3,7.5C3,7.329 3.043,7.161 3.128,7.01C3.219,6.848 3.351,6.717 3.51,6.628L11.51,2.128C11.814,1.957 12.186,1.957 12.49,2.128L20.49,6.628C20.649,6.717 20.781,6.848 20.872,7.01C20.957,7.161 21,7.329 21,7.5L21,12C21,12.552 20.552,13 20,13C19.448,13 19,12.552 19,12L19,9.21L13,12.585L13,21C13,21.172 12.956,21.34 12.872,21.49C12.694,21.805 12.362,22 12,22C11.828,22 11.66,21.956 11.51,21.872L3.51,17.372C3.195,17.194 3,16.861 3,16.5L3,7.5ZM17.96,7.5L12,4.147L6.04,7.5L12,10.853L17.96,7.5ZM11,19.29L11,12.585L5,9.21L5,15.915L11,19.29Z"
-        />
-        <path
-          className="transition-[fill]"
-          fill={props.color ?? "currentColor"}
-          d="M18,20L16,20C15.448,20 15,19.552 15,19C15,18.448 15.448,18 16,18L18,18L18,16C18,15.448 18.448,15 19,15C19.552,15 20,15.448 20,16L20,18L22,18C22.552,18 23,18.448 23,19C23,19.552 22.552,20 22,20L20,20L20,22C20,22.552 19.552,23 19,23C18.448,23 18,22.552 18,22L18,20Z"
-        />
-      </svg>
-    );
-  },
+        fillRule="nonzero"
+        stroke="currentColor"
+        strokeOpacity="0.5"
+        strokeWidth="1.5"
+      />
+    </g>
+  </g>,
 );
-
-IconBoxPlus.displayName = "IconBoxPlus";
-
-export { IconBoxPlus };

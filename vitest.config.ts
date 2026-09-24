@@ -44,6 +44,9 @@ export default defineConfig({
   // used before. The studio app keeps the same list for the same reason.
   optimizeDeps: {
     include: [
+      "@solar-icons/react-perf/Bold",
+      "@solar-icons/react-perf/Linear",
+      "@solar-icons/react-perf/LineDuotone",
       "@base-ui/react/autocomplete",
       "@base-ui/react/avatar",
       "@base-ui/react/combobox",

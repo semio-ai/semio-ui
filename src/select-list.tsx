@@ -92,7 +92,7 @@ export function SelectList<T extends string | string[]>({
             )}
           >
             <div className="flex flex-row items-center justify-center rounded-full p-1 text-neutral-500">
-              {resolveIcon(option.icon) ?? <Icon name="point-filled" />}
+              {resolveIcon(option.icon) ?? <Icon name="option-placeholder" />}
             </div>
             <div className={clsx(size, "sized-text truncate select-none")}>{option.label}</div>
           </div>

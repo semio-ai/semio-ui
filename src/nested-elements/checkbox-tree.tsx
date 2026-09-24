@@ -218,12 +218,12 @@ export function NestedCheckboxTree({
                 {resolveIcon(option.icon) ||
                   (() => {
                     if (state === CheckboxState.Checked) {
-                      return <Icon name="check" />;
+                      return <Icon name="selected" />;
                     }
                     if (state === CheckboxState.Indeterminate) {
-                      return <Icon name="minus" />;
+                      return <Icon name="selection-indeterminate" />;
                     }
-                    return <Icon name="point" />;
+                    return <Icon name="unselected" />;
                   })()}
               </span>
             </div>
@@ -292,9 +292,9 @@ export function NestedCheckboxTree({
             <span className="icon-slot">
               {resolveIcon(option.icon) ||
                 (state === CheckboxState.Checked ? (
-                  <Icon name="check" />
+                  <Icon name="selected" />
                 ) : (
-                  <Icon name="point" />
+                  <Icon name="unselected" />
                 ))}
             </span>
           </ItemIndicatorComponent>

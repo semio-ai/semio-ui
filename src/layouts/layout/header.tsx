@@ -94,7 +94,7 @@ function InnerHeader({ homeIcon }: { homeIcon?: IconValue }) {
               variant={Variant.Default}
               size={Size.Sm}
               label="Toggle Menu"
-              icon={<Icon name="menu2" />}
+              icon={<Icon name="navigation-menu" />}
             />
           }
         >

@@ -2266,3 +2266,7 @@
   border-radius: 2px !important;
   width: 10px !important;
 }
+
+/* Inverted Solar duotone emphasizes the silhouette while retaining its detail. */
+.icon-duotone-inverted [opacity="0.5"] { opacity: 1; }
+.icon-duotone-inverted > *:not([opacity]) { opacity: 0.5; }

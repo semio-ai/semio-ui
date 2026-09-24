@@ -79,7 +79,7 @@ export function NestedCheckbox({
             "responsive check-indicator",
           )}
         >
-          <span className="icon-slot">{resolveIcon(icon) ?? <Icon name="check" />}</span>
+          <span className="icon-slot">{resolveIcon(icon) ?? <Icon name="selected" />}</span>
         </ItemIndicatorComponent>
         {label}
       </ItemComponent>

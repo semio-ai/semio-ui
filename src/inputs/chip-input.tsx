@@ -233,7 +233,7 @@ const InnerChipInput = forwardRef(
               <Button
                 visuals="inverted"
                 size={size}
-                leftIcon={<Icon name="plus" />}
+                leftIcon={<Icon name="add" />}
               />
             }
             variant={variant}

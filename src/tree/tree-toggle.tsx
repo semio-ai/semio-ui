@@ -1,5 +1,5 @@
-import { IconChevronDown } from "@tabler/icons-react";
 import { clsx } from "clsx";
+import { DisclosureIcon } from "../icons/registry";
 
 export interface TreeToggleProps {
   /** Whether the group is expanded (chevron points down) or collapsed (right). */
@@ -32,10 +32,7 @@ export interface TreeToggleProps {
  * `aria-expanded`, a guaranteed accessible name, and optional `aria-controls`.
  * Enter/Space activation and focusability come from the native button for free.
  *
- * Renders the tabler chevron directly to match the current `@semio/ui`
- * icon convention on `main`; once the by-name `Icon` registry lands (via
- * staging), this can switch to `<Icon name="chevron-down" />` with no API
- * change.
+ * Uses the shared DisclosureIcon state and registry override contract.
  */
 export function TreeToggle({
   expanded = true,
@@ -77,11 +74,7 @@ export function TreeToggle({
       )}
       style={{ color: color ?? "currentColor" }}
     >
-      <IconChevronDown
-        aria-hidden
-        size={16}
-        className={clsx("transition-transform", expanded ? "rotate-0" : "-rotate-90")}
-      />
+      <DisclosureIcon open={expanded} className="size-4" />
     </button>
   );
 }

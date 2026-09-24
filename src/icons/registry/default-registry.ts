@@ -1,28 +1,22 @@
 import { tablerIconRegistry } from "./tabler.generated";
 import { semioIconRegistry } from "./semio.generated";
+import { solarIconRegistry } from "./solar";
 import { roleIconRegistry } from "./roles";
 import type { IconRegistry, IconRegistryKeys } from "./types";
 
 /**
- * The zero-config registry: the curated Tabler set that @semio/ui uses internally,
- * merged with @semio/ui's own custom icons, plus the semantic **role** keys. Order
- * matters on collision: custom Semio glyphs win over Tabler (e.g. `"home"`,
- * `"box"`, `"robot"`), and role keys are spread **last** as the authoritative
- * design-system contract (`"close"`, `"disclosure-open"`, `"status-error"`, …).
- *
- * This is intentionally *not* the full Tabler set (~6k icons) — consumers extend
- * it with whatever else they need via `<IconProvider registry={…} />`.
+ * Disjoint built-in glyph sets and semantic roles. Each key has one owner;
+ * downstream packages contribute domain keys rather than replacing shared artwork.
+ * Consumer IconProviders may still supply intentional theme overrides.
  */
-// `satisfies` (not `: IconRegistry`) so the literal keys survive for `keyof`
-// below — an explicit annotation would widen this to `Record<string, …>` and
-// erase them, defeating the build-time key check.
 export const defaultIconRegistry = {
   ...tablerIconRegistry,
   ...semioIconRegistry,
+  ...solarIconRegistry,
   ...roleIconRegistry,
 } satisfies IconRegistry;
 
-/** The icon keys `@semio/ui` ships out of the box (Tabler ∪ Semio ∪ roles). */
+/** The icon keys `@semio/ui` ships out of the box (fallback ∪ Semio ∪ Solar ∪ roles). */
 export type DefaultIconName = keyof typeof defaultIconRegistry;
 
 /**

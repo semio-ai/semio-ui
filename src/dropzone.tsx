@@ -1,7 +1,7 @@
 import { clsx } from "clsx";
 import { ReactNode } from "react";
 import { useDropzone, type Accept } from "react-dropzone";
-import { IconArrowBigDownLines } from "@tabler/icons-react";
+import { Icon } from "./icons/registry/icon";
 import { ScrollArea } from "./layouts/scroll-area";
 import { ListGrid, type ListColumn } from "./list";
 import type { ResolveRowVisual } from "./tree/resolve-row-visual";
@@ -106,7 +106,7 @@ export function Dropzone<T>({
         <div className="grid place-items-center">
           <div className="grid max-h-40 grid-cols-1 place-items-center gap-3">
             <div className="h-32 w-32">
-              <IconArrowBigDownLines size="128px" className="text-info" />
+              <Icon name="file-drop" size="none" className="text-info size-32" />
             </div>
             <span className="text-info">
               {dropText ?? `Drag and Drop File${multiple ? "s" : ""} Here`}
@@ -118,7 +118,7 @@ export function Dropzone<T>({
         <div className="outline-info absolute top-0 right-0 bottom-0 left-0 grid place-items-center bg-white/50 outline -outline-offset-4 backdrop-blur-xs dark:bg-black/50">
           <div className="grid max-h-40 grid-cols-1 place-items-center gap-3">
             <div className="h-32 w-32">
-              <IconArrowBigDownLines size="128px" className="text-info" />
+              <Icon name="file-drop" size="none" className="text-info size-32" />
             </div>
             <span className="text-info">
               {dropText ?? `Drag and Drop File${multiple ? "s" : ""} Here`}

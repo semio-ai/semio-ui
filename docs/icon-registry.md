@@ -37,10 +37,11 @@ export type IconRegistry = Record<string, IconComponent>;
 ```tsx
 // default-registry.ts
 // The generated Tabler set merged with @semio/ui's own custom icons
-// (src/icons/), keyed kebab-case. Custom icons win on key collision.
+// (src/icons/), keyed kebab-case. The sets have disjoint keys.
 export const defaultIconRegistry: IconRegistry = {
   ...tablerIconRegistry, // generated from @tabler/icons-react
   ...semioIconRegistry,  // generated from @semio/ui's own src/icons/ exports
+  ...solarIconRegistry,  // approved stock Solar glyph replacements
   ...roleIconRegistry,   // hand-maintained semantic role keys
 };
 ```
@@ -100,15 +101,16 @@ losing the ones it doesn't set. `extend: false` replaces the registry outright.
 `home`, `robot`, the keyframe/vector/vertex curve-editing marks, player
 transport, file-type badges, etc.). These are in the **default** registry so
 `<Icon name="home" />` resolves the Semio glyph with zero configuration — the
-default is *not* just Tabler. The custom icons are spread **last**, so an
-intentional Semio glyph overrides the Tabler default of the same key.
+default is *not* just Tabler. Each built-in key has one owner. The generator excludes native/custom/Solar keys
+from the Tabler fallback map, so shared decisions do not rely on spread order.
 
 The default Tabler set is **curated, not the full library.** Tabler ships
 thousands of icons; `@semio/ui` itself only references a few dozen, and the
 package bundles its dependencies, so a full default map would inline megabytes.
 `tablerIconRegistry` is generated from an **explicit seed** (`TABLER_SEED` in the
 codegen) — explicit rather than import-scanned, because `@semio/ui`'s own
-components render through `<Icon name>` and so no longer import Tabler directly.
+components render through `<Icon name>`. Entries with a custom or Solar owner are
+filtered out of this seed before generation.
 `@tabler/icons-react` is marked **external** in the build, so even seeded icons
 resolve at the consumer instead of bloating the bundle. Apps register whatever
 else they use via `<IconProvider>`.
@@ -148,7 +150,7 @@ overridden:
   indirection). They live in a hand-maintained `roles.ts`, and a key is added
   only as a component is wired to it — an unused role key is noise.
 - **Glyph keys** name an *arbitrary picture* used as content — `star`, `home`,
-  `heart`, `trash`. These keep their literal (Tabler) names; a caller asking for
+  `heart`, `trash`. These keep their literal names; a caller asking for
   a star wants a star.
 
 `@semio/ui`'s own components reference **role keys**; they are the stable
@@ -299,10 +301,53 @@ This is the same discipline the color tokens follow (token name == code-syntax
 - `packages/ui/src/constants/icon.ts` — `ICON_CLASS_NAME` (`icon-standard`),
   `ICON_LG_CLASS_NAME` (`icon-larger`).
 - `packages/ui/src/icons/` — `@semio/ui`'s own custom icons, folded into the
-  default registry alongside Tabler.
+  default registry alongside Solar glyphs and compatibility fallbacks.
 - `packages/utils/src/react/context-providers.tsx` — shared context
   infrastructure the `IconProvider` builds on.
 - `packages/ui/src/context/tooltip-context-utils.tsx` — existing in-package
   precedent using that infrastructure.
-</content>
-</invoke>
+
+The `all` role uses Solar Global LineDuotone for complete selections. Studio
+uses the separate `public` role (Earth LineDuotone) for its public sharing audience.
+
+### Built-in layer ownership
+
+UI owns base glyphs and UI roles. Animation adds editor actions, playback and data
+aliases. Studio adds application concepts. The three shipped maps have disjoint
+keys; change artwork in its earliest owning layer. Consumer providers still allow
+intentional theming overrides. Registry tests enforce this distinction.
+
+`edit`, `menu`, and `settings` are owned by Animation, including the Solar Pen,
+vertical MenuDots, and inverted Settings decisions. Inverted duotone CSS ships
+with UI's stylesheet, so it does not depend on Studio. `home`, `box`, `project`,
+and custom data glyphs are owned by UI; direct exports use the same artwork.
+
+### Deprecated robot compatibility keys
+
+`line`, `pencil`, `pinned`, `transform-point`, and `view360` remain registered for
+compatibility with the deprecated `WorldElementIcon` helper. Its only Studio
+consumer is `RobotBuilderWidget`, which is not mounted or imported by the app.
+Avoid using these entries for new features; define a semantic role and review
+its artwork if robot editing is introduced. The generator preserves the
+`@deprecated` annotations on these registry properties.
+
+### Semantic roles and compatibility glyphs
+
+Feature call sites use role names: `theme-*`, `sort-*`, `key-*`,
+`option-placeholder`, `option-group-placeholder`, `preview-open`/`preview-close`,
+and action/state pairs such as `mute` and `state-muted`. Distinct roles may
+share a component; overriding one role must not change another.
+
+The generated custom map keeps visual glyph keys for external compatibility.
+Approved replacements are recorded in the generator's `DEPRECATED_CUSTOM_KEYS`
+and emitted as `@deprecated` annotations. These glyph names are implementation
+details for composing roles; new feature code should use semantic keys.
+
+UI owns shared add/copy/remove and selection roles because UI components consume
+them. Animation owns transition/view roles and oriented playback bounds. Studio
+owns access roles (`role-*`) and domain/navigation aliases. The maps remain
+disjoint, and each key has one owner. `key` remains the animation data-key name;
+keyboard legends use `key-command`, `key-shift`, and `key-c/v/x/z`.
+
+Five supplied `time-display-*` glyphs are registered, including seconds-frames
+and ticks. Registration does not enable a time format in a control or formatter.

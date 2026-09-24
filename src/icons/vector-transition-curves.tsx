@@ -1,5 +1,5 @@
 import { forwardRef, type ForwardedRef } from "react";
-import { type IconProps } from "@tabler/icons-react";
+import { type IconProps } from "@solar-icons/react-perf";
 import { clsx } from "clsx";
 
 export interface IconVectorTransitionCurveProps extends IconProps {
@@ -14,9 +14,9 @@ const Y_MAX = 28;
 
 function easeInOutPow(power: number, t: number): number {
   if (t < 0.5) {
-    return (2 ** (power - 1)) * t ** power;
+    return 2 ** (power - 1) * t ** power;
   }
-  return 1 - ((-2 * t + 2) ** power) / 2;
+  return 1 - (-2 * t + 2) ** power / 2;
 }
 
 function easeInOutSine(t: number): number {
@@ -70,21 +70,23 @@ function buildCurvePath(curve: (t: number) => number): string {
     .join(" ")}`;
 }
 
-function createTransitionIcon(
-  displayName: string,
-  curve: (t: number) => number,
-) {
+function createTransitionIcon(displayName: string, curve: (t: number) => number) {
   const d = buildCurvePath(curve);
 
   const Icon = forwardRef(
-    ({ className, ...props }: IconVectorTransitionCurveProps, ref: ForwardedRef<SVGSVGElement>) => {
+    (
+      { className, size, color, alt, mirrored, style, ...props }: IconVectorTransitionCurveProps,
+      ref: ForwardedRef<SVGSVGElement>,
+    ) => {
       return (
         <svg
           ref={ref}
+          {...props}
+          transform={mirrored ? "scale(-1, 1)" : undefined}
           xmlns="http://www.w3.org/2000/svg"
-          width={props.size ?? 24}
-          height={props.size ?? 24}
-          className={clsx("icon icon-tabler", className)}
+          width={size ?? "18px"}
+          height={size ?? "18px"}
+          className={clsx("icon", className)}
           viewBox="0 0 32 32"
           version="1.1"
           strokeLinecap="round"
@@ -93,14 +95,16 @@ function createTransitionIcon(
             clipRule: "evenodd",
             strokeLinecap: "round",
             strokeLinejoin: "round",
+            ...style,
           }}
         >
+          {alt ? <title>{alt}</title> : null}
           <path
             className="transition-[stroke]"
             d={d}
             fill="none"
-            stroke={props.color ?? "currentColor"}
-            strokeWidth={3}
+            stroke={color ?? "currentColor"}
+            strokeWidth={2}
           />
         </svg>
       );

@@ -125,7 +125,7 @@ function PaneHarness() {
         {
           id: "timeline",
           name: "Timeline",
-          icon: <Icon name="square" />,
+          icon: <Icon name="action-placeholder" />,
           size: "auto",
           region: PaneRegion.Footer,
           inLeftMenu: false,
@@ -156,7 +156,7 @@ function PaneHarness() {
           setPane({
             id: "timeline",
             name: "Timeline",
-            icon: <Icon name="square" />,
+            icon: <Icon name="action-placeholder" />,
             size: "auto",
             region: PaneRegion.Footer,
             inLeftMenu: false,
