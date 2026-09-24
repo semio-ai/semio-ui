@@ -28,7 +28,7 @@ import { LayoutRoot } from "./root";
 
 const DESKTOP = { width: 1024, height: 800 } as const;
 
-const paneIcon = <Icon name="square" />;
+const paneIcon = <Icon name="action-placeholder" />;
 
 function state(): string {
   const read = (id: string): string => {

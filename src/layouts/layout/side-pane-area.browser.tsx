@@ -28,7 +28,7 @@ import { LayoutRoot } from "./root";
 const MOBILE = { width: 500, height: 900 } as const;
 const DESKTOP = { width: 1024, height: 800 } as const;
 
-const PANE_ICON = <Icon name="square" />;
+const PANE_ICON = <Icon name="action-placeholder" />;
 
 /** The stack, bottom-first, as pane ids — and which of them is showing. */
 function sidePanes(): { ids: string[]; showing: string | null } {

@@ -1,8 +1,7 @@
 import { ReactNode } from "react";
 import { Collapsible } from "radix-ui";
-import { IconChevronLeft } from "@tabler/icons-react";
 import { clsx } from "clsx";
-import { DisclosureIcon } from "../icons/registry";
+import { Icon, DisclosureIcon } from "../icons/registry";
 
 export interface CollapseProps {
   title: string | ReactNode;
@@ -36,7 +35,8 @@ export function Collapse({
         {direction === "horizontal" ? (
           // Directional variant: horizontal collapse points its chevron left, so it
           // keeps its own glyph rather than the (downward) `disclosure` role.
-          <IconChevronLeft
+          <Icon
+            name="pane-collapse"
             className={clsx("h-5 w-5 transition-transform", open ? "rotate-0" : "-rotate-90")}
           />
         ) : (

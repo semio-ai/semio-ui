@@ -156,7 +156,7 @@ const InnerTextField = forwardRef(
               onClear?.(e);
             }}
           >
-            <Icon name="x" />
+            <Icon name="clear-input" />
           </button>
         )}
       </div>

@@ -1,15 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<svg width="100%" height="100%" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;">
-    <g transform="matrix(0.950512,0.310687,-0.310687,0.950512,4.387306,-3.16579)">
-        <g opacity="0.5">
-            <g transform="matrix(-0.037723,-0.696394,0.820808,-0.044463,0.217118,22.211813)">
-                <path d="M24.719,12.4C20.562,18.883 9.901,20.457 2.559,17.435" style="fill:none;fill-rule:nonzero;stroke:black;stroke-width:1.97px;stroke-dasharray:3.936,3.936,0,0,0,0;stroke-dashoffset:2.46;"/>
-            </g>
-            <g transform="matrix(-0.584233,0.380866,0.44891,0.68861,13.463402,-3.495688)">
-                <path d="M25.074,12.317C20.916,18.801 10.256,20.376 2.914,17.355" style="fill:none;fill-rule:nonzero;stroke:black;stroke-width:1.97px;stroke-dasharray:3.936,3.936,0,0,0,0;stroke-dashoffset:2.46;"/>
-            </g>
+<svg width="100%" height="100%" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:affinity="https://www.affinity.studio/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;">
+    <circle cx="12" cy="12" r="10" style="fill:none;stroke:black;stroke-width:1.5px;"/>
+    <g opacity="0.5">
+        <g transform="matrix(1,0,0,0.5,0,6)">
+            <path d="M22,12C22,17.519 17.519,22 12,22C6.481,22 2,17.519 2,12" style="fill:none;stroke:black;stroke-width:1.9px;"/>
+        </g>
+        <g transform="matrix(0,-1,0.5,0,6,24)">
+            <path d="M22,12C22,17.519 17.519,22 12,22C6.481,22 2,17.519 2,12" style="fill:none;stroke:black;stroke-width:1.9px;"/>
         </g>
     </g>
-    <path d="M20,12C20,16.418 16.418,20 12,20C7.582,20 4,16.418 4,12C4,7.582 7.582,4 12,4C16.418,4 20,7.582 20,12Z" style="fill:none;fill-rule:nonzero;stroke:black;stroke-width:1.5px;stroke-linecap:butt;"/>
 </svg>

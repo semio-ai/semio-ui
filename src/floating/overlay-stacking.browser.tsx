@@ -50,7 +50,7 @@ import { useTooltipStore } from "./tooltip-3d/store";
 
 const DESKTOP = { width: 1280, height: 800 } as const;
 
-const PANE_ICON = <Icon name="square" />;
+const PANE_ICON = <Icon name="action-placeholder" />;
 
 const CLOSE_BUTTON = 'button[aria-label="Close panel"]';
 

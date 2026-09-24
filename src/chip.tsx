@@ -140,7 +140,7 @@ export function Chip({
             visuals === "default" ? "variant-on-fill-slot" : "grid place-items-center",
           )}
         >
-          <Icon name="close" />
+          <Icon name="remove" />
         </button>
       )}
     </div>

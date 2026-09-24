@@ -129,7 +129,7 @@ export function SelectTree({
     // If nothing is selected
     if (selectedCount === 0) {
       return {
-        icon: <Icon name="point-filled" />,
+        icon: <Icon name="option-placeholder" />,
         label: label || "Select items",
         color: undefined,
         variant: Variant.Default,
@@ -139,7 +139,7 @@ export function SelectTree({
     // If everything is selected
     if (selectedCount === totalCount) {
       return {
-        icon: <Icon name="world" />,
+        icon: <Icon name="all" />,
         label: "All selected",
         color: undefined,
         variant: variant || Variant.Default,
@@ -151,7 +151,7 @@ export function SelectTree({
       const selectedOption = findOption(value[0]);
       if (selectedOption) {
         return {
-          icon: selectedOption.icon || <Icon name="point-filled" />,
+          icon: selectedOption.icon || <Icon name="option-placeholder" />,
           label: selectedOption.label,
           color: selectedOption.color,
           variant: selectedOption.variant || variant || Variant.Default,
@@ -168,7 +168,7 @@ export function SelectTree({
       const groupLeafCount = getAllLeafValues(group).length;
       if (groupLeafCount === selectedCount) {
         return {
-          icon: group.icon || <Icon name="layout-grid" />,
+          icon: group.icon || <Icon name="option-group-placeholder" />,
           label: group.label,
           color: group.color,
           variant: group.variant || variant || Variant.Default,
@@ -195,7 +195,7 @@ export function SelectTree({
             if (subGroupLeafCount === selectedCount) {
               // Show the complete subgroup
               return {
-                icon: subGroup.icon || <Icon name="layout-grid" />,
+                icon: subGroup.icon || <Icon name="option-group-placeholder" />,
                 label: subGroup.label,
                 color: subGroup.color,
                 variant: subGroup.variant || variant || Variant.Default,
@@ -205,7 +205,7 @@ export function SelectTree({
 
           // Show partial selection within the group
           return {
-            icon: option.icon || <Icon name="layout-grid" />,
+            icon: option.icon || <Icon name="option-placeholder" />,
             label: `${option.label} (${String(selectedInGroup.length)} of ${String(groupLeafValues.length)} selected)`,
             color: option.color,
             variant: option.variant || variant || Variant.Default,
@@ -220,7 +220,7 @@ export function SelectTree({
       if (completeGroups.length <= 3) {
         const groupNames = completeGroups.map((g) => g.label).join(", ");
         return {
-          icon: <Icon name="layout-grid" />,
+          icon: <Icon name="option-placeholder" />,
           label: groupNames,
           color: undefined,
           variant: variant || Variant.Default,
@@ -230,7 +230,7 @@ export function SelectTree({
 
     // Generic partial selection
     return {
-      icon: <Icon name="layout-grid" />,
+      icon: <Icon name="option-placeholder" />,
       label: `${String(selectedCount)} of ${String(totalCount)} selected`,
       color: undefined,
       variant: variant || Variant.Default,

@@ -1,5 +1,5 @@
 import { forwardRef, type ForwardRefExoticComponent, type RefAttributes } from "react";
-import type { IconProps } from "@solar-icons/react-perf";
+import type { GlyphProps as IconProps } from "./_internal/glyph-props";
 
 const Bounce: ForwardRefExoticComponent<IconProps & RefAttributes<SVGSVGElement>> =
   forwardRef<SVGSVGElement, IconProps>((props, ref) => {

@@ -1,4 +1,3 @@
-import { IconArrowBigDown, IconArrowBigUp, IconCommand } from "@tabler/icons-react";
 import { useState, type ReactNode } from "react";
 import { NestedMenu } from "../nested-elements/menu";
 import { NestedLabel } from "../nested-elements/label";
@@ -18,22 +17,22 @@ export function NestedExample(): ReactNode {
   return (
     <>
       <NestedItem
-        left={<Icon name="arrow-up" />}
+        left={<Icon name="sort-ascending" />}
         right={
           <div className="flex h-5 flex-row items-center justify-end gap-0">
-            <IconCommand className="h-3 w-3" />
-            <IconArrowBigUp className="h-3 w-3" />
+            <Icon name="key-command" size="none" className="h-3 w-3" />
+            <Icon name="key-shift" size="none" className="h-3 w-3" />
           </div>
         }
       >
         Item 1
       </NestedItem>
       <NestedItem
-        left={<Icon name="arrow-down" />}
+        left={<Icon name="sort-descending" />}
         right={
           <div className="flex h-5 flex-row items-center justify-end gap-0">
-            <IconCommand className="h-3 w-3" />
-            <IconArrowBigDown className="h-3 w-3" />
+            <Icon name="key-command" size="none" className="h-3 w-3" />
+            <Icon name="arrow-big-down" size="none" className="h-3 w-3" />
           </div>
         }
       >
@@ -47,19 +46,19 @@ export function NestedExample(): ReactNode {
           {
             value: "light",
             label: "Light",
-            icon: <Icon name="sun" />,
+            icon: <Icon name="theme-light" />,
             color: "#F99600",
           },
           {
             value: "dark",
             label: "Dark",
-            icon: <Icon name="moon" />,
+            icon: <Icon name="theme-dark" />,
             variant: Variant.Tertiary,
           },
           {
             value: "system",
             label: "System",
-            icon: <Icon name="sun-moon" />,
+            icon: <Icon name="theme-system" />,
           },
         ]}
         onChange={(value) => setSelectedTheme(value as Theme)}

@@ -123,7 +123,7 @@ export function InnerTabsRow({
                       size,
                     )}
                   >
-                    {resolveIcon(tabChild.icon) ?? <Icon name="hexagon" size="none" className="size-2/5" />}
+                    {resolveIcon(tabChild.icon) ?? <Icon name="option-placeholder" size="none" className="size-2/5" />}
                   </p>
                 )}
                 {(visuals === "labels" || visuals === "both") && (

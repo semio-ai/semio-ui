@@ -60,7 +60,7 @@ function BothPanesOpen() {
         {
           id: "assets",
           name: "Assets",
-          icon: <Icon name="square" />,
+          icon: <Icon name="action-placeholder" />,
           size: `${LEFT_WIDTH.toString()}px`,
           inLeftMenu: true,
           inRightMenu: false,
@@ -69,7 +69,7 @@ function BothPanesOpen() {
         {
           id: "inspector",
           name: "Inspector",
-          icon: <Icon name="square" />,
+          icon: <Icon name="action-placeholder" />,
           size: `${RIGHT_WIDTH.toString()}px`,
           inLeftMenu: false,
           inRightMenu: true,

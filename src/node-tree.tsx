@@ -1,6 +1,5 @@
-import { IconChevronUp } from "@tabler/icons-react";
-import { clsx } from "clsx";
 import { useState, ReactNode } from "react";
+import { DisclosureIcon } from "./icons/registry";
 
 type NodeMap = Record<string, any>;
 
@@ -45,10 +44,7 @@ function Tree({ node, nodeMap, indentLevel = 0, renderNode }: TreeProps) {
     <>
       <div className="flex flex-row items-center text-neutral-700 dark:text-neutral-300">
         <button type="button" onClick={toggleCollapse} style={{ cursor: "pointer" }}>
-          <IconChevronUp
-            size="16px"
-            className={clsx("mr-2", "transform", isCollapsed && "rotate-180")}
-          />
+          <DisclosureIcon open={!isCollapsed} className="size-4 mr-2" />
         </button>
         {renderNode({ item: node })}
       </div>

@@ -206,7 +206,7 @@ export function Autocomplete<TItem>({
             className={rightButtonClassName(size, variant)}
             aria-label="Clear search"
           >
-            <Icon name="x" />
+            <Icon name="clear-input" />
           </AutocompletePrimitive.Clear>
         )}
       </AutocompletePrimitive.InputGroup>
@@ -249,7 +249,7 @@ export function Autocomplete<TItem>({
                         <div {...props} data-state="unchecked">
                           <span className={itemIndicatorClassName({ variant })}>
                             <span className="icon-slot">
-                              {getItemIcon?.(item) ?? <Icon name="point-filled" />}
+                              {getItemIcon?.(item) ?? <Icon name="option-placeholder" />}
                             </span>
                           </span>
                           {renderItem(item, {

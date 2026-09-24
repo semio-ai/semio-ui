@@ -136,7 +136,7 @@ export function Select<T extends string | string[]>({
           return {
             value: "",
             label: label ?? "Select items",
-            icon: <Icon name="point-filled" />,
+            icon: <Icon name="option-placeholder" />,
             variant: variant ?? Variant.Default,
           };
         }
@@ -151,14 +151,14 @@ export function Select<T extends string | string[]>({
           return {
             value: "",
             label: "All selected",
-            icon: <Icon name="layout-grid" />,
+            icon: <Icon name="option-placeholder" />,
             variant: variant ?? Variant.Default,
           };
         }
         return {
           value: "",
           label: `${String(selectedOptions.length)} selected`,
-          icon: <Icon name="layout-grid" />,
+          icon: <Icon name="option-placeholder" />,
           variant: variant ?? Variant.Default,
         };
       })()
@@ -216,7 +216,7 @@ export function Select<T extends string | string[]>({
         >
           <Tooltip content={tooltipContent} portalContainer={portalContainer}>
             <div className={clsx("icon-slot", DISABLED_CONTENT_CLASS)}>
-              {resolveIcon(selectOption?.icon) || <Icon name="point-filled" />}
+              {resolveIcon(selectOption?.icon) || <Icon name="option-placeholder" />}
             </div>
           </Tooltip>
         </div>
@@ -261,7 +261,7 @@ export function Select<T extends string | string[]>({
               )}
             >
               <span className="icon-slot">
-                {resolveIcon(selectOption?.icon) || <Icon name="point-filled" />}
+                {resolveIcon(selectOption?.icon) || <Icon name="option-placeholder" />}
               </span>
             </div>
           )}

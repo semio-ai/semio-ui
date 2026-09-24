@@ -38,6 +38,55 @@ export function Example() {
 }
 ```
 
+### Icons
+
+`<Icon name>` resolves a key through the nearest `IconProvider`, falling back to
+`defaultIconRegistry`. There are two kinds of key:
+
+- **Role keys** name what an icon does — `close`, `retry`, `disclosure-open`,
+  `mute` (an action) versus `state-muted` (a state). `@semio/ui`'s own components
+  reference only roles, so a role is the seam for re-skinning a behaviour
+  everywhere at once.
+- **Glyph keys** name the picture — `home`, `robot`, `playback-1.5`. A glyph key
+  kept for compatibility is marked `@deprecated` with the role to use instead.
+
+**Three layers, one owner per key.** This package's default registry is the base
+layer: Semio's own glyphs (`src/icons/`, collected into `semio.generated.ts` by
+`npm run generate:icons`), stock Solar glyphs (`registry/solar.tsx`), the
+semantic roles (`registry/roles.ts`), and a curated Tabler fallback set
+(`tabler.generated.ts`). `@semio/animation` adds editor, playback, data and unit
+keys; Studio adds application keys. No key is defined in two places across the
+three layers — tests fail on a duplicate — so a shared decision is changed in the
+layer that owns it, and every consumer inherits it without an override.
+
+**Overriding.** Pass replacements to `IconProvider`; nested providers merge over
+their parent unless `extend={false}`:
+
+```tsx
+<IconProvider registry={{ retry: MyRetryGlyph }}>{children}</IconProvider>
+```
+
+A replacement must accept `className` and any state props its key is rendered
+with (`DisclosureIcon` passes `open`, for example). Register app-specific keys
+through `IconRegistryKeys` augmentation so `<Icon name>` type-checks them.
+
+**Glyph conventions.** Glyphs draw on a 24-unit canvas with 1.5-unit strokes (the
+vector family keeps its 32-unit geometry with 2-unit strokes), default to 18px,
+paint with `currentColor`, and use 50% opacity for secondary strokes. Every glyph
+accepts `size`, `color`, `alt`, `mirrored`, SVG attributes and a forwarded ref.
+`createSolarIcon` wraps a Solar component with the same sizing and an optional
+presentation class (`icon-duotone-inverted` swaps a duotone glyph's two tones).
+
+**Artwork and attribution.** Solar artwork is by 480 Design under CC BY 4.0, and
+the `@solar-icons/react-perf` components that render it are MIT. That package is
+a dependency: external in the ESM build, and bundled into the CommonJS build
+because it ships as ESM only. Tabler (MIT) is an external dependency, and a few
+Tabler shapes are vendored into Semio glyphs. `NOTICE` in this package carries
+the attributions, the permission texts, and the list of vendored glyphs.
+
+See [the registry guide](docs/icon-registry.md) for resolution, composition and
+naming in detail.
+
 ### Nominal enums
 
 `Theme`, `Variant`, and `Size` are **nominal** enums: you must reference a

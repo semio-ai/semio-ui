@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Highlight, themes } from "prism-react-renderer";
 import { omit } from "lodash";
 import { clsx } from "clsx";
-import { IconClipboardCheck, IconClipboardPlus } from "@tabler/icons-react";
+import { Icon } from "./icons/registry";
 import { useTheme } from "./hooks/use-theme";
 import { Tooltip } from "./floating/tooltip";
 import { Button } from "./buttons/button";
@@ -48,7 +48,7 @@ export function Snippet({ text, language, className }: SnippetProps) {
               setIsCopied(false);
             });
         }}
-        leftIcon={isCopied ? <IconClipboardCheck /> : <IconClipboardPlus />}
+        leftIcon={isCopied ? <Icon name="copy-complete" /> : <Icon name="copy" />}
         className={!language ? "absolute top-2 right-2" : undefined}
       />
     </Tooltip>

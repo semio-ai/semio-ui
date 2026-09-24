@@ -32,9 +32,9 @@
     "**/*.css"
   ],
   "scripts": {
-    "build": "tsup src/index.tsx --format esm,cjs --dts --external react --external @tabler/icons-react --publicDir && npm run build:css",
+    "build": "tsup && npm run build:css",
     "build:css": "tailwindcss -i make-kit/make.css -o dist/semio-ui.css --minify",
-    "dev": "tsup src/index.tsx --format esm,cjs --watch --dts --external react --external @tabler/icons-react --publicDir",
+    "dev": "tsup --watch",
     "generate:icons": "node scripts/generate-icon-registry.mjs",
     "generate:icon-svgs": "node scripts/generate-icon-svgs.mjs",
     "parity:figma": "node scripts/figma-parity-check.mjs",
@@ -53,6 +53,7 @@
     "@floating-ui/react": "^0.27.4",
     "@react-three/fiber": "^9.0.0",
     "@semio/utils": "^0.2.0",
+    "@solar-icons/react-perf": "^2.1.0",
     "@tabler/icons-react": "^3.34.0",
     "@use-gesture/react": "^10.3.0",
     "clsx": "^2.1.1",

@@ -293,7 +293,7 @@ function ComboboxItemRow<TValue extends string>({
         <div {...props} data-state={isSelected ? "checked" : "unchecked"}>
           <span className={itemIndicatorClassName({ variant: itemVariant, color: option.color })}>
             <span className="icon-slot">
-              {resolveIcon(option.icon) ?? <Icon name="point-filled" />}
+              {resolveIcon(option.icon) ?? <Icon name="option-placeholder" />}
             </span>
           </span>
           {renderItem

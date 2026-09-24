@@ -18,7 +18,7 @@ describe("Icon resolution", () => {
     expect(html).toContain("<svg");
   });
 
-  it("resolves a key from the default registry (curated Tabler icon)", () => {
+  it("resolves a key from the default registry (approved Solar icon)", () => {
     const html = renderToStaticMarkup(<Icon name="chevron-down" />);
     expect(html).toContain("<svg");
   });
@@ -150,5 +150,24 @@ describe("icon slots accept a string key (e.g. Button)", () => {
       <Button leftIcon={<svg data-glyph="passthrough" />}>Close</Button>,
     );
     expect(html).toContain('data-glyph="passthrough"'); // node passes through unchanged
+  });
+});
+
+// Separate meanings must remain separate override boundaries even when their artwork matches.
+describe("semantic override boundaries", () => {
+  it.each([
+    ["mute", "state-muted"],
+    ["show", "state-visible"],
+    ["clear-input", "step-stopped"],
+    ["select", "select-all"],
+  ] as const)("overriding %s does not change %s", (action, state) => {
+    const html = renderToStaticMarkup(
+      <IconProvider registry={{ [action]: Star }}>
+        <Icon name={action} />
+        <Icon name={state} />
+      </IconProvider>,
+    );
+    expect(html.match(/data-glyph="star"/g)).toHaveLength(1);
+    expect(html.match(/<svg/g)).toHaveLength(2);
   });
 });

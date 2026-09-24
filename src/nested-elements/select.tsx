@@ -87,9 +87,9 @@ export function NestedSelect({ variant, disabled, onChange, values, options }: N
               <span className="icon-slot">
                 {resolveIcon(option.icon) ||
                   (values.find((v) => v === option.value) !== undefined ? (
-                    <Icon name="check" />
+                    <Icon name="selected" />
                   ) : (
-                    <Icon name="point" />
+                    <Icon name="unselected" />
                   ))}
               </span>
             </ItemIndicatorComponent>

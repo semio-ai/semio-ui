@@ -1,5 +1,5 @@
 import { forwardRef, type ForwardRefExoticComponent, type RefAttributes } from "react";
-import type { IconProps } from "@solar-icons/react-perf";
+import type { GlyphProps as IconProps } from "./_internal/glyph-props";
 
 const MovePlayerEndBounds: ForwardRefExoticComponent<
   IconProps & RefAttributes<SVGSVGElement>

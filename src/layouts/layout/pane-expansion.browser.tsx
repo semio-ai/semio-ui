@@ -86,7 +86,7 @@ function PaneHarness() {
         {
           id: "assets",
           name: "Assets",
-          icon: <Icon name="square" />,
+          icon: <Icon name="action-placeholder" />,
           size: `${PANE_WIDTH.toString()}px`,
           inLeftMenu: true,
           inRightMenu: false,
@@ -95,7 +95,7 @@ function PaneHarness() {
         {
           id: "inspector",
           name: "Inspector",
-          icon: <Icon name="square" />,
+          icon: <Icon name="action-placeholder" />,
           size: "200px",
           inLeftMenu: false,
           inRightMenu: true,

@@ -86,7 +86,7 @@ export function InnerBreadcrumbs({
                     element.options.find((option) => option.value === element.value)?.icon &&
                     (resolveIcon(
                       element.options.find((option) => option.value === element.value)?.icon,
-                    ) ?? <Icon key="icon" name="hexagon" />)}
+                    ) ?? <Icon key="icon" name="option-placeholder" />)}
                   {element.options.find((option) => option.value === element.value)?.label ??
                     element.value}
                   <Icon

@@ -288,7 +288,7 @@ function ExpandingSidebarApp(): ReactNode {
         {
           id: EXPAND_PANE_ID,
           name: "Assets",
-          icon: <Icon name="square" />,
+          icon: <Icon name="action-placeholder" />,
           size: EXPAND_PANE_WIDTH,
           region: PaneRegion.Left,
           inLeftMenu: true,
@@ -298,7 +298,7 @@ function ExpandingSidebarApp(): ReactNode {
         {
           id: "inspector",
           name: "Inspector",
-          icon: <Icon name="square" />,
+          icon: <Icon name="action-placeholder" />,
           size: "240px",
           inLeftMenu: false,
           inRightMenu: true,
@@ -307,7 +307,7 @@ function ExpandingSidebarApp(): ReactNode {
         {
           id: ANIMATION_PANE_ID,
           name: "Animation",
-          icon: <Icon name="square" />,
+          icon: <Icon name="action-placeholder" />,
           size: "auto",
           region: PaneRegion.Footer,
           inLeftMenu: false,
@@ -561,7 +561,7 @@ function CollapsingFooterApp(): ReactNode {
     setPane({
       id: FOOTER_PANE_ID,
       name: "Timeline",
-      icon: <Icon name="square" />,
+      icon: <Icon name="action-placeholder" />,
       size: "auto",
       region: PaneRegion.Footer,
       inLeftMenu: false,
@@ -578,7 +578,7 @@ function CollapsingFooterApp(): ReactNode {
         {
           id: FOOTER_PANE_ID,
           name: "Timeline",
-          icon: <Icon name="square" />,
+          icon: <Icon name="action-placeholder" />,
           size: "auto",
           region: PaneRegion.Footer,
           inLeftMenu: false,
@@ -588,7 +588,7 @@ function CollapsingFooterApp(): ReactNode {
         {
           id: "browser",
           name: "Browser",
-          icon: <Icon name="square" />,
+          icon: <Icon name="action-placeholder" />,
           size: "240px",
           region: PaneRegion.Left,
           inLeftMenu: true,
@@ -772,7 +772,7 @@ function BatchWriteApp(): ReactNode {
         {
           id: "left",
           name: "Left",
-          icon: <Icon name="square" />,
+          icon: <Icon name="action-placeholder" />,
           size: "240px",
           region: PaneRegion.Left,
           inLeftMenu: true,
@@ -782,7 +782,7 @@ function BatchWriteApp(): ReactNode {
         {
           id: "right",
           name: "Right",
-          icon: <Icon name="square" />,
+          icon: <Icon name="action-placeholder" />,
           size: "240px",
           region: PaneRegion.Right,
           inLeftMenu: false,
@@ -792,7 +792,7 @@ function BatchWriteApp(): ReactNode {
         {
           id: "footer",
           name: "Footer",
-          icon: <Icon name="square" />,
+          icon: <Icon name="action-placeholder" />,
           size: "auto",
           region: PaneRegion.Footer,
           inLeftMenu: false,
