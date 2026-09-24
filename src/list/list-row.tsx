@@ -142,9 +142,9 @@ export function ListRow({
         // rows. Selection is expressed by `visual.bar` / `visual.background`,
         // never by text colour, so setting this unconditionally is safe.
         "text-neutral-900 dark:text-neutral-100",
-        // `responsive` + the row's variant/custom-color set --accent-color for
+        // `variant-scope` + the row's variant/custom-color set --accent-color for
         // this row, so the bar/background resolve to its theme/custom color.
-        "responsive",
+        "variant-scope",
         visual?.color ? "custom-color" : visual?.variant,
         // Row height = one step taller than content (shared tree/list rhythm);
         // `size` still rides along so cell controls inherit the content size.

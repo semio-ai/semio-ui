@@ -249,9 +249,9 @@ describe("a role class works without the component", () => {
   });
 });
 
-describe("the selection tint resolves outside a .responsive subtree", () => {
+describe("the selection tint resolves outside a .variant-scope subtree", () => {
   /**
-   * `--accent-color` is declared on `.responsive`, which `LayoutRoot` does NOT carry, so
+   * `--accent-color` is declared on `.variant-scope`, which `LayoutRoot` does NOT carry, so
    * ordinary copy falls through to the role's own fallback. If that fallback were missing
    * the property would resolve empty and selection would paint the browser default —
    * which is invisible in a screenshot, and is exactly what this change set out to fix.
@@ -268,14 +268,14 @@ describe("the selection tint resolves outside a .responsive subtree", () => {
 /**
  * Reads the role inside a variant context, which is how a role gets its colour.
  *
- * The wrapper needs BOTH `responsive` and the variant class: the `@variant` blocks that
- * define a variant's colours are nested inside `.responsive`, so a bare `primary` declares
+ * The wrapper needs BOTH `variant-scope` and the variant class: the `@variant` blocks that
+ * define a variant's colours are nested inside `.variant-scope`, so a bare `primary` declares
  * nothing and the read would silently measure the default.
  */
 const readInVariant = (theme: Theme, role: TextRole, variant: string) =>
   withTheme(
     theme,
-    <div className={variant ? `responsive ${variant}` : ""}>
+    <div className={variant ? `variant-scope ${variant}` : ""}>
       <Text role={role}>sample</Text>
     </div>,
     (host) => getComputedStyle(host.querySelector<HTMLElement>(`.${role}`)!).color,
@@ -411,8 +411,8 @@ describe("variant and mode", () => {
 
   /**
    * The point of the prop: a validation message that is Error inside an ordinary form,
-   * without wrapping it in a `responsive error` element. Today that is hand-spelled at
-   * eleven sites as `clsx("responsive variant-static-text text-xs", Variant.Error)`.
+   * without wrapping it in a `variant-scope error` element. Today that is hand-spelled at
+   * eleven sites as `clsx("variant-scope variant-static-text text-xs", Variant.Error)`.
    */
   test("variant colours the text when mode is Static, with no surrounding context", () => {
     const plain = render1("light", <Text role={TextRole.Caption}>x</Text>, TextRole.Caption);
@@ -428,8 +428,8 @@ describe("variant and mode", () => {
 
   /**
    * ⚠ **Static is a qualifier on `variant`, so on its own it must cost the text nothing.**
-   * `--variant-text-color` is declared only inside `.responsive`, and a static role with no
-   * variant emits no `responsive` class — so without a fallback the `color` declaration is
+   * `--variant-text-color` is declared only inside `.variant-scope`, and a static role with no
+   * variant emits no `variant-scope` class — so without a fallback the `color` declaration is
    * invalid at computed-value time and the text INHERITS, silently dropping the role's
    * paint. That contradicts the prop's own documentation, and no screenshot of a page whose
    * surrounding text is already near the role's colour would show it.
@@ -474,7 +474,7 @@ describe("variant and mode", () => {
 
   /**
    * ⚠ And the other half: Static with no variant must still show the variant it is sitting
-   * in. This is what rules out the obvious repair for the test above — emitting `responsive`
+   * in. This is what rules out the obvious repair for the test above — emitting `variant-scope`
    * unconditionally — because that re-roots the accent context onto the element at the
    * DEFAULT variant, and a validation line inside an error panel would go grey.
    */
@@ -484,7 +484,7 @@ describe("variant and mode", () => {
       const role = TextRole.Caption;
       const inContext = withTheme(
         theme,
-        <div className="responsive error">
+        <div className="variant-scope error">
           <Text role={role} mode={VariantMode.Static}>
             x
           </Text>
@@ -533,14 +533,14 @@ describe("variant and mode", () => {
   test("Variant.Default opts out of an inherited variant", () => {
     const inherited = withTheme(
       "light",
-      <div className="responsive error">
+      <div className="variant-scope error">
         <Text role={TextRole.Caption}>x</Text>
       </div>,
       (h) => getComputedStyle(h.querySelector<HTMLElement>(`.${TextRole.Caption}`)!).color,
     );
     const optedOut = withTheme(
       "light",
-      <div className="responsive error">
+      <div className="variant-scope error">
         <Text role={TextRole.Caption} variant={Variant.Default}>
           x
         </Text>

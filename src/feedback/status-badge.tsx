@@ -36,7 +36,7 @@ export const StatusBadge = forwardRef(
           className={clsx(
             variant,
             size,
-            "responsive",
+            "variant-scope",
             "absolute rounded-full ring-2 ring-neutral-200 dark:ring-neutral-800",
             // Two forms, two scales. The dot is sized as a mark; the counted form is
             // sized by the numeral it holds, so its height, type and padding all come

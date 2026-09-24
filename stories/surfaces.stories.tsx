@@ -32,7 +32,7 @@ type Story = StoryObj;
 /** Labels a surface with the token it fills from, so the steps can be named on sight. */
 function Swatch({ className, name, fill }: { className: string; name: string; fill: string }) {
   return (
-    <div className={`${className} responsive w-56 p-4`}>
+    <div className={`${className} variant-scope w-56 p-4`}>
       <p className="text-sm font-medium">{name}</p>
       <p className="text-xs opacity-60">{fill}</p>
     </div>
@@ -89,9 +89,9 @@ export const TheRamp: Story = {
 export const OverlayOnCard: Story = {
   render: () => (
     <BothThemes>
-      <div className="card responsive w-72 p-6">
+      <div className="card variant-scope w-72 p-6">
         <p className="mb-4 text-sm">A card, at rest in the page.</p>
-        <div className="card-overlay responsive p-4">
+        <div className="card-overlay variant-scope p-4">
           <p className="text-sm">An overlay floating over it.</p>
         </div>
       </div>
@@ -110,7 +110,7 @@ export const OverlayOnCard: Story = {
 export const FloatingComponents: Story = {
   render: () => (
     <BothThemes>
-      <div className="card responsive flex w-72 flex-col items-start gap-3 p-6">
+      <div className="card variant-scope flex w-72 flex-col items-start gap-3 p-6">
         <Dropdown trigger={<Button size={Size.Sm}>Open a dropdown</Button>}>
           <NestedMenu>
             <NestedItem>Rename</NestedItem>

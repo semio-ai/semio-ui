@@ -204,7 +204,7 @@ export function Select<T extends string | string[]>({
             } as CSSProperties
           }
           className={clsx(
-            "responsive variant-mock-item-bg rounded-xs",
+            "variant-scope variant-mock-item-bg rounded-xs",
             "variant-responsive-text variant-responsive-appearing-outline",
             "flex items-center justify-center p-0",
             triggerBoxClass,
@@ -233,7 +233,7 @@ export function Select<T extends string | string[]>({
           } as CSSProperties
         }
         className={clsx(
-          "responsive variant-mock-item-bg rounded-xs",
+          "variant-scope variant-mock-item-bg rounded-xs",
           "variant-responsive-text variant-responsive-appearing-outline",
           "flex min-w-0 flex-1 flex-row items-center pr-0 pl-1",
           triggerHeightClass,
@@ -255,7 +255,7 @@ export function Select<T extends string | string[]>({
               className={clsx(
                 size,
                 selectOption?.color ? "custom-color" : (selectOption?.variant ?? Variant.Default),
-                "responsive sized-mock-inner-item",
+                "variant-scope sized-mock-inner-item",
                 "grid place-items-center",
                 "variant-mock-inner-item",
               )}
@@ -274,7 +274,7 @@ export function Select<T extends string | string[]>({
             className={clsx(
               size,
               "flex min-w-0 flex-1 items-center",
-              "responsive highlight-list-item",
+              "variant-scope highlight-list-item",
               triggerHeightClass,
               "sized-text",
               showIcon ? "pr-0 pl-3" : "pr-0 pl-2",

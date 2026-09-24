@@ -95,7 +95,7 @@ export function MenuButton({
         placement: status.placement,
         text: status.text,
         className: clsx(
-          "responsive",
+          "variant-scope",
           hoverable ? "variant-responsive-selectable-text" : "variant-static-text",
           variant,
           activeOverride,
@@ -103,7 +103,7 @@ export function MenuButton({
       }
     : {
         className: clsx(
-          "responsive",
+          "variant-scope",
           hoverable ? "variant-responsive-selectable-text" : "variant-static-text",
           variant,
           "grid h-9 w-9 place-items-center",
@@ -128,11 +128,11 @@ export function MenuButton({
       onKeyDown={onKeyDown}
       className={clsx(
         variant,
-        // `responsive` so the variant's `--accent-color` is set on the
+        // `variant-scope` so the variant's `--accent-color` is set on the
         // button itself — needed by both the optional `bg` highlight and
-        // the focus-visible outline below. Children re-set `responsive`
+        // the focus-visible outline below. Children re-set `variant-scope`
         // independently, so this doesn't change inherited values for them.
-        "responsive",
+        "variant-scope",
         "cursor-pointer disabled:cursor-default",
         "group/tab h-9 w-9 overflow-hidden",
         expandedWidthClassName,
@@ -178,7 +178,7 @@ export function MenuButton({
       </Tooltip>
       <span
         className={clsx(
-          "responsive",
+          "variant-scope",
           "desktop:group-data-expanded/menu:opacity-100",
           "text-left opacity-0 truncate",
           expandedLabelClassName,

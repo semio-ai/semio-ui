@@ -32,7 +32,7 @@ export function NestedItem({
         "group/item flex items-center rounded-xs leading-none",
         "relative h-7 px-1.25 pl-7.5 text-sm outline-hidden select-none",
         "data-disabled:pointer-events-none",
-        "responsive highlight-list-item",
+        "variant-scope highlight-list-item",
         variant,
       )}
     >
@@ -40,7 +40,7 @@ export function NestedItem({
         <div
           className={clsx(
             "absolute top-1/2 left-1 inline-flex -translate-y-1/2 items-center justify-center",
-            "responsive list-item-extra highlight-list-item",
+            "variant-scope list-item-extra highlight-list-item",
             variant,
           )}
         >
@@ -55,7 +55,7 @@ export function NestedItem({
         <div
           className={clsx(
             "absolute top-1/2 right-1 inline-flex -translate-y-1/2 items-center justify-center",
-            "responsive list-item-extra",
+            "variant-scope list-item-extra",
             variant,
           )}
         >

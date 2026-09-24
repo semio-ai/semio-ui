@@ -463,7 +463,7 @@ test.each([
 // defect one level down.
 // Both slots sit on the same fill, so they must derive the same foreground. Asserting
 // only that each clears a contrast bar passes while they disagree: a slot carrying
-// `responsive` without its variant class resets `--standard-color` to the neutral
+// `variant-scope` without its variant class resets `--standard-color` to the neutral
 // default, so it derived toward white while its sibling derived toward black — legible
 // individually, obviously wrong side by side.
 test("Chip: both slots derive from the same fill", async () => {
@@ -574,8 +574,8 @@ async function measureTabs(theme: Theme, variant: Variant) {
           const active = label.textContent === "Active";
           let bg = compositedBg(label);
           if (active && tint) bg = over(tint, bg);
-          // Read off the TAB, not the label. The label's wrapper carries `responsive`
-          // without a variant class, and `.responsive` re-declares the variant tokens —
+          // Read off the TAB, not the label. The label's wrapper carries `variant-scope`
+          // without a variant class, and `.variant-scope` re-declares the variant tokens —
           // so the property inherited down to the label is the neutral default, and a
           // control read there would compare the clamp against the wrong colour.
           const tab = label.closest<HTMLElement>('[role="tab"]') ?? label;

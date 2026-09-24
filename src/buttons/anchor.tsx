@@ -14,7 +14,7 @@ export function Anchor({ onClick, variant, children }: AnchorProps) {
       onClick={onClick}
       className={clsx(
         variant,
-        "responsive",
+        "variant-scope",
         "variant-responsive-text focus:outline-hidden",
         "cursor-pointer disabled:cursor-default",
       )}

@@ -59,7 +59,7 @@ export function InnerBreadcrumbs({
   }
 
   return (
-    <div className={clsx(variant, "responsive variant-static-text flex items-center gap-2")}>
+    <div className={clsx(variant, "variant-scope variant-static-text flex items-center gap-2")}>
       {renderedElements.map((element, idx) => (
         <div key={element.id} className="flex items-center gap-2">
           {element.type === "option" ? (
@@ -75,7 +75,7 @@ export function InnerBreadcrumbs({
                       element.options.find((option) => option.value === element.value)?.icon
                       ? "grid grid-cols-[auto_1fr_auto]"
                       : "grid grid-cols-[1fr_auto]",
-                    "responsive variant-responsive-text variant-responsive-appearing-bg rounded-xs",
+                    "variant-scope variant-responsive-text variant-responsive-appearing-bg rounded-xs",
                     "variant-responsive-appearing-outline",
                     "sized-height place-items-center",
                     "sized-text px-1",

@@ -143,7 +143,7 @@ export function ToggleGroup({
           size,
           "absolute left-0",
           "sized-inner-group-item rounded-xs",
-          "responsive bg-(--accent-color)",
+          "variant-scope bg-(--accent-color)",
           // Only transition once measured, so the pill appears in place instead
           // of sliding in from the left edge on first paint.
           width > 0 &&
@@ -165,7 +165,7 @@ export function ToggleGroup({
               data-toggle-item={option.value}
               data-state={value === option.value ? "on" : "off"}
               className={clsx(
-                "responsive",
+                "variant-scope",
                 size,
                 option.color ? "custom-color" : option.variant,
                 visuals === "icons" && "sized-inner-group-item",

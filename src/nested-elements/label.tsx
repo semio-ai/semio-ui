@@ -19,7 +19,7 @@ export function NestedLabel({ children, className }: NestedLabelProps) {
       className={clsx(
         "flex h-6 flex-row items-center pl-3.75 text-sm leading-3.75",
         "py-1.25 font-bold text-neutral-800 dark:text-neutral-200",
-        "responsive highlight-list-item",
+        "variant-scope highlight-list-item",
         className,
       )}
     >

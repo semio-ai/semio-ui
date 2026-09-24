@@ -59,7 +59,7 @@ export function Switch({
       disabled={disabled}
       aria-label={label}
       className={clsx(
-        "responsive inline-flex shrink-0 items-center rounded-full outline-hidden transition-colors",
+        "variant-scope inline-flex shrink-0 items-center rounded-full outline-hidden transition-colors",
         "variant-checkbox-bg variant-responsive-appearing-outline",
         disabled ? "cursor-default opacity-70" : "cursor-pointer",
         sizeClasses.root,

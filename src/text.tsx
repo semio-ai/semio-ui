@@ -164,7 +164,7 @@ export interface TextProps extends NativeTextProps {
    * without anyone saying so.
    *
    * Name it when the text carries a variant its container does not: a validation message
-   * that is `Error` inside an ordinary form, without wrapping it in a `responsive error`
+   * that is `Error` inside an ordinary form, without wrapping it in a `variant-scope error`
    * element. {@link Variant.Default} is the explicit opt-out — a timestamp that should stay
    * neutral even though it sits in an error panel.
    */
@@ -228,12 +228,12 @@ export function Text({
       {...rest}
       className={clsx(
         role,
-        // `responsive` is what DECLARES the variant custom properties — the `@variant`
+        // `variant-scope` is what DECLARES the variant custom properties — the `@variant`
         // blocks are nested inside it, so a bare variant class sets nothing. Emitting both
         // re-roots the accent context on this element, which is why it is only done when a
         // variant is named: without it the text inherits the surrounding one, and that is
         // the behaviour a caller gets by leaving the prop off.
-        variant && `responsive ${variant}`,
+        variant && `variant-scope ${variant}`,
         // The clamped variant text, rather than the raw accent-text token: the clamp keeps
         // the hue while guaranteeing the contrast, which the token does not away from the
         // one ground it was calibrated against.

@@ -70,7 +70,7 @@ export function PanelContent({ region }: { region: PaneRegion }) {
               className={clsx(
                 "relative w-full",
                 collapsed ? "pointer-events-none" : "pointer-events-auto",
-                "responsive card-transparent h-full overflow-clip rounded-md",
+                "variant-scope card-transparent h-full overflow-clip rounded-md",
                 // Every pane is a query container, NAMED so nested containers in
                 // pane content stay unambiguous: `@[800px]/pane:` asks about the
                 // pane's own width. That is the only correct question for a pane
