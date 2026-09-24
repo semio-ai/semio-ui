@@ -38,47 +38,54 @@ export function Example() {
 }
 ```
 
-### Playback speed icons
+### Icons
 
-`Icon` resolves `playback-0.1`, `playback-0.5`, `playback-1.0`,
-`playback-1.5`, and `playback-2.0` from the default registry.
-The corresponding `Playback01x`, `Playback05x`, `Playback10x`, `Playback15x`,
-and `Playback20x` exports accept Solar `IconProps` (`size`, `color`, `alt`,
-`mirrored`, SVG attributes, and a forwarded ref), with an 18px default size.
-The decimal dot inherits `currentColor`, and the multiplication mark uses 50% opacity.
+`<Icon name>` resolves a key through the nearest `IconProvider`, falling back to
+`defaultIconRegistry`. There are two kinds of key:
 
-### Icon styling
+- **Role keys** name what an icon does — `close`, `retry`, `disclosure-open`,
+  `mute` (an action) versus `state-muted` (a state). `@semio/ui`'s own components
+  reference only roles, so a role is the seam for re-skinning a behaviour
+  everywhere at once.
+- **Glyph keys** name the picture — `home`, `robot`, `playback-1.5`. A glyph key
+  kept for compatibility is marked `@deprecated` with the role to use instead.
 
-Approved stock glyphs live in `src/icons/registry/solar.tsx`; semantic roles
-remain in `roles.ts`. Both `sidebar-toggle` and `chevron-right-pipe` resolve to
-the same glyph: an opaque chevron and a half-opacity bar. The role key lets
-consumers override sidebar behavior independently of generic glyph use.
+**Three layers, one owner per key.** This package's default registry is the base
+layer: Semio's own glyphs (`src/icons/`, collected into `semio.generated.ts` by
+`npm run generate:icons`), stock Solar glyphs (`registry/solar.tsx`), the
+semantic roles (`registry/roles.ts`), and a curated Tabler fallback set
+(`tabler.generated.ts`). `@semio/animation` adds editor, playback, data and unit
+keys; Studio adds application keys. No key is defined in two places across the
+three layers — tests fail on a duplicate — so a shared decision is changed in the
+layer that owns it, and every consumer inherits it without an override.
 
-Custom affordances use an 18px default on a 24-unit canvas with 1.5-unit strokes.
-The vector family retains its 32-unit geometry and uses equivalent 2-unit
-strokes. `IconHandleIndicator` retains its own stateful geometry and styling.
-Data-vector axes use half opacity; data points remain opaque. File drop targets
-use a downward incoming-file cue; export/download actions have separate keys.
+**Overriding.** Pass replacements to `IconProvider`; nested providers merge over
+their parent unless `extend={false}`:
 
-The `robot`, `folder-closed`, `folder-open`, `box-plus`, and `hand` keys use supplied
-SVG artwork with its original geometry, transforms, and opacity. Their black
-paints inherit `currentColor`; all accept the shared Solar props and default to 18px.
+```tsx
+<IconProvider registry={{ retry: MyRetryGlyph }}>{children}</IconProvider>
+```
 
-Reviewed user, moon, sun/moon, and replacement glyphs preserve the supplied SVG
-artwork. Selection, nested lists, and bare percent marks use the shared Solar
-conventions; graph and vertical-layout glyphs retain their custom geometry.
+A replacement must accept `className` and any state props its key is rendered
+with (`DisclosureIcon` passes `open`, for example). Register app-specific keys
+through `IconRegistryKeys` augmentation so `<Icon name>` type-checks them.
 
-Vertex and Bézier glyphs keep their geometry with Solar-equivalent strokes and 18px defaults. Disclosure states share one AltArrowDown component to preserve rotation. Sidebar open/close, PanelsTopLeft, and VideocameraOff use vendored Solar LineDuotone SVGs.
+**Glyph conventions.** Glyphs draw on a 24-unit canvas with 1.5-unit strokes (the
+vector family keeps its 32-unit geometry with 2-unit strokes), default to 18px,
+paint with `currentColor`, and use 50% opacity for secondary strokes. Every glyph
+accepts `size`, `color`, `alt`, `mirrored`, SVG attributes and a forwarded ref.
+`createSolarIcon` wraps a Solar component with the same sizing and an optional
+presentation class (`icon-duotone-inverted` swaps a duotone glyph's two tones).
 
-Built-in registry maps have disjoint keys. The generator omits Tabler fallbacks
-when UI supplies a custom or Solar glyph. Shared Solar sizing and duotone styling
-ship with UI; downstream packages add semantic keys without replacing UI choices.
+**Artwork and attribution.** Solar artwork is by 480 Design under CC BY 4.0, and
+the `@solar-icons/react-perf` components that render it are MIT. That package is
+a dependency: external in the ESM build, and bundled into the CommonJS build
+because it ships as ESM only. Tabler (MIT) is an external dependency, and a few
+Tabler shapes are vendored into Semio glyphs. `NOTICE` in this package carries
+the attributions, the permission texts, and the list of vendored glyphs.
 
-Semantic icons use explicit action/state roles (for example, `mute` and
-`state-muted`) and shared placeholder roles. Visual compatibility keys carry
-deprecation annotations in the generated registry. See
-[the registry guide](docs/icon-registry.md#semantic-roles-and-compatibility-glyphs).
-
+See [the registry guide](docs/icon-registry.md) for resolution, composition and
+naming in detail.
 
 ### Nominal enums
 

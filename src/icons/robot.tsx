@@ -1,4 +1,4 @@
-import type { IconProps } from "@solar-icons/react-perf";
+import type { GlyphProps as IconProps } from "./_internal/glyph-props";
 import { createGlyph } from "./_internal/create-glyph";
 
 export type IconRobotProps = IconProps;

@@ -10,3 +10,4 @@ export { KeyIcon, type KeyIconProps } from "./key-icon";
 export type { IconComponent, IconRegistry, IconRegistryKeys } from "./types";
 
 export { createSolarIcon } from "./solar-glyph";
+export type { GlyphProps } from "../_internal/glyph-props";

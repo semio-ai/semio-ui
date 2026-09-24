@@ -93,7 +93,6 @@ export * from "./icons/player-play";
 export * from "./icons/player-play2";
 export * from "./icons/preview-view";
 export * from "./icons/project";
-export * from "./icons/registry";
 export * from "./icons/replace";
 export * from "./icons/robot";
 export * from "./icons/robot-plus";
@@ -133,6 +132,7 @@ export * from "./icons/videocamera-off";
 export * from "./icons/world-element-icons";
 
 // Icon registry (context-based `<Icon name>` + IconProvider)
+export * from "./icons/registry";
 
 // Inputs
 export * from "./inputs/autocomplete";

@@ -1,5 +1,5 @@
 import { forwardRef, type ReactNode } from "react";
-import type { IconProps } from "@solar-icons/react-perf";
+import type { GlyphProps as IconProps } from "./glyph-props";
 
 /** Shared 24-unit canvas for Semio's Solar-style glyphs. */
 export function createGlyph(name: string, artwork: ReactNode) {

@@ -1,6 +1,6 @@
 import { forwardRef, type ForwardedRef } from "react";
-import { type IconProps } from "@solar-icons/react-perf";
 import { clsx } from "clsx";
+import type { GlyphProps as IconProps } from "./_internal/glyph-props";
 
 export interface IconVertexFreeProps extends IconProps {
   className?: string;

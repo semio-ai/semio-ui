@@ -40,10 +40,12 @@ export default defineConfig({
   // appears when a subpath is NEW, so it lands on whoever adds one and looks like
   // their bug; and a warm cache hides it completely, so it survives a green local run.
   //
-  // ⚠ Add to this list when importing a `@base-ui/react` subpath the package has not
-  // used before. The studio app keeps the same list for the same reason.
+  // ⚠ Add to this list when importing a dependency, or a `@base-ui/react` or
+  // `@solar-icons/react-perf` subpath, the package has not used before. The studio
+  // app keeps the same list for the same reason.
   optimizeDeps: {
     include: [
+      "@tabler/icons-react",
       "@solar-icons/react-perf/Bold",
       "@solar-icons/react-perf/Linear",
       "@solar-icons/react-perf/LineDuotone",

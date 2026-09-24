@@ -35,7 +35,8 @@ export function Collapse({
         {direction === "horizontal" ? (
           // Directional variant: horizontal collapse points its chevron left, so it
           // keeps its own glyph rather than the (downward) `disclosure` role.
-          <Icon name="pane-collapse"
+          <Icon
+            name="pane-collapse"
             className={clsx("h-5 w-5 transition-transform", open ? "rotate-0" : "-rotate-90")}
           />
         ) : (

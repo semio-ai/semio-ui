@@ -39,9 +39,9 @@ export const solarIconRegistry = {
   "shopping-bag": solar(Bag),
   /** @deprecated Use pane-placeholder or action-placeholder. */
   square: solar(Stop),
-  /** @deprecated Use back, previous-page, or pane-collapse. */
+  /** @deprecated Use back or pane-collapse. */
   "chevron-left": solar(AltArrowLeft),
-  /** @deprecated Use drill-in or next-page. */
+  /** @deprecated Use forward, drill-in, or submenu. */
   "chevron-right": solar(AltArrowRight),
   /** @deprecated Use sort-descending. */
   "arrow-down": solar(ArrowDown),
