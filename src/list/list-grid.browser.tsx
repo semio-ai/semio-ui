@@ -1,6 +1,6 @@
 import { expect, test, vi } from "vitest";
 import { render } from "vitest-browser-react";
-import { userEvent } from "@vitest/browser/context";
+import { userEvent } from "vitest/browser";
 import { Variant } from "../types";
 import { defaultResolveRowVisual } from "../tree/resolve-row-visual";
 import { ListGrid, type ListColumn } from "./list-grid";
@@ -33,8 +33,8 @@ const rows = () =>
   );
 const sorted = (s: Set<string>) => [...s].sort((a, b) => a.localeCompare(b));
 
-test("renders one row per datum with its cell content", () => {
-  render(
+test("renders one row per datum with its cell content", async () => {
+  await render(
     <ListGrid
       data={ROWS}
       getRowId={(r) => r.id}
@@ -48,7 +48,7 @@ test("renders one row per datum with its cell content", () => {
 
 test("single-select: clicking a row selects exactly it and sets aria-selected", async () => {
   const onSelectionChange = vi.fn();
-  render(
+  await render(
     <ListGrid
       data={ROWS}
       getRowId={(r) => r.id}
@@ -65,7 +65,7 @@ test("single-select: clicking a row selects exactly it and sets aria-selected", 
 
 test("multiple: Cmd+click toggles, Shift+click replaces with the range", async () => {
   const onSelectionChange = vi.fn();
-  render(
+  await render(
     <ListGrid
       data={ROWS}
       getRowId={(r) => r.id}
@@ -89,7 +89,7 @@ test("multiple: Cmd+click toggles, Shift+click replaces with the range", async (
 
 test("multiple: Shift+ArrowDown extends selection by roving (focus must advance)", async () => {
   const onSelectionChange = vi.fn();
-  render(
+  await render(
     <ListGrid
       data={ROWS}
       getRowId={(r) => r.id}
@@ -109,7 +109,7 @@ test("multiple: Shift+ArrowDown extends selection by roving (focus must advance)
 
 test("Cmd+ArrowDown moves roving focus without changing selection", async () => {
   const onSelectionChange = vi.fn();
-  render(
+  await render(
     <ListGrid
       data={ROWS}
       getRowId={(r) => r.id}
@@ -126,8 +126,8 @@ test("Cmd+ArrowDown moves roving focus without changing selection", async () => 
   expect(options()[1].getAttribute("tabindex")).toBe("0"); // focus moved to b
 });
 
-test("first row disabled: the initial roving tab-stop is the first enabled row", () => {
-  render(
+test("first row disabled: the initial roving tab-stop is the first enabled row", async () => {
+  await render(
     <ListGrid
       data={ROWS}
       getRowId={(r) => r.id}
@@ -145,7 +145,7 @@ test("first row disabled: the initial roving tab-stop is the first enabled row",
 
 test("selection follows focus: ArrowDown moves selection to the next row (single)", async () => {
   const onSelectionChange = vi.fn();
-  render(
+  await render(
     <ListGrid
       data={ROWS}
       getRowId={(r) => r.id}
@@ -162,7 +162,7 @@ test("selection follows focus: ArrowDown moves selection to the next row (single
 
 test("multiple: Shift+Home / Shift+End extend the range to each edge from the anchor", async () => {
   const onSelectionChange = vi.fn();
-  render(
+  await render(
     <ListGrid
       data={ROWS}
       getRowId={(r) => r.id}
@@ -181,7 +181,7 @@ test("multiple: Shift+Home / Shift+End extend the range to each edge from the an
 
 test("loop: ArrowUp from the first row wraps to the last (selection follows)", async () => {
   const onSelectionChange = vi.fn();
-  render(
+  await render(
     <ListGrid
       data={ROWS}
       getRowId={(r) => r.id}
@@ -200,7 +200,7 @@ test("loop: ArrowUp from the first row wraps to the last (selection follows)", a
 
 test("controlled: without a parent update, clicking does not drift the rendered selection", async () => {
   const onSelectionChange = vi.fn();
-  render(
+  await render(
     <ListGrid
       data={ROWS}
       getRowId={(r) => r.id}
@@ -218,12 +218,12 @@ test("controlled: without a parent update, clicking does not drift the rendered 
   expect(options()[0].getAttribute("aria-selected")).toBe("false");
 });
 
-test("hideBelow emits the container-query class on the header and every body cell", () => {
+test("hideBelow emits the container-query class on the header and every body cell", async () => {
   const columns: ListColumn<Row>[] = [
     { key: "name", header: "Name", flex: true, render: (r) => <span>{r.name}</span> },
     { key: "kind", header: "Kind", hideBelow: "sm", render: () => <span>kind</span> },
   ];
-  render(
+  await render(
     <ListGrid
       data={ROWS}
       getRowId={(r) => r.id}
@@ -237,9 +237,9 @@ test("hideBelow emits the container-query class on the header and every body cel
   expect(hidden.length).toBe(ROWS.length + 1);
 });
 
-test("all rows disabled: nothing is selectable and there is no crash", () => {
+test("all rows disabled: nothing is selectable and there is no crash", async () => {
   const onSelectionChange = vi.fn();
-  render(
+  await render(
     <ListGrid
       data={ROWS}
       getRowId={(r) => r.id}
@@ -258,7 +258,7 @@ test("all rows disabled: nothing is selectable and there is no crash", () => {
 
 test("none mode: click fires onAction and selects nothing", async () => {
   const onAction = vi.fn();
-  render(
+  await render(
     <ListGrid
       data={ROWS}
       getRowId={(r) => r.id}
@@ -278,7 +278,7 @@ test("multiple: clicking the header select-all toggles all rows on, then off", a
   const withHeader: ListColumn<Row>[] = [
     { key: "name", header: "Name", flex: true, render: (r) => <span>{r.name}</span> },
   ];
-  render(
+  await render(
     <ListGrid
       data={ROWS}
       getRowId={(r) => r.id}
@@ -298,7 +298,7 @@ test("multiple: clicking the header select-all toggles all rows on, then off", a
 
 test("multiple: Cmd+A selects all, Escape clears", async () => {
   const onSelectionChange = vi.fn();
-  render(
+  await render(
     <ListGrid
       data={ROWS}
       getRowId={(r) => r.id}
@@ -316,7 +316,7 @@ test("multiple: Cmd+A selects all, Escape clears", async () => {
 });
 
 test("type-ahead moves roving focus to the row whose search text matches", async () => {
-  render(
+  await render(
     <ListGrid
       data={ROWS}
       getRowId={(r) => r.id}
@@ -332,13 +332,13 @@ test("type-ahead moves roving focus to the row whose search text matches", async
   expect(cherry.getAttribute("tabindex")).toBe("0");
 });
 
-test("per-row visual: each row applies its own variant / custom-color", () => {
+test("per-row visual: each row applies its own variant / custom-color", async () => {
   const resolveVisual = (state: Parameters<typeof defaultResolveRowVisual>[0], row: Row) => ({
     ...defaultResolveRowVisual(state, row),
     ...(row.id === "a" ? { color: "rgb(48, 164, 108)" } : {}),
     ...(row.id === "b" ? { variant: Variant.Success } : {}),
   });
-  render(
+  await render(
     <ListGrid
       data={ROWS}
       getRowId={(r) => r.id}
@@ -360,7 +360,7 @@ test("multiple + disallowEmptySelection: header select-all never empties the sel
   const withHeader: ListColumn<Row>[] = [
     { key: "name", header: "Name", flex: true, render: (r) => <span>{r.name}</span> },
   ];
-  render(
+  await render(
     <ListGrid
       data={ROWS}
       getRowId={(r) => r.id}
@@ -378,7 +378,7 @@ test("multiple + disallowEmptySelection: header select-all never empties the sel
 
 test("deselectOnClickAway: clicking outside the list clears the selection", async () => {
   const onSelectionChange = vi.fn();
-  render(
+  await render(
     <div>
       <ListGrid
         data={ROWS}
@@ -401,7 +401,7 @@ test("deselectOnClickAway: clicking outside the list clears the selection", asyn
 
 test("isRowDisabled: disabled rows are aria-disabled, unclickable, and skipped by roving", async () => {
   const onSelectionChange = vi.fn();
-  render(
+  await render(
     <ListGrid
       data={ROWS}
       getRowId={(r) => r.id}
@@ -428,7 +428,7 @@ test("isRowDisabled: disabled rows are aria-disabled, unclickable, and skipped b
 
 test("none mode: ArrowDown roves focus without selecting", async () => {
   const onSelectionChange = vi.fn();
-  render(
+  await render(
     <ListGrid
       data={ROWS}
       getRowId={(r) => r.id}
@@ -460,7 +460,7 @@ test("clicking an in-row button does not select the row", async () => {
       ),
     },
   ];
-  render(
+  await render(
     <ListGrid
       data={ROWS}
       getRowId={(r) => r.id}
@@ -478,7 +478,7 @@ test("clicking an in-row button does not select the row", async () => {
 test("single: one click selects, a second click opens without clearing the selection", async () => {
   const onItemDoubleClick = vi.fn();
   const onSelectionChange = vi.fn();
-  render(
+  await render(
     <ListGrid
       data={ROWS}
       getRowId={(r) => r.id}
@@ -511,7 +511,7 @@ test("double-click on an in-row control belongs to the control, not the row", as
       ),
     },
   ];
-  render(
+  await render(
     <ListGrid
       data={ROWS}
       getRowId={(r) => r.id}
@@ -527,9 +527,9 @@ test("double-click on an in-row control belongs to the control, not the row", as
   expect(onItemDoubleClick).not.toHaveBeenCalled();
 });
 
-test("double-click does nothing on a disabled row", () => {
+test("double-click does nothing on a disabled row", async () => {
   const onItemDoubleClick = vi.fn();
-  render(
+  await render(
     <ListGrid
       data={ROWS}
       getRowId={(r) => r.id}
@@ -548,7 +548,7 @@ test("double-click does nothing on a disabled row", () => {
 
 test("without the handler, a double-click is just two clicks", async () => {
   const onAction = vi.fn();
-  render(
+  await render(
     <ListGrid
       data={ROWS}
       getRowId={(r) => r.id}
@@ -577,8 +577,8 @@ test("without the handler, a double-click is just two clicks", async () => {
 // pass vacuously. Loading the real sheet just to check a shade would also pin the
 // palette; the class-presence form survives a repalette, which is what the claim
 // is actually about.
-test("a row declares its own text color rather than inheriting from its host", () => {
-  render(<ListGrid data={ROWS} getRowId={(r) => r.id} columns={NAME_COL} ariaLabel="l" />);
+test("a row declares its own text color rather than inheriting from its host", async () => {
+  await render(<ListGrid data={ROWS} getRowId={(r) => r.id} columns={NAME_COL} ariaLabel="l" />);
   // `role="row"` sits on the focus wrapper; `ListRow`'s own root is the element
   // inside it carrying `variant-scope`.
   const rowRoot = rows()[0]?.querySelector<HTMLElement>(".variant-scope");

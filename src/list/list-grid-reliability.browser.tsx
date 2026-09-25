@@ -1,6 +1,6 @@
 import { expect, test, vi } from "vitest";
 import { render } from "vitest-browser-react";
-import { userEvent } from "@vitest/browser/context";
+import { userEvent } from "vitest/browser";
 import { ListGrid, type ListColumn } from "./list-grid";
 
 // Text editing inside a row must survive the list: ListGrid must never steal
@@ -28,7 +28,7 @@ const editInput = (id: string) =>
   document.querySelector<HTMLInputElement>(`input[aria-label="edit-${id}"]`)!;
 
 test("in-row input keeps focus AND typed value across a realtime re-render", async () => {
-  const view = render(
+  const view = await render(
     <ListGrid data={ROWS} getRowId={(r) => r.id} columns={withInput} selectionMode="single" ariaLabel="l" />,
   );
   const input = editInput("b");
@@ -39,7 +39,7 @@ test("in-row input keeps focus AND typed value across a realtime re-render", asy
 
   // Simulate a realtime data update: a fresh data array (new object identities,
   // same ids), as a live subscription would push mid-edit.
-  view.rerender(
+  await view.rerender(
     <ListGrid
       data={ROWS.map((r) => ({ ...r }))}
       getRowId={(r) => r.id}
@@ -57,7 +57,7 @@ test("in-row input keeps focus AND typed value across a realtime re-render", asy
 
 test("keys typed in an in-row input do not trigger list navigation or selection", async () => {
   const onSelectionChange = vi.fn();
-  render(
+  await render(
     <ListGrid
       data={ROWS}
       getRowId={(r) => r.id}

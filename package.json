@@ -93,7 +93,7 @@
     "@types/react-dom": "^19.1.0",
     "@types/three": "^0.170.0",
     "@vitejs/plugin-react": "^4.2.1",
-    "@vitest/browser": "^3.2.6",
+    "@vitest/browser-playwright": "^5.0.1",
     "autoprefixer": "^10.4.19",
     "playwright": "^1.60.0",
     "postcss": "^8.5.10",
@@ -101,8 +101,8 @@
     "react-dom": "^19.1.0",
     "tsup": "^8.0.1",
     "typescript": "^5.3.3",
-    "vitest": "^3.2.4",
-    "vitest-browser-react": "^1.0.1"
+    "vitest": "^5.0.1",
+    "vitest-browser-react": "^2.3.0"
   },
   "publishConfig": {
     "access": "public"

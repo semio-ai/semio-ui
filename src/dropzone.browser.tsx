@@ -37,8 +37,8 @@ const rows = () =>
     row.querySelector('[role="gridcell"]'),
   );
 
-test("renders one row per datum, with every column's cell", () => {
-  render(<Dropzone onDrop={() => {}} data={ROWS} getRowId={(r) => r.id} columns={COLUMNS} />);
+test("renders one row per datum, with every column's cell", async () => {
+  await render(<Dropzone onDrop={() => {}} data={ROWS} getRowId={(r) => r.id} columns={COLUMNS} />);
 
   const cells = rows().map((r) =>
     [...r.querySelectorAll("span")].map((s) => s.textContent).join("|"),
@@ -46,8 +46,8 @@ test("renders one row per datum, with every column's cell", () => {
   expect(cells).toEqual(["first.urdf|found", "second.dae|missing"]);
 });
 
-test("an empty list shows the drop prompt instead of a grid", () => {
-  render(
+test("an empty list shows the drop prompt instead of a grid", async () => {
+  await render(
     <Dropzone
       onDrop={() => {}}
       data={[]}
@@ -61,10 +61,10 @@ test("an empty list shows the drop prompt instead of a grid", () => {
   expect(document.body.textContent).toContain("Drop a file");
 });
 
-test("rows are identified by `getRowId`, not by a field named `key`", () => {
+test("rows are identified by `getRowId`, not by a field named `key`", async () => {
   // The old engine required rows to carry `key`; nothing does now, so a datum with no
   // such field has to list correctly rather than collapse to one row.
-  render(
+  await render(
     <Dropzone
       onDrop={() => {}}
       data={ROWS}

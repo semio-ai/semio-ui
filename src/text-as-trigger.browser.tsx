@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { page } from "@vitest/browser/context";
+import { page } from "vitest/browser";
 import { render } from "vitest-browser-react";
 // The real compiled stylesheet: the role classes are what these tests read back off the
 // trigger, and without it every `text-role-*` class is inert.
@@ -50,7 +50,7 @@ const settle = async () => {
 };
 
 test("a Tooltip handed Text directly opens", async () => {
-  render(
+  await render(
     <Tooltip content={REASON}>
       <Text role={TextRole.Note}>Quori</Text>
     </Tooltip>,
@@ -60,12 +60,12 @@ test("a Tooltip handed Text directly opens", async () => {
   await expect.element(page.getByText(REASON)).toBeVisible();
 });
 
-test("and the trigger keeps its role class, so the paint is not the price of the tooltip", () => {
+test("and the trigger keeps its role class, so the paint is not the price of the tooltip", async () => {
   // Radix merges its own `className` into the child's. The role is the FIRST class `Text`
   // emits and the caller's `className` the last, so a merge that replaced rather than
   // appended would leave the text unstyled while the tooltip worked — the opposite
   // trade, and just as quiet.
-  render(
+  await render(
     <Tooltip content={REASON}>
       <Text role={TextRole.Note} className="truncate">
         Quori
@@ -94,7 +94,7 @@ function SwallowsEverything(_: Record<string, unknown>) {
 }
 
 test("a child that forwards nothing does not open one — the control", async () => {
-  render(
+  await render(
     <Tooltip content={REASON}>
       <SwallowsEverything />
     </Tooltip>,

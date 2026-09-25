@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { page } from "@vitest/browser/context";
+import { page } from "vitest/browser";
 import { render } from "vitest-browser-react";
 // The real compiled stylesheet. Required here because one of these tests asserts a
 // COLOUR: without it every Tailwind class in the components is inert and both the
@@ -36,7 +36,7 @@ const settle = async () => {
 };
 
 test("a disabled Select does not open its menu when clicked", async () => {
-  render(
+  await render(
     <Select
       value="viewer"
       onChange={() => undefined}
@@ -61,7 +61,7 @@ test("a disabled Select does not open its menu when clicked", async () => {
 });
 
 test("an enabled Select does open — the same click, to show the test can tell", async () => {
-  render(
+  await render(
     <Select
       value="viewer"
       onChange={() => undefined}
@@ -87,7 +87,7 @@ test("the disabled trigger's LABEL dims, not just its container", async () => {
   //
   // Asserted as "differs from the enabled case" rather than against a literal colour, so
   // it survives a change to the palette and still fails if the dim stops reaching the text.
-  const disabled = render(
+  const disabled = await render(
     <Select
       value="viewer"
       onChange={() => undefined}
@@ -105,9 +105,9 @@ test("the disabled trigger's LABEL dims, not just its container", async () => {
     return getComputedStyle(span.parentElement).color;
   };
   const disabledColor = labelOf(disabled.container);
-  disabled.unmount();
+  await disabled.unmount();
 
-  const enabled = render(
+  const enabled = await render(
     <Select
       value="viewer"
       onChange={() => undefined}
@@ -132,7 +132,7 @@ test("a disabled trigger still fires a Tooltip over it", async () => {
   // passing it directly drops them and the tooltip never opens — silently, with a control
   // that still looks right. This test was written asserting the direct form and failed,
   // which is how the requirement was found.
-  render(
+  await render(
     <Tooltip content={REASON}>
       <span className="inline-flex">
         <Select
@@ -156,7 +156,7 @@ test("a Tooltip handed the Select directly does not open — the trap, pinned", 
   // Pinned deliberately. If `Select` later forwards a ref and spreads unknown props, this
   // test flips to failing, which is the signal to delete it and the wrapper guidance with
   // it. Better that than the guidance quietly outliving the reason for it.
-  render(
+  await render(
     <Tooltip content={REASON}>
       <Select
         value="viewer"

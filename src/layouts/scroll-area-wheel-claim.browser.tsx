@@ -1,6 +1,6 @@
 import { expect, test } from "vitest";
 import { render, cleanup } from "vitest-browser-react";
-import { page, userEvent } from "@vitest/browser/context";
+import { page, userEvent } from "vitest/browser";
 import { useEffect, useRef } from "react";
 import { ScrollArea } from "./scroll-area";
 import "../test-stylesheet";
@@ -45,7 +45,7 @@ async function wheelOverGutter(capture: boolean) {
       </div>
     );
   }
-  render(<Harness />);
+  await render(<Harness />);
   await userEvent.hover(page.getByText("tall"));
   const viewport = document.querySelector<HTMLElement>("[data-scroll-area-viewport]")!;
   await expect
@@ -56,7 +56,7 @@ async function wheelOverGutter(capture: boolean) {
   gutter.dispatchEvent(new WheelEvent("wheel", { bubbles: true, cancelable: true, deltaY: 120 }));
   await new Promise((resolve) => setTimeout(resolve, 150));
   const moved = viewport.scrollTop;
-  cleanup();
+  await cleanup();
   return moved;
 }
 

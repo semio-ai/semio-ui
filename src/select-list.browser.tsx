@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { expect, test, vi } from "vitest";
 import { render } from "vitest-browser-react";
-import { userEvent } from "@vitest/browser/context";
+import { userEvent } from "vitest/browser";
 import "./test-stylesheet";
 import { Size } from "./types";
 import { SelectList } from "./select-list";
@@ -74,22 +74,24 @@ function Controlled({
   );
 }
 
-test("the option label scales with `size`", () => {
+test("the option label scales with `size`", async () => {
   // `sized-text` resolves against a `size-*` class on the SAME element, so a label that
   // relies on the row's size class silently renders at the unsized default at EVERY
   // size. Xs and Lg sit either side of that default, so neither assertion can pass by
   // accident.
-  const xs = render(<SelectList size={Size.Xs} value="a" onChange={() => {}} options={OPTIONS} />);
+  const xs = await render(
+    <SelectList size={Size.Xs} value="a" onChange={() => {}} options={OPTIONS} />,
+  );
   expect(getComputedStyle(labelOf(options()[0])).fontSize).toBe("9.6px"); // 0.6rem
-  xs.unmount();
+  await xs.unmount();
 
-  render(<SelectList size={Size.Lg} value="a" onChange={() => {}} options={OPTIONS} />);
+  await render(<SelectList size={Size.Lg} value="a" onChange={() => {}} options={OPTIONS} />);
   expect(getComputedStyle(labelOf(options()[0])).fontSize).toBe("20px"); // --text-xl, 1.25rem
 });
 
 test("choosing an option reports its value and marks it selected", async () => {
   const onChange = vi.fn();
-  render(<Controlled options={OPTIONS} onChange={onChange} />);
+  await render(<Controlled options={OPTIONS} onChange={onChange} />);
 
   click(options()[1]);
 
@@ -102,7 +104,7 @@ test("choosing an option reports its value and marks it selected", async () => {
 
 test("a disabled option is dimmed, is not selectable, and does not tint on hover", async () => {
   const onChange = vi.fn();
-  render(
+  await render(
     <Controlled options={[OPTIONS[0], { ...OPTIONS[1], disabled: true }]} onChange={onChange} />,
   );
 

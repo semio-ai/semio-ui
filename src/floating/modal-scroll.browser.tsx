@@ -1,6 +1,6 @@
 import { expect, test } from "vitest";
 import { render } from "vitest-browser-react";
-import { page } from "@vitest/browser/context";
+import { page } from "vitest/browser";
 import { Modal } from "./modal";
 // The real compiled stylesheet: the claim is about layout, and without it the popup's
 // sizing classes do not exist and every box collapses to content size.
@@ -24,7 +24,7 @@ import "../test-stylesheet";
  */
 test("a modal taller than its popup can be scrolled to the end of its content", async () => {
   await page.viewport(1280, 800);
-  render(
+  await render(
     <Modal
       open
       title="Tall"

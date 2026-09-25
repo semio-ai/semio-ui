@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { expect, test } from "vitest";
 import { render } from "vitest-browser-react";
-import { page, userEvent } from "@vitest/browser/context";
+import { page, userEvent } from "vitest/browser";
 import type { RectReadOnly } from "react-use-measure";
 import { PaneRegion } from "../../types";
 import { useLayoutActions } from "../../hooks/use-layout-actions";
@@ -133,7 +133,7 @@ function Probe(bounds: RectReadOnly, contentVisible: boolean) {
 
 test("an expanded pane spans over the content instead of collapsing its track", async () => {
   await page.viewport(DESKTOP.width, DESKTOP.height);
-  render(
+  await render(
     <>
       <PaneHarness />
       <LayoutRoot>{Probe}</LayoutRoot>
@@ -206,7 +206,7 @@ test("an expanded pane spans over the content instead of collapsing its track", 
 
 test("closing an expanded pane ends the expansion rather than storing it", async () => {
   await page.viewport(DESKTOP.width, DESKTOP.height);
-  render(
+  await render(
     <>
       <PaneHarness />
       <LayoutRoot>{Probe}</LayoutRoot>

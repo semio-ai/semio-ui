@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { expect, test } from "vitest";
 import { render } from "vitest-browser-react";
-import { page, userEvent } from "@vitest/browser/context";
+import { page, userEvent } from "vitest/browser";
 import { PaneRegion } from "../../types";
 import { useLayoutActions } from "../../hooks/use-layout-actions";
 import { usePanes } from "../../hooks/layout-atoms";
@@ -109,7 +109,7 @@ function renderLayout() {
 
 test("below the breakpoint, both side regions share one row and stack", async () => {
   await page.viewport(MOBILE.width, MOBILE.height);
-  renderLayout();
+  await renderLayout();
 
   // No per-region tracks at this width; one shared row instead.
   expect(document.querySelector(".grid-area-left")).toBeNull();
@@ -153,7 +153,7 @@ test("below the breakpoint, both side regions share one row and stack", async ()
 
 test("with both regions open, the toggle of a covered pane brings it forward", async () => {
   await page.viewport(MOBILE.width, MOBILE.height);
-  renderLayout();
+  await renderLayout();
 
   // Opened in the opposite order to the test above: whichever went last is on top,
   // so neither region outranks the other.
@@ -177,7 +177,7 @@ test("with both regions open, the toggle of a covered pane brings it forward", a
 
 test("in the shared row, a collapsed pane stops showing but stays mounted", async () => {
   await page.viewport(MOBILE.width, MOBILE.height);
-  renderLayout();
+  await renderLayout();
 
   await userEvent.click(page.getByRole("button", { name: "toggle left" }));
   await expect.poll(sidePanes).toEqual({ ids: ["left-pane"], showing: "left-pane" });
@@ -212,7 +212,7 @@ test("in the shared row, a collapsed pane stops showing but stays mounted", asyn
 
 test("above the breakpoint, the same panes dock concurrently", async () => {
   await page.viewport(DESKTOP.width, DESKTOP.height);
-  renderLayout();
+  await renderLayout();
 
   expect(document.querySelector(".grid-area-side")).toBeNull();
 

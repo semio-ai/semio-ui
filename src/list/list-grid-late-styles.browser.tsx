@@ -75,7 +75,7 @@ const waitFor = async (condition: () => boolean, timeoutMs = 2_000) => {
 };
 
 test("a row height that only settles once styles arrive is picked up", async () => {
-  const view = render(<Harness />);
+  const view = await render(<Harness />);
   await settle();
 
   const scroller = view.container.querySelector<HTMLElement>('[data-testid="scroller"]')!;

@@ -26,6 +26,14 @@ Import the compiled stylesheet once, at your app's entry point:
 
 ## Usage
 
+Browser tests run through `npm run test:browser:packages` from the repository
+root. They share Studio's [browser API and React lifecycle conventions](../../apps/studio/browser-tests/README.md#browser-apis-and-react-lifecycle),
+including awaited rendering/cleanup and explicit text-matching intent.
+Hover-sensitive tests must move the pointer to an explicit target inside or outside
+the component; React cleanup does not reset the browser's pointer position.
+For rest-state color measurements, move the pointer outside before mounting;
+a single animation frame does not guarantee that a hover transition has finished.
+
 ```tsx
 import { Button, Size, Variant } from "@semio/ui";
 

@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { page } from "@vitest/browser/context";
+import { page } from "vitest/browser";
 import { render, cleanup } from "vitest-browser-react";
 // The real compiled stylesheet, because every claim here is a measurement. Without
 // it the `sized-*` classes are inert and every glyph would report whatever the raw
@@ -110,7 +110,7 @@ test("a Button and a field render the same explicit glyph step at every size", a
   // Wide enough for the measured column: the default viewport clips it, and a
   // clipped number in the captured image is worse than no number.
   await page.viewport(760, 560);
-  render(<Matrix />);
+  await render(<Matrix />);
   await expect.element(page.getByTestId("scale-matrix")).toBeVisible();
 
   const measured = SCALE.map(({ label, px }) => ({
@@ -125,8 +125,8 @@ test("a Button and a field render the same explicit glyph step at every size", a
 
   // Second pass, so the captured image carries its own numbers rather than needing
   // the run output beside it. `cleanup` first: `render` mounts a NEW container.
-  cleanup();
-  render(
+  await cleanup();
+  await render(
     <Matrix
       notes={{
         ...Object.fromEntries(

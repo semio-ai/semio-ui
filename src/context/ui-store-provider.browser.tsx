@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { expect, test } from "vitest";
 import { render } from "vitest-browser-react";
-import { page } from "@vitest/browser/context";
+import { page } from "vitest/browser";
 import { PaneRegion } from "../types";
 import { useActionItems, useMenuState, usePanes } from "../hooks/layout-atoms";
 import { useLayoutActions } from "../hooks/use-layout-actions";
@@ -30,7 +30,7 @@ function PaneProbe({ paneId }: { paneId: string }) {
 }
 
 test("two providers register panes in stores that cannot see each other", async () => {
-  render(
+  await render(
     <>
       <UiStoreProvider>
         <PaneProbe paneId="alpha" />
@@ -61,7 +61,7 @@ function MenuProbe() {
 }
 
 test("the menu toggle reads back what it wrote", async () => {
-  render(
+  await render(
     <UiStoreProvider>
       <MenuProbe />
     </UiStoreProvider>,
@@ -90,7 +90,7 @@ function ActionItemsProbe() {
 }
 
 test("a merged registration keeps every item, not just the last", async () => {
-  render(
+  await render(
     <UiStoreProvider>
       <ActionItemsProbe />
     </UiStoreProvider>,
