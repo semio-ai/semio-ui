@@ -135,8 +135,18 @@ async function withTheme<T>(
   html.className = theme === "dark" ? "dark" : "";
   document.body.style.backgroundColor = theme === "dark" ? "#0a0a0a" : "#ffffff";
   const host = document.createElement("div");
+  const pointerTarget = document.createElement("div");
+  Object.assign(pointerTarget.style, {
+    position: "fixed",
+    right: "8px",
+    bottom: "8px",
+    width: "16px",
+    height: "16px",
+  });
   document.body.appendChild(host);
+  document.body.appendChild(pointerTarget);
   try {
+    await userEvent.hover(pointerTarget);
     const view = await render(<>{node}</>, { container: host });
     await new Promise((resolve) => requestAnimationFrame(() => resolve(null)));
     const result = read(document.body);
@@ -144,6 +154,7 @@ async function withTheme<T>(
     return result;
   } finally {
     host.remove();
+    pointerTarget.remove();
     html.className = previous;
     document.body.style.backgroundColor = "";
   }
@@ -163,6 +174,32 @@ const VARIANTS = [
 const AA_TEXT = 4.5;
 /** WCAG's bar for icons and other non-text content. */
 const AA_NON_TEXT = 3;
+
+test("rest-state measurements do not inherit hover from an earlier render", async () => {
+  const chip = (
+    <Chip variant={Variant.Secondary} size={Size.Md} icon="user" onDelete={() => undefined}>
+      Pose
+    </Chip>
+  );
+  const view = await render(chip);
+  await userEvent.hover(view.container.querySelector<HTMLElement>(".variant-responsive-bg")!);
+  await view.unmount();
+
+  const measured = await withTheme("light", chip, (root) => ({
+    hovered: root.querySelector(".variant-responsive-bg")!.matches(":hover"),
+    animations: root.querySelector(".variant-responsive-bg")!.getAnimations({ subtree: true })
+      .length,
+    slots: [...root.querySelectorAll<HTMLElement>(".variant-on-fill-slot")].map((slot) =>
+      measure(slot, "light"),
+    ),
+  }));
+  expect(measured.hovered).toBe(false);
+  expect(measured.animations).toBe(0);
+  expect(measured.slots).toHaveLength(2);
+  for (const slot of measured.slots) {
+    expect(slot.derived).toBeGreaterThanOrEqual(AA_NON_TEXT);
+  }
+});
 
 // Control for the measurement itself: pure black on pure white is 21:1 by definition,
 // so a broken colour parse shows up here rather than as a plausible wrong number

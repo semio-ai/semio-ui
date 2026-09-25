@@ -31,6 +31,8 @@ root. They share Studio's [browser API and React lifecycle conventions](../../ap
 including awaited rendering/cleanup and explicit text-matching intent.
 Hover-sensitive tests must move the pointer to an explicit target inside or outside
 the component; React cleanup does not reset the browser's pointer position.
+For rest-state color measurements, move the pointer outside before mounting;
+a single animation frame does not guarantee that a hover transition has finished.
 
 ```tsx
 import { Button, Size, Variant } from "@semio/ui";
