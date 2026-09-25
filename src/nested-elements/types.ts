@@ -68,6 +68,7 @@ export interface NestedColorPickerProps<T extends string | RawColor> {
  * @prop disabled: Whether the menu is disabled.
  * @prop onClick: The function to call when the item is clicked.
  * @prop closeOnSelect: Whether selecting the item closes the menu (defaults to true).
+ * @prop description: Why the item is disabled, shown as a TOOLTIP — see below.
  */
 export interface NestedItemProps {
   left?: IconValue;
@@ -77,6 +78,20 @@ export interface NestedItemProps {
   disabled?: boolean;
   onClick?: (event: MouseEvent) => void;
   closeOnSelect?: boolean;
+  /**
+   * Why this item is disabled, shown as a TOOLTIP on hover — the same contract as
+   * {@link NestedOption.description}.
+   *
+   * **A tooltip, not a second line in the item**, for the reason given there: an
+   * item that grows to hold prose stops matching the interactive rhythm of every
+   * other row, and the label stays the thing the item is always called, whether or
+   * not a reader ever hovers to find out why it is greyed out.
+   *
+   * Additive by construction: with no description the item renders byte-for-byte
+   * as before, because `Tooltip` short-circuits when disabled rather than wrapping
+   * the child in an armed trigger.
+   */
+  description?: string;
   /** Test ID for E2E targeting of portal-rendered dropdown items. */
   testId?: string;
 }
