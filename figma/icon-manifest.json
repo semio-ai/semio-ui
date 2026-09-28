@@ -1,7 +1,7 @@
 {
   "contract": "registry key == Figma component name (Icon/<key>) == code usage (<Icon name>)",
   "generatedFrom": "default + animation + studio (composed app set)",
-  "count": 332,
+  "count": 333,
   "icons": [
     {
       "key": "access-none",
@@ -854,6 +854,12 @@
       "source": "default",
       "figmaComponent": "Icon/navigation-menu",
       "code": "<Icon name=\"navigation-menu\" />"
+    },
+    {
+      "key": "needs-attention",
+      "source": "default",
+      "figmaComponent": "Icon/needs-attention",
+      "code": "<Icon name=\"needs-attention\" />"
     },
     {
       "key": "normalized",
