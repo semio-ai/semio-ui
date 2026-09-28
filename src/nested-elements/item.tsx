@@ -15,13 +15,14 @@ export function NestedItem({
   closeOnSelect = true,
   testId,
   description,
+  descriptionVariant,
 }: NestedItemProps) {
   const parent = useNestedParent();
 
   const ItemComponent = parent === NestedParent.Dropdown ? DropdownMenu.Item : ContextMenu.Item;
 
   return (
-    <Tooltip content={description} disabled={!description} side="right">
+    <Tooltip content={description} disabled={!description} side="right" variant={descriptionVariant}>
       <ItemComponent
         disabled={disabled}
         // Never while disabled, independent of `closeOnSelect`/pointer handling

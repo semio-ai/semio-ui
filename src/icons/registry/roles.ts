@@ -1,4 +1,4 @@
-import { Copy, SortByTime, SortByAlphabet } from "@solar-icons/react-perf/LineDuotone";
+import { Copy, Danger, SortByTime, SortByAlphabet } from "@solar-icons/react-perf/LineDuotone";
 import {
   IconCircle,
   IconSelector,
@@ -58,6 +58,7 @@ export const roleIconRegistry = {
   "status-success": IconCheck,
   "status-error": IconExclamationMark,
   "status-warning": IconExclamationMark,
+  "needs-attention": solar(Danger),
   "status-info": IconExclamationMark,
 
   // Roles may share artwork while remaining independently replaceable.

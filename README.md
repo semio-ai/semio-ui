@@ -67,6 +67,11 @@ keys; Studio adds application keys. No key is defined in two places across the
 three layers — tests fail on a duplicate — so a shared decision is changed in the
 layer that owns it, and every consumer inherits it without an override.
 
+The `needs-attention` semantic role uses Solar's Danger Line Duotone glyph for
+states that require a user's attention. Menu items can pair a trailing status
+icon with `description` and `descriptionVariant` to color the explanatory tooltip
+without changing the row's label or variant.
+
 **Overriding.** Pass replacements to `IconProvider`; nested providers merge over
 their parent unless `extend={false}`:
 

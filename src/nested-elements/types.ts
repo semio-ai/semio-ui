@@ -92,6 +92,8 @@ export interface NestedItemProps {
    * the child in an armed trigger.
    */
   description?: string;
+  /** Semantic color of the explanatory tooltip, independent of the row. */
+  descriptionVariant?: Variant;
   /** Test ID for E2E targeting of portal-rendered dropdown items. */
   testId?: string;
 }
