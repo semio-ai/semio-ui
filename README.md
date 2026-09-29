@@ -92,6 +92,10 @@ presentation class (`icon-duotone-inverted` swaps a duotone glyph's two tones).
 
 `ProgressStepper` presents numbered, non-interactive steps for state-driven flows;
 it marks the current step semantically and never offers navigation to a locked step.
+Completed, current, and incomplete steps default to the success, primary, and
+default variants, respectively; each variant can be configured independently.
+The current step keeps an offset outline so progress is recognizable without
+relying on the caption alone.
 
 **Artwork and attribution.** Solar artwork is by 480 Design under CC BY 4.0, and
 the `@solar-icons/react-perf` components that render it are MIT. That package is
