@@ -31,7 +31,9 @@ export function ImageInput({
 
   return (
     <AvatarPrimitive.Root
-      onClick={() => fileInputRef.current?.click?.()}
+      onClick={(event) => {
+        if (event.target !== fileInputRef.current) fileInputRef.current?.click();
+      }}
       onKeyDown={(event) => {
         if (event.key === "Enter" || event.key === " ") {
           event.preventDefault();
