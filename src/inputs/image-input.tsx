@@ -11,6 +11,7 @@ export interface ImageInputProps {
   variant?: Variant;
   className?: string;
   size?: Size;
+  ariaLabel?: string;
 }
 
 export function ImageInput({
@@ -20,6 +21,7 @@ export function ImageInput({
   fallback,
   size = Size.Md,
   className,
+  ariaLabel = "Update image",
 }: ImageInputProps) {
   const { localImageURL, handleChange } = useImageInput(onImageChange, src);
 
@@ -30,9 +32,19 @@ export function ImageInput({
   return (
     <AvatarPrimitive.Root
       onClick={() => fileInputRef.current?.click?.()}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          fileInputRef.current?.click();
+        }
+      }}
+      role="button"
+      tabIndex={0}
+      aria-label={ariaLabel}
       className={clsx(
         size,
         "sized-image-input group/image-input relative grid rounded-sm",
+        "focus-visible:outline-2 focus-visible:outline-offset-2",
         className,
       )}
     >

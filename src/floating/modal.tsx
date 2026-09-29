@@ -11,6 +11,8 @@ export interface ModalProps {
   title?: string | ReactNode;
   description?: string | ReactNode;
   headerBottom?: ReactNode;
+  /** Custom actions inside the standard divided footer. */
+  footer?: ReactNode;
   dismissDisabled?: boolean;
   submitDisabled?: boolean;
   submitText?: string;
@@ -42,6 +44,7 @@ export interface ModalProps {
    * - `"fit"` (default) — sized by its content, floored at `min-w-96`. Right for
    *   a confirmation or a couple of fields, where a fixed width would leave a
    *   short sentence stranded in a wide box.
+   * - `"medium"` — the sign-in surface's desktop width, up to 46.875rem.
    * - `"wide"` — the clamped width `SidebarModal` uses, `clamp(40rem, 80vw,
    *   72rem)`. Right for a form with sections and side-by-side fields, where
    *   `"fit"` collapses to the widest single control and everything wraps.
@@ -49,7 +52,7 @@ export interface ModalProps {
    * Deliberately opt-in rather than a new default: most modals here are the
    *  first kind, and widening them all would be a worse fit for each.
    */
-  size?: "fit" | "wide";
+  size?: "fit" | "medium" | "wide";
   /** Custom container for the dialog portal. Defaults to `document.body`. */
   portalContainer?: HTMLElement | null;
 }
@@ -100,6 +103,7 @@ export function Modal({
   title,
   description,
   headerBottom,
+  footer,
   dismissDisabled = false,
   submitDisabled,
   submitText = "Submit",
@@ -111,7 +115,7 @@ export function Modal({
   size = "fit",
   portalContainer,
 }: ModalProps) {
-  const showFooter = onSubmit || onCancel;
+  const showFooter = footer || onSubmit || onCancel;
   const showHeader = title || description;
   const submitButton = onSubmit && (
     <Button
@@ -174,7 +178,9 @@ export function Modal({
               // surfaces in the app agree about how wide "large" is.
               size === "wide"
                 ? "desktop:w-[clamp(40rem,80vw,72rem)]"
-                : "desktop:min-w-96 desktop:w-fit",
+                : size === "medium"
+                  ? "desktop:w-[min(75vw,46.875rem)]"
+                  : "desktop:min-w-96 desktop:w-fit",
               // Fade plus a short vertical slide, via base-ui's `data-starting-style` /
               // `data-ending-style` transition hooks.
               //
@@ -251,20 +257,21 @@ export function Modal({
               footer={
                 showFooter && (
                   <div className="flex justify-end gap-3 p-3 border-t border-neutral-500/15">
-                    {onCancel && (
-                      <Button
-                        tabIndex={0}
-                        variant={Variant.Default}
-                        onClick={(event) => {
-                          onCancel(event);
-                          onStateChange(false);
-                        }}
-                        disabled={dismissDisabled}
-                      >
-                        Cancel
-                      </Button>
-                    )}
-                    {submitButton}
+                    {footer ??
+                      (onCancel && (
+                        <Button
+                          tabIndex={0}
+                          variant={Variant.Default}
+                          onClick={(event) => {
+                            onCancel(event);
+                            onStateChange(false);
+                          }}
+                          disabled={dismissDisabled}
+                        >
+                          Cancel
+                        </Button>
+                      ))}
+                    {!footer && submitButton}
                   </div>
                 )
               }

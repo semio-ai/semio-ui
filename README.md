@@ -90,6 +90,9 @@ accepts `size`, `color`, `alt`, `mirrored`, SVG attributes and a forwarded ref.
 `createSolarIcon` wraps a Solar component with the same sizing and an optional
 presentation class (`icon-duotone-inverted` swaps a duotone glyph's two tones).
 
+`ProgressStepper` presents numbered, non-interactive steps for state-driven flows;
+it marks the current step semantically and never offers navigation to a locked step.
+
 **Artwork and attribution.** Solar artwork is by 480 Design under CC BY 4.0, and
 the `@solar-icons/react-perf` components that render it are MIT. That package is
 a dependency: external in the ESM build, and bundled into the CommonJS build
