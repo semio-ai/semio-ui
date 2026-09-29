@@ -266,7 +266,12 @@ export function Modal({
                       {!dismissDisabled && (
                         <Dialog.Close
                           render={(props) => (
-                            <Button {...props} variant={variant} leftIcon="close" />
+                            <Button
+                              {...props}
+                              aria-label="Close"
+                              variant={variant}
+                              leftIcon="close"
+                            />
                           )}
                         />
                       )}
