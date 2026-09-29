@@ -13,7 +13,7 @@ test("a modal initially focuses the rightmost action in a custom footer", async 
       footer={
         <>
           <Button>Account settings</Button>
-          <Button>Go to home</Button>
+          <Button>Go to Home</Button>
         </>
       }
     >
@@ -21,7 +21,7 @@ test("a modal initially focuses the rightmost action in a custom footer", async 
     </Modal>,
   );
 
-  await expect.poll(() => document.activeElement?.textContent?.trim()).toBe("Go to home");
+  await expect.poll(() => document.activeElement?.textContent?.trim()).toBe("Go to Home");
 });
 
 test("a modal initially focuses its rightmost standard footer action", async () => {
