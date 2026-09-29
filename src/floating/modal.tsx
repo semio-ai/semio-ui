@@ -1,4 +1,4 @@
-import { type ReactNode, type MouseEvent } from "react";
+import { useRef, type ReactNode, type MouseEvent } from "react";
 import { Dialog } from "@base-ui/react/dialog";
 import { clsx } from "clsx";
 import { ScrollArea } from "../layouts/scroll-area";
@@ -115,6 +115,8 @@ export function Modal({
   size = "fit",
   portalContainer,
 }: ModalProps) {
+  const popupRef = useRef<HTMLDivElement>(null);
+  const footerRef = useRef<HTMLDivElement>(null);
   const showFooter = footer || onSubmit || onCancel;
   const showHeader = title || description;
   const submitButton = onSubmit && (
@@ -157,6 +159,29 @@ export function Modal({
         />
         <Dialog.Viewport className="fixed inset-0 grid place-items-center p-0">
           <Dialog.Popup
+            ref={popupRef}
+            initialFocus={(openType) => {
+              // Custom footers may change visual order, so choose the rightmost
+              // enabled action by position rather than assuming DOM order.
+              const actions = Array.from(
+                footerRef.current?.querySelectorAll<HTMLElement>("button, a[href]") ?? [],
+              ).filter(
+                (action) =>
+                  action.getClientRects().length > 0 &&
+                  !action.matches(":disabled, [aria-disabled='true']"),
+              );
+              const rightmost = actions.reduce<HTMLElement | null>(
+                (candidate, action) =>
+                  !candidate ||
+                  action.getBoundingClientRect().right >= candidate.getBoundingClientRect().right
+                    ? action
+                    : candidate,
+                null,
+              );
+              // A footer button cannot open the virtual keyboard. Without one,
+              // keep the dialog primitive's touch behavior of focusing the popup.
+              return rightmost ?? (openType === "touch" ? popupRef.current : true);
+            }}
             className={clsx(
               "variant-scope flex flex-col focus:outline-hidden",
               "card overflow-clip",
@@ -256,7 +281,10 @@ export function Modal({
               }
               footer={
                 showFooter && (
-                  <div className="flex justify-end gap-3 p-3 border-t border-neutral-500/15">
+                  <div
+                    ref={footerRef}
+                    className="flex justify-end gap-3 p-3 border-t border-neutral-500/15"
+                  >
                     {footer ??
                       (onCancel && (
                         <Button

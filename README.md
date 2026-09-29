@@ -97,6 +97,9 @@ default variants, respectively; each variant can be configured independently.
 The current step keeps an offset outline so progress is recognizable without
 relying on the caption alone.
 
+`Modal` gives initial focus to the rightmost enabled footer action. With no
+available footer action, it retains the dialog primitive's default focus behavior.
+
 **Artwork and attribution.** Solar artwork is by 480 Design under CC BY 4.0, and
 the `@solar-icons/react-perf` components that render it are MIT. That package is
 a dependency: external in the ESM build, and bundled into the CommonJS build
