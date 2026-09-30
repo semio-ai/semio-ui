@@ -19,7 +19,7 @@ export function Progress({ progress, variant, size }: ProgressProps) {
         variant,
         "variant-scope sized-progress-height variant-static-bg-50 relative w-full translate-z-0 overflow-hidden rounded-sm",
       )}
-      value={progress}
+      value={progress * 100}
     >
       <RadixProgress.Indicator
         style={{ width: `${(progress * 100).toString()}%` }}

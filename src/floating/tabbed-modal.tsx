@@ -11,7 +11,9 @@ export interface TabbedModalProps {
   title?: string | ReactNode;
   description?: string | ReactNode;
   headerBottom?: ReactNode;
+  footerStatus?: ReactNode;
   dismissDisabled?: boolean;
+  showDisabledClose?: boolean;
   submitDisabled?: boolean;
   submitText?: string;
   onStateChange: (open: boolean) => void;
@@ -93,7 +95,9 @@ export function TabbedModal({
   title,
   description,
   headerBottom,
+  footerStatus,
   dismissDisabled = false,
+  showDisabledClose = false,
   submitDisabled,
   submitText = "Submit",
   onStateChange,
@@ -137,7 +141,9 @@ export function TabbedModal({
         title={title}
         description={description}
         headerBottom={combinedHeaderBottom}
+        footerStatus={footerStatus}
         dismissDisabled={dismissDisabled}
+        showDisabledClose={showDisabledClose}
         submitDisabled={submitDisabled}
         submitText={submitText}
         onStateChange={onStateChange}
