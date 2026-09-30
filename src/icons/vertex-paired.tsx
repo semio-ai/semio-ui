@@ -70,7 +70,7 @@ const IconVertexPaired = forwardRef(
           fillRule="nonzero"
           stroke={color ?? "currentColor"}
           strokeWidth={2}
-          strokeOpacity={0.5}
+          strokeOpacity={0.6}
         />
       </svg>
     );

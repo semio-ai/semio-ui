@@ -3,7 +3,7 @@ import { createGlyph } from "./_internal/create-glyph";
 
 export type IconRobotProps = IconProps;
 
-/** Artwork from the supplied robot.svg; transforms and opacity are preserved. */
+/** Artwork from the supplied robot.svg; geometry and transforms are retained; secondary detail uses shared duotone contrast. */
 export const IconRobot = createGlyph(
   "IconRobot",
   <g
@@ -29,7 +29,7 @@ export const IconRobot = createGlyph(
         fill="none"
         fillRule="nonzero"
         stroke="currentColor"
-        strokeOpacity="0.5"
+        strokeOpacity="0.6"
         strokeWidth="1.88"
       />
     </g>
@@ -63,7 +63,7 @@ export const IconRobot = createGlyph(
       />
     </g>
     <g transform="matrix(1,0,0,1.848475,8.420817,-5.939323)">
-      <g opacity="0.5">
+      <g opacity="0.6">
         <path d="M7.579,4.643L7.579,7" fill="none" />
         <g transform="matrix(1,0,0,0.540987,-8.420817,3.213094)">
           <g transform="matrix(1,0,0,1,0,-0.999999)">
@@ -83,7 +83,7 @@ export const IconRobot = createGlyph(
       </g>
     </g>
     <g transform="matrix(1,0,0,1.848475,0.420817,-5.939323)">
-      <g opacity="0.5">
+      <g opacity="0.6">
         <path d="M7.579,4.643L7.579,7" fill="none" />
         <g transform="matrix(1,0,0,0.540987,-0.420817,3.213094)">
           <g transform="matrix(1,0,0,1,0,-0.999999)">
@@ -108,7 +108,7 @@ export const IconRobot = createGlyph(
         fill="none"
         fillRule="nonzero"
         stroke="currentColor"
-        strokeOpacity="0.5"
+        strokeOpacity="0.6"
         strokeWidth="1.88"
       />
     </g>

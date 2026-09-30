@@ -42,7 +42,7 @@ const Playback05x: ForwardRefExoticComponent<IconProps & RefAttributes<SVGSVGEle
         />
       </g>
       <g transform="matrix(0.589583,0,0,0.589583,9.618748,7.195395)">
-        <g opacity="0.5">
+        <g opacity="0.6">
           <path d="M21,10L14.392,17" fill="none" stroke="currentColor" strokeWidth="2.54px" />
           <g transform="matrix(-1,0,0,1,35.391873,0)">
             <path d="M21,10L14.392,17" fill="none" stroke="currentColor" strokeWidth="2.54px" />

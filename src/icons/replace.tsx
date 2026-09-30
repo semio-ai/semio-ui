@@ -1,6 +1,6 @@
 import { createGlyph } from "./_internal/create-glyph";
 
-/** Supplied swap.svg artwork with original geometry and opacity. */
+/** Supplied swap.svg artwork with original geometry; secondary detail uses shared duotone contrast. */
 export const IconReplace = createGlyph(
   "IconReplace",
   <g
@@ -17,7 +17,7 @@ export const IconReplace = createGlyph(
       fill="none"
       fillRule="nonzero"
       stroke="currentColor"
-      strokeOpacity="0.5"
+      strokeOpacity="0.6"
       strokeWidth="1.5"
     />
     <path
@@ -25,7 +25,7 @@ export const IconReplace = createGlyph(
       fill="none"
       fillRule="nonzero"
       stroke="currentColor"
-      strokeOpacity="0.5"
+      strokeOpacity="0.6"
       strokeWidth="1.5"
     />
     <g transform="matrix(1.5,0,0,1.5,-12.75,0.75)">

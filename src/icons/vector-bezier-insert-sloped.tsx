@@ -32,7 +32,7 @@ const IconVectorBezierInsertSloped = forwardRef(
         }}
       >
         {alt ? <title>{alt}</title> : null}
-        <g id="Curve" opacity="0.5">
+        <g id="Curve" opacity="0.6">
           <path
             className="transition-[stroke]"
             d="M29.333,13.174c-12.396,-7 -15.667,12.608 -26.667,5.674"

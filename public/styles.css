@@ -2280,10 +2280,15 @@
   width: 10px !important;
 }
 
+/* Solar duotone keeps detail visible alongside the primary stroke. */
+.icon-solar [opacity="0.5"] {
+  opacity: 0.6;
+}
+
 /* Inverted Solar duotone emphasizes the silhouette while retaining its detail. */
 .icon-duotone-inverted [opacity="0.5"] {
   opacity: 1;
 }
 .icon-duotone-inverted > *:not([opacity]) {
-  opacity: 0.5;
+  opacity: 0.6;
 }

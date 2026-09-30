@@ -1,6 +1,6 @@
 import { createGlyph } from "./_internal/create-glyph";
 
-/** Supplied artwork; geometry, transforms, and opacity are preserved. */
+/** Supplied artwork; geometry and transforms are retained; secondary detail uses shared duotone contrast. */
 export const IconSortUpdated = createGlyph(
   "IconSortUpdated",
   <g fill="currentColor" stroke="none" fillRule="evenodd" clipRule="evenodd" strokeLinecap="round">
@@ -9,7 +9,7 @@ export const IconSortUpdated = createGlyph(
       fill="none"
       fillRule="nonzero"
       stroke="currentColor"
-      strokeOpacity="0.5"
+      strokeOpacity="0.6"
       strokeWidth="1.5"
     />
     <path
@@ -17,7 +17,7 @@ export const IconSortUpdated = createGlyph(
       fill="none"
       fillRule="nonzero"
       stroke="currentColor"
-      strokeOpacity="0.5"
+      strokeOpacity="0.6"
       strokeWidth="1.5"
     />
     <path
@@ -25,7 +25,7 @@ export const IconSortUpdated = createGlyph(
       fill="none"
       fillRule="nonzero"
       stroke="currentColor"
-      strokeOpacity="0.5"
+      strokeOpacity="0.6"
       strokeWidth="1.5"
     />
     <g transform="matrix(0.714286,0,0,0.714286,5.285714,5.571427)">
@@ -34,7 +34,7 @@ export const IconSortUpdated = createGlyph(
         fill="none"
         fillRule="nonzero"
         stroke="currentColor"
-        strokeOpacity="0.5"
+        strokeOpacity="0.6"
         strokeWidth="2.1"
       />
     </g>

@@ -85,7 +85,7 @@ through `IconRegistryKeys` augmentation so `<Icon name>` type-checks them.
 
 **Glyph conventions.** Glyphs draw on a 24-unit canvas with 1.5-unit strokes (the
 vector family keeps its 32-unit geometry with 2-unit strokes), default to 18px,
-paint with `currentColor`, and use 50% opacity for secondary strokes. Every glyph
+paint with `currentColor`, and use 60% opacity for secondary strokes. Every glyph
 accepts `size`, `color`, `alt`, `mirrored`, SVG attributes and a forwarded ref.
 `createSolarIcon` wraps a Solar component with the same sizing and an optional
 presentation class (`icon-duotone-inverted` swaps a duotone glyph's two tones).

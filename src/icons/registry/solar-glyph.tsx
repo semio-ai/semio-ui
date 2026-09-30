@@ -11,7 +11,7 @@ export function createSolarIcon(
     return createElement(Component, {
       size: "18px",
       ...props,
-      className: clsx(presentationClass, className) || undefined,
+      className: clsx("icon-solar", presentationClass, className),
     });
   };
 }

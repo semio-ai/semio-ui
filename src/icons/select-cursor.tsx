@@ -31,7 +31,7 @@ const SelectCursor: ForwardRefExoticComponent<IconProps & RefAttributes<SVGSVGEl
           fillRule="nonzero"
           stroke="currentColor"
           strokeWidth={1.5}
-          strokeOpacity={0.5}
+          strokeOpacity={0.6}
           strokeLinecap="round"
           strokeMiterlimit={1.5}
           strokeDasharray="2.25,3,0,0,0,0"

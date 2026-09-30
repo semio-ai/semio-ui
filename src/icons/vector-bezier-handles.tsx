@@ -56,7 +56,7 @@ const IconVectorBezierHandles = forwardRef(
             }}
           />
         </g>
-        <g id="Handles" opacity="0.5">
+        <g id="Handles" opacity="0.6">
           <path
             className="transition-[stroke]"
             d="M23.388,5.91l-10.303,0"

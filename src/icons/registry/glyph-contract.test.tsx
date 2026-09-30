@@ -5,6 +5,14 @@ import { Icon } from "./icon";
 // Exercise the public registry boundary: styling/accessibility must reach the SVG
 // even when a glyph comes from a custom factory or a curve component.
 describe("Solar-style glyph props through the registry", () => {
+  it("uses 60% secondary detail without changing state-controlled opacity", () => {
+    const custom = renderToStaticMarkup(<Icon name="user" />);
+    const key = renderToStaticMarkup(<Icon name="key" fillOpacity={0.5} />);
+
+    expect(custom).toContain('stroke-opacity="0.6"');
+    expect(key).toContain('fill-opacity="0.5"');
+  });
+
   it.each([
     "sphere",
     "plus",

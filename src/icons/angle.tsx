@@ -34,7 +34,7 @@ const Angle: ForwardRefExoticComponent<IconProps & RefAttributes<SVGSVGElement>>
           d="M11.103,5.495C15.683,8.25 18.75,13.27 18.75,19"
           fill="none"
           stroke="currentColor"
-          strokeOpacity="0.5"
+          strokeOpacity="0.6"
           strokeWidth="1.5px"
         />
       </g>

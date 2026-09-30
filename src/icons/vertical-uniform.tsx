@@ -33,7 +33,7 @@ const IconVerticalUniform = forwardRef(
       >
         {alt ? <title>{alt}</title> : null}
         <path
-          opacity="0.5"
+          opacity="0.6"
           className="transition-[stroke]"
           d="M2 21L22 21"
           stroke={color ?? "currentColor"}

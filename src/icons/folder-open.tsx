@@ -1,6 +1,6 @@
 import { createGlyph } from "./_internal/create-glyph";
 
-/** Artwork from the supplied folder-open.svg; transforms and opacity are preserved. */
+/** Artwork from the supplied folder-open.svg; geometry and transforms are retained; secondary detail uses shared duotone contrast. */
 export const IconFolderOpen = createGlyph(
   "IconFolderOpen",
   <g
@@ -17,7 +17,7 @@ export const IconFolderOpen = createGlyph(
         d="M23.336,9.099C24.105,9.955 22,17.657 20.828,18.828C19.657,20 17.771,20 14,20L10,20C6.229,20 4.343,20 3.172,18.828C2,17.657 4.105,9.955 4.875,9.099C4.945,9.02 5.02,8.946 5.099,8.875C5.955,8.105 6.271,8.064 8.903,8.064L19.307,8.064C21.94,8.064 22.256,8.105 23.111,8.875C23.19,8.946 23.265,9.02 23.336,9.099Z"
         fill="none"
         stroke="currentColor"
-        strokeOpacity="0.5"
+        strokeOpacity="0.6"
         strokeWidth="1.5"
       />
     </g>

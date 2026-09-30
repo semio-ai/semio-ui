@@ -40,7 +40,7 @@ const IconGraphView = forwardRef(
           stroke={color ?? "currentColor"}
           strokeWidth={2}
         />
-        <g opacity="0.5">
+        <g opacity="0.6">
           <path
             className="transition-[stroke]"
             d="M12,2.667l0,26.667"

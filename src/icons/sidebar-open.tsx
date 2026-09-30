@@ -17,7 +17,7 @@ export const IconSidebarOpen = createGlyph(
       strokeLinecap="round"
     />
     <path
-      opacity="0.5"
+      opacity="0.6"
       d="M15 21L15 3"
       stroke="currentColor"
       strokeWidth="1.5"

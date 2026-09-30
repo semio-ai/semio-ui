@@ -31,7 +31,7 @@ const Bounce: ForwardRefExoticComponent<IconProps & RefAttributes<SVGSVGElement>
           fillRule="nonzero"
           stroke="currentColor"
           strokeWidth="1.5px"
-          strokeOpacity="0.5"
+          strokeOpacity="0.6"
         />
       </svg>
     );

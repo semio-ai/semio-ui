@@ -1,6 +1,6 @@
 import { createGlyph } from "./_internal/create-glyph";
 
-/** Artwork from the supplied box-plus.svg; transforms and opacity are preserved. */
+/** Artwork from the supplied box-plus.svg; geometry and transforms are retained; secondary detail uses shared duotone contrast. */
 export const IconBoxPlus = createGlyph(
   "IconBoxPlus",
   <g
@@ -17,7 +17,7 @@ export const IconBoxPlus = createGlyph(
       fill="none"
       fillRule="nonzero"
       stroke="currentColor"
-      strokeOpacity="0.5"
+      strokeOpacity="0.6"
       strokeWidth="1.5"
     />
     <path
@@ -32,7 +32,7 @@ export const IconBoxPlus = createGlyph(
         fill="none"
         fillRule="nonzero"
         stroke="currentColor"
-        strokeOpacity="0.5"
+        strokeOpacity="0.6"
         strokeWidth="1.5"
       />
     </g>

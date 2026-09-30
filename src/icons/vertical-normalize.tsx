@@ -33,7 +33,7 @@ const IconVerticalNormalize = forwardRef(
       >
         {alt ? <title>{alt}</title> : null}
         <path
-          opacity="0.5"
+          opacity="0.6"
           className="transition-[stroke]"
           d="M2 12L5 12M22 12L19 12M14 12L10 12"
           stroke={color ?? "currentColor"}

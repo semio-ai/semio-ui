@@ -1,6 +1,6 @@
 import { createGlyph } from "./_internal/create-glyph";
 
-/** Supplied sun-moon.svg artwork with original geometry and opacity. */
+/** Supplied sun-moon.svg artwork with original geometry; secondary detail uses shared duotone contrast. */
 export const IconSunMoon = createGlyph(
   "IconSunMoon",
   <g
@@ -17,7 +17,7 @@ export const IconSunMoon = createGlyph(
       d="M11.568,12.432C12.568,13.432 13.949,14.05 15.475,14.05C17.482,14.05 19.24,12.98 20.207,11.378C20.411,11.042 21,11.107 21,11.5C21,16.194 17.194,20 12.5,20C10.153,20 8.028,19.049 6.49,17.51L11.568,12.432Z"
       fill="none"
       stroke="currentColor"
-      strokeOpacity="0.5"
+      strokeOpacity="0.6"
       strokeWidth="1.5"
       strokeMiterlimit="4"
     />
@@ -34,7 +34,7 @@ export const IconSunMoon = createGlyph(
       fill="none"
       fillRule="nonzero"
       stroke="currentColor"
-      strokeOpacity="0.5"
+      strokeOpacity="0.6"
       strokeWidth="1.5"
       strokeLinejoin="miter"
       strokeMiterlimit="4"

@@ -97,6 +97,29 @@ try {
 // preserving the viewBox so the artwork scales correctly.
 function normalize(svg) {
   let s = svg;
+  // Figma imports the SVG without the app stylesheet, so Solar's duotone
+  // presentation needs concrete opacity attributes on the exported shapes.
+  if (/\bclass="[^"]*\bicon-solar\b/.test(s)) {
+    const inverted = /\bclass="[^"]*\bicon-duotone-inverted\b/.test(s);
+    let depth = 0;
+    s = s.replace(/<\/?[a-z][^>]*>/gi, (tag) => {
+      if (tag.startsWith("</")) {
+        depth -= 1;
+        return tag;
+      }
+      let rendered = tag.replace(/\bopacity="0\.5"/g, `opacity="${inverted ? "1" : "0.6"}"`);
+      if (
+        inverted &&
+        depth === 1 &&
+        /^<(?:path|circle|rect|line|polyline|polygon|ellipse|g)\b/i.test(tag) &&
+        !/\bopacity=/.test(tag)
+      ) {
+        rendered = rendered.replace(/>$/, ' opacity="0.6">');
+      }
+      if (!tag.endsWith("/>")) depth += 1;
+      return rendered;
+    });
+  }
   s = /\bwidth="/.test(s) ? s.replace(/\bwidth="[^"]*"/, 'width="24"') : s.replace("<svg", '<svg width="24"');
   s = /\bheight="/.test(s) ? s.replace(/\bheight="[^"]*"/, 'height="24"') : s.replace("<svg", '<svg height="24"');
   return s;

@@ -17,7 +17,7 @@ export const IconPanelsTopLeft = createGlyph(
       strokeLinecap="round"
     />
     <path
-      opacity="0.5"
+      opacity="0.6"
       d="M2 9.5H22M9 21.9799V9.5"
       stroke="currentColor"
       strokeWidth="1.5"

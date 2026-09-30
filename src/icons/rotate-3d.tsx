@@ -12,7 +12,7 @@ export const IconRotate3d = createGlyph(
     strokeMiterlimit={1.5}
   >
     <g>
-      <g opacity="0.5">
+      <g opacity="0.6">
         <g transform="matrix(1,0,0,1,-1,0)">
           <ellipse
             cx="13"

@@ -17,14 +17,14 @@ export const IconChevronRightPipe = createGlyph(
   "IconChevronRightPipe",
   <>
     <path d="M7 5L14 12L7 19" />
-    <path d="M19 4V20" opacity="0.5" />
+    <path d="M19 4V20" opacity="0.6" />
   </>,
 );
 
 export const IconList = createGlyph(
   "IconList",
   <>
-    <path d="M9 5H21M9 12H21M9 19H21" opacity="0.5" />
+    <path d="M9 5H21M9 12H21M9 19H21" opacity="0.6" />
     <g fill="currentColor" stroke="none">
       <circle cx="4" cy="5" r="1" />
       <circle cx="4" cy="12" r="1" />
@@ -36,7 +36,7 @@ export const IconList = createGlyph(
 export const IconFitHorizontal = createGlyph(
   "IconFitHorizontal",
   <>
-    <path d="M3 12H21" opacity="0.5" />
+    <path d="M3 12H21" opacity="0.6" />
     <path d="M7 8L3 12L7 16M17 8L21 12L17 16" />
   </>,
 );
@@ -69,14 +69,14 @@ export const IconAddFile = createGlyph(
   "IconAddFile",
   <>
     <path
-      opacity="0.5"
+      opacity="0.6"
       d="M13 2.5V5C13 7.35702 13 8.53553 13.7322 9.26777C14.4645 10 15.643 10 18 10H21.5"
       stroke="currentColor"
       strokeWidth="1.5"
       strokeLinecap="round"
     />
     <path
-      opacity="0.5"
+      opacity="0.6"
       d="M11 15H9M9 15L7 15M9 15L9 13M9 15L9 17"
       stroke="currentColor"
       strokeWidth="1.5"
@@ -95,7 +95,7 @@ export const IconAddFile = createGlyph(
 export const IconDataVector2 = createGlyph(
   "IconDataVector2",
   <>
-    <path d="M3 3V21H21" opacity="0.5" />
+    <path d="M3 3V21H21" opacity="0.6" />
     <g fill="currentColor" stroke="none">
       <circle cx="8" cy="15" r="1.5" />
       <circle cx="12" cy="8" r="1.5" />
@@ -107,7 +107,7 @@ export const IconDataVector2 = createGlyph(
 export const IconDataVector3 = createGlyph(
   "IconDataVector3",
   <>
-    <path d="M12 2V13M12 13L3 19M12 13L21 19" opacity="0.5" />
+    <path d="M12 2V13M12 13L3 19M12 13L21 19" opacity="0.6" />
     <g fill="currentColor" stroke="none">
       <circle cx="6" cy="10" r="1.5" />
       <circle cx="16" cy="7" r="1.5" />
@@ -162,7 +162,7 @@ export const IconSave = createGlyph(
         fill="none"
         fillRule="nonzero"
         stroke="currentColor"
-        strokeOpacity="0.5"
+        strokeOpacity="0.6"
         strokeWidth="1.88"
       />
     </g>
@@ -173,7 +173,7 @@ export const IconSave = createGlyph(
         r="3.5"
         fill="none"
         stroke="currentColor"
-        strokeOpacity="0.5"
+        strokeOpacity="0.6"
         strokeWidth="1.75"
         strokeLinejoin="round"
         strokeMiterlimit="1.5"
@@ -191,7 +191,7 @@ export const IconPercent = createGlyph(
   "IconPercent",
   <>
     <path d="m5 19 14-14" />
-    <g opacity="0.5">
+    <g opacity="0.6">
       <circle cx="7" cy="7" r="3" />
       <circle cx="17" cy="17" r="3" />
     </g>
@@ -200,7 +200,7 @@ export const IconPercent = createGlyph(
 export const IconListTree = createGlyph(
   "IconListTree",
   <>
-    <path opacity="0.5" d="M9 5h12M12 12h9M15 19h6" />
+    <path opacity="0.6" d="M9 5h12M12 12h9M15 19h6" />
     <g fill="currentColor" stroke="none">
       <circle cx="4" cy="5" r="1" />
       <circle cx="7" cy="12" r="1" />

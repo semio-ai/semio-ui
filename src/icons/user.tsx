@@ -1,6 +1,6 @@
 import { createGlyph } from "./_internal/create-glyph";
 
-/** Supplied user.svg artwork with original geometry and opacity. */
+/** Supplied user.svg artwork with original geometry; secondary detail uses shared duotone contrast. */
 export const IconUser = createGlyph(
   "IconUser",
   <g
@@ -21,7 +21,7 @@ export const IconUser = createGlyph(
           d="M3.055,21C3.372,18.138 3.915,15.679 7.393,14.269"
           fill="none"
           stroke="currentColor"
-          strokeOpacity="0.5"
+          strokeOpacity="0.6"
           strokeWidth="1.68"
         />
       </g>
@@ -30,7 +30,7 @@ export const IconUser = createGlyph(
           d="M16.607,14.269C20.085,15.679 20.628,18.138 20.945,21"
           fill="none"
           stroke="currentColor"
-          strokeOpacity="0.5"
+          strokeOpacity="0.6"
           strokeWidth="1.68"
         />
       </g>

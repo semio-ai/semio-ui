@@ -67,7 +67,7 @@ const LockOff: ForwardRefExoticComponent<IconProps & RefAttributes<SVGSVGElement
           fillRule="nonzero"
           stroke="currentColor"
           strokeWidth="1.5"
-          strokeOpacity="0.5"
+          strokeOpacity="0.6"
           strokeLinecap="round"
           strokeMiterlimit="4"
         />

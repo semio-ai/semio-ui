@@ -11,7 +11,7 @@ export const IconVideocameraOff = createGlyph(
     strokeLinejoin="miter"
   >
     <path
-      opacity="0.5"
+      opacity="0.6"
       d="M17 9.50019L17.6584 9.17101C19.6042 8.19807 20.5772 7.7116 21.2886 8.15127C22 8.59094 22 9.67872 22 11.8543V12.1461C22 14.3217 22 15.4094 21.2886 15.8491C20.5772 16.2888 19.6042 15.8023 17.6584 14.8294L17 14.5002V9.50019Z"
       stroke="currentColor"
       strokeWidth="1.5"
@@ -24,7 +24,7 @@ export const IconVideocameraOff = createGlyph(
       strokeLinecap="round"
     />
     <path
-      opacity="0.5"
+      opacity="0.6"
       d="M12 10L7 15M6.99998 10L12 15"
       stroke="currentColor"
       strokeWidth="1.5"
