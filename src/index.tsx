@@ -8,6 +8,7 @@ export * from "./buttons/header-button";
 export * from "./buttons/menu-button";
 
 // Feedback
+export * from "./feedback/empty-state";
 export * from "./feedback/progress";
 export * from "./feedback/spinner";
 export * from "./feedback/status-badge";
