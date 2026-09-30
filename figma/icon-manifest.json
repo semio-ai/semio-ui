@@ -1,7 +1,7 @@
 {
   "contract": "registry key == Figma component name (Icon/<key>) == code usage (<Icon name>)",
   "generatedFrom": "default + animation + studio (composed app set)",
-  "count": 333,
+  "count": 332,
   "icons": [
     {
       "key": "access-none",
@@ -598,6 +598,12 @@
       "code": "<Icon name=\"info\" />"
     },
     {
+      "key": "inspect",
+      "source": "default",
+      "figmaComponent": "Icon/inspect",
+      "code": "<Icon name=\"inspect\" />"
+    },
+    {
       "key": "internal-link",
       "source": "studio",
       "figmaComponent": "Icon/internal-link",
@@ -1094,18 +1100,6 @@
       "source": "studio",
       "figmaComponent": "Icon/pointer",
       "code": "<Icon name=\"pointer\" />"
-    },
-    {
-      "key": "preview-close",
-      "source": "default",
-      "figmaComponent": "Icon/preview-close",
-      "code": "<Icon name=\"preview-close\" />"
-    },
-    {
-      "key": "preview-open",
-      "source": "default",
-      "figmaComponent": "Icon/preview-open",
-      "code": "<Icon name=\"preview-open\" />"
     },
     {
       "key": "preview-view",

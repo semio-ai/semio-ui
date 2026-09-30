@@ -97,9 +97,9 @@ export const semioIconRegistry = {
   "data-vector2": IconDataVector2,
   "data-vector3": IconDataVector3,
   "exclamation-mark": IconExclamationMark,
-  /** @deprecated Use show, state-visible, or preview-open. */
+  /** @deprecated Use show or state-visible. */
   "eye": Eye,
-  /** @deprecated Use hide, state-hidden, or preview-close. */
+  /** @deprecated Use hide or state-hidden. */
   "eye-off": EyeOff,
   "fast": Fast,
   "file-type-ani": IconFileTypeAni,

@@ -95,17 +95,11 @@ export function SidePaneArea({ panes }: { panes: PaneSpec[] }) {
             )}
           >
             {pane.region === PaneRegion.Right && (
-              // `close`, not the docked pane's `sidebar-toggle`. That glyph is a
-              // chevron-into-a-bar pointing sideways — it reads as "fold this back
-              // against the edge it came from", which is what a docked pane does
-              // and the opposite of what happens here: this pane rose from the
-              // bottom of a full-width row, and dismissing it is not a fold in any
-              // direction. Nothing rotates for the same reason.
               <HeaderButton
                 className={clsx("absolute top-1 right-1 z-1")}
                 variant={Variant.Default}
                 size={Size.Md}
-                label="Close panel"
+                label="Close inspector"
                 icon={<Icon name="close" />}
                 onClick={() => {
                   togglePaneRegion(PaneRegion.Right, pane.id, pane.preventClose);

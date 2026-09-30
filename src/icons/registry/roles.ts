@@ -1,4 +1,4 @@
-import { Copy, Danger, SortByTime, SortByAlphabet } from "@solar-icons/react-perf/LineDuotone";
+import { Copy, Danger, InfoSquare, SortByTime, SortByAlphabet } from "@solar-icons/react-perf/LineDuotone";
 import {
   IconCircle,
   IconSelector,
@@ -105,8 +105,7 @@ export const roleIconRegistry = {
   "state-locked": glyphs.lock,
   "state-unlocked": glyphs["lock-off"],
   unlock: glyphs["lock-off"],
-  "preview-open": glyphs.eye,
-  "preview-close": glyphs["eye-off"],
+  inspect: solar(InfoSquare),
   "pane-collapse": solarIconRegistry["chevron-left"],
   retry: solarIconRegistry.rotate,
   "layout-settings": glyphs["panels-top-left"],

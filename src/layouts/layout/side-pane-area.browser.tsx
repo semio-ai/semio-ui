@@ -107,6 +107,38 @@ function renderLayout() {
   );
 }
 
+test("mobile header controls keep their size and position while the inspector toggles", async () => {
+  await page.viewport(MOBILE.width, MOBILE.height);
+  await renderLayout();
+
+  const headerButton = (label: string): HTMLButtonElement => {
+    const button = document.querySelector<HTMLButtonElement>(
+      `.grid-area-header button[aria-label="${label}"]`,
+    );
+    if (!button) throw new Error(`Missing header button: ${label}`);
+    return button;
+  };
+  const rect = (label: string) => {
+    const { x, y, width, height } = headerButton(label).getBoundingClientRect();
+    return { x, y, width, height };
+  };
+
+  await expect.element(page.getByRole("button", { name: "Open inspector" })).toBeEnabled();
+  const menuBefore = rect("Toggle Menu");
+  const inspectBefore = rect("Open inspector");
+  expect(menuBefore.width).toBe(inspectBefore.width);
+  expect(menuBefore.height).toBe(inspectBefore.height);
+
+  await userEvent.click(headerButton("Open inspector"));
+  await expect.poll(sidePanes).toEqual({ ids: ["right-pane"], showing: "right-pane" });
+  expect(rect("Toggle Menu")).toEqual(menuBefore);
+  expect(rect("Close inspector")).toEqual(inspectBefore);
+
+  await userEvent.click(headerButton("Close inspector"));
+  await expect.poll(() => sidePanes().ids).toEqual([]);
+  expect(rect("Open inspector")).toEqual(inspectBefore);
+});
+
 test("below the breakpoint, both side regions share one row and stack", async () => {
   await page.viewport(MOBILE.width, MOBILE.height);
   await renderLayout();
@@ -143,7 +175,11 @@ test("below the breakpoint, both side regions share one row and stack", async ()
     .toBe("320px");
 
   // Closing the pane on top reveals the one beneath rather than emptying the row.
-  await userEvent.click(page.getByRole("button", { name: "Close panel" }));
+  const paneClose = document.querySelector<HTMLButtonElement>(
+    '.grid-area-side button[aria-label="Close inspector"]',
+  );
+  if (!paneClose) throw new Error("Missing inspector close button in the side pane");
+  await userEvent.click(paneClose);
   await expect.poll(sidePanes).toEqual({ ids: ["left-pane"], showing: "left-pane" });
   expect(hiddenPaneIds()).toEqual([]);
 

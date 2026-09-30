@@ -85,16 +85,8 @@ export function PanelContent({ region }: { region: PaneRegion }) {
                   className={clsx("absolute top-1 right-1 z-1")}
                   variant={Variant.Default}
                   size={Size.Md}
-                  label="Close panel"
-                  icon={
-                    <Icon
-                      name="sidebar-toggle"
-                      className={clsx(
-                        "transition-transform duration-100 ease-in-out",
-                        !pane.shouldClose ? "rotate-360" : "rotate-180",
-                      )}
-                    />
-                  }
+                  label="Close inspector"
+                  icon={<Icon name="close" />}
                   onClick={() => {
                     togglePaneRegion(PaneRegion.Right, pane.id, pane.preventClose);
                   }}

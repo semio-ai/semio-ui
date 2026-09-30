@@ -7,6 +7,7 @@ import {
   useHomeActionItem,
   useRightMenuItems,
   useRightRegionActive,
+  useSidePaneStack,
   useToolbarItems,
 } from "../../hooks/layout-atoms";
 import { Dropdown } from "../../floating/dropdown";
@@ -17,6 +18,7 @@ import { useLayoutActions } from "../../hooks/use-layout-actions";
 import { PaneRegion, Size, ToolbarWidget, Variant } from "../../types";
 import { HeaderButton } from "../../buttons/header-button";
 import { isPlaceholder } from "./types";
+import { showingSidePane } from "./side-pane-area";
 
 function InnerHeader({ homeIcon }: { homeIcon?: IconValue }) {
   const desktop = useDesktopState();
@@ -27,6 +29,10 @@ function InnerHeader({ homeIcon }: { homeIcon?: IconValue }) {
   const rightMenuItems = useRightMenuItems();
   const rightRegionActive = useRightRegionActive();
   const activeRightPaneId = useActiveRightPane();
+  const sideStack = useSidePaneStack();
+  const inspectorShowing = desktop
+    ? rightRegionActive
+    : showingSidePane(sideStack)?.region === PaneRegion.Right;
 
   const mobileMenuItems = toolbarItems.filter(
     (item) => item.type === "toolbar-widget" && item.mobileConfig?.location === "menu",
@@ -92,7 +98,7 @@ function InnerHeader({ homeIcon }: { homeIcon?: IconValue }) {
             <HeaderButton
               className="desktop:hidden grid flex-none"
               variant={Variant.Default}
-              size={Size.Sm}
+              size={Size.Md}
               label="Toggle Menu"
               icon={<Icon name="navigation-menu" />}
             />
@@ -125,35 +131,17 @@ function InnerHeader({ homeIcon }: { homeIcon?: IconValue }) {
         <HeaderButton
           className={clsx(
             "flex-none",
-            // `ml-1` on top of the row's `gap-1` makes 8px — the same separation the
-            // toolbar's own cards keep from each other (`gap-1` plus their `mr-1`).
-            // The row gap alone left this button 4px from the preceding card, which
-            // reads as touching when both carry a border. Margin on the button rather
-            // than padding on the row, so it disappears with the button when a right
-            // pane is open instead of lingering as a phantom inset.
+            // Docked toolbars need the same 8px separation as adjacent cards.
+            // Keep that spacing on the control so closing its slot also removes it.
             "desktop:ml-1",
-            // Shown at every width. It used to be desktop-only, which made the
-            // right region *unreachable* on a phone rather than merely arranged
-            // differently — the panes it opens are now sheets, so the control that
-            // opens them has to exist wherever they do. Still hidden while the
-            // region is open, where the pane carries its own way out.
-            rightRegionActive ? "hidden" : "grid",
+            // Keep the mobile control in this slot while the side pane occupies
+            // the shared row. Docked panes carry their own close control.
+            rightRegionActive && desktop ? "hidden" : "grid",
           )}
           variant={Variant.Default}
           size={Size.Md}
-          // Named for what it does. It shared "Toggle Menu" with the actions
-          // dropdown beside it, so the two were indistinguishable to anything
-          // that goes by accessible name.
-          label="Toggle side panel"
-          icon={
-            <Icon
-              name="sidebar-toggle"
-              className={clsx(
-                "transition-transform duration-100 ease-in-out",
-                rightRegionActive ? "rotate-360" : "rotate-180",
-              )}
-            />
-          }
+          label={inspectorShowing ? "Close inspector" : "Open inspector"}
+          icon={<Icon name={inspectorShowing ? "close" : "inspect"} />}
           disabled={
             rightMenuItems.length === 0 ||
             rightMenuItems.filter((item) => !item.disabled).length === 0

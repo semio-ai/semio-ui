@@ -334,7 +334,7 @@ its artwork if robot editing is introduced. The generator preserves the
 ### Semantic roles and compatibility glyphs
 
 Feature call sites use role names: `theme-*`, `sort-*`, `key-*`,
-`option-placeholder`, `option-group-placeholder`, `preview-open`/`preview-close`,
+`option-placeholder`, `option-group-placeholder`, `inspect`/`close`,
 and action/state pairs such as `mute` and `state-muted`. Distinct roles may
 share a component; overriding one role must not change another.
 
