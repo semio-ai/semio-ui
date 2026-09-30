@@ -13,7 +13,11 @@ export interface ModalProps {
   headerBottom?: ReactNode;
   /** Custom actions inside the standard divided footer. */
   footer?: ReactNode;
+  /** Status or error content to the left of the footer actions. */
+  footerStatus?: ReactNode;
   dismissDisabled?: boolean;
+  /** Keep the close button visible when dismissal is disabled. */
+  showDisabledClose?: boolean;
   submitDisabled?: boolean;
   submitText?: string;
   onStateChange: (open: boolean) => void;
@@ -104,7 +108,9 @@ export function Modal({
   description,
   headerBottom,
   footer,
+  footerStatus,
   dismissDisabled = false,
+  showDisabledClose = false,
   submitDisabled,
   submitText = "Submit",
   onStateChange,
@@ -117,7 +123,7 @@ export function Modal({
 }: ModalProps) {
   const popupRef = useRef<HTMLDivElement>(null);
   const footerRef = useRef<HTMLDivElement>(null);
-  const showFooter = footer || onSubmit || onCancel;
+  const showFooter = footer || footerStatus || onSubmit || onCancel;
   const showHeader = title || description;
   const submitButton = onSubmit && (
     <Button
@@ -263,12 +269,13 @@ export function Modal({
                       >
                         {title}
                       </Dialog.Title>
-                      {!dismissDisabled && (
+                      {(!dismissDisabled || showDisabledClose) && (
                         <Dialog.Close
                           render={(props) => (
                             <Button
                               {...props}
-                              aria-label="Close"
+                              altText="Close"
+                              disabled={dismissDisabled}
                               variant={variant}
                               leftIcon="close"
                             />
@@ -290,6 +297,9 @@ export function Modal({
                     ref={footerRef}
                     className="flex justify-end gap-3 p-3 border-t border-neutral-500/15"
                   >
+                    {footerStatus && (
+                      <div className="min-w-0 flex-1 self-center">{footerStatus}</div>
+                    )}
                     {footer ??
                       (onCancel && (
                         <Button
