@@ -101,7 +101,7 @@ export const PrimaryLabelUnits: Story = {
     size: Size.Sm,
     disabled: false,
     label: "Field Value",
-    units: "units",
+    units: "mm",
   },
 };
 
@@ -119,6 +119,6 @@ export const CustomLabelUnits: Story = {
     size: Size.Sm,
     disabled: false,
     label: "Field Value",
-    units: "units",
+    units: "mm",
   },
 };

@@ -18,6 +18,7 @@ import { useNumeric, ValidChangeEvent } from "../hooks/use-numeric";
 import { NumericStatus, formatDisplayValue } from "../hooks/numeric-utils";
 import { Size, Variant } from "../types";
 import { TextFieldProps } from "./text-field";
+import { unitsSuffixWidth } from "./units-suffix";
 
 enableBoundaryChecking(false);
 
@@ -268,11 +269,11 @@ const InnerNumberField = forwardRef(
           <input
             value={units}
             readOnly
-            style={{ width: `${(units.length + 2).toString()}ch` }}
+            style={{ width: unitsSuffixWidth(units) }}
             className={clsx(
               effectiveVariant,
               size,
-              "grid-area-units pr-2 pl-0.5 text-right select-none",
+              "grid-area-units truncate pr-2 pl-0.5 text-right select-none",
               "sized-text pointer-events-none grid place-items-center",
               "sized-height flex-none font-mono text-white/50",
             )}

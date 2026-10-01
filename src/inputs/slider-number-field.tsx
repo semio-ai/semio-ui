@@ -18,6 +18,7 @@ import { useNumeric } from "../hooks/use-numeric";
 import { NumericStatus, formatDisplayValue } from "../hooks/numeric-utils";
 import { Size, Variant } from "../types";
 import { NumberFieldProps } from "./number-field";
+import { unitsSuffixWidth } from "./units-suffix";
 
 enableBoundaryChecking(false);
 
@@ -462,12 +463,12 @@ const InnerSliderNumberField = forwardRef(
             value={units}
             readOnly
             style={{
-              width: `${(units.length + 2).toString()}ch`,
+              width: unitsSuffixWidth(units),
             }}
             className={clsx(
               effectiveVariant,
               size,
-              "grid-area-input-units pr-2 pl-0.5 text-right select-none",
+              "grid-area-input-units truncate pr-2 pl-0.5 text-right select-none",
               "sized-text pointer-events-none grid place-items-center",
               "sized-height flex-none font-mono",
               unitsFallbackColorClass,

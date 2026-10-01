@@ -70,6 +70,29 @@ export const Primary: Story = {
     size: Size.Sm,
     disabled: false,
     label: "Slider Value",
-    units: "units",
+    units: "mm",
+  },
+};
+
+/**
+ * A unit longer than four characters, as model authors sometimes write them: the
+ * suffix keeps four characters' width and truncates the rest with an ellipsis, so
+ * the value keeps its room and nothing runs past the field's edge.
+ */
+export const LongUnits: Story = {
+  render: (props) => {
+    return <SliderNumberFieldWithHooks {...props} />;
+  },
+  args: {
+    value: 0.35,
+    onChange: (value: number) => {
+      console.log(value);
+    },
+    min: 0,
+    max: 1,
+    color: "#ee33ee",
+    size: Size.Sm,
+    disabled: false,
+    units: "intensity",
   },
 };
