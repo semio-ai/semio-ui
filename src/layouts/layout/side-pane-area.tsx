@@ -4,6 +4,7 @@ import { HeaderButton } from "../../buttons/header-button";
 import { PaneRegion, PaneSpec, Size, Variant } from "../../types";
 import { useLayoutActions } from "../../hooks/use-layout-actions";
 import { Icon } from "../../icons/registry";
+import { paneCloseLabel } from "./pane-control-labels";
 
 /**
  * The topmost pane actually taking space — the newest one that has not collapsed.
@@ -99,7 +100,7 @@ export function SidePaneArea({ panes }: { panes: PaneSpec[] }) {
                 className={clsx("absolute top-1 right-1 z-1")}
                 variant={Variant.Default}
                 size={Size.Md}
-                label="Close inspector"
+                label={paneCloseLabel(pane)}
                 icon={<Icon name="close" />}
                 onClick={() => {
                   togglePaneRegion(PaneRegion.Right, pane.id, pane.preventClose);

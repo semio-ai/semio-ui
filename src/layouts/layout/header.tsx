@@ -5,6 +5,7 @@ import {
   useActiveRightPane,
   useDesktopState,
   useHomeActionItem,
+  usePanes,
   useRightMenuItems,
   useRightRegionActive,
   useSidePaneStack,
@@ -19,6 +20,7 @@ import { PaneRegion, Size, ToolbarWidget, Variant } from "../../types";
 import { HeaderButton } from "../../buttons/header-button";
 import { isPlaceholder } from "./types";
 import { showingSidePane } from "./side-pane-area";
+import { paneCloseLabel, paneOpenLabel } from "./pane-control-labels";
 
 function InnerHeader({ homeIcon }: { homeIcon?: IconValue }) {
   const desktop = useDesktopState();
@@ -30,9 +32,16 @@ function InnerHeader({ homeIcon }: { homeIcon?: IconValue }) {
   const rightRegionActive = useRightRegionActive();
   const activeRightPaneId = useActiveRightPane();
   const sideStack = useSidePaneStack();
-  const inspectorShowing = desktop
-    ? rightRegionActive
-    : showingSidePane(sideStack)?.region === PaneRegion.Right;
+  const panes = usePanes();
+  // The side-panel toggle's name comes from the pane it acts on, so what the control
+  // says and what it does always describe the same pane.
+  const toggleTargetId: string | undefined = activeRightPaneId ?? rightMenuItems[0]?.id;
+  const toggleTarget = panes.find((pane) => pane.id === toggleTargetId);
+  // Docked, the toggle is hidden while its region is open, so it only ever opens. In
+  // the shared row it stays put and closes its pane while that pane is the one showing;
+  // covered by a Left pane, the same press brings it forward, which is an open.
+  const toggleCloses =
+    !desktop && toggleTargetId !== undefined && showingSidePane(sideStack)?.id === toggleTargetId;
 
   const mobileMenuItems = toolbarItems.filter(
     (item) => item.type === "toolbar-widget" && item.mobileConfig?.location === "menu",
@@ -140,15 +149,15 @@ function InnerHeader({ homeIcon }: { homeIcon?: IconValue }) {
           )}
           variant={Variant.Default}
           size={Size.Md}
-          label={inspectorShowing ? "Close inspector" : "Open inspector"}
-          icon={<Icon name={inspectorShowing ? "close" : "inspect"} />}
+          label={toggleCloses ? paneCloseLabel(toggleTarget) : paneOpenLabel(toggleTarget)}
+          icon={<Icon name={toggleCloses ? "close" : "inspect"} />}
           disabled={
             rightMenuItems.length === 0 ||
             rightMenuItems.filter((item) => !item.disabled).length === 0
           }
-          onClick={() =>
-            togglePaneRegion(PaneRegion.Right, activeRightPaneId ?? rightMenuItems[0]?.id)
-          }
+          onClick={() => {
+            if (toggleTargetId !== undefined) togglePaneRegion(PaneRegion.Right, toggleTargetId);
+          }}
         />
       </div>
     </div>

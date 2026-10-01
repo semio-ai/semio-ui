@@ -52,7 +52,7 @@ const DESKTOP = { width: 1280, height: 800 } as const;
 
 const PANE_ICON = <Icon name="action-placeholder" />;
 
-const CLOSE_BUTTON = '.grid-area-right button[aria-label="Close inspector"]';
+const CLOSE_BUTTON = '.grid-area-right button[aria-label="Close panel"]';
 
 const OPTIONS = [
   { value: "alpha", label: "Alpha" },
@@ -62,7 +62,7 @@ const OPTIONS = [
 
 /**
  * Registers one Right-region pane and exposes a toggle. Right specifically: it is the
- * region whose pane renders the `z-1` "Close inspector" button everything here stacks against.
+ * region whose pane renders the `z-1` "Close panel" button everything here stacks against.
  *
  * A sibling of `LayoutRoot`, so the toggle stays clickable once a pane is open.
  */

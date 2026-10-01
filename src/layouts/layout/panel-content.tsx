@@ -5,6 +5,7 @@ import { PaneRegion, Size, Variant } from "../../types";
 import { useLayoutActions } from "../../hooks/use-layout-actions";
 import { usePanes } from "../../hooks/layout-atoms";
 import { Icon } from "../../icons/registry";
+import { paneCloseLabel } from "./pane-control-labels";
 
 /**
  * One region's panes, in a track of their own.
@@ -85,7 +86,7 @@ export function PanelContent({ region }: { region: PaneRegion }) {
                   className={clsx("absolute top-1 right-1 z-1")}
                   variant={Variant.Default}
                   size={Size.Md}
-                  label="Close inspector"
+                  label={paneCloseLabel(pane)}
                   icon={<Icon name="close" />}
                   onClick={() => {
                     togglePaneRegion(PaneRegion.Right, pane.id, pane.preventClose);

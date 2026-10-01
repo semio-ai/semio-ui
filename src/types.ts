@@ -171,6 +171,27 @@ export interface PaneSpec {
   id: string;
   name: string;
   icon: IconValue;
+  /**
+   * Accessible name of the header control that opens this pane — the side-panel
+   * toggle, when this is the Right-region pane it targets. Defaults to
+   * "Toggle side panel".
+   *
+   * The Right region is generic, so the layout cannot know what a pane in it is
+   * for. A consumer names the control for what its pane is ("Open inspector");
+   * unnamed, it gets wording that is true of any pane. An empty string counts as
+   * unnamed, since a control with an empty name has none at all.
+   */
+  openLabel?: string;
+  /**
+   * Accessible name of the controls that close this pane: the button a Right-region
+   * pane carries in its corner, docked or in the narrow layout's shared row, and the
+   * header toggle while this pane is the one showing there. Defaults to
+   * "Close panel".
+   *
+   * Named per pane for the same reason as {@link openLabel}, and one name for all
+   * of them because they are one action.
+   */
+  closeLabel?: string;
   size: string | number;
   clickFn?: MenuItemClickFn;
   preventClose?: boolean;
