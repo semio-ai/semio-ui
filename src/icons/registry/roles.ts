@@ -1,4 +1,10 @@
-import { Copy, Danger, InfoSquare, SortByTime, SortByAlphabet } from "@solar-icons/react-perf/LineDuotone";
+import {
+  Copy,
+  Danger,
+  InfoSquare,
+  SortByTime,
+  SortByAlphabet,
+} from "@solar-icons/react-perf/LineDuotone";
 import {
   IconCircle,
   IconSelector,
@@ -106,6 +112,12 @@ export const roleIconRegistry = {
   "state-unlocked": glyphs["lock-off"],
   unlock: glyphs["lock-off"],
   inspect: solar(InfoSquare),
+  // Superseded roles keep the artwork they shipped with, so a consumer naming them
+  // still renders what it did; the annotation names the role to move to.
+  /** @deprecated Use inspect. */
+  "preview-open": glyphs.eye,
+  /** @deprecated Use close. */
+  "preview-close": glyphs["eye-off"],
   "pane-collapse": solarIconRegistry["chevron-left"],
   retry: solarIconRegistry.rotate,
   "layout-settings": glyphs["panels-top-left"],

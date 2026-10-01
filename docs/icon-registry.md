@@ -338,6 +338,12 @@ Feature call sites use role names: `theme-*`, `sort-*`, `key-*`,
 and action/state pairs such as `mute` and `state-muted`. Distinct roles may
 share a component; overriding one role must not change another.
 
+A role that is superseded stays registered with its original artwork and a
+`@deprecated` annotation naming its replacement, because `@semio/ui` is published
+and a consumer naming the key would otherwise fail typecheck or render nothing.
+`preview-open` and `preview-close` (eye and eye-off) are deprecated in favour of
+`inspect` and `close`.
+
 The generated custom map keeps visual glyph keys for external compatibility.
 Approved replacements are recorded in the generator's `DEPRECATED_CUSTOM_KEYS`
 and emitted as `@deprecated` annotations. These glyph names are implementation

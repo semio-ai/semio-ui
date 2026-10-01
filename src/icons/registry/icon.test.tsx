@@ -171,3 +171,16 @@ describe("semantic override boundaries", () => {
     expect(html.match(/<svg/g)).toHaveLength(2);
   });
 });
+
+// A published key that names a superseded role keeps resolving to the artwork it
+// shipped with, so a consumer still naming it renders what it rendered before.
+describe("deprecated role keys", () => {
+  it.each([
+    ["preview-open", "eye"],
+    ["preview-close", "eye-off"],
+  ] as const)("%s still renders the %s glyph", (deprecated, glyph) => {
+    const html = renderToStaticMarkup(<Icon name={deprecated} />);
+    expect(html).toContain("<svg");
+    expect(html).toBe(renderToStaticMarkup(<Icon name={glyph} />));
+  });
+});
