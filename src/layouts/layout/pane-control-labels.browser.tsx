@@ -30,7 +30,9 @@ const PANE_ICON = <Icon name="action-placeholder" />;
 type Labels = Pick<PaneSpec, "openLabel" | "closeLabel">;
 
 const UNNAMED: Labels = {};
-const NAMED: Labels = { openLabel: "Open inspector", closeLabel: "Close inspector" };
+// Names no implementation spells, so a control that hard-codes its wording — any
+// wording — cannot pass the named-pane tests by coincidence.
+const NAMED: Labels = { openLabel: "Open diagnostics", closeLabel: "Close diagnostics" };
 const EMPTY: Labels = { openLabel: "", closeLabel: "" };
 
 /**
@@ -124,38 +126,38 @@ test("narrow layout: a right pane's own names reach the toggle and its close but
   await page.viewport(MOBILE.width, MOBILE.height);
   await renderLayout(NAMED);
 
-  await expect.poll(() => namesIn(".grid-area-header")).toContain("Open inspector");
+  await expect.poll(() => namesIn(".grid-area-header")).toContain("Open diagnostics");
   expect(namesIn("body")).not.toContain("Toggle side panel");
-  await userEvent.click(buttonIn(".grid-area-header", "Open inspector"));
+  await userEvent.click(buttonIn(".grid-area-header", "Open diagnostics"));
   await expect.poll(rightPaneShowing).toBe(true);
 
-  expect(namesIn(".grid-area-header")).toContain("Close inspector");
-  expect(namesIn(".grid-area-side")).toContain("Close inspector");
+  expect(namesIn(".grid-area-header")).toContain("Close diagnostics");
+  expect(namesIn(".grid-area-side")).toContain("Close diagnostics");
   expect(namesIn("body")).not.toContain("Close panel");
 
   // The header control closes it as well as the pane's own button does.
-  await userEvent.click(buttonIn(".grid-area-header", "Close inspector"));
+  await userEvent.click(buttonIn(".grid-area-header", "Close diagnostics"));
   await expect.poll(rightPaneShowing).toBe(false);
-  await expect.poll(() => namesIn(".grid-area-header")).toContain("Open inspector");
+  await expect.poll(() => namesIn(".grid-area-header")).toContain("Open diagnostics");
 });
 
 test("narrow layout: covered by a left pane, the toggle is named for opening", async () => {
   await page.viewport(MOBILE.width, MOBILE.height);
   await renderLayout(NAMED);
 
-  await expect.poll(() => namesIn(".grid-area-header")).toContain("Open inspector");
-  await userEvent.click(buttonIn(".grid-area-header", "Open inspector"));
+  await expect.poll(() => namesIn(".grid-area-header")).toContain("Open diagnostics");
+  await userEvent.click(buttonIn(".grid-area-header", "Open diagnostics"));
   await expect.poll(rightPaneShowing).toBe(true);
 
   // Still open, but under the left pane: pressing the toggle brings it forward, so its
   // name has to say open, not close.
   await userEvent.click(page.getByRole("button", { name: "toggle left" }));
   await expect.poll(rightPaneShowing).toBe(false);
-  expect(namesIn(".grid-area-header")).toContain("Open inspector");
+  expect(namesIn(".grid-area-header")).toContain("Open diagnostics");
 
-  await userEvent.click(buttonIn(".grid-area-header", "Open inspector"));
+  await userEvent.click(buttonIn(".grid-area-header", "Open diagnostics"));
   await expect.poll(rightPaneShowing).toBe(true);
-  expect(namesIn(".grid-area-header")).toContain("Close inspector");
+  expect(namesIn(".grid-area-header")).toContain("Close diagnostics");
 });
 
 test("docked layout: an unnamed right pane's controls use neutral names", async () => {
@@ -177,10 +179,10 @@ test("docked layout: a right pane's own names reach the toggle and its close but
   await page.viewport(DESKTOP.width, DESKTOP.height);
   await renderLayout(NAMED);
 
-  await expect.poll(() => namesIn(".grid-area-header")).toContain("Open inspector");
+  await expect.poll(() => namesIn(".grid-area-header")).toContain("Open diagnostics");
   expect(namesIn("body")).not.toContain("Toggle side panel");
-  await userEvent.click(buttonIn(".grid-area-header", "Open inspector"));
-  await expect.poll(() => namesIn(".grid-area-right")).toContain("Close inspector");
+  await userEvent.click(buttonIn(".grid-area-header", "Open diagnostics"));
+  await expect.poll(() => namesIn(".grid-area-right")).toContain("Close diagnostics");
   expect(namesIn("body")).not.toContain("Close panel");
 });
 

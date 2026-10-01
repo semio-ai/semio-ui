@@ -6,7 +6,7 @@ import { Icon } from "./icon";
  *
  * One representative glyph is mapped here to prove the loop — the contract is
  * `registry key == Figma component name (Icon/<key>) == <Icon name="<key>" />`.
- * The full 332-entry set is generated from figma/icon-manifest.json in the
+ * The full set is generated from figma/icon-manifest.json in the
  * rollout (STUDIO-65/70), rather than hand-written. Node = Icon/box on the
  * 🔣 Icons page.
  */
