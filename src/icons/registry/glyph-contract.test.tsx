@@ -5,6 +5,26 @@ import { Icon } from "./icon";
 // Exercise the public registry boundary: styling/accessibility must reach the SVG
 // even when a glyph comes from a custom factory or a curve component.
 describe("Solar-style glyph props through the registry", () => {
+  it.each([
+    "hide",
+    "mute",
+    "state-hidden",
+    "state-muted",
+    "state-unmuted",
+    "speaker",
+    "unmute",
+    "eye-off",
+    "speaker-off",
+  ] as const)("%s uses the shared secondary opacity", (name) => {
+    const html = renderToStaticMarkup(<Icon name={name} />);
+    const partial = [...html.matchAll(/(?:stroke-opacity|fill-opacity|opacity)="(0\.\d+)"/g)].map(
+      ([, value]) => value,
+    );
+
+    expect(partial.length).toBeGreaterThan(0);
+    expect(new Set(partial)).toEqual(new Set(["0.6"]));
+  });
+
   it("uses 60% secondary detail without changing state-controlled opacity", () => {
     const custom = renderToStaticMarkup(<Icon name="user" />);
     const key = renderToStaticMarkup(<Icon name="key" fillOpacity={0.5} />);

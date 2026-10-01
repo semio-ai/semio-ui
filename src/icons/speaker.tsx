@@ -24,14 +24,14 @@ const Speaker: ForwardRefExoticComponent<IconProps & RefAttributes<SVGSVGElement
           strokeWidth="1.5"
         />
         <path
-          opacity="0.4"
+          opacity="0.6"
           d="M20 6C20 6 21.5 7.8 21.5 12C21.5 16.2 20 18 20 18"
           stroke="currentColor"
           strokeWidth="1.5"
           strokeLinecap="round"
         />
         <path
-          opacity="0.7"
+          opacity="0.6"
           d="M18 9C18 9 18.5 9.9 18.5 12C18.5 14.1 18 15 18 15"
           stroke="currentColor"
           strokeWidth="1.5"
