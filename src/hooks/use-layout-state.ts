@@ -1,7 +1,4 @@
-import { useEffect } from "react";
-import { useAtom } from "jotai";
 import {
-  desktopAtom,
   useMenuState,
   useLeftWidth,
   useRightWidth,
@@ -9,7 +6,11 @@ import {
   useLeftRegionActive,
   useRightRegionActive,
   useFooterRegionActive,
+  useLeftExpanded,
+  useRightExpanded,
+  useContentVisible,
 } from "./layout-atoms";
+import { useIsDesktop } from "./use-is-desktop";
 
 export interface LayoutState {
   desktop: boolean;
@@ -20,10 +21,16 @@ export interface LayoutState {
   leftRegionActive: boolean;
   rightRegionActive: boolean;
   footerRegionActive: boolean;
+  /** A left pane is spanning over the content area ({@link PaneSpec.expanded}). */
+  leftExpanded: boolean;
+  /** A right pane is spanning over the content area. */
+  rightExpanded: boolean;
+  /** Nothing is covering the content area — see `contentVisibleAtom`. */
+  contentVisible: boolean;
 }
 
 export function useLayoutState(): LayoutState {
-  const desktopMatcher = window.matchMedia("((width >= 48rem) and (height >= 48rem))");
+  const desktop = useIsDesktop();
   const menuExpanded = useMenuState();
   const leftWidth = useLeftWidth();
   const rightWidth = useRightWidth();
@@ -32,18 +39,9 @@ export function useLayoutState(): LayoutState {
   const leftRegionActive = useLeftRegionActive();
   const rightRegionActive = useRightRegionActive();
   const footerRegionActive = useFooterRegionActive();
-
-  const [desktop, setDesktop] = useAtom(desktopAtom);
-  useEffect(() => {
-    setDesktop(desktopMatcher.matches);
-    const listener = (e: MediaQueryListEvent) => {
-      setDesktop(e.matches);
-    };
-    desktopMatcher.addEventListener("change", listener);
-    return () => {
-      desktopMatcher.removeEventListener("change", listener);
-    };
-  }, [desktopMatcher, setDesktop]);
+  const leftExpanded = useLeftExpanded();
+  const rightExpanded = useRightExpanded();
+  const contentVisible = useContentVisible();
 
   return {
     desktop,
@@ -54,5 +52,8 @@ export function useLayoutState(): LayoutState {
     leftRegionActive,
     rightRegionActive,
     footerRegionActive,
+    leftExpanded,
+    rightExpanded,
+    contentVisible,
   };
 }

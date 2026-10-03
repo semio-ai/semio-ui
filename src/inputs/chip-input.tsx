@@ -9,14 +9,13 @@ import {
   type ChangeEvent,
 } from "react";
 import { clsx } from "clsx";
-import { IconPlus } from "@tabler/icons-react";
 import { Variant, Size } from "../types";
 import { Chip } from "../chip";
 import { NestedOption } from "../nested-elements/types";
 import { Dropdown } from "../floating/dropdown";
 import { NestedSelect } from "../nested-elements/select";
 import { Button } from "../buttons/button";
-import { ICON_CLASS_NAME } from "../constants/icon";
+import { Icon } from "../icons/registry";
 
 export interface ChipInputProps {
   selectedValues: string[];
@@ -44,7 +43,9 @@ export interface ChipInputProps {
  * @param bg - Whether to show background
  * @param outline - Outline behavior
  * @param subtle - Whether to use subtle text styling
- * @param placeholder - Placeholder text when no chips selected
+ * @param placeholder - Prompt shown while the field accepts more input. Defaults
+ *   by mode, because the two modes ask for different actions: a field that takes
+ *   typing says how to commit it, a field that only opens a menu does not.
  * @param disabled - Whether the component is disabled
  * @param className - Additional CSS classes
  * @param allowCustomValues - Whether to allow typing custom values
@@ -60,7 +61,7 @@ const InnerChipInput = forwardRef(
       bg = false,
       outline = "interact",
       subtle,
-      placeholder = "Select options...",
+      placeholder,
       disabled = false,
       className,
       allowCustomValues = false,
@@ -68,6 +69,22 @@ const InnerChipInput = forwardRef(
     ref: ForwardedRef<HTMLDivElement>,
   ): ReactNode => {
     const [inputValue, setInputValue] = useState("");
+    /**
+     * One prompt, in every state.
+     *
+     * Sourcing it from two elements — a span while the field is empty, the
+     * input's own placeholder once it is not — gives the field two of
+     * everything. Two strings, of which a caller can only name one, so its
+     * chosen wording is replaced by wording it did not choose at the moment the
+     * field starts being used. And two colours, because a span inherits body
+     * text where a placeholder is muted, which makes an empty field read as
+     * though it already CONTAINS the word.
+     *
+     * So the prompt is the input's native placeholder wherever there is an
+     * input, and the span stands in only where there is none.
+     */
+    const prompt =
+      placeholder ?? (allowCustomValues ? "Type and press Enter..." : "Select options...");
     const inputRef = useRef<HTMLInputElement>(null);
 
     const selectedOptions = selectedValues.map((value) => {
@@ -147,7 +164,7 @@ const InnerChipInput = forwardRef(
         role={allowCustomValues && !disabled ? "button" : undefined}
         tabIndex={allowCustomValues && !disabled ? 0 : undefined}
         className={clsx(
-          "responsive relative grid grid-cols-[minmax(0,1fr)_auto] gap-1",
+          "variant-scope relative grid grid-cols-[minmax(0,1fr)_auto] gap-1",
           bg && "bg-neutral-50/20 dark:bg-neutral-950/20",
           "rounded-xs",
           outline === "interact" && "parent-outline variant-responsive-appearing-outline",
@@ -169,11 +186,7 @@ const InnerChipInput = forwardRef(
                 variant={option.variant ?? variant}
                 size={size}
                 color={option.color}
-                renderIcon={
-                  option.icon
-                    ? (iconClassName: string) => <div className={iconClassName}>{option.icon}</div>
-                    : undefined
-                }
+                icon={option.icon}
                 onDelete={
                   !disabled && !option.disabled ? () => handleChipDelete(option.value) : undefined
                 }
@@ -181,11 +194,20 @@ const InnerChipInput = forwardRef(
                 {option.label}
               </Chip>
             ))}
-          {selectedOptions.length === 0 && (!allowCustomValues || !inputValue) && (
+          {/* Only when there is no input to carry a native placeholder. With
+              one, this span would render the same words a second time, beside
+              it. Muted to match `placeholder:text-neutral-400` below: it stands
+              in for a placeholder, so it has to read as one rather than as
+              something already entered. */}
+          {selectedOptions.length === 0 && !allowCustomValues && (
             <span
-              className={clsx(size, "sized-text sized-height flex items-center pl-1 text-left")}
+              className={clsx(
+                size,
+                "sized-text sized-height flex items-center pl-1 text-left",
+                "text-neutral-400 dark:text-neutral-600",
+              )}
             >
-              {placeholder}
+              {prompt}
             </span>
           )}
           {allowCustomValues && (
@@ -201,9 +223,7 @@ const InnerChipInput = forwardRef(
                 "sized-text sized-height min-w-[100px] flex-1 border-none bg-transparent pl-1 outline-none",
                 "placeholder:text-neutral-400 dark:placeholder:text-neutral-600",
               )}
-              placeholder={
-                selectedOptions.length === 0 && !inputValue ? "" : "Type and press Enter..."
-              }
+              placeholder={prompt}
             />
           )}
         </div>
@@ -213,7 +233,7 @@ const InnerChipInput = forwardRef(
               <Button
                 visuals="inverted"
                 size={size}
-                leftIcon={<IconPlus className={ICON_CLASS_NAME} />}
+                leftIcon={<Icon name="add" />}
               />
             }
             variant={variant}

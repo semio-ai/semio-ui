@@ -1,0 +1,18 @@
+{
+  "component": "TextField",
+  "nodeId": "496:628",
+  "capturedAt": "2026-07-20",
+  "source": "Captured via the Figma MCP (use_figma reads of node 496:628 — the TextField component set on the 🧩 Components page of the Semio UI Library file, key supplied at session start, not committed). The Figma component implements a DOCUMENTED SUBSET of the code contract (see packages/ui/docs/figma-design-system-mapping.md). Refresh from the live file before running in CI.",
+  "variantOptions": {
+    "Outline": ["interact", "always", "hidden"],
+    "Variant": ["default", "primary", "secondary", "tertiary", "error"],
+    "State": ["default", "hover", "focus", "disabled"]
+  },
+  "properties": ["Placeholder", "Show icon", "Icon left"],
+  "sampleVariant": {
+    "cornerRadius": 2,
+    "ringStrokeVar": "color/primary/bg-hover",
+    "placeholderFillVar": "color/content/muted",
+    "fontFamilyBound": true
+  }
+}

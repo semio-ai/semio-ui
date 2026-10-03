@@ -1,12 +1,16 @@
 import { type ReactNode, type MouseEvent } from "react";
 import { AlertDialog } from "radix-ui";
 import { clsx } from "clsx";
-import { IconX } from "@tabler/icons-react";
 import { Variant } from "../types";
 import { Button } from "../buttons/button";
 
 export interface DialogProps {
-  children: ReactNode;
+  /**
+   * Optional body. Omitted for the confirmation-only form, which is the
+   * common case: the header's title/description carry the whole message and
+   * `hasBody` skips the padded body band and its dividers entirely.
+   */
+  children?: ReactNode;
   open: boolean;
   title?: ReactNode;
   description?: string;
@@ -29,6 +33,8 @@ export interface DialogProps {
    * for the same semantics.
    */
   closeOnSubmitClick?: boolean;
+  /** Custom container for the dialog portal. Defaults to `document.body`. */
+  portalContainer?: HTMLElement | null;
 }
 
 /**
@@ -85,6 +91,7 @@ export function Dialog({
   onCancel,
   variant,
   closeOnSubmitClick = true,
+  portalContainer,
 }: DialogProps) {
   const submitButton = onSubmit && (
     <Button
@@ -108,7 +115,7 @@ export function Dialog({
   const hasFooter = Boolean(onCancel || submitButton);
   return (
     <AlertDialog.Root open={open} onOpenChange={onStateChange}>
-      <AlertDialog.Portal>
+      <AlertDialog.Portal container={portalContainer ?? undefined}>
         <AlertDialog.Overlay
           forceMount
           className={clsx(
@@ -120,11 +127,13 @@ export function Dialog({
           <AlertDialog.Content
             forceMount
             className={clsx(
-              "responsive",
+              "variant-scope",
               variant,
               "flex flex-col overflow-clip focus:outline-hidden",
               "card animated-modal",
-              "h-fit max-h-screen w-fit",
+              // Cap to the viewport so a long title can't push the dialog (and
+              // its close button) off-screen; the title then clips instead.
+              "h-fit max-h-screen w-fit max-w-[calc(100vw-1rem)]",
             )}
           >
             <div
@@ -142,8 +151,12 @@ export function Dialog({
                 <AlertDialog.Title
                   className={clsx(
                     variant,
-                    "align-center flex text-base/7 font-medium",
-                    "responsive variant-static-text justify-between",
+                    "flex items-center text-base/7 font-medium whitespace-nowrap",
+                    // `min-w-0` + `overflow-hidden` let a long title clip instead
+                    // of forcing the dialog wider than the viewport (which pushed
+                    // the close button off-screen); `whitespace-nowrap` still keeps
+                    // short titles on a single line.
+                    "variant-scope variant-static-text min-w-0 overflow-hidden",
                   )}
                 >
                   {title}
@@ -151,8 +164,9 @@ export function Dialog({
                 <AlertDialog.Cancel asChild>
                   <Button
                     tabIndex={0}
+                    className="shrink-0"
                     variant={variant}
-                    leftIcon={<IconX />}
+                    leftIcon="close"
                     altText={cancelText}
                   />
                 </AlertDialog.Cancel>

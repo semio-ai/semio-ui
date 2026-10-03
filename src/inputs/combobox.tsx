@@ -1,8 +1,7 @@
 import { type CSSProperties, type ReactNode, type Ref, useId, useMemo } from "react";
 import { Combobox as ComboboxPrimitive } from "@base-ui/react/combobox";
 import { clsx } from "clsx";
-import { IconChevronDown, IconPointFilled } from "@tabler/icons-react";
-import { ICON_CLASS_NAME } from "../constants/icon";
+import { Icon, resolveIcon, type IconValue } from "../icons/registry";
 import { Size, Variant } from "../types";
 import { ScrollArea } from "../layouts/scroll-area";
 import {
@@ -28,7 +27,7 @@ export interface ComboboxOption<TValue extends string = string> {
   disabled?: boolean;
   color?: string;
   variant?: Variant;
-  icon?: ReactNode;
+  icon?: IconValue;
 }
 
 export interface ComboboxGroup<TValue extends string = string> {
@@ -60,7 +59,7 @@ export interface ComboboxProps<TValue extends string = string> {
   readOnly?: boolean;
   required?: boolean;
   /** Show a left-side icon. Defaults to the selected option's icon (if any). */
-  leftIcon?: ReactNode | null;
+  leftIcon?: IconValue;
   bg?: boolean;
   outline?: "hidden" | "interact" | "always";
   emptyContent?: ReactNode;
@@ -73,7 +72,17 @@ export interface ComboboxProps<TValue extends string = string> {
   name?: string;
   className?: string;
   inputClassName?: string;
+  /**
+   * Extra classes for the **Popup** — the element carrying the surface: fill, radius,
+   * shadow, padding, max-height.
+   *
+   * Not the Positioner above it, which is the `position: absolute` element. So a
+   * `z-index` here is inert, and there is nothing on the Positioner for it to reach:
+   * that element carries no `z-index` at all. Stacking is the host's, via
+   * `portalContainer`.
+   */
   popupClassName?: string;
+  /** Custom container for the popup portal (e.g. inside a modal). */
   portalContainer?: HTMLElement | null;
 }
 
@@ -124,12 +133,21 @@ export function Combobox<TValue extends string>({
 
   return (
     <ComboboxPrimitive.Root<ComboboxOption<TValue>, false>
-      // Pass `flatOptions` (not raw `options`) — when grouped, `options` is
-      // `ComboboxGroup[]` whose entries lack a `value`, which would break
-      // base-ui's `itemToStringValue` / `isItemEqualToValue` callbacks. We
-      // still render groups in the List below; this prop is only for the
-      // store's flat item set.
-      items={flatOptions}
+      // **Grouped options reach the root AS GROUPS**, and flat ones flat.
+      //
+      // `List`'s children function iterates whatever the ROOT was given, so this
+      // prop decides what the grouped branch below receives. Handed a flat list it
+      // is called with OPTIONS where it expects groups: `group.label` is undefined
+      // and `group.items` is undefined, so every heading renders empty while the
+      // options themselves still list — grouping that silently degrades to none.
+      //
+      // Passing groups is safe for the callbacks under them. base-ui detects a
+      // group by the presence of an `items` array (`isGroupedItems`), flattens
+      // them for its own store, and applies `itemToStringLabel`/`itemToStringValue`
+      // to the LEAVES. It also filters per group and drops a group whose items all
+      // filter out, which is why an empty group renders nothing rather than a
+      // heading over a void.
+      items={grouped ? (options as ComboboxGroup<TValue>[]) : flatOptions}
       value={selectedOption}
       onValueChange={(next) => {
         if (next == null) {
@@ -163,7 +181,7 @@ export function Combobox<TValue extends string>({
             className={leftIconClassName(size, selectedOption?.variant ?? variant)}
             aria-hidden="true"
           >
-            {resolvedLeftIcon}
+            {resolveIcon(resolvedLeftIcon)}
           </span>
         )}
         <ComboboxPrimitive.Input
@@ -185,7 +203,7 @@ export function Combobox<TValue extends string>({
           className={rightChevronClassName(size, variant)}
           aria-label="Toggle options"
         >
-          <IconChevronDown className={ICON_CLASS_NAME} />
+          <Icon name="select-indicator" />
         </ComboboxPrimitive.Trigger>
       </ComboboxPrimitive.InputGroup>
 
@@ -275,7 +293,7 @@ function ComboboxItemRow<TValue extends string>({
         <div {...props} data-state={isSelected ? "checked" : "unchecked"}>
           <span className={itemIndicatorClassName({ variant: itemVariant, color: option.color })}>
             <span className="icon-slot">
-              {option.icon ?? <IconPointFilled className={ICON_CLASS_NAME} />}
+              {resolveIcon(option.icon) ?? <Icon name="option-placeholder" />}
             </span>
           </span>
           {renderItem

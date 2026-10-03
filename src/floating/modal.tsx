@@ -1,7 +1,6 @@
-import { type ReactNode, type MouseEvent } from "react";
+import { useRef, type ReactNode, type MouseEvent } from "react";
 import { Dialog } from "@base-ui/react/dialog";
 import { clsx } from "clsx";
-import { IconX } from "@tabler/icons-react";
 import { ScrollArea } from "../layouts/scroll-area";
 import { Variant } from "../types";
 import { Button } from "../buttons/button";
@@ -12,7 +11,13 @@ export interface ModalProps {
   title?: string | ReactNode;
   description?: string | ReactNode;
   headerBottom?: ReactNode;
+  /** Custom actions inside the standard divided footer. */
+  footer?: ReactNode;
+  /** Status or error content to the left of the footer actions. */
+  footerStatus?: ReactNode;
   dismissDisabled?: boolean;
+  /** Keep the close button visible when dismissal is disabled. */
+  showDisabledClose?: boolean;
   submitDisabled?: boolean;
   submitText?: string;
   onStateChange: (open: boolean) => void;
@@ -37,6 +42,23 @@ export interface ModalProps {
    * in-flight submit.
    */
   closeOnSubmitClick?: boolean;
+  /**
+   * How wide the modal gets on desktop.
+   *
+   * - `"fit"` (default) — sized by its content, floored at `min-w-96`. Right for
+   *   a confirmation or a couple of fields, where a fixed width would leave a
+   *   short sentence stranded in a wide box.
+   * - `"medium"` — the sign-in surface's desktop width, up to 46.875rem.
+   * - `"wide"` — the clamped width `SidebarModal` uses, `clamp(40rem, 80vw,
+   *   72rem)`. Right for a form with sections and side-by-side fields, where
+   *   `"fit"` collapses to the widest single control and everything wraps.
+   *
+   * Deliberately opt-in rather than a new default: most modals here are the
+   *  first kind, and widening them all would be a worse fit for each.
+   */
+  size?: "fit" | "medium" | "wide";
+  /** Custom container for the dialog portal. Defaults to `document.body`. */
+  portalContainer?: HTMLElement | null;
 }
 
 /**
@@ -85,7 +107,10 @@ export function Modal({
   title,
   description,
   headerBottom,
+  footer,
+  footerStatus,
   dismissDisabled = false,
+  showDisabledClose = false,
   submitDisabled,
   submitText = "Submit",
   onStateChange,
@@ -93,8 +118,12 @@ export function Modal({
   onCancel,
   variant,
   closeOnSubmitClick = true,
+  size = "fit",
+  portalContainer,
 }: ModalProps) {
-  const showFooter = onSubmit || onCancel;
+  const popupRef = useRef<HTMLDivElement>(null);
+  const footerRef = useRef<HTMLDivElement>(null);
+  const showFooter = footer || footerStatus || onSubmit || onCancel;
   const showHeader = title || description;
   const submitButton = onSubmit && (
     <Button
@@ -126,7 +155,7 @@ export function Modal({
       // `onOpenChange` guard above covers escape/focus-out too.
       disablePointerDismissal={dismissDisabled}
     >
-      <Dialog.Portal>
+      <Dialog.Portal container={portalContainer ?? undefined}>
         <Dialog.Backdrop
           className={clsx(
             "fixed inset-0 bg-black/40",
@@ -136,31 +165,89 @@ export function Modal({
         />
         <Dialog.Viewport className="fixed inset-0 grid place-items-center p-0">
           <Dialog.Popup
+            ref={popupRef}
+            initialFocus={(openType) => {
+              // Custom footers may change visual order, so choose the rightmost
+              // enabled action by position rather than assuming DOM order.
+              const actions = Array.from(
+                footerRef.current?.querySelectorAll<HTMLElement>("button, a[href]") ?? [],
+              ).filter(
+                (action) =>
+                  action.getClientRects().length > 0 &&
+                  !action.matches(":disabled, [aria-disabled='true']"),
+              );
+              const rightmost = actions.reduce<HTMLElement | null>(
+                (candidate, action) =>
+                  !candidate ||
+                  action.getBoundingClientRect().right >= candidate.getBoundingClientRect().right
+                    ? action
+                    : candidate,
+                null,
+              );
+              // A footer button cannot open the virtual keyboard. Without one,
+              // keep the dialog primitive's touch behavior of focusing the popup.
+              return rightmost ?? (openType === "touch" ? popupRef.current : true);
+            }}
             className={clsx(
-              "responsive flex flex-col focus:outline-hidden",
+              "variant-scope flex flex-col focus:outline-hidden",
               "card overflow-clip",
               variant,
               "h-[calc(100dvh-4px)] w-[calc(100vw-4px)]",
               "desktop:max-w-[calc(100vw-4px)] desktop:max-h-[calc(100dvh-4px)]",
-              "desktop:min-h-72 desktop:min-w-96",
-              "desktop:h-fit desktop:w-fit",
-              // Slide-up + fade in, slide-down + fade out. Matches the
-              // `animated-modal` keyframes that the Radix-backed version
-              // used, expressed via base-ui's `data-starting-style` /
+              "desktop:min-h-72",
+              // A DEFINITE height for the wide form, not `h-fit`. `fit-content`
+              // leaves the popup's height indefinite during layout, so every
+              // percentage and flex basis inside it resolves to `auto` and the
+              // scroller grows to its content instead of capping it — which is
+              // why a tall modal had nothing to scroll. The clamp is
+              // `SidebarModal`'s, which is where this was already solved.
+              size === "wide"
+                ? "desktop:h-[clamp(24rem,75dvh,calc(100dvh-4rem))]"
+                : "desktop:h-fit",
+              // Width is the one dimension that differs by kind of modal; see
+              // the `size` prop. The clamp is `SidebarModal`'s, so the two large
+              // surfaces in the app agree about how wide "large" is.
+              size === "wide"
+                ? "desktop:w-[clamp(40rem,80vw,72rem)]"
+                : size === "medium"
+                  ? "desktop:w-[min(75vw,46.875rem)]"
+                  : "desktop:min-w-96 desktop:w-fit",
+              // Fade plus a short vertical slide, via base-ui's `data-starting-style` /
               // `data-ending-style` transition hooks.
-              "transition-[opacity,scale] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]",
-              "data-starting-style:opacity-0 data-starting-style:scale-90",
-              "data-ending-style:opacity-0 data-ending-style:scale-90",
+              //
+              // **Translate, never scale, and the difference is not cosmetic.** A scale
+              // transition resizes the whole subtree: at 0.9 a 16px glyph paints at
+              // 14.4px, every intermediate value is fractional too, and the box beneath
+              // it changes size at the same time — so fine artwork visibly slides inside
+              // boxes that never moved, then settles when the transition ends. Sizing
+              // glyphs in whole pixels does not help, because that fixes where they sit
+              // at rest and the animation is what moves them.
+              //
+              // Translate has no such effect. Nothing is resized — a 16px glyph is 16px
+              // at every frame — and the resting state is exactly `translate: none` over
+              // a whole-pixel travel, so the final rasterization is the same one the
+              // element would have had with no animation at all. Motion during the
+              // transition reads as motion, which is the point; it is content shifting
+              // against a stationary box that reads as a defect.
+              //
+              // Keep the distance a whole number of pixels. A fractional travel lands
+              // the element off the pixel grid on the way and can settle visibly at the
+              // end, which is the failure this comment exists to prevent.
+              "transition-[opacity,translate] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]",
+              "data-starting-style:opacity-0 data-starting-style:translate-y-2",
+              "data-ending-style:opacity-0 data-ending-style:translate-y-2",
             )}
           >
             <ScrollArea
               orientation="vertical"
-              className={clsx(
-                "h-[calc(100dvh-4px)] w-[calc(100vw-4px)]",
-                "desktop:max-w-[calc(100vw-4px)] desktop:max-h-[calc(100dvh-4px)]",
-                "desktop:min-h-72 desktop:min-w-96",
-                "desktop:h-fit desktop:w-fit",
-              )}
+              // `wrapperClassName`, and no size of its own. `ScrollArea` puts
+              // `className` on its VIEWPORT and `wrapperClassName` on its root;
+              // the popup above already carries every size constraint, so the
+              // scroller's whole job is to fill it. Sizing the viewport instead
+              // made it size from its own content, which is both how the form
+              // came to sit in a narrow column inside a wide dialog and half of
+              // why a tall modal had nothing to scroll (STUDIO-193).
+              wrapperClassName="min-h-0 w-full flex-1"
               header={
                 <div
                   className={clsx(
@@ -177,15 +264,21 @@ export function Modal({
                         className={clsx(
                           variant,
                           "align-center flex text-base/7 font-medium",
-                          "responsive variant-static-text justify-between",
+                          "variant-scope variant-static-text justify-between",
                         )}
                       >
                         {title}
                       </Dialog.Title>
-                      {!dismissDisabled && (
+                      {(!dismissDisabled || showDisabledClose) && (
                         <Dialog.Close
                           render={(props) => (
-                            <Button {...props} variant={variant} leftIcon={<IconX />} />
+                            <Button
+                              {...props}
+                              altText="Close"
+                              disabled={dismissDisabled}
+                              variant={variant}
+                              leftIcon="close"
+                            />
                           )}
                         />
                       )}
@@ -200,21 +293,28 @@ export function Modal({
               }
               footer={
                 showFooter && (
-                  <div className="flex justify-end gap-3 p-3 border-t border-neutral-500/15">
-                    {onCancel && (
-                      <Button
-                        tabIndex={0}
-                        variant={Variant.Default}
-                        onClick={(event) => {
-                          onCancel(event);
-                          onStateChange(false);
-                        }}
-                        disabled={dismissDisabled}
-                      >
-                        Cancel
-                      </Button>
+                  <div
+                    ref={footerRef}
+                    className="flex justify-end gap-3 p-3 border-t border-neutral-500/15"
+                  >
+                    {footerStatus && (
+                      <div className="min-w-0 flex-1 self-center">{footerStatus}</div>
                     )}
-                    {submitButton}
+                    {footer ??
+                      (onCancel && (
+                        <Button
+                          tabIndex={0}
+                          variant={Variant.Default}
+                          onClick={(event) => {
+                            onCancel(event);
+                            onStateChange(false);
+                          }}
+                          disabled={dismissDisabled}
+                        >
+                          Cancel
+                        </Button>
+                      ))}
+                    {!footer && submitButton}
                   </div>
                 )
               }

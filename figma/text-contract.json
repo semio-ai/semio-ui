@@ -1,0 +1,25 @@
+{
+  "component": "Text",
+  "nodeId": "786:903",
+  "capturedAt": "2026-09-19",
+  "source": "use_figma read of node 786:903 (Text component set, 🧩 Components page of the Semio UI Library). One Role axis, one Label text property. Refresh from the live file before CI.",
+  "variantOptions": {
+    "Role": ["value", "label", "caption", "body", "note"]
+  },
+  "properties": ["Label", "Role"],
+  "variants": [
+    { "role": "value", "textStyle": "Text/sm", "colorToken": "color/content/fg" },
+    {
+      "role": "label",
+      "textStyle": "Text/xs · Semibold · Caps",
+      "colorToken": "color/content/muted"
+    },
+    { "role": "caption", "textStyle": "Text/xs", "colorToken": "color/content/muted" },
+    { "role": "body", "textStyle": "Text/sm", "colorToken": "color/content/prose" },
+    { "role": "note", "textStyle": "Text/sm", "colorToken": "color/content/muted" }
+  ],
+  "notModelled": [
+    "Selection. `::selection` and `user-select` have no Figma equivalent, so whether a role is selectable lives only in the .text-role-* classes; the browser tests are what check it.",
+    "The ambient-variant hue derivation. `label`, `caption` and `note` take their chroma and hue from the variant in context at their own lightness (`--text-role-l`), and this set has no Variant axis to express that — every specimen here is the default variant. The browser tests in text.browser.tsx are what check it."
+  ]
+}

@@ -1,6 +1,10 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Chip, Size, Variant } from "@semio/ui";
-import { IconUser } from "@tabler/icons-react";
+import { chipVariant } from "./figma-links";
+
+// Per-story Figma design link → the matching Chip preview frame (1:1).
+// Mirrors button.stories.tsx. Size / no-icon / no-delete stories reuse `info`.
+const design = (url: string) => ({ design: { type: "figma" as const, url } });
 
 const meta: Meta<typeof Chip> = {
   component: Chip,
@@ -25,11 +29,12 @@ type Story = StoryObj<typeof Chip>;
  * to learn how to use render functions.
  */
 export const Primary: Story = {
+  parameters: design(chipVariant.primary),
   render: (props) => <Chip {...props} />,
   name: "Default Chip",
   args: {
     children: "Hello World",
-    renderIcon: (cn: string) => <IconUser className={cn} />,
+    icon: "home",
     variant: Variant.Primary,
     onDelete: () => {
       console.log("Delete");
@@ -38,10 +43,11 @@ export const Primary: Story = {
 };
 
 export const CustomColor: Story = {
+  parameters: design(chipVariant.primary),
   render: (props) => <Chip {...props} />,
   args: {
     children: "Hello World",
-    renderIcon: (cn: string) => <IconUser className={cn} />,
+    icon: "home",
     color: "#ee11ee",
     onDelete: () => {
       console.log("Delete");
@@ -50,10 +56,11 @@ export const CustomColor: Story = {
 };
 
 export const ExtraSmall: Story = {
+  parameters: design(chipVariant.info),
   render: (props) => <Chip {...props} />,
   args: {
     children: "Hello World",
-    renderIcon: (cn: string) => <IconUser className={cn} />,
+    icon: "home",
     size: Size.Xs,
     variant: Variant.Info,
     onDelete: () => {
@@ -63,10 +70,11 @@ export const ExtraSmall: Story = {
 };
 
 export const Small: Story = {
+  parameters: design(chipVariant.info),
   render: (props) => <Chip {...props} />,
   args: {
     children: "Hello World",
-    renderIcon: (cn: string) => <IconUser className={cn} />,
+    icon: "home",
     size: Size.Sm,
     variant: Variant.Info,
     onDelete: () => {
@@ -76,10 +84,11 @@ export const Small: Story = {
 };
 
 export const Large: Story = {
+  parameters: design(chipVariant.info),
   render: (props) => <Chip {...props} />,
   args: {
     children: "Hello World",
-    renderIcon: (cn: string) => <IconUser className={cn} />,
+    icon: "home",
     size: Size.Lg,
     variant: Variant.Info,
     onDelete: () => {
@@ -89,10 +98,11 @@ export const Large: Story = {
 };
 
 export const ExtraLarge: Story = {
+  parameters: design(chipVariant.info),
   render: (props) => <Chip {...props} />,
   args: {
     children: "Hello World",
-    renderIcon: (cn: string) => <IconUser className={cn} />,
+    icon: "home",
     size: Size.Xl,
     variant: Variant.Info,
     onDelete: () => {
@@ -102,6 +112,7 @@ export const ExtraLarge: Story = {
 };
 
 export const NoIcon: Story = {
+  parameters: design(chipVariant.info),
   render: (props) => <Chip {...props} />,
   args: {
     children: "Hello World",
@@ -113,10 +124,11 @@ export const NoIcon: Story = {
 };
 
 export const NoDelete: Story = {
+  parameters: design(chipVariant.info),
   render: (props) => <Chip {...props} />,
   args: {
     children: "Hello World",
-    renderIcon: (cn: string) => <IconUser className={cn} />,
+    icon: "home",
     variant: Variant.Info,
   },
 };

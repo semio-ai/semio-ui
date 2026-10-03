@@ -22,7 +22,11 @@ export function Label({
         <span className="text-md text-neutral-500 capitalize">{label}</span>
         {message && (
           <span
-            className={clsx("text-error-500 text-xs", variant, "responsive variant-static-text")}
+            className={clsx(
+              "text-xs",
+              variant ?? Variant.Error,
+              "variant-scope variant-static-text",
+            )}
           >
             {message}
           </span>

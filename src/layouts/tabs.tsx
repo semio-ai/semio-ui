@@ -1,10 +1,10 @@
 import { Tabs as TabsPrimitive } from "@base-ui/react/tabs";
 import { memo, type ReactNode } from "react";
-import { IconHexagon } from "@tabler/icons-react";
 import { clsx } from "clsx";
 import { Tooltip } from "../floating/tooltip";
 import { Size, Variant } from "../types";
 import { useTabsState, type TabChild } from "../hooks/use-tabs-state";
+import { Icon, resolveIcon } from "../icons/registry";
 
 export interface TabsProps {
   visuals?: "icons" | "labels" | "both";
@@ -64,7 +64,7 @@ export function InnerTabsRow({
         <TabsPrimitive.Indicator
           renderBeforeHydration
           className={clsx(
-            "responsive absolute",
+            "variant-scope absolute",
             "sized-inner-group-item rounded-xs",
             "variant-static-bg-25",
             "variant-static-persistent-outline",
@@ -87,12 +87,19 @@ export function InnerTabsRow({
             <TabsPrimitive.Tab
               data-state={tabIdx === activeIndex ? "on" : "off"}
               className={clsx(
-                "responsive z-1",
+                "variant-scope z-1",
                 size,
                 tabChild.variant,
                 "sized-inner-group-item-height",
                 "grid place-items-center transition-colors",
-                selected ? "variant-responsive-text" : "variant-static-text",
+                // Both the label and the active indicator take their colour from the
+                // tab's own variant, so a label can end up on a paler tint of itself.
+                // This class clamps the label's lightness against the list ground it
+                // is read on; an unmodified brand shade there measured 1.6:1 for the
+                // warm hues. It applies to active and inactive alike — the active row
+                // adds only a 25% tint of the same hue, which does not change which
+                // side of the ground the label needs to sit on.
+                "variant-text-on-inset",
                 // `flex-1` distributes free space when tabs fit; `min-w-fit`
                 // keeps each tab at content-size when they don't, allowing the
                 // list to scroll horizontally instead of clipping labels.
@@ -102,7 +109,7 @@ export function InnerTabsRow({
             >
               <div
                 className={clsx(
-                  "responsive grid place-items-center",
+                  "variant-scope grid place-items-center",
                   size,
                   (visuals === "icons" || visuals === "labels") && "grid-cols-1 grid-rows-1",
                   visuals === "both" && "grid-cols-[auto_auto] grid-rows-1",
@@ -116,7 +123,7 @@ export function InnerTabsRow({
                       size,
                     )}
                   >
-                    {tabChild.icon ?? <IconHexagon className="size-2/5" />}
+                    {resolveIcon(tabChild.icon) ?? <Icon name="option-placeholder" size="none" className="size-2/5" />}
                   </p>
                 )}
                 {(visuals === "labels" || visuals === "both") && (

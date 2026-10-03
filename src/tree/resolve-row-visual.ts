@@ -25,7 +25,7 @@ export interface RowInteractionState {
  * - `variant` picks a theme palette (theme-aware; flips in dark mode).
  * - `color` overrides with an arbitrary custom color (a per-row hex/rgb, e.g. an
  *   animation track color). Takes precedence over `variant`.
- * The row applies these as the design-system `responsive` + variant/`custom-color`
+ * The row applies these as the design-system `variant-scope` + variant/`custom-color`
  * classes, so `bar`/`background` can reference `var(--accent-color)` and resolve
  * to that row's variant/color.
  *
@@ -56,7 +56,7 @@ export type ResolveRowVisual<TData = unknown> = (
 
 /**
  * Default: a faint tint on emphasis, a stronger tint + solid bar on selection —
- * driven by the theme-aware `--accent-color` (via the row's `responsive` class),
+ * driven by the theme-aware `--accent-color` (via the row's `variant-scope` class),
  * so it adapts to light/dark and to any per-row `variant`/`color`. With the
  * neutral `Default` variant this reads like the previous grey; a consumer's
  * resolver can return `{ variant }` or `{ color }` per row (spreading this

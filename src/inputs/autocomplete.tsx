@@ -1,8 +1,7 @@
 import { type ReactNode, type Ref, useEffect, useId } from "react";
 import { Autocomplete as AutocompletePrimitive } from "@base-ui/react/autocomplete";
 import { clsx } from "clsx";
-import { IconPointFilled, IconSearch, IconX } from "@tabler/icons-react";
-import { ICON_CLASS_NAME } from "../constants/icon";
+import { Icon, resolveIcon, type IconValue } from "../icons/registry";
 import { Size, Variant } from "../types";
 import { ScrollArea } from "../layouts/scroll-area";
 import {
@@ -40,6 +39,24 @@ export interface AutocompleteProps<TItem> {
   /** Delay in milliseconds before `onDebouncedChange` fires. Defaults to 0. */
   debounceMs?: number;
   onSelect: (item: TItem) => void;
+  /**
+   * What the input's text becomes when an item is picked.
+   *
+   * **Defaults to clearing the field, and that default is a bug fix rather than a
+   * preference.** Items are handed to the primitive as objects
+   * (`<Autocomplete.Item value={item}>`), and with nothing to convert them the
+   * primitive serialises the object straight into the input — a picked person turned
+   * the search box into `{"id":"…","userId":"…"}`. It writes that value AFTER
+   * `onSelect` runs, so a consumer clearing its own state in the handler is
+   * overwritten and cannot defend against it.
+   *
+   * This wrapper cannot infer the right string: it knows how to RENDER an item
+   * (`renderItem`) and how to KEY one (`getItemKey`), but neither is display text —
+   * a key is an id, and would be just as wrong in the box. So the default is to write
+   * nothing, and a consumer that wants the chosen label left in the field says which
+   * field that is.
+   */
+  itemToStringValue?: (item: TItem) => string;
   renderItem: (item: TItem, state: AutocompleteItemState) => ReactNode;
   getItemKey: (item: TItem) => string;
   getItemDisabled?: (item: TItem) => boolean;
@@ -48,7 +65,7 @@ export interface AutocompleteProps<TItem> {
    * styling used by `Select`/`NestedRadio` so popups feel consistent. If
    * omitted, a small bullet renders in the indicator.
    */
-  getItemIcon?: (item: TItem) => ReactNode;
+  getItemIcon?: (item: TItem) => IconValue;
   /** Ref to the underlying input element (for programmatic focus, etc.). React 19+:
    *  `ref` arrives as an ordinary prop, so this is not supported on React 18. */
   ref?: Ref<HTMLInputElement>;
@@ -59,7 +76,7 @@ export interface AutocompleteProps<TItem> {
   readOnly?: boolean;
   required?: boolean;
   /** Left-side icon. Defaults to a search icon. Pass `null` to omit. */
-  leftIcon?: ReactNode | null;
+  leftIcon?: IconValue;
   /** Background fill on the input. Defaults to true. */
   bg?: boolean;
   outline?: "hidden" | "interact" | "always";
@@ -76,6 +93,15 @@ export interface AutocompleteProps<TItem> {
   name?: string;
   className?: string;
   inputClassName?: string;
+  /**
+   * Extra classes for the **Popup** — the element carrying the surface: fill, radius,
+   * shadow, padding, max-height.
+   *
+   * Not the Positioner above it, which is the `position: absolute` element. So a
+   * `z-index` here is inert, and there is nothing on the Positioner for it to reach:
+   * that element carries no `z-index` at all. Stacking is the host's, via
+   * `portalContainer`.
+   */
   popupClassName?: string;
   /** Custom container for the popup portal (e.g. inside a modal). */
   portalContainer?: HTMLElement | null;
@@ -88,6 +114,7 @@ export function Autocomplete<TItem>({
   onDebouncedChange,
   debounceMs = 0,
   onSelect,
+  itemToStringValue = () => "",
   renderItem,
   getItemKey,
   getItemDisabled,
@@ -118,8 +145,7 @@ export function Autocomplete<TItem>({
   const generatedId = useId();
   const inputId = id ?? generatedId;
   const showClear = value.length > 0 && !disabled && !readOnly;
-  const resolvedLeftIcon =
-    leftIcon === undefined ? <IconSearch className={ICON_CLASS_NAME} /> : leftIcon;
+  const resolvedLeftIcon = leftIcon === undefined ? <Icon name="search" /> : leftIcon;
 
   useEffect(() => {
     if (!onDebouncedChange) {
@@ -141,6 +167,7 @@ export function Autocomplete<TItem>({
     <AutocompletePrimitive.Root
       mode="none"
       items={items}
+      itemToStringValue={itemToStringValue}
       value={value}
       onValueChange={(next) => onChange(next)}
       open={open}
@@ -156,7 +183,7 @@ export function Autocomplete<TItem>({
       <AutocompletePrimitive.InputGroup className={clsx(inputGroupClassName(size), className)}>
         {resolvedLeftIcon != null && (
           <span className={leftIconClassName(size, variant)} aria-hidden="true">
-            {resolvedLeftIcon}
+            {resolveIcon(resolvedLeftIcon)}
           </span>
         )}
         <AutocompletePrimitive.Input
@@ -179,7 +206,7 @@ export function Autocomplete<TItem>({
             className={rightButtonClassName(size, variant)}
             aria-label="Clear search"
           >
-            <IconX className={ICON_CLASS_NAME} />
+            <Icon name="clear-input" />
           </AutocompletePrimitive.Clear>
         )}
       </AutocompletePrimitive.InputGroup>
@@ -222,9 +249,7 @@ export function Autocomplete<TItem>({
                         <div {...props} data-state="unchecked">
                           <span className={itemIndicatorClassName({ variant })}>
                             <span className="icon-slot">
-                              {getItemIcon?.(item) ?? (
-                                <IconPointFilled className={ICON_CLASS_NAME} />
-                              )}
+                              {getItemIcon?.(item) ?? <Icon name="option-placeholder" />}
                             </span>
                           </span>
                           {renderItem(item, {

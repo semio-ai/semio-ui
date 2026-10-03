@@ -32,6 +32,8 @@ export interface DropdownProps {
   contentClassName?: string;
   scrollOrientation?: "vertical" | "horizontal" | "both";
   matchTriggerWidth?: boolean;
+  /** Custom container for the popup portal (e.g. inside a modal). */
+  portalContainer?: HTMLElement | null;
 }
 
 const Dropdown = forwardRef(
@@ -50,6 +52,7 @@ const Dropdown = forwardRef(
       contentClassName,
       scrollOrientation = "vertical",
       matchTriggerWidth = true,
+      portalContainer,
     }: DropdownProps,
     ref: ForwardedRef<HTMLButtonElement>,
   ) => {
@@ -116,7 +119,7 @@ const Dropdown = forwardRef(
           >
             {trigger}
           </DropdownPrimitive.Trigger>
-          <DropdownPrimitive.Portal>
+          <DropdownPrimitive.Portal container={portalContainer ?? undefined}>
             <DropdownPrimitive.Content
               align="center"
               side={side}
@@ -126,7 +129,7 @@ const Dropdown = forwardRef(
               style={color ? ({ "--custom-color": color } as CSSProperties) : {}}
               className={clsx(
                 color ? "custom-color" : variant,
-                "responsive card dropdown-content m-0.5 min-w-55",
+                "variant-scope card-overlay dropdown-content m-0.5 min-w-55",
                 "max-h-[calc(var(--radix-dropdown-menu-content-available-height)-4px)]",
                 matchTriggerWidth &&
                   "desktop:w-[calc(var(--radix-dropdown-menu-trigger-width)+10px)]",
@@ -135,7 +138,7 @@ const Dropdown = forwardRef(
               )}
             >
               <DropdownPrimitive.Arrow asChild width={12} height={6}>
-                <Arrow filled={false} variant={variant ?? Variant.Default} color={color} />
+                <Arrow filled={false} variant={variant ?? Variant.Default} />
               </DropdownPrimitive.Arrow>
 
               <ScrollArea

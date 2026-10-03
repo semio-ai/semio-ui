@@ -1,0 +1,9 @@
+{
+  "component": "Label",
+  "nodeId": "583:812",
+  "capturedAt": "2026-07-21",
+  "source": "use_figma read of node 583:812 (Label component, 🧩 Components). The form-field label: label text (content/muted) + optional error message. No variant axis. Refresh from the live file before CI.",
+  "variantOptions": {},
+  "properties": ["Label", "Show message", "Message"],
+  "sampleVariant": {}
+}

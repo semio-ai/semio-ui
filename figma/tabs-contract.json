@@ -1,0 +1,9 @@
+{
+  "component": "Tabs",
+  "nodeId": "578:841",
+  "capturedAt": "2026-07-21",
+  "source": "use_figma read of node 578:841 (Tabs set, 🧩 Components). DOCUMENTED SUBSET: a 3-tab row with tab 1 active, across the Variant axis (labels visuals). The active indicator = variant/bg @ 25% + a 1px variant border; container = surface/deep-inset. Refresh from the live file before CI.",
+  "variantOptions": { "Variant": ["default", "primary", "secondary", "tertiary", "error"] },
+  "properties": [],
+  "sampleVariant": { "containerFillVar": "color/surface/deep-inset", "indicatorFillVar": "color/default/bg" }
+}

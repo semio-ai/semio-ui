@@ -1,11 +1,24 @@
-import { ReactNode, useMemo } from "react";
-import { IconPointFilled } from "@tabler/icons-react";
+import { ReactNode, useCallback, useMemo } from "react";
 import { clsx } from "clsx";
-// import { matchSorter } from "match-sorter";
 import { Size, Variant } from "./types";
-import { TableList } from "./layouts/table-list";
-import { SelectProps } from "./floating/select";
+import { ListGrid, type ListColumn } from "./list";
+import { defaultResolveRowVisual, type ResolveRowVisual } from "./tree/resolve-row-visual";
+import { SelectOption, SelectProps } from "./floating/select";
+import { Icon, resolveIcon } from "./icons/registry";
 
+/**
+ * A select rendered as an always-open list of its options rather than as a menu
+ * behind a trigger — for a picker that owns its panel (a search field above it, a
+ * modal built around it) and has no room for a second layer of disclosure.
+ *
+ * Its API is `SelectProps` because what it presents is a select: a `value`, an
+ * `onChange` and a set of `options`. That it draws them as rows is an
+ * implementation choice, so a list model does not belong in this surface.
+ *
+ * Which option is chosen is shown the same way every row-shaped list in the system
+ * shows selection — the shared left-edge bar and tint, tinted by `variant` — not by
+ * a bespoke fill or an indicator column.
+ */
 export function SelectList<T extends string | string[]>({
   value,
   onChange,
@@ -15,17 +28,6 @@ export function SelectList<T extends string | string[]>({
   notFound,
 }: SelectProps<T> & { notFound?: ReactNode }) {
   const multiple = Array.isArray(value);
-  const handleToggle = (v: string) => {
-    if (multiple) {
-      if (value?.includes(v)) {
-        onChange(value.filter((f) => f !== v) as T);
-      } else {
-        onChange([...(value as string[]), v] as T);
-      }
-    } else {
-      onChange(v as T);
-    }
-  };
 
   const selectedKeys = useMemo(() => {
     if (Array.isArray(value)) {
@@ -46,104 +48,85 @@ export function SelectList<T extends string | string[]>({
     }
   };
 
-  const [rowClassName, iconClassName] = getFocusAndSelectStyles(variant);
+  const handleToggle = (v: string) => {
+    if (multiple) {
+      if (value?.includes(v)) {
+        onChange(value.filter((f) => f !== v) as T);
+      } else {
+        onChange([...(value as string[]), v] as T);
+      }
+    } else {
+      onChange(v as T);
+    }
+  };
+
+  // The whole palette in one line: the shared resolver already knows the
+  // intensities for hover and selection, and `variant` picks which
+  // `--accent-color` those resolve against.
+  //
+  // A disabled option gets neither. `ListGrid` reports hover for a row it will
+  // refuse to activate, so without this the option would light up under the
+  // pointer and then do nothing when clicked.
+  const resolveVisual = useCallback<ResolveRowVisual<SelectOption>>(
+    (state, option) =>
+      option.disabled
+        ? { variant, bar: null, background: null }
+        : { ...defaultResolveRowVisual(state, option), variant },
+    [variant],
+  );
+
+  // `sized-text` resolves against a `size-*` class on the SAME element — the rules
+  // are `.sized-text:where(.size-lg)`, not a descendant selector — so the row's own
+  // size does not reach the label and `size` has to be spelled here to scale it.
+  const columns = useMemo<ListColumn<SelectOption>[]>(
+    () => [
+      {
+        key: "item",
+        align: "left",
+        flex: true,
+        render: (option) => (
+          <div
+            className={clsx(
+              "flex min-w-0 flex-row items-center gap-3",
+              option.disabled && "cursor-not-allowed opacity-50",
+            )}
+          >
+            <div className="flex flex-row items-center justify-center rounded-full p-1 text-neutral-500">
+              {resolveIcon(option.icon) ?? <Icon name="option-placeholder" />}
+            </div>
+            <div className={clsx(size, "sized-text truncate select-none")}>{option.label}</div>
+          </div>
+        ),
+      },
+    ],
+    [size],
+  );
+
   return (
-    <TableList
+    <ListGrid
       noHeader
       notFound={notFound}
+      size={size}
+      ariaLabel="Options"
+      data={options}
+      getRowId={getRowId}
+      isRowDisabled={isRowDisabled}
+      getSearchText={getSearchText}
       selectionMode={multiple ? "multiple" : "single"}
-      selectedKeys={selectedKeys}
+      selected={selectedKeys}
       onSelectionChange={handleSelectionChange}
-      rowClassName={clsx(
-        size,
-        "bg-transparent hover:bg-neutral-500/10 dark:bg-transparent",
-        "outline-[1.5px] outline-offset-[-2px] focus:outline",
-        "flex flex-row items-center has-focus:outline",
-        "aria-selected:focus:outline-black/50 aria-selected:has-focus:outline-black/50",
-        "sized-height",
-        rowClassName,
-      )}
-      data={options.map((option) => ({ key: option.value, ...option }))}
-      columns={[
-        {
-          key: "item",
-          header: "item",
-          align: "left",
-          flex: true,
-          render: (item) => (
-            <div className="flex cursor-pointer flex-row items-center gap-3 px-2">
-              <div
-                className={clsx(
-                  "flex flex-row items-center justify-center p-1",
-                  "rounded-full bg-transparent text-neutral-500 group-aria-selected/row:bg-neutral-50 dark:group-aria-selected/row:bg-neutral-950",
-                  iconClassName,
-                )}
-              >
-                {item.icon ?? <IconPointFilled />}
-              </div>
-              <div
-                className={clsx(
-                  size,
-                  "text-neutral-500 group-aria-selected/row:text-neutral-50 dark:group-aria-selected/row:text-neutral-950",
-                  "cursor-pointer select-none",
-                  "sized-text",
-                )}
-              >
-                {item.label}
-              </div>
-            </div>
-          ),
-        },
-      ]}
-      onAction={(key, _event) => {
+      resolveVisual={resolveVisual}
+      columns={columns}
+      onAction={(key) => {
         handleToggle(key);
       }}
     />
   );
 }
 
-const getFocusAndSelectStyles = (variant: Variant): [string, string] => {
-  switch (variant) {
-    case Variant.Primary:
-      return [
-        "outline-primary-500/50 aria-selected:bg-primary-500/50",
-        "group-aria-selected/row:text-primary-500/75",
-      ];
-    case Variant.Secondary:
-      return [
-        "outline-secondary-500/50 aria-selected:bg-secondary-500/50",
-        "group-aria-selected/row:text-secondary-500/75",
-      ];
-    case Variant.Tertiary:
-      return [
-        "outline-tertiary-500/50 aria-selected:bg-tertiary-500/50",
-        "group-aria-selected/row:text-tertiary-500/75",
-      ];
-    case Variant.Success:
-      return [
-        "outline-success-500/50 aria-selected:bg-success-500/50",
-        "group-aria-selected/row:text-success-500/75",
-      ];
-    case Variant.Warning:
-      return [
-        "outline-warning-500/50 aria-selected:bg-warning-500/50",
-        "group-aria-selected/row:text-warning-500/75",
-      ];
-    case Variant.Error:
-      return [
-        "outline-error-500/50 aria-selected:bg-error-500/50",
-        "group-aria-selected/row:text-error-500/75",
-      ];
-    case Variant.Info:
-      return [
-        "outline-info-500/50 aria-selected:bg-info-500/50",
-        "group-aria-selected/row:text-info-500/75",
-      ];
-    case Variant.Default:
-    default:
-      return [
-        "outline-neutral-500/50 aria-selected:bg-neutral-500/50",
-        "group-aria-selected/row:text-neutral-500/75",
-      ];
-  }
-};
+// At module scope because they close over nothing, not to satisfy a memo: `ListGrid`
+// keys its row memos on `[data, getRowId]`, and `data` here is `options`, which a
+// caller filtering by a search field replaces on every keystroke anyway.
+const getRowId = (option: SelectOption) => option.value;
+const isRowDisabled = (option: SelectOption) => option.disabled === true;
+const getSearchText = (option: SelectOption) => option.label;

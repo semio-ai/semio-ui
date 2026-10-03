@@ -163,26 +163,34 @@ export interface TrackedTooltipProps {
   containerStyles: CSSProperties;
   variant?: Variant;
   open?: boolean;
+  /** Custom container for the popup portal (e.g. inside a modal). */
+  portalContainer?: HTMLElement | null;
 }
 
 const TrackedTooltip = forwardRef(
   (
-    { children, containerStyles, variant = Variant.Default, open = false }: TrackedTooltipProps,
+    {
+      children,
+      containerStyles,
+      variant = Variant.Default,
+      open = false,
+      portalContainer,
+    }: TrackedTooltipProps,
     ref: ForwardedRef<HTMLDivElement>,
   ) => {
     if (!open) return null;
 
     return (
-      <FloatingPortal>
+      <FloatingPortal root={portalContainer ?? undefined}>
         <div
           ref={ref}
           style={{
             ...containerStyles,
           }}
           className={clsx(
-            "responsive overflow-clip",
+            "variant-scope overflow-clip",
             variant,
-            "card inline-flex items-center select-none",
+            "card-overlay inline-flex items-center select-none",
             "pointer-events-none",
             "variant-static-text",
           )}

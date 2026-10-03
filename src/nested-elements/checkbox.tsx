@@ -1,9 +1,8 @@
 import { DropdownMenu, ContextMenu } from "radix-ui";
 import { type MouseEvent, type CSSProperties } from "react";
-import { IconCheck } from "@tabler/icons-react";
 import { alpha, altColor } from "@semio/utils";
 import { clsx } from "clsx";
-import { ICON_CLASS_NAME } from "../constants/icon";
+import { Icon, resolveIcon } from "../icons/registry";
 import { useNestedParent } from "./context";
 import { NestedParent } from "./types";
 import type { NestedCheckboxProps } from "./types";
@@ -18,7 +17,11 @@ export function NestedCheckbox({
   variant,
   disabled,
   onChange,
-  closeOnSelect,
+  // Stays open by default, matching `NestedSelect`: a checkbox in a menu is a
+  // toggle among others, and closing after each one would make setting two of
+  // them take two trips. `NestedItem` and `NestedRadio` default the other way,
+  // because for those the click IS the interaction.
+  closeOnSelect = false,
   value,
   color,
   icon,
@@ -66,17 +69,17 @@ export function NestedCheckbox({
           "group/item flex items-center rounded-xs leading-none",
           "relative h-7 px-1.25 pl-7.5 text-sm outline-hidden select-none",
           "data-disabled:pointer-events-none",
-          "responsive highlight-list-item",
+          "variant-scope highlight-list-item",
           color ? "custom-color" : variant,
         )}
       >
         <ItemIndicatorComponent
           className={clsx(
             "absolute top-1/2 left-1 grid -translate-y-1/2 place-items-center",
-            "responsive check-indicator",
+            "variant-scope check-indicator",
           )}
         >
-          <span className="icon-slot">{icon ?? <IconCheck className={ICON_CLASS_NAME} />}</span>
+          <span className="icon-slot">{resolveIcon(icon) ?? <Icon name="selected" />}</span>
         </ItemIndicatorComponent>
         {label}
       </ItemComponent>

@@ -8,7 +8,7 @@ import {
   type CSSProperties,
 } from "react";
 import { clsx } from "clsx";
-import { Variant } from "../types";
+import { Size, Variant } from "../types";
 
 export interface TextAreaProps
   extends Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, "size" | "onChange"> {
@@ -18,6 +18,23 @@ export interface TextAreaProps
   bg?: boolean;
   outline?: "hidden" | "interact" | "always";
   subtle?: boolean;
+  /**
+   * Type scale, matching the sibling inputs.
+   *
+   * **No default, deliberately.** Without it the text inherits, which is what
+   * every existing caller has been getting; a default here would resize all of
+   * them. So this is opt-in.
+   *
+   * Pass it wherever a text area sits beside a `TextField`, `Combobox` or
+   * `NumberField`. Those size their text from this scale, and a text area that
+   * inherits instead lands on whatever the surrounding font happens to be —
+   * which is how one settings row came to hold a 16px description field beside
+   * a 12px name field, in a dialog where the two are read as a pair.
+   *
+   * Only the type scale. Height belongs to `rows`, the element's own way of
+   * saying how many lines it stands open at.
+   */
+  size?: Size;
 }
 
 /**
@@ -39,6 +56,7 @@ const InnerTextArea = forwardRef(
       outline = "interact",
       className,
       subtle,
+      size,
       ...forwardedProps
     }: TextAreaProps,
     ref: ForwardedRef<HTMLTextAreaElement>,
@@ -54,9 +72,14 @@ const InnerTextArea = forwardRef(
           } as CSSProperties
         }
         className={clsx(
-          "responsive",
+          "variant-scope",
           bg && "bg-neutral-50/20 dark:bg-neutral-950/20",
           "rounded-xs",
+          // Both classes together or neither: `sized-text` reads the scale from
+          // the `size-*` class beside it, so on its own it resolves to the
+          // fallback rather than to nothing, and would resize every caller that
+          // passes no size.
+          size && [size, "sized-text"],
           outline === "interact" && "variant-responsive-appearing-outline",
           outline === "always" && "variant-responsive-persistent-outline",
           color ? "custom-color" : variant,

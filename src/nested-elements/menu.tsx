@@ -1,8 +1,7 @@
 import { Fragment, useMemo } from "react";
 import { DropdownMenu, ContextMenu, Collapsible } from "radix-ui";
-import { IconChevronRight } from "@tabler/icons-react";
 import { clsx } from "clsx";
-import { ICON_CLASS_NAME } from "../constants/icon";
+import { Icon, resolveIcon } from "../icons/registry";
 import { ScrollArea } from "../layouts/scroll-area";
 import { useLayoutState } from "../hooks/use-layout-state";
 import { NestedParent, type NestedMenuProps } from "./types";
@@ -62,7 +61,7 @@ export function NestedMenu({
           "group/item flex items-center rounded-xs leading-none",
           "relative h-7 w-full px-1.25 pl-7.5 text-sm outline-hidden select-none",
           "data-disabled:pointer-events-none",
-          "responsive highlight-list-item",
+          "variant-scope highlight-list-item",
           variant,
         )}
       >
@@ -70,11 +69,14 @@ export function NestedMenu({
           <div
             className={clsx(
               "absolute top-1/2 left-1 inline-flex -translate-y-1/2 items-center justify-center",
-              "responsive list-item-extra highlight-list-item",
+              "variant-scope list-item-extra highlight-list-item",
               variant,
             )}
           >
-            {left}
+            {/* Shared `.list-item-icon` normalization, matching NestedItem — so submenu
+                -trigger left icons align with regular item icons regardless of set.
+                resolveIcon lets `left` be a registry key or a node. */}
+            <span className="list-item-icon">{resolveIcon(left)}</span>
           </div>
         )}
 
@@ -83,13 +85,13 @@ export function NestedMenu({
         <div
           className={clsx(
             "absolute top-1/2 right-1 inline-flex -translate-y-1/2 items-center justify-center",
-            "responsive list-item-extra",
+            "variant-scope list-item-extra",
             variant,
           )}
         >
-          <IconChevronRight
+          <Icon
+            name="submenu"
             className={clsx(
-              ICON_CLASS_NAME,
               "rotate-0 transition-transform",
               !desktop && "group-data-[state=open]/item:rotate-90",
             )}
@@ -103,7 +105,7 @@ export function NestedMenu({
               variant,
               !desktop &&
                 "mb-0.5 w-full rounded-b-xs bg-neutral-400/30 py-0.5 pr-0.5 pl-2 dark:bg-black/30",
-              desktop && "responsive card dropdown-content",
+              desktop && "variant-scope card-overlay dropdown-content",
               "min-w-55",
               desktop && heightClass,
               desktop && parent === NestedParent.Dropdown

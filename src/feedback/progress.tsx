@@ -1,8 +1,9 @@
-import { ReactNode, useMemo } from "react";
+import { useMemo } from "react";
 import { Progress as RadixProgress } from "radix-ui";
 import { MotionValue, motion, useTransform } from "motion/react";
 import { clsx } from "clsx";
 import { Size, Variant } from "../types";
+import { resolveIcon, type IconValue } from "../icons/registry";
 
 export interface ProgressProps {
   progress: number;
@@ -16,9 +17,9 @@ export function Progress({ progress, variant, size }: ProgressProps) {
       className={clsx(
         size,
         variant,
-        "responsive sized-progress-height variant-static-bg-50 relative w-full translate-z-0 overflow-hidden rounded-sm",
+        "variant-scope sized-progress-height variant-static-bg-50 relative w-full translate-z-0 overflow-hidden rounded-sm",
       )}
-      value={progress}
+      value={progress * 100}
     >
       <RadixProgress.Indicator
         style={{ width: `${(progress * 100).toString()}%` }}
@@ -32,7 +33,7 @@ export interface ProgressCircleProps {
   progress: number | MotionValue<number>;
   variant?: Variant;
   size?: Size;
-  icon?: ReactNode;
+  icon?: IconValue;
 }
 
 const progressToOffset = (progress: number) => {
@@ -56,7 +57,7 @@ export function ProgressCircle({ size, progress, variant, icon }: ProgressCircle
         variant,
         "sized-height sized-width",
         "variant-static-text",
-        "responsive relative",
+        "variant-scope relative",
       )}
     >
       <svg width="100%" height="100%" viewBox="0 0 10 10">
@@ -92,7 +93,7 @@ export function ProgressCircle({ size, progress, variant, icon }: ProgressCircle
       </svg>
       {icon && (
         <div className="absolute top-[10%] right-[10%] bottom-[10%] left-[10%] grid place-items-center">
-          {icon}
+          {resolveIcon(icon)}
         </div>
       )}
     </div>

@@ -1,6 +1,6 @@
 import { afterEach, expect, test, vi } from "vitest";
 import { render } from "vitest-browser-react";
-import { userEvent } from "@vitest/browser/context";
+import { userEvent } from "vitest/browser";
 import { useState } from "react";
 import { Size, Variant } from "../types";
 import { ToggleGroup } from "./toggle-group";
@@ -21,14 +21,22 @@ import { ToggleGroup } from "./toggle-group";
 // the active item's), not the mechanism; treat the query-by-attribute lookup in
 // the component as unguarded and reason about it directly if it changes.
 
-// `@semio/ui`'s stylesheet is Tailwind source (`@apply`, `@variant`), so it
-// needs a build step this project does not have; `dist/` is not guaranteed to
-// exist when `test:browser` runs, either. Rather than depend on that, declare
-// the handful of layout primitives the pill's correctness actually rests on:
-// the root must establish the containing block, the pill must be taken out of
-// flow at its origin, and the track must lay items out in a row. Everything
-// else the design system contributes is size, which these tests never assert in
-// absolute terms — they only compare the pill's box against the item's.
+// These tests declare the handful of layout primitives the pill's correctness
+// rests on rather than importing `test-stylesheet`: the root must establish the
+// containing block, the pill must be taken out of flow at its origin, and the
+// track must lay items out in a row. Everything else the design system
+// contributes is size, which these tests never assert in absolute terms — they
+// only compare the pill's box against the item's.
+//
+// The real compiled stylesheet IS available here, so this is a choice and not a
+// limitation. It carries the pill's `transition-[transform,width]`, and a
+// transitioning element's `getBoundingClientRect()` returns the value it is
+// currently animating through — so a single read lands mid-flight and reports
+// the class's own width instead of the measured one. Measured with the real
+// sheet loaded: 28px against the item's 154px. The shim omits the transition, so
+// every box read below is a settled value. Anything asserting PAINT rather than
+// geometry needs the real sheet and belongs in a file that imports it, as
+// `toggle-group-contrast.browser.tsx` does.
 const LAYOUT_SHIM = `
   /* Tailwind's preflight, which every consumer loads, strips the UA button
    * chrome. It matters here and is not cosmetic: the component measures items
@@ -130,7 +138,7 @@ function expectPillOver(value: string): void {
 
 test("pill covers the active item, whose trigger is wrapped by Tooltip", async () => {
   useLayoutShim();
-  render(<Harness />);
+  await render(<Harness />);
 
   // Every item is inside `Tooltip` → Radix `Trigger asChild`, which is what made
   // a collected ref unreliable. Waiting rather than asserting immediately allows
@@ -143,7 +151,7 @@ test("pill covers the active item, whose trigger is wrapped by Tooltip", async (
 
 test("pill follows the selection to each item's own box", async () => {
   useLayoutShim();
-  render(<Harness />);
+  await render(<Harness />);
   await vi.waitFor(() => expectPillOver("a"));
 
   for (const value of ["c", "d", "b", "a"]) {
@@ -154,7 +162,7 @@ test("pill follows the selection to each item's own box", async () => {
 
 test("pill re-measures when item metrics change without a window resize", async () => {
   useLayoutShim();
-  render(<Harness />);
+  await render(<Harness />);
   await vi.waitFor(() => expectPillOver("a"));
 
   const before = pillBox().width;
@@ -172,7 +180,7 @@ test("pill re-measures when item metrics change without a window resize", async 
 
 test("pill width is declared on first paint, not animated up from zero", async () => {
   useLayoutShim();
-  render(<Harness initial="d" />);
+  await render(<Harness initial="d" />);
 
   // The stranded-tween failure showed as a pill left at its `initial` geometry.
   // Width must therefore be a resolved inline style, and the transition must
@@ -205,11 +213,11 @@ test("pill hides rather than stranding when no option matches the value", async 
     );
   }
 
-  const view = render(<Swappable value="d" />);
+  const view = await render(<Swappable value="d" />);
   await vi.waitFor(() => expectPillOver("d"));
   const strandedAt = pillEl().style.transform;
 
-  view.rerender(<Swappable value="does-not-exist" />);
+  await view.rerender(<Swappable value="does-not-exist" />);
 
   // Previously the measure call bailed out and left `left`/`width` untouched, so
   // the pill stayed parked behind "d" — in the default grey, since there is no
@@ -221,7 +229,7 @@ test("pill hides rather than stranding when no option matches the value", async 
   expect(pillEl().getBoundingClientRect().width).toBe(0);
 
   // Recovering must land in the right place, not pass through the stale one.
-  view.rerender(<Swappable value="b" />);
+  await view.rerender(<Swappable value="b" />);
   await vi.waitFor(() => {
     expect(pillEl().hidden).toBe(false);
     expectPillOver("b");

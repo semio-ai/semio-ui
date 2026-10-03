@@ -3,19 +3,19 @@ import {
   type AriaRole,
   type KeyboardEventHandler,
   type MouseEventHandler,
-  type ReactNode,
   type Ref,
 } from "react";
 import { clsx } from "clsx";
 import { Variant } from "../types";
-import { Status } from "../feedback/status";
+import { StatusBadge } from "../feedback/status-badge";
 import { Tooltip } from "../floating/tooltip";
 import { useMenuButtonContext } from "../context/menu-button-context";
+import { resolveIcon, type IconValue } from "../icons/registry";
 
 export interface MenuButtonProps {
   children: string;
   altText?: string;
-  icon: ReactNode;
+  icon: IconValue;
   onClick?: MouseEventHandler;
   active?: boolean;
   hoverable?: boolean;
@@ -78,7 +78,7 @@ export function MenuButton({
 }: MenuButtonProps) {
   const { expanded, desktop, expandedWidthClassName, expandedLabelClassName } =
     useMenuButtonContext();
-  const Wrapper = status ? Status : "div";
+  const Wrapper = status ? StatusBadge : "div";
   // Override the active accent color (set by `variant-responsive-selectable-text`'s
   // `:where(.group/tab)[data-active] *` rule) on mobile, then re-apply at
   // desktop. Tailwind utilities here have higher specificity than the
@@ -95,7 +95,7 @@ export function MenuButton({
         placement: status.placement,
         text: status.text,
         className: clsx(
-          "responsive",
+          "variant-scope",
           hoverable ? "variant-responsive-selectable-text" : "variant-static-text",
           variant,
           activeOverride,
@@ -103,7 +103,7 @@ export function MenuButton({
       }
     : {
         className: clsx(
-          "responsive",
+          "variant-scope",
           hoverable ? "variant-responsive-selectable-text" : "variant-static-text",
           variant,
           "grid h-9 w-9 place-items-center",
@@ -128,11 +128,11 @@ export function MenuButton({
       onKeyDown={onKeyDown}
       className={clsx(
         variant,
-        // `responsive` so the variant's `--accent-color` is set on the
+        // `variant-scope` so the variant's `--accent-color` is set on the
         // button itself — needed by both the optional `bg` highlight and
-        // the focus-visible outline below. Children re-set `responsive`
+        // the focus-visible outline below. Children re-set `variant-scope`
         // independently, so this doesn't change inherited values for them.
-        "responsive",
+        "variant-scope",
         "cursor-pointer disabled:cursor-default",
         "group/tab h-9 w-9 overflow-hidden",
         expandedWidthClassName,
@@ -174,11 +174,11 @@ export function MenuButton({
         content={altText ?? children}
         side={desktop ? "right" : "top"}
       >
-        <Wrapper {...wrapperProps}>{icon}</Wrapper>
+        <Wrapper {...wrapperProps}>{resolveIcon(icon)}</Wrapper>
       </Tooltip>
       <span
         className={clsx(
-          "responsive",
+          "variant-scope",
           "desktop:group-data-expanded/menu:opacity-100",
           "text-left opacity-0 truncate",
           expandedLabelClassName,

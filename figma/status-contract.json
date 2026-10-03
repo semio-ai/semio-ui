@@ -1,0 +1,14 @@
+{
+  "component": "StatusBadge",
+  "nodeId": "544:722",
+  "capturedAt": "2026-07-21",
+  "source": "Captured via the Figma MCP (use_figma reads of node 544:722 — the Status component set on the 🧩 Components page of the Semio UI Library file, key supplied at session start, not committed). DOCUMENTED SUBSET (see packages/ui/docs/figma-design-system-mapping.md): the dot indicator (the text/count mode is shown as an example). Refresh from the live file before running in CI.",
+  "variantOptions": {
+    "Variant": ["default", "primary", "secondary", "tertiary", "error", "success", "warning", "info"]
+  },
+  "properties": [],
+  "sampleVariant": {
+    "dotFillVar": "color/primary/bg",
+    "ringVar": "color/surface/inset"
+  }
+}

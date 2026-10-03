@@ -1,15 +1,9 @@
-import {
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
-  type CSSProperties,
-  type ReactNode,
-} from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from "react";
 import { ToggleGroup as RadixToggleGroup } from "radix-ui";
 import { clsx } from "clsx";
 import { Tooltip } from "../floating/tooltip";
 import { Variant, Size } from "../types";
+import { resolveIcon, type IconValue } from "../icons/registry";
 
 // `useLayoutEffect` is the right primitive for measuring layout before paint, but
 // React warns when it runs where there is no DOM. `@semio/ui` is published, so a
@@ -29,7 +23,7 @@ export interface ToggleGroupProps {
     disabled?: boolean;
     color?: string;
     variant?: Variant;
-    icon?: ReactNode;
+    icon?: IconValue;
   }[];
   size?: Size;
   className?: string;
@@ -149,7 +143,7 @@ export function ToggleGroup({
           size,
           "absolute left-0",
           "sized-inner-group-item rounded-xs",
-          "responsive bg-(--accent-color)",
+          "variant-scope bg-(--accent-color)",
           // Only transition once measured, so the pill appears in place instead
           // of sliding in from the left edge on first paint.
           width > 0 &&
@@ -171,7 +165,7 @@ export function ToggleGroup({
               data-toggle-item={option.value}
               data-state={value === option.value ? "on" : "off"}
               className={clsx(
-                "responsive",
+                "variant-scope",
                 size,
                 option.color ? "custom-color" : option.variant,
                 visuals === "icons" && "sized-inner-group-item",
@@ -200,7 +194,9 @@ export function ToggleGroup({
               aria-label={option.label}
             >
               {(visuals === "icons" || visuals === "both") && (
-                <p className="sized-inner-group-item grid place-items-center">{option.icon}</p>
+                <p className="sized-inner-group-item grid place-items-center">
+                  {resolveIcon(option.icon)}
+                </p>
               )}
               {(visuals === "labels" || visuals === "both") && (
                 <p className={clsx("text-nowrap", visuals === "both" ? "pr-2" : "px-2")}>

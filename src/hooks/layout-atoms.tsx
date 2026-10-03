@@ -1,13 +1,90 @@
 import { atom, useAtomValue } from "jotai";
 import { ActionItem } from "../layouts/layout/types";
 import { PaneRegion, PaneSpec, ToolbarItem } from "../types";
+import { useIsDesktop } from "./use-is-desktop";
 
 export const menuStateAtom = atom<boolean>(true);
-export const panesAtom = atom<PaneSpec[]>([]);
+
+const panesBaseAtom = atom<PaneSpec[]>([]);
+
+/** The side regions — the ones that share a row when there is no width to dock them. */
+const SIDE_REGIONS: readonly PaneRegion[] = [PaneRegion.Left, PaneRegion.Right];
+
+const isSideRegion = (region: PaneRegion | undefined): boolean =>
+  region !== undefined && SIDE_REGIONS.includes(region);
+
+/**
+ * Monotonic, module-scoped: it only has to order panes against each other within a
+ * session, and it never resets, so a value can't be reused while the pane holding
+ * it is still open.
+ */
+let nextOpenOrder = 1;
+
+/**
+ * The panes, with `openOrder` maintained on write.
+ *
+ * Stamped here rather than at the call sites because panes are opened from several
+ * of them — the menu, the header toggle, a selection registering its own pane — and
+ * an unstamped path would silently order wrong. Every write goes through this atom,
+ * so this is the one place that sees all of them.
+ *
+ * A pane entering a side region without an order gets the next one; leaving a side
+ * region clears it. That second rule is also how a caller asks for a pane to be
+ * brought to the front: clear the order while leaving the region set, and the pane
+ * is re-stamped as the most recently opened.
+ *
+ * Leaving a side region also clears {@link PaneSpec.expanded}, for the same reason
+ * and in the same place: expansion is how a pane occupies a region, so a pane in no
+ * region cannot be expanded. Left set, it outlives the close and the pane returns
+ * spanning the content the next time it is opened — an arrangement restored from a
+ * flag the viewer thought they had dismissed.
+ */
+export const panesAtom = atom(
+  (get) => get(panesBaseAtom),
+  (get, set, next: PaneSpec[] | ((previous: PaneSpec[]) => PaneSpec[])) => {
+    // An updater is accepted so a mutation can be expressed as a function of the
+    // CURRENT panes, read here at write time. Callers used to rebuild from a ref
+    // mirroring this atom through a subscription, which left a window where two
+    // mutations landing in the same commit each rebuilt from a snapshot the other
+    // had already invalidated, and one silently won — the bug documented at length
+    // in the studio's `use-selection-pane`. Reading through `get` closes that
+    // window, and makes a batch of updates expressible as a single write.
+    const previous = get(panesBaseAtom);
+    const resolved = typeof next === "function" ? next(previous) : next;
+    // An updater returning its own input means "nothing to do". Without this the
+    // mapping below would still allocate a new array and notify every subscriber.
+    if (resolved === previous) {
+      return;
+    }
+    set(
+      panesBaseAtom,
+      resolved.map((pane) => {
+        if (!isSideRegion(pane.region)) {
+          if (pane.openOrder === undefined && pane.expanded === undefined) {
+            return pane;
+          }
+          return { ...pane, openOrder: undefined, expanded: undefined };
+        }
+        return pane.openOrder === undefined ? { ...pane, openOrder: nextOpenOrder++ } : pane;
+      }),
+    );
+  },
+);
+
+/**
+ * Open side panes, oldest first — the back-stack, with the last entry on top.
+ *
+ * Only panes with content: `PanelContent` and `SidePaneArea` both skip a pane
+ * without any, so an empty one is not something the viewer can be looking at.
+ */
+export const sidePaneStackAtom = atom<PaneSpec[]>((get) =>
+  get(panesAtom)
+    .filter((pane) => isSideRegion(pane.region) && pane.content !== undefined && !pane.shouldClose)
+    .sort((a, b) => (a.openOrder ?? 0) - (b.openOrder ?? 0)),
+);
 export const toolbarItemsAtom = atom<ToolbarItem[]>([]);
 export const actionItemsAtom = atom<ActionItem[]>([]);
 export const homeActionItemAtom = atom<ActionItem | undefined>(undefined);
-export const desktopAtom = atom<boolean>(false);
 
 export const activeLeftPaneAtom = atom<string | undefined>((get) => {
   const panes = get(panesAtom);
@@ -21,25 +98,28 @@ export const activeRightPaneAtom = atom<string | undefined>((get) => {
   return active?.id;
 });
 
+// A collapsed pane is still registered and still mounted, but takes no space —
+// so it must not hold its region's gap open either, or the layout keeps a strip
+// of padding for something with no size. See `PaneSpec.collapsed`.
 export const leftRegionActiveAtom = atom<boolean>((get) => {
   const panes = get(panesAtom);
-  return panes.find((p) => p.region === PaneRegion.Left) !== undefined;
+  return panes.find((p) => p.region === PaneRegion.Left && !p.collapsed) !== undefined;
 });
 
 export const rightRegionActiveAtom = atom<boolean>((get) => {
   const panes = get(panesAtom);
-  return panes.find((p) => p.region === PaneRegion.Right) !== undefined;
+  return panes.find((p) => p.region === PaneRegion.Right && !p.collapsed) !== undefined;
 });
 
 export const footerRegionActiveAtom = atom<boolean>((get) => {
   const panes = get(panesAtom);
-  return panes.find((p) => p.region === PaneRegion.Footer) !== undefined;
+  return panes.find((p) => p.region === PaneRegion.Footer && !p.collapsed) !== undefined;
 });
 
 export const leftWidthAtom = atom<string>((get) => {
   const panes = get(panesAtom);
   const left = panes.filter(
-    (pane) => pane.region === PaneRegion.Left && pane.content !== undefined,
+    (pane) => pane.region === PaneRegion.Left && pane.content !== undefined && !pane.collapsed,
   );
   if (left.length === 0) return "0fr";
   if (left.find((l) => l.size === "full")) return "1fr";
@@ -52,7 +132,7 @@ export const leftWidthAtom = atom<string>((get) => {
 export const rightWidthAtom = atom<string>((get) => {
   const panes = get(panesAtom);
   const right = panes.filter(
-    (pane) => pane.region === PaneRegion.Right && pane.content !== undefined,
+    (pane) => pane.region === PaneRegion.Right && pane.content !== undefined && !pane.collapsed,
   );
   if (right.length === 0) return "0fr";
   if (right.find((l) => l.size === "full")) return "1fr";
@@ -82,6 +162,49 @@ export const contentWidthAtom = atom<string>((get) => {
   return `1fr`;
 });
 
+/**
+ * Whether a side pane is expanded over the content area — spanning onto it rather
+ * than taking its track ({@link PaneSpec.expanded}).
+ *
+ * Kept separate per region because the span is directional: a left pane spans
+ * rightwards to the content's far edge, a right pane leftwards, and each stops at
+ * the other region.
+ */
+export const leftExpandedAtom = atom<boolean>((get) =>
+  get(panesAtom).some(
+    (pane) => pane.region === PaneRegion.Left && pane.content !== undefined && pane.expanded,
+  ),
+);
+
+export const rightExpandedAtom = atom<boolean>((get) =>
+  get(panesAtom).some(
+    (pane) => pane.region === PaneRegion.Right && pane.content !== undefined && pane.expanded,
+  ),
+);
+
+/**
+ * Whether anything the viewer can see is in the content area, ON A DOCKED LAYOUT.
+ *
+ * False when a pane covers it, either by spanning over it (`expanded`) or by
+ * collapsing its track (a legacy `size: "full"` pane). This is an OPTIMISATION
+ * signal, not a correctness one: the measured content rect stays truthful under a
+ * span, so a consumer that ignores this still frames itself correctly — it just
+ * keeps drawing something nobody can see. Consumers that can cheaply idle (a 3D
+ * canvas, a video, a ticking chart) should.
+ *
+ * Read it through {@link useContentVisible} rather than directly. Expansion is a
+ * docked-layout arrangement — the span rules are scoped to the wide grid, and
+ * narrower the side regions take a row of their own beneath the content and cover
+ * nothing. An atom cannot see the breakpoint, so this one would report a cover that
+ * is not happening; the hook is where that is corrected.
+ */
+export const contentVisibleAtom = atom<boolean>((get) => {
+  if (get(leftExpandedAtom) || get(rightExpandedAtom)) {
+    return false;
+  }
+  return get(contentWidthAtom) !== "0fr";
+});
+
 export const leftMenuItemsAtom = atom<PaneSpec[]>((get) =>
   get(panesAtom).filter((p) => p.inLeftMenu),
 );
@@ -102,6 +225,10 @@ export function useMenuState() {
 export function usePanes() {
   const panes = useAtomValue(panesAtom);
   return panes;
+}
+
+export function useSidePaneStack() {
+  return useAtomValue(sidePaneStackAtom);
 }
 
 export function useToolbarItems() {
@@ -174,7 +301,31 @@ export function useFooterRegionActive() {
   return footerRegionActive;
 }
 
+export function useLeftExpanded() {
+  return useAtomValue(leftExpandedAtom);
+}
+
+export function useRightExpanded() {
+  return useAtomValue(rightExpandedAtom);
+}
+
+/**
+ * {@link contentVisibleAtom}, corrected for the arrangement actually in use.
+ *
+ * Expansion only covers the content where the side regions are docked beside it.
+ * Narrower they occupy a row of their own beneath the content, so an expanded pane
+ * hides nothing — and reporting otherwise would idle an occupant the viewer is
+ * still looking at, which is worse than the redundant drawing this signal exists to
+ * avoid. Track collapse (`size: "full"`) still counts at both widths, because the
+ * narrow grid gives the content `0fr` for it too.
+ */
+export function useContentVisible() {
+  const desktop = useIsDesktop();
+  const covered = useAtomValue(contentVisibleAtom);
+  const trackCollapsed = useAtomValue(contentWidthAtom) === "0fr";
+  return desktop ? covered : !trackCollapsed;
+}
+
 export function useDesktopState() {
-  const desktopState = useAtomValue(desktopAtom);
-  return desktopState;
+  return useIsDesktop();
 }

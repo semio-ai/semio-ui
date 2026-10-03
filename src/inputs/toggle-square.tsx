@@ -37,8 +37,7 @@ export function ToggleSquare({
   asIndicator = false,
 }: ToggleSquareProps) {
   // Map our tri-state to Radix Checkbox's checked prop
-  const checked: boolean | "indeterminate" =
-    value === "partial" ? "indeterminate" : value;
+  const checked: boolean | "indeterminate" = value === "partial" ? "indeterminate" : value;
 
   return (
     <Tooltip disabled={disabled} content={label ?? "Option"}>
@@ -52,7 +51,7 @@ export function ToggleSquare({
           onChange(next === "indeterminate" ? true : Boolean(next));
         }}
         className={clsx(
-          "responsive",
+          "variant-scope",
           size,
           color ? "custom-color" : variant,
           sizing === "default" && "sized-height sized-width",
@@ -63,12 +62,12 @@ export function ToggleSquare({
           asIndicator ? "grid-list-item-indicator" : "variant-checkbox-bg",
           !asIndicator && "variant-responsive-appearing-outline",
           "appearance-none",
-          !color && "dark:data-[state=checked]:text-neutral-800",
-          !color && "data-[state=checked]:text-neutral-200",
-          !color && "dark:data-[state=unchecked]:text-neutral-200",
-          !color && "data-[state=unchecked]:text-neutral-800",
-          !color && "dark:data-[state=indeterminate]:text-neutral-200",
-          !color && "data-[state=indeterminate]:text-neutral-800",
+          // No foreground named here. Each of the two sizings fills from a different
+          // place — `variant-checkbox-bg` from `--standard-color`, which does not flip
+          // with the theme, and `grid-list-item-indicator` from `bg-layout-*-base`,
+          // which does — so the right foreground differs between them and neither can
+          // be chosen from this call site. Both classes declare their own, next to the
+          // fill they have to contrast against.
         )}
         style={color ? ({ "--custom-color": color } as CSSProperties) : undefined}
         aria-label={label ?? "Toggle Button"}

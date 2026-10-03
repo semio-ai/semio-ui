@@ -1,4 +1,5 @@
 import { ReactNode, MouseEvent } from "react";
+import type { IconValue } from "./icons/registry";
 
 /**
  * Theme options for the application's appearance.
@@ -169,7 +170,28 @@ export enum PaneRegion {
 export interface PaneSpec {
   id: string;
   name: string;
-  icon: ReactNode;
+  icon: IconValue;
+  /**
+   * Accessible name of the header control that opens this pane — the side-panel
+   * toggle, when this is the Right-region pane it targets. Defaults to
+   * "Toggle side panel".
+   *
+   * The Right region is generic, so the layout cannot know what a pane in it is
+   * for. A consumer names the control for what its pane is ("Open inspector");
+   * unnamed, it gets wording that is true of any pane. An empty string counts as
+   * unnamed, since a control with an empty name has none at all.
+   */
+  openLabel?: string;
+  /**
+   * Accessible name of the controls that close this pane: the button a Right-region
+   * pane carries in its corner, docked or in the narrow layout's shared row, and the
+   * header toggle while this pane is the one showing there. Defaults to
+   * "Close panel".
+   *
+   * Named per pane for the same reason as {@link openLabel}, and one name for all
+   * of them because they are one action.
+   */
+  closeLabel?: string;
   size: string | number;
   clickFn?: MenuItemClickFn;
   preventClose?: boolean;
@@ -178,5 +200,50 @@ export interface PaneSpec {
   inRightMenu: boolean;
   disabled?: boolean;
   region?: PaneRegion;
+  /**
+   * Take the content area's space as well as this pane's own, by spanning onto it.
+   *
+   * Deliberately separate from {@link size} rather than a `size: "full"` value:
+   * `size` keeps describing how wide the pane is when it is NOT expanded, so
+   * restoring needs no remembered width, and the content track keeps computing its
+   * natural size the whole time a pane covers it. That is what keeps the measured
+   * content rect live and truthful under expansion. Collapsing the content track
+   * instead — which is what `size: "full"` does — reports a zero-width rect to
+   * consumers that frame themselves from it, and leaves nothing to restore to if
+   * the window is resized while expanded.
+   *
+   * The pane spans the grid rather than resizing tracks, so the opposite region is
+   * untouched: an expanded left pane reaches the right sidebar and stops there.
+   */
+  expanded?: boolean;
+  /**
+   * Take no space, but stay mounted.
+   *
+   * The way to free a region's space used to be removing the pane, which unmounts
+   * its content — and content does not always come back cheaply or identically. The
+   * studio's animation panel is the case that forced this: its height lives in its
+   * own state, so unregistering it lost the height the viewer had dragged, and
+   * remounting re-created an R3F canvas that measures its container on mount and
+   * can latch onto a mid-cascade size.
+   *
+   * Collapsing instead makes that a RESIZE — the path a resizable pane already
+   * exercises on every drag — rather than a mount. The pane keeps its state, comes
+   * back the size it was, and content that can idle while it has no size should,
+   * the same way an occupant of a covered content area should.
+   */
+  collapsed?: boolean;
   shouldClose?: boolean;
+  /**
+   * When this pane was most recently opened into a side region, as a counter.
+   *
+   * Maintained by the layout — do not set it. It exists because the pane array is
+   * ordered by registration, which says nothing about which of two open side panes
+   * the viewer opened last. That only matters where the side regions share one row
+   * and just one of them can be shown, but it has to be recorded when the pane
+   * opens, since by the time it is needed the event is gone.
+   *
+   * Cleared whenever the pane leaves a side region, so "has one" means "is open in
+   * a side region" and the highest is the one on top.
+   */
+  openOrder?: number;
 }

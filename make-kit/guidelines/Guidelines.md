@@ -97,18 +97,18 @@ acceptable for `size`/`variant`. Components that take them include, among others
   `Autocomplete`, `ChipInput`, `ToggleGroup`, `ToggleSquare`, `ImageInput`, `Label`
 - **Overlays:** `Dialog`, `Modal`, `SidebarModal`, `TabbedModal`, `Popover`, `Dropdown`, `ContextMenu`,
   `Select`, `SelectTree`, `Tooltip`, `Toast`
-- **Feedback:** `Progress`, `Status`
-- **Layouts:** `Tabs`, `TableList`, `Breadcrumbs`, `Separator`, `Resizer`
+- **Feedback:** `Progress`, `StatusBadge`, `StatusDot`
+- **Layouts:** `Tabs`, `ListGrid`, `TreeGrid`, `Breadcrumbs`, `Separator`, `Resizer`
 - **Other:** `Avatar`, `Chip`, `StaticIcon`
 
 Whenever you set `size`/`variant` on *any* component, import the enum and pass a member:
 
 ```tsx
-import { TextField, Checkbox, Status, Variant, Size } from "@semio/ui";
+import { TextField, Checkbox, StatusDot, Variant, Size } from "@semio/ui";
 
 <TextField size={Size.Sm} />
 <Checkbox size={Size.Md} />
-<Status variant={Variant.Success} size={Size.Lg} />
+<StatusDot variant={Variant.Success} size={Size.Lg} srLabel="Connected" />
 ```
 
 > Note for the curious: the enum values happen to be internal CSS class names (`Size.Md === "size-md"`), which is
@@ -130,8 +130,9 @@ Two of Semio's components map to your Figma library (Button + Icon), so get thes
 - Need a labeled input? Use `TextField` / `Label` from the package, not a raw `<input>`.
 - Need a dropdown, menu, dialog, popover, tooltip, toast, tabs, accordion, breadcrumbs, stepper, table list?
   They all exist — import them (see `components.md`). Don't rebuild overlays with raw divs and z-index.
-- Need state for tabs/lists/layout? Use the exported hooks (`useTabsState`, `useListState`,
-  `useTableListState`, `useLayoutState`, `use-add-toast`, etc.).
+- Need state for tabs/layout? Use the exported hooks (`useTabsState`, `useLayoutState`,
+  `use-add-toast`, etc.). A list owns its own state: `ListGrid` and `TreeGrid` take
+  `selected`/`defaultSelected` directly, so there is no list-state hook to reach for.
 
 ## What NOT to do
 

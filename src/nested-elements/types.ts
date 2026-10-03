@@ -1,6 +1,7 @@
 import type { ReactNode, MouseEvent } from "react";
 import { RawColor } from "@semio/utils";
 import { Variant } from "../types";
+import type { IconValue } from "../icons/registry";
 
 /**
  * Types of nested parent components.
@@ -24,7 +25,10 @@ export enum NestedParent {
  * @prop label: The label for the checkbox.
  * @prop variant: The variant of the checkbox. Defaults to {@link Variant.Default}
  * @prop onChange: The function to call when the checkbox changes.
- * @prop closeOnSelect: Whether toggling the item closes the menu (defaults to true).
+ * @prop closeOnSelect: Whether toggling the item closes the menu. Defaults to
+ *   FALSE here — a checkbox in a menu is one toggle among several, so closing
+ *   after each would make setting two of them take two trips. (`NestedItem` and
+ *   `NestedRadio` default to true, where the click is the whole interaction.)
  * @prop color: The color of the checkbox. Overridees styling from variants.
  * @prop disabled: Whether the checkbox is disabled.
  * @prop icon: The icon to display next to the checkbox.
@@ -37,7 +41,7 @@ export interface NestedCheckboxProps {
   closeOnSelect?: boolean;
   color?: string;
   disabled?: boolean;
-  icon?: ReactNode;
+  icon?: IconValue;
 }
 
 /**
@@ -53,7 +57,7 @@ export interface NestedColorPickerProps<T extends string | RawColor> {
   disabled?: boolean;
   label?: string;
   variant?: Variant;
-  left?: ReactNode;
+  left?: IconValue;
 }
 
 /**
@@ -64,15 +68,32 @@ export interface NestedColorPickerProps<T extends string | RawColor> {
  * @prop disabled: Whether the menu is disabled.
  * @prop onClick: The function to call when the item is clicked.
  * @prop closeOnSelect: Whether selecting the item closes the menu (defaults to true).
+ * @prop description: Why the item is disabled, shown as a TOOLTIP — see below.
  */
 export interface NestedItemProps {
-  left?: ReactNode;
+  left?: IconValue;
   children: ReactNode;
   right?: ReactNode;
   variant?: Variant;
   disabled?: boolean;
   onClick?: (event: MouseEvent) => void;
   closeOnSelect?: boolean;
+  /**
+   * Why this item is disabled, shown as a TOOLTIP on hover — the same contract as
+   * {@link NestedOption.description}.
+   *
+   * **A tooltip, not a second line in the item**, for the reason given there: an
+   * item that grows to hold prose stops matching the interactive rhythm of every
+   * other row, and the label stays the thing the item is always called, whether or
+   * not a reader ever hovers to find out why it is greyed out.
+   *
+   * Additive by construction: with no description the item renders byte-for-byte
+   * as before, because `Tooltip` short-circuits when disabled rather than wrapping
+   * the child in an armed trigger.
+   */
+  description?: string;
+  /** Semantic color of the explanatory tooltip, independent of the row. */
+  descriptionVariant?: Variant;
   /** Test ID for E2E targeting of portal-rendered dropdown items. */
   testId?: string;
 }
@@ -104,7 +125,7 @@ export interface NestedLabelProps {
  * @prop hideHeader: Whether to hide the header of the menu.
  */
 export interface NestedMenuProps {
-  left?: ReactNode;
+  left?: IconValue;
   children: ReactNode;
   label?: string;
   variant?: Variant;
@@ -116,10 +137,15 @@ export interface NestedMenuProps {
  * @prop label: [string] The label for the option
  * @prop value: [string] The value for the option. This should match the value specified.
  * @prop disabled: [boolean] Whether the option is disabled.
- * @prop closeOnSelect: [boolean] Have the menu close after selecting this option
+ * @prop closeOnSelect: [boolean] Have the menu close after choosing this
+ *   option. The DEFAULT depends on the component this option is given to,
+ *   because the same option shape serves a single-value and a multi-value
+ *   control: `NestedRadio` closes (one value — picking it is the interaction),
+ *   `NestedSelect` stays open (many values). Set it to override either.
  * @prop variant: [Variant] The variant of the option. Defaults to {@link Variant.Default}
  * @prop color: [string] The color of the option. Overrides styling from variants.
  * @prop icon: [ReactNode] The icon to display next to the option.
+ * @prop description: [string] A tooltip on the option, saying what choosing it means.
  */
 export interface NestedOption {
   label: string;
@@ -128,7 +154,26 @@ export interface NestedOption {
   closeOnSelect?: boolean;
   variant?: Variant;
   color?: string;
-  icon?: ReactNode;
+  icon?: IconValue;
+  /**
+   * What choosing this option means, shown as a TOOLTIP on the option.
+   *
+   * **A tooltip, not a second line in the item**, and the distinction is the whole
+   * design. An item that grows to hold prose stops matching the interactive rhythm
+   * of every other row in the menu, and makes the menu size itself around
+   * explanatory text rather than around its controls. Layering the explanation over
+   * the option leaves the option exactly the control it already was.
+   *
+   * It is also **additive by construction**: with no description the option renders
+   * byte-for-byte as before, because `Tooltip` short-circuits when disabled rather
+   * than wrapping the child in an armed trigger.
+   *
+   * **An aid, never the only home for a fact.** It needs hover or focus, so it is
+   * unreachable by a reader who does not go looking. Anything required to choose
+   * correctly belongs in the label, or beside the control where it is always
+   * visible; use this for the extra sentence that helps and is not load-bearing.
+   */
+  description?: string;
 }
 
 /**

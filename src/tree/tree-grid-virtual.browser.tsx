@@ -1,7 +1,7 @@
 import { useMemo, useRef, useState } from "react";
 import { expect, test, vi } from "vitest";
 import { render } from "vitest-browser-react";
-import { userEvent } from "@vitest/browser/context";
+import { userEvent } from "vitest/browser";
 import { Size } from "../types";
 import { TreeGrid } from "./tree-grid";
 import type { TreeNode } from "./flatten-tree";
@@ -85,7 +85,7 @@ const itemByLabel = (view: { container: HTMLElement }, label: string) =>
   [...items(view)].find((element) => element.textContent === label);
 
 test("a ten-thousand-row tree mounts a bounded window", async () => {
-  const view = render(<Harness build={() => makeTree()} />);
+  const view = await render(<Harness build={() => makeTree()} />);
   await settle();
 
   expect(items(view).length).toBeLessThan(60);
@@ -97,13 +97,13 @@ test("a ten-thousand-row tree mounts a bounded window", async () => {
 
 test("collapsing groups shortens the list the window is measured against", async () => {
   const nodes = makeTree(100, 100);
-  const expanded = render(<Harness build={() => nodes} />);
+  const expanded = await render(<Harness build={() => nodes} />);
   await settle();
   const expandedHeight = scroller(expanded).scrollHeight;
 
   // Every group closed: 100 rows instead of 10,100.
   const collapsedIds = Array.from({ length: 100 }, (_, g) => `g${g.toString()}`);
-  const collapsed = render(<Harness build={() => nodes} collapsed={collapsedIds} />);
+  const collapsed = await render(<Harness build={() => nodes} collapsed={collapsedIds} />);
   await settle();
   const collapsedHeight = scroller(collapsed).scrollHeight;
 
@@ -113,7 +113,7 @@ test("collapsing groups shortens the list the window is measured against", async
 });
 
 test("End reaches the last flattened row", async () => {
-  const view = render(<Harness build={() => makeTree(100, 100)} />);
+  const view = await render(<Harness build={() => makeTree(100, 100)} />);
   await settle();
   items(view)[0].focus();
 
@@ -126,7 +126,7 @@ test("End reaches the last flattened row", async () => {
 });
 
 test("a row deep in the tree keeps its own depth while its neighbours are absent", async () => {
-  const view = render(<Harness build={() => makeTree(100, 100)} />);
+  const view = await render(<Harness build={() => makeTree(100, 100)} />);
   await settle();
 
   scroller(view).scrollTop = 5_000 * 36;
@@ -161,7 +161,7 @@ test("expanding a group in view lengthens the list without disturbing the window
       </div>
     );
   }
-  const view = render(<Expandable />);
+  const view = await render(<Expandable />);
   await settle();
   const before = scroller(view).scrollHeight;
   expect(labels(view)).not.toContain("Leaf 0.0");
@@ -177,7 +177,7 @@ test("expanding a group in view lengthens the list without disturbing the window
 });
 
 test("windowing off renders every visible row", async () => {
-  const view = render(
+  const view = await render(
     <div style={{ height: VIEWPORT, overflowY: "auto" }}>
       <TreeGrid nodes={makeTree(5, 10)} ariaLabel="Plain tree" getLabel={renderLabel} />
     </div>,
@@ -191,7 +191,7 @@ test("a smaller size gives shorter rows, and the window follows them", async () 
   // The row height and the windowing estimate come from ONE table, so choosing a size
   // cannot leave the spacers describing a different geometry than the rows. `Sm` is `h-8`
   // against `Md`'s `h-9`, so the same tree is measurably shorter and still adds up.
-  const view = render(<Harness build={() => makeTree(50, 20)} size={Size.Sm} />);
+  const view = await render(<Harness build={() => makeTree(50, 20)} size={Size.Sm} />);
   await settle();
 
   const rowHeight = items(view)[0].getBoundingClientRect().height;
@@ -203,7 +203,7 @@ test("a smaller size gives shorter rows, and the window follows them", async () 
 });
 
 test("End still reaches the last row at a non-default size", async () => {
-  const view = render(<Harness build={() => makeTree(30, 20)} size={Size.Xl} />);
+  const view = await render(<Harness build={() => makeTree(30, 20)} size={Size.Xl} />);
   await settle();
   items(view)[0].focus();
 
@@ -222,7 +222,7 @@ test("selecting a group selects its whole subtree, including rows that were neve
   // nothing here: a group's hundred children are selected even though about fifteen rows
   // exist as elements and none of those children are among them.
   const onSelectionChange = vi.fn();
-  const view = render(
+  const view = await render(
     <Harness
       build={() => makeTree(100, 100)}
       selectGroupDescendants
@@ -252,7 +252,7 @@ test("without the flag, selecting a group selects only the group", async () => {
   // The default, and the difference worth being explicit about: a group row is selectable
   // in its own right unless the consumer asks for subtree selection.
   const onSelectionChange = vi.fn();
-  const view = render(
+  const view = await render(
     <Harness build={() => makeTree(100, 100)} onSelectionChange={onSelectionChange} />,
   );
   await settle();
@@ -268,7 +268,7 @@ test("spacers put each rendered tree row at its true offset", async () => {
   // Same claim as the list's, and the tree has no header to complicate it: the row at
   // flattened index N must sit exactly N row-heights down, or the rows drift away from the
   // scrollbar. Verified against a deliberately introduced one-row spacer error.
-  const view = render(<Harness build={() => makeTree(100, 100)} />);
+  const view = await render(<Harness build={() => makeTree(100, 100)} />);
   await settle();
   scroller(view).scrollTop = 4_000 * 36;
   await settle();

@@ -25,7 +25,7 @@ function PopoverRenderer(props: PopoverProps): ReactNode {
       {...props}
       trigger={
         <div
-          className={`card grid h-24 w-96 place-items-center p-5 ${props.variant ?? "default"} responsive variant-static-text`}
+          className={`card grid h-24 w-96 place-items-center p-5 ${props.variant ?? "default"} variant-scope variant-static-text`}
         >
           Click Me
         </div>

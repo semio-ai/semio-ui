@@ -695,9 +695,3 @@ export function useListState<T extends ListItem>({
     getItemProps,
   };
 }
-
-// Backward-compatible aliases
-/** @deprecated Use `ListItem` instead */
-export type TableListItem = ListItem;
-/** @deprecated Use `useListState` instead */
-export const useTableListState = useListState;

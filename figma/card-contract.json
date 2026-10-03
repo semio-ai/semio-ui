@@ -1,0 +1,13 @@
+{
+  "component": "Card",
+  "nodeId": "609:1342",
+  "capturedAt": "2026-08-28",
+  "source": "use_figma read of node 609:1342 (Card, 🧩 Components). FOUNDATION PRIMITIVE: the `.card` CSS class represented as a Figma component — an empty themed surface. bg = surface/inset (= layout-*-inset), rounded-sm (4px), shadow = the shared 'elevation/card' effect style. NO BORDER: separation is by fill and shadow alone. SINGLE COMPONENT, NO VARIANT AXIS — `.card` declares nothing that varies per variant, so a variant axis would produce N identical components; keep it a single component unless the class gains a variant-dependent declaration. Shared basis for layout panels, and for Modal/Dialog, which paint their own bg-black/40 scrim. Floating surfaces use `.card-overlay` (surface/deep-inset) instead. No Code Connect (it's a class, not a React component). Refresh from the live file before CI.",
+  "variantOptions": {},
+  "properties": [],
+  "sampleVariant": {
+    "fillVar": "color/surface/inset",
+    "cornerRadius": 4,
+    "shadowStyle": "elevation/card"
+  }
+}

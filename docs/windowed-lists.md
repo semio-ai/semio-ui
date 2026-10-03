@@ -111,7 +111,23 @@ Everything that operates on the data keeps operating on the data:
 | Type-ahead                             | matches the whole data set and scrolls the match into view                                  |
 | `Home` / `End`, arrow bounds, `loop`   | the ends of the **list**, not of the window                                                 |
 | `selectGroupDescendants`               | the whole subtree                                                                           |
-| `aria-setsize` / `aria-posinset`       | reported from the data, so assistive technology is not told the window's size is the list's |
+| A row's position in ARIA               | reported from the data, so assistive technology is not told the window's size is the list's |
+
+Which properties carry that position depends on the role. A `treeitem` or an `option`
+is placed by `aria-setsize`/`aria-posinset`. A `grid` states `aria-rowcount` and its
+rows `aria-rowindex` — one numbering over **every** row the grid owns, so `ListGrid`
+counts its column header as row 1 and a `noHeader` grid numbers from its first datum.
+Both halves move together or the last row comes up one short of the count.
+
+Pick one pair per row rather than supplying both. `row` permits setsize/posinset as
+well, but there they mean position among sibling rows at one level, which is a
+`treegrid`'s question; on a flat grid they restate `aria-rowindex` in a vocabulary
+that implies a hierarchy the grid does not have.
+
+A grid's rows also own **cells**, and have to say so: `gridcell` on each body cell,
+`columnheader` in the header row. A cell with no role is generic, the accessibility
+tree prunes it, and the row is left stating an index over nothing — which reads as a
+correctly numbered, entirely empty grid.
 
 If you find something that narrowed to the visible rows, that is a bug — please file it.
 
@@ -268,10 +284,25 @@ Assert that the data-wide behaviour survived: a `Shift+End` range that spans unr
 rows, `End` reaching the real last row, type-ahead finding a match thousands of rows
 away.
 
-The environment note: this package's browser tests run **without the compiled
-stylesheet**, so every Tailwind class in the components is inert. That is fine for
-focus, keyboard and selection, but windowing has real layout claims — uniform row
-heights, and cells aligned on shared column tracks. Inject the handful of rules in
-play (`.h-9 { height: 2.25rem }`, `display: grid`, `grid-template-columns: subgrid`,
-`grid-column: 1 / -1`) rather than assuming; see `list-grid-virtual.browser.tsx` and
-`tree-grid-virtual.browser.tsx`.
+The environment note: most of this package's browser tests run **without the compiled
+stylesheet**, so every Tailwind class in the components is inert. That is fine for focus,
+keyboard and selection — and leaving the stylesheet out of those keeps them from quietly
+coming to depend on paint.
+
+Windowing is the exception, because its claims are about real geometry: uniform row
+heights, and cells aligned on shared column tracks. A layout suite gets the **real**
+stylesheet with one import:
+
+```tsx
+import "../test-stylesheet";
+```
+
+That compiles `make-kit/make.css` — the same entry the shipped `dist/semio-ui.css` is
+built from — so a class resolves in the test to what it resolves to in the product. See
+`list-grid-virtual.browser.tsx` and `tree-grid-virtual.browser.tsx`.
+
+**Do not hand-write stand-in rules** (`.h-9 { height: 2.25rem }` and friends). That is
+what these suites used to do, and such a test can only agree with itself: change `h-9` or
+`grid-cols-subgrid` and the stand-in keeps passing while the product breaks. Spacer-based
+positioning is exactly the kind of thing that satisfies a DOM assertion while being
+visibly wrong on screen, which is why the geometry has to be the real one.

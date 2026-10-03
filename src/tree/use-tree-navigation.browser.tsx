@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { expect, test } from "vitest";
 import { render } from "vitest-browser-react";
-import { userEvent } from "@vitest/browser/context";
+import { userEvent } from "vitest/browser";
 import { TreeNavItem, TreeNavRoot } from "./use-tree-navigation";
 
 /**
@@ -67,7 +67,7 @@ const rowByText = (view: { container: HTMLElement }, index: number) =>
   );
 
 test("only the window is in the DOM, but the cursor is the whole list's", async () => {
-  const view = render(<WindowedNav />);
+  const view = await render(<WindowedNav />);
   expect(view.container.querySelectorAll('[role="option"]')).toHaveLength(10);
   rowByText(view, 0)!.focus();
 
@@ -79,7 +79,7 @@ test("only the window is in the DOM, but the cursor is the whole list's", async 
 });
 
 test("ArrowDown crosses the window edge and focus follows into the new row", async () => {
-  const view = render(<WindowedNav windowSize={6} />);
+  const view = await render(<WindowedNav windowSize={6} />);
   rowByText(view, 0)!.focus();
 
   for (let i = 0; i < 12; i++) await userEvent.keyboard("{ArrowDown}");
@@ -94,7 +94,7 @@ test("ArrowDown crosses the window edge and focus follows into the new row", asy
 });
 
 test("End reaches the last row in the DATA, not the last one rendered", async () => {
-  const view = render(<WindowedNav />);
+  const view = await render(<WindowedNav />);
   rowByText(view, 0)!.focus();
   await userEvent.keyboard("{End}");
   // Pins: bounds are taken from the element array's length, which is `total`.
@@ -103,7 +103,7 @@ test("End reaches the last row in the DATA, not the last one rendered", async ()
 });
 
 test("Home returns to the first row from deep in the list", async () => {
-  const view = render(<WindowedNav />);
+  const view = await render(<WindowedNav />);
   rowByText(view, 0)!.focus();
   await userEvent.keyboard("{End}");
   await userEvent.keyboard("{Home}");
@@ -115,7 +115,7 @@ test("an unmounted row is a hole, not a wall — navigation passes straight thro
   // Pins the second Base UI behaviour: `isListIndexDisabled` treats an absent element
   // as enabled. Were a hole to read as disabled, ArrowDown would refuse to leave the
   // window and this would stall at its edge.
-  const view = render(<WindowedNav windowSize={4} />);
+  const view = await render(<WindowedNav windowSize={4} />);
   rowByText(view, 0)!.focus();
   for (let i = 0; i < 25; i++) await userEvent.keyboard("{ArrowDown}");
   expect(cursor(view)).toBe("25");
@@ -124,14 +124,14 @@ test("an unmounted row is a hole, not a wall — navigation passes straight thro
 test("disabled rows are skipped from the index list, even while unrendered", async () => {
   // A windowed list cannot rely on `aria-disabled`: rows 1-3 are not in the DOM to
   // carry it. The container takes the indices instead.
-  const view = render(<WindowedNav disabledIndices={[1, 2, 3]} windowSize={8} />);
+  const view = await render(<WindowedNav disabledIndices={[1, 2, 3]} windowSize={8} />);
   rowByText(view, 0)!.focus();
   await userEvent.keyboard("{ArrowDown}");
   expect(cursor(view)).toBe("4");
 });
 
 test("End skips a disabled last row", async () => {
-  const view = render(<WindowedNav disabledIndices={[TOTAL - 1]} />);
+  const view = await render(<WindowedNav disabledIndices={[TOTAL - 1]} />);
   rowByText(view, 0)!.focus();
   await userEvent.keyboard("{End}");
   expect(cursor(view)).toBe(String(TOTAL - 2));
@@ -142,7 +142,7 @@ test("a scrolled-out row leaves no stale element behind", async () => {
   // composite (it checks visibility), so a row that had been scrolled out and whose
   // slot was never cleared would become a permanent gap. Going out and coming back
   // must land on the row itself.
-  const view = render(<WindowedNav windowSize={4} />);
+  const view = await render(<WindowedNav windowSize={4} />);
   rowByText(view, 0)!.focus();
   for (let i = 0; i < 10; i++) await userEvent.keyboard("{ArrowDown}");
   expect(cursor(view)).toBe("10");
@@ -152,14 +152,14 @@ test("a scrolled-out row leaves no stale element behind", async () => {
 });
 
 test("loop wraps to the last row in the data", async () => {
-  const view = render(<WindowedNav loop />);
+  const view = await render(<WindowedNav loop />);
   rowByText(view, 0)!.focus();
   await userEvent.keyboard("{ArrowUp}");
   expect(cursor(view)).toBe(String(TOTAL - 1));
 });
 
-test("exactly one row is the tab stop", () => {
-  const view = render(<WindowedNav />);
+test("exactly one row is the tab stop", async () => {
+  const view = await render(<WindowedNav />);
   const stops = [...view.container.querySelectorAll<HTMLElement>('[role="option"]')].filter(
     (element) => element.tabIndex === 0,
   );
@@ -170,15 +170,101 @@ test("exactly one row is the tab stop", () => {
 test("a shrinking list does not leave the cursor out of bounds", async () => {
   // The element array is truncated to `total`, so End on a list that just got shorter
   // lands inside it rather than on a stale index.
-  const view = render(<WindowedNav total={5} windowSize={5} />);
+  const view = await render(<WindowedNav total={5} windowSize={5} />);
   rowByText(view, 0)!.focus();
   await userEvent.keyboard("{End}");
   expect(cursor(view)).toBe("4");
 });
 
-test("the row reports the list's size, not the window's", () => {
-  const view = render(<WindowedNav />);
+test("the row reports the list's size, not the window's", async () => {
+  const view = await render(<WindowedNav />);
   expect(rowByText(view, 0)!.getAttribute("aria-setsize")).toBe(String(TOTAL));
+});
+
+/**
+ * The same moving slice under the **grid** vocabulary — `grid`/`row` rather than
+ * `listbox`/`option`. Its start is deliberately not zero: window-relative numbering
+ * satisfies "every row has an `aria-rowindex`" while naming the wrong row, and only an
+ * offset slice tells the two apart.
+ */
+function WindowedGridNav({ start, windowSize = 10 }: { start: number; windowSize?: number }) {
+  const indices = Array.from({ length: windowSize }, (_, i) => start + i);
+  return (
+    <TreeNavRoot
+      role="grid"
+      ariaRowCount={TOTAL}
+      ariaLabel="windowed grid"
+      highlightedIndex={start}
+      onHighlightedIndexChange={() => undefined}
+      total={TOTAL}
+    >
+      {indices.map((index) => (
+        <TreeNavItem key={index} index={index} role="row" ariaRowIndex={index + 1}>
+          <span>row {index}</span>
+        </TreeNavItem>
+      ))}
+    </TreeNavRoot>
+  );
+}
+
+test("a grid row's index is its place in the data, and it carries no list ARIA", async () => {
+  const view = await render(<WindowedGridNav start={500} />);
+  const rows = [...view.container.querySelectorAll<HTMLElement>('[role="row"]')];
+  expect(rows).toHaveLength(10);
+
+  // The count of rows a reader is told about is the data's; ten are mounted.
+  expect(view.container.querySelector('[role="grid"]')!.getAttribute("aria-rowcount")).toBe(
+    String(TOTAL),
+  );
+  expect(rows.map((row) => row.getAttribute("aria-rowindex"))).toEqual(
+    Array.from({ length: 10 }, (_, i) => String(501 + i)),
+  );
+
+  // `total` reaches the container's navigation arithmetic and stops there. `row` permits
+  // setsize/posinset, but they place a row among siblings at one level — a `treegrid`'s
+  // question — so on a flat grid they restate `aria-rowindex` in a second vocabulary.
+  for (const row of rows) {
+    expect(row.getAttribute("aria-setsize")).toBeNull();
+    expect(row.getAttribute("aria-posinset")).toBeNull();
+  }
+});
+
+test("the roles that do define the list vocabulary keep it, and take no row index", async () => {
+  // The other direction of the assertion above, without which "correctly withheld from
+  // `row`" and "never emitted at all" look identical.
+  const view = await render(
+    <>
+      <TreeNavRoot
+        role="tree"
+        ariaLabel="tree"
+        highlightedIndex={0}
+        onHighlightedIndexChange={() => undefined}
+        total={1}
+      >
+        <TreeNavItem index={0} role="treeitem" ariaLevel={1} ariaSetSize={7} ariaPosInSet={3}>
+          <span>branch</span>
+        </TreeNavItem>
+      </TreeNavRoot>
+      <TreeNavRoot
+        role="listbox"
+        ariaLabel="listbox"
+        highlightedIndex={0}
+        onHighlightedIndexChange={() => undefined}
+        total={1}
+      >
+        <TreeNavItem index={0} role="option" ariaSetSize={7} ariaPosInSet={3}>
+          <span>leaf</span>
+        </TreeNavItem>
+      </TreeNavRoot>
+    </>,
+  );
+
+  for (const role of ["treeitem", "option"]) {
+    const item = view.container.querySelector<HTMLElement>(`[role="${role}"]`)!;
+    expect(item.getAttribute("aria-setsize")).toBe("7");
+    expect(item.getAttribute("aria-posinset")).toBe("3");
+    expect(item.getAttribute("aria-rowindex")).toBeNull();
+  }
 });
 
 /**
@@ -210,19 +296,19 @@ function DetachedWindowNav({ cursorIndex, rendered }: { cursorIndex: number; ren
   );
 }
 
-test("focus owed to an unmounted row is cancelled when the user leaves the list", () => {
+test("focus owed to an unmounted row is cancelled when the user leaves the list", async () => {
   // The debt outlives the render that incurred it — deliberately, because the row it is
   // owed to usually arrives a commit or two later once the list has scrolled to it. What
   // must not outlive the user: if they have gone somewhere else in the meantime, the row
   // mounting is not permission to drag them back. Reachable without a race whenever the
   // row does not mount promptly — the cursor jumped clear of the window, the list
   // re-filtered — since a mouse-scroll much later is enough to bring it in.
-  const view = render(<DetachedWindowNav cursorIndex={0} rendered={[0, 1, 2, 3]} />);
+  const view = await render(<DetachedWindowNav cursorIndex={0} rendered={[0, 1, 2, 3]} />);
   rowByText(view, 0)!.focus();
   expect(document.activeElement).toBe(rowByText(view, 0));
 
   // Cursor moves to a row that is not mounted: focus is now owed to row 500.
-  view.rerender(<DetachedWindowNav cursorIndex={500} rendered={[0, 1, 2, 3]} />);
+  await view.rerender(<DetachedWindowNav cursorIndex={500} rendered={[0, 1, 2, 3]} />);
 
   // The user leaves for something else entirely, with the debt still outstanding.
   const outside = view.container.querySelector<HTMLElement>('[data-testid="outside"]')!;
@@ -230,7 +316,7 @@ test("focus owed to an unmounted row is cancelled when the user leaves the list"
   expect(document.activeElement).toBe(outside);
 
   // Row 500 arrives. It must not take focus off what the user is actually using.
-  view.rerender(<DetachedWindowNav cursorIndex={500} rendered={[499, 500, 501]} />);
+  await view.rerender(<DetachedWindowNav cursorIndex={500} rendered={[499, 500, 501]} />);
   expect(rowByText(view, 500)).toBeDefined();
   expect(document.activeElement).toBe(outside);
 });

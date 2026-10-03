@@ -1,35 +1,116 @@
-import { forwardRef, type ForwardedRef } from "react";
-import { type IconProps } from "@tabler/icons-react";
-import { clsx } from "clsx";
+import type { GlyphProps as IconProps } from "./_internal/glyph-props";
+import { createGlyph } from "./_internal/create-glyph";
 
-export interface IconRobotProps extends IconProps {
-  className?: string;
-}
+export type IconRobotProps = IconProps;
 
-const IconRobot = forwardRef(
-  ({ className, ...props }: IconRobotProps, ref: ForwardedRef<SVGSVGElement>) => {
-    return (
-      <svg
-        ref={ref}
-        xmlns="http://www.w3.org/2000/svg"
-        className={clsx("icon icon-tabler", className)}
-        width={props.size ?? 24}
-        height={props.size ?? 24}
-        viewBox="0 0 24 24"
+/** Artwork from the supplied robot.svg; geometry and transforms are retained; secondary detail uses shared duotone contrast. */
+export const IconRobot = createGlyph(
+  "IconRobot",
+  <g
+    fill="currentColor"
+    stroke="none"
+    strokeLinejoin="miter"
+    strokeMiterlimit={4}
+    fillRule="evenodd"
+    clipRule="evenodd"
+    strokeLinecap="round"
+  >
+    <g transform="matrix(0.75,0,0,0.75,4.5,5.5)">
+      <path
+        d="M-0.666,11.015C-0.667,10.679 -0.667,10.34 -0.667,10C-0.667,9.672 -0.667,8.169 -0.653,8.002C-0.602,5.005 -0.36,3.289 0.798,2.131C1.957,0.972 3.677,0.73 6.682,0.68C6.818,0.675 7.239,0.672 7.709,0.67C8.217,0.667 10.091,0.667 10.667,0.667C11.242,0.667 11.783,0.667 12.291,0.67C12.761,0.672 13.182,0.675 13.318,0.68C16.323,0.73 18.043,0.972 19.202,2.131C20.36,3.289 20.602,5.005 20.653,8.002C20.667,8.169 20.667,9.672 20.667,10C20.667,10.34 20.667,10.679 20.666,11.015C20.667,11.331 20.667,11.66 20.667,12C20.667,16.714 20.667,17.738 19.202,19.202C17.738,20.667 15.381,20.667 10.667,20.667C5.953,20.667 2.262,20.667 0.798,19.202C-0.667,17.738 -0.667,16.714 -0.667,12C-0.667,11.66 -0.667,11.331 -0.666,11.015Z"
         fill="none"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        <path
-          className="transition-[fill]"
-          fill={props.color ?? "currentColor"}
-          d="M2.989,17.596L2.309,17.596C1.744,17.596 1.286,17.138 1.286,16.573L1.286,11.501C1.286,10.936 1.744,10.478 2.309,10.478L2.989,10.478L2.989,7.963C2.989,7.448 3.372,7.014 3.882,6.948C4.561,6.861 5.241,6.785 5.92,6.719L5.92,5.961C5.284,5.603 4.854,4.921 4.854,4.141C4.854,2.988 5.79,2.053 6.942,2.053C8.095,2.053 9.03,2.988 9.03,4.141C9.03,4.921 8.6,5.603 7.965,5.961L7.965,6.553C10.661,6.377 13.351,6.373 16.035,6.546L16.035,5.961C15.4,5.603 14.97,4.921 14.97,4.141C14.97,2.988 15.905,2.053 17.058,2.053C18.21,2.053 19.146,2.988 19.146,4.141C19.146,4.921 18.716,5.603 18.08,5.961L18.08,6.713C18.762,6.78 19.442,6.859 20.123,6.949C20.631,7.017 21.011,7.45 21.011,7.963L21.011,10.478L21.691,10.478C22.256,10.478 22.714,10.936 22.714,11.501L22.714,16.573C22.714,17.138 22.256,17.596 21.691,17.596L21.011,17.596L21.011,20.423C21.011,20.938 20.627,21.373 20.116,21.438C14.706,22.119 9.295,22.115 3.885,21.438C3.373,21.374 2.989,20.939 2.989,20.423L2.989,17.596ZM18.965,11.501L18.965,8.865C14.34,8.322 9.696,8.337 5.035,8.869L5.035,16.573L5.035,19.514C9.678,20.03 14.322,20.033 18.965,19.515L18.965,11.501ZM7.628,12.137C7.628,11.572 8.086,11.114 8.651,11.114C9.215,11.114 9.673,11.572 9.673,12.137L9.673,14.452C9.673,15.017 9.215,15.475 8.651,15.475C8.086,15.475 7.628,15.017 7.628,14.452L7.628,12.137ZM12.902,16.802C13.222,16.661 13.597,16.806 13.739,17.127C13.88,17.447 13.734,17.822 13.414,17.964C12.469,18.38 11.525,18.389 10.58,17.961C10.261,17.816 10.119,17.44 10.264,17.121C10.409,16.802 10.785,16.66 11.104,16.805C11.703,17.076 12.303,17.066 12.902,16.802ZM14.327,12.137C14.327,11.572 14.785,11.114 15.349,11.114C15.914,11.114 16.372,11.572 16.372,12.137L16.372,14.452C16.372,15.017 15.914,15.475 15.349,15.475C14.785,15.475 14.327,15.017 14.327,14.452L14.327,12.137Z"
-        />
-      </svg>
-    );
-  },
+        stroke="currentColor"
+        strokeWidth="2"
+      />
+    </g>
+    <g transform="matrix(0,-0.6,0.794792,0,-11.448011,21.13655)">
+      <path
+        d="M16.983,19.523C16.946,18.573 16.822,17.993 16.414,17.586C15.828,17 14.886,17 13,17L11,17C9.114,17 8.172,17 7.586,17.586C7.191,17.981 7.062,18.538 7.02,19.437"
+        fill="none"
+        fillRule="nonzero"
+        stroke="currentColor"
+        strokeOpacity="0.6"
+        strokeWidth="1.88"
+      />
+    </g>
+    <g transform="matrix(1,0,0,1,0,1)">
+      <path
+        d="M9,16C9.85,16.63 10.885,17 12,17C13.115,17 14.15,16.63 15,16"
+        fill="none"
+        fillRule="nonzero"
+        stroke="currentColor"
+        strokeWidth="1.5"
+      />
+    </g>
+    <g transform="matrix(1,0,0,1,0,1)">
+      <path
+        d="M15.5,10.5C15.5,11.052 15.276,11.5 15,11.5C14.724,11.5 14.5,11.052 14.5,10.5C14.5,9.948 14.724,9.5 15,9.5C15.276,9.5 15.5,9.948 15.5,10.5Z"
+        fill="none"
+        fillRule="nonzero"
+        stroke="currentColor"
+        strokeWidth="1.5"
+      />
+    </g>
+    <g transform="matrix(1,0,0,1,0,1)">
+      <ellipse
+        cx="9"
+        cy="10.5"
+        rx="0.5"
+        ry="1"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.5"
+      />
+    </g>
+    <g transform="matrix(1,0,0,1.848475,8.420817,-5.939323)">
+      <g opacity="0.6">
+        <path d="M7.579,4.643L7.579,7" fill="none" />
+        <g transform="matrix(1,0,0,0.540987,-8.420817,3.213094)">
+          <g transform="matrix(1,0,0,1,0,-0.999999)">
+            <path d="M17.35,3.993C17.35,3.248 16.745,2.643 16,2.643C15.255,2.643 14.65,3.248 14.65,3.993C14.65,4.738 15.255,5.343 16,5.343C16.745,5.343 17.35,4.738 17.35,3.993Z" />
+          </g>
+          <g transform="matrix(1,0,0,1,0,-0.999999)">
+            <path
+              d="M16,4.803L16,7"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinejoin="round"
+              strokeMiterlimit="1.5"
+            />
+          </g>
+        </g>
+      </g>
+    </g>
+    <g transform="matrix(1,0,0,1.848475,0.420817,-5.939323)">
+      <g opacity="0.6">
+        <path d="M7.579,4.643L7.579,7" fill="none" />
+        <g transform="matrix(1,0,0,0.540987,-0.420817,3.213094)">
+          <g transform="matrix(1,0,0,1,0,-0.999999)">
+            <path d="M9.35,3.993C9.35,3.248 8.745,2.643 8,2.643C7.255,2.643 6.65,3.248 6.65,3.993C6.65,4.738 7.255,5.343 8,5.343C8.745,5.343 9.35,4.738 9.35,3.993Z" />
+          </g>
+          <g transform="matrix(1,0,0,1,0,-0.999999)">
+            <path
+              d="M8,4.803L8,7"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinejoin="round"
+              strokeMiterlimit="1.5"
+            />
+          </g>
+        </g>
+      </g>
+    </g>
+    <g transform="matrix(0,0.6,-0.794792,0,35.580282,6.734319)">
+      <path
+        d="M16.983,19.523C16.946,18.573 16.822,17.993 16.414,17.586C15.828,17 14.886,17 13,17L11,17C9.114,17 8.172,17 7.586,17.586C7.191,17.981 7.062,18.538 7.02,19.437"
+        fill="none"
+        fillRule="nonzero"
+        stroke="currentColor"
+        strokeOpacity="0.6"
+        strokeWidth="1.88"
+      />
+    </g>
+  </g>,
 );
-
-IconRobot.displayName = "IconRobot";
-
-export { IconRobot };

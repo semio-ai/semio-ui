@@ -1,0 +1,15 @@
+{
+  "component": "NestedItem",
+  "nodeId": "554:772",
+  "capturedAt": "2026-07-21",
+  "source": "Captured via the Figma MCP (use_figma reads of node 554:772 — the NestedItem component set on the 🧩 Components page of the Semio UI Library file, key supplied at session start, not committed). DOCUMENTED SUBSET (see packages/ui/docs/figma-design-system-mapping.md): the menu-row states + the common {default,primary,error} variants (menus mostly use default; error = destructive). Refresh from the live file before running in CI.",
+  "variantOptions": {
+    "Variant": ["default", "primary", "error"],
+    "State": ["default", "highlighted", "disabled"]
+  },
+  "properties": ["Label", "Show icon", "Icon", "Show shortcut"],
+  "sampleVariant": {
+    "cornerRadius": 2,
+    "accentVar": "color/default/bg-hover"
+  }
+}

@@ -6,7 +6,19 @@
 @custom-variant left-sidebar-full (&:where(.left-sidebar-full, .left-sidebar-full *));
 @custom-variant right-sidebar-full (&:where(.right-sidebar-full, .right-sidebar-full *));
 
-@custom-variant desktop (@media (width >= theme(--breakpoint-md)) and (height >= theme(--breakpoint-md)));
+/* Width-only `desktop:` variant, keyed to Tailwind's built-in `--breakpoint-md`
+   (48rem / 768px) — the same token the JS `useIsDesktop` hook reads, so the two
+   never drift. Must reference a *built-in* breakpoint: `theme()` of a custom
+   token added via an imported dependency's @theme does not resolve here, which
+   silently drops the media wrapper and leaves `desktop:` stuck permanently on.
+
+   Uses classic `min-width:` rather than range syntax (`width >= …`): WebKit
+   re-evaluates range-context media queries unreliably on resize (they can latch
+   after the first change and stop responding), whereas `min-width` is solid.
+   Tailwind v4 emits range syntax for its built-in variants, so we spell this one
+   out explicitly. Previously this also gated on height (`and (height >= …)`),
+   which mis-classified wide-but-short windows as mobile. */
+@custom-variant desktop (@media (min-width: theme(--breakpoint-md)));
 
 @custom-variant data-expanded (&[data-ui~="expanded"]);
 @custom-variant data-checked (&[data-ui~="checked"]);
@@ -62,16 +74,36 @@
     @apply transition-colors duration-50 ease-in-out rounded-xs;
     @apply disabled:cursor-not-allowed;
 
+    /* Fill and foreground are declared together, and callers name neither.
+     *
+     * A caller CANNOT correctly own half of this pair. A `text-*` utility overrides
+     * these rules no matter their specificity — utilities are a later cascade layer
+     * than components, and layer order is decided before specificity is consulted — so
+     * a caller that sets the rest foreground silently disables every state rule below
+     * it. And the `hover:` variant it would have to add in compensation is NOT wrapped
+     * in `@media (hover: hover)` while this block is, so on a coarse pointer a sticky
+     * `:hover` would swap the foreground while the fill stayed put: the mispairing this
+     * whole mechanism exists to prevent, reintroduced by the fix for it. */
+    color: var(--on-standard-color);
     background-color: var(--standard-color);
     &:hover {
       @media (hover: hover) {
+        /* Hover crosses the derivation's lightness threshold in the opposite direction
+         * for some hues — secondary's -500 takes black, its -600 takes white — so the
+         * foreground has to move with the fill, not just alongside it. */
+        color: var(--on-accent-color);
         background-color: var(--accent-color);
 
+        /* These two branches keep the REST fill, so they keep the rest foreground.
+         * Restoring only the background would leave an accent-derived foreground on a
+         * `--standard-color` fill, which is the same mispairing in a narrower state. */
         &:disabled {
+          color: var(--on-standard-color);
           background-color: color-mix(in oklab, var(--standard-color) 50%, transparent);
         }
 
         &[data-deemphasized="true"] {
+          color: var(--on-standard-color);
           background-color: color-mix(in oklab, var(--standard-color) 50%, transparent);
         }
       }
@@ -83,6 +115,44 @@
 
     &[data-deemphasized="true"] {
       background-color: color-mix(in oklab, var(--standard-color) 50%, transparent);
+    }
+  }
+
+  /* A slot sitting ON one of the variant fills: a tint of that fill's own foreground,
+   * plus that foreground for whatever it holds.
+   *
+   * Tinted toward the foreground rather than toward white or black. A theme-flipped
+   * tint over a fill that does not flip lands on the wrong side in one theme for every
+   * hue — it lightens the warm fills until a glyph on them measures 1.4:1 — whereas
+   * tinting toward the glyph's own colour keeps slot and glyph on the same side of the
+   * fill in both themes. 20%, because a heavier tint moves the slot toward the glyph
+   * fast enough to cost the glyph its own contrast. */
+  .variant-on-fill-slot {
+    @apply transition-colors duration-50 ease-in-out;
+
+    /* Layout belongs to the class, not the call site. When these declarations lived in
+     * a shared `clsx` constant only the colours were carried over here, and the glyph
+     * silently lost its centring in the one slot whose element does not centre content
+     * by default — a `<div>` renders it flush to the corner where a `<button>` does not. */
+    @apply grid place-items-center rounded-[1px];
+
+    /* Layout belongs to the class, not the call site. When these declarations lived in
+     * a shared `clsx` constant only the colours were carried over here, and the glyph
+     * silently lost its centring in the one slot whose element does not centre content
+     * by default — a `<div>` renders it flush to the corner where a `<button>` does not. */
+
+    color: var(--on-standard-color);
+    background-color: color-mix(in oklab, var(--on-standard-color) 20%, transparent);
+
+    /* Follows the host fill's own hover swap. Declared here rather than as a
+     * `group-hover:` utility at the call site, which would not be wrapped in
+     * `@media (hover: hover)` and so would move on a coarse pointer's sticky hover
+     * while the fill it is tinting stayed put. */
+    &:is(:where(.variant-responsive-bg):hover *) {
+      @media (hover: hover) {
+        color: var(--on-accent-color);
+        background-color: color-mix(in oklab, var(--on-accent-color) 20%, transparent);
+      }
     }
   }
 
@@ -215,14 +285,41 @@
     outline-color: var(--standard-color);
   }
 
+  /*
+   * A control that shows its own edge at rest.
+   *
+   * The resting line sits ON the box (no offset), because that line IS the
+   * control's edge — it is what says "there is a field here" on a row whose
+   * label sits outside it.
+   *
+   * ⚠ **Focused, this must be indistinguishable from
+   * `variant-responsive-appearing-outline`: same accent colour, same 2px ring,
+   * same 2px offset.** Focus is one signal across the package, and these two
+   * variants differ only in what they show at REST. Signalling it here by
+   * thickening the resting line instead held the ring hard against the fill and
+   * left it grey, so focus read as the field's edge closing in on its own text
+   * with nothing to say why. On a hovered field it read as going BACKWARDS: the
+   * hover rule below already lifts the edge to the accent, and a `:focus` rule
+   * pinning the colour back to `--standard-color` undid that at the moment the
+   * field became the one being typed into.
+   *
+   * The offset is what holds the ring off the fill, so it belongs in the
+   * transition rather than arriving as a jump.
+   */
   .variant-responsive-persistent-outline {
-    @apply transition-[outline-color,outline-width] rounded-xs;
-    @apply outline-solid outline-1 disabled:cursor-not-allowed focus:outline-2;
+    /* `duration-50` to match the appearing variant. Without it this took
+       Tailwind's 150ms default, so the two rings arrived at the same place at
+       different speeds — the half of "one focus signal" that a settled
+       measurement cannot see, because settling is exactly what waits the
+       difference out. */
+    @apply transition-[outline-color,outline-width,outline-offset] duration-50 ease-in-out;
+    @apply rounded-xs outline-solid outline-1 disabled:cursor-not-allowed;
     outline-color: var(--standard-color);
 
     &:focus,
     &:focus-visible {
-      outline-color: var(--standard-color);
+      @apply not-disabled:outline-2 not-disabled:outline-offset-2;
+      outline-color: var(--accent-color);
     }
 
     &:disabled {
@@ -269,11 +366,36 @@
   }
 
   .variant-static-bg {
+    /* Static: no `:hover` rule, so the foreground must not have one either. A caller
+     * adding `hover:text-…` here would swap the foreground against a fill that never
+     * moves — which is what a non-clickable `Avatar` renders. */
+    color: var(--on-standard-color);
     background-color: var(--standard-color);
   }
 
   .variant-static-bg-50 {
     background-color: color-mix(in oklab, var(--standard-color) 50%, transparent);
+  }
+
+  /* A neutral surface that does NOT take the variant's colour: the layout inset fill,
+   * theme-flipped, with a foreground declared against it.
+   *
+   * It exists because a variant fill is an assertion. A solid `variant-*-bg` says the
+   * thing it wraps IS primary, or IS an error; that is right for a state and wrong for
+   * a container whose job is to sit quietly behind content that carries its own
+   * meaning — a status chip whose colour lives in its dot, a checkbox before it is
+   * checked. Painting those with a variant makes the container compete with the mark
+   * it holds.
+   *
+   * Fill and foreground are declared together, as with every other `variant-*-bg`, so
+   * no caller can own half the pair. The pairing is `neutral-800`/`neutral-200`, NOT a
+   * mid grey: a `neutral-500` foreground reads as disabled against these grounds and
+   * measures below the 4.5:1 a label has to clear. Use `text-*` on the CONTENT if
+   * something inside should be quieter. */
+  .variant-subtle-bg {
+    @apply transition-colors duration-50 ease-in-out rounded-xs;
+    @apply dark:bg-layout-dark-inset bg-layout-light-inset;
+    @apply dark:text-neutral-200 text-neutral-800;
   }
 
   .variant-separator-fill {
@@ -358,6 +480,26 @@
 
   .variant-static-text {
     color: var(--strong-accent-text-color);
+  }
+
+  /* Variant-coloured TEXT on the `layout-*-deep-inset` ground, which is the only
+   * ground it is calibrated against — do not reach for it on a card or a fill.
+   *
+   * This is the mirror of `--on-accent-color`'s problem rather than an instance of
+   * it. There a fill holds still while a scheme-chosen foreground flips; here the
+   * foreground holds still (a variant's accent text shade is the -500 in both themes)
+   * and the GROUND flips. Either way one side moves and the other does not,
+   * so one theme is wrong for every hue: the bright warm shades land at 1.6:1 on the
+   * light inset, and the deepest cool ones at 4.1:1 on the dark one.
+   *
+   * Clamping lightness rather than substituting black or white keeps the hue, which
+   * is the entire purpose of a per-tab variant. The bounds are one-sided so a hue
+   * already dark enough in light mode is left untouched. Where the clamp pushes a
+   * saturated hue outside sRGB the browser gamut-maps it, costing chroma but not
+   * contrast, which is the right trade for text. */
+  .variant-text-on-inset {
+    @apply transition-colors duration-50 ease-in-out;
+    color: var(--variant-text-color);
   }
 
   .chip {
@@ -506,6 +648,63 @@
     }
   }
 
+  /* A chip's internal spacing, which has to move with its box.
+   *
+   * Held static, these two are what make a small chip look wrong rather than small:
+   * the distance from a leading mark to the label is this gap PLUS the label's own
+   * padding, so a fixed pair reads as ~16px on an `Xs` chip that is only 20px tall —
+   * the mark ends up nearer the chip's edge than to the word it belongs to.
+   *
+   * The `md` rungs are the values these replaced, so every chip at the default size
+   * is unchanged and only the smaller rungs tighten. */
+  .sized-chip-gap {
+    @apply gap-2;
+
+    @variant size-xs {
+      @apply gap-1;
+    }
+
+    @variant size-sm {
+      @apply gap-1.5;
+    }
+
+    @variant size-md {
+      @apply gap-2;
+    }
+
+    @variant size-lg {
+      @apply gap-2;
+    }
+
+    @variant size-xl {
+      @apply gap-2.5;
+    }
+  }
+
+  .sized-chip-label-padding {
+    @apply px-2;
+
+    @variant size-xs {
+      @apply px-1;
+    }
+
+    @variant size-sm {
+      @apply px-1.5;
+    }
+
+    @variant size-md {
+      @apply px-2;
+    }
+
+    @variant size-lg {
+      @apply px-2;
+    }
+
+    @variant size-xl {
+      @apply px-2.5;
+    }
+  }
+
   .sized-inner-group-item {
     /* 28px */
     @apply h-7 w-7;
@@ -638,15 +837,72 @@
     }
   }
 
+  /* The counted form of the same badge. It needs its own scale rather than the dot's:
+   * a dot is sized purely as a mark, while this one has to hold a numeral, so its
+   * height is driven by the type it contains and its width by the digits.
+   *
+   * `leading-none` is what makes the height predictable — it pins the line box to the
+   * font size, so a height chosen here is the whole box and not a guess about the
+   * font's default leading.
+   *
+   * Width is deliberately absent: `min-w` makes a single digit a circle and horizontal
+   * padding lets two or more digits grow it into a pill. A width computed from the
+   * character count instead tracks neither the font size nor the padding, and starts
+   * clipping as soon as either changes. */
+  .sized-status-text {
+    /* Every value here is rem, type included. The box comes from the spacing scale,
+     * which is rem-based, so an absolute font-size would hold still while the box grew
+     * — a reader who raises their browser's text size would get a larger badge around
+     * the same tiny numeral. Keeping both in rem makes the badge scale as one thing,
+     * which is also how the dot form already behaves.
+     *
+     * The rem values are the px targets divided by 16, so rendering at the default root
+     * size is unchanged: 12/14/16/18/20 box with 8/9/10/11/12 type. */
+    @apply h-4 min-w-4 px-1 text-[0.625rem] leading-none;
+
+    @variant size-xs {
+      @apply h-3 min-w-3 px-0.5 text-[0.5rem];
+    }
+
+    @variant size-sm {
+      @apply h-3.5 min-w-3.5 px-0.5 text-[0.5625rem];
+    }
+
+    @variant size-md {
+      @apply h-4 min-w-4 px-1 text-[0.625rem];
+    }
+
+    @variant size-lg {
+      @apply h-4.5 min-w-4.5 px-1 text-[0.6875rem];
+    }
+
+    @variant size-xl {
+      @apply h-5 min-w-5 px-1.5 text-xs;
+    }
+  }
+
   .variant-checkbox-bg {
     @apply dark:bg-layout-dark-inset bg-layout-light-inset transition-colors;
+
+    /* Off-state foreground. The fill here IS theme-flipped — `bg-layout-*-inset` — so a
+     * theme-flipped foreground tracks it correctly, unlike the checked state below.
+     * Declared with the fill rather than at the call site so the two cannot drift, and
+     * so no consumer has to know which of a component's states fill from where. */
+    @apply dark:text-neutral-200 text-neutral-800;
+    @apply dark:data-[state=indeterminate]:text-neutral-200 data-[state=indeterminate]:text-neutral-800;
 
     &:not(*:disabled) {
       &[data-state="checked"],
       &[data-state="on"] {
+        /* The check mark is a child of this element and inherits `color`, so the
+         * foreground is declared here, next to the fill it has to contrast against.
+         * A child that names its own literal colour instead cannot follow the fill
+         * through `:hover`, where the fill crosses to `--accent-color`. */
+        color: var(--on-standard-color);
         background-color: var(--standard-color) !important;
         &:hover {
           @media (hover: hover) {
+            color: var(--on-accent-color);
             background-color: var(--accent-color) !important;
           }
         }
@@ -716,8 +972,6 @@
     @apply group-data-disabled/item:text-neutral-500/50;
     @apply dark:text-default-400 text-default-600;
     @apply dark:group-data-highlighted/item:text-black group-data-highlighted/item:text-white;
-    @apply dark:group-data-[state=checked]/item:text-black group-data-[state=checked]/item:text-white;
-    @apply dark:group-data-[state=indeterminate]/item:text-black group-data-[state=indeterminate]/item:text-white;
     @apply group-data-highlighted/item:group-data-[state=unchecked]/item:text-white;
     @apply dark:group-data-highlighted/item:group-data-[state=unchecked]/item:text-black;
     @apply group-data-[state=unchecked]/item:opacity-50;
@@ -728,7 +982,14 @@
       color: var(--accent-color);
     }
 
+    /* This fill outranks the `bg-layout-*-base` utility above — equal specificity,
+     * later in source — so the checked indicator paints `--accent-color`, and its
+     * foreground is derived from that rather than flipped with the theme. Every
+     * consumer but `NestedCheckbox` puts its variant class on the indicator, so the
+     * fill is a saturated brand hue: white on it measures 2.9:1 on warning and
+     * 3.2:1 on success in light mode. */
     &:is(:where(.group\/item)[data-state="checked"] *) {
+      color: var(--on-accent-color);
       background-color: var(--accent-color);
     }
 
@@ -758,8 +1019,15 @@
       color: var(--accent-color);
     }
 
+    /* No shipped component nests this class under a `.group/item` carrying a state,
+     * so today the `bg-layout-*-base` utilities above are what paint a checked
+     * indicator and their theme-flipped foreground is correct against them. This
+     * branch is the one that fires if a consumer does nest it: the fill becomes a
+     * variant hue that does not flip with the theme, so the foreground is derived
+     * here rather than inheriting a pairing chosen for a different fill. */
     &:is(:where(.group\/item)[data-state="checked"] *),
     &:is(:where(.group\/item)[data-state="on"] *) {
+      color: var(--on-accent-color);
       background-color: var(--accent-color);
     }
   }
@@ -773,37 +1041,6 @@
     @apply dark:group-data-[state=checked]/item:text-black group-data-[state=checked]/item:text-white;
     @apply group-data-highlighted/item:group-data-[state=unchecked]/item:text-white;
     @apply dark:group-data-highlighted/item:group-data-[state=unchecked]/item:text-black;
-  }
-
-  .table-list {
-    .table-list-text {
-      @apply transition-colors duration-50 ease-in-out;
-      @apply data-disabled:text-neutral-500/50;
-      @apply dark:group-data-highlighted/row:text-black group-data-highlighted/row:text-white;
-      @apply dark:group-data-[state=checked]/row:text-black group-data-[state=checked]/row:text-white;
-      @apply dark:focus:text-black focus:text-white;
-      color: var(--accent-color);
-    }
-
-    .table-list-item {
-      @apply transition-colors duration-50 ease-in-out;
-      @apply cursor-pointer;
-      @apply data-disabled:text-neutral-500/50;
-      @apply dark:data-highlighted:text-black data-highlighted:text-white;
-      @apply dark:data-[state=checked]:text-black data-[state=checked]:text-white;
-      color: var(--accent-color);
-      &[data-highlighted] {
-        background-color: color-mix(in oklab, var(--accent-color) 40%, transparent);
-      }
-
-      &[data-state="checked"] {
-        background-color: color-mix(in oklab, var(--accent-color) 60%, transparent);
-        &[data-highlighted] {
-          background-color: color-mix(in oklab, var(--accent-color) 80%, transparent);
-          @apply outline-2 dark:outline-black outline-white outline-offset-[-3px];
-        }
-      }
-    }
   }
 
   .responsive-accent-bg {
@@ -864,23 +1101,93 @@
     fill: var(--strong-accent-text-color);
   }
 
+  /* The three surface classes are one ramp, and which one to reach for is decided by
+   * what a surface sits ON, not by what it contains:
+   *
+   *   .card              inset       — content resting in the page
+   *   .card-overlay      deep inset  — content floating OVER the page
+   *   .card-transparent  deep inset at 90% behind a blur — a floating surface that has
+   *                                    to keep what it covers legible underneath it
+   *
+   * EVERY POPUP SURFACE TAKES `.card-overlay`: dropdown, context menu, popover, toast,
+   * tooltip, tracked tooltip, combobox popup, the desktop nested menu, the checkbox
+   * tree's submenu and all three of `tooltip-3d`'s. A popup left on `.card` sits one
+   * step toward the ground instead of away from it, so it is least separated exactly
+   * where it is most likely to open — over a card, or over a parent popup.
+   *
+   * `Modal` and `Dialog` keep `.card` deliberately. They are the one case with a ground
+   * of their own — `bg-black/40` is painted behind them — and in light mode that scrim
+   * is the only boundary in the package that clears 3:1. In dark mode it does not, for
+   * the reason below.
+   *
+   * SEPARATION IS BY LIGHTNESS AND SHADOW ALONE — no border, no outline. That is below
+   * WCAG 1.4.11's 3:1 for a component boundary, and so was the border it replaced;
+   * `floating/surface-separation.browser.tsx` measures every pair against that bar and
+   * carries the figures. Closing the gap means moving the `layout-*` steps apart, which
+   * is a change to the whole ramp rather than to any one class here. */
   .card {
-    @apply rounded-sm shadow-lg border-2;
-    border-color: var(--card-border-color);
+    @apply rounded-sm shadow-lg;
     @apply dark:bg-layout-dark-inset bg-layout-light-inset;
+  }
+
+  .card-overlay {
+    @apply rounded-sm shadow-lg;
+    @apply dark:bg-layout-dark-deep-inset bg-layout-light-deep-inset;
   }
 
   .card-transparent {
     @apply rounded-md shadow-lg;
-    @apply outline-2;
-    outline-color: var(--card-border-color);
-    /*border-color: var(--card-border-color);*/
-    @apply dark:bg-layout-dark-deep-inset/80 bg-layout-light-deep-inset/80 backdrop-blur-lg;
+    @apply dark:bg-layout-dark-deep-inset/90 bg-layout-light-deep-inset/90 backdrop-blur-xl;
+
+    /* `backdrop-blur-xl` is LOAD-BEARING for overlay stacking, not only for appearance.
+     * A `backdrop-filter` establishes a stacking context, and this class is what confines
+     * the positive `z-index`es the app's side-pane chrome puts inside it — a pane's close
+     * button is `z-1`. Every overlay in this package portals to the end of `<body>`
+     * carrying no `z-index` of its own, so it stacks at `auto` and loses to any positive
+     * value that reaches the root stacking context.
+     *
+     * It is the ONLY thing confining that chrome here. `@container/pane` sits on the same
+     * element and looks like a second line of defence; it is not — `container-type:
+     * inline-size` computes `contain: none` and establishes no stacking context. Measured
+     * both ways.
+     *
+     * So removing this filter promotes that chrome above Modal, Dialog and every popup at
+     * once. Measured, not inferred: `floating/overlay-stacking.browser.tsx` and the studio
+     * app's `browser-tests/layout/overlay-stacking.browser.ts` both fail on it and name the
+     * missing property. Nothing else does — no type error, and a screenshot of the common
+     * case still looks right, because most chrome does not overlap most popups.
+     *
+     * Replacing the blur with something cheaper is fine as long as the replacement also
+     * establishes a stacking context (`isolation: isolate` is the cheap one). Dropping it
+     * outright is a consumer-visible change to stacking and needs saying as one. */
   }
 
   .card-invert {
     @apply rounded-sm shadow-lg;
+
+    /* Inverting against the theme is only half of what this fill does. For the neutral
+     * default `--strong-accent-text-color` really is an inversion — the -800 in light,
+     * the -200 in dark — and a theme-flipped foreground tracks it. For a named variant
+     * it is the -600 / -400 of a brand hue, whose lightness does not track the scheme
+     * the way the neutral's does: white on it measures 2.9:1 on warning and 3.2:1 on
+     * success in light mode. Deriving from the fill covers both cases with one rule.
+     *
+     * Declared here rather than at the call site because a caller's `text-*` utility
+     * would override this from a later cascade layer whatever its specificity — so a
+     * caller naming a literal colour silently reintroduces the failure. */
+    color: oklch(
+      from var(--strong-accent-text-color) clamp(0, calc((var(--on-fill-threshold) - l) * 1000), 1)
+        0 0
+    );
     background-color: var(--strong-accent-text-color);
+
+    @supports not (color: oklch(from red l 0 0)) {
+      color: white;
+
+      &:where(.dark, .dark *) {
+        color: black;
+      }
+    }
   }
 
   .sized-height {
@@ -931,6 +1238,20 @@
     }
   }
 
+  /* The square a row's media tile occupies — a thumbnail, or the glyph standing
+     in for one. Unlike its `sized-*` siblings the scale is not repeated here:
+     `ListRow` publishes `--row-media` per row `Size`, so the tile derives from
+     the row it is in rather than from a size class the cell has to be told. That
+     is also why it cannot be a `@variant size-*` block like the others — those
+     match the size class on the SAME element, and the tile is a descendant of the
+     row that carries it.
+
+     The fallback is the Lg value, for a tile rendered outside a row. */
+  .sized-row-media {
+    width: var(--row-media, 2.25rem);
+    height: var(--row-media, 2.25rem);
+  }
+
   .sized-text {
     @apply text-base;
 
@@ -978,16 +1299,324 @@
       @apply size-56;
     }
   }
+
+  /* ── Text roles ───────────────────────────────────────────────────────────
+   *
+   * Four named roles for body text, each resolving to a rung of the size scale, a
+   * light/dark colour pair, and whether the text can be selected.
+   *
+   * **A role, not a size.** A size cannot answer the question these classes exist to
+   * answer. A fact's value and the label naming it are both 14px neutral-900 — the
+   * scale says they are the same thing, and they are not: the value is content a
+   * reader will want to copy, the label is chrome that happens to be words. Selection,
+   * contrast and emphasis all follow from what the text IS, so that is what the caller
+   * names. Several roles may land on one rung; that is the point, not a collision.
+   *
+   * **Why a class and not utilities spread by a component.** Both halves of a
+   * light/dark pair live in ONE class here, so a caller's `text-*` utility overrides
+   * the pair WHOLLY — utilities sit in a later cascade layer than components, so the
+   * utility wins in both themes. A component that spread `text-neutral-900
+   * dark:text-neutral-100` into its own class list would instead be half-overridden:
+   * the caller's `text-neutral-500` and the component's `dark:text-neutral-100` are
+   * two different utilities in the same layer, both survive, and the result is a
+   * light-mode change with dark mode left behind — which is precisely the defect
+   * class this work exists to remove. The class is what makes the escape hatch
+   * all-or-nothing.
+   *
+   * **Selection is part of the role.** `LayoutRoot` sets `select-none` on the app
+   * root so the product reads as an application rather than a document; content opts
+   * back in, chrome does not. That opt-in is a direct declaration on the text element
+   * and the root's is inherited, so the direct one wins regardless of layer.
+   *
+   * The tint is the one text inputs already use (`variant-text-caret-color`), so a
+   * selection drag that crosses from a field into surrounding copy does not change
+   * colour halfway. `--accent-color` is only defined inside `.variant-scope`, which the
+   * layout root does NOT carry, so the fallback is what actually paints for ordinary
+   * copy — and it is declared per theme, because a single mid-grey is too dark to
+   * read through in dark mode and too light in light mode.
+   *
+   * ⚠ **Matched on the role class itself, by prefix — NOT on a base class the
+   * component adds, and NOT on a list of the role selectors.** Each alternative drops
+   * one of the two things this block has to do at once:
+   *
+   * - A base class emitted only by `Text` leaves a hand-written
+   *   `class="text-role-caption"` with the property undeclared, so `color-mix()` gets
+   *   an empty argument and selection paints the browser default. That is the exact
+   *   defect the per-theme fallback exists to prevent, and it lands on the usage the
+   *   class exists for — a plain element, or a Code Connect mapping, reaching for the
+   *   class without the component.
+   * - A list of the four role selectors has to be edited every time a role is added,
+   *   and forgetting costs nothing at the time: the new role paints correctly and
+   *   silently selects in the browser default.
+   *
+   * The prefix match is the only form that does both — a role added below is covered
+   * by construction, and it is covered whether or not a component put the class there.
+   * Anything true of every role belongs here; anything true of one belongs in its own
+   * block below.
+   *
+   * ADDING A ROLE is therefore two edits: a member on `TextRole`, and one block below.
+   * Everything else follows — this block, the story, and the browser tests all derive
+   * from the enum. A role added with no block reddens twice: the light/dark browser
+   * test, and `parity:figma`, which requires a `.text-role-<name>` rule per enum
+   * member. */
+  [class^="text-role-"],
+  [class*=" text-role-"] {
+    --text-role-selection-color: var(--accent-color, var(--color-default-600));
+
+    &:where(.dark, .dark *) {
+      --text-role-selection-color: var(--accent-color, var(--color-default-400));
+    }
+
+    &::selection,
+    & *::selection {
+      background-color: color-mix(in oklab, var(--text-role-selection-color) 75%, transparent);
+    }
+  }
+
+  /* The primary reading of a thing: a fact's value, a name, a field's content.
+   * Selectable — this is the text a reader came to copy. */
+  .text-role-value {
+    @apply text-sm select-text;
+    @apply text-neutral-900 dark:text-neutral-100;
+    --text-role-color: var(--color-neutral-900);
+
+    &:where(.dark, .dark *) {
+      --text-role-color: var(--color-neutral-100);
+    }
+  }
+
+  /* The name of something, in the app's own voice: a section heading, a fact's label,
+   * a column head. Chrome, so NOT selectable — dragging across a fact list should take
+   * the values and leave the scaffolding behind.
+   *
+   * Uppercase at a small size with loosened tracking, which is what separates it from
+   * `caption` — the two share a rung and a colour, and without the case change a label
+   * and the sentence explaining it would be indistinguishable. */
+  .text-role-label {
+    @apply text-xs font-semibold tracking-wide uppercase;
+    @apply text-neutral-500 dark:text-neutral-400;
+    /* Chrome is unselectable in its own right, not because of where it happens to sit.
+     * `LayoutRoot` carries `select-none` app-wide, so a label inside the product is
+     * already unselectable and this line changes nothing there — which is precisely why
+     * it has to be here: the class is documented as usable alone, and a hand-written
+     * `class="text-role-label"` outside that root, or inside any subtree that opts back
+     * in with `select-text`, would otherwise be draggable. */
+    @apply select-none;
+    --text-role-l: 55.6%;
+    --text-role-l-dark: 70.8%;
+    --text-role-color: var(--color-neutral-500);
+
+    &:where(.dark, .dark *) {
+      --text-role-color: var(--color-neutral-400);
+    }
+  }
+
+  /* Secondary content attached to something else: a subtitle, a timestamp, the
+   * sentence under a setting. Selectable — it is content, not scaffolding. */
+  .text-role-caption {
+    @apply text-xs select-text;
+    @apply text-neutral-500 dark:text-neutral-400;
+    --text-role-l: 55.6%;
+    --text-role-l-dark: 70.8%;
+    --text-role-color: var(--color-neutral-500);
+
+    &:where(.dark, .dark *) {
+      --text-role-color: var(--color-neutral-400);
+    }
+  }
+
+  /* ⚠ THE MUTED PAIR ABOVE FAILS WCAG AA IN LIGHT MODE, AND THAT IS A DECISION.
+   *
+   * `label`, `caption` and `note` share `neutral-500` / `neutral-400`. Measured against
+   * the grounds the app paints, not against white:
+   *
+   *   light  `.card` (layout-light-inset)   3.76:1   APCA Lc 55.0   — AA wants 4.5:1
+   *          layout-light-base              2.95:1   Lc 41.5
+   *          white                          4.73:1   Lc 69.5        — the only pass
+   *   dark   every ground                4.87–6.91   Lc 44.8–51.3   — passes throughout
+   *
+   * `.card` is the surface behind every modal, dialog, dropdown, tooltip and panel, so
+   * the 3.76 is where most of the app's captions actually sit, not an edge case. At
+   * 12px there is no large-text allowance, and `note`'s 14px does not reach one either —
+   * AA's threshold is 18px, or 14px bold.
+   *
+   * It stays because the two goals here are in tension and only one of them is a
+   * number. `neutral-600` clears AA on every ground, and costs roughly half the
+   * separation from `body` — the body↔muted gap drops from Lc 29.6 to 15.8 — which is
+   * what makes a caption read as secondary rather than as slightly lighter prose. The
+   * judgement is that these remain legible, and Lc 55 is above APCA's floor for text
+   * even though the WCAG ratio is not.
+   *
+   * ⚠ **So do not "fix" this from a contrast audit alone.** The number is known. What
+   * makes it safe to leave is that it is now declared once: changing the muted rung is
+   * an edit here, not a sweep of the call sites. If you are revisiting it, the
+   * measurements and the side-by-side are on the Figma board "Muted roles — which rung,
+   * on the grounds we ship", and the thing to weigh is the body separation, not the
+   * ground ratio on its own. */
+
+  /* Running prose: a description, an explanation, a paragraph the reader is meant to
+   * read rather than scan.
+   *
+   * Close to `value` in contrast, and that is deliberate. `value` is mostly the AMBIENT
+   * foreground — it is set on a container and inherited by a whole subtree — rather than
+   * a peer sitting beside prose, so the two rarely need telling apart. What does sit
+   * adjacent, and must stay distinguishable, is prose against `caption`.
+   *
+   * So this takes the contrast that reads best for a block of text (APCA Lc 102 light,
+   * 90 dark) rather than a step down for separation's sake. A step down would buy a
+   * distinction from `value` that nothing needs and cost legibility at the length this
+   * role is for.
+   *
+   * The other reason to hold prose back — that a full-contrast block competes with the
+   * headings around it — was checked and does not apply here: studio's headings are
+   * mostly drawn MUTED (`text-neutral-500`), so prose at 800 already sits darker than
+   * the heading above it, and the few that are full contrast are `text-black` /
+   * `text-white`, which 800/200 is plainly separate from. If headings are ever brought
+   * onto a role of their own, that is the point to re-ask this. */
+  .text-role-body {
+    @apply text-sm select-text;
+    @apply text-neutral-800 dark:text-neutral-200;
+    --text-role-color: var(--color-neutral-800);
+
+    &:where(.dark, .dark *) {
+      --text-role-color: var(--color-neutral-200);
+    }
+  }
+
+  /* The application speaking in its own right — an empty state, a stated absence, an
+   * instruction above a field. `body`'s rung with `caption`'s colour, which is the
+   * combination the other four leave out and the one a listing needs constantly: a
+   * description and the sentence standing in for a missing one sit in the same slot, and
+   * telling them apart is the whole job.
+   *
+   * It derives its hue with the muted pair below rather than with `body`, because it is
+   * at the muted LIGHTNESS — that is what makes deriving safe here and not for `body`,
+   * where the contrast extremes leave the gamut no chroma to take. The AA note above
+   * covers this role too: it is the same colour on the same grounds, and 14px is still
+   * below the large-text allowance, so the ratio is unchanged and so is the judgement. */
+  .text-role-note {
+    @apply text-sm select-text;
+    @apply text-neutral-500 dark:text-neutral-400;
+    --text-role-l: 55.6%;
+    --text-role-l-dark: 70.8%;
+    --text-role-color: var(--color-neutral-500);
+
+    &:where(.dark, .dark *) {
+      --text-role-color: var(--color-neutral-400);
+    }
+  }
+
+  /* A MUTED ROLE'S COLOUR IS A LIGHTNESS, NOT A RUNG.
+   *
+   * `label`, `caption` and `note` declare a target lightness alongside the neutral pair
+   * that lightness corresponds to. The pair is the fallback; the block below is what paints,
+   * taking the lightness from the role and the chroma and hue from whatever variant is in
+   * context — so in a `.variant-scope primary` subtree a caption is primary-hued at exactly
+   * the lightness a neutral caption would have had. `value` and `body` do not derive; the
+   * block below says why.
+   *
+   * ⚠ **Naming a rung per variant does not work, and cannot be made to.** `text-<variant>-500`
+   * looks like the obvious spelling, but a rung is a position in ONE family's ramp, and the
+   * families are anchored at the brand's own lightnesses — `neutral-500` is L 55.6 where
+   * `secondary-500` is L 78.0. Measured across the palette, the body↔muted gap that makes a
+   * caption read as secondary ranges from Lc 9.8 to 46.7 depending on the variant; at the
+   * bottom of that range the two are indistinguishable. Assigning the lightness collapses
+   * that spread to 8.0 in light and 16.3 in dark, because every family now sits at the same
+   * lightness per role by construction. Regularising the ramps does NOT fix it — that was
+   * measured too, and moved the light spread from 24.1 to 22.9.
+   *
+   * **The default variant is not a special case.** Its accent resolves to `default-600` /
+   * `default-400`, which have zero chroma, so assigning a lightness reproduces the neutral
+   * rungs above exactly. One rule covers grey and colour alike, which is the whole point.
+   *
+   * The `@supports` gate is required rather than decorative: without relative colour syntax
+   * the declarations below are invalid and the `@apply` pairs remain in force, which is why
+   * the muted pair still names its neutral colours rather than relying on the derivation. */
+  @supports (color: oklch(from red l c h)) {
+    /* ⚠ THE MUTED PAIR ONLY. `value` and `body` are deliberately excluded, and a new role
+     * belongs here only if it is muted.
+     *
+     * A role that derives has to sit at a lightness where sRGB still has chroma to give.
+     * `value` and `body` are defined by being high-contrast, which puts them near the
+     * lightness extremes, and there is almost no chroma available at L 97 or L 20.5 — you
+     * cannot have a saturated near-white. Measured on the shipping palette: at `value` in
+     * dark mode the gamut keeps 9% of primary's chroma and 8% of error's, and the two land
+     * 0.007 apart in the a/b plane, which is indistinguishable. Deriving them would offer a
+     * variant colour the gamut cannot supply, and flatten two variants into one while
+     * appearing to honour both.
+     *
+     * `muted` keeps 72–100% in light and 73–100% in dark, because it sits in the middle of
+     * the range. It is also the role where the variant mattered: the hierarchy spread that
+     * motivated deriving at all was the body↔muted gap. */
+    /* ⚠ `:not(.variant-text-on-inset)` is load-bearing. Both this block and that class set
+     * `color` in the components layer, and this one is declared later, so without the
+     * exclusion the derivation wins and `VariantMode.Static` silently does nothing on the
+     * two roles it is most wanted for. The derivation steps aside when a colour has been
+     * stated outright. */
+    .text-role-label:not(.variant-text-on-inset),
+    .text-role-caption:not(.variant-text-on-inset),
+    .text-role-note:not(.variant-text-on-inset) {
+      /* `--accent-color` is only declared inside `.variant-scope`; ordinary copy falls back to
+       * the default variant's own accent, which is what makes grey text grey. */
+      color: oklch(from var(--accent-color, var(--color-default-600)) var(--text-role-l) c h);
+
+      &:where(.dark, .dark *) {
+        color: oklch(
+          from var(--accent-color, var(--color-default-400)) var(--text-role-l-dark) c h
+        );
+      }
+    }
+  }
+  /* A STATED variant colour has to beat the role's own, and the role blocks are declared
+   * later in this layer than `variant-text-on-inset`, so that class alone loses. Matching
+   * both together raises the specificity above either.
+   *
+   * ⚠ **The fallback is what makes the static mode safe with no variant named.**
+   * `--variant-text-color` is declared ONLY inside `.variant-scope`, and a static role with
+   * no variant emits no `variant-scope` class — so outside a `.variant-scope` subtree the
+   * property resolves to nothing, `color` becomes invalid at computed-value time, and the
+   * text falls back to INHERITING, losing the role's colour entirely. `--text-role-color`
+   * restates each role's own pair, so that case lands on the colour the role would have
+   * painted anyway. That is the documented contract: with no variant in play, the two
+   * modes look the same.
+   *
+   * Inside a `.variant-scope` subtree the property IS declared and inherits, so the fallback
+   * never fires and a static role with no variant still takes the ambient variant's
+   * colour. Making the component emit `variant-scope` unconditionally would break that — it
+   * re-roots the accent context onto the element at the DEFAULT variant, so the text
+   * would go neutral in an error panel.
+   *
+   * The token restating the pair is a duplicate of the `@apply` above it, and the pairing
+   * of the two is measured rather than trusted: `text.browser.tsx` asserts that a static
+   * role with no variant matches the ambient one per role and per theme, so moving one
+   * and not the other reddens. */
+  [class^="text-role-"].variant-text-on-inset,
+  [class*=" text-role-"].variant-text-on-inset {
+    color: var(--variant-text-color, var(--text-role-color));
+  }
 }
 
 @layer utilities {
-  .responsive {
+  /* The variant context root. `variant-scope` declares the custom properties every
+   * `variant-responsive-*` / `variant-static-*` treatment resolves against —
+   * `--accent-color`, `--variant-text-color`, the on-fill foregrounds — so a
+   * `variant-scope primary` element re-roots the accent for everything beneath it.
+   *
+   * A treatment class alone sets nothing: `variant-responsive-bg` reads
+   * `--accent-color` rather than declaring a colour of its own, so it paints
+   * whatever the nearest `variant-scope` ancestor supplies — the default accent if
+   * none does.
+   *
+   * A treatment's own name carries the interactivity axis, which this root does not:
+   * `variant-responsive-*` changes with hover, press and selection state;
+   * `variant-static-*` does not. */
+  .variant-scope {
     --standard-color: var(--color-default-500);
     --light-color: var(--color-default-400);
     --dark-color: var(--color-default-600);
     --opacity: 100%;
     --accent-color: var(--dark-color);
-    --responsive-color: var(--standard-color);
+    --variant-scope-color: var(--standard-color);
     --lightest-accent-text-color: var(--color-default-200);
     --darkest-accent-text-color: var(--color-default-800);
     --light-accent-text-color: var(--color-default-400);
@@ -995,6 +1624,19 @@
     --card-border-color: var(--light-accent-text-color);
     --strong-accent-text-color: var(--darkest-accent-text-color);
     --weak-accent-text-color: var(--dark-accent-text-color);
+    /* Variant text, clamped so the hue survives and the contrast is guaranteed. Declared
+     * once here because two places paint it — `variant-text-on-inset` and the text roles'
+     * stated mode — and a clamp copied into both drifts the moment one is tuned. */
+    --variant-text-color: var(--strong-accent-text-color);
+    @supports (color: oklch(from red l c h)) {
+      --variant-text-color: oklch(from var(--weak-accent-text-color) min(l, 0.42) c h);
+    }
+
+    /* The lightness crossover every on-fill foreground derives against, named once so
+     * the three derivations cannot drift apart. Its justification — 190 of 194 palette
+     * colours get the better-contrasting extreme — is a property of THIS number, so a
+     * copy that missed an edit would be a copy with no evidence behind it. */
+    --on-fill-threshold: 0.57;
 
     /* Foreground for content sitting ON an `--accent-color` fill.
      *
@@ -1016,16 +1658,38 @@
      * theoretical best of 4.6:1. Working from the fill also means an arbitrary
      * `--custom-color` is handled on the same footing as the named variants.
      */
-    --on-accent-color: oklch(from var(--accent-color) clamp(0, calc((0.57 - l) * 1000), 1) 0 0);
+    --on-accent-color: oklch(
+      from var(--accent-color) clamp(0, calc((var(--on-fill-threshold) - l) * 1000), 1) 0 0
+    );
+
+    /* Foreground for content sitting ON a `--standard-color` fill — what
+     * `variant-responsive-bg`, `variant-static-bg` and a checked `variant-checkbox-bg`
+     * paint with. Same derivation as `--on-accent-color`, applied to the other fill.
+     *
+     * A theme-flipped `text-white dark:text-black` pair is necessarily wrong in one
+     * theme at this fill, for every hue, without measuring anything: `--standard-color`
+     * is the -500 shade and has NO dark-mode override, so the fill is theme-invariant
+     * while the foreground flips. Whichever theme puts the worse-contrasting extreme on
+     * it is the failing one. That cuts both ways — the saturated hues fail in light mode
+     * (warning 1.91:1, success 2.22:1, primary 2.71:1) and the neutral default fails in
+     * dark (4.43:1), because a mid-grey is not light enough for black text either.
+     *
+     * Deriving from the fill also covers an arbitrary `--custom-color`, which no
+     * hardcoded pair can. */
+    --on-standard-color: oklch(
+      from var(--standard-color) clamp(0, calc((var(--on-fill-threshold) - l) * 1000), 1) 0 0
+    );
 
     /* Pre-relative-color-syntax fallback: the old theme-flipped pair, which is right
      * for the neutral default and wrong only for the brightest brand hues. Guarded by
      * `not` so it cannot shadow the derived value above where that value works. */
     @supports not (color: oklch(from red l 0 0)) {
       --on-accent-color: white;
+      --on-standard-color: white;
 
       &:where(.dark, .dark *) {
         --on-accent-color: black;
+        --on-standard-color: black;
       }
     }
 
@@ -1033,6 +1697,10 @@
       --accent-color: var(--light-color);
       --strong-accent-text-color: var(--lightest-accent-text-color);
       --weak-accent-text-color: var(--light-accent-text-color);
+      --variant-text-color: var(--strong-accent-text-color);
+      @supports (color: oklch(from red l c h)) {
+        --variant-text-color: oklch(from var(--weak-accent-text-color) max(l, 0.78) c h);
+      }
       --card-border-color: var(--dark-accent-text-color);
     }
 
@@ -1127,9 +1795,77 @@
     @apply block h-[70%] w-[70%] shrink-0;
   }
 
+  /* Deliberately proportional, where `.sized-icon` is a fixed step.
+
+     This slot fills a box its call site draws — a Select's option indicator, a
+     nested row's check — so the glyph is sized relative to THAT box rather than to
+     a control's height, and the two scales answer different questions. A Select's
+     glyph reading smaller than the search field beside it is that difference
+     showing, not the two drifting apart: snapping this to the control scale would
+     make the glyph fight the indicator it sits in. */
   .icon-slot {
     @apply grid h-full w-full place-items-center leading-none;
     @apply [&_svg]:block [&_svg]:h-3/5 [&_svg]:w-3/5 [&_svg]:shrink-0;
+  }
+
+  /* Like icon-slot, but a definite square instead of filling its parent — for the
+     list-item (NestedItem/NestedMenu) left-icon rail, whose parent slot is w-fit.
+     Normalizes any icon set to one size + centers it, so glyphs don't shift. */
+  .list-item-icon {
+    @apply grid size-5 place-items-center leading-none;
+    /* 12px in the 20px box — the same step `.sized-icon` gives an Xs control,
+       spelled explicitly rather than as 3/5, which happens to land on 12 here. */
+    @apply [&_svg]:block [&_svg]:size-3 [&_svg]:shrink-0;
+  }
+
+  /* A control's glyph box: an explicit step per control size, rather than a
+     fraction of the box.
+
+     A fraction lands on fractional pixels at most sizes — 3/5 of a 28px Sm button
+     is 16.8, of a 32px Md button 19.2 — and a fractional glyph box is a subpixel
+     rendering box. It is also why call sites pinned glyphs by hand: every hand-set
+     size in the app was one of those fractions rounded to the nearest step, and
+     they never disagreed about which step.
+
+     Targets `.icon-standard` rather than `svg`, so that an icon whose call site
+     opted out with `size="none"` carries no `.icon-standard` and keeps exactly the
+     size it asked for. That is what lets a deliberate departure — the 10px playback
+     glyphs — survive a change to the standard scale.
+
+     Applied to `.sized-inner-group-item` directly rather than to each of its call
+     sites: chips, tabs, toggle groups, selects and the field adornments are all the
+     same box on the same size scale, and snapping only the ones a reader happened to
+     look at is how the two scales diverged in the first place. `Button` opts in by
+     name because its glyph box is `sized-height sized-width`, not an inner box. */
+  .sized-icon,
+  .sized-inner-group-item {
+    /* 20px */
+    @apply [&_.icon-standard]:size-5;
+
+    @variant size-xs {
+      /* 12px */
+      @apply [&_.icon-standard]:size-3;
+    }
+
+    @variant size-sm {
+      /* 16px */
+      @apply [&_.icon-standard]:size-4;
+    }
+
+    @variant size-md {
+      /* 20px */
+      @apply [&_.icon-standard]:size-5;
+    }
+
+    @variant size-lg {
+      /* 24px */
+      @apply [&_.icon-standard]:size-6;
+    }
+
+    @variant size-xl {
+      /* 28px */
+      @apply [&_.icon-standard]:size-7;
+    }
   }
 
   .input-label-field-units-grid {
@@ -1177,12 +1913,32 @@
     --padding-width: 10px;
     padding: var(--padding-width);
 
+    /* Panes animate in from off-layout — the right pane enters at `x: 50`, the
+       left at `x: -50` (`PanelContent`). Without a clip, that translate is part
+       of the document's scrollable overflow, so every pane open and close grew
+       the page ~40px to the right and flashed a horizontal scrollbar; a pane
+       caught mid-transition (a background tab throttles rAF, freezing the
+       animation) left the scrollbar up for good.
+
+       `clip` rather than `hidden`: it does not create a scroll container, so
+       sticky positioning and scroll anchoring inside the panes are unchanged,
+       and nothing can be scrolled programmatically into the clipped strip.
+       X only — the vertical axis is left `visible` so this cannot silently
+       swallow a genuinely too-tall layout. Floating content is portaled to
+       `body`, outside this element, so menus and tooltips are not clipped. */
+    overflow-x: clip;
+
+    /* Narrow: there is no width to dock the side regions beside the content, so
+       they share one full-width row under it — `side` rather than `left`, because
+       a Right-region pane lands here too. Only one is shown at a time
+       (`SidePaneArea`), and `--side-size` is whichever pane that is. The footer
+       keeps its own strip: it is full-width in both arrangements. */
     grid-template-areas:
       "header"
       "."
       "content"
       "."
-      "left"
+      "side"
       "."
       "menu"
       "."
@@ -1190,7 +1946,7 @@
     grid-template-columns: calc(100vw - 2 * var(--padding-width));
     grid-template-rows:
       auto var(--padding-width) minmax(0, var(--content-size))
-      var(--content-left-gap) minmax(0, var(--left-size)) var(--padding-width)
+      var(--content-side-gap) minmax(0, var(--side-size)) var(--padding-width)
       auto var(--content-footer-gap) minmax(0, auto);
 
     @variant desktop {
@@ -1200,13 +1956,32 @@
         "menu . left   .      content .      right "
         "menu . .      .      .       .      .     "
         "menu . footer footer footer  footer footer";
+      /* The side tracks are `minmax(0, …)`, not bare lengths, so they can give
+         width back.
+
+         `desktop` is width-only at 768px, but this arrangement needs room for the
+         menu rail, a left pane, a content column AND a right pane. Between those
+         two numbers the grid is overconstrained — and a rigid length resolves that
+         by OVERFLOWING. `overflow-x: clip` above then swallowed the overflow, so
+         the right sidebar left the screen entirely; and the menu, squeezed below
+         its content width, was painted over by `Header` and the panes, which are
+         later siblings. Two symptoms, one cause: a track that could not compress.
+
+         Where everything fits, `minmax(0, L)` resolves to exactly `L`, so the roomy
+         layout is untouched. Where it does not, the panes narrow — the honest
+         outcome, and strictly better than one of them vanishing.
+
+         A floor, not the whole answer: the stacked arrangement below `desktop` is
+         the right shape for a genuinely narrow window, and it engages at 768px
+         rather than at the width this grid actually needs. Raising that threshold is
+         a design decision about pane widths, not a bug fix. */
       grid-template-columns:
-        auto var(--padding-width) var(--left-size) var(--content-left-gap) minmax(
+        auto var(--padding-width) minmax(0, var(--left-size)) var(--content-left-gap) minmax(
           0,
           var(--content-size)
         )
         var(--content-right-gap)
-        var(--right-size);
+        minmax(0, var(--right-size));
       grid-template-rows: auto var(--padding-width) 1fr var(--content-footer-gap) minmax(0, auto);
     }
 
@@ -1230,8 +2005,45 @@
       grid-area: content;
     }
 
+    /* Narrow layouts only — the wide grid names `left` and `right` instead. */
+    .grid-area-side {
+      grid-area: side;
+    }
+
     .grid-area-footer {
       grid-area: footer;
+    }
+
+    /* An expanded side pane SPANS onto the content column, instead of the content
+       track collapsing to make room for it.
+
+       The tracks are left exactly as they are, which is the whole point: the
+       content cell keeps its natural width, so the rect measured from it stays
+       live and truthful while a pane covers it. A restore needs no remembered
+       width, and resizing the window mid-expansion just works. Collapsing the
+       track instead — what a legacy `size: "full"` pane does — reports zero width
+       to whatever frames itself from that rect.
+
+       The span stops at the opposite region's line, so an expanded left pane
+       reaches the right sidebar and no further; the gap column between left and
+       content is absorbed into the span rather than left showing through.
+
+       `&.` and not a descendant: the expansion classes are emitted on the layout
+       root itself, which is also the `.app-layout` this block is nested in. Written
+       as `.left-sidebar-full .grid-area-left` these compile to a descendant chain
+       that asks for an `.app-layout` ANCESTOR, and match nothing.
+
+       Scoped to the wide grid, which is the only one naming `left`/`right` areas
+       and therefore the only one where these line names resolve. Narrow, the side
+       regions share one row and nothing renders `.grid-area-left` at all. */
+    @variant desktop {
+      &.left-sidebar-full .grid-area-left {
+        grid-column: left-start / content-end;
+      }
+
+      &.right-sidebar-full .grid-area-right {
+        grid-column: content-start / right-end;
+      }
     }
   }
 
@@ -1466,4 +2278,17 @@
 .react-colorful__hue-pointer {
   border-radius: 2px !important;
   width: 10px !important;
+}
+
+/* Solar duotone keeps detail visible alongside the primary stroke. */
+.icon-solar [opacity="0.5"] {
+  opacity: 0.6;
+}
+
+/* Inverted Solar duotone emphasizes the silhouette while retaining its detail. */
+.icon-duotone-inverted [opacity="0.5"] {
+  opacity: 1;
+}
+.icon-duotone-inverted > *:not([opacity]) {
+  opacity: 0.6;
 }

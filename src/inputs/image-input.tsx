@@ -11,6 +11,7 @@ export interface ImageInputProps {
   variant?: Variant;
   className?: string;
   size?: Size;
+  ariaLabel?: string;
 }
 
 export function ImageInput({
@@ -20,6 +21,7 @@ export function ImageInput({
   fallback,
   size = Size.Md,
   className,
+  ariaLabel = "Update image",
 }: ImageInputProps) {
   const { localImageURL, handleChange } = useImageInput(onImageChange, src);
 
@@ -29,10 +31,22 @@ export function ImageInput({
 
   return (
     <AvatarPrimitive.Root
-      onClick={() => fileInputRef.current?.click?.()}
+      onClick={(event) => {
+        if (event.target !== fileInputRef.current) fileInputRef.current?.click();
+      }}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          fileInputRef.current?.click();
+        }
+      }}
+      role="button"
+      tabIndex={0}
+      aria-label={ariaLabel}
       className={clsx(
         size,
         "sized-image-input group/image-input relative grid rounded-sm",
+        "focus-visible:outline-2 focus-visible:outline-offset-2",
         className,
       )}
     >
@@ -49,7 +63,7 @@ export function ImageInput({
         className={clsx(
           size,
           variant,
-          "responsive cursor-pointer",
+          "variant-scope cursor-pointer",
           "sized-image-input",
           "variant-responsive-appearing-outline",
           "object-cover object-center",
@@ -60,11 +74,14 @@ export function ImageInput({
         className={clsx(
           size,
           variant,
-          "responsive cursor-pointer",
+          "variant-scope cursor-pointer",
           "grid size-full",
           "place-items-center rounded-sm select-none",
+          // The fill declares the foreground. Specifically NOT `variant-responsive-text`,
+          // which resolves to `--weak-accent-text-color` — the same -500 shade this fill
+          // paints with — so the fallback initial rendered at exactly 1:1 against its own
+          // background, invisible for every named variant in both themes.
           "variant-responsive-bg variant-responsive-appearing-outline",
-          "variant-responsive-text",
         )}
       >
         {fallbackContent}

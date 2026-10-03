@@ -1,0 +1,15 @@
+{
+  "component": "ToggleSquare",
+  "nodeId": "508:997",
+  "capturedAt": "2026-07-20",
+  "source": "Captured via the Figma MCP (use_figma reads of node 508:997 — the ToggleSquare component set on the 🧩 Components page of the Semio UI Library file, key supplied at session start, not committed). The Figma component implements a DOCUMENTED SUBSET of the code contract (see packages/ui/docs/figma-design-system-mapping.md). Refresh from the live file before running in CI.",
+  "variantOptions": {
+    "Variant": ["default", "primary", "secondary", "tertiary", "error"],
+    "State": ["off", "on", "partial", "disabled"]
+  },
+  "properties": ["Icon"],
+  "sampleVariant": {
+    "cornerRadius": 2,
+    "bgFillVar": "color/primary/bg"
+  }
+}

@@ -10,7 +10,12 @@ import {
   IconUser,
 } from "@tabler/icons-react";
 
+import { tabsPreview } from "./figma-links";
+
+const design = (url: string) => ({ design: { type: "figma" as const, url } });
+
 const meta: Meta<typeof TabRenderer> = {
+  parameters: design(tabsPreview),
   component: TabRenderer,
   title: "ui/Tabs",
 };

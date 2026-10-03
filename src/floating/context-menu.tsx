@@ -13,9 +13,19 @@ export interface ContextMenuProps {
   color?: string;
   disabled?: boolean;
   onOpenChange?: (open: boolean) => void;
+  /** Custom container for the popup portal (e.g. inside a modal). */
+  portalContainer?: HTMLElement | null;
 }
 
-function ContextMenu({ content, children, variant, color, disabled, onOpenChange }: ContextMenuProps) {
+function ContextMenu({
+  content,
+  children,
+  variant,
+  color,
+  disabled,
+  onOpenChange,
+  portalContainer,
+}: ContextMenuProps) {
   return (
     <NestedParentProvider value={NestedParent.Context}>
       <ContextMenuPrimitive.Root onOpenChange={onOpenChange}>
@@ -28,13 +38,13 @@ function ContextMenu({ content, children, variant, color, disabled, onOpenChange
         <ContextMenuPrimitive.Trigger asChild disabled={disabled}>
           {children}
         </ContextMenuPrimitive.Trigger>
-        <ContextMenuPrimitive.Portal>
+        <ContextMenuPrimitive.Portal container={portalContainer ?? undefined}>
           <ContextMenuPrimitive.Content
             alignOffset={3}
             collisionPadding={2}
             className={clsx(
               color ? "custom-color" : variant,
-              "responsive card dropdown-content m-0.5 min-w-55",
+              "variant-scope card-overlay dropdown-content m-0.5 min-w-55",
               "max-h-[calc(var(--radix-context-menu-content-available-height)-4px)]",
               "desktop:w-[calc(var(--radix-context-menu-trigger-width)+10px)]",
               "w-[calc(var(--radix-context-menu-content-available-width)-4px)]",

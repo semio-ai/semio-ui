@@ -1,7 +1,7 @@
 import { Checkbox as RadixCheckbox } from "radix-ui";
-import { IconCheck } from "@tabler/icons-react";
 import { clsx } from "clsx";
 import { Size, Variant } from "../types";
+import { Icon } from "../icons/registry";
 
 export interface CheckboxProps {
   id?: string;
@@ -31,7 +31,7 @@ export function Checkbox({
       checked={checked}
       onCheckedChange={onCheckedChange}
       className={clsx(
-        "responsive",
+        "variant-scope",
         size,
         variant,
         sizing === "default" && "sized-height sized-width",
@@ -45,9 +45,15 @@ export function Checkbox({
       )}
     >
       <RadixCheckbox.Indicator
-        className={clsx(variant, "text-white dark:text-black", "grid place-items-center")}
+        // h-full/w-full so the check's `h-4/5` percentage resolves against the
+        // sized Root and scales with `size` (the box is `sized-height/width`).
+        //
+        // Deliberately no colour of its own: the Root owns the fill, so the Root
+        // owns the foreground and this inherits it. Both fills the Root can carry
+        // change under `:hover`, which a colour named here could not follow.
+        className={clsx(variant, "grid h-full w-full place-items-center")}
       >
-        <IconCheck className="h-4/5 w-4/5" />
+        <Icon name="selected" size="none" className="h-4/5 w-4/5" />
       </RadixCheckbox.Indicator>
     </RadixCheckbox.Root>
   );

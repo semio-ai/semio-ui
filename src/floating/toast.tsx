@@ -2,12 +2,24 @@ import { ReactNode, createContext, useContext, useState, useCallback, memo, useR
 import { AnimatePresence, useAnimationFrame, motion, useSpring } from "motion/react";
 import { Toast as RadixToast } from "radix-ui";
 import { clsx } from "clsx";
-import { IconPlayerPause, IconX } from "@tabler/icons-react";
 import { Button } from "../buttons/button";
 import { Size, Variant } from "../types";
 import { ProgressCircle } from "../feedback/progress";
-import { IconVariant } from "../icons/variant";
-import { ICON_CLASS_NAME } from "../constants/icon";
+import { Icon, type IconName } from "../icons/registry";
+
+/**
+ * Variants that have a status glyph mapped to its registry key. Other variants
+ * (primary/secondary/…) are absent and show no status icon — matching the old
+ * `IconVariant`, which returned `null` for them. Typing the values as `IconName`
+ * means a bad key here is a build error, and the lookup avoids constructing a
+ * `status-${variant}` string that could name a key the registry doesn't have.
+ */
+const STATUS_ICONS: Partial<Record<Variant, IconName>> = {
+  [Variant.Success]: "status-success",
+  [Variant.Error]: "status-error",
+  [Variant.Warning]: "status-warning",
+  [Variant.Info]: "status-info",
+};
 
 export interface ToastState {
   toasts: ToastData[];
@@ -70,6 +82,15 @@ function InnerToast({ data }: { data: ToastData }) {
     }
   });
 
+  // The transport pauses on hover; otherwise show the variant's status glyph (if
+  // it has one). Computed here rather than inline so the registry key narrows.
+  const statusIcon = data.variant ? STATUS_ICONS[data.variant] : undefined;
+  const toastIcon = paused ? (
+    <Icon name="player-pause" />
+  ) : statusIcon ? (
+    <Icon name={statusIcon} />
+  ) : null;
+
   return (
     <RadixToast.Root
       asChild
@@ -97,7 +118,7 @@ function InnerToast({ data }: { data: ToastData }) {
           "data-[swipe=end]:animate-toastSwipeOut",
           "data-[swipe=cancel]:transition-[transform_200ms_ease-out]",
           data.variant,
-          "card responsive",
+          "card-overlay variant-scope",
         )}
         initial={{ x: width + margin }}
         animate={{ x: 0 }}
@@ -116,38 +137,35 @@ function InnerToast({ data }: { data: ToastData }) {
         <div
           className={clsx(
             "relative bg-neutral-50/50 dark:bg-neutral-950/50",
-            "flex h-11 flex-row items-center justify-between px-2",
+            "flex min-h-11 flex-row items-center justify-between gap-2 px-2 py-1.5",
           )}
         >
           <RadixToast.Title
             className={clsx(
-              "flex flex-row items-center gap-3 text-[15px]",
+              "flex min-w-0 flex-row items-center gap-3 text-[15px]",
               data.variant,
-              "variant-static-text responsive",
+              "variant-static-text variant-scope",
             )}
           >
-            <ProgressCircle
-              size={Size.Xs}
-              progress={completionSpring}
-              variant={data.variant}
-              icon={
-                paused ? (
-                  <IconPlayerPause className={ICON_CLASS_NAME} />
-                ) : (
-                  <IconVariant variant={data.variant} className={ICON_CLASS_NAME} />
-                )
-              }
-            />
-            {data.title}
+            <span className="flex shrink-0">
+              <ProgressCircle
+                size={Size.Xs}
+                progress={completionSpring}
+                variant={data.variant}
+                icon={toastIcon}
+              />
+            </span>
+            <span className="min-w-0 wrap-break-word">{data.title}</span>
           </RadixToast.Title>
           <RadixToast.Close asChild>
             <Button
               size={Size.Sm}
+              className="shrink-0"
               // onClick={() => removeToast(data.id)}
               variant={data.variant}
               leftIcon={
                 typeof data.dismiss !== "object" ? (
-                  <IconX size={18} className="text-black" />
+                  <Icon name="close" className="text-black" />
                 ) : undefined
               }
               altText={typeof data.dismiss === "object" ? data.dismiss.label : "dismiss"}

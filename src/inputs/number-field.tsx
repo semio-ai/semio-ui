@@ -18,6 +18,7 @@ import { useNumeric, ValidChangeEvent } from "../hooks/use-numeric";
 import { NumericStatus, formatDisplayValue } from "../hooks/numeric-utils";
 import { Size, Variant } from "../types";
 import { TextFieldProps } from "./text-field";
+import { unitsSuffixWidth } from "./units-suffix";
 
 enableBoundaryChecking(false);
 
@@ -103,6 +104,7 @@ const InnerNumberField = forwardRef(
     const {
       textValue,
       status,
+      dirty,
       onChange: onChangeInner,
       onBlur,
     } = useNumeric({
@@ -113,13 +115,17 @@ const InnerNumberField = forwardRef(
       enforceLimits: strict,
     });
 
-    // Display the formatted prop value when not focused; useNumeric's
-    // local textValue is only consulted while the user is typing. The
-    // previous sync-via-useEffect pattern fired a setState every render,
-    // which fed React 19's nestedPassiveUpdateCount and tripped
-    // "Maximum update depth exceeded" once per ~50 playback ticks.
+    // Display the formatted prop value unless the user is actively editing;
+    // useNumeric's local textValue is only consulted once focused AND dirty.
+    // Gating on `dirty` (not just focus) keeps the live external value
+    // visible while a focused-but-untouched field's underlying value changes
+    // (e.g. the playhead moving), and prevents focusing from surfacing the
+    // stale text captured at mount. The previous sync-via-useEffect pattern
+    // fired a setState every render, which fed React 19's
+    // nestedPassiveUpdateCount and tripped "Maximum update depth exceeded"
+    // once per ~50 playback ticks.
     const displayedTextValue =
-      focusState === FocusState.Focused ? textValue : formatDisplayValue(value, 2);
+      focusState === FocusState.Focused && dirty ? textValue : formatDisplayValue(value, 2);
 
     useEffect(() => {
       onStatusChange?.(status);
@@ -158,7 +164,7 @@ const InnerNumberField = forwardRef(
         data-highlighted={highlight || focusState !== FocusState.Blurred ? "" : undefined}
         style={{ "--custom-color": effectiveColor, "--progress": "25%" } as CSSProperties}
         className={clsx(
-          "responsive",
+          "variant-scope",
           effectiveColor ? "custom-color" : effectiveVariant,
           "group/input-wrapper px-0.5 py-0 select-none",
           label && units && "input-label-field-units-grid",
@@ -204,7 +210,7 @@ const InnerNumberField = forwardRef(
             className={clsx(
               effectiveColor ? "custom-color" : effectiveVariant,
               size,
-              "responsive grid-area-label sized-text place-items-center rounded-[1px] px-0.5 text-left",
+              "variant-scope grid-area-label sized-text place-items-center rounded-[1px] px-0.5 text-left",
               "sized-inner-group-item variant-text-caret-color font-mono group-has-focus/input-wrapper:bg-neutral-900/20",
               "text-white/50 focus:text-white/75 focus:outline-none dark:focus:text-white/75",
               "select-none group-has-focus/input-wrapper:pointer-events-auto group-has-focus/input-wrapper:select-auto",
@@ -222,7 +228,7 @@ const InnerNumberField = forwardRef(
           value={displayedTextValue}
           onChange={onChangeInner}
           className={clsx(
-            "responsive grid-area-field w-full min-w-0",
+            "variant-scope grid-area-field w-full min-w-0",
             "focus:outline-hidden",
             "cursor-text disabled:cursor-not-allowed",
             "sized-text sized-height px-0.5 text-right",
@@ -263,11 +269,11 @@ const InnerNumberField = forwardRef(
           <input
             value={units}
             readOnly
-            style={{ width: `${(units.length + 2).toString()}ch` }}
+            style={{ width: unitsSuffixWidth(units) }}
             className={clsx(
               effectiveVariant,
               size,
-              "grid-area-units pr-2 pl-0.5 text-right select-none",
+              "grid-area-units truncate pr-2 pl-0.5 text-right select-none",
               "sized-text pointer-events-none grid place-items-center",
               "sized-height flex-none font-mono text-white/50",
             )}

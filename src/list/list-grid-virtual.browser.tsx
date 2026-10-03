@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useMemo, useReducer, useRef, type RefObject } from "react";
 import { expect, test, vi } from "vitest";
 import { render } from "vitest-browser-react";
-import { userEvent } from "@vitest/browser/context";
+import { userEvent } from "vitest/browser";
 import { Size } from "../types";
 import { ListGrid, type ListColumn } from "./list-grid";
 import "../test-stylesheet";
@@ -43,12 +43,14 @@ function Harness({
   columns = COLUMNS,
   width = 800,
   selectionMode = "single",
+  noHeader,
   onSelectionChange,
 }: {
   rows: Row[];
   columns?: ListColumn<Row>[];
   width?: number;
   selectionMode?: "none" | "single" | "multiple";
+  noHeader?: boolean;
   onSelectionChange?: (next: Set<string>) => void;
 }) {
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -63,6 +65,7 @@ function Harness({
           virtualized
           scrollRef={scrollRef}
           selectionMode={selectionMode}
+          noHeader={noHeader}
           onSelectionChange={onSelectionChange}
           getSearchText={(r) => r.id}
           allowTypeAhead
@@ -100,7 +103,7 @@ const cell = (row: HTMLElement, index: number) => {
 };
 
 test("ten thousand rows mount a bounded window, over a full-height scroll area", async () => {
-  const view = render(<Harness rows={makeRows(10_000)} />);
+  const view = await render(<Harness rows={makeRows(10_000)} />);
   await settle();
 
   // The guarantee: DOM size is a function of the viewport, not of the data.
@@ -114,7 +117,7 @@ test("ten thousand rows mount a bounded window, over a full-height scroll area",
 });
 
 test("scrolling swaps in the rows for that offset", async () => {
-  const view = render(<Harness rows={makeRows(10_000)} />);
+  const view = await render(<Harness rows={makeRows(10_000)} />);
   await settle();
   expect(optionTexts(view)).toContain("Row 0");
 
@@ -130,7 +133,7 @@ test("scrolling swaps in the rows for that offset", async () => {
 });
 
 test("cells stay column-aligned across the window", async () => {
-  const view = render(<Harness rows={makeRows(5_000)} />);
+  const view = await render(<Harness rows={makeRows(5_000)} />);
   await settle();
   const rows = [...options(view)];
   // The subgrid survived the spacers: every row's second cell starts at the same x.
@@ -140,7 +143,7 @@ test("cells stay column-aligned across the window", async () => {
 });
 
 test("a column does not shrink back when a wide row scrolls out of the window", async () => {
-  const view = render(<Harness rows={makeRows(10_000)} />);
+  const view = await render(<Harness rows={makeRows(10_000)} />);
   await settle();
   const sizeCell = () => cell(options(view)[0], 1).getBoundingClientRect().width;
 
@@ -164,7 +167,7 @@ test("the floor is recorded on the grid's own track template", async () => {
   // wide cell has been seen, that track carries a `minmax()` floor. Needs the layout
   // rules, because a floor is measured from the used track widths and an element that is
   // not laid out as a grid has none.
-  const view = render(<Harness rows={makeRows(10_000)} />);
+  const view = await render(<Harness rows={makeRows(10_000)} />);
   await settle();
   const grid = () => view.container.querySelector<HTMLElement>(".grid")!;
   expect(grid().style.gridTemplateColumns).not.toContain("minmax");
@@ -182,7 +185,7 @@ test("a container resize re-measures the floor instead of holding the old width 
   // followed by a legitimate re-measure at the new width, so a floor still being present is
   // correct. The earlier version of this test demanded no floor at all, which only passed
   // because measurement returned nothing in a suite that ran without the stylesheet.
-  const view = render(<Harness rows={makeRows(10_000)} />);
+  const view = await render(<Harness rows={makeRows(10_000)} />);
   await settle();
   const grid = () => view.container.querySelector<HTMLElement>(".grid")!;
   const floorOf = () => {
@@ -208,7 +211,7 @@ test("hideBelow still collapses a column in a windowed list", async () => {
     { key: "name", header: "Name", flex: true, render: (r) => <span>{r.name}</span> },
     { key: "size", header: "Size", hideBelow: "xl", render: (r) => <span>{r.size}</span> },
   ];
-  const view = render(<Harness rows={makeRows(5_000)} columns={columns} width={800} />);
+  const view = await render(<Harness rows={makeRows(5_000)} columns={columns} width={800} />);
   await settle();
   const sizeCell = () => cell(options(view)[0], 1);
   expect(sizeCell().getBoundingClientRect().width).toBeGreaterThan(0);
@@ -228,7 +231,7 @@ test("spacers put each rendered row at its true offset in the list", async () =>
   // The header is measured rather than tolerated. An earlier version allowed a whole row of
   // slack to absorb it, which made the assertion blind to a one-row spacer error — checked
   // by introducing one.
-  const view = render(<Harness rows={makeRows(10_000)} />);
+  const view = await render(<Harness rows={makeRows(10_000)} />);
   await settle();
   scroller(view).scrollTop = 4_000 * ROW;
   await settle();
@@ -259,7 +262,9 @@ test("spacers put each rendered row at its true offset in the list", async () =>
 
 test("End moves the cursor and the selection to the last row in the data", async () => {
   const onSelectionChange = vi.fn();
-  const view = render(<Harness rows={makeRows(10_000)} onSelectionChange={onSelectionChange} />);
+  const view = await render(
+    <Harness rows={makeRows(10_000)} onSelectionChange={onSelectionChange} />,
+  );
   await settle();
   options(view)[0].focus();
 
@@ -349,7 +354,7 @@ test("a cursor move that unmounts the focused row never ends the commit on the b
     );
   }
 
-  const view = render(<ProbedHarness />);
+  const view = await render(<ProbedHarness />);
   await settle();
   options(view)[0].focus();
 
@@ -371,7 +376,7 @@ test("a cursor move that unmounts the focused row never ends the commit on the b
 
 test("a shift-range spans rows that were never rendered", async () => {
   const onSelectionChange = vi.fn();
-  const view = render(
+  const view = await render(
     <Harness
       rows={makeRows(1_000)}
       selectionMode="multiple"
@@ -395,7 +400,7 @@ test("a shift-range spans rows that were never rendered", async () => {
 });
 
 test("type-ahead jumps to an unrendered row and brings it into view", async () => {
-  const view = render(<Harness rows={makeRows(10_000)} />);
+  const view = await render(<Harness rows={makeRows(10_000)} />);
   await settle();
   options(view)[0].focus();
 
@@ -413,7 +418,7 @@ test("type-ahead jumps to an unrendered row and brings it into view", async () =
 });
 
 test("a row reports its place in the data, not in the window", async () => {
-  const view = render(<Harness rows={makeRows(10_000)} />);
+  const view = await render(<Harness rows={makeRows(10_000)} />);
   await settle();
   scroller(view).scrollTop = 500 * options(view)[0].getBoundingClientRect().height;
   await settle();
@@ -424,12 +429,85 @@ test("a row reports its place in the data, not in the window", async () => {
   // A screen reader counting the DOM would say "3 of 12"; these say what is true.
   expect(row500.getAttribute("aria-setsize")).toBe("10000");
   expect(row500.getAttribute("aria-posinset")).toBe("501");
+  // `listbox` and `option` define neither half of the grid numbering, nor any cell — so
+  // none of it appears here. Without this half, "withheld from the listbox" and "not
+  // emitted anywhere" are the same green.
+  expect(row500.getAttribute("aria-rowindex")).toBeNull();
+  expect(
+    view.container.querySelector('[role="listbox"]')!.getAttribute("aria-rowcount"),
+  ).toBeNull();
+  expect(view.container.querySelectorAll('[role="gridcell"], [role="columnheader"]')).toHaveLength(
+    0,
+  );
+});
+
+test("a display-only grid states row position in the grid's own vocabulary", async () => {
+  // `selectionMode="none"` is the one mode that is a grid: `grid` > `row` > `gridcell`,
+  // with the header a `columnheader` row. A windowed grid is exactly where the count of
+  // unrendered rows has to come from somewhere other than the DOM, and `aria-rowcount`
+  // with `aria-rowindex` is the only pair a grid has to say it with.
+  const view = await render(<Harness rows={makeRows(10_000)} selectionMode="none" />);
+  await settle();
+  const allRows = () => [...view.container.querySelectorAll<HTMLElement>('[role="row"]')];
+  scroller(view).scrollTop = 500 * allRows()[1].getBoundingClientRect().height;
+  await settle();
+
+  const grid = view.container.querySelector<HTMLElement>('[role="grid"]')!;
+  // Ten thousand data rows and the header, which is one of the grid's rows.
+  expect(grid.getAttribute("aria-rowcount")).toBe("10001");
+  // `grid` does not define `aria-orientation`, and the composite reports one for every
+  // role it is given. Asserted on the rendered component because the attribute reaches
+  // the element through a props spread, where nothing at the call site names it.
+  expect(grid.getAttribute("aria-orientation")).toBeNull();
+
+  const [header, ...rendered] = allRows();
+  expect(header.getAttribute("aria-rowindex")).toBe("1");
+  expect(header.querySelectorAll('[role="columnheader"]')).toHaveLength(2);
+
+  // Every rendered row, against the label it is actually showing: numbering the slice
+  // 1..n instead of the data satisfies "each row has an index" and names rows five
+  // hundred off, which is why the window is scrolled first.
+  expect(rendered.length).toBeGreaterThan(1);
+  for (const row of rendered) {
+    const dataIndex = Number(row.querySelector("span")!.textContent!.slice("Row ".length));
+    expect(row.getAttribute("aria-rowindex")).toBe(String(dataIndex + 2));
+    // A `row` owning no cells owns nothing: unroled cells are pruned from the
+    // accessibility tree, and the row index is then stated over an empty row.
+    expect(row.querySelectorAll('[role="gridcell"]')).toHaveLength(2);
+    expect(row.getAttribute("aria-setsize")).toBeNull();
+    expect(row.getAttribute("aria-posinset")).toBeNull();
+  }
+  expect(Number(rendered[0].getAttribute("aria-rowindex"))).toBeGreaterThan(400);
+
+  // The boundary from both ends: the last row's index IS the count. Read from either
+  // side alone, a header counted into one and not the other looks correct.
+  scroller(view).scrollTop = scroller(view).scrollHeight;
+  await settle();
+  const last = allRows().at(-1)!;
+  expect(last.querySelector("span")!.textContent).toBe("Row 9999");
+  expect(last.getAttribute("aria-rowindex")).toBe(grid.getAttribute("aria-rowcount"));
+});
+
+test("a headerless grid numbers from its first data row", async () => {
+  // Both halves move together or neither does. A count that includes a header the rows
+  // do not number around leaves the last row one short of the count, and nothing about
+  // either attribute alone shows it.
+  const view = await render(<Harness rows={makeRows(10_000)} selectionMode="none" noHeader />);
+  await settle();
+
+  expect(view.container.querySelector('[role="grid"]')!.getAttribute("aria-rowcount")).toBe(
+    "10000",
+  );
+  expect(view.container.querySelectorAll('[role="columnheader"]')).toHaveLength(0);
+  const first = view.container.querySelector<HTMLElement>('[role="row"]')!;
+  expect(first.querySelector("span")!.textContent).toBe("Row 0");
+  expect(first.getAttribute("aria-rowindex")).toBe("1");
 });
 
 test("windowing off renders every row", async () => {
   // The opt-in really is opt-in: the same list without `virtualized` is unchanged.
   const rows = makeRows(200);
-  const view = render(
+  const view = await render(
     <div style={{ height: VIEWPORT, overflowY: "auto" }}>
       <ListGrid
         data={rows}
@@ -449,7 +527,7 @@ test("a windowed list with no scrollRef renders everything and says why", async 
   // what stops that going unnoticed.
   const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
   const rows = makeRows(50);
-  const view = render(
+  const view = await render(
     <ListGrid
       data={rows}
       getRowId={(r) => r.id}
@@ -485,7 +563,7 @@ test("the window follows a controlled row height rather than assuming 16px roots
       </div>
     );
   }
-  const view = render(<SmallHarness />);
+  const view = await render(<SmallHarness />);
   await settle();
   const measured = options(view)[0].getBoundingClientRect().height;
   const expected = 5_000 * measured;

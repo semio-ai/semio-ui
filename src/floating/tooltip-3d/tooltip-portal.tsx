@@ -69,8 +69,8 @@ function InteractiveOverlayInstance({ anchor, position }: OverlayInstanceProps) 
             className={clsx(
               Variant.Default,
               isMenu
-                ? "responsive card dropdown-content m-0.5 min-w-56"
-                : "responsive card m-0.5 overflow-clip shadow-lg",
+                ? "variant-scope card-overlay dropdown-content m-0.5 min-w-56"
+                : "variant-scope card-overlay m-0.5 overflow-clip shadow-lg",
               isMenu && "max-h-[calc(var(--radix-dropdown-menu-content-available-height)-4px)]",
             )}
           >
@@ -172,12 +172,17 @@ function TooltipInstance({ anchor, position }: OverlayInstanceProps) {
   const content = typeof anchor.content === "function" ? anchor.content() : anchor.content;
 
   return (
-    <div ref={refs.setFloating} style={floatingStyles} className="z-50">
+    // No `z-index`. This renders into the `TooltipHost` container as its last child, so it
+    // already paints over the app chrome around it, and a positive value here only buys
+    // beating overlays portalled to `<body>` — which a tooltip should lose to. At 50 it
+    // covered an open `Modal`. Both halves are measured in
+    // `floating/overlay-stacking.browser.tsx`.
+    <div ref={refs.setFloating} style={floatingStyles}>
       <motion.div
         className={clsx(
-          "responsive overflow-clip",
+          "variant-scope overflow-clip",
           Variant.Default,
-          "card inline-flex items-center select-none",
+          "card-overlay inline-flex items-center select-none",
           "pointer-events-none",
           "variant-static-text",
           "shadow-lg",

@@ -1,0 +1,2017 @@
+{
+  "contract": "registry key == Figma component name (Icon/<key>) == code usage (<Icon name>)",
+  "generatedFrom": "default + animation + studio (composed app set)",
+  "count": 335,
+  "icons": [
+    {
+      "key": "access-none",
+      "source": "default",
+      "figmaComponent": "Icon/access-none",
+      "code": "<Icon name=\"access-none\" />"
+    },
+    {
+      "key": "action-placeholder",
+      "source": "default",
+      "figmaComponent": "Icon/action-placeholder",
+      "code": "<Icon name=\"action-placeholder\" />"
+    },
+    {
+      "key": "add",
+      "source": "default",
+      "figmaComponent": "Icon/add",
+      "code": "<Icon name=\"add\" />"
+    },
+    {
+      "key": "add-alarm",
+      "source": "studio",
+      "figmaComponent": "Icon/add-alarm",
+      "code": "<Icon name=\"add-alarm\" />"
+    },
+    {
+      "key": "add-file",
+      "source": "default",
+      "figmaComponent": "Icon/add-file",
+      "code": "<Icon name=\"add-file\" />"
+    },
+    {
+      "key": "adjustments",
+      "source": "studio",
+      "figmaComponent": "Icon/adjustments",
+      "code": "<Icon name=\"adjustments\" />"
+    },
+    {
+      "key": "alarm",
+      "source": "studio",
+      "figmaComponent": "Icon/alarm",
+      "code": "<Icon name=\"alarm\" />"
+    },
+    {
+      "key": "alert",
+      "source": "animation",
+      "figmaComponent": "Icon/alert",
+      "code": "<Icon name=\"alert\" />"
+    },
+    {
+      "key": "align-keys",
+      "source": "animation",
+      "figmaComponent": "Icon/align-keys",
+      "code": "<Icon name=\"align-keys\" />"
+    },
+    {
+      "key": "all",
+      "source": "default",
+      "figmaComponent": "Icon/all",
+      "code": "<Icon name=\"all\" />"
+    },
+    {
+      "key": "angle",
+      "source": "default",
+      "figmaComponent": "Icon/angle",
+      "code": "<Icon name=\"angle\" />"
+    },
+    {
+      "key": "arrow-big-down",
+      "source": "default",
+      "figmaComponent": "Icon/arrow-big-down",
+      "code": "<Icon name=\"arrow-big-down\" />"
+    },
+    {
+      "key": "arrow-big-down-lines",
+      "source": "default",
+      "figmaComponent": "Icon/arrow-big-down-lines",
+      "code": "<Icon name=\"arrow-big-down-lines\" />"
+    },
+    {
+      "key": "arrow-big-up",
+      "source": "default",
+      "figmaComponent": "Icon/arrow-big-up",
+      "code": "<Icon name=\"arrow-big-up\" />"
+    },
+    {
+      "key": "arrow-down",
+      "source": "default",
+      "figmaComponent": "Icon/arrow-down",
+      "code": "<Icon name=\"arrow-down\" />"
+    },
+    {
+      "key": "arrow-up",
+      "source": "default",
+      "figmaComponent": "Icon/arrow-up",
+      "code": "<Icon name=\"arrow-up\" />"
+    },
+    {
+      "key": "asset",
+      "source": "studio",
+      "figmaComponent": "Icon/asset",
+      "code": "<Icon name=\"asset\" />"
+    },
+    {
+      "key": "asset-animation",
+      "source": "studio",
+      "figmaComponent": "Icon/asset-animation",
+      "code": "<Icon name=\"asset-animation\" />"
+    },
+    {
+      "key": "asset-collection",
+      "source": "studio",
+      "figmaComponent": "Icon/asset-collection",
+      "code": "<Icon name=\"asset-collection\" />"
+    },
+    {
+      "key": "asset-face",
+      "source": "studio",
+      "figmaComponent": "Icon/asset-face",
+      "code": "<Icon name=\"asset-face\" />"
+    },
+    {
+      "key": "asset-model",
+      "source": "studio",
+      "figmaComponent": "Icon/asset-model",
+      "code": "<Icon name=\"asset-model\" />"
+    },
+    {
+      "key": "at",
+      "source": "default",
+      "figmaComponent": "Icon/at",
+      "code": "<Icon name=\"at\" />"
+    },
+    {
+      "key": "back",
+      "source": "default",
+      "figmaComponent": "Icon/back",
+      "code": "<Icon name=\"back\" />"
+    },
+    {
+      "key": "bezier",
+      "source": "default",
+      "figmaComponent": "Icon/bezier",
+      "code": "<Icon name=\"bezier\" />"
+    },
+    {
+      "key": "bounce",
+      "source": "default",
+      "figmaComponent": "Icon/bounce",
+      "code": "<Icon name=\"bounce\" />"
+    },
+    {
+      "key": "box",
+      "source": "default",
+      "figmaComponent": "Icon/box",
+      "code": "<Icon name=\"box\" />"
+    },
+    {
+      "key": "box-plus",
+      "source": "default",
+      "figmaComponent": "Icon/box-plus",
+      "code": "<Icon name=\"box-plus\" />"
+    },
+    {
+      "key": "check",
+      "source": "default",
+      "figmaComponent": "Icon/check",
+      "code": "<Icon name=\"check\" />"
+    },
+    {
+      "key": "chef-hat",
+      "source": "default",
+      "figmaComponent": "Icon/chef-hat",
+      "code": "<Icon name=\"chef-hat\" />"
+    },
+    {
+      "key": "chevron-down",
+      "source": "default",
+      "figmaComponent": "Icon/chevron-down",
+      "code": "<Icon name=\"chevron-down\" />"
+    },
+    {
+      "key": "chevron-left",
+      "source": "default",
+      "figmaComponent": "Icon/chevron-left",
+      "code": "<Icon name=\"chevron-left\" />"
+    },
+    {
+      "key": "chevron-right",
+      "source": "default",
+      "figmaComponent": "Icon/chevron-right",
+      "code": "<Icon name=\"chevron-right\" />"
+    },
+    {
+      "key": "chevron-right-pipe",
+      "source": "default",
+      "figmaComponent": "Icon/chevron-right-pipe",
+      "code": "<Icon name=\"chevron-right-pipe\" />"
+    },
+    {
+      "key": "chevron-up",
+      "source": "default",
+      "figmaComponent": "Icon/chevron-up",
+      "code": "<Icon name=\"chevron-up\" />"
+    },
+    {
+      "key": "circle",
+      "source": "default",
+      "figmaComponent": "Icon/circle",
+      "code": "<Icon name=\"circle\" />"
+    },
+    {
+      "key": "clear-input",
+      "source": "default",
+      "figmaComponent": "Icon/clear-input",
+      "code": "<Icon name=\"clear-input\" />"
+    },
+    {
+      "key": "clipboard-check",
+      "source": "default",
+      "figmaComponent": "Icon/clipboard-check",
+      "code": "<Icon name=\"clipboard-check\" />"
+    },
+    {
+      "key": "clipboard-plus",
+      "source": "default",
+      "figmaComponent": "Icon/clipboard-plus",
+      "code": "<Icon name=\"clipboard-plus\" />"
+    },
+    {
+      "key": "clock",
+      "source": "animation",
+      "figmaComponent": "Icon/clock",
+      "code": "<Icon name=\"clock\" />"
+    },
+    {
+      "key": "close",
+      "source": "default",
+      "figmaComponent": "Icon/close",
+      "code": "<Icon name=\"close\" />"
+    },
+    {
+      "key": "color-picker",
+      "source": "animation",
+      "figmaComponent": "Icon/color-picker",
+      "code": "<Icon name=\"color-picker\" />"
+    },
+    {
+      "key": "command",
+      "source": "default",
+      "figmaComponent": "Icon/command",
+      "code": "<Icon name=\"command\" />"
+    },
+    {
+      "key": "command-run",
+      "source": "studio",
+      "figmaComponent": "Icon/command-run",
+      "code": "<Icon name=\"command-run\" />"
+    },
+    {
+      "key": "control",
+      "source": "studio",
+      "figmaComponent": "Icon/control",
+      "code": "<Icon name=\"control\" />"
+    },
+    {
+      "key": "copy",
+      "source": "default",
+      "figmaComponent": "Icon/copy",
+      "code": "<Icon name=\"copy\" />"
+    },
+    {
+      "key": "copy-complete",
+      "source": "default",
+      "figmaComponent": "Icon/copy-complete",
+      "code": "<Icon name=\"copy-complete\" />"
+    },
+    {
+      "key": "cut",
+      "source": "animation",
+      "figmaComponent": "Icon/cut",
+      "code": "<Icon name=\"cut\" />"
+    },
+    {
+      "key": "dashboard",
+      "source": "studio",
+      "figmaComponent": "Icon/dashboard",
+      "code": "<Icon name=\"dashboard\" />"
+    },
+    {
+      "key": "data-binary",
+      "source": "default",
+      "figmaComponent": "Icon/data-binary",
+      "code": "<Icon name=\"data-binary\" />"
+    },
+    {
+      "key": "data-euler",
+      "source": "animation",
+      "figmaComponent": "Icon/data-euler",
+      "code": "<Icon name=\"data-euler\" />"
+    },
+    {
+      "key": "data-group",
+      "source": "animation",
+      "figmaComponent": "Icon/data-group",
+      "code": "<Icon name=\"data-group\" />"
+    },
+    {
+      "key": "data-hsl",
+      "source": "animation",
+      "figmaComponent": "Icon/data-hsl",
+      "code": "<Icon name=\"data-hsl\" />"
+    },
+    {
+      "key": "data-none",
+      "source": "animation",
+      "figmaComponent": "Icon/data-none",
+      "code": "<Icon name=\"data-none\" />"
+    },
+    {
+      "key": "data-number",
+      "source": "animation",
+      "figmaComponent": "Icon/data-number",
+      "code": "<Icon name=\"data-number\" />"
+    },
+    {
+      "key": "data-rgb",
+      "source": "animation",
+      "figmaComponent": "Icon/data-rgb",
+      "code": "<Icon name=\"data-rgb\" />"
+    },
+    {
+      "key": "data-text",
+      "source": "animation",
+      "figmaComponent": "Icon/data-text",
+      "code": "<Icon name=\"data-text\" />"
+    },
+    {
+      "key": "data-vector2",
+      "source": "default",
+      "figmaComponent": "Icon/data-vector2",
+      "code": "<Icon name=\"data-vector2\" />"
+    },
+    {
+      "key": "data-vector3",
+      "source": "default",
+      "figmaComponent": "Icon/data-vector3",
+      "code": "<Icon name=\"data-vector3\" />"
+    },
+    {
+      "key": "delete",
+      "source": "animation",
+      "figmaComponent": "Icon/delete",
+      "code": "<Icon name=\"delete\" />"
+    },
+    {
+      "key": "deselect",
+      "source": "default",
+      "figmaComponent": "Icon/deselect",
+      "code": "<Icon name=\"deselect\" />"
+    },
+    {
+      "key": "deselect-all",
+      "source": "default",
+      "figmaComponent": "Icon/deselect-all",
+      "code": "<Icon name=\"deselect-all\" />"
+    },
+    {
+      "key": "disclosure-closed",
+      "source": "default",
+      "figmaComponent": "Icon/disclosure-closed",
+      "code": "<Icon name=\"disclosure-closed\" />"
+    },
+    {
+      "key": "disclosure-open",
+      "source": "default",
+      "figmaComponent": "Icon/disclosure-open",
+      "code": "<Icon name=\"disclosure-open\" />"
+    },
+    {
+      "key": "download",
+      "source": "studio",
+      "figmaComponent": "Icon/download",
+      "code": "<Icon name=\"download\" />"
+    },
+    {
+      "key": "drill-in",
+      "source": "default",
+      "figmaComponent": "Icon/drill-in",
+      "code": "<Icon name=\"drill-in\" />"
+    },
+    {
+      "key": "edit",
+      "source": "animation",
+      "figmaComponent": "Icon/edit",
+      "code": "<Icon name=\"edit\" />"
+    },
+    {
+      "key": "email",
+      "source": "default",
+      "figmaComponent": "Icon/email",
+      "code": "<Icon name=\"email\" />"
+    },
+    {
+      "key": "entity-device",
+      "source": "studio",
+      "figmaComponent": "Icon/entity-device",
+      "code": "<Icon name=\"entity-device\" />"
+    },
+    {
+      "key": "entity-object",
+      "source": "studio",
+      "figmaComponent": "Icon/entity-object",
+      "code": "<Icon name=\"entity-object\" />"
+    },
+    {
+      "key": "entity-object-add",
+      "source": "studio",
+      "figmaComponent": "Icon/entity-object-add",
+      "code": "<Icon name=\"entity-object-add\" />"
+    },
+    {
+      "key": "exclamation-mark",
+      "source": "default",
+      "figmaComponent": "Icon/exclamation-mark",
+      "code": "<Icon name=\"exclamation-mark\" />"
+    },
+    {
+      "key": "external-link",
+      "source": "studio",
+      "figmaComponent": "Icon/external-link",
+      "code": "<Icon name=\"external-link\" />"
+    },
+    {
+      "key": "eye",
+      "source": "default",
+      "figmaComponent": "Icon/eye",
+      "code": "<Icon name=\"eye\" />"
+    },
+    {
+      "key": "eye-off",
+      "source": "default",
+      "figmaComponent": "Icon/eye-off",
+      "code": "<Icon name=\"eye-off\" />"
+    },
+    {
+      "key": "fast",
+      "source": "default",
+      "figmaComponent": "Icon/fast",
+      "code": "<Icon name=\"fast\" />"
+    },
+    {
+      "key": "file",
+      "source": "studio",
+      "figmaComponent": "Icon/file",
+      "code": "<Icon name=\"file\" />"
+    },
+    {
+      "key": "file-drop",
+      "source": "default",
+      "figmaComponent": "Icon/file-drop",
+      "code": "<Icon name=\"file-drop\" />"
+    },
+    {
+      "key": "file-project",
+      "source": "studio",
+      "figmaComponent": "Icon/file-project",
+      "code": "<Icon name=\"file-project\" />"
+    },
+    {
+      "key": "file-select",
+      "source": "default",
+      "figmaComponent": "Icon/file-select",
+      "code": "<Icon name=\"file-select\" />"
+    },
+    {
+      "key": "file-type-ani",
+      "source": "default",
+      "figmaComponent": "Icon/file-type-ani",
+      "code": "<Icon name=\"file-type-ani\" />"
+    },
+    {
+      "key": "file-type-face",
+      "source": "default",
+      "figmaComponent": "Icon/file-type-face",
+      "code": "<Icon name=\"file-type-face\" />"
+    },
+    {
+      "key": "file-type-mod",
+      "source": "default",
+      "figmaComponent": "Icon/file-type-mod",
+      "code": "<Icon name=\"file-type-mod\" />"
+    },
+    {
+      "key": "filter-box",
+      "source": "default",
+      "figmaComponent": "Icon/filter-box",
+      "code": "<Icon name=\"filter-box\" />"
+    },
+    {
+      "key": "filter-x",
+      "source": "default",
+      "figmaComponent": "Icon/filter-x",
+      "code": "<Icon name=\"filter-x\" />"
+    },
+    {
+      "key": "filters",
+      "source": "studio",
+      "figmaComponent": "Icon/filters",
+      "code": "<Icon name=\"filters\" />"
+    },
+    {
+      "key": "fit-horizontal",
+      "source": "default",
+      "figmaComponent": "Icon/fit-horizontal",
+      "code": "<Icon name=\"fit-horizontal\" />"
+    },
+    {
+      "key": "folder-closed",
+      "source": "default",
+      "figmaComponent": "Icon/folder-closed",
+      "code": "<Icon name=\"folder-closed\" />"
+    },
+    {
+      "key": "folder-open",
+      "source": "default",
+      "figmaComponent": "Icon/folder-open",
+      "code": "<Icon name=\"folder-open\" />"
+    },
+    {
+      "key": "forward",
+      "source": "default",
+      "figmaComponent": "Icon/forward",
+      "code": "<Icon name=\"forward\" />"
+    },
+    {
+      "key": "frame",
+      "source": "default",
+      "figmaComponent": "Icon/frame",
+      "code": "<Icon name=\"frame\" />"
+    },
+    {
+      "key": "graph-view",
+      "source": "default",
+      "figmaComponent": "Icon/graph-view",
+      "code": "<Icon name=\"graph-view\" />"
+    },
+    {
+      "key": "hand",
+      "source": "default",
+      "figmaComponent": "Icon/hand",
+      "code": "<Icon name=\"hand\" />"
+    },
+    {
+      "key": "heart",
+      "source": "default",
+      "figmaComponent": "Icon/heart",
+      "code": "<Icon name=\"heart\" />"
+    },
+    {
+      "key": "hexagon",
+      "source": "default",
+      "figmaComponent": "Icon/hexagon",
+      "code": "<Icon name=\"hexagon\" />"
+    },
+    {
+      "key": "hide",
+      "source": "default",
+      "figmaComponent": "Icon/hide",
+      "code": "<Icon name=\"hide\" />"
+    },
+    {
+      "key": "home",
+      "source": "default",
+      "figmaComponent": "Icon/home",
+      "code": "<Icon name=\"home\" />"
+    },
+    {
+      "key": "icons",
+      "source": "studio",
+      "figmaComponent": "Icon/icons",
+      "code": "<Icon name=\"icons\" />"
+    },
+    {
+      "key": "import-package",
+      "source": "studio",
+      "figmaComponent": "Icon/import-package",
+      "code": "<Icon name=\"import-package\" />"
+    },
+    {
+      "key": "info",
+      "source": "default",
+      "figmaComponent": "Icon/info",
+      "code": "<Icon name=\"info\" />"
+    },
+    {
+      "key": "inspect",
+      "source": "default",
+      "figmaComponent": "Icon/inspect",
+      "code": "<Icon name=\"inspect\" />"
+    },
+    {
+      "key": "internal-link",
+      "source": "studio",
+      "figmaComponent": "Icon/internal-link",
+      "code": "<Icon name=\"internal-link\" />"
+    },
+    {
+      "key": "jacket",
+      "source": "default",
+      "figmaComponent": "Icon/jacket",
+      "code": "<Icon name=\"jacket\" />"
+    },
+    {
+      "key": "key",
+      "source": "default",
+      "figmaComponent": "Icon/key",
+      "code": "<Icon name=\"key\" />"
+    },
+    {
+      "key": "key-c",
+      "source": "default",
+      "figmaComponent": "Icon/key-c",
+      "code": "<Icon name=\"key-c\" />"
+    },
+    {
+      "key": "key-command",
+      "source": "default",
+      "figmaComponent": "Icon/key-command",
+      "code": "<Icon name=\"key-command\" />"
+    },
+    {
+      "key": "key-shift",
+      "source": "default",
+      "figmaComponent": "Icon/key-shift",
+      "code": "<Icon name=\"key-shift\" />"
+    },
+    {
+      "key": "key-v",
+      "source": "default",
+      "figmaComponent": "Icon/key-v",
+      "code": "<Icon name=\"key-v\" />"
+    },
+    {
+      "key": "key-x",
+      "source": "default",
+      "figmaComponent": "Icon/key-x",
+      "code": "<Icon name=\"key-x\" />"
+    },
+    {
+      "key": "key-z",
+      "source": "default",
+      "figmaComponent": "Icon/key-z",
+      "code": "<Icon name=\"key-z\" />"
+    },
+    {
+      "key": "layout-grid",
+      "source": "default",
+      "figmaComponent": "Icon/layout-grid",
+      "code": "<Icon name=\"layout-grid\" />"
+    },
+    {
+      "key": "layout-settings",
+      "source": "default",
+      "figmaComponent": "Icon/layout-settings",
+      "code": "<Icon name=\"layout-settings\" />"
+    },
+    {
+      "key": "legal-eula",
+      "source": "studio",
+      "figmaComponent": "Icon/legal-eula",
+      "code": "<Icon name=\"legal-eula\" />"
+    },
+    {
+      "key": "legal-privacy",
+      "source": "studio",
+      "figmaComponent": "Icon/legal-privacy",
+      "code": "<Icon name=\"legal-privacy\" />"
+    },
+    {
+      "key": "legal-terms",
+      "source": "studio",
+      "figmaComponent": "Icon/legal-terms",
+      "code": "<Icon name=\"legal-terms\" />"
+    },
+    {
+      "key": "legal-third-party",
+      "source": "studio",
+      "figmaComponent": "Icon/legal-third-party",
+      "code": "<Icon name=\"legal-third-party\" />"
+    },
+    {
+      "key": "letter-c",
+      "source": "default",
+      "figmaComponent": "Icon/letter-c",
+      "code": "<Icon name=\"letter-c\" />"
+    },
+    {
+      "key": "letter-v",
+      "source": "default",
+      "figmaComponent": "Icon/letter-v",
+      "code": "<Icon name=\"letter-v\" />"
+    },
+    {
+      "key": "letter-x",
+      "source": "default",
+      "figmaComponent": "Icon/letter-x",
+      "code": "<Icon name=\"letter-x\" />"
+    },
+    {
+      "key": "letter-z",
+      "source": "default",
+      "figmaComponent": "Icon/letter-z",
+      "code": "<Icon name=\"letter-z\" />"
+    },
+    {
+      "key": "line",
+      "source": "default",
+      "figmaComponent": "Icon/line",
+      "code": "<Icon name=\"line\" />"
+    },
+    {
+      "key": "list",
+      "source": "default",
+      "figmaComponent": "Icon/list",
+      "code": "<Icon name=\"list\" />"
+    },
+    {
+      "key": "list-tree",
+      "source": "default",
+      "figmaComponent": "Icon/list-tree",
+      "code": "<Icon name=\"list-tree\" />"
+    },
+    {
+      "key": "listing-controls",
+      "source": "studio",
+      "figmaComponent": "Icon/listing-controls",
+      "code": "<Icon name=\"listing-controls\" />"
+    },
+    {
+      "key": "lock",
+      "source": "default",
+      "figmaComponent": "Icon/lock",
+      "code": "<Icon name=\"lock\" />"
+    },
+    {
+      "key": "lock-off",
+      "source": "default",
+      "figmaComponent": "Icon/lock-off",
+      "code": "<Icon name=\"lock-off\" />"
+    },
+    {
+      "key": "login",
+      "source": "studio",
+      "figmaComponent": "Icon/login",
+      "code": "<Icon name=\"login\" />"
+    },
+    {
+      "key": "logout",
+      "source": "studio",
+      "figmaComponent": "Icon/logout",
+      "code": "<Icon name=\"logout\" />"
+    },
+    {
+      "key": "marketplace",
+      "source": "studio",
+      "figmaComponent": "Icon/marketplace",
+      "code": "<Icon name=\"marketplace\" />"
+    },
+    {
+      "key": "menu",
+      "source": "animation",
+      "figmaComponent": "Icon/menu",
+      "code": "<Icon name=\"menu\" />"
+    },
+    {
+      "key": "menu-edit",
+      "source": "animation",
+      "figmaComponent": "Icon/menu-edit",
+      "code": "<Icon name=\"menu-edit\" />"
+    },
+    {
+      "key": "menu-toggle",
+      "source": "default",
+      "figmaComponent": "Icon/menu-toggle",
+      "code": "<Icon name=\"menu-toggle\" />"
+    },
+    {
+      "key": "menu-trigger",
+      "source": "default",
+      "figmaComponent": "Icon/menu-trigger",
+      "code": "<Icon name=\"menu-trigger\" />"
+    },
+    {
+      "key": "menu-view",
+      "source": "animation",
+      "figmaComponent": "Icon/menu-view",
+      "code": "<Icon name=\"menu-view\" />"
+    },
+    {
+      "key": "menu2",
+      "source": "default",
+      "figmaComponent": "Icon/menu2",
+      "code": "<Icon name=\"menu2\" />"
+    },
+    {
+      "key": "minus",
+      "source": "default",
+      "figmaComponent": "Icon/minus",
+      "code": "<Icon name=\"minus\" />"
+    },
+    {
+      "key": "mode-animation",
+      "source": "studio",
+      "figmaComponent": "Icon/mode-animation",
+      "code": "<Icon name=\"mode-animation\" />"
+    },
+    {
+      "key": "mode-direct",
+      "source": "studio",
+      "figmaComponent": "Icon/mode-direct",
+      "code": "<Icon name=\"mode-direct\" />"
+    },
+    {
+      "key": "moon",
+      "source": "default",
+      "figmaComponent": "Icon/moon",
+      "code": "<Icon name=\"moon\" />"
+    },
+    {
+      "key": "move-player-end-bounds",
+      "source": "default",
+      "figmaComponent": "Icon/move-player-end-bounds",
+      "code": "<Icon name=\"move-player-end-bounds\" />"
+    },
+    {
+      "key": "move-player-start-bounds",
+      "source": "animation",
+      "figmaComponent": "Icon/move-player-start-bounds",
+      "code": "<Icon name=\"move-player-start-bounds\" />"
+    },
+    {
+      "key": "move-playhead",
+      "source": "default",
+      "figmaComponent": "Icon/move-playhead",
+      "code": "<Icon name=\"move-playhead\" />"
+    },
+    {
+      "key": "mute",
+      "source": "default",
+      "figmaComponent": "Icon/mute",
+      "code": "<Icon name=\"mute\" />"
+    },
+    {
+      "key": "navigation-menu",
+      "source": "default",
+      "figmaComponent": "Icon/navigation-menu",
+      "code": "<Icon name=\"navigation-menu\" />"
+    },
+    {
+      "key": "needs-attention",
+      "source": "default",
+      "figmaComponent": "Icon/needs-attention",
+      "code": "<Icon name=\"needs-attention\" />"
+    },
+    {
+      "key": "normalized",
+      "source": "default",
+      "figmaComponent": "Icon/normalized",
+      "code": "<Icon name=\"normalized\" />"
+    },
+    {
+      "key": "open-in-tab",
+      "source": "studio",
+      "figmaComponent": "Icon/open-in-tab",
+      "code": "<Icon name=\"open-in-tab\" />"
+    },
+    {
+      "key": "option-group-placeholder",
+      "source": "default",
+      "figmaComponent": "Icon/option-group-placeholder",
+      "code": "<Icon name=\"option-group-placeholder\" />"
+    },
+    {
+      "key": "option-placeholder",
+      "source": "default",
+      "figmaComponent": "Icon/option-placeholder",
+      "code": "<Icon name=\"option-placeholder\" />"
+    },
+    {
+      "key": "organization",
+      "source": "studio",
+      "figmaComponent": "Icon/organization",
+      "code": "<Icon name=\"organization\" />"
+    },
+    {
+      "key": "ownership",
+      "source": "studio",
+      "figmaComponent": "Icon/ownership",
+      "code": "<Icon name=\"ownership\" />"
+    },
+    {
+      "key": "pane-collapse",
+      "source": "default",
+      "figmaComponent": "Icon/pane-collapse",
+      "code": "<Icon name=\"pane-collapse\" />"
+    },
+    {
+      "key": "pane-placeholder",
+      "source": "default",
+      "figmaComponent": "Icon/pane-placeholder",
+      "code": "<Icon name=\"pane-placeholder\" />"
+    },
+    {
+      "key": "panel-collapse",
+      "source": "studio",
+      "figmaComponent": "Icon/panel-collapse",
+      "code": "<Icon name=\"panel-collapse\" />"
+    },
+    {
+      "key": "panels-top-left",
+      "source": "default",
+      "figmaComponent": "Icon/panels-top-left",
+      "code": "<Icon name=\"panels-top-left\" />"
+    },
+    {
+      "key": "paste",
+      "source": "animation",
+      "figmaComponent": "Icon/paste",
+      "code": "<Icon name=\"paste\" />"
+    },
+    {
+      "key": "pencil",
+      "source": "default",
+      "figmaComponent": "Icon/pencil",
+      "code": "<Icon name=\"pencil\" />"
+    },
+    {
+      "key": "percent",
+      "source": "default",
+      "figmaComponent": "Icon/percent",
+      "code": "<Icon name=\"percent\" />"
+    },
+    {
+      "key": "permissions",
+      "source": "studio",
+      "figmaComponent": "Icon/permissions",
+      "code": "<Icon name=\"permissions\" />"
+    },
+    {
+      "key": "pinned",
+      "source": "default",
+      "figmaComponent": "Icon/pinned",
+      "code": "<Icon name=\"pinned\" />"
+    },
+    {
+      "key": "play",
+      "source": "studio",
+      "figmaComponent": "Icon/play",
+      "code": "<Icon name=\"play\" />"
+    },
+    {
+      "key": "playback-0.1",
+      "source": "default",
+      "figmaComponent": "Icon/playback-0.1",
+      "code": "<Icon name=\"playback-0.1\" />"
+    },
+    {
+      "key": "playback-0.5",
+      "source": "default",
+      "figmaComponent": "Icon/playback-0.5",
+      "code": "<Icon name=\"playback-0.5\" />"
+    },
+    {
+      "key": "playback-1.0",
+      "source": "default",
+      "figmaComponent": "Icon/playback-1.0",
+      "code": "<Icon name=\"playback-1.0\" />"
+    },
+    {
+      "key": "playback-1.5",
+      "source": "default",
+      "figmaComponent": "Icon/playback-1.5",
+      "code": "<Icon name=\"playback-1.5\" />"
+    },
+    {
+      "key": "playback-2.0",
+      "source": "default",
+      "figmaComponent": "Icon/playback-2.0",
+      "code": "<Icon name=\"playback-2.0\" />"
+    },
+    {
+      "key": "playback-bounce",
+      "source": "animation",
+      "figmaComponent": "Icon/playback-bounce",
+      "code": "<Icon name=\"playback-bounce\" />"
+    },
+    {
+      "key": "playback-direction",
+      "source": "animation",
+      "figmaComponent": "Icon/playback-direction",
+      "code": "<Icon name=\"playback-direction\" />"
+    },
+    {
+      "key": "playback-loop",
+      "source": "animation",
+      "figmaComponent": "Icon/playback-loop",
+      "code": "<Icon name=\"playback-loop\" />"
+    },
+    {
+      "key": "playback-pause",
+      "source": "animation",
+      "figmaComponent": "Icon/playback-pause",
+      "code": "<Icon name=\"playback-pause\" />"
+    },
+    {
+      "key": "playback-play",
+      "source": "animation",
+      "figmaComponent": "Icon/playback-play",
+      "code": "<Icon name=\"playback-play\" />"
+    },
+    {
+      "key": "playback-seek-end-bounds",
+      "source": "animation",
+      "figmaComponent": "Icon/playback-seek-end-bounds",
+      "code": "<Icon name=\"playback-seek-end-bounds\" />"
+    },
+    {
+      "key": "playback-seek-start-bounds",
+      "source": "animation",
+      "figmaComponent": "Icon/playback-seek-start-bounds",
+      "code": "<Icon name=\"playback-seek-start-bounds\" />"
+    },
+    {
+      "key": "playback-skip-back",
+      "source": "animation",
+      "figmaComponent": "Icon/playback-skip-back",
+      "code": "<Icon name=\"playback-skip-back\" />"
+    },
+    {
+      "key": "playback-skip-forward",
+      "source": "animation",
+      "figmaComponent": "Icon/playback-skip-forward",
+      "code": "<Icon name=\"playback-skip-forward\" />"
+    },
+    {
+      "key": "player-end-bounds",
+      "source": "default",
+      "figmaComponent": "Icon/player-end-bounds",
+      "code": "<Icon name=\"player-end-bounds\" />"
+    },
+    {
+      "key": "player-next-key",
+      "source": "default",
+      "figmaComponent": "Icon/player-next-key",
+      "code": "<Icon name=\"player-next-key\" />"
+    },
+    {
+      "key": "player-pause",
+      "source": "default",
+      "figmaComponent": "Icon/player-pause",
+      "code": "<Icon name=\"player-pause\" />"
+    },
+    {
+      "key": "player-play",
+      "source": "default",
+      "figmaComponent": "Icon/player-play",
+      "code": "<Icon name=\"player-play\" />"
+    },
+    {
+      "key": "player-play2",
+      "source": "default",
+      "figmaComponent": "Icon/player-play2",
+      "code": "<Icon name=\"player-play2\" />"
+    },
+    {
+      "key": "plus",
+      "source": "default",
+      "figmaComponent": "Icon/plus",
+      "code": "<Icon name=\"plus\" />"
+    },
+    {
+      "key": "point",
+      "source": "default",
+      "figmaComponent": "Icon/point",
+      "code": "<Icon name=\"point\" />"
+    },
+    {
+      "key": "point-filled",
+      "source": "default",
+      "figmaComponent": "Icon/point-filled",
+      "code": "<Icon name=\"point-filled\" />"
+    },
+    {
+      "key": "pointer",
+      "source": "studio",
+      "figmaComponent": "Icon/pointer",
+      "code": "<Icon name=\"pointer\" />"
+    },
+    {
+      "key": "preview-close",
+      "source": "default",
+      "figmaComponent": "Icon/preview-close",
+      "code": "<Icon name=\"preview-close\" />"
+    },
+    {
+      "key": "preview-open",
+      "source": "default",
+      "figmaComponent": "Icon/preview-open",
+      "code": "<Icon name=\"preview-open\" />"
+    },
+    {
+      "key": "preview-view",
+      "source": "default",
+      "figmaComponent": "Icon/preview-view",
+      "code": "<Icon name=\"preview-view\" />"
+    },
+    {
+      "key": "project",
+      "source": "default",
+      "figmaComponent": "Icon/project",
+      "code": "<Icon name=\"project\" />"
+    },
+    {
+      "key": "public",
+      "source": "studio",
+      "figmaComponent": "Icon/public",
+      "code": "<Icon name=\"public\" />"
+    },
+    {
+      "key": "radio-selected",
+      "source": "default",
+      "figmaComponent": "Icon/radio-selected",
+      "code": "<Icon name=\"radio-selected\" />"
+    },
+    {
+      "key": "redo",
+      "source": "studio",
+      "figmaComponent": "Icon/redo",
+      "code": "<Icon name=\"redo\" />"
+    },
+    {
+      "key": "remove",
+      "source": "default",
+      "figmaComponent": "Icon/remove",
+      "code": "<Icon name=\"remove\" />"
+    },
+    {
+      "key": "rename",
+      "source": "animation",
+      "figmaComponent": "Icon/rename",
+      "code": "<Icon name=\"rename\" />"
+    },
+    {
+      "key": "replace",
+      "source": "default",
+      "figmaComponent": "Icon/replace",
+      "code": "<Icon name=\"replace\" />"
+    },
+    {
+      "key": "retry",
+      "source": "default",
+      "figmaComponent": "Icon/retry",
+      "code": "<Icon name=\"retry\" />"
+    },
+    {
+      "key": "robot",
+      "source": "default",
+      "figmaComponent": "Icon/robot",
+      "code": "<Icon name=\"robot\" />"
+    },
+    {
+      "key": "robot-plus",
+      "source": "default",
+      "figmaComponent": "Icon/robot-plus",
+      "code": "<Icon name=\"robot-plus\" />"
+    },
+    {
+      "key": "role-admin",
+      "source": "studio",
+      "figmaComponent": "Icon/role-admin",
+      "code": "<Icon name=\"role-admin\" />"
+    },
+    {
+      "key": "role-commenter",
+      "source": "studio",
+      "figmaComponent": "Icon/role-commenter",
+      "code": "<Icon name=\"role-commenter\" />"
+    },
+    {
+      "key": "role-editor",
+      "source": "studio",
+      "figmaComponent": "Icon/role-editor",
+      "code": "<Icon name=\"role-editor\" />"
+    },
+    {
+      "key": "role-member",
+      "source": "studio",
+      "figmaComponent": "Icon/role-member",
+      "code": "<Icon name=\"role-member\" />"
+    },
+    {
+      "key": "role-owner",
+      "source": "studio",
+      "figmaComponent": "Icon/role-owner",
+      "code": "<Icon name=\"role-owner\" />"
+    },
+    {
+      "key": "role-user",
+      "source": "studio",
+      "figmaComponent": "Icon/role-user",
+      "code": "<Icon name=\"role-user\" />"
+    },
+    {
+      "key": "role-viewer",
+      "source": "studio",
+      "figmaComponent": "Icon/role-viewer",
+      "code": "<Icon name=\"role-viewer\" />"
+    },
+    {
+      "key": "rotate",
+      "source": "default",
+      "figmaComponent": "Icon/rotate",
+      "code": "<Icon name=\"rotate\" />"
+    },
+    {
+      "key": "rotate-3d",
+      "source": "default",
+      "figmaComponent": "Icon/rotate-3d",
+      "code": "<Icon name=\"rotate-3d\" />"
+    },
+    {
+      "key": "rotate2",
+      "source": "default",
+      "figmaComponent": "Icon/rotate2",
+      "code": "<Icon name=\"rotate2\" />"
+    },
+    {
+      "key": "save",
+      "source": "default",
+      "figmaComponent": "Icon/save",
+      "code": "<Icon name=\"save\" />"
+    },
+    {
+      "key": "scene",
+      "source": "studio",
+      "figmaComponent": "Icon/scene",
+      "code": "<Icon name=\"scene\" />"
+    },
+    {
+      "key": "scene-damping-off",
+      "source": "studio",
+      "figmaComponent": "Icon/scene-damping-off",
+      "code": "<Icon name=\"scene-damping-off\" />"
+    },
+    {
+      "key": "scene-damping-on",
+      "source": "studio",
+      "figmaComponent": "Icon/scene-damping-on",
+      "code": "<Icon name=\"scene-damping-on\" />"
+    },
+    {
+      "key": "search",
+      "source": "default",
+      "figmaComponent": "Icon/search",
+      "code": "<Icon name=\"search\" />"
+    },
+    {
+      "key": "select",
+      "source": "default",
+      "figmaComponent": "Icon/select",
+      "code": "<Icon name=\"select\" />"
+    },
+    {
+      "key": "select-all",
+      "source": "default",
+      "figmaComponent": "Icon/select-all",
+      "code": "<Icon name=\"select-all\" />"
+    },
+    {
+      "key": "select-close",
+      "source": "default",
+      "figmaComponent": "Icon/select-close",
+      "code": "<Icon name=\"select-close\" />"
+    },
+    {
+      "key": "select-cursor",
+      "source": "default",
+      "figmaComponent": "Icon/select-cursor",
+      "code": "<Icon name=\"select-cursor\" />"
+    },
+    {
+      "key": "select-indicator",
+      "source": "default",
+      "figmaComponent": "Icon/select-indicator",
+      "code": "<Icon name=\"select-indicator\" />"
+    },
+    {
+      "key": "selected",
+      "source": "default",
+      "figmaComponent": "Icon/selected",
+      "code": "<Icon name=\"selected\" />"
+    },
+    {
+      "key": "selection-indeterminate",
+      "source": "default",
+      "figmaComponent": "Icon/selection-indeterminate",
+      "code": "<Icon name=\"selection-indeterminate\" />"
+    },
+    {
+      "key": "selector",
+      "source": "default",
+      "figmaComponent": "Icon/selector",
+      "code": "<Icon name=\"selector\" />"
+    },
+    {
+      "key": "settings",
+      "source": "animation",
+      "figmaComponent": "Icon/settings",
+      "code": "<Icon name=\"settings\" />"
+    },
+    {
+      "key": "share",
+      "source": "studio",
+      "figmaComponent": "Icon/share",
+      "code": "<Icon name=\"share\" />"
+    },
+    {
+      "key": "shoe",
+      "source": "default",
+      "figmaComponent": "Icon/shoe",
+      "code": "<Icon name=\"shoe\" />"
+    },
+    {
+      "key": "shopping-bag",
+      "source": "default",
+      "figmaComponent": "Icon/shopping-bag",
+      "code": "<Icon name=\"shopping-bag\" />"
+    },
+    {
+      "key": "show",
+      "source": "default",
+      "figmaComponent": "Icon/show",
+      "code": "<Icon name=\"show\" />"
+    },
+    {
+      "key": "sidebar-close",
+      "source": "default",
+      "figmaComponent": "Icon/sidebar-close",
+      "code": "<Icon name=\"sidebar-close\" />"
+    },
+    {
+      "key": "sidebar-collapse",
+      "source": "studio",
+      "figmaComponent": "Icon/sidebar-collapse",
+      "code": "<Icon name=\"sidebar-collapse\" />"
+    },
+    {
+      "key": "sidebar-expand",
+      "source": "studio",
+      "figmaComponent": "Icon/sidebar-expand",
+      "code": "<Icon name=\"sidebar-expand\" />"
+    },
+    {
+      "key": "sidebar-open",
+      "source": "default",
+      "figmaComponent": "Icon/sidebar-open",
+      "code": "<Icon name=\"sidebar-open\" />"
+    },
+    {
+      "key": "sidebar-toggle",
+      "source": "default",
+      "figmaComponent": "Icon/sidebar-toggle",
+      "code": "<Icon name=\"sidebar-toggle\" />"
+    },
+    {
+      "key": "slow",
+      "source": "default",
+      "figmaComponent": "Icon/slow",
+      "code": "<Icon name=\"slow\" />"
+    },
+    {
+      "key": "sort-alpha",
+      "source": "studio",
+      "figmaComponent": "Icon/sort-alpha",
+      "code": "<Icon name=\"sort-alpha\" />"
+    },
+    {
+      "key": "sort-alphabetical",
+      "source": "default",
+      "figmaComponent": "Icon/sort-alphabetical",
+      "code": "<Icon name=\"sort-alphabetical\" />"
+    },
+    {
+      "key": "sort-ascending",
+      "source": "default",
+      "figmaComponent": "Icon/sort-ascending",
+      "code": "<Icon name=\"sort-ascending\" />"
+    },
+    {
+      "key": "sort-created",
+      "source": "default",
+      "figmaComponent": "Icon/sort-created",
+      "code": "<Icon name=\"sort-created\" />"
+    },
+    {
+      "key": "sort-descending",
+      "source": "default",
+      "figmaComponent": "Icon/sort-descending",
+      "code": "<Icon name=\"sort-descending\" />"
+    },
+    {
+      "key": "sort-recent",
+      "source": "studio",
+      "figmaComponent": "Icon/sort-recent",
+      "code": "<Icon name=\"sort-recent\" />"
+    },
+    {
+      "key": "sort-updated",
+      "source": "default",
+      "figmaComponent": "Icon/sort-updated",
+      "code": "<Icon name=\"sort-updated\" />"
+    },
+    {
+      "key": "speaker",
+      "source": "default",
+      "figmaComponent": "Icon/speaker",
+      "code": "<Icon name=\"speaker\" />"
+    },
+    {
+      "key": "speaker-off",
+      "source": "default",
+      "figmaComponent": "Icon/speaker-off",
+      "code": "<Icon name=\"speaker-off\" />"
+    },
+    {
+      "key": "speed-fast",
+      "source": "animation",
+      "figmaComponent": "Icon/speed-fast",
+      "code": "<Icon name=\"speed-fast\" />"
+    },
+    {
+      "key": "speed-fastest",
+      "source": "animation",
+      "figmaComponent": "Icon/speed-fastest",
+      "code": "<Icon name=\"speed-fastest\" />"
+    },
+    {
+      "key": "speed-normal",
+      "source": "animation",
+      "figmaComponent": "Icon/speed-normal",
+      "code": "<Icon name=\"speed-normal\" />"
+    },
+    {
+      "key": "speed-slow",
+      "source": "animation",
+      "figmaComponent": "Icon/speed-slow",
+      "code": "<Icon name=\"speed-slow\" />"
+    },
+    {
+      "key": "sphere",
+      "source": "default",
+      "figmaComponent": "Icon/sphere",
+      "code": "<Icon name=\"sphere\" />"
+    },
+    {
+      "key": "square",
+      "source": "default",
+      "figmaComponent": "Icon/square",
+      "code": "<Icon name=\"square\" />"
+    },
+    {
+      "key": "star",
+      "source": "default",
+      "figmaComponent": "Icon/star",
+      "code": "<Icon name=\"star\" />"
+    },
+    {
+      "key": "state-hidden",
+      "source": "default",
+      "figmaComponent": "Icon/state-hidden",
+      "code": "<Icon name=\"state-hidden\" />"
+    },
+    {
+      "key": "state-locked",
+      "source": "default",
+      "figmaComponent": "Icon/state-locked",
+      "code": "<Icon name=\"state-locked\" />"
+    },
+    {
+      "key": "state-muted",
+      "source": "default",
+      "figmaComponent": "Icon/state-muted",
+      "code": "<Icon name=\"state-muted\" />"
+    },
+    {
+      "key": "state-unlocked",
+      "source": "default",
+      "figmaComponent": "Icon/state-unlocked",
+      "code": "<Icon name=\"state-unlocked\" />"
+    },
+    {
+      "key": "state-unmuted",
+      "source": "default",
+      "figmaComponent": "Icon/state-unmuted",
+      "code": "<Icon name=\"state-unmuted\" />"
+    },
+    {
+      "key": "state-visible",
+      "source": "default",
+      "figmaComponent": "Icon/state-visible",
+      "code": "<Icon name=\"state-visible\" />"
+    },
+    {
+      "key": "status-error",
+      "source": "default",
+      "figmaComponent": "Icon/status-error",
+      "code": "<Icon name=\"status-error\" />"
+    },
+    {
+      "key": "status-info",
+      "source": "default",
+      "figmaComponent": "Icon/status-info",
+      "code": "<Icon name=\"status-info\" />"
+    },
+    {
+      "key": "status-success",
+      "source": "default",
+      "figmaComponent": "Icon/status-success",
+      "code": "<Icon name=\"status-success\" />"
+    },
+    {
+      "key": "status-warning",
+      "source": "default",
+      "figmaComponent": "Icon/status-warning",
+      "code": "<Icon name=\"status-warning\" />"
+    },
+    {
+      "key": "step-complete",
+      "source": "default",
+      "figmaComponent": "Icon/step-complete",
+      "code": "<Icon name=\"step-complete\" />"
+    },
+    {
+      "key": "step-pending",
+      "source": "default",
+      "figmaComponent": "Icon/step-pending",
+      "code": "<Icon name=\"step-pending\" />"
+    },
+    {
+      "key": "step-stopped",
+      "source": "default",
+      "figmaComponent": "Icon/step-stopped",
+      "code": "<Icon name=\"step-stopped\" />"
+    },
+    {
+      "key": "submenu",
+      "source": "default",
+      "figmaComponent": "Icon/submenu",
+      "code": "<Icon name=\"submenu\" />"
+    },
+    {
+      "key": "sun",
+      "source": "default",
+      "figmaComponent": "Icon/sun",
+      "code": "<Icon name=\"sun\" />"
+    },
+    {
+      "key": "sun-moon",
+      "source": "default",
+      "figmaComponent": "Icon/sun-moon",
+      "code": "<Icon name=\"sun-moon\" />"
+    },
+    {
+      "key": "sunglasses",
+      "source": "default",
+      "figmaComponent": "Icon/sunglasses",
+      "code": "<Icon name=\"sunglasses\" />"
+    },
+    {
+      "key": "swap",
+      "source": "studio",
+      "figmaComponent": "Icon/swap",
+      "code": "<Icon name=\"swap\" />"
+    },
+    {
+      "key": "sync",
+      "source": "studio",
+      "figmaComponent": "Icon/sync",
+      "code": "<Icon name=\"sync\" />"
+    },
+    {
+      "key": "theme-dark",
+      "source": "default",
+      "figmaComponent": "Icon/theme-dark",
+      "code": "<Icon name=\"theme-dark\" />"
+    },
+    {
+      "key": "theme-light",
+      "source": "default",
+      "figmaComponent": "Icon/theme-light",
+      "code": "<Icon name=\"theme-light\" />"
+    },
+    {
+      "key": "theme-system",
+      "source": "default",
+      "figmaComponent": "Icon/theme-system",
+      "code": "<Icon name=\"theme-system\" />"
+    },
+    {
+      "key": "time-display",
+      "source": "animation",
+      "figmaComponent": "Icon/time-display",
+      "code": "<Icon name=\"time-display\" />"
+    },
+    {
+      "key": "time-display-frames",
+      "source": "default",
+      "figmaComponent": "Icon/time-display-frames",
+      "code": "<Icon name=\"time-display-frames\" />"
+    },
+    {
+      "key": "time-display-milliseconds",
+      "source": "default",
+      "figmaComponent": "Icon/time-display-milliseconds",
+      "code": "<Icon name=\"time-display-milliseconds\" />"
+    },
+    {
+      "key": "time-display-seconds",
+      "source": "default",
+      "figmaComponent": "Icon/time-display-seconds",
+      "code": "<Icon name=\"time-display-seconds\" />"
+    },
+    {
+      "key": "time-display-seconds-frames",
+      "source": "default",
+      "figmaComponent": "Icon/time-display-seconds-frames",
+      "code": "<Icon name=\"time-display-seconds-frames\" />"
+    },
+    {
+      "key": "time-display-ticks",
+      "source": "default",
+      "figmaComponent": "Icon/time-display-ticks",
+      "code": "<Icon name=\"time-display-ticks\" />"
+    },
+    {
+      "key": "transform-point",
+      "source": "default",
+      "figmaComponent": "Icon/transform-point",
+      "code": "<Icon name=\"transform-point\" />"
+    },
+    {
+      "key": "transition-auto-clamped",
+      "source": "animation",
+      "figmaComponent": "Icon/transition-auto-clamped",
+      "code": "<Icon name=\"transition-auto-clamped\" />"
+    },
+    {
+      "key": "transition-back",
+      "source": "animation",
+      "figmaComponent": "Icon/transition-back",
+      "code": "<Icon name=\"transition-back\" />"
+    },
+    {
+      "key": "transition-bezier-handles",
+      "source": "animation",
+      "figmaComponent": "Icon/transition-bezier-handles",
+      "code": "<Icon name=\"transition-bezier-handles\" />"
+    },
+    {
+      "key": "transition-circular",
+      "source": "animation",
+      "figmaComponent": "Icon/transition-circular",
+      "code": "<Icon name=\"transition-circular\" />"
+    },
+    {
+      "key": "transition-cubic",
+      "source": "animation",
+      "figmaComponent": "Icon/transition-cubic",
+      "code": "<Icon name=\"transition-cubic\" />"
+    },
+    {
+      "key": "transition-exponential",
+      "source": "animation",
+      "figmaComponent": "Icon/transition-exponential",
+      "code": "<Icon name=\"transition-exponential\" />"
+    },
+    {
+      "key": "transition-linear",
+      "source": "animation",
+      "figmaComponent": "Icon/transition-linear",
+      "code": "<Icon name=\"transition-linear\" />"
+    },
+    {
+      "key": "transition-quadratic",
+      "source": "animation",
+      "figmaComponent": "Icon/transition-quadratic",
+      "code": "<Icon name=\"transition-quadratic\" />"
+    },
+    {
+      "key": "transition-quartic",
+      "source": "animation",
+      "figmaComponent": "Icon/transition-quartic",
+      "code": "<Icon name=\"transition-quartic\" />"
+    },
+    {
+      "key": "transition-quintic",
+      "source": "animation",
+      "figmaComponent": "Icon/transition-quintic",
+      "code": "<Icon name=\"transition-quintic\" />"
+    },
+    {
+      "key": "transition-sine",
+      "source": "animation",
+      "figmaComponent": "Icon/transition-sine",
+      "code": "<Icon name=\"transition-sine\" />"
+    },
+    {
+      "key": "transition-snap",
+      "source": "animation",
+      "figmaComponent": "Icon/transition-snap",
+      "code": "<Icon name=\"transition-snap\" />"
+    },
+    {
+      "key": "undo",
+      "source": "default",
+      "figmaComponent": "Icon/undo",
+      "code": "<Icon name=\"undo\" />"
+    },
+    {
+      "key": "uniform",
+      "source": "default",
+      "figmaComponent": "Icon/uniform",
+      "code": "<Icon name=\"uniform\" />"
+    },
+    {
+      "key": "unit-centimeter",
+      "source": "animation",
+      "figmaComponent": "Icon/unit-centimeter",
+      "code": "<Icon name=\"unit-centimeter\" />"
+    },
+    {
+      "key": "unit-degree",
+      "source": "animation",
+      "figmaComponent": "Icon/unit-degree",
+      "code": "<Icon name=\"unit-degree\" />"
+    },
+    {
+      "key": "unit-kilometer",
+      "source": "animation",
+      "figmaComponent": "Icon/unit-kilometer",
+      "code": "<Icon name=\"unit-kilometer\" />"
+    },
+    {
+      "key": "unit-meter",
+      "source": "animation",
+      "figmaComponent": "Icon/unit-meter",
+      "code": "<Icon name=\"unit-meter\" />"
+    },
+    {
+      "key": "unit-millimeter",
+      "source": "animation",
+      "figmaComponent": "Icon/unit-millimeter",
+      "code": "<Icon name=\"unit-millimeter\" />"
+    },
+    {
+      "key": "unit-percent",
+      "source": "animation",
+      "figmaComponent": "Icon/unit-percent",
+      "code": "<Icon name=\"unit-percent\" />"
+    },
+    {
+      "key": "unit-radian",
+      "source": "animation",
+      "figmaComponent": "Icon/unit-radian",
+      "code": "<Icon name=\"unit-radian\" />"
+    },
+    {
+      "key": "unlock",
+      "source": "default",
+      "figmaComponent": "Icon/unlock",
+      "code": "<Icon name=\"unlock\" />"
+    },
+    {
+      "key": "unmute",
+      "source": "default",
+      "figmaComponent": "Icon/unmute",
+      "code": "<Icon name=\"unmute\" />"
+    },
+    {
+      "key": "unselected",
+      "source": "default",
+      "figmaComponent": "Icon/unselected",
+      "code": "<Icon name=\"unselected\" />"
+    },
+    {
+      "key": "user",
+      "source": "default",
+      "figmaComponent": "Icon/user",
+      "code": "<Icon name=\"user\" />"
+    },
+    {
+      "key": "vector-angled",
+      "source": "default",
+      "figmaComponent": "Icon/vector-angled",
+      "code": "<Icon name=\"vector-angled\" />"
+    },
+    {
+      "key": "vector-back",
+      "source": "default",
+      "figmaComponent": "Icon/vector-back",
+      "code": "<Icon name=\"vector-back\" />"
+    },
+    {
+      "key": "vector-bezier",
+      "source": "default",
+      "figmaComponent": "Icon/vector-bezier",
+      "code": "<Icon name=\"vector-bezier\" />"
+    },
+    {
+      "key": "vector-bezier-auto-clamp",
+      "source": "default",
+      "figmaComponent": "Icon/vector-bezier-auto-clamp",
+      "code": "<Icon name=\"vector-bezier-auto-clamp\" />"
+    },
+    {
+      "key": "vector-bezier-handles",
+      "source": "default",
+      "figmaComponent": "Icon/vector-bezier-handles",
+      "code": "<Icon name=\"vector-bezier-handles\" />"
+    },
+    {
+      "key": "vector-bezier-insert-flat",
+      "source": "default",
+      "figmaComponent": "Icon/vector-bezier-insert-flat",
+      "code": "<Icon name=\"vector-bezier-insert-flat\" />"
+    },
+    {
+      "key": "vector-bezier-insert-sloped",
+      "source": "default",
+      "figmaComponent": "Icon/vector-bezier-insert-sloped",
+      "code": "<Icon name=\"vector-bezier-insert-sloped\" />"
+    },
+    {
+      "key": "vector-circ",
+      "source": "default",
+      "figmaComponent": "Icon/vector-circ",
+      "code": "<Icon name=\"vector-circ\" />"
+    },
+    {
+      "key": "vector-cubic",
+      "source": "default",
+      "figmaComponent": "Icon/vector-cubic",
+      "code": "<Icon name=\"vector-cubic\" />"
+    },
+    {
+      "key": "vector-expo",
+      "source": "default",
+      "figmaComponent": "Icon/vector-expo",
+      "code": "<Icon name=\"vector-expo\" />"
+    },
+    {
+      "key": "vector-flat",
+      "source": "default",
+      "figmaComponent": "Icon/vector-flat",
+      "code": "<Icon name=\"vector-flat\" />"
+    },
+    {
+      "key": "vector-linear",
+      "source": "default",
+      "figmaComponent": "Icon/vector-linear",
+      "code": "<Icon name=\"vector-linear\" />"
+    },
+    {
+      "key": "vector-quad",
+      "source": "default",
+      "figmaComponent": "Icon/vector-quad",
+      "code": "<Icon name=\"vector-quad\" />"
+    },
+    {
+      "key": "vector-quart",
+      "source": "default",
+      "figmaComponent": "Icon/vector-quart",
+      "code": "<Icon name=\"vector-quart\" />"
+    },
+    {
+      "key": "vector-quint",
+      "source": "default",
+      "figmaComponent": "Icon/vector-quint",
+      "code": "<Icon name=\"vector-quint\" />"
+    },
+    {
+      "key": "vector-sine",
+      "source": "default",
+      "figmaComponent": "Icon/vector-sine",
+      "code": "<Icon name=\"vector-sine\" />"
+    },
+    {
+      "key": "vertex-free",
+      "source": "default",
+      "figmaComponent": "Icon/vertex-free",
+      "code": "<Icon name=\"vertex-free\" />"
+    },
+    {
+      "key": "vertex-indeterminate",
+      "source": "default",
+      "figmaComponent": "Icon/vertex-indeterminate",
+      "code": "<Icon name=\"vertex-indeterminate\" />"
+    },
+    {
+      "key": "vertex-paired",
+      "source": "default",
+      "figmaComponent": "Icon/vertex-paired",
+      "code": "<Icon name=\"vertex-paired\" />"
+    },
+    {
+      "key": "vertical-normalize",
+      "source": "default",
+      "figmaComponent": "Icon/vertical-normalize",
+      "code": "<Icon name=\"vertical-normalize\" />"
+    },
+    {
+      "key": "vertical-uniform",
+      "source": "default",
+      "figmaComponent": "Icon/vertical-uniform",
+      "code": "<Icon name=\"vertical-uniform\" />"
+    },
+    {
+      "key": "videocamera-off",
+      "source": "default",
+      "figmaComponent": "Icon/videocamera-off",
+      "code": "<Icon name=\"videocamera-off\" />"
+    },
+    {
+      "key": "view",
+      "source": "studio",
+      "figmaComponent": "Icon/view",
+      "code": "<Icon name=\"view\" />"
+    },
+    {
+      "key": "view-data",
+      "source": "animation",
+      "figmaComponent": "Icon/view-data",
+      "code": "<Icon name=\"view-data\" />"
+    },
+    {
+      "key": "view-grid",
+      "source": "default",
+      "figmaComponent": "Icon/view-grid",
+      "code": "<Icon name=\"view-grid\" />"
+    },
+    {
+      "key": "view-keys",
+      "source": "animation",
+      "figmaComponent": "Icon/view-keys",
+      "code": "<Icon name=\"view-keys\" />"
+    },
+    {
+      "key": "view-list",
+      "source": "default",
+      "figmaComponent": "Icon/view-list",
+      "code": "<Icon name=\"view-list\" />"
+    },
+    {
+      "key": "view-preview",
+      "source": "animation",
+      "figmaComponent": "Icon/view-preview",
+      "code": "<Icon name=\"view-preview\" />"
+    },
+    {
+      "key": "view-spline",
+      "source": "animation",
+      "figmaComponent": "Icon/view-spline",
+      "code": "<Icon name=\"view-spline\" />"
+    },
+    {
+      "key": "view-transitions",
+      "source": "animation",
+      "figmaComponent": "Icon/view-transitions",
+      "code": "<Icon name=\"view-transitions\" />"
+    },
+    {
+      "key": "view360",
+      "source": "default",
+      "figmaComponent": "Icon/view360",
+      "code": "<Icon name=\"view360\" />"
+    },
+    {
+      "key": "workspace-toggle",
+      "source": "animation",
+      "figmaComponent": "Icon/workspace-toggle",
+      "code": "<Icon name=\"workspace-toggle\" />"
+    },
+    {
+      "key": "world",
+      "source": "default",
+      "figmaComponent": "Icon/world",
+      "code": "<Icon name=\"world\" />"
+    },
+    {
+      "key": "world-object",
+      "source": "studio",
+      "figmaComponent": "Icon/world-object",
+      "code": "<Icon name=\"world-object\" />"
+    },
+    {
+      "key": "x",
+      "source": "default",
+      "figmaComponent": "Icon/x",
+      "code": "<Icon name=\"x\" />"
+    }
+  ]
+}

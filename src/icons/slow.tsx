@@ -1,11 +1,11 @@
 import { forwardRef, type ForwardRefExoticComponent, type RefAttributes } from "react";
-import type { IconProps } from "@solar-icons/react-perf";
+import type { GlyphProps as IconProps } from "./_internal/glyph-props";
 
 const Slow: ForwardRefExoticComponent<IconProps & RefAttributes<SVGSVGElement>> = forwardRef<
   SVGSVGElement,
   IconProps
 >((props, ref) => {
-  const { alt, color = "currentColor", size = "1em", mirrored = false, ...restProps } = props;
+  const { alt, color = "currentColor", size = "18px", mirrored = false, ...restProps } = props;
 
   return (
     <svg
@@ -24,7 +24,7 @@ const Slow: ForwardRefExoticComponent<IconProps & RefAttributes<SVGSVGElement>> 
         d="M11,8.931L11,7.123C11,5.507 12.467,4.485 13.661,5.27L21.079,10.147C22.307,10.954 22.307,13.045 21.079,13.853L13.661,18.73C12.467,19.515 11,18.493 11,16.877L11,15.349"
         fill="none"
         fillRule="nonzero"
-        strokeOpacity="0.5"
+        strokeOpacity="0.6"
         stroke="currentColor"
         strokeWidth="1.5px"
       />

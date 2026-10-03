@@ -1,0 +1,9 @@
+{
+  "component": "NestedSelect",
+  "nodeId": "563:769",
+  "capturedAt": "2026-07-21",
+  "source": "use_figma read of node 563:769 (NestedSelect set, 🧩 Components). DOCUMENTED SUBSET: NestedItem row chrome + indicator that swaps point (unselected) → check (selected), default variant. Refresh from the live file before CI.",
+  "variantOptions": { "State": ["unselected", "selected"] },
+  "properties": ["Label"],
+  "sampleVariant": { "accentVar": "color/default/bg-hover", "indicator": "point→check" }
+}

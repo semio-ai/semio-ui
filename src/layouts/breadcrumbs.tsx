@@ -1,11 +1,10 @@
 import { memo, useCallback, useMemo, type ReactNode } from "react";
 import { clsx } from "clsx";
-import { IconChevronDown, IconHexagon } from "@tabler/icons-react";
 import { Dropdown } from "../floating/dropdown";
 import { SelectOption } from "../floating/select";
 import { NestedRadio } from "../nested-elements/radio";
 import { Size, Variant } from "../types";
-import { ICON_CLASS_NAME } from "../constants/icon";
+import { Icon, resolveIcon } from "../icons/registry";
 
 export interface BreadcrumbOptionElement {
   id: string;
@@ -60,7 +59,7 @@ export function InnerBreadcrumbs({
   }
 
   return (
-    <div className={clsx(variant, "responsive variant-static-text flex items-center gap-2")}>
+    <div className={clsx(variant, "variant-scope variant-static-text flex items-center gap-2")}>
       {renderedElements.map((element, idx) => (
         <div key={element.id} className="flex items-center gap-2">
           {element.type === "option" ? (
@@ -76,7 +75,7 @@ export function InnerBreadcrumbs({
                       element.options.find((option) => option.value === element.value)?.icon
                       ? "grid grid-cols-[auto_1fr_auto]"
                       : "grid grid-cols-[1fr_auto]",
-                    "responsive variant-responsive-text variant-responsive-appearing-bg rounded-xs",
+                    "variant-scope variant-responsive-text variant-responsive-appearing-bg rounded-xs",
                     "variant-responsive-appearing-outline",
                     "sized-height place-items-center",
                     "sized-text px-1",
@@ -85,17 +84,17 @@ export function InnerBreadcrumbs({
                 >
                   {showIcons &&
                     element.options.find((option) => option.value === element.value)?.icon &&
-                    (element.options.find((option) => option.value === element.value)?.icon ?? (
-                      <IconHexagon key="icon" className={ICON_CLASS_NAME} />
-                    ))}
+                    (resolveIcon(
+                      element.options.find((option) => option.value === element.value)?.icon,
+                    ) ?? <Icon key="icon" name="option-placeholder" />)}
                   {element.options.find((option) => option.value === element.value)?.label ??
                     element.value}
-                  <IconChevronDown
+                  <Icon
+                    name="disclosure-open"
                     className={clsx(
-                      ICON_CLASS_NAME,
                       "ease-in-out",
                       "opacity-20 group-hover/trigger:opacity-100 group-data-[state=open]/trigger:opacity-100",
-                      "rotate-0 transition-transform duration-75 group-data-[state=open]/trigger:rotate-180",
+                      "-rotate-90 transition-transform duration-75 group-data-[state=open]/trigger:rotate-0",
                     )}
                   />
                 </button>

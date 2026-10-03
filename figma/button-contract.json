@@ -1,0 +1,18 @@
+{
+  "component": "Button",
+  "nodeId": "191:127",
+  "capturedAt": "2026-06-25",
+  "source": "Captured via the Figma MCP (use_figma reads of node 191:127 — the canonical Button on the 🧩 Components page of the Semio UI Library file, whose key is supplied by the user at session start, not committed). The Figma component implements a DOCUMENTED SUBSET of the code contract (see packages/ui/docs/figma-design-system-mapping.md). Refresh from the live file before running in CI.",
+  "variantOptions": {
+    "Visual": ["default", "inverted", "inverted-border"],
+    "Variant": ["default", "primary", "secondary", "tertiary", "error"],
+    "State": ["default", "hover", "focus", "disabled"]
+  },
+  "properties": ["Label", "Show label", "Left icon", "Right icon", "Icon left", "Icon right"],
+  "sampleVariant": {
+    "cornerRadius": 2,
+    "fillBoundVar": "color/primary/bg",
+    "textFontFamilyBound": true,
+    "textFillBoundVar": "color/primary/fg"
+  }
+}

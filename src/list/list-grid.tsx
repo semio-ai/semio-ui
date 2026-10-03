@@ -16,15 +16,22 @@ import { Size } from "../types";
 import { useClickAway } from "../hooks/use-click-away";
 import { useRowWindow } from "../hooks/use-row-window";
 import { defaultResolveRowVisual, type ResolveRowVisual } from "../tree/resolve-row-visual";
+import { ContextMenu } from "../floating/context-menu";
 import { TreeNavItem, TreeNavRoot } from "../tree/use-tree-navigation";
 import { useTreeSelection } from "../tree/use-tree-selection";
-import { ListRow, ROW_HEIGHT_PX } from "./list-row";
+import { ListRow, ROW_HEIGHT, ROW_HEIGHT_PX } from "./list-row";
 
 export type SelectionMode = "none" | "single" | "multiple";
 
 /** Container-query breakpoints for {@link ListColumn.hideBelow}. Widths match
- *  Tailwind's container sizes (xs 320 · sm 384 · md 448 · lg 512 · xl 576 px). */
-export type ListBreakpoint = "xs" | "sm" | "md" | "lg" | "xl";
+ *  Tailwind's container sizes (xs 320 · sm 384 · md 448 · lg 512 · xl 576 ·
+ *  2xl 672 · 3xl 768 · 4xl 896 px).
+ *
+ *  The wide end matters as much as the narrow: a column that only hides below
+ *  576px stays visible in a 700px list and takes its width out of the flexible
+ *  column instead, so the flexible one — usually the name, the column a reader
+ *  scans by — is squeezed to nothing while secondary columns sit at full width. */
+export type ListBreakpoint = "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl" | "4xl";
 
 /**
  * Literal `@max-*:hidden` classes (NOT built dynamically) so Tailwind's JIT
@@ -39,6 +46,9 @@ const HIDE_BELOW_CLASS: Record<ListBreakpoint, string> = {
   md: "@max-md:hidden",
   lg: "@max-lg:hidden",
   xl: "@max-xl:hidden",
+  "2xl": "@max-2xl:hidden",
+  "3xl": "@max-3xl:hidden",
+  "4xl": "@max-4xl:hidden",
 };
 
 /** A column: layout + a cell renderer that sees the row's interaction state. */
@@ -53,6 +63,19 @@ export interface ListColumn<T> {
    * (pure CSS container query). Hiding relies on an `auto` track collapsing to 0
    * once the cells are `display:none`, so a `hideBelow` column is always an
    * `auto` track — `flex` is ignored for it.
+   *
+   * **A hidden column's cells stay in the DOM.** `display:none` removes them from
+   * layout, not from the document, so text queries still match their content. Two
+   * consequences worth knowing:
+   *
+   * - A test asserting a value is "shown" can match the hidden copy and pass while
+   *   nothing is visible; and where the value also appears elsewhere, the two
+   *   copies collide as a locator strict-mode violation that neither `.first()`
+   *   nor `exact` resolves, since both matches are genuine. Assert geometry — a
+   *   zero bounding box is the honest signal.
+   * - Screen readers still reach the content. Usually fine for a column whose
+   *   value is duplicated elsewhere in the row, and wrong if hiding was meant to
+   *   remove it rather than to save width.
    */
   hideBelow?: ListBreakpoint;
   /**
@@ -70,8 +93,18 @@ export interface ListColumn<T> {
    * stop a column collapsing when its visible cells happen to be empty.
    */
   minWidth?: string;
-  /** Cell content. `state` lets a cell reflect focus/selection (the old
-   *  TableList's 3-arg `render(value, focused, selected)`). */
+  /**
+   * Extra classes on this column's CELL, merged with anything the grid sets itself.
+   *
+   * For the cell box, not its contents — padding and alignment overrides that a
+   * `render` cannot reach, because a cell's own `px-2` sits outside whatever the
+   * renderer returns. The trailing actions column is the case that needs it: at the
+   * default padding a control there is twice as far from the column beside it as from
+   * the row's edge, and reads as belonging to the edge.
+   */
+  className?: string;
+  /** Cell content. `state` lets a cell reflect focus and selection without
+   *  reading them from anywhere else. */
   render: (item: T, state: { focused: boolean; selected: boolean }) => ReactNode;
 }
 
@@ -90,7 +123,7 @@ export interface ListGridProps<T> {
   onSelectionChange?: (next: Set<string>) => void;
   disallowEmptySelection?: boolean;
   /** Clicking outside the list clears the selection (unless empty selection is
-   *  disallowed). Defaults to true, matching the old TableList. */
+   *  disallowed). Defaults to true. */
   deselectOnClickAway?: boolean;
   /**
    * Plain arrow navigation also moves selection to the newly-focused row
@@ -101,6 +134,34 @@ export interface ListGridProps<T> {
 
   /** Activation (Enter / click in `none` mode / double-purpose). */
   onAction?: (id: string, event: KeyboardEvent | MouseEvent) => void;
+
+  /**
+   * A row was double-clicked. Optional, and deliberately named for the gesture
+   * rather than for a meaning: what a second click *does* is the consumer's
+   * decision, not the list's. In practice it is the desktop-file idiom — one
+   * click selects, two open — which only makes sense where a single click
+   * already selects, so a `selectionMode` of `single`/`multiple`; with `none`,
+   * the first click has already fired {@link onAction}.
+   *
+   * Not wired to keyboard activation: Enter is `onAction`, and a row that
+   * navigated on both would give the same key two meanings depending on which
+   * handler the consumer happened to pass.
+   */
+  onItemDoubleClick?: (id: string, event: MouseEvent) => void;
+  /**
+   * The menu a row opens on right-click, as its ITEMS.
+   *
+   * Takes the content rather than a handler so a listing hands the same node to this
+   * and to the row's own `⋮`: the two are one menu reached two ways, and the only way
+   * to guarantee that is for there to be one node.
+   *
+   * Wrapped around `ListRow` rather than around the row's focus wrapper, because the
+   * floating component renders no element of its own — its trigger clones the child —
+   * so the row stays a direct child of the grid and keeps its `grid-cols-subgrid`
+   * tracks. An element in between would take it out of the subgrid and every column
+   * would stop lining up.
+   */
+  rowMenu?: (item: T) => ReactNode;
 
   // Type-ahead
   allowTypeAhead?: boolean;
@@ -128,7 +189,7 @@ export interface ListGridProps<T> {
   virtualized?: boolean;
   /**
    * The element that scrolls, required by {@link ListGridProps.virtualized}. For a
-   * list inside a `ScrollArea`, this is that component's `viewportRef` — the Radix
+   * list inside a `ScrollArea`, this is that component's `viewportRef` — the scroll
    * viewport is what scrolls, and the `ScrollArea` root is not.
    */
   scrollRef?: RefObject<HTMLElement | null>;
@@ -201,6 +262,8 @@ export function ListGrid<T>({
   deselectOnClickAway = true,
   selectionFollowsFocus = true,
   onAction,
+  onItemDoubleClick,
+  rowMenu,
   allowTypeAhead = true,
   getSearchText,
   virtualized = false,
@@ -448,11 +511,23 @@ export function ListGrid<T>({
   const handleRowClick = useCallback(
     (event: MouseEvent<HTMLElement>, id: string) => {
       if (isDisabled(id)) return;
+      // The second click of a double-click still arrives here, and left alone it
+      // would undo the first: in `single` mode a click on the already-selected
+      // row deselects it, so opening a row would also clear it. Let the first
+      // click own the selection and the double-click handler own the outcome.
+      // Guarded on the handler being present so a list without one keeps the
+      // plain two-clicks-is-two-clicks behaviour it has always had.
+      if (onItemDoubleClick && event.detail > 1) return;
       // Clicks that originate in an interactive cell control must not select the
-      // row (embedded buttons/menus/inputs keep working).
+      // row (embedded buttons/menus/inputs/links keep working).
+      //
+      // `a[href]` is here because a row's name is a real link: a cell can carry a
+      // gesture that means "go there" beside one that means "select this", and
+      // without this the link would do both — navigating AND moving the selection
+      // out from under the viewer on the way out.
       if (
         (event.target as HTMLElement).closest(
-          "button, input, select, textarea, [role='menuitem'], [role='menuitemradio'], [data-radix-collection-item]",
+          "a[href], button, input, select, textarea, [role='menuitem'], [role='menuitemradio'], [data-radix-collection-item]",
         )
       ) {
         return;
@@ -474,7 +549,33 @@ export function ListGrid<T>({
         selection.clear();
       else selection.select(id);
     },
-    [indexOfId, isDisabled, selectionMode, selection, onAction, disallowEmptySelection],
+    [
+      indexOfId,
+      isDisabled,
+      selectionMode,
+      selection,
+      onAction,
+      onItemDoubleClick,
+      disallowEmptySelection,
+    ],
+  );
+
+  const handleRowDoubleClick = useCallback(
+    (event: MouseEvent<HTMLElement>, id: string) => {
+      if (!onItemDoubleClick || isDisabled(id)) return;
+      // Same escape hatch as the click path: a double-click landing on a cell's
+      // own control belongs to that control. Without this, double-clicking a row
+      // menu would both open the menu and fire the row's handler.
+      if (
+        (event.target as HTMLElement).closest(
+          "a[href], button, input, select, textarea, [role='menuitem'], [role='menuitemradio'], [data-radix-collection-item]",
+        )
+      ) {
+        return;
+      }
+      onItemDoubleClick(id, event);
+    },
+    [isDisabled, onItemDoubleClick],
   );
 
   // Which rows to render. Non-virtualized lists get the whole range, so the render
@@ -487,6 +588,9 @@ export function ListGrid<T>({
     // The keyboard cursor stays mounted, so roving focus can cross a window edge.
     pinnedIndex: safeIndex,
     enabled: virtualized && scrollRef !== undefined,
+    // Reported separately so `virtualized` without `scrollRef` is diagnosed rather than
+    // silently downgraded to rendering every row.
+    requested: virtualized,
   });
 
   // Moving the cursor scrolls to it — what keyboard navigation, type-ahead and Home/End
@@ -599,7 +703,9 @@ export function ListGrid<T>({
       columns.map((c) => ({
         key: c.key,
         align: c.align,
-        className: c.hideBelow ? HIDE_BELOW_CLASS[c.hideBelow] : undefined,
+        // Merged, not chosen between: a column can both hide below a breakpoint and
+        // carry its own cell classes, and this mapping is the only place the two meet.
+        className: clsx(c.hideBelow && HIDE_BELOW_CLASS[c.hideBelow], c.className) || undefined,
       })),
     [columns],
   );
@@ -608,9 +714,23 @@ export function ListGrid<T>({
     return <div className={className}>{notFound}</div>;
   }
 
+  // `selectionMode="none"` is the display-only mode, and the only one that is a grid:
+  // `grid` > `row` > `gridcell`, with the header a `columnheader` row. Every other mode
+  // is a `listbox` of `option`s, which owns no cells and states position with
+  // `aria-setsize`/`aria-posinset` instead. Decided once because the four decisions have
+  // to agree — a `row` with no cells owns nothing, and a row index that skips the header
+  // names the wrong row.
+  const isGrid = selectionMode === "none";
+  const headerIsRow = isGrid && !noHeader;
+  // `aria-rowcount`/`aria-rowindex` are one numbering over every row the grid owns, and
+  // the header is one of them when it is there.
+  const firstDataRowIndex = headerIsRow ? 2 : 1;
+
   return (
     <TreeNavRoot
-      role={selectionMode === "none" ? "grid" : "listbox"}
+      role={isGrid ? "grid" : "listbox"}
+      // A grid states its own size; a listbox has no way to and lets its options do it.
+      ariaRowCount={isGrid ? data.length + (headerIsRow ? 1 : 0) : undefined}
       ariaLabel={ariaLabel}
       className={className}
       highlightedIndex={safeIndex}
@@ -656,11 +776,19 @@ export function ListGrid<T>({
           <div
             className={clsx(
               "col-span-full grid grid-cols-subgrid items-center border-b border-neutral-500/20",
+              // The same fixed height as a row, so the header does not grow when a
+              // cell holds a control. A consumer that puts a create action in a
+              // header cell was otherwise buying a taller header than the listing
+              // next to it, which read as the two panels being differently built.
+              ROW_HEIGHT[size],
               // Multiple mode: the header is the select-all affordance — hovering
               // previews every row (light emphasis), clicking toggles all.
               selectionMode === "multiple" && "cursor-pointer",
             )}
-            role={selectionMode === "multiple" ? "button" : undefined}
+            // The grid's first row. In `multiple` mode this element is the select-all
+            // control instead, and its container is a listbox with no rows at all.
+            role={selectionMode === "multiple" ? "button" : headerIsRow ? "row" : undefined}
+            aria-rowindex={headerIsRow ? 1 : undefined}
             aria-label={selectionMode === "multiple" ? "Select all" : undefined}
             aria-pressed={selectionMode === "multiple" ? allEnabledSelected : undefined}
             tabIndex={selectionMode === "multiple" ? 0 : undefined}
@@ -681,6 +809,7 @@ export function ListGrid<T>({
             {columns.map((column, i) => (
               <div
                 key={column.key}
+                role={headerIsRow ? "columnheader" : undefined}
                 className={clsx(
                   // px-2 matches the body cells so headers align with their column.
                   "px-2 py-1 text-xs font-semibold uppercase text-neutral-500 dark:text-neutral-400",
@@ -732,17 +861,24 @@ export function ListGrid<T>({
             <TreeNavItem
               key={id}
               index={index}
-              role={selectionMode === "none" ? "row" : "option"}
-              ariaSelected={selectionMode === "none" ? undefined : selectedNow}
-              // What a reader is told about the list's size has to be the list, not
-              // the window: with rows mounted only near the viewport, a screen reader
-              // counting the DOM would announce "3 of 12" in a list of ten thousand.
-              ariaSetSize={data.length}
-              ariaPosInSet={index + 1}
+              role={isGrid ? "row" : "option"}
+              ariaSelected={isGrid ? undefined : selectedNow}
+              // Where a row sits is stated against the DATA, whichever pair carries it:
+              // with rows mounted only near the viewport, a screen reader counting the
+              // DOM would announce "3 of 12" in a list of ten thousand.
+              //
+              // One vocabulary per role, not both. `option` is placed by setsize/posinset.
+              // `row` permits that pair as well, but there it means position among sibling
+              // rows at one level — a `treegrid`'s question, which this flat grid does not
+              // ask; its rows are placed by `aria-rowindex` against the grid's row count.
+              ariaRowIndex={isGrid ? index + firstDataRowIndex : undefined}
+              ariaSetSize={isGrid ? undefined : data.length}
+              ariaPosInSet={isGrid ? undefined : index + 1}
               disabled={isDisabled(id)}
               className="col-span-full grid grid-cols-subgrid outline-none group/row"
               onKeyDown={(event) => handleRowKeyDown(event, id)}
               onClick={(event) => handleRowClick(event, id)}
+              onDoubleClick={(event) => handleRowDoubleClick(event, id)}
               onMouseEnter={() => setHoveredId(id)}
               onMouseLeave={() => setHoveredId((cur) => (cur === id ? null : cur))}
             >
@@ -751,17 +887,35 @@ export function ListGrid<T>({
                   selection bar/background instead of a fixed hue. An inset
                   `outline` (not a `ring`/box-shadow) so it paints above the
                   row's absolute background overlay rather than behind it. */}
-              <ListRow
-                // One row reports the real row height, which is what the window's
-                // arithmetic runs on — `ROW_HEIGHT` is a `rem` class, so the px
-                // estimate is only right at a 16px root font size.
-                ref={offset === 0 ? rowWindow.measureRef : undefined}
-                columns={rowColumns}
-                cells={cells}
-                visual={visual}
-                size={size}
-                className="group-focus-visible/row:outline group-focus-visible/row:outline-2 group-focus-visible/row:-outline-offset-2 group-focus-visible/row:outline-[var(--accent-color)]"
-              />
+              {rowMenu ? (
+                <ContextMenu content={rowMenu(item)}>
+                  <ListRow
+                    // One row reports the real row height, which is what the window's
+                    // arithmetic runs on — `ROW_HEIGHT` is a `rem` class, so the px
+                    // estimate is only right at a 16px root font size.
+                    ref={offset === 0 ? rowWindow.measureRef : undefined}
+                    columns={rowColumns}
+                    cells={cells}
+                    cellRole={isGrid ? "gridcell" : undefined}
+                    visual={visual}
+                    size={size}
+                    className="group-focus-visible/row:outline group-focus-visible/row:outline-2 group-focus-visible/row:-outline-offset-2 group-focus-visible/row:outline-[var(--accent-color)]"
+                  />
+                </ContextMenu>
+              ) : (
+                <ListRow
+                  // One row reports the real row height, which is what the window's
+                  // arithmetic runs on — `ROW_HEIGHT` is a `rem` class, so the px
+                  // estimate is only right at a 16px root font size.
+                  ref={offset === 0 ? rowWindow.measureRef : undefined}
+                  columns={rowColumns}
+                  cells={cells}
+                  cellRole={isGrid ? "gridcell" : undefined}
+                  visual={visual}
+                  size={size}
+                  className="group-focus-visible/row:outline group-focus-visible/row:outline-2 group-focus-visible/row:-outline-offset-2 group-focus-visible/row:outline-[var(--accent-color)]"
+                />
+              )}
             </TreeNavItem>
           );
         })}

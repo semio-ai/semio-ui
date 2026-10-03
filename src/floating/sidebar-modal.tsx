@@ -11,25 +11,20 @@ import {
 } from "react";
 import { Dialog } from "@base-ui/react/dialog";
 import { clsx } from "clsx";
-import {
-  IconChevronLeft,
-  IconChevronRight,
-  IconChevronRightPipe,
-  IconX,
-} from "@tabler/icons-react";
 import { Button } from "../buttons/button";
 import { MenuButton } from "../buttons/menu-button";
+import { Icon, resolveIcon, type IconValue } from "../icons/registry";
 import { MenuButtonProvider } from "../context/menu-button-context";
-import { ICON_CLASS_NAME } from "../constants/icon";
 import { ScrollArea } from "../layouts/scroll-area";
 import { NestedSelect } from "../nested-elements/select";
 import { Variant } from "../types";
+import { useIsDesktop } from "../hooks/use-is-desktop";
 import { ContextMenu } from "./context-menu";
 
 export interface SidebarTab {
   key: string;
   title: string;
-  icon?: ReactNode;
+  icon?: IconValue;
   variant?: Variant;
   content: ReactNode;
   /** Per-tab footer rendered at the bottom of the content pane. */
@@ -49,11 +44,10 @@ export interface SidebarModalProps {
   sidebarFooter?: ReactNode;
   /**
    * Icon shown in the sidebar header when the sidebar is collapsed on
-   * desktop. Swaps in for the title text in that one state. Use a small
-   * icon (e.g. `<IconSettings className={ICON_CLASS_NAME} />`) — the
-   * collapsed rail is narrow.
+   * desktop. Swaps in for the title text in that one state. Accepts a registry
+   * key or a node (e.g. `collapsedIcon="settings"`); `<Icon>` handles sizing.
    */
-  collapsedIcon?: ReactNode;
+  collapsedIcon?: IconValue;
   /**
    * Optional content prepended to the desktop right-click context menu on
    * the sidebar. The expand/collapse toggle is appended after these. Use
@@ -65,6 +59,8 @@ export interface SidebarModalProps {
   contextMenuExtras?: ReactNode;
   variant?: Variant;
   dismissDisabled?: boolean;
+  /** Custom container for the dialog portal. Defaults to `document.body`. */
+  portalContainer?: HTMLElement | null;
 }
 
 const PLACEHOLDER_TAB: SidebarTab = {
@@ -114,6 +110,7 @@ export function SidebarModal({
   contextMenuExtras,
   variant,
   dismissDisabled = false,
+  portalContainer,
 }: SidebarModalProps) {
   const tabList = useMemo<SidebarTab[]>(() => (tabs.length > 0 ? tabs : [PLACEHOLDER_TAB]), [tabs]);
 
@@ -181,7 +178,7 @@ export function SidebarModal({
       }}
       disablePointerDismissal={dismissDisabled}
     >
-      <Dialog.Portal>
+      <Dialog.Portal container={portalContainer ?? undefined}>
         <Dialog.Backdrop
           className={clsx(
             "fixed inset-0 bg-black/40",
@@ -193,10 +190,10 @@ export function SidebarModal({
           <Dialog.Popup
             aria-describedby={undefined}
             className={clsx(
-              "responsive focus:outline-hidden",
+              "variant-scope focus:outline-hidden",
               variant,
               // Single `card` surrounds the whole modal — sidebar and content
-              // panes share one bordered surface. On desktop the modal's bg
+              // panes share one surface. On desktop the modal's bg
               // becomes a frosted-glass layer (mirroring `card-transparent`'s
               // recipe); the content pane covers its area with a solid bg so
               // only the SIDEBAR region reads as frosted. Mobile keeps
@@ -218,10 +215,14 @@ export function SidebarModal({
               // against (rather than the modal expanding to fit all tabs).
               "desktop:w-[clamp(40rem,80vw,72rem)]",
               "desktop:h-[clamp(24rem,75dvh,calc(100dvh-4rem))]",
-              // Scale-up + fade in/out. Matches `Modal`.
-              "transition-[opacity,scale] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]",
-              "data-starting-style:opacity-0 data-starting-style:scale-90",
-              "data-ending-style:opacity-0 data-ending-style:scale-90",
+              // Fade plus a short vertical slide. Translate rather than scale, for the
+              // reason spelled out in `Modal`: scaling repaints the whole subtree at a
+              // changing size so fine artwork slides inside stationary boxes, while a
+              // whole-pixel translate resizes nothing and rests at exactly zero. Do not
+              // give `scale` back to either of them.
+              "transition-[opacity,translate] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]",
+              "data-starting-style:opacity-0 data-starting-style:translate-y-2",
+              "data-ending-style:opacity-0 data-ending-style:translate-y-2",
             )}
           >
             <MenuButtonProvider
@@ -270,6 +271,7 @@ export function SidebarModal({
                 isDesktop={isDesktop}
                 tabId={tabId}
                 panelId={panelId}
+                portalContainer={portalContainer}
               />
             </MenuButtonProvider>
             <ContentPane
@@ -306,6 +308,7 @@ function SidebarPane({
   isDesktop,
   tabId,
   panelId,
+  portalContainer,
 }: {
   title: string | ReactNode;
   tabs: SidebarTab[];
@@ -313,7 +316,7 @@ function SidebarPane({
   onSelect: (key: string) => void;
   variant?: Variant;
   sidebarFooter?: ReactNode;
-  collapsedIcon?: ReactNode;
+  collapsedIcon?: IconValue;
   dismissDisabled: boolean;
   offScreenOnMobile: boolean;
   ariaHidden: boolean;
@@ -323,6 +326,7 @@ function SidebarPane({
   isDesktop: boolean;
   tabId: (key: string) => string;
   panelId: (key: string) => string;
+  portalContainer?: HTMLElement | null;
 }) {
   const tabListRef = useRef<HTMLDivElement>(null);
 
@@ -457,7 +461,7 @@ function SidebarPane({
             <Dialog.Title
               className={clsx(
                 variant,
-                "responsive variant-static-text",
+                "variant-scope variant-static-text",
                 "text-base/7 font-medium",
                 sidebarExpanded ? "min-w-0 flex-1 truncate" : "sr-only",
               )}
@@ -469,14 +473,14 @@ function SidebarPane({
                 aria-hidden="true"
                 className={clsx(
                   variant,
-                  "responsive variant-static-text",
+                  "variant-scope variant-static-text",
                   // Match the sizing of `MenuButton` icons in the rows below
                   // — h-9 w-9 box gives `icon-standard` (`h-3/5 w-3/5`) a
                   // definite parent to scale against.
                   "grid h-9 w-9 place-items-center",
                 )}
               >
-                {collapsedIcon}
+                {resolveIcon(collapsedIcon)}
               </span>
             )}
             {/* Mobile-only — content pane carries the X on desktop. */}
@@ -487,7 +491,7 @@ function SidebarPane({
                     {...props}
                     className="desktop:hidden"
                     variant={variant}
-                    leftIcon={<IconX />}
+                    leftIcon="close"
                     altText="Close"
                   />
                 )}
@@ -530,6 +534,10 @@ function SidebarPane({
       // Disabled on mobile rather than unmounted — see the comment in
       // ContextMenu about not swapping the tree mid-interaction.
       disabled={!isDesktop}
+      // The same container as the dialog itself: a host that moved this modal into its own
+      // stacking context meant the modal's whole overlay surface, and a context menu left
+      // at `<body>` would be the one part of it landing somewhere else.
+      portalContainer={portalContainer}
       content={
         <>
           {contextMenuExtras}
@@ -543,9 +551,9 @@ function SidebarPane({
                 label: sidebarExpanded ? "Collapse Sidebar" : "Expand Sidebar",
                 value: "open",
                 icon: (
-                  <IconChevronRightPipe
+                  <Icon
+                    name="sidebar-toggle"
                     className={clsx(
-                      ICON_CLASS_NAME,
                       "transition-transform",
                       sidebarExpanded ? "rotate-180" : "rotate-0",
                     )}
@@ -617,7 +625,7 @@ function SidebarTabRow({
           "text-neutral-500 desktop:hidden",
         )}
       >
-        <IconChevronRight className="size-4" />
+        <Icon name="drill-in" size="none" className="size-4" />
       </span>
     </div>
   );
@@ -694,7 +702,7 @@ function ContentPane({
           >
             <Button
               variant={variant}
-              leftIcon={<IconChevronLeft />}
+              leftIcon="back"
               onClick={onBack}
               altText="Back"
               className="desktop:hidden"
@@ -702,7 +710,7 @@ function ContentPane({
             <h2
               className={clsx(
                 variant,
-                "responsive variant-static-text",
+                "variant-scope variant-static-text",
                 "min-w-0 flex-1 truncate text-base/7 font-medium",
               )}
             >
@@ -711,7 +719,7 @@ function ContentPane({
             {!dismissDisabled && (
               <Dialog.Close
                 render={(props) => (
-                  <Button {...props} variant={variant} leftIcon={<IconX />} altText="Close" />
+                  <Button {...props} variant={variant} leftIcon="close" altText="Close" />
                 )}
               />
             )}
@@ -732,33 +740,4 @@ function ContentPane({
       </ScrollArea>
     </section>
   );
-}
-
-/**
- * Local viewport detection for a11y attributes only. Layout itself stays
- * CSS-driven (via the `desktop:` Tailwind variant). Local `matchMedia` —
- * unlike the `useDesktopState` layout atom — works in any render context
- * (Storybook, tests) without the layout root.
- */
-const DESKTOP_QUERY = "(width >= 48rem) and (height >= 48rem)";
-
-function useIsDesktop(): boolean {
-  const [isDesktop, setIsDesktop] = useState(() => {
-    if (typeof window === "undefined") {
-      return false;
-    }
-    return window.matchMedia(DESKTOP_QUERY).matches;
-  });
-  useEffect(() => {
-    const matcher = window.matchMedia(DESKTOP_QUERY);
-    setIsDesktop(matcher.matches);
-    const listener = (event: MediaQueryListEvent) => {
-      setIsDesktop(event.matches);
-    };
-    matcher.addEventListener("change", listener);
-    return () => {
-      matcher.removeEventListener("change", listener);
-    };
-  }, []);
-  return isDesktop;
 }

@@ -7,6 +7,7 @@ import {
 } from "react";
 import { clsx } from "clsx";
 import { Variant, Size } from "../types";
+import { resolveIcon, type IconValue } from "../icons/registry";
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children?: ReactNode;
@@ -15,8 +16,10 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
   onClick?: MouseEventHandler<HTMLButtonElement>;
   variant?: Variant;
   color?: string;
-  leftIcon?: ReactNode;
-  rightIcon?: ReactNode;
+  /** Left icon: a registry key (e.g. `"trash"`) or a rendered node. */
+  leftIcon?: IconValue;
+  /** Right icon: a registry key (e.g. `"chevron-down"`) or a rendered node. */
+  rightIcon?: IconValue;
   size?: Size | "fit";
   deemphasize?: boolean;
   submit?: boolean;
@@ -61,8 +64,13 @@ export const Button = forwardRef(
     }: ButtonProps,
     ref: ForwardedRef<HTMLButtonElement>,
   ) => {
-    const iconOnly =
-      (!rightIcon && children === undefined) || (!leftIcon && children === undefined);
+    // A slot value may be a registry key (string) or a node; resolveIcon turns a
+    // key into a self-sizing <Icon>, otherwise passes the node through.
+    const left = resolveIcon(leftIcon);
+    const right = resolveIcon(rightIcon);
+    // Icon-only = no text and exactly one icon (square sizing). An empty button or
+    // a two-icon button is not icon-only.
+    const iconOnly = children === undefined && Boolean(left) !== Boolean(right);
 
     return (
       <button
@@ -72,9 +80,12 @@ export const Button = forwardRef(
         aria-label={altText}
         data-deemphasized={deemphasize}
         className={clsx(
-          "responsive cursor-pointer select-none disabled:cursor-default",
-          visuals === "default" &&
-            "variant-responsive-bg variant-responsive-appearing-outline text-white dark:text-black",
+          "variant-scope cursor-pointer select-none disabled:cursor-default",
+          // No foreground named here: `variant-responsive-bg` declares one for every
+          // state it fills, including hover, disabled and deemphasized. A `text-*`
+          // utility added here would override all of them at once, because utilities
+          // are a later cascade layer than components.
+          visuals === "default" && "variant-responsive-bg variant-responsive-appearing-outline",
           (visuals === "inverted" || visuals === "inverted-border") && "variant-responsive-text",
           visuals === "inverted" && "outline-hidden",
           visuals === "inverted-border" && "variant-responsive-persistent-outline",
@@ -82,11 +93,11 @@ export const Button = forwardRef(
           // For now we just inherit the parent styling in list items
           visuals === "list-item" && "",
           "grid grid-rows-1 place-items-center",
-          leftIcon && children && rightIcon && "grid-cols-[auto_1fr_auto]",
-          leftIcon && children && !rightIcon && "grid-cols-[auto_1fr]",
-          !leftIcon && children && rightIcon && "grid-cols-[1fr_auto]",
-          leftIcon && !children && rightIcon && "grid-cols-[auto_auto]",
-          leftIcon && !children && !rightIcon && "grid-cols-[auto]",
+          left && children && right && "grid-cols-[auto_1fr_auto]",
+          left && children && !right && "grid-cols-[auto_1fr]",
+          !left && children && right && "grid-cols-[1fr_auto]",
+          left && !children && right && "grid-cols-[auto_auto]",
+          left && !children && !right && "grid-cols-[auto]",
           size !== "fit" && size,
           size !== "fit" && visuals !== "list-item" && "sized-text sized-height",
           size !== "fit" && iconOnly && visuals !== "list-item" && "sized-width",
@@ -107,24 +118,26 @@ export const Button = forwardRef(
             : undefined
         }
       >
-        {leftIcon && (
+        {left && (
           <div
             className={clsx(
               "grid place-items-center",
               size === "fit" ? "h-fit w-fit" : size,
-              size !== "fit" && visuals !== "list-item" && "sized-text sized-height sized-width",
+              size !== "fit" &&
+                visuals !== "list-item" &&
+                "sized-text sized-height sized-width sized-icon",
               size !== "fit" && visuals === "list-item" && "sized-text sized-list-item-indicator",
             )}
           >
-            {leftIcon}
+            {left}
           </div>
         )}
         {children && (
           <div
             className={clsx(
               "grid place-items-center",
-              leftIcon ? "" : "pl-1.5",
-              rightIcon ? "" : "pr-1.5",
+              left ? "" : "pl-1.5",
+              right ? "" : "pr-1.5",
               size !== "fit" && "sized-height",
               size,
             )}
@@ -132,16 +145,18 @@ export const Button = forwardRef(
             {children}
           </div>
         )}
-        {rightIcon && (
+        {right && (
           <div
             className={clsx(
               "grid place-items-center",
               size === "fit" ? "h-fit w-fit" : size,
-              size !== "fit" && visuals !== "list-item" && "sized-text sized-height sized-width",
+              size !== "fit" &&
+                visuals !== "list-item" &&
+                "sized-text sized-height sized-width sized-icon",
               size !== "fit" && visuals === "list-item" && "sized-text sized-list-item-indicator",
             )}
           >
-            {rightIcon}
+            {right}
           </div>
         )}
       </button>

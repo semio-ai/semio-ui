@@ -1,6 +1,7 @@
 import { forwardRef, type ForwardedRef } from "react";
-import { IconCheck, IconExclamationMark, type IconProps } from "@tabler/icons-react";
 import { Variant } from "../types";
+import type { GlyphProps as IconProps } from "./_internal/glyph-props";
+import { IconCheck, IconExclamationMark } from "./shared-glyphs";
 
 export interface IconVariantProps extends IconProps {
   className?: string;

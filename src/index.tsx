@@ -8,9 +8,11 @@ export * from "./buttons/header-button";
 export * from "./buttons/menu-button";
 
 // Feedback
+export * from "./feedback/empty-state";
 export * from "./feedback/progress";
 export * from "./feedback/spinner";
-export * from "./feedback/status";
+export * from "./feedback/status-badge";
+export * from "./feedback/status-dot";
 
 // Floating
 export * from "./floating/context-menu";
@@ -33,6 +35,7 @@ export * from "./constants/icon";
 
 // Context
 export * from "./context/menu-button-context";
+export * from "./context/ui-store-provider";
 export * from "./context/tooltip-context-utils";
 export type { WithTooltipContextProps } from "./context/tooltip-context-utils";
 
@@ -43,6 +46,7 @@ export * from "./hooks/use-click-away";
 export * from "./hooks/use-row-window";
 export * from "./row-metrics";
 export * from "./hooks/use-delayed-boolean";
+export * from "./hooks/use-is-desktop";
 export * from "./hooks/use-layout-actions";
 export * from "./hooks/use-layout-state";
 export * from "./hooks/use-system-theme-preference";
@@ -55,54 +59,81 @@ export * from "./icons/angle";
 export * from "./icons/bounce";
 export * from "./icons/box";
 export * from "./icons/box-plus";
+export * from "./icons/data-binary";
 export * from "./icons/eye";
 export * from "./icons/eye-off";
 export * from "./icons/fast";
 export * from "./icons/file-type-ani";
-export * from "./icons/file-type-mod";
 export * from "./icons/file-type-face";
+export * from "./icons/file-type-mod";
 export * from "./icons/filter-box";
 export * from "./icons/filter-x";
+export * from "./icons/folder-closed";
+export * from "./icons/folder-open";
 export * from "./icons/graph-view";
+export * from "./icons/hand";
 export * from "./icons/handle-indicator";
 export * from "./icons/home";
 export * from "./icons/key";
-export * from "./icons/key-outline";
-export * from "./icons/key-outline-dash";
 export * from "./icons/lock";
 export * from "./icons/lock-off";
+export * from "./icons/moon";
 export * from "./icons/move-player-end-bounds";
 export * from "./icons/move-playhead";
 export * from "./icons/normalized";
+export * from "./icons/panels-top-left";
 export * from "./icons/play-pause";
+export * from "./icons/playback-0.1";
+export * from "./icons/playback-0.5";
+export * from "./icons/playback-1.0";
+export * from "./icons/playback-1.5";
+export * from "./icons/playback-2.0";
 export * from "./icons/player-end-bounds";
 export * from "./icons/player-next-key";
 export * from "./icons/player-play";
 export * from "./icons/player-play2";
-export * from "./icons/project";
 export * from "./icons/preview-view";
+export * from "./icons/project";
+export * from "./icons/replace";
 export * from "./icons/robot";
 export * from "./icons/robot-plus";
+export * from "./icons/rotate-3d";
 export * from "./icons/select-close";
 export * from "./icons/select-cursor";
+export * from "./icons/shared-glyphs";
+export * from "./icons/sidebar-close";
+export * from "./icons/sidebar-open";
 export * from "./icons/slow";
+export * from "./icons/sort-updated";
 export * from "./icons/speaker";
 export * from "./icons/speaker-off";
+export * from "./icons/sphere";
 export * from "./icons/static-icon";
+export * from "./icons/sun-moon";
+export * from "./icons/time-display-frames";
+export * from "./icons/time-display-milliseconds";
+export * from "./icons/time-display-seconds";
+export * from "./icons/time-display-seconds-frames";
+export * from "./icons/time-display-ticks";
+export * from "./icons/user";
 export * from "./icons/vector-angled";
 export * from "./icons/vector-bezier";
 export * from "./icons/vector-bezier-auto-clamp";
 export * from "./icons/vector-bezier-handles";
 export * from "./icons/vector-bezier-insert-flat";
 export * from "./icons/vector-bezier-insert-sloped";
-export * from "./icons/vector-transition-curves";
 export * from "./icons/vector-flat";
+export * from "./icons/vector-transition-curves";
 export * from "./icons/vertex-free";
 export * from "./icons/vertex-indeterminate";
 export * from "./icons/vertex-paired";
 export * from "./icons/vertical-normalize";
 export * from "./icons/vertical-uniform";
+export * from "./icons/videocamera-off";
 export * from "./icons/world-element-icons";
+
+// Icon registry (context-based `<Icon name>` + IconProvider)
+export * from "./icons/registry";
 
 // Inputs
 export * from "./inputs/autocomplete";
@@ -127,6 +158,9 @@ export * from "./inputs/toggle-square";
 // Layouts
 export * from "./layouts/accordion";
 export * from "./layouts/breadcrumbs";
+export * from "./layouts/card";
+export * from "./layouts/card-grid";
+export * from "./layouts/use-grid-navigation";
 export * from "./layouts/collapse";
 export * from "./layouts/resizer";
 export * from "./layouts/layout/root";
@@ -147,12 +181,18 @@ export * from "./nested-elements/radio";
 export * from "./nested-elements/select";
 export * from "./nested-elements/separator";
 export * from "./layouts/stepper";
-export * from "./hooks/use-list-state";
-export * from "./layouts/table-list";
+// `./hooks/use-list-state` is deliberately NOT exported: it is the legacy list
+// engine, and `CardGrid` still uses it for its own navigation adapter. Keeping it
+// off the public surface means no new consumer can reach for it while that last
+// internal use is unwound.
 export * from "./layouts/tabs";
+
+// Typography
+export * from "./text";
 
 // Uncategorized or Not Updated
 export * from "./avatar";
+export * from "./media-surface";
 export * from "./inputs/color-picker-popover";
 export * from "./inputs/number-or-list";
 export * from "./dropzone";
@@ -169,6 +209,7 @@ export * from "./tree";
 export * from "./list";
 export * from "./menu-item";
 export * from "./snippet";
+export * from "./markdown";
 
 export * from "./types";
 export * from "./nested-elements/types";

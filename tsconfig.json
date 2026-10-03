@@ -1,5 +1,5 @@
 {
   "extends": "@semio/typescript-config/react-library.json",
-  "include": ["src", "./vitest.config.ts"],
+  "include": ["."],
   "exclude": ["dist", "build", "node_modules"]
 }

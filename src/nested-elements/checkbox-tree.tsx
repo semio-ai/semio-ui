@@ -1,8 +1,7 @@
 import { DropdownMenu, ContextMenu } from "radix-ui";
 import { type MouseEvent, type CSSProperties, useCallback } from "react";
-import { IconCheck, IconMinus, IconPoint, IconChevronRight } from "@tabler/icons-react";
 import { clsx } from "clsx";
-import { ICON_CLASS_NAME } from "../constants/icon";
+import { Icon, resolveIcon, type IconValue } from "../icons/registry";
 import { Variant } from "../types";
 import { NestedParent } from "./types";
 import { useNestedParent } from "./context";
@@ -24,7 +23,7 @@ export interface TreeOption {
   disabled?: boolean;
   variant?: Variant;
   color?: string;
-  icon?: React.ReactNode;
+  icon?: IconValue;
 }
 
 export interface NestedCheckboxTreeProps {
@@ -173,7 +172,7 @@ export function NestedCheckboxTree({
               "flex items-center rounded-xs leading-none",
               "relative min-h-7 min-w-0 px-1.25 py-1 pl-7.5 text-sm outline-hidden select-none",
               "data-disabled:pointer-events-none",
-              "responsive highlight-list-item",
+              "variant-scope highlight-list-item",
               option.color ? "custom-color" : (option.variant ?? variant),
             )}
             style={
@@ -199,7 +198,7 @@ export function NestedCheckboxTree({
               tabIndex={0}
               className={clsx(
                 "absolute top-1/2 left-1 grid -translate-y-1/2 cursor-pointer place-items-center",
-                "responsive check-indicator",
+                "variant-scope check-indicator",
                 option.color ? "custom-color" : (option.variant ?? variant),
               )}
               onClick={(e) => {
@@ -216,15 +215,15 @@ export function NestedCheckboxTree({
               }}
             >
               <span className="icon-slot">
-                {option.icon ||
+                {resolveIcon(option.icon) ||
                   (() => {
                     if (state === CheckboxState.Checked) {
-                      return <IconCheck className={ICON_CLASS_NAME} />;
+                      return <Icon name="selected" />;
                     }
                     if (state === CheckboxState.Indeterminate) {
-                      return <IconMinus className={ICON_CLASS_NAME} />;
+                      return <Icon name="selection-indeterminate" />;
                     }
-                    return <IconPoint className={ICON_CLASS_NAME} />;
+                    return <Icon name="unselected" />;
                   })()}
               </span>
             </div>
@@ -232,17 +231,17 @@ export function NestedCheckboxTree({
             <div
               className={clsx(
                 "ml-auto inline-flex shrink-0 items-center justify-center pl-5",
-                "responsive text-variant",
+                "variant-scope text-variant",
                 option.variant ?? variant,
               )}
             >
-              <IconChevronRight className={clsx(ICON_CLASS_NAME, "shrink-0")} />
+              <Icon name="submenu" className="shrink-0" />
             </div>
           </SubTriggerComponent>
           <PortalComponent>
             <SubContentComponent
               className={clsx(
-                "responsive card dropdown-content",
+                "variant-scope card-overlay dropdown-content",
                 "min-w-55 p-0.5",
                 option.variant ?? variant,
               )}
@@ -278,7 +277,7 @@ export function NestedCheckboxTree({
             "group/item flex items-center rounded-xs leading-none",
             "relative min-h-7 min-w-0 px-1.25 py-1 pl-7.5 text-sm outline-hidden select-none",
             "data-disabled:pointer-events-none",
-            "responsive highlight-list-item",
+            "variant-scope highlight-list-item",
             option.color ? "custom-color" : (option.variant ?? variant),
           )}
         >
@@ -286,16 +285,16 @@ export function NestedCheckboxTree({
             forceMount
             className={clsx(
               "absolute top-1/2 left-1 grid -translate-y-1/2 place-items-center",
-              "responsive check-indicator",
+              "variant-scope check-indicator",
               option.color ? "custom-color" : (option.variant ?? variant),
             )}
           >
             <span className="icon-slot">
-              {option.icon ||
+              {resolveIcon(option.icon) ||
                 (state === CheckboxState.Checked ? (
-                  <IconCheck className={ICON_CLASS_NAME} />
+                  <Icon name="selected" />
                 ) : (
-                  <IconPoint className={ICON_CLASS_NAME} />
+                  <Icon name="unselected" />
                 ))}
             </span>
           </ItemIndicatorComponent>

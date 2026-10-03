@@ -18,6 +18,7 @@ import { useNumeric } from "../hooks/use-numeric";
 import { NumericStatus, formatDisplayValue } from "../hooks/numeric-utils";
 import { Size, Variant } from "../types";
 import { NumberFieldProps } from "./number-field";
+import { unitsSuffixWidth } from "./units-suffix";
 
 enableBoundaryChecking(false);
 
@@ -126,6 +127,7 @@ const InnerSliderNumberField = forwardRef(
     const {
       textValue,
       status,
+      dirty,
       onChange: onChangeInner,
       onChangeDirect,
       onBlur,
@@ -137,9 +139,12 @@ const InnerSliderNumberField = forwardRef(
       enforceLimits: strictText,
     });
 
-    // See number-field.tsx for the React 19 max-update-depth rationale.
+    // Show local text only while focused AND edited; otherwise render the
+    // live value so a moving playhead stays visible and a focus-without-edit
+    // blur can't revert it. See number-field.tsx for the full rationale
+    // (and the React 19 max-update-depth history).
     const displayedTextValue =
-      focusState === FocusState.Focused ? textValue : formatDisplayValue(value, 2);
+      focusState === FocusState.Focused && dirty ? textValue : formatDisplayValue(value, 2);
 
     useEffect(() => {
       onStatusChange?.(status);
@@ -335,7 +340,7 @@ const InnerSliderNumberField = forwardRef(
           } as CSSProperties
         }
         className={clsx(
-          "responsive isolate touch-none",
+          "variant-scope isolate touch-none",
           effectiveColor ? "custom-color" : effectiveVariant,
           "group/input-wrapper px-0.5 py-0 select-none",
           label && units && "input-label-field-units-grid",
@@ -389,7 +394,7 @@ const InnerSliderNumberField = forwardRef(
                 "group-has-focus/input-wrapper:bg-neutral-900/20",
               focusState !== FocusState.FocusedLabel ? "cursor-ew-resize" : "cursor-text",
               labelFallbackColorClass,
-              "responsive grid-area-label sized-text place-items-center rounded-[1px] text-left",
+              "variant-scope grid-area-label sized-text place-items-center rounded-[1px] text-left",
               "sized-inner-group-item variant-text-caret-color font-mono",
               "focus:outline-none",
 
@@ -409,7 +414,7 @@ const InnerSliderNumberField = forwardRef(
           readOnly={focusState !== FocusState.Focused}
           onChange={onChangeInner}
           className={clsx(
-            "responsive grid-area-input-field w-full min-w-0",
+            "variant-scope grid-area-input-field w-full min-w-0",
             "focus:outline-hidden",
             "disabled:cursor-not-allowed",
             focusState !== FocusState.Focused ? "cursor-ew-resize" : "cursor-text",
@@ -458,12 +463,12 @@ const InnerSliderNumberField = forwardRef(
             value={units}
             readOnly
             style={{
-              width: `${(units.length + 2).toString()}ch`,
+              width: unitsSuffixWidth(units),
             }}
             className={clsx(
               effectiveVariant,
               size,
-              "grid-area-input-units pr-2 pl-0.5 text-right select-none",
+              "grid-area-input-units truncate pr-2 pl-0.5 text-right select-none",
               "sized-text pointer-events-none grid place-items-center",
               "sized-height flex-none font-mono",
               unitsFallbackColorClass,

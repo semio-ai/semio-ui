@@ -11,7 +11,9 @@ export interface TabbedModalProps {
   title?: string | ReactNode;
   description?: string | ReactNode;
   headerBottom?: ReactNode;
+  footerStatus?: ReactNode;
   dismissDisabled?: boolean;
+  showDisabledClose?: boolean;
   submitDisabled?: boolean;
   submitText?: string;
   onStateChange: (open: boolean) => void;
@@ -22,6 +24,8 @@ export interface TabbedModalProps {
   variant?: Variant;
   /** See `Modal.closeOnSubmitClick`. Forwarded as-is. */
   closeOnSubmitClick?: boolean;
+  /** Custom container for the dialog portal. Defaults to `document.body`. */
+  portalContainer?: HTMLElement | null;
 }
 
 /**
@@ -91,7 +95,9 @@ export function TabbedModal({
   title,
   description,
   headerBottom,
+  footerStatus,
   dismissDisabled = false,
+  showDisabledClose = false,
   submitDisabled,
   submitText = "Submit",
   onStateChange,
@@ -101,6 +107,7 @@ export function TabbedModal({
   onCancel,
   variant,
   closeOnSubmitClick,
+  portalContainer,
 }: TabbedModalProps) {
   const { childrenTabs } = useTabsState(children, selected, undefined, "No tabs");
 
@@ -134,7 +141,9 @@ export function TabbedModal({
         title={title}
         description={description}
         headerBottom={combinedHeaderBottom}
+        footerStatus={footerStatus}
         dismissDisabled={dismissDisabled}
+        showDisabledClose={showDisabledClose}
         submitDisabled={submitDisabled}
         submitText={submitText}
         onStateChange={onStateChange}
@@ -142,6 +151,7 @@ export function TabbedModal({
         onCancel={onCancel}
         variant={variant}
         closeOnSubmitClick={closeOnSubmitClick}
+        portalContainer={portalContainer}
       >
         {tabsContent}
       </Modal>
