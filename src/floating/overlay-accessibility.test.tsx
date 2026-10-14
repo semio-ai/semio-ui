@@ -53,8 +53,9 @@ async function openMenu(entry: OverlayEntry, select = true) {
     fireEvent.keyDown(submenu, { key: "ArrowRight" });
   }
   const role = entry === OverlayEntry.Popover ? "button" : "menuitem";
-  await waitFor(() => expect(screen.getByRole(role, { name: "New entity" })).toBeTruthy());
-  if (select) fireEvent.click(screen.getByRole(role, { name: "New entity" }));
+  const item = await screen.findByRole(role, { name: "New entity" });
+  if (select) fireEvent.click(item);
+  return item;
 }
 
 test.each(Object.values(OverlayEntry))(
@@ -68,6 +69,25 @@ test.each(Object.values(OverlayEntry))(
     await openMenu(entry, false);
     expect(container.getAttribute("aria-hidden")).toBeNull();
     expect(screen.getByRole("button", { name: "Scene row" })).toBeTruthy();
+  },
+);
+
+test.each([OverlayEntry.Dropdown, OverlayEntry.ContextMenu, OverlayEntry.CanvasMenu])(
+  "%s dismisses and runs the background action on the first outside click",
+  async (entry) => {
+    render(<OverlayAccessibilityFixture entry={entry} />);
+    await openMenu(entry, false);
+    expect(screen.getByRole("menu")).toBeTruthy();
+    expect(screen.getByRole("status", { name: "Scene actions" }).textContent).toBe("0");
+    // Radix installs its document pointer listener on the next task.
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    const row = screen.getByRole("button", { name: "Scene row" });
+    fireEvent.pointerDown(row, { pointerType: "mouse", button: 0 });
+    fireEvent.pointerUp(row, { pointerType: "mouse", button: 0 });
+    fireEvent.click(row);
+    await waitFor(() => expect(screen.queryByRole("menu")).toBeNull());
+    expect(screen.getByRole("status", { name: "Scene actions" }).textContent).toBe("1");
+    expect(screen.queryByRole("dialog")).toBeNull();
   },
 );
 
@@ -111,7 +131,7 @@ for (const surface of Object.values(DialogSurface)) {
   });
 
   test.each(Object.values(OverlayEntry))(
-    `${surface} → %s keeps modal isolation and restores the accessible app`,
+    `${surface} → %s → inner modal restores each dialog's background after closing`,
     async (entry) => {
       const { container } = render(
         <StrictMode>
@@ -123,7 +143,28 @@ for (const surface of Object.values(DialogSurface)) {
         const dialog = screen.getByRole("dialog", { name: "Add Entity" });
         expect(dialog.contains(document.activeElement)).toBe(true);
       });
-      await openMenu(entry);
+      expect(container.getAttribute("aria-hidden")).toBe("true");
+      expect(screen.queryByRole("button", { name: "Scene row" })).toBeNull();
+      expect(screen.getByRole("button", { name: "Outer dialog action" })).toBeTruthy();
+      const item = await openMenu(entry, false);
+      expect(screen.queryByRole("button", { name: "Outer dialog action" })).not.toBeNull();
+      expect(screen.queryByRole("button", { name: "Scene row" })).toBeNull();
+      expect(container.getAttribute("aria-hidden")).toBe("true");
+      fireEvent.click(item);
+      await waitFor(() => expect(screen.getByRole("dialog", { name: "New Entity" })).toBeTruthy());
+      await waitFor(() => expect(screen.queryByRole("menu")).toBeNull());
+      expect(screen.queryByRole("button", { name: "Outer dialog action" })).toBeNull();
+      expect(screen.queryByRole("dialog", { name: "Add Entity" })).toBeNull();
+      expect(container.getAttribute("aria-hidden")).toBe("true");
+      fireEvent.click(screen.getByRole("button", { name: "Toggle options" }));
+      fireEvent.click(await screen.findByRole("option", { name: "Model" }));
+      await waitFor(() => expect(screen.queryByRole("listbox")).toBeNull());
+      fireEvent.click(screen.getByRole("button", { name: "Create" }));
+      await waitFor(() => expect(screen.queryByRole("dialog", { name: "New Entity" })).toBeNull());
+      await waitFor(() => expect(screen.getByRole("dialog", { name: "Add Entity" })).toBeTruthy());
+      expect(screen.getByRole("button", { name: "Outer dialog action" })).toBeTruthy();
+      expect(container.getAttribute("aria-hidden")).toBe("true");
+      expect(screen.queryByRole("button", { name: "Scene row" })).toBeNull();
       await pickModelAndClose(container);
     },
   );

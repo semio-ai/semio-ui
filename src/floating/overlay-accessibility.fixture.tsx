@@ -110,11 +110,33 @@ export function OverlayAccessibilityFixture({
   inside?: boolean;
 }) {
   const [open, setOpen] = useState(false);
+  const [innerOpen, setInnerOpen] = useState(false);
   const [picked, setPicked] = useState<string | null>(null);
+  const [innerPicked, setInnerPicked] = useState<string | null>(null);
+  const [sceneActions, setSceneActions] = useState(0);
   const launcher = <OverlayLauncher entry={entry} onLaunch={() => setOpen(true)} />;
   const content = (
     <>
-      {inside && <OverlayLauncher entry={entry} onLaunch={() => {}} />}
+      {inside && (
+        <>
+          <button type="button">Outer dialog action</button>
+          <OverlayLauncher entry={entry} onLaunch={() => setInnerOpen(true)} />
+          <ModalOverlay
+            open={innerOpen}
+            title="New Entity"
+            onStateChange={setInnerOpen}
+            onSubmit={() => setInnerOpen(false)}
+            submitText="Create"
+          >
+            <Combobox
+              value={innerPicked}
+              onChange={setInnerPicked}
+              options={[{ label: "Model", value: "model" }]}
+              placeholder="Pick model"
+            />
+          </ModalOverlay>
+        </>
+      )}
       <Combobox
         value={picked}
         onChange={setPicked}
@@ -125,11 +147,19 @@ export function OverlayAccessibilityFixture({
   );
   return (
     <>
-      {!inside && launcher}
-      <button type="button">Scene row</button>
-      <button type="button" onClick={() => setOpen(true)}>
-        Direct dialog
-      </button>
+      {/* Keep the background action outside the launcher's popup geometry. */}
+      <div className="flex min-h-96 flex-col items-start justify-between">
+        {!inside && launcher}
+        <div>
+          <button type="button" onClick={() => setSceneActions((count) => count + 1)}>
+            Scene row
+          </button>
+          <output aria-label="Scene actions">{sceneActions}</output>
+          <button type="button" onClick={() => setOpen(true)}>
+            Direct dialog
+          </button>
+        </div>
+      </div>
       {surface === DialogSurface.Modal ? (
         <ModalOverlay
           open={open}
