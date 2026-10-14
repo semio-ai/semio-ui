@@ -10,7 +10,7 @@ import {
 } from "./overlay-accessibility.fixture";
 
 beforeEach(async () => {
-  // Sidebar panels and Radix submenus require the desktop responsive branch.
+  // Sidebar panels and Radix submenus render only in the desktop layout.
   await page.viewport(1280, 800);
   await expect
     .poll(() => {
