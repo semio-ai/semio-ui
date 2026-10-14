@@ -297,3 +297,35 @@ test("sibling and action icons resolve through the consumer's registry", async (
     expect(row.element().querySelector('[data-testid="consumer-project-icon"]')).not.toBeNull();
   }
 });
+
+test("reserved section labels keep the same split-control width on listings and details", async () => {
+  const section = (label: string): BreadcrumbTrailItem => ({
+    id: "section",
+    label,
+    labelWidth: 112,
+    href: "/projects",
+    switcher: { label: "Switch section", value: label, options: [], onSelect: vi.fn() },
+  });
+  const view = await render(<BreadcrumbTrail items={[section("Home")]} />);
+  for (const name of ["Home", "Projects", "Assets", "Devices", "Organizations"]) {
+    await view.rerender(<BreadcrumbTrail items={[section(name)]} />);
+    const label = page
+      .getByRole("button", { name: `Switch section: ${name}`, exact: true })
+      .element()
+      .getBoundingClientRect();
+    const arrow = page
+      .getByRole("button", { name: "Switch section menu", exact: true })
+      .element()
+      .getBoundingClientRect();
+    expect(label.width).toBe(112);
+    expect(arrow.left - label.right).toBe(2);
+    expect(arrow.width).toBe(28);
+  }
+  await view.rerender(
+    <BreadcrumbTrail items={[section("Projects"), item({ onRename: vi.fn() })]} />,
+  );
+  expect(
+    page.getByRole("link", { name: "Projects", exact: true }).element().getBoundingClientRect()
+      .width,
+  ).toBe(112);
+});

@@ -174,3 +174,7 @@ renders at most 50 matches; `browse` provides a destination for the full listing
 Sibling choices and browse actions accept optional `icon` values; editable crumbs
 accept `renameIcon`. These use the same registry-key or element slots as other UI
 controls. Consumers choose domain icons and provide their registry overrides.
+
+`labelWidth` reserves a label width in pixels and renders its sibling trigger as
+a separate adjacent segment, including on the current page. This lets consumers
+keep predefined navigation choices the same width on listing and detail pages.

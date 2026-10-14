@@ -19,6 +19,8 @@ export interface BreadcrumbSibling {
 export interface BreadcrumbTrailItem {
   id: string;
   label: string;
+  /** Reserved label width in pixels, independent of the sibling-menu button. */
+  labelWidth?: number;
   href?: string;
   onNavigate?: () => void;
   node?: ReactNode;
@@ -57,6 +59,15 @@ function BreadcrumbLevel({
   const optionsRef = useRef<HTMLDivElement>(null);
   const switcher = item.switcher;
   const editableSwitcher = current && switcher && item.onRename && !item.node;
+  const splitSwitcher = switcher && item.labelWidth !== undefined && !item.node;
+  const showTriggerLabel = current && !editing && !item.node && !splitSwitcher;
+  const labelStyle =
+    item.labelWidth === undefined
+      ? undefined
+      : {
+          width: item.labelWidth,
+          minWidth: item.labelWidth,
+        };
 
   useEffect(() => {
     if (!open || !switcher?.searchable) return;
@@ -125,6 +136,7 @@ function BreadcrumbLevel({
     <a
       href={item.href}
       className={labelClass}
+      style={labelStyle}
       onClick={(event) => {
         if (!item.onNavigate || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey)
           return;
@@ -138,7 +150,8 @@ function BreadcrumbLevel({
     <button
       type="button"
       className={labelClass}
-      aria-label={switcher.label}
+      style={labelStyle}
+      aria-label={`${switcher.label}: ${item.label}`}
       aria-haspopup="menu"
       aria-expanded={open}
       onClick={() => setOpen(true)}
@@ -150,7 +163,9 @@ function BreadcrumbLevel({
       {item.label}
     </button>
   ) : (
-    <span className={labelClass}>{item.label}</span>
+    <span className={labelClass} style={labelStyle}>
+      {item.label}
+    </span>
   );
 
   return (
@@ -159,12 +174,12 @@ function BreadcrumbLevel({
         size,
         "sized-text flex min-w-0 items-center rounded-xs",
         editableSwitcher && "w-52 max-w-full",
-        !current && switcher && "gap-0.5",
+        switcher && (!current || splitSwitcher) && "gap-0.5",
       )}
       aria-current={current ? "page" : undefined}
     >
       {!editableSwitcher &&
-        (!switcher || !current || editing || item.node) &&
+        (!switcher || !current || editing || item.node || splitSwitcher) &&
         (!current && switcher ? <span className="hidden desktop:contents">{label}</span> : label)}
       {switcher && (
         <Dropdown
@@ -202,30 +217,33 @@ function BreadcrumbLevel({
                 visuals="inverted"
                 title={item.label}
                 altText={
-                  current && !editing && !item.node
-                    ? `${switcher.label}: ${item.label}`
-                    : `${switcher.label} menu`
+                  showTriggerLabel ? `${switcher.label}: ${item.label}` : `${switcher.label} menu`
                 }
-                rightIcon={current ? "select-indicator" : undefined}
+                rightIcon={showTriggerLabel ? "select-indicator" : undefined}
                 leftIcon={
-                  !current ? (
-                    <span className="grid h-full w-full place-items-center">
-                      <span className="desktop:hidden">…</span>
-                      <span className="hidden h-full w-full place-items-center desktop:grid">
-                        <Icon name="select-indicator" />
+                  !showTriggerLabel ? (
+                    current ? (
+                      "select-indicator"
+                    ) : (
+                      <span className="grid h-full w-full place-items-center">
+                        <span className="desktop:hidden">…</span>
+                        <span className="hidden h-full w-full place-items-center desktop:grid">
+                          <Icon name="select-indicator" />
+                        </span>
                       </span>
-                    </span>
+                    )
                   ) : undefined
                 }
                 className={clsx(
                   "min-w-0",
-                  !current &&
-                    "rounded-xs bg-neutral-500/10 hover:bg-neutral-500/25 desktop:!rounded-l-none",
-                  current &&
+                  !showTriggerLabel && "rounded-xs bg-neutral-500/10 hover:bg-neutral-500/25",
+                  !current && "desktop:!rounded-l-none",
+                  splitSwitcher && current && "!rounded-l-none",
+                  showTriggerLabel &&
                     "flex-1 !flex overflow-hidden [&>div:first-child]:min-w-0 [&>div:first-child]:flex-1 [&>div:last-child]:shrink-0",
                 )}
               >
-                {current && !editing && !item.node ? (
+                {showTriggerLabel ? (
                   <span className="block w-full min-w-0 truncate">{item.label}</span>
                 ) : undefined}
               </Button>
