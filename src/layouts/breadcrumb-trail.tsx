@@ -3,6 +3,7 @@ import { clsx } from "clsx";
 import { Button } from "../buttons/button";
 import { Dropdown } from "../floating/dropdown";
 import { NestedItem } from "../nested-elements/item";
+import { NestedSeparator } from "../nested-elements/separator";
 import { NestedLabel } from "../nested-elements/label";
 import { NestedRadio } from "../nested-elements/radio";
 import { TextField } from "../inputs/text-field";
@@ -255,6 +256,7 @@ function BreadcrumbLevel({
             </div>
           }
         >
+          {switcher.searchable && <NestedSeparator />}
           <div ref={optionsRef}>
             {switcher.loading ? (
               <p role="status" className="p-2 text-sm">
@@ -292,15 +294,18 @@ function BreadcrumbLevel({
             </NestedItem>
           )}
           {switcher.browse && (
-            <NestedItem
-              left={switcher.browse.icon}
-              onClick={() => {
-                setOpen(false);
-                switcher.browse?.onSelect();
-              }}
-            >
-              {switcher.browse.label}
-            </NestedItem>
+            <>
+              <NestedSeparator />
+              <NestedItem
+                left={switcher.browse.icon}
+                onClick={() => {
+                  setOpen(false);
+                  switcher.browse?.onSelect();
+                }}
+              >
+                {switcher.browse.label}
+              </NestedItem>
+            </>
           )}
         </Dropdown>
       )}

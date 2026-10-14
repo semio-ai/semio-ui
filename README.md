@@ -164,9 +164,8 @@ or `onRename` callback. Routes, data fetching and permission checks belong to th
 consumer. The existing tree-based `Breadcrumbs` API remains available.
 
 On mobile, ancestor labels with sibling menus collapse into an overflow trigger.
-Consumers should include a listing destination in that menu when returning to
-the ancestor must remain available. Ancestor labels navigate independently of
-their menu chevrons on desktop. A current label
+Consumers should keep the ancestor destination available in that menu. Ancestor
+labels navigate independently of their menu chevrons on desktop. A current label
 opens its sibling menu. With `onRename`, double-click or the Rename menu action
 opens a text field: Enter or blur commits a nonempty trimmed name, and Escape
 cancels. Read-only consumers omit `onRename`. Search filters supplied options and

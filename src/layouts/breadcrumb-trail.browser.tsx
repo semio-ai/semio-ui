@@ -288,6 +288,7 @@ test("sibling and action icons resolve through the consumer's registry", async (
     </IconProvider>,
   );
   await page.getByRole("button", { name: /^Switch project:/ }).click();
+  expect(page.getByRole("separator").elements()).toHaveLength(2);
   for (const row of [
     page.getByRole("menuitemradio", { name: "Project A", exact: true }),
     page.getByRole("menuitem", { name: "Rename", exact: true }),
