@@ -382,3 +382,17 @@ test.each([false, true])(
     expect(last.getBoundingClientRect().left - first.getBoundingClientRect().right).toBe(2);
   },
 );
+
+
+test("project choices have equal spacing between their surrounding dividers", async () => {
+  const current = item();
+  current.switcher!.browse = { label: "View All Projects", onSelect: vi.fn() };
+  await render(<BreadcrumbTrail items={[current]} />);
+  await page.getByRole("button", { name: /^Switch Project:/ }).click();
+  const separators = Array.from(document.querySelectorAll('[role="separator"]'));
+  const rows = page.getByRole("menuitemradio").elements();
+  const above = rows[0].getBoundingClientRect().top - separators[0].getBoundingClientRect().bottom;
+  const below = separators[1].getBoundingClientRect().top - rows[rows.length - 1].getBoundingClientRect().bottom;
+  expect(above).toBe(5);
+  expect(below).toBe(above);
+});

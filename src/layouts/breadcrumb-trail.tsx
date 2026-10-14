@@ -252,7 +252,7 @@ function BreadcrumbLevel({
             )
           }
           header={
-            <div className="flex flex-col gap-2 px-2 pt-2 pb-1">
+            <div className="flex flex-col gap-2 px-2 pt-2 pb-px">
               <NestedLabel>{switcher.label}</NestedLabel>
               {switcher.searchable && (
                 <TextField
@@ -276,11 +276,7 @@ function BreadcrumbLevel({
             </div>
           }
         >
-          {switcher.searchable && (
-            <div className="[&>[role=separator]]:my-0.5">
-              <NestedSeparator />
-            </div>
-          )}
+          {switcher.searchable && <NestedSeparator />}
           <div ref={optionsRef}>
             {switcher.loading ? (
               <p role="status" className="p-2 text-sm">
