@@ -28,7 +28,9 @@ function ContextMenu({
 }: ContextMenuProps) {
   return (
     <NestedParentProvider value={NestedParent.Context}>
-      <ContextMenuPrimitive.Root onOpenChange={onOpenChange}>
+      {/* Dialogs own background hiding so a menu can open one, or live inside
+          one, without competing with Base UI's aria-hidden counter. */}
+      <ContextMenuPrimitive.Root modal={false} onOpenChange={onOpenChange}>
         {/* `disabled` MUST be forwarded to Radix's Trigger, not handled by
             short-circuiting this component to a different element. Swapping the
             tree (e.g. returning a plain <span> when disabled) unmounts the

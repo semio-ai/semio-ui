@@ -105,6 +105,15 @@ relying on the caption alone.
 `Modal` gives initial focus to the rightmost enabled footer action. With no
 available footer action, it retains the dialog primitive's default focus behavior.
 
+`Dropdown`, `ContextMenu`, and TooltipHost's interactive canvas overlays use
+nonmodal Radix menus. They retain menu keyboard navigation, focus on opening,
+and dismissal, while allowing focus and interaction outside the menu. Background
+content remains accessible while only a menu is open. `Popover` is also nonmodal.
+Base UI's `Modal` and `SidebarModal` own background hiding for dialogs and their
+child comboboxes. This avoids overlapping Radix and Base UI `aria-hidden`
+counters preserving each other's hidden state after dismissal. Public component
+props are unchanged; consumers do not need to defer a dialog opened by a menu.
+
 **Artwork and attribution.** Solar artwork is by 480 Design under CC BY 4.0, and
 the `@solar-icons/react-perf` components that render it are MIT. That package is
 a dependency: external in the ESM build, and bundled into the CommonJS build

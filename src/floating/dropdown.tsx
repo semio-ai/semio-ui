@@ -109,7 +109,10 @@ const Dropdown = forwardRef(
 
     return (
       <NestedParentProvider value={NestedParent.Dropdown}>
-        <DropdownPrimitive.Root open={actualOpen} onOpenChange={handleOpenChange}>
+        {/* Menus must not own background hiding: Base UI dialogs and their
+            comboboxes manage it with a separate counter. Overlapping owners can
+            preserve each other's aria-hidden after both overlays close. */}
+        <DropdownPrimitive.Root modal={false} open={actualOpen} onOpenChange={handleOpenChange}>
           <DropdownPrimitive.Trigger
             ref={ref}
             asChild

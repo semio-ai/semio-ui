@@ -43,6 +43,9 @@ function InteractiveOverlayInstance({ anchor, position }: OverlayInstanceProps) 
 
   const dropdown = (
     <DropdownPrimitive.Root
+      // Interactive canvas overlays share the nonmodal menu policy: dialogs
+      // own background hiding, including when a menu action opens a dialog.
+      modal={false}
       open
       onOpenChange={(open) => {
         if (!open) dismissOverlay(anchor.id);
