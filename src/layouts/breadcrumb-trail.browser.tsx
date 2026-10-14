@@ -234,6 +234,24 @@ test("grouped controls keep square shared corners and a stable rename footprint"
       .element()
       .getBoundingClientRect().height,
   ).toBe(before.height);
+  const sectionArrow = page
+    .getByRole("button", { name: "Switch section menu", exact: true })
+    .element();
+  const sectionRect = sectionArrow.getBoundingClientRect();
+  const linkRect = page
+    .getByRole("link", { name: "Projects", exact: true })
+    .element()
+    .getBoundingClientRect();
+  expect(sectionRect.left - linkRect.right).toBe(2);
+  expect(getComputedStyle(sectionArrow).borderTopLeftRadius).toBe("0px");
+  expect(parseFloat(getComputedStyle(sectionArrow).borderTopRightRadius)).toBeGreaterThan(0);
+  const iconRect = sectionArrow.querySelector("svg")!.getBoundingClientRect();
+  expect(
+    Math.abs(iconRect.left + iconRect.width / 2 - sectionRect.left - sectionRect.width / 2),
+  ).toBeLessThan(0.5);
+  expect(
+    Math.abs(iconRect.top + iconRect.height / 2 - sectionRect.top - sectionRect.height / 2),
+  ).toBeLessThan(0.5);
   const nav = page.getByRole("navigation", { name: "Breadcrumb", exact: true });
   const trailBefore = nav.element().getBoundingClientRect();
   const arrow = page.getByRole("button", { name: /^Switch project:/ });

@@ -156,6 +156,7 @@ function BreadcrumbLevel({
         size,
         "sized-text flex min-w-0 items-center rounded-xs",
         editableSwitcher && "w-52 max-w-full",
+        !current && switcher && "gap-0.5",
       )}
       aria-current={current ? "page" : undefined}
     >
@@ -205,9 +206,9 @@ function BreadcrumbLevel({
                 rightIcon={current ? "select-indicator" : undefined}
                 leftIcon={
                   !current ? (
-                    <span>
+                    <span className="grid h-full w-full place-items-center">
                       <span className="desktop:hidden">…</span>
-                      <span className="hidden desktop:inline-flex">
+                      <span className="hidden h-full w-full place-items-center desktop:grid">
                         <Icon name="select-indicator" />
                       </span>
                     </span>
@@ -215,7 +216,8 @@ function BreadcrumbLevel({
                 }
                 className={clsx(
                   "min-w-0",
-                  !current && "bg-neutral-500/10 hover:bg-neutral-500/25 desktop:!rounded-l-none",
+                  !current &&
+                    "rounded-xs bg-neutral-500/10 hover:bg-neutral-500/25 desktop:!rounded-l-none",
                   current &&
                     "flex-1 !flex overflow-hidden [&>div:first-child]:min-w-0 [&>div:first-child]:flex-1 [&>div:last-child]:shrink-0",
                 )}
