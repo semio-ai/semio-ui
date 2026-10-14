@@ -1,3 +1,4 @@
+import { Result } from "@semio/utils";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import {
   type ToastData,
@@ -5,8 +6,11 @@ import {
   Variant,
   ToastManager,
   useAddToast,
+  ToastContext,
+  Button,
+  Size,
 } from "@semio/ui";
-import { type ReactElement, type ReactNode } from "react";
+import { type ReactElement, type ReactNode, useContext, useEffect } from "react";
 
 const meta: Meta<typeof ToastManager> = {
   component: ToastManager,
@@ -80,6 +84,94 @@ export const Primary: Story = {
   name: "Toast Manager",
 };
 
+const exampleToasts: ToastData[] = [
+  {
+    id: "save-error",
+    title: "Project save failed",
+    content: "Your changes are still here. Try saving again.",
+    variant: Variant.Error,
+    clipboardContent: JSON.stringify(
+      {
+        operation: "save-project",
+        error: { name: "DriverError", kind: "no-response", message: "Save was not confirmed." },
+        session: "anonymous",
+        pane: "Devices",
+        build: "storybook-example",
+      },
+      null,
+      2,
+    ),
+    dismiss: 60000,
+  },
+  {
+    id: "device-warning",
+    title: "Device connection failed",
+    content: "The device did not respond. Check its connection and try again.",
+    variant: Variant.Warning,
+    clipboardContent:
+      "Operation: connect-device\nError: Connection timed out\nBuild: storybook-example",
+    dismiss: 60000,
+  },
+  {
+    id: "save-success",
+    title: "Project saved",
+    content: "Your changes have been saved.",
+    variant: Variant.Success,
+    dismiss: 60000,
+  },
+];
+
+function ClipboardExamplesContent({
+  toasts = exampleToasts,
+  heading = "Toast clipboard proposal",
+}: {
+  toasts?: ToastData[];
+  heading?: string;
+}) {
+  const { addToast, clear } = useContext(ToastContext);
+  useEffect(() => {
+    toasts.forEach(addToast);
+    return clear;
+  }, [addToast, clear, toasts]);
+  return (
+    <div className="min-h-screen w-full p-6 text-neutral-800 dark:text-neutral-200">
+      <h1 className="text-lg font-medium">{heading}</h1>
+      <p className="mt-2 max-w-sm text-sm text-neutral-600 dark:text-neutral-400">
+        Errors and warnings can offer copyable details. Ordinary notifications keep their simple
+        layout.
+      </p>
+      <div className="mt-4">
+        <Button
+          size={Size.Sm}
+          onClick={() => {
+            clear();
+            toasts.forEach(addToast);
+          }}
+        >
+          Show examples again
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+/** Long durations keep this comparison available for visual review. */
+export const ClipboardExamples: Story = {
+  render: () => (
+    <ToastManager>
+      <ClipboardExamplesContent />
+    </ToastManager>
+  ),
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "Optional `clipboardContent` adds an outlined clipboard icon beside Close. Copying leaves the toast open, confirms success, and permits retry after failure. These examples stay for 60 seconds; payload-bearing toasts normally stay for 10 seconds.",
+      },
+    },
+  },
+};
+
 function getRandomVariant(): Variant {
   const variants: Variant[] = [
     Variant.Success,
@@ -110,3 +202,45 @@ function getRandomTitleContent(): [string, string | undefined] {
   const index = Math.floor(Math.random() * titles.length);
   return [titles[index], contents[index]];
 }
+
+const genericActionToasts: ToastData[] = [
+  {
+    id: "export-actions",
+    title: "Export ready",
+    content: "Choose what to do with this export.",
+    variant: Variant.Info,
+    dismiss: 60000,
+    actionMenu: {
+      icon: "menu2",
+      label: "Export actions",
+      items: [
+        {
+          id: "copy-id",
+          label: "Copy export ID",
+          icon: "copy",
+          onSelect: async () => {
+            try {
+              await navigator.clipboard.writeText("example-export");
+              return Result.Ok<string, string>("Export ID copied.");
+            } catch {
+              return Result.Err<string, string>("Could not copy the export ID.");
+            }
+          },
+        },
+        {
+          id: "prepare",
+          label: "Prepare export",
+          onSelect: () => Result.Ok<string, string>("Export prepared."),
+        },
+      ],
+    },
+  },
+];
+
+export const ActionMenuExample: Story = {
+  render: () => (
+    <ToastManager>
+      <ClipboardExamplesContent toasts={genericActionToasts} heading="Toast action menu" />
+    </ToastManager>
+  ),
+};

@@ -21,6 +21,10 @@ export interface DialogProps {
   onSubmit?: (event: MouseEvent | KeyboardEvent) => void | Promise<void>;
   onCancel?: (event: MouseEvent | KeyboardEvent) => void;
   variant?: Variant;
+  /** Fixed medium width for report-like dialogs; default retains content sizing. */
+  size?: "content" | "medium";
+  /** Replaces the standard cancel/submit footer. Buttons here do not automatically close the dialog. */
+  footer?: ReactNode;
   /**
    * Whether clicking the submit button should close the dialog
    * immediately. Default `true` — wraps the submit button in
@@ -50,7 +54,7 @@ export interface DialogProps {
  * - **Body** is rendered only when `children` is truthy. When absent (the
  *   common confirmation-only case), the empty padded area is skipped and
  *   no body-adjacent dividers are drawn.
- * - **Footer** is rendered when `onCancel` or `onSubmit` is set. It gets a
+ * - **Footer** is rendered when `footer`, `onCancel` or `onSubmit` is set. It gets a
  *   `border-t` only when a body sits above it; otherwise the header's
  *   `border-b` already separates them and a second hairline would read as
  *   a double line.
@@ -92,6 +96,8 @@ export function Dialog({
   variant,
   closeOnSubmitClick = true,
   portalContainer,
+  size = "content",
+  footer,
 }: DialogProps) {
   const submitButton = onSubmit && (
     <Button
@@ -112,7 +118,7 @@ export function Dialog({
     </Button>
   );
   const hasBody = Boolean(children);
-  const hasFooter = Boolean(onCancel || submitButton);
+  const hasFooter = Boolean(footer || onCancel || submitButton);
   return (
     <AlertDialog.Root open={open} onOpenChange={onStateChange}>
       <AlertDialog.Portal container={portalContainer ?? undefined}>
@@ -133,12 +139,13 @@ export function Dialog({
               "card animated-modal",
               // Cap to the viewport so a long title can't push the dialog (and
               // its close button) off-screen; the title then clips instead.
-              "h-fit max-h-screen w-fit max-w-[calc(100vw-1rem)]",
+              "h-fit max-h-[calc(100dvh-1rem)] max-w-[calc(100vw-1rem)]",
+              size === "medium" ? "w-[36rem]" : "w-fit",
             )}
           >
             <div
               className={clsx(
-                "flex flex-col gap-1 p-3",
+                "flex shrink-0 flex-col gap-1 p-3",
                 // Header gets a bottom divider only when something follows
                 // it. A solo header (no body, no footer — uncommon) reads
                 // cleaner without a dangling underline.
@@ -177,36 +184,40 @@ export function Dialog({
             </div>
 
             {hasBody && (
-              <div className="flex-1 p-3 text-black md:flex-none dark:text-white">{children}</div>
+              <div className="min-h-0 overflow-auto p-3 text-black dark:text-white">{children}</div>
             )}
 
             {hasFooter && (
               <div
                 className={clsx(
-                  "flex flex-row justify-end gap-3 p-3",
+                  "flex shrink-0 flex-wrap justify-end gap-3 p-3",
                   // Only divide from a body that actually exists; otherwise the
                   // header's `border-b` is already the separator above us.
                   hasBody && "border-t border-neutral-500/15",
                 )}
               >
-                {onCancel && (
-                  <AlertDialog.Cancel asChild>
-                    <Button
-                      tabIndex={0}
-                      className="flex-1"
-                      variant={Variant.Default}
-                      onClick={onCancel}
-                    >
-                      {cancelText ?? "Cancel"}
-                    </Button>
-                  </AlertDialog.Cancel>
+                {footer ?? (
+                  <>
+                    {onCancel && (
+                      <AlertDialog.Cancel asChild>
+                        <Button
+                          tabIndex={0}
+                          className="flex-1"
+                          variant={Variant.Default}
+                          onClick={onCancel}
+                        >
+                          {cancelText ?? "Cancel"}
+                        </Button>
+                      </AlertDialog.Cancel>
+                    )}
+                    {submitButton &&
+                      (closeOnSubmitClick ? (
+                        <AlertDialog.Action asChild>{submitButton}</AlertDialog.Action>
+                      ) : (
+                        submitButton
+                      ))}
+                  </>
                 )}
-                {submitButton &&
-                  (closeOnSubmitClick ? (
-                    <AlertDialog.Action asChild>{submitButton}</AlertDialog.Action>
-                  ) : (
-                    submitButton
-                  ))}
               </div>
             )}
           </AlertDialog.Content>

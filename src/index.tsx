@@ -213,3 +213,5 @@ export * from "./markdown";
 
 export * from "./types";
 export * from "./nested-elements/types";
+
+export * from "./floating/action-menu";
