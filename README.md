@@ -148,3 +148,10 @@ Components are grouped by concern and all re-exported from the package root:
 ## License
 
 MIT
+
+### Layout navigation actions
+
+Footer `ActionItem` entries with `onClick` render as direct buttons on desktop and
+direct items in the mobile menu. Without `onClick` they open their configured
+menu. A pane's `clickFn` can return `false` (synchronously or asynchronously) to
+handle a navigation action without toggling the selected pane.
