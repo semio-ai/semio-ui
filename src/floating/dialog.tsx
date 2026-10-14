@@ -118,7 +118,7 @@ export function Dialog({
     </Button>
   );
   const hasBody = Boolean(children);
-  const hasFooter = Boolean(footer || onCancel || submitButton);
+  const hasFooter = footer != null || Boolean(onCancel || submitButton);
   return (
     <AlertDialog.Root open={open} onOpenChange={onStateChange}>
       <AlertDialog.Portal container={portalContainer ?? undefined}>
@@ -184,7 +184,14 @@ export function Dialog({
             </div>
 
             {hasBody && (
-              <div className="min-h-0 overflow-auto p-3 text-black dark:text-white">{children}</div>
+              <div
+                className={clsx(
+                  "p-3 text-black dark:text-white",
+                  size === "medium" ? "min-h-0 overflow-auto" : "flex-1 md:flex-none",
+                )}
+              >
+                {children}
+              </div>
             )}
 
             {hasFooter && (

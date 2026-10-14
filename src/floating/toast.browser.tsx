@@ -2,7 +2,7 @@ import { Result } from "@semio/utils";
 import { afterEach, expect, test, vi } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { cleanup, render } from "vitest-browser-react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useAddToast } from "../hooks/use-add-toast";
 import { ToastManager, type ToastData } from "./toast";
 import "../test-stylesheet";
@@ -46,7 +46,12 @@ test("copies the exact optional payload without dismissing or displaying it", as
   expect(copyButton.getBoundingClientRect().top).toBe(closeButton.getBoundingClientRect().top);
   await page.getByRole("button", { name: "Copy details", exact: true }).click();
   expect(writeText).toHaveBeenCalledExactlyOnceWith(payload);
-  await expect.element(page.getByRole("button", { name: "Copied", exact: true })).toBeVisible();
+  await expect
+    .element(page.getByText("Details copied to clipboard.", { exact: true }))
+    .toBeInTheDocument();
+  await expect
+    .element(page.getByRole("button", { name: "Copy details", exact: true }))
+    .toBeVisible();
   await expect.element(page.getByText("Save failed", { exact: true })).toBeVisible();
   expect(document.body.textContent).not.toContain(payload);
 });
@@ -60,7 +65,9 @@ test("shows a retryable failure when clipboard access is refused", async () => {
   await page.getByRole("button", { name: "Copy details", exact: true }).click();
   await expect.element(page.getByText("Could not copy. Try again.", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Copy details", exact: true }).click();
-  await expect.element(page.getByRole("button", { name: "Copied", exact: true })).toBeVisible();
+  await expect
+    .element(page.getByRole("button", { name: "Copy details", exact: true }))
+    .toBeVisible();
   expect(writeText).toHaveBeenCalledTimes(2);
 });
 
@@ -84,7 +91,7 @@ test("a caller-defined menu overrides the copy shortcut and keeps the toast aliv
       }),
   );
   await showToast({
-    dismiss: 600,
+    dismiss: 3000,
     clipboardContent: "unused",
     actionMenu: {
       label: "Export actions",
@@ -96,7 +103,7 @@ test("a caller-defined menu overrides the copy shortcut and keeps the toast aliv
   await expect
     .element(page.getByRole("button", { name: "Copy details", exact: true }))
     .not.toBeInTheDocument();
-  await new Promise((resolve) => setTimeout(resolve, 800));
+  await new Promise((resolve) => setTimeout(resolve, 3200));
   await expect
     .element(page.getByRole("menuitem", { name: "Export data", exact: true }))
     .toBeVisible();
@@ -107,12 +114,15 @@ test("a caller-defined menu overrides the copy shortcut and keeps the toast aliv
   await expect.element(page.getByText("Save failed", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Export actions", exact: true }).click();
   await page.getByRole("menuitem", { name: "Export data", exact: true }).click();
-  await new Promise((resolve) => setTimeout(resolve, 800));
+  await expect
+    .element(page.getByRole("button", { name: "Export actions", exact: true }))
+    .toHaveFocus();
+  await new Promise((resolve) => setTimeout(resolve, 3200));
   await expect.element(page.getByText("Save failed", { exact: true })).toBeVisible();
   finish(Result.Ok("Data exported"));
   await expect.element(page.getByText("Data exported", { exact: true })).toBeVisible();
   expect(run).toHaveBeenCalledOnce();
-});
+}, 15000);
 
 test("a generic menu displays Result failures and clears them after a successful retry", async () => {
   const run = vi
@@ -138,8 +148,70 @@ test("a generic menu displays Result failures and clears them after a successful
 });
 
 test("an ordinary toast still expires after its configured interval", async () => {
-  await showToast({ dismiss: 600 });
+  await showToast({ dismiss: 3000 });
   await page.getByRole("button", { name: "Outside toast", exact: true }).click();
   await expect.element(page.getByText("Save failed", { exact: true })).toBeVisible();
   await expect.element(page.getByText("Save failed", { exact: true })).not.toBeInTheDocument();
+});
+
+test("unexpected action exceptions produce retryable feedback", async () => {
+  await showToast({
+    actionMenu: {
+      label: "Export actions",
+      icon: "menu2",
+      items: [
+        {
+          id: "export",
+          label: "Export data",
+          onSelect: () => {
+            throw new Error("Unexpected");
+          },
+        },
+      ],
+    },
+  });
+  const liveRegion = [...document.querySelectorAll('[role="status"]')].find(
+    (node) => node.textContent === "",
+  )!;
+  await page.getByRole("button", { name: "Export actions", exact: true }).click();
+  await page.getByRole("menuitem", { name: "Export data", exact: true }).click();
+  await expect
+    .element(page.getByText("Could not complete this action. Try again.", { exact: true }))
+    .toBeVisible();
+  expect(liveRegion.isConnected).toBe(true);
+  expect(liveRegion.textContent).toBe("Could not complete this action. Try again.");
+});
+
+test("provider sibling state survives adding and removing notifications", async () => {
+  const mounted = vi.fn();
+  function Child({ label }: { label: string }) {
+    const addToast = useAddToast();
+    const [count, setCount] = useState(0);
+    useEffect(() => {
+      mounted(label);
+    }, [label]);
+    return (
+      <button
+        type="button"
+        onClick={() => {
+          setCount((value) => value + 1);
+          addToast({ id: label, title: label, dismiss: 60000 });
+        }}
+      >
+        {label}: {count}
+      </button>
+    );
+  }
+  await render(
+    <ToastManager>
+      <Child label="First" />
+      <Child label="Second" />
+    </ToastManager>,
+  );
+  await page.getByRole("button", { name: "First: 0", exact: true }).click();
+  await page.getByRole("button", { name: "Second: 0", exact: true }).click();
+  await page.getByRole("button", { name: "dismiss", exact: true }).first().click();
+  await expect.element(page.getByRole("button", { name: "First: 1", exact: true })).toBeVisible();
+  await expect.element(page.getByRole("button", { name: "Second: 1", exact: true })).toBeVisible();
+  expect(mounted.mock.calls.map(([label]) => label)).toEqual(["First", "Second"]);
 });

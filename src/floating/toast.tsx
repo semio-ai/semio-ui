@@ -213,13 +213,7 @@ function InnerToast({
                 variant={data.variant}
                 visuals="inverted-border"
                 leftIcon={copyState === "copied" ? "copy-complete" : "copy"}
-                altText={
-                  copyState === "copied"
-                    ? "Copied"
-                    : copyState === "copying"
-                      ? "Copying…"
-                      : "Copy details"
-                }
+                altText="Copy details"
                 title={copyState === "copied" ? "Copied" : "Copy details"}
                 disabled={copyState === "copying"}
                 onClick={() => void copyDetails()}
@@ -250,14 +244,16 @@ function InnerToast({
         >
           <p className="text-sm text-neutral-700 dark:text-neutral-300">{data.content}</p>
         </RadixToast.Description>
-        {actionFeedback && (
-          <span
-            role="status"
-            className="block px-3 pb-3 text-xs text-neutral-700 dark:text-neutral-300"
-          >
-            {actionFeedback.message}
-          </span>
-        )}
+        <span
+          role="status"
+          className={
+            actionFeedback
+              ? "block px-3 pb-3 text-xs text-neutral-700 dark:text-neutral-300"
+              : "sr-only"
+          }
+        >
+          {actionFeedback?.message ?? null}
+        </span>
         {hasClipboardContent && (
           <span
             role="status"

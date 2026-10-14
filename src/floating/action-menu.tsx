@@ -94,7 +94,7 @@ export function ActionMenu({
             rightIcon={iconOnly ? undefined : "menu-trigger"}
             altText={menu.label}
             title={menu.label}
-            disabled={busy}
+            aria-disabled={busy || undefined}
           >
             {iconOnly ? undefined : menu.label}
           </Button>
@@ -112,9 +112,9 @@ export function ActionMenu({
           </NestedItem>
         ))}
       </Dropdown>
-      {!onFeedback && feedback && (
-        <span role="status" className="text-sm">
-          {feedback.message}
+      {!onFeedback && (
+        <span role="status" className={feedback ? "text-sm" : "sr-only"}>
+          {feedback?.message ?? null}
         </span>
       )}
     </>
