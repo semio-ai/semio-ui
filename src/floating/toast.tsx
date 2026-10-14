@@ -6,6 +6,7 @@ import { Button } from "../buttons/button";
 import { Size, Variant } from "../types";
 import { ProgressCircle } from "../feedback/progress";
 import { Icon, type IconName } from "../icons/registry";
+import { ActionMenu, type ActionMenuSpec, type ActionMenuFeedback } from "./action-menu";
 
 /**
  * Variants that have a status glyph mapped to its registry key. Other variants
@@ -46,6 +47,10 @@ export interface ToastData {
   id: string;
   title: string;
   content?: string;
+  /** Exact text copied by the optional Copy details action. The caller formats and redacts it. */
+  clipboardContent?: string;
+  /** Explicit menu takes precedence over the clipboard shortcut. */
+  actionMenu?: ActionMenuSpec;
   variant?: Variant;
   dismiss?:
     | {
@@ -55,24 +60,56 @@ export interface ToastData {
     | number;
 }
 
-function InnerToast({ data }: { data: ToastData }) {
+function InnerToast({
+  data,
+  menuPortalContainer,
+}: {
+  data: ToastData;
+  menuPortalContainer: HTMLElement | null;
+}) {
   const width = 320;
   const margin = 16;
 
   const { removeToast } = useContext(ToastContext);
   const [paused, setPaused] = useState(false);
+  const [copyState, setCopyState] = useState<"idle" | "copying" | "copied" | "failed">("idle");
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [actionBusy, setActionBusy] = useState(false);
+  const [actionFeedback, setActionFeedback] = useState<ActionMenuFeedback>();
+  const hasClipboardContent = data.clipboardContent !== undefined && !data.actionMenu;
+  const isPaused = paused || menuOpen || actionBusy || copyState === "copying";
+  const receiveFeedback = (feedback: ActionMenuFeedback | undefined) => {
+    setActionFeedback(feedback);
+    if (feedback) pauseState.current.accumulatedTime = 0;
+  };
+
+  const copyDetails = async () => {
+    if (data.clipboardContent === undefined) return;
+    setCopyState("copying");
+    try {
+      await navigator.clipboard.writeText(data.clipboardContent);
+      setCopyState("copied");
+    } catch {
+      setCopyState("failed");
+    }
+  };
 
   const pauseState = useRef<{ paused: boolean; accumulatedTime: number }>({
     paused: false,
     accumulatedTime: 0,
   });
 
-  const duration = typeof data.dismiss === "number" ? data.dismiss : 4000;
+  const duration =
+    typeof data.dismiss === "number"
+      ? data.dismiss
+      : hasClipboardContent || data.actionMenu
+        ? 10000
+        : 4000;
 
   const completionSpring = useSpring(0);
 
   useAnimationFrame((_time, delta) => {
-    if (!paused) {
+    if (!isPaused) {
       pauseState.current.accumulatedTime = delta + pauseState.current.accumulatedTime;
       const percent = Math.min(1, Math.max(0, pauseState.current.accumulatedTime / duration));
       completionSpring.set(percent);
@@ -85,7 +122,7 @@ function InnerToast({ data }: { data: ToastData }) {
   // The transport pauses on hover; otherwise show the variant's status glyph (if
   // it has one). Computed here rather than inline so the registry key narrows.
   const statusIcon = data.variant ? STATUS_ICONS[data.variant] : undefined;
-  const toastIcon = paused ? (
+  const toastIcon = isPaused ? (
     <Icon name="player-pause" />
   ) : statusIcon ? (
     <Icon name={statusIcon} />
@@ -95,7 +132,8 @@ function InnerToast({ data }: { data: ToastData }) {
     <RadixToast.Root
       asChild
       forceMount
-      duration={duration}
+      // The animation clock owns dismissal so portaled menus and async actions can pause it.
+      duration={Infinity}
       className={clsx()}
       onOpenChange={() => {
         removeToast(data.id);
@@ -113,7 +151,7 @@ function InnerToast({ data }: { data: ToastData }) {
         layout
         className={clsx(
           "items-center overflow-hidden",
-          "pointer-events-auto relative box-border w-[30ch] select-none",
+          "pointer-events-auto relative box-border w-full select-none",
           "data-[swipe=cancel]:translate-x-0 data-[swipe=move]:translate-x-(--radix-toast-swipe-move-x)",
           "data-[swipe=end]:animate-toastSwipeOut",
           "data-[swipe=cancel]:transition-[transform_200ms_ease-out]",
@@ -157,30 +195,81 @@ function InnerToast({ data }: { data: ToastData }) {
             </span>
             <span className="min-w-0 wrap-break-word">{data.title}</span>
           </RadixToast.Title>
-          <RadixToast.Close asChild>
-            <Button
-              size={Size.Sm}
-              className="shrink-0"
-              // onClick={() => removeToast(data.id)}
-              variant={data.variant}
-              leftIcon={
-                typeof data.dismiss !== "object" ? (
-                  <Icon name="close" className="text-black" />
-                ) : undefined
-              }
-              altText={typeof data.dismiss === "object" ? data.dismiss.label : "dismiss"}
-            >
-              {typeof data.dismiss === "object" ? data.dismiss.label : undefined}
-            </Button>
-          </RadixToast.Close>
+          <div className="flex shrink-0 items-center gap-2">
+            {data.actionMenu && (
+              <ActionMenu
+                menu={data.actionMenu}
+                portalContainer={menuPortalContainer}
+                iconOnly
+                variant={data.variant}
+                onOpenChange={setMenuOpen}
+                onBusyChange={setActionBusy}
+                onFeedback={receiveFeedback}
+              />
+            )}
+            {hasClipboardContent && (
+              <Button
+                size={Size.Sm}
+                variant={data.variant}
+                visuals="inverted-border"
+                leftIcon={copyState === "copied" ? "copy-complete" : "copy"}
+                altText="Copy details"
+                title={copyState === "copied" ? "Copied" : "Copy details"}
+                disabled={copyState === "copying"}
+                onClick={() => void copyDetails()}
+              />
+            )}
+            <RadixToast.Close asChild>
+              <Button
+                size={Size.Sm}
+                className="shrink-0"
+                onClick={() => {
+                  if (typeof data.dismiss === "object") data.dismiss.onClick(data);
+                }}
+                variant={data.variant}
+                leftIcon={
+                  typeof data.dismiss !== "object" ? (
+                    <Icon name="close" className="text-black" />
+                  ) : undefined
+                }
+                altText={typeof data.dismiss === "object" ? data.dismiss.label : "dismiss"}
+              >
+                {typeof data.dismiss === "object" ? data.dismiss.label : undefined}
+              </Button>
+            </RadixToast.Close>
+          </div>
         </div>
         <RadixToast.Description
           className={clsx(data.content ? "p-3" : "hidden", "overflow-hidden")}
         >
-          <p className={clsx("mb-3 text-sm text-neutral-700 dark:text-neutral-300")}>
-            {data.content}
-          </p>
+          <p className="text-sm text-neutral-700 dark:text-neutral-300">{data.content}</p>
         </RadixToast.Description>
+        <span
+          role="status"
+          className={
+            actionFeedback
+              ? "block px-3 pb-3 text-xs text-neutral-700 dark:text-neutral-300"
+              : "sr-only"
+          }
+        >
+          {actionFeedback?.message ?? null}
+        </span>
+        {hasClipboardContent && (
+          <span
+            role="status"
+            className={
+              copyState === "failed"
+                ? "block px-3 pb-3 text-xs text-neutral-700 dark:text-neutral-300"
+                : "sr-only"
+            }
+          >
+            {copyState === "failed"
+              ? "Could not copy. Try again."
+              : copyState === "copied"
+                ? "Details copied to clipboard."
+                : null}
+          </span>
+        )}
       </motion.li>
     </RadixToast.Root>
   );
@@ -194,6 +283,12 @@ export interface ToastContainerProps {
 
 function InnerToastManager({ children }: ToastContainerProps) {
   const [toasts, setToasts] = useState<ToastData[]>([]);
+  const [menuPortalContainer, setMenuPortalContainer] = useState<HTMLOListElement | null>(null);
+  const registerMenuContainer = useCallback((node: HTMLOListElement | null) => {
+    // Composed viewport refs may detach during provider updates. Keep the host
+    // until a replacement mounts so a detach cannot trigger another provider update.
+    if (node) setMenuPortalContainer(node);
+  }, []);
 
   const addToast = useCallback(
     (toast: ToastData) => {
@@ -224,8 +319,9 @@ function InnerToastManager({ children }: ToastContainerProps) {
     <ToastContext.Provider value={{ toasts, addToast, updateToast, removeToast, clear }}>
       <RadixToast.Provider swipeDirection="right" duration={4000}>
         <RadixToast.Viewport
+          ref={registerMenuContainer}
           className={clsx(
-            "pointer-events-none fixed top-4 right-4 z-2147483647 flex w-80 flex-col-reverse gap-3 max-sm:top-20",
+            "pointer-events-none fixed top-4 right-4 z-2147483647 flex w-80 max-w-[calc(100vw-2rem)] flex-col-reverse gap-3 max-sm:top-20",
             // "pointer-events-none fixed top-0 right-0  m-0 flex w-[390px]",
             // "max-w-[100vw] list-none flex-col gap-2.5 p-[var(--viewport-padding)]",
             // "outline-hidden [--viewport-padding:_60px]",
@@ -233,10 +329,10 @@ function InnerToastManager({ children }: ToastContainerProps) {
         />
         <AnimatePresence>
           {toasts.map((toast) => (
-            <Toast key={toast.id} data={toast} />
+            <Toast key={toast.id} data={toast} menuPortalContainer={menuPortalContainer} />
           ))}
-          {children}
         </AnimatePresence>
+        {children}
       </RadixToast.Provider>
     </ToastContext.Provider>
   );

@@ -15,6 +15,7 @@ export * from "./feedback/status-badge";
 export * from "./feedback/status-dot";
 
 // Floating
+export * from "./floating/action-menu";
 export * from "./floating/context-menu";
 export * from "./floating/dialog";
 export * from "./floating/dropdown";
