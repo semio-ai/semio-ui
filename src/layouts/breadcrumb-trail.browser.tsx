@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, expect, test, vi } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { cleanup, render } from "vitest-browser-react";
-import { Breadcrumbs } from "./breadcrumbs";
+import { Button } from "../buttons/button";
 import { BreadcrumbTrail, type BreadcrumbTrailItem } from "./breadcrumb-trail";
 import "../test-stylesheet";
 
@@ -178,27 +178,65 @@ test("mobile collapses an ancestor menu and keeps the current label available", 
   await expect.element(page.getByRole("button", { name: /^Switch project:/ })).toBeVisible();
 });
 
-test("breadcrumb labels retain the shared foreground treatment in dark mode", async () => {
+test("breadcrumb controls retain the toolbar button foreground treatment in dark mode", async () => {
   document.documentElement.classList.add("dark");
   try {
     await render(
       <>
-        <Breadcrumbs
-          values={{ reference: "shown" }}
-          elements={[
-            { id: "reference", type: "static", render: () => <span>Reference foreground</span> },
-          ]}
-        />
+        <Button visuals="inverted">Reference foreground</Button>
         <BreadcrumbTrail items={[item()]} />
       </>,
     );
-    const reference = getComputedStyle(
-      page.getByText("Reference foreground", { exact: true }).element(),
-    ).color;
-    expect(
-      getComputedStyle(page.getByRole("button", { name: /^Switch project:/ }).element()).color,
-    ).toBe(reference);
+    const rgba = (element: Element) => {
+      const canvas = document.createElement("canvas");
+      canvas.width = canvas.height = 1;
+      const context = canvas.getContext("2d")!;
+      context.fillStyle = getComputedStyle(element).color;
+      context.fillRect(0, 0, 1, 1);
+      return [...context.getImageData(0, 0, 1, 1).data];
+    };
+    expect(rgba(page.getByRole("button", { name: /^Switch project:/ }).element())).toEqual(
+      rgba(page.getByText("Reference foreground", { exact: true }).element()),
+    );
   } finally {
     document.documentElement.classList.remove("dark");
   }
+});
+
+test("grouped controls keep square shared corners and a stable rename footprint", async () => {
+  await render(
+    <BreadcrumbTrail
+      items={[
+        {
+          id: "section",
+          label: "Projects",
+          href: "/projects",
+          switcher: {
+            label: "Switch section",
+            value: "projects",
+            options: [],
+            onSelect: vi.fn(),
+          },
+        },
+        item({ onRename: vi.fn() }),
+      ]}
+    />,
+  );
+  const field = page.getByRole("textbox", { name: "Rename Project A", exact: true });
+  const before = field.element().getBoundingClientRect();
+  const nav = page.getByRole("navigation", { name: "Breadcrumb", exact: true });
+  const trailBefore = nav.element().getBoundingClientRect();
+  const arrow = page.getByRole("button", { name: /^Switch project:/ });
+  expect(arrow.element().getBoundingClientRect().height).toBe(before.height);
+  expect(getComputedStyle(arrow.element()).borderTopLeftRadius).toBe("0px");
+  expect(getComputedStyle(field.element()).borderTopRightRadius).toBe("0px");
+  await userEvent.dblClick(arrow);
+  const after = field.element().getBoundingClientRect();
+  expect(after.width).toBe(before.width);
+  expect(after.height).toBe(before.height);
+  expect(nav.element().getBoundingClientRect().width).toBe(trailBefore.width);
+  expect(nav.element().getBoundingClientRect().height).toBe(trailBefore.height);
+  await field.fill("A much longer name typed while editing");
+  expect(field.element().getBoundingClientRect().width).toBe(before.width);
+  await userEvent.keyboard("{Escape}");
 });

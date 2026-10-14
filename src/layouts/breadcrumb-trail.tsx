@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { clsx } from "clsx";
+import { Button } from "../buttons/button";
 import { Dropdown } from "../floating/dropdown";
 import { NestedItem } from "../nested-elements/item";
 import { NestedLabel } from "../nested-elements/label";
@@ -52,6 +53,7 @@ function BreadcrumbLevel({
   const nameRef = useRef<HTMLInputElement>(null);
   const optionsRef = useRef<HTMLDivElement>(null);
   const switcher = item.switcher;
+  const editableSwitcher = current && switcher && item.onRename && !item.node;
 
   useEffect(() => {
     if (!open || !switcher?.searchable) return;
@@ -86,14 +88,19 @@ function BreadcrumbLevel({
     switcher?.options.filter((option) =>
       option.label.toLocaleLowerCase().includes(query.trim().toLocaleLowerCase()),
     ) ?? [];
-  const labelClass = "variant-responsive-appearing-bg min-w-0 truncate rounded-xs px-2 py-1";
-  const label = editing ? (
+  const labelClass = clsx(
+    "sized-height inline-flex min-w-0 items-center truncate rounded-xs px-2",
+    switcher && "bg-neutral-500/10 hover:bg-neutral-500/25 rounded-r-none",
+  );
+  const nameField = (
     <TextField
       ref={nameRef}
       aria-label={`Rename ${item.label}`}
       size={size}
-      value={draft}
+      readOnly={!editing}
+      value={editing ? draft : item.label}
       onChange={setDraft}
+      outline="hidden"
       onBlur={() => finishRename(true)}
       onKeyDown={(event) => {
         event.stopPropagation();
@@ -102,8 +109,12 @@ function BreadcrumbLevel({
           finishRename(event.key === "Enter");
         }
       }}
-      wrapperClassName="min-w-0 flex-1"
+      wrapperClassName="w-0 min-w-0 flex-1"
+      className={clsx("!rounded-r-none !bg-transparent", !editing && "pointer-events-none")}
     />
+  );
+  const label = editing ? (
+    nameField
   ) : item.node ? (
     item.node
   ) : !current && item.href ? (
@@ -140,10 +151,15 @@ function BreadcrumbLevel({
 
   return (
     <span
-      className={clsx(size, "sized-text flex min-w-0 items-center rounded-xs")}
+      className={clsx(
+        size,
+        "sized-text flex min-w-0 items-center rounded-xs",
+        editableSwitcher && "w-52 max-w-full",
+      )}
       aria-current={current ? "page" : undefined}
     >
-      {(!switcher || !current || editing || item.node) &&
+      {!editableSwitcher &&
+        (!switcher || !current || editing || item.node) &&
         (!current && switcher ? <span className="hidden desktop:contents">{label}</span> : label)}
       {switcher && (
         <Dropdown
@@ -163,31 +179,51 @@ function BreadcrumbLevel({
           matchTriggerWidth={false}
           contentClassName="desktop:w-80 max-w-[calc(100vw-16px)]"
           trigger={
-            <button
-              type="button"
-              title={item.label}
-              aria-label={
-                current && !editing && !item.node
-                  ? `${switcher.label}: ${item.label}`
-                  : `${switcher.label} menu`
-              }
-              className={clsx(
-                size,
-                "sized-height variant-responsive-appearing-bg flex min-w-0 items-center gap-1 rounded-xs px-1",
-              )}
-            >
-              {current && !editing && !item.node && (
-                <span className="min-w-0 truncate px-1">{item.label}</span>
-              )}
-              {!current && (
-                <span aria-hidden="true" className="desktop:hidden px-1">
-                  …
-                </span>
-              )}
-              <span className={clsx("shrink-0", !current && "hidden desktop:inline-flex")}>
-                <Icon name="select-indicator" />
-              </span>
-            </button>
+            editableSwitcher ? (
+              <div className="flex w-full min-w-0 items-center rounded-xs bg-neutral-500/10 hover:bg-neutral-500/25">
+                {nameField}
+                <Button
+                  size={size}
+                  visuals="inverted"
+                  leftIcon="select-indicator"
+                  altText={editing ? `${switcher.label} menu` : `${switcher.label}: ${item.label}`}
+                  disabled={editing}
+                  className="!rounded-l-none rounded-r-xs shrink-0"
+                />
+              </div>
+            ) : (
+              <Button
+                size={size}
+                visuals="inverted"
+                title={item.label}
+                altText={
+                  current && !editing && !item.node
+                    ? `${switcher.label}: ${item.label}`
+                    : `${switcher.label} menu`
+                }
+                rightIcon={current ? "select-indicator" : undefined}
+                leftIcon={
+                  !current ? (
+                    <span>
+                      <span className="desktop:hidden">…</span>
+                      <span className="hidden desktop:inline-flex">
+                        <Icon name="select-indicator" />
+                      </span>
+                    </span>
+                  ) : undefined
+                }
+                className={clsx(
+                  "min-w-0",
+                  !current && "desktop:!rounded-l-none",
+                  current &&
+                    "flex-1 !flex overflow-hidden [&>div:first-child]:min-w-0 [&>div:first-child]:flex-1 [&>div:last-child]:shrink-0",
+                )}
+              >
+                {current && !editing && !item.node ? (
+                  <span className="block w-full min-w-0 truncate">{item.label}</span>
+                ) : undefined}
+              </Button>
+            )
           }
           header={
             <div className="p-2">
