@@ -330,13 +330,14 @@ test("reserved section labels keep the same split-control width on listings and 
   ).toBe(112);
 });
 
-
 test("consumers can hide Rename while retaining double-click editing", async () => {
   const rename = vi.fn();
   await render(<BreadcrumbTrail items={[item({ onRename: rename, showRenameAction: false })]} />);
   const trigger = page.getByRole("button", { name: /^Switch Project:/ });
   await trigger.click();
-  await expect.element(page.getByRole("menuitem", { name: "Rename", exact: true })).not.toBeInTheDocument();
+  await expect
+    .element(page.getByRole("menuitem", { name: "Rename", exact: true }))
+    .not.toBeInTheDocument();
   const search = page.getByRole("textbox", { name: "Search switch project" }).element();
   const separator = document.querySelector('[role="separator"]')!;
   const label = page.getByText("Switch Project", { exact: true }).element();
