@@ -46,6 +46,11 @@ export function Example() {
 }
 ```
 
+`ChipInput` accepts `readOnly` to display the selected chips without remove
+buttons, an add field, a dropdown, or editing hover and focus styling. Unlike
+`disabled`, it keeps the chips at their normal opacity. An empty read-only
+input shows `placeholder` or an em-dash.
+
 ### Icons
 
 `<Icon name>` resolves a key through the nearest `IconProvider`, falling back to
