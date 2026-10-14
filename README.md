@@ -186,3 +186,7 @@ keep predefined navigation choices the same width on listing and detail pages.
 
 `BreadcrumbTrailItem.showRenameAction` can hide the menu action while keeping
 `onRename` double-click editing, when another surface provides a rename form.
+
+The `toolbar-segments` style gives adjacent controls a 2px gap and square shared
+edges, preserving rounded exposed ends. It also handles text-field wrappers and
+nested segment rows.

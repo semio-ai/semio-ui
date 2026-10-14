@@ -343,10 +343,42 @@ test("consumers can hide Rename while retaining double-click editing", async () 
   const label = page.getByText("Switch Project", { exact: true }).element();
   const gapAbove = search.getBoundingClientRect().top - label.getBoundingClientRect().bottom;
   const gapBelow = separator.getBoundingClientRect().top - search.getBoundingClientRect().bottom;
-  expect(Math.abs(gapBelow - gapAbove)).toBeLessThanOrEqual(2);
+  expect(gapAbove).toBe(8);
+  expect(gapBelow).toBe(8);
   await userEvent.keyboard("{Escape}");
   await userEvent.dblClick(trigger);
   await page.getByRole("textbox", { name: "Rename Project A", exact: true }).fill("Project C");
   await userEvent.keyboard("{Enter}");
   expect(rename).toHaveBeenCalledExactlyOnceWith("Project C");
 });
+
+test.each([false, true])(
+  "toolbar segments preserve exposed ends with responsive wrapper: %s",
+  async (wrapped) => {
+    const controls = (
+      <div className="toolbar-segments flex">
+        <Button altText="First facet">First</Button>
+        <Button altText="Last facet">Last</Button>
+      </div>
+    );
+    await render(
+      <div className="toolbar-segments flex">
+        <div>
+          <input aria-label="Toolbar search" className="rounded-xs" />
+        </div>
+        {wrapped ? <div>{controls}</div> : controls}
+      </div>,
+    );
+    const input = page.getByRole("textbox", { name: "Toolbar search" }).element();
+    const first = page.getByRole("button", { name: "First facet" }).element();
+    const last = page.getByRole("button", { name: "Last facet" }).element();
+    expect(getComputedStyle(input).borderTopLeftRadius).not.toBe("0px");
+    expect(getComputedStyle(input).borderTopRightRadius).toBe("0px");
+    expect(getComputedStyle(first).borderTopLeftRadius).toBe("0px");
+    expect(getComputedStyle(first).borderTopRightRadius).toBe("0px");
+    expect(getComputedStyle(last).borderTopLeftRadius).toBe("0px");
+    expect(getComputedStyle(last).borderTopRightRadius).not.toBe("0px");
+    expect(first.getBoundingClientRect().left - input.getBoundingClientRect().right).toBe(2);
+    expect(last.getBoundingClientRect().left - first.getBoundingClientRect().right).toBe(2);
+  },
+);

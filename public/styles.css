@@ -2292,3 +2292,25 @@
 .icon-duotone-inverted > *:not([opacity]) {
   opacity: 0.6;
 }
+
+
+/* Adjacent toolbar segments keep their gap but only expose rounded outer ends.
+ * A text-field wrapper or nested segment row carries the same edge to its control. */
+.toolbar-segments {
+  gap: 2px;
+  > :not(:first-child),
+  > :not(:first-child) > input,
+  > :not(:first-child) > button,
+  > :not(:first-child) > .toolbar-segments > :first-child,
+  > .toolbar-segments:not(:first-child) > :first-child {
+    border-top-left-radius: 0 !important;
+    border-bottom-left-radius: 0 !important;
+  }
+  > :not(:last-child),
+  > :not(:last-child) > input,
+  > :not(:last-child) > button,
+  > .toolbar-segments:not(:last-child) > :last-child {
+    border-top-right-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+  }
+}
