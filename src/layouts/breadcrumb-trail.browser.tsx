@@ -224,6 +224,16 @@ test("grouped controls keep square shared corners and a stable rename footprint"
   );
   const field = page.getByRole("textbox", { name: "Rename Project A", exact: true });
   const before = field.element().getBoundingClientRect();
+  expect(
+    page.getByRole("link", { name: "Projects", exact: true }).element().getBoundingClientRect()
+      .height,
+  ).toBe(before.height);
+  expect(
+    page
+      .getByRole("button", { name: "Switch section menu", exact: true })
+      .element()
+      .getBoundingClientRect().height,
+  ).toBe(before.height);
   const nav = page.getByRole("navigation", { name: "Breadcrumb", exact: true });
   const trailBefore = nav.element().getBoundingClientRect();
   const arrow = page.getByRole("button", { name: /^Switch project:/ });

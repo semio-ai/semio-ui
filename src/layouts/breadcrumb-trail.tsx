@@ -89,6 +89,7 @@ function BreadcrumbLevel({
       option.label.toLocaleLowerCase().includes(query.trim().toLocaleLowerCase()),
     ) ?? [];
   const labelClass = clsx(
+    size,
     "sized-height inline-flex min-w-0 items-center truncate rounded-xs px-2",
     switcher && "bg-neutral-500/10 hover:bg-neutral-500/25 rounded-r-none",
   );
@@ -214,7 +215,7 @@ function BreadcrumbLevel({
                 }
                 className={clsx(
                   "min-w-0",
-                  !current && "desktop:!rounded-l-none",
+                  !current && "bg-neutral-500/10 hover:bg-neutral-500/25 desktop:!rounded-l-none",
                   current &&
                     "flex-1 !flex overflow-hidden [&>div:first-child]:min-w-0 [&>div:first-child]:flex-1 [&>div:last-child]:shrink-0",
                 )}
