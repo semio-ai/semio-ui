@@ -28,7 +28,7 @@ function Example({ width }: { width?: number }) {
       href: "#projects",
       onNavigate: () => setDestination("Projects listing"),
       switcher: {
-        label: "Switch section",
+        label: "Switch Section",
         value: section,
         options: ["Home", "Projects", "Assets", "Devices", "Organizations"].map((label) => ({
           value: label,
@@ -44,7 +44,7 @@ function Example({ width }: { width?: number }) {
       label: project === "a" ? name : "Shared project",
       onRename: setName,
       switcher: {
-        label: "Switch project",
+        label: "Switch Project",
         value: project,
         searchable: true,
         options: [
@@ -80,7 +80,7 @@ export const Loading: Story = {
         id: "project",
         label: "Robot demo",
         switcher: {
-          label: "Switch project",
+          label: "Switch Project",
           value: "a",
           options: [],
           loading: true,
@@ -98,7 +98,7 @@ export const Empty: Story = {
         id: "project",
         label: "Robot demo",
         switcher: {
-          label: "Switch project",
+          label: "Switch Project",
           value: "a",
           options: [],
           emptyText: "No other projects available",

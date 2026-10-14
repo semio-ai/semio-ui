@@ -38,6 +38,8 @@ export interface BreadcrumbTrailItem {
   /** Enables double-click and the menu's Rename action. Enter/blur commit; Escape cancels. */
   onRename?: (name: string) => void;
   renameIcon?: IconValue;
+  /** Hide the menu action when the consumer offers renaming through another surface. */
+  showRenameAction?: boolean;
 }
 
 function BreadcrumbLevel({
@@ -250,7 +252,7 @@ function BreadcrumbLevel({
             )
           }
           header={
-            <div className="p-2">
+            <div className="flex flex-col gap-1 px-2 pt-2">
               <NestedLabel>{switcher.label}</NestedLabel>
               {switcher.searchable && (
                 <TextField
@@ -274,7 +276,11 @@ function BreadcrumbLevel({
             </div>
           }
         >
-          {switcher.searchable && <NestedSeparator />}
+          {switcher.searchable && (
+            <div className="[&>[role=separator]]:my-0.5">
+              <NestedSeparator />
+            </div>
+          )}
           <div ref={optionsRef}>
             {switcher.loading ? (
               <p role="status" className="p-2 text-sm">
@@ -306,7 +312,7 @@ function BreadcrumbLevel({
               </>
             )}
           </div>
-          {item.onRename && (
+          {item.onRename && item.showRenameAction !== false && (
             <NestedItem left={item.renameIcon} onClick={beginRename}>
               Rename
             </NestedItem>

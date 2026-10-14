@@ -19,7 +19,7 @@ function item(overrides: Partial<BreadcrumbTrailItem> = {}): BreadcrumbTrailItem
     id: "project",
     label: "Project A",
     switcher: {
-      label: "Switch project",
+      label: "Switch Project",
       value: "a",
       options,
       onSelect: vi.fn(),
@@ -41,7 +41,7 @@ test("ancestor navigation and sibling switching have separate controls", async (
           href: "/projects",
           onNavigate: navigate,
           switcher: {
-            label: "Switch section",
+            label: "Switch Section",
             value: "/projects",
             onSelect: select,
             options: [
@@ -56,7 +56,7 @@ test("ancestor navigation and sibling switching have separate controls", async (
   );
   await page.getByRole("link", { name: "Projects", exact: true }).click();
   expect(navigate).toHaveBeenCalledOnce();
-  await page.getByRole("button", { name: "Switch section menu", exact: true }).click();
+  await page.getByRole("button", { name: "Switch Section menu", exact: true }).click();
   await expect
     .element(page.getByRole("menuitemradio", { name: "Projects", exact: true }))
     .toHaveAttribute("aria-checked", "true");
@@ -70,7 +70,7 @@ test("project switcher searches and selects with the keyboard", async () => {
   const current = item();
   current.switcher!.onSelect = select;
   await render(<BreadcrumbTrail items={[current]} />);
-  await page.getByRole("button", { name: /^Switch project:/ }).click();
+  await page.getByRole("button", { name: /^Switch Project:/ }).click();
   const search = page.getByRole("textbox", { name: "Search switch project", exact: true });
   await search.fill("Project B");
   await expect
@@ -85,12 +85,12 @@ test("project switcher searches and selects with the keyboard", async () => {
 test("double-click renames; Enter commits once and Escape cancels", async () => {
   const rename = vi.fn();
   await render(<BreadcrumbTrail items={[item({ onRename: rename })]} />);
-  await userEvent.dblClick(page.getByRole("button", { name: /^Switch project:/ }));
+  await userEvent.dblClick(page.getByRole("button", { name: /^Switch Project:/ }));
   const field = page.getByRole("textbox", { name: "Rename Project A", exact: true });
   await field.fill("New project name");
   await userEvent.keyboard("{Enter}");
   expect(rename).toHaveBeenCalledExactlyOnceWith("New project name");
-  await userEvent.dblClick(page.getByRole("button", { name: /^Switch project:/ }));
+  await userEvent.dblClick(page.getByRole("button", { name: /^Switch Project:/ }));
   await field.fill("Discard this");
   await userEvent.keyboard("{Escape}");
   expect(rename).toHaveBeenCalledOnce();
@@ -104,7 +104,7 @@ test("Rename menu action supports touch and blur commits", async () => {
       <button type="button">Outside</button>
     </>,
   );
-  await page.getByRole("button", { name: /^Switch project:/ }).click();
+  await page.getByRole("button", { name: /^Switch Project:/ }).click();
   await page.getByRole("menuitem", { name: "Rename", exact: true }).click();
   const field = page.getByRole("textbox", { name: "Rename Project A", exact: true });
   await field.fill("  New name  ");
@@ -116,7 +116,7 @@ test("read-only crumbs offer no Rename; loading and empty search stay distinct",
   const current = item();
   current.switcher!.loading = true;
   const view = await render(<BreadcrumbTrail items={[current]} />);
-  await page.getByRole("button", { name: /^Switch project:/ }).click();
+  await page.getByRole("button", { name: /^Switch Project:/ }).click();
   await expect.element(page.getByRole("status")).toHaveTextContent("Loading…");
   await expect
     .element(page.getByRole("menuitem", { name: "Rename", exact: true }))
@@ -142,7 +142,7 @@ test("a long breadcrumb fits a mobile viewport", async () => {
   const nav = page.getByRole("navigation", { name: "Breadcrumb", exact: true }).element();
   expect(nav.getBoundingClientRect().width).toBeLessThanOrEqual(328);
   expect(nav.scrollWidth).toBeLessThanOrEqual(328);
-  await page.getByRole("button", { name: /^Switch project:/ }).click();
+  await page.getByRole("button", { name: /^Switch Project:/ }).click();
   const menu = page.getByRole("menu").element().getBoundingClientRect();
   expect(menu.left).toBeGreaterThanOrEqual(0);
   expect(menu.right).toBeLessThanOrEqual(360);
@@ -159,7 +159,7 @@ test("mobile collapses an ancestor menu and keeps the current label available", 
             label: "Projects",
             href: "/projects",
             switcher: {
-              label: "Switch section",
+              label: "Switch Section",
               value: "projects",
               options: [{ value: "projects", label: "Projects" }],
               onSelect: vi.fn(),
@@ -174,9 +174,9 @@ test("mobile collapses an ancestor menu and keeps the current label available", 
     .element(page.getByRole("link", { name: "Projects", exact: true }))
     .not.toBeInTheDocument();
   await expect
-    .element(page.getByRole("button", { name: "Switch section menu", exact: true }))
+    .element(page.getByRole("button", { name: "Switch Section menu", exact: true }))
     .toBeVisible();
-  await expect.element(page.getByRole("button", { name: /^Switch project:/ })).toBeVisible();
+  await expect.element(page.getByRole("button", { name: /^Switch Project:/ })).toBeVisible();
 });
 
 test("breadcrumb controls retain the toolbar button foreground treatment in dark mode", async () => {
@@ -196,7 +196,7 @@ test("breadcrumb controls retain the toolbar button foreground treatment in dark
       context.fillRect(0, 0, 1, 1);
       return [...context.getImageData(0, 0, 1, 1).data];
     };
-    expect(rgba(page.getByRole("button", { name: /^Switch project:/ }).element())).toEqual(
+    expect(rgba(page.getByRole("button", { name: /^Switch Project:/ }).element())).toEqual(
       rgba(page.getByText("Reference foreground", { exact: true }).element()),
     );
   } finally {
@@ -213,7 +213,7 @@ test("grouped controls keep square shared corners and a stable rename footprint"
           label: "Projects",
           href: "/projects",
           switcher: {
-            label: "Switch section",
+            label: "Switch Section",
             value: "projects",
             options: [],
             onSelect: vi.fn(),
@@ -231,12 +231,12 @@ test("grouped controls keep square shared corners and a stable rename footprint"
   ).toBe(before.height);
   expect(
     page
-      .getByRole("button", { name: "Switch section menu", exact: true })
+      .getByRole("button", { name: "Switch Section menu", exact: true })
       .element()
       .getBoundingClientRect().height,
   ).toBe(before.height);
   const sectionArrow = page
-    .getByRole("button", { name: "Switch section menu", exact: true })
+    .getByRole("button", { name: "Switch Section menu", exact: true })
     .element();
   const sectionRect = sectionArrow.getBoundingClientRect();
   const linkRect = page
@@ -255,7 +255,7 @@ test("grouped controls keep square shared corners and a stable rename footprint"
   ).toBeLessThan(0.5);
   const nav = page.getByRole("navigation", { name: "Breadcrumb", exact: true });
   const trailBefore = nav.element().getBoundingClientRect();
-  const arrow = page.getByRole("button", { name: /^Switch project:/ });
+  const arrow = page.getByRole("button", { name: /^Switch Project:/ });
   expect(arrow.element().getBoundingClientRect().height).toBe(before.height);
   expect(getComputedStyle(arrow.element()).borderTopLeftRadius).toBe("0px");
   expect(getComputedStyle(field.element()).borderTopRightRadius).toBe("0px");
@@ -287,7 +287,7 @@ test("sibling and action icons resolve through the consumer's registry", async (
       <BreadcrumbTrail items={[current]} />
     </IconProvider>,
   );
-  await page.getByRole("button", { name: /^Switch project:/ }).click();
+  await page.getByRole("button", { name: /^Switch Project:/ }).click();
   expect(page.getByRole("separator").elements()).toHaveLength(2);
   for (const row of [
     page.getByRole("menuitemradio", { name: "Project A", exact: true }),
@@ -304,17 +304,17 @@ test("reserved section labels keep the same split-control width on listings and 
     label,
     labelWidth: 112,
     href: "/projects",
-    switcher: { label: "Switch section", value: label, options: [], onSelect: vi.fn() },
+    switcher: { label: "Switch Section", value: label, options: [], onSelect: vi.fn() },
   });
   const view = await render(<BreadcrumbTrail items={[section("Home")]} />);
   for (const name of ["Home", "Projects", "Assets", "Devices", "Organizations"]) {
     await view.rerender(<BreadcrumbTrail items={[section(name)]} />);
     const label = page
-      .getByRole("button", { name: `Switch section: ${name}`, exact: true })
+      .getByRole("button", { name: `Switch Section: ${name}`, exact: true })
       .element()
       .getBoundingClientRect();
     const arrow = page
-      .getByRole("button", { name: "Switch section menu", exact: true })
+      .getByRole("button", { name: "Switch Section menu", exact: true })
       .element()
       .getBoundingClientRect();
     expect(label.width).toBe(112);
@@ -328,4 +328,24 @@ test("reserved section labels keep the same split-control width on listings and 
     page.getByRole("link", { name: "Projects", exact: true }).element().getBoundingClientRect()
       .width,
   ).toBe(112);
+});
+
+
+test("consumers can hide Rename while retaining double-click editing", async () => {
+  const rename = vi.fn();
+  await render(<BreadcrumbTrail items={[item({ onRename: rename, showRenameAction: false })]} />);
+  const trigger = page.getByRole("button", { name: /^Switch Project:/ });
+  await trigger.click();
+  await expect.element(page.getByRole("menuitem", { name: "Rename", exact: true })).not.toBeInTheDocument();
+  const search = page.getByRole("textbox", { name: "Search switch project" }).element();
+  const separator = document.querySelector('[role="separator"]')!;
+  const label = page.getByText("Switch Project", { exact: true }).element();
+  const gapAbove = search.getBoundingClientRect().top - label.getBoundingClientRect().bottom;
+  const gapBelow = separator.getBoundingClientRect().top - search.getBoundingClientRect().bottom;
+  expect(Math.abs(gapBelow - gapAbove)).toBeLessThanOrEqual(2);
+  await userEvent.keyboard("{Escape}");
+  await userEvent.dblClick(trigger);
+  await page.getByRole("textbox", { name: "Rename Project A", exact: true }).fill("Project C");
+  await userEvent.keyboard("{Enter}");
+  expect(rename).toHaveBeenCalledExactlyOnceWith("Project C");
 });

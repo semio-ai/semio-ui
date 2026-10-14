@@ -183,3 +183,6 @@ controls. Consumers choose domain icons and provide their registry overrides.
 `labelWidth` reserves a label width in pixels and renders its sibling trigger as
 a separate adjacent segment, including on the current page. This lets consumers
 keep predefined navigation choices the same width on listing and detail pages.
+
+`BreadcrumbTrailItem.showRenameAction` can hide the menu action while keeping
+`onRename` double-click editing, when another surface provides a rename form.
