@@ -2,6 +2,7 @@ import { DropdownMenu, ContextMenu } from "radix-ui";
 import { type MouseEvent, type CSSProperties } from "react";
 import { alpha, altColor } from "@semio/utils";
 import { clsx } from "clsx";
+import { useMenuAction } from "../floating/menu-action";
 import { Icon, resolveIcon } from "../icons/registry";
 import { useNestedParent } from "./context";
 import { NestedParent } from "./types";
@@ -27,6 +28,7 @@ export function NestedCheckbox({
   icon,
   label,
 }: NestedCheckboxProps) {
+  const runAction = useMenuAction();
   const parent = useNestedParent();
 
   const ItemComponent =
@@ -47,7 +49,7 @@ export function NestedCheckbox({
         key={label}
         color={color}
         checked={value}
-        onCheckedChange={onChange}
+        onCheckedChange={(next) => runAction(() => onChange?.(next), closeOnSelect)}
         onSelect={(e: Event) => {
           if (!closeOnSelect) {
             e.preventDefault();

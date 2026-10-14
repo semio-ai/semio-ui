@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Combobox } from "../inputs/combobox";
+import { ListGrid } from "../list/list-grid";
+import { NestedRadio } from "../nested-elements/radio";
 import { NestedItem } from "../nested-elements/item";
 import { NestedMenu } from "../nested-elements/menu";
 import { ContextMenu as ContextMenuOverlay } from "./context-menu";
@@ -57,11 +59,18 @@ function CanvasEntry({ children, popover }: { children: ReactNode; popover: bool
 export function OverlayLauncher({
   entry,
   onLaunch,
+  extraItems,
 }: {
   entry: OverlayEntry;
   onLaunch: () => void;
+  extraItems?: ReactNode;
 }) {
-  const item = <NestedItem onClick={onLaunch}>New entity</NestedItem>;
+  const item = (
+    <>
+      <NestedItem onClick={onLaunch}>New entity</NestedItem>
+      {extraItems}
+    </>
+  );
   const submenu = <NestedMenu label="Create">{item}</NestedMenu>;
   switch (entry) {
     case OverlayEntry.Dropdown:
@@ -192,3 +201,98 @@ export function OverlayAccessibilityFixture({
     </>
   );
 }
+
+export enum MenuSurroundings {
+  Modal = "Modal",
+  Sidebar = "SidebarModal",
+  Listing = "ListGrid",
+}
+
+export const MENU_ENTRIES = Object.values(OverlayEntry).filter(
+  (entry) => entry !== OverlayEntry.Popover,
+);
+
+export function MenuUsabilityFixture({
+  entry,
+  surroundings,
+}: {
+  entry: OverlayEntry;
+  surroundings: MenuSurroundings;
+}) {
+  const [open, setOpen] = useState(true);
+  const [selected, setSelected] = useState(0);
+  const [kept, setKept] = useState(0);
+  const [role, setRole] = useState("editor");
+  const launcher = (
+    <OverlayLauncher
+      entry={entry}
+      onLaunch={() => setSelected((count) => count + 1)}
+      extraItems={
+        <>
+          <NestedItem closeOnSelect={false} onClick={() => setKept((count) => count + 1)}>
+            Keep menu open
+          </NestedItem>
+          <NestedRadio
+            value={role}
+            onChange={setRole}
+            options={[
+              { value: "editor", label: "Editor" },
+              { value: "admin", label: "Admin" },
+            ]}
+          />
+        </>
+      }
+    />
+  );
+  const content = (
+    <div className="flex min-h-64 flex-col items-start justify-between">
+      {launcher}
+      <output aria-label="Selections">{selected}</output>
+      <output aria-label="Kept open">{kept}</output>
+      <output aria-label="Chosen role">{role}</output>
+      {/* Keep the outside press below the root menu, including its radio group. */}
+      <button type="button">Outside menu</button>
+    </div>
+  );
+  if (surroundings === MenuSurroundings.Modal)
+    return (
+      <ModalOverlay open={open} onStateChange={setOpen} title="Menu dialog">
+        {content}
+      </ModalOverlay>
+    );
+  if (surroundings === MenuSurroundings.Sidebar)
+    return (
+      <SidebarModal
+        open={open}
+        onStateChange={setOpen}
+        title="Menu dialog"
+        tabs={[{ key: "menu", title: "Menu tab", content }]}
+      />
+    );
+  return (
+    <>
+      {content}
+      <ListGrid
+        ariaLabel="Focus managing list"
+        selectionMode="single"
+        data={[
+          { id: "first", label: "First row" },
+          { id: "second", label: "Second row" },
+        ]}
+        getRowId={(row) => row.id}
+        columns={[{ key: "label", flex: true, render: (row) => row.label }]}
+      />
+    </>
+  );
+}
+
+export const OVERLAY_SELECTION_CASES = Object.values(OverlayEntry).flatMap<
+  [OverlayEntry, "click" | "keyboard"]
+>((entry) =>
+  entry === OverlayEntry.Popover
+    ? [[entry, "click"]]
+    : [
+        [entry, "click"],
+        [entry, "keyboard"],
+      ],
+);

@@ -7,6 +7,10 @@ import {
   DialogSurface,
   OverlayAccessibilityFixture,
   OverlayEntry,
+  MENU_ENTRIES,
+  OVERLAY_SELECTION_CASES,
+  MenuSurroundings,
+  MenuUsabilityFixture,
 } from "./overlay-accessibility.fixture";
 
 beforeEach(async () => {
@@ -22,7 +26,11 @@ beforeEach(async () => {
     .toBe(true);
 });
 
-async function openMenu(entry: OverlayEntry, select = true) {
+async function openMenu(
+  entry: OverlayEntry,
+  select: boolean | "keyboard" = true,
+  afterOpen?: () => Promise<void>,
+) {
   const trigger = page.getByRole("button", { name: "Open menu", exact: true });
   if (entry === OverlayEntry.ContextMenu || entry === OverlayEntry.ContextSubmenu) {
     await trigger.click({ button: "right" });
@@ -31,6 +39,7 @@ async function openMenu(entry: OverlayEntry, select = true) {
   }
   if (entry === OverlayEntry.DropdownSubmenu || entry === OverlayEntry.ContextSubmenu) {
     const submenu = page.getByRole("menuitem", { name: "Create", exact: true });
+    await expect.element(submenu).toBeVisible();
     await submenu.hover();
     await expect.element(submenu).toHaveFocus();
     await userEvent.keyboard("{ArrowRight}");
@@ -39,7 +48,12 @@ async function openMenu(entry: OverlayEntry, select = true) {
   const role = entry === OverlayEntry.Popover ? "button" : "menuitem";
   const item = page.getByRole(role, { name: "New entity", exact: true });
   await expect.element(item).toBeVisible();
-  if (select) await item.click();
+  await afterOpen?.();
+  if (select === "keyboard") {
+    await item.hover();
+    await expect.element(item).toHaveFocus();
+    await userEvent.keyboard("{Enter}");
+  } else if (select) await item.click();
   return item;
 }
 
@@ -70,15 +84,15 @@ async function pickModelAndClose(container: HTMLElement, surface: DialogSurface)
 }
 
 for (const surface of Object.values(DialogSurface)) {
-  test.each(Object.values(OverlayEntry))(
-    `%s → ${surface} restores the accessible app`,
-    async (entry) => {
+  test.each(OVERLAY_SELECTION_CASES)(
+    `%s (%s) → ${surface} restores the accessible app`,
+    async (entry, method) => {
       const { container } = await render(
         <StrictMode>
           <OverlayAccessibilityFixture entry={entry} surface={surface} />
         </StrictMode>,
       );
-      await openMenu(entry);
+      await openMenu(entry, method === "keyboard" ? "keyboard" : true);
       await pickModelAndClose(container, surface);
     },
   );
@@ -93,9 +107,9 @@ for (const surface of Object.values(DialogSurface)) {
     await pickModelAndClose(container, surface);
   });
 
-  test.each(Object.values(OverlayEntry))(
-    `${surface} → %s → inner modal restores each dialog's background after closing`,
-    async (entry) => {
+  test.each(OVERLAY_SELECTION_CASES)(
+    `${surface} → %s (%s) → inner modal restores each dialog's background after closing`,
+    async (entry, method) => {
       const { container } = await render(
         <StrictMode>
           <OverlayAccessibilityFixture entry={entry} surface={surface} inside />
@@ -115,10 +129,22 @@ for (const surface of Object.values(DialogSurface)) {
       await expect.element(page.getByRole("button", { name: "Scene row" })).not.toBeInTheDocument();
       await expect.element(page.getByRole("button", { name: "Outer dialog action" })).toBeVisible();
       const item = await openMenu(entry, false);
-      await expect.element(page.getByRole("button", { name: "Outer dialog action" })).toBeVisible();
+      if (entry === OverlayEntry.Popover) {
+        await expect
+          .element(page.getByRole("button", { name: "Outer dialog action" }))
+          .toBeVisible();
+      } else {
+        await expect
+          .element(page.getByRole("button", { name: "Outer dialog action" }))
+          .not.toBeInTheDocument();
+      }
       await expect.element(page.getByRole("button", { name: "Scene row" })).not.toBeInTheDocument();
       await expect.poll(() => container.getAttribute("aria-hidden")).toBe("true");
-      await item.click();
+      if (method === "keyboard") {
+        await item.hover();
+        await expect.element(item).toHaveFocus();
+        await userEvent.keyboard("{Enter}");
+      } else await item.click();
       await expect
         .element(page.getByRole("dialog", { name: "New Entity", exact: true }))
         .toBeVisible();
@@ -148,44 +174,101 @@ for (const surface of Object.values(DialogSurface)) {
   );
 }
 
-test.each([OverlayEntry.Dropdown, OverlayEntry.ContextMenu, OverlayEntry.CanvasMenu])(
-  "%s dismisses and runs the background action on the first outside click",
-  async (entry) => {
-    await render(<OverlayAccessibilityFixture entry={entry} />);
-    await openMenu(entry, false);
-    await expect.element(page.getByRole("menu")).toBeVisible();
-    await expect
-      .element(page.getByRole("status", { name: "Scene actions" }))
-      .toHaveTextContent("0");
-    const row = page.getByRole("button", { name: "Scene row", exact: true });
-    await expect
-      .poll(() => {
-        const element = row.element();
-        const rect = element.getBoundingClientRect();
-        return element.contains(
-          document.elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2),
-        );
-      })
-      .toBe(true);
-    await row.click();
-    await expect.element(page.getByRole("menu")).not.toBeInTheDocument();
-    await expect
-      .element(page.getByRole("status", { name: "Scene actions" }))
-      .toHaveTextContent("1");
-    await expect.element(page.getByRole("dialog")).not.toBeInTheDocument();
-  },
-);
+for (const surroundings of Object.values(MenuSurroundings)) {
+  test.each(MENU_ENTRIES)(
+    `${surroundings}: %s stays usable through focus moves, click, keyboard, Escape and outside press`,
+    async (entry) => {
+      await render(
+        <StrictMode>
+          <MenuUsabilityFixture entry={entry} surroundings={surroundings} />
+        </StrictMode>,
+      );
+      if (surroundings === MenuSurroundings.Sidebar)
+        await page.getByRole("tab", { name: "Menu tab", exact: true }).click();
+      const outside = page.getByRole("button", { name: "Outside menu", exact: true });
+      await expect.element(outside).toBeVisible();
+      const outsideElement = outside.element();
+      const focusTarget =
+        surroundings === MenuSurroundings.Listing
+          ? page.getByRole("option", { name: "Second row", exact: true }).element()
+          : outside.element();
+      if (surroundings === MenuSurroundings.Listing) {
+        await page.getByRole("option", { name: "First row", exact: true }).click();
+        await userEvent.keyboard("{ArrowDown}");
+        await expect.element(focusTarget).toHaveFocus();
+      }
+      let item = await openMenu(entry, false, async () => {
+        if (surroundings === MenuSurroundings.Listing) {
+          // A queued list navigation handler may deliver focus after a menu opens.
+          focusTarget.dispatchEvent(
+            new KeyboardEvent("keydown", { key: "ArrowUp", bubbles: true, cancelable: true }),
+          );
+        } else focusTarget.focus();
+        // Flush the focus managers' microtasks and a paint before judging survival.
+        await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+        await expect.poll(() => page.getByRole("menu").elements().length).toBeGreaterThan(0);
+        await expect
+          .poll(() => Boolean(document.activeElement?.closest('[role="menu"]')))
+          .toBe(true);
+      });
+      await expect.element(item).toBeVisible();
+      if (entry === OverlayEntry.DropdownSubmenu || entry === OverlayEntry.ContextSubmenu) {
+        await userEvent.keyboard("{ArrowLeft}");
+        await expect
+          .element(page.getByRole("menuitem", { name: "Create", exact: true }))
+          .toHaveFocus();
+        await userEvent.keyboard("{ArrowRight}");
+        item = page.getByRole("menuitem", { name: "New entity", exact: true });
+        await expect.element(item).toBeVisible();
+      }
+      await page.getByRole("menuitem", { name: "Keep menu open", exact: true }).click();
+      await expect.element(item).toBeVisible();
+      await item.click();
+      await expect.element(page.getByRole("menu")).not.toBeInTheDocument();
+      await expect.element(page.getByRole("status", { name: "Selections" })).toHaveTextContent("1");
+      await expect.element(page.getByRole("status", { name: "Kept open" })).toHaveTextContent("1");
 
-test("dropdown keyboard navigation, Escape dismissal and focus restoration", async () => {
-  await render(<OverlayAccessibilityFixture />);
-  const trigger = page.getByRole("button", { name: "Open menu", exact: true });
-  await trigger.click();
-  await userEvent.keyboard("{Escape}");
-  await expect.element(trigger).toHaveFocus();
-  await userEvent.keyboard("{Enter}{ArrowDown}");
-  await expect.element(page.getByRole("menuitem", { name: "New entity" })).toHaveFocus();
-  await expect.element(page.getByRole("button", { name: "Scene row" })).toBeVisible();
-  await userEvent.keyboard("{Escape}");
-  await expect.element(page.getByRole("menu")).not.toBeInTheDocument();
-  await expect.element(trigger).toHaveFocus();
-});
+      item = await openMenu(entry, false);
+      await item.hover();
+      await expect.element(item).toHaveFocus();
+      await userEvent.keyboard("{ArrowDown}");
+      await expect
+        .element(page.getByRole("menuitem", { name: "Keep menu open", exact: true }))
+        .toHaveFocus();
+      await userEvent.keyboard("{ArrowUp}");
+      await expect.element(item).toHaveFocus();
+      await userEvent.keyboard("{Enter}");
+      await expect.element(page.getByRole("menu")).not.toBeInTheDocument();
+      await expect.element(page.getByRole("status", { name: "Selections" })).toHaveTextContent("2");
+
+      await openMenu(entry, false);
+      await page.getByRole("menuitemradio", { name: "Admin", exact: true }).click();
+      await expect.element(page.getByRole("menu")).not.toBeInTheDocument();
+      await expect
+        .element(page.getByRole("status", { name: "Chosen role" }))
+        .toHaveTextContent("admin");
+
+      item = await openMenu(entry, false);
+      await item.hover();
+      await userEvent.keyboard("{Escape}");
+      await expect.element(page.getByRole("menu")).not.toBeInTheDocument();
+      if (entry === OverlayEntry.Dropdown || entry === OverlayEntry.DropdownSubmenu) {
+        await expect
+          .element(page.getByRole("button", { name: "Open menu", exact: true }))
+          .toHaveFocus();
+      }
+      if (surroundings !== MenuSurroundings.Listing)
+        await expect.element(page.getByRole("dialog", { name: "Menu dialog" })).toBeVisible();
+
+      await openMenu(entry, false);
+      const rect = outsideElement.getBoundingClientRect();
+      const hit = document.elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2);
+      expect(hit).not.toBeNull();
+      expect(hit?.closest('[role="menu"]')).toBeNull();
+      // Skip Playwright's receives-events check for the pointer-locked button;
+      // Chromium still hit-tests its centre and sends the native pointerdown outside.
+      await userEvent.click(outsideElement, { force: true });
+      await expect.element(page.getByRole("menu")).not.toBeInTheDocument();
+    },
+  );
+}
