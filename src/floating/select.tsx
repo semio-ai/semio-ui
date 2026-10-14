@@ -197,7 +197,11 @@ export function Select<T extends string | string[]>({
     if (visuals === "icons") {
       const tooltipContent = selectOption?.label ?? label ?? "Select";
       return (
-        <div
+        <button
+          type="button"
+          disabled={disabled}
+          aria-label={label ?? selectOption?.label ?? "Select"}
+          aria-disabled={disabled}
           style={
             {
               "--custom-color": selectOption?.color,
@@ -219,14 +223,18 @@ export function Select<T extends string | string[]>({
               {resolveIcon(selectOption?.icon) || <Icon name="option-placeholder" />}
             </div>
           </Tooltip>
-        </div>
+        </button>
       );
     }
 
     const showIcon = visuals === "both";
 
     return (
-      <div
+      <button
+        type="button"
+        disabled={disabled}
+        aria-label={label ?? selectOption?.label ?? "Select"}
+        aria-disabled={disabled}
         style={
           {
             "--custom-color": selectOption?.color,
@@ -300,7 +308,7 @@ export function Select<T extends string | string[]>({
             <Icon name="select-indicator" />
           </StaticIcon>
         </div>
-      </div>
+      </button>
     );
   };
 

@@ -105,6 +105,11 @@ relying on the caption alone.
 `Modal` gives initial focus to the rightmost enabled footer action. With no
 available footer action, it retains the dialog primitive's default focus behavior.
 
+`Tooltip` displays non-interactive explanations on hover and focus. Its content
+lets pointer events pass through, and leaving the trigger closes it, so an
+explanation overlapping an adjacent control cannot block that control or retain
+itself through content hover. Use `Popover` for content with links or actions.
+
 **Artwork and attribution.** Solar artwork is by 480 Design under CC BY 4.0, and
 the `@solar-icons/react-perf` components that render it are MIT. That package is
 a dependency: external in the ESM build, and bundled into the CommonJS build

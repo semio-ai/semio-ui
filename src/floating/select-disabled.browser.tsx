@@ -51,7 +51,7 @@ test("a disabled Select does not open its menu when clicked", async () => {
   // The trigger renders and shows its value — disabled is not hidden.
   await expect.element(page.getByText("Viewer")).toBeVisible();
 
-  await page.getByText("Viewer").click();
+  await page.getByText("Viewer").click({ force: true });
   await settle();
 
   // No menu. Asserted on the options that would be in it rather than on a container,
@@ -72,7 +72,7 @@ test("an enabled Select does open — the same click, to show the test can tell"
     />,
   );
 
-  await page.getByText("Viewer").click();
+  await page.getByText("Viewer").click({ force: true });
   await settle();
 
   expect(page.getByRole("menuitemradio").elements().length).toBeGreaterThan(0);

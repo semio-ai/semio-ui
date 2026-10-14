@@ -5,6 +5,7 @@ import { Size, Variant } from "../types";
 import { Arrow } from "./arrow";
 
 export interface TooltipProps {
+  /** Non-interactive explanation. Use a Popover for links or actions. */
   content: ReactNode;
   children: ReactNode;
   side?: "top" | "right" | "bottom" | "left";
@@ -58,48 +59,56 @@ function Tooltip({
   }
 
   return (
-    <TooltipPrimitive.Provider>
+    <TooltipPrimitive.Provider disableHoverableContent>
       <TooltipPrimitive.Root open={open} onOpenChange={handleOpenChange}>
         <TooltipPrimitive.Trigger disabled={disabled} asChild>
           {children}
         </TooltipPrimitive.Trigger>
         <TooltipPrimitive.Portal container={portalContainer ?? undefined}>
-          <TooltipPrimitive.Content
-            side={side}
-            sideOffset={6}
-            className={clsx(
-              Size.Sm as string,
-              "variant-scope",
-              "sized-text",
-              "tooltip-content",
-              "inline-flex items-center px-2 py-0.5 select-none",
-              invert ? "card-invert" : "variant-static-text card-overlay",
-              variant,
-              // The one `z-index` left in the package's overlays, kept deliberately rather
-              // than by oversight. It is effective where it sits only because of a Radix
-              // detail: `Content` is not itself the positioned element, but
-              // `react-popper` reads its computed `z-index` and copies it onto the
-              // wrapper it positions (`react-popper/dist/index.mjs:141,153`).
-              //
-              // **That makes it inert under any primitive with a Positioner/Popup split**,
-              // base-ui's included — there the value would have to move to the Positioner,
-              // which is the trap `inputs/combobox-shared.ts` documents for the popup. So
-              // swapping this component's provider is the change that silently turns this
-              // line into a no-op, and a tooltip that quietly stops out-ranking anything
-              // is not a failure a test of tooltip *behaviour* would catch.
-              //
-              // Nothing else in the package sets one: overlays portal to the end of
-              // `<body>` at `auto`, and a host stacking against its own ladder passes
-              // `portalContainer`. The effect of keeping this is that a `Tooltip` out-ranks
-              // a `Combobox` popup where the two overlap.
-              "z-10",
-            )}
-          >
-            <TooltipPrimitive.Arrow asChild width={12} height={6}>
-              <Arrow filled={invert ?? false} variant={variant ?? Variant.Default} />
-            </TooltipPrimitive.Arrow>
-            {content}
-          </TooltipPrimitive.Content>
+          {/* Radix positions Content inside its own wrapper. Pointer events
+              must be disabled above that wrapper too, or its box can catch a
+              click even when the visible content lets the click through. */}
+          <div style={{ pointerEvents: "none" }}>
+            <TooltipPrimitive.Content
+              side={side}
+              sideOffset={6}
+              className={clsx(
+                Size.Sm as string,
+                "variant-scope",
+                "sized-text",
+                "tooltip-content",
+                // Explanations can overlap nearby controls, so their surface must
+                // let pointer events reach the control underneath. The provider
+                // also closes on trigger leave instead of retaining a hover bridge.
+                "pointer-events-none inline-flex items-center px-2 py-0.5 select-none",
+                invert ? "card-invert" : "variant-static-text card-overlay",
+                variant,
+                // The one `z-index` left in the package's overlays, kept deliberately rather
+                // than by oversight. It is effective where it sits only because of a Radix
+                // detail: `Content` is not itself the positioned element, but
+                // `react-popper` reads its computed `z-index` and copies it onto the
+                // wrapper it positions (`react-popper/dist/index.mjs:141,153`).
+                //
+                // **That makes it inert under any primitive with a Positioner/Popup split**,
+                // base-ui's included — there the value would have to move to the Positioner,
+                // which is the trap `inputs/combobox-shared.ts` documents for the popup. So
+                // swapping this component's provider is the change that silently turns this
+                // line into a no-op, and a tooltip that quietly stops out-ranking anything
+                // is not a failure a test of tooltip *behaviour* would catch.
+                //
+                // Nothing else in the package sets one: overlays portal to the end of
+                // `<body>` at `auto`, and a host stacking against its own ladder passes
+                // `portalContainer`. The effect of keeping this is that a `Tooltip` out-ranks
+                // a `Combobox` popup where the two overlap.
+                "z-10",
+              )}
+            >
+              <TooltipPrimitive.Arrow asChild width={12} height={6}>
+                <Arrow filled={invert ?? false} variant={variant ?? Variant.Default} />
+              </TooltipPrimitive.Arrow>
+              {content}
+            </TooltipPrimitive.Content>
+          </div>
         </TooltipPrimitive.Portal>
       </TooltipPrimitive.Root>
     </TooltipPrimitive.Provider>
