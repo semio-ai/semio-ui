@@ -1,265 +1,106 @@
-import { useState, type ReactNode } from "react";
+import { useState } from "react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import {
-  type BreadcrumbElement,
-  Breadcrumbs,
-  ICON_CLASS_NAME,
-  IconFileTypeAni,
-  IconFileTypeMod,
-  IconFileTypeFace,
-  IconHome,
-  Size,
-  Variant,
-  type BreadcrumbsProps,
-} from "@semio/ui";
-import { IconCube, IconDashboard, IconHexagonLetterS, IconShoppingBag } from "@tabler/icons-react";
-// import { IconChevronDown } from "@tabler/icons-react";
-// import { NestedExample } from "./nested-example";
+import { BreadcrumbTrail, type BreadcrumbTrailItem } from "@semio/ui";
 
-const meta: Meta<typeof Breadcrumbs> = {
-  component: Breadcrumbs,
+const meta: Meta<typeof BreadcrumbTrail> = {
+  component: BreadcrumbTrail,
   title: "ui/Breadcrumbs",
   decorators: [
     (Story) => (
-      <div className="grid h-full place-items-center p-5">
-        {/* 👇 Decorators in Storybook also accept a function. Replace <Story/> with Story() to enable it  */}
+      <div className="variant-scope p-5">
         <Story />
       </div>
     ),
   ],
 };
-
 export default meta;
+type Story = StoryObj<typeof BreadcrumbTrail>;
 
-type Story = StoryObj<typeof Breadcrumbs>;
-
-function BreadcrumbsRenderer(props: BreadcrumbsProps): ReactNode {
-  const [values, setValues] = useState<Record<string, string | undefined>>(props.values);
-
-  return <Breadcrumbs {...props} values={values} onChange={setValues} />;
+function Example({ width }: { width?: number }) {
+  const [section, setSection] = useState("Projects");
+  const [project, setProject] = useState("a");
+  const [name, setName] = useState("Robot demo");
+  const [destination, setDestination] = useState("");
+  const items: BreadcrumbTrailItem[] = [
+    {
+      id: "section",
+      label: section,
+      href: "#projects",
+      onNavigate: () => setDestination("Projects listing"),
+      switcher: {
+        label: "Switch section",
+        value: section,
+        options: ["Home", "Projects", "Assets", "Devices", "Organizations"].map((label) => ({
+          value: label,
+          label,
+        })),
+        onSelect: setSection,
+      },
+    },
+  ];
+  if (section === "Projects")
+    items.push({
+      id: "project",
+      label: project === "a" ? name : "Shared project",
+      onRename: setName,
+      switcher: {
+        label: "Switch project",
+        value: project,
+        searchable: true,
+        options: [
+          { value: "a", label: `${name} · You` },
+          { value: "b", label: "Shared project · @team" },
+        ],
+        onSelect: setProject,
+        browse: { label: "View all projects", onSelect: () => setDestination("Projects listing") },
+      },
+    });
+  return (
+    <div style={{ width }} className="max-w-full">
+      <div className="card-transparent flex h-10 min-w-0 items-center px-2">
+        <BreadcrumbTrail items={items} />
+      </div>
+      <p className="mt-4 text-sm">
+        Click to switch projects. Double-click the name, or choose Rename, to edit it.
+      </p>
+      {destination && <p role="status">Opened: {destination}</p>}
+    </div>
+  );
 }
-
-const STATIC_ELEMENTS: BreadcrumbElement[] = [
-  {
-    id: "root",
-    type: "option",
-    options: [
+export const Default: Story = { render: () => <Example /> };
+export const Mobile: Story = { render: () => <Example width={328} /> };
+export const Loading: Story = {
+  args: {
+    items: [
       {
-        value: "dashboard",
-        label: "Dashboard",
-        icon: <IconDashboard className={ICON_CLASS_NAME} />,
-        children: [
-          {
-            id: "subRoot",
-            type: "option",
-            options: [
-              {
-                value: "home",
-                label: "Home",
-                icon: <IconHome className={ICON_CLASS_NAME} />,
-                default: true,
-                children: [],
-              },
-              {
-                value: "projects",
-                label: "Projects",
-                icon: <IconCube className={ICON_CLASS_NAME} />,
-                children: [],
-              },
-              {
-                value: "animations",
-                label: "Animations",
-                icon: <IconFileTypeAni className={ICON_CLASS_NAME} />,
-                children: [],
-              },
-              {
-                value: "faces",
-                label: "Faces",
-                icon: <IconFileTypeFace className={ICON_CLASS_NAME} />,
-                children: [],
-              },
-              {
-                value: "models",
-                label: "Models",
-                icon: <IconFileTypeMod className={ICON_CLASS_NAME} />,
-                children: [],
-              },
-            ],
-          },
-        ],
-      },
-      {
-        value: "marketplace",
-        label: "Marketplace",
-        icon: <IconShoppingBag className={ICON_CLASS_NAME} />,
-        children: [
-          {
-            id: "subRoot",
-            type: "option",
-            options: [
-              {
-                value: "home",
-                label: "Home",
-                icon: <IconHome className={ICON_CLASS_NAME} />,
-                default: true,
-                children: [],
-              },
-              {
-                value: "projects",
-                label: "Projects",
-                icon: <IconCube className={ICON_CLASS_NAME} />,
-                children: [],
-              },
-              {
-                value: "animations",
-                label: "Animations",
-                icon: <IconFileTypeAni className={ICON_CLASS_NAME} />,
-                children: [],
-              },
-              {
-                value: "faces",
-                label: "Faces",
-                icon: <IconFileTypeFace className={ICON_CLASS_NAME} />,
-                children: [],
-              },
-              {
-                value: "models",
-                label: "Models",
-                icon: <IconFileTypeMod className={ICON_CLASS_NAME} />,
-                children: [],
-              },
-            ],
-          },
-        ],
-      },
-      {
-        value: "studio",
-        label: "Studio",
-        icon: <IconHexagonLetterS className={ICON_CLASS_NAME} />,
-        children: [
-          {
-            id: "subRoot",
-            type: "option",
-            options: [
-              {
-                value: "aljvnliea",
-                label: "Project 1",
-                icon: <IconCube className={ICON_CLASS_NAME} />,
-                children: [],
-              },
-              {
-                value: "sdafskue2",
-                label: "Project 2",
-                icon: <IconCube className={ICON_CLASS_NAME} />,
-                children: [],
-              },
-              {
-                value: "sdisd9311",
-                label: "Project 3",
-                icon: <IconCube className={ICON_CLASS_NAME} />,
-                children: [],
-              },
-              {
-                value: "lkdfhjweq",
-                label: "Project 4",
-                icon: <IconCube className={ICON_CLASS_NAME} />,
-                children: [],
-              },
-              {
-                value: "aseisdjcl",
-                label: "Project 5",
-                icon: <IconCube className={ICON_CLASS_NAME} />,
-                children: [],
-              },
-            ],
-          },
-        ],
+        id: "project",
+        label: "Robot demo",
+        switcher: {
+          label: "Switch project",
+          value: "a",
+          options: [],
+          loading: true,
+          searchable: true,
+          onSelect: () => undefined,
+        },
       },
     ],
   },
-];
-
-/*
- *👇 Render functions are a framework specific feature to allow you control on how the component renders.
- * See https://storybook.js.org/docs/react/api/csf
- * to learn how to use render functions.
- */
-export const Default: Story = {
-  render: (args) => <BreadcrumbsRenderer {...args} />,
-  args: {
-    values: { root: "dashboard", subRoot: "projects", subSubRoot: "account" },
-    elements: STATIC_ELEMENTS,
-  },
 };
-
-export const Primary: Story = {
-  render: (args) => <BreadcrumbsRenderer {...args} />,
+export const Empty: Story = {
   args: {
-    values: { root: "dashboard", subRoot: "projects", subSubRoot: "account" },
-    elements: STATIC_ELEMENTS,
-    variant: Variant.Primary,
-  },
-};
-
-export const Secondary: Story = {
-  render: (args) => <BreadcrumbsRenderer {...args} />,
-  args: {
-    values: { root: "dashboard", subRoot: "projects", subSubRoot: "account" },
-    elements: STATIC_ELEMENTS,
-    variant: Variant.Secondary,
-  },
-};
-
-export const Tertiary: Story = {
-  render: (args) => <BreadcrumbsRenderer {...args} />,
-  args: {
-    values: { root: "dashboard", subRoot: "projects", subSubRoot: "account" },
-    elements: STATIC_ELEMENTS,
-    variant: Variant.Tertiary,
-  },
-};
-
-export const ExtraSmall: Story = {
-  render: (args) => <BreadcrumbsRenderer {...args} />,
-  args: {
-    values: { root: "dashboard", subRoot: "projects", subSubRoot: "account" },
-    elements: STATIC_ELEMENTS,
-    size: Size.Xs,
-  },
-};
-
-export const Small: Story = {
-  render: (args) => <BreadcrumbsRenderer {...args} />,
-  args: {
-    values: { root: "dashboard", subRoot: "projects", subSubRoot: "account" },
-    elements: STATIC_ELEMENTS,
-    size: Size.Sm,
-  },
-};
-
-export const Medium: Story = {
-  render: (args) => <BreadcrumbsRenderer {...args} />,
-  args: {
-    values: { root: "dashboard", subRoot: "projects", subSubRoot: "account" },
-    elements: STATIC_ELEMENTS,
-    size: Size.Md,
-  },
-};
-
-export const Large: Story = {
-  render: (args) => <BreadcrumbsRenderer {...args} />,
-  args: {
-    values: { root: "dashboard", subRoot: "projects", subSubRoot: "account" },
-    elements: STATIC_ELEMENTS,
-    size: Size.Lg,
-  },
-};
-
-export const ExtraLarge: Story = {
-  render: (args) => <BreadcrumbsRenderer {...args} />,
-  args: {
-    values: { root: "dashboard", subRoot: "projects", subSubRoot: "account" },
-    elements: STATIC_ELEMENTS,
-    size: Size.Xl,
+    items: [
+      {
+        id: "project",
+        label: "Robot demo",
+        switcher: {
+          label: "Switch project",
+          value: "a",
+          options: [],
+          emptyText: "No other projects available",
+          onSelect: () => undefined,
+        },
+      },
+    ],
   },
 };

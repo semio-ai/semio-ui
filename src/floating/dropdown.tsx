@@ -19,6 +19,8 @@ import { Arrow } from "./arrow";
 import { takeDropdownOpenLock, releaseDropdownOpenLock } from "./dropdown-coordinator";
 
 export interface DropdownProps {
+  /** Nonmodal menus allow interacting with their trigger while open (for example, double-click rename). */
+  modal?: boolean;
   trigger: ReactNode;
   children: ReactNode;
   variant?: Variant;
@@ -40,6 +42,7 @@ const Dropdown = forwardRef(
   (
     {
       header,
+      modal = true,
       trigger,
       children,
       variant,
@@ -109,7 +112,7 @@ const Dropdown = forwardRef(
 
     return (
       <NestedParentProvider value={NestedParent.Dropdown}>
-        <DropdownPrimitive.Root open={actualOpen} onOpenChange={handleOpenChange}>
+        <DropdownPrimitive.Root modal={modal} open={actualOpen} onOpenChange={handleOpenChange}>
           <DropdownPrimitive.Trigger
             ref={ref}
             asChild

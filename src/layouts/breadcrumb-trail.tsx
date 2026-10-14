@@ -1,0 +1,290 @@
+import { useEffect, useRef, useState, type ReactNode } from "react";
+import { clsx } from "clsx";
+import { Dropdown } from "../floating/dropdown";
+import { NestedItem } from "../nested-elements/item";
+import { NestedLabel } from "../nested-elements/label";
+import { NestedRadio } from "../nested-elements/radio";
+import { TextField } from "../inputs/text-field";
+import { Icon } from "../icons/registry";
+import { Size } from "../types";
+
+export interface BreadcrumbSibling {
+  value: string;
+  label: string;
+}
+
+export interface BreadcrumbTrailItem {
+  id: string;
+  label: string;
+  href?: string;
+  onNavigate?: () => void;
+  node?: ReactNode;
+  switcher?: {
+    label: string;
+    value: string;
+    options: BreadcrumbSibling[];
+    onSelect: (value: string) => void;
+    searchable?: boolean;
+    loading?: boolean;
+    error?: string;
+    emptyText?: string;
+    browse?: { label: string; onSelect: () => void };
+  };
+  /** Enables double-click and the menu's Rename action. Enter/blur commit; Escape cancels. */
+  onRename?: (name: string) => void;
+}
+
+function BreadcrumbLevel({
+  item,
+  current,
+  size,
+}: {
+  item: BreadcrumbTrailItem;
+  current: boolean;
+  size: Size;
+}) {
+  const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState("");
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(item.label);
+  const editingRef = useRef(false);
+  const searchRef = useRef<HTMLInputElement>(null);
+  const nameRef = useRef<HTMLInputElement>(null);
+  const optionsRef = useRef<HTMLDivElement>(null);
+  const switcher = item.switcher;
+
+  useEffect(() => {
+    if (!open || !switcher?.searchable) return;
+    const frame = requestAnimationFrame(() => searchRef.current?.focus());
+    return () => cancelAnimationFrame(frame);
+  }, [open, switcher?.searchable]);
+
+  useEffect(() => {
+    if (!editing) return;
+    const frame = requestAnimationFrame(() => {
+      nameRef.current?.focus();
+      nameRef.current?.select();
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [editing]);
+
+  const beginRename = () => {
+    if (!item.onRename) return;
+    setOpen(false);
+    setDraft(item.label);
+    editingRef.current = true;
+    setEditing(true);
+  };
+  const finishRename = (commit: boolean) => {
+    if (!editingRef.current) return;
+    editingRef.current = false;
+    setEditing(false);
+    const name = draft.trim();
+    if (commit && name && name !== item.label) item.onRename?.(name);
+  };
+  const visibleOptions =
+    switcher?.options.filter((option) =>
+      option.label.toLocaleLowerCase().includes(query.trim().toLocaleLowerCase()),
+    ) ?? [];
+  const labelClass = "variant-responsive-appearing-bg min-w-0 truncate rounded-xs px-2 py-1";
+  const label = editing ? (
+    <TextField
+      ref={nameRef}
+      aria-label={`Rename ${item.label}`}
+      size={size}
+      value={draft}
+      onChange={setDraft}
+      onBlur={() => finishRename(true)}
+      onKeyDown={(event) => {
+        event.stopPropagation();
+        if (event.key === "Enter" || event.key === "Escape") {
+          event.preventDefault();
+          finishRename(event.key === "Enter");
+        }
+      }}
+      wrapperClassName="min-w-0 flex-1"
+    />
+  ) : item.node ? (
+    item.node
+  ) : !current && item.href ? (
+    <a
+      href={item.href}
+      className={labelClass}
+      onClick={(event) => {
+        if (!item.onNavigate || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey)
+          return;
+        event.preventDefault();
+        item.onNavigate();
+      }}
+    >
+      {item.label}
+    </a>
+  ) : switcher ? (
+    <button
+      type="button"
+      className={labelClass}
+      aria-label={switcher.label}
+      aria-haspopup="menu"
+      aria-expanded={open}
+      onClick={() => setOpen(true)}
+      onDoubleClick={(event) => {
+        event.preventDefault();
+        beginRename();
+      }}
+    >
+      {item.label}
+    </button>
+  ) : (
+    <span className={labelClass}>{item.label}</span>
+  );
+
+  return (
+    <span
+      className={clsx(size, "sized-text flex min-w-0 items-center rounded-xs")}
+      aria-current={current ? "page" : undefined}
+    >
+      {(!switcher || !current || editing || item.node) &&
+        (!current && switcher ? <span className="hidden desktop:contents">{label}</span> : label)}
+      {switcher && (
+        <Dropdown
+          modal={false}
+          open={open && !editing}
+          onOpenChange={(next) => {
+            setOpen(next);
+            if (!next) setQuery("");
+          }}
+          disabled={editing}
+          onTriggerDoubleClick={(event) => {
+            if (!item.onRename || !current) return;
+            event.preventDefault();
+            event.stopPropagation();
+            beginRename();
+          }}
+          matchTriggerWidth={false}
+          contentClassName="desktop:w-80 max-w-[calc(100vw-16px)]"
+          trigger={
+            <button
+              type="button"
+              title={item.label}
+              aria-label={
+                current && !editing && !item.node
+                  ? `${switcher.label}: ${item.label}`
+                  : `${switcher.label} menu`
+              }
+              className={clsx(
+                size,
+                "sized-height variant-responsive-appearing-bg flex min-w-0 items-center gap-1 rounded-xs px-1",
+              )}
+            >
+              {current && !editing && !item.node && (
+                <span className="min-w-0 truncate px-1">{item.label}</span>
+              )}
+              {!current && (
+                <span aria-hidden="true" className="desktop:hidden px-1">
+                  …
+                </span>
+              )}
+              <span className={clsx("shrink-0", !current && "hidden desktop:inline-flex")}>
+                <Icon name="select-indicator" />
+              </span>
+            </button>
+          }
+          header={
+            <div className="p-2">
+              <NestedLabel>{switcher.label}</NestedLabel>
+              {switcher.searchable && (
+                <TextField
+                  ref={searchRef}
+                  size={Size.Sm}
+                  aria-label={`Search ${switcher.label.toLowerCase()}`}
+                  placeholder="Search…"
+                  value={query}
+                  onChange={setQuery}
+                  onKeyDown={(event) => {
+                    if (event.key === "ArrowDown") {
+                      event.preventDefault();
+                      optionsRef.current
+                        ?.querySelector<HTMLElement>('[role="menuitemradio"]')
+                        ?.focus();
+                    }
+                    if (event.key !== "Escape") event.stopPropagation();
+                  }}
+                />
+              )}
+            </div>
+          }
+        >
+          <div ref={optionsRef}>
+            {switcher.loading ? (
+              <p role="status" className="p-2 text-sm">
+                Loading…
+              </p>
+            ) : switcher.error ? (
+              <p role="status" className="p-2 text-sm">
+                {switcher.error}
+              </p>
+            ) : (
+              <>
+                <NestedRadio
+                  value={switcher.value}
+                  options={visibleOptions.slice(0, 50)}
+                  onChange={(value) => {
+                    setOpen(false);
+                    setQuery("");
+                    switcher.onSelect(value);
+                  }}
+                />
+                {visibleOptions.length === 0 && (
+                  <p role="status" className="p-2 text-sm">
+                    {query ? "No matches" : (switcher.emptyText ?? "No options available")}
+                  </p>
+                )}
+                {visibleOptions.length > 50 && (
+                  <p className="p-2 text-sm">Showing 50 results. Refine your search.</p>
+                )}
+              </>
+            )}
+          </div>
+          {item.onRename && <NestedItem onClick={beginRename}>Rename</NestedItem>}
+          {switcher.browse && (
+            <NestedItem
+              onClick={() => {
+                setOpen(false);
+                switcher.browse?.onSelect();
+              }}
+            >
+              {switcher.browse.label}
+            </NestedItem>
+          )}
+        </Dropdown>
+      )}
+    </span>
+  );
+}
+
+/** A flat location trail. The caller owns routes, permissions and navigation guards. */
+export function BreadcrumbTrail({
+  items,
+  size = Size.Sm,
+}: {
+  items: BreadcrumbTrailItem[];
+  size?: Size;
+}) {
+  if (!items.length) return null;
+  return (
+    <nav aria-label="Breadcrumb" className="variant-scope variant-static-text min-w-0 max-w-full">
+      <ol className="flex min-w-0 items-center gap-1">
+        {items.map((item, index) => (
+          <li key={item.id} className="flex min-w-0 items-center gap-1">
+            {index > 0 && (
+              <span aria-hidden="true" className="opacity-25">
+                /
+              </span>
+            )}
+            <BreadcrumbLevel item={item} current={index === items.length - 1} size={size} />
+          </li>
+        ))}
+      </ol>
+    </nav>
+  );
+}

@@ -155,3 +155,19 @@ Footer `ActionItem` entries with `onClick` render as direct buttons on desktop a
 direct items in the mobile menu. Without `onClick` they open their configured
 menu. A pane's `clickFn` can return `false` (synchronously or asynchronously) to
 handle a navigation action without toggling the selected pane.
+
+### Breadcrumb navigation
+
+`BreadcrumbTrail` takes a flat `items` array. Each item supplies its label and an
+optional ancestor `href`, `onNavigate` callback, sibling `switcher`, custom `node`,
+or `onRename` callback. Routes, data fetching and permission checks belong to the
+consumer. The existing tree-based `Breadcrumbs` API remains available.
+
+On mobile, ancestor labels with sibling menus collapse into an overflow trigger.
+Consumers should include a listing destination in that menu when returning to
+the ancestor must remain available. Ancestor labels navigate independently of
+their menu chevrons on desktop. A current label
+opens its sibling menu. With `onRename`, double-click or the Rename menu action
+opens a text field: Enter or blur commits a nonempty trimmed name, and Escape
+cancels. Read-only consumers omit `onRename`. Search filters supplied options and
+renders at most 50 matches; `browse` provides a destination for the full listing.
