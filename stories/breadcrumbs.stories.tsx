@@ -48,11 +48,15 @@ function Example({ width }: { width?: number }) {
         value: project,
         searchable: true,
         options: [
-          { value: "a", label: `${name} · You` },
-          { value: "b", label: "Shared project · @team" },
+          { value: "a", label: `${name} · You`, icon: "project" },
+          { value: "b", label: "Shared project · @team", icon: "project" },
         ],
         onSelect: setProject,
-        browse: { label: "View all projects", onSelect: () => setDestination("Projects listing") },
+        browse: {
+          icon: "project",
+          label: "View all projects",
+          onSelect: () => setDestination("Projects listing"),
+        },
       },
     });
   return (

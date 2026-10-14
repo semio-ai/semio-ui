@@ -171,3 +171,7 @@ opens its sibling menu. With `onRename`, double-click or the Rename menu action
 opens a text field: Enter or blur commits a nonempty trimmed name, and Escape
 cancels. Read-only consumers omit `onRename`. Search filters supplied options and
 renders at most 50 matches; `browse` provides a destination for the full listing.
+
+Sibling choices and browse actions accept optional `icon` values; editable crumbs
+accept `renameIcon`. These use the same registry-key or element slots as other UI
+controls. Consumers choose domain icons and provide their registry overrides.

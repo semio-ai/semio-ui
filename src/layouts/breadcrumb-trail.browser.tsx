@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, expect, test, vi } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { cleanup, render } from "vitest-browser-react";
+import { IconProvider } from "../icons/registry/icon-provider";
 import { Button } from "../buttons/button";
 import { BreadcrumbTrail, type BreadcrumbTrailItem } from "./breadcrumb-trail";
 import "../test-stylesheet";
@@ -267,4 +268,31 @@ test("grouped controls keep square shared corners and a stable rename footprint"
   await field.fill("A much longer name typed while editing");
   expect(field.element().getBoundingClientRect().width).toBe(before.width);
   await userEvent.keyboard("{Escape}");
+});
+
+test("sibling and action icons resolve through the consumer's registry", async () => {
+  const current = item({ onRename: vi.fn(), renameIcon: "project" });
+  current.switcher!.options = [{ value: "a", label: "Project A", icon: "project" }];
+  current.switcher!.browse = { label: "All projects", icon: "project", onSelect: vi.fn() };
+  await render(
+    <IconProvider
+      registry={{
+        project: () => (
+          <svg data-testid="consumer-project-icon" viewBox="0 0 24 24">
+            <path d="M2 2h20v20H2z" />
+          </svg>
+        ),
+      }}
+    >
+      <BreadcrumbTrail items={[current]} />
+    </IconProvider>,
+  );
+  await page.getByRole("button", { name: /^Switch project:/ }).click();
+  for (const row of [
+    page.getByRole("menuitemradio", { name: "Project A", exact: true }),
+    page.getByRole("menuitem", { name: "Rename", exact: true }),
+    page.getByRole("menuitem", { name: "All projects", exact: true }),
+  ]) {
+    expect(row.element().querySelector('[data-testid="consumer-project-icon"]')).not.toBeNull();
+  }
 });

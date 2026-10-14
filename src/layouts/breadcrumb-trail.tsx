@@ -6,10 +6,11 @@ import { NestedItem } from "../nested-elements/item";
 import { NestedLabel } from "../nested-elements/label";
 import { NestedRadio } from "../nested-elements/radio";
 import { TextField } from "../inputs/text-field";
-import { Icon } from "../icons/registry";
+import { Icon, type IconValue } from "../icons/registry";
 import { Size } from "../types";
 
 export interface BreadcrumbSibling {
+  icon?: IconValue;
   value: string;
   label: string;
 }
@@ -29,10 +30,11 @@ export interface BreadcrumbTrailItem {
     loading?: boolean;
     error?: string;
     emptyText?: string;
-    browse?: { label: string; onSelect: () => void };
+    browse?: { label: string; icon?: IconValue; onSelect: () => void };
   };
   /** Enables double-click and the menu's Rename action. Enter/blur commit; Escape cancels. */
   onRename?: (name: string) => void;
+  renameIcon?: IconValue;
 }
 
 function BreadcrumbLevel({
@@ -284,9 +286,14 @@ function BreadcrumbLevel({
               </>
             )}
           </div>
-          {item.onRename && <NestedItem onClick={beginRename}>Rename</NestedItem>}
+          {item.onRename && (
+            <NestedItem left={item.renameIcon} onClick={beginRename}>
+              Rename
+            </NestedItem>
+          )}
           {switcher.browse && (
             <NestedItem
+              left={switcher.browse.icon}
               onClick={() => {
                 setOpen(false);
                 switcher.browse?.onSelect();
