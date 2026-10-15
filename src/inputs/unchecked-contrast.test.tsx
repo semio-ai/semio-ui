@@ -136,7 +136,10 @@ test.each(cases)("$theme: the resolved boundary clears 3:1 on every surface", (e
 test("the compiled control classes wire the opaque inset ring to both theme tokens", () => {
   const rules: postcss.Rule[] = [];
   compiled.walkRules((rule) => {
-    if (rule.selector.replace(/\s/g, "") === ".variant-checkbox-bg,.grid-list-item-indicator")
+    if (
+      rule.selector.replace(/\s/g, "") ===
+      ".variant-checkbox-bg:not(.toggle-square-content),.grid-list-item-indicator"
+    )
       rules.push(rule);
   });
   expect(rules).toHaveLength(1);
@@ -161,7 +164,83 @@ test("the compiled control classes wire the opaque inset ring to both theme toke
         node.value === "var(--color-control-dark-boundary)",
     ),
   ).toBe(true);
+  for (const children of [undefined, null, false, "", [], ["", null, false]]) {
+    const markup = renderToStaticMarkup(
+      <ToggleSquare value={false} onChange={() => {}}>
+        {children}
+      </ToggleSquare>,
+    );
+    expect(markup).toContain("variant-checkbox-bg");
+    expect(markup).not.toContain("toggle-square-content");
+  }
+  const indicator = renderToStaticMarkup(
+    <ToggleSquare value={false} asIndicator onChange={() => {}}>
+      <svg />
+    </ToggleSquare>,
+  );
+  expect(indicator).toContain("grid-list-item-indicator");
+  expect(indicator).not.toContain("toggle-square-content");
 });
+
+test.each(
+  [false, true].flatMap((disabled) =>
+    [false, true, "partial" as const]
+      .filter((value) => disabled || value !== "partial")
+      .map((value) => ({ value, disabled })),
+  ),
+)("content toggle value=$value disabled=$disabled has no inset edge", ({ value, disabled }) => {
+  const markup = renderToStaticMarkup(
+    <ToggleSquare value={value} disabled={disabled} onChange={() => {}}>
+      <svg />
+    </ToggleSquare>,
+  );
+  expect(markup).toContain("toggle-square-content");
+  compiled.walkDecls("box-shadow", (decl) => {
+    if (decl.value.includes("--control-boundary-color")) {
+      expect((decl.parent as postcss.Rule).selectors).toEqual([
+        ".variant-checkbox-bg:not(.toggle-square-content)",
+        ".grid-list-item-indicator",
+      ]);
+    }
+  });
+});
+
+test.each([undefined, "#f56b29"])(
+  "content partial toggle color=%s wires a 1px standard inset and accent hover",
+  (color) => {
+    const markup = renderToStaticMarkup(
+      <ToggleSquare value="partial" color={color} onChange={() => {}}>
+        <svg />
+      </ToggleSquare>,
+    );
+    expect(markup).toContain("toggle-square-content");
+    if (color) {
+      expect(markup).toContain("custom-color");
+      expect(markup).toContain(`--custom-color:${color}`);
+    }
+    const partials: postcss.Rule[] = [];
+    compiled.walkRules(
+      '&.toggle-square-content:not(:disabled)[data-state="indeterminate"]',
+      (rule) => {
+        partials.push(rule);
+      },
+    );
+    expect(partials).toHaveLength(1);
+    expect((partials[0].parent as postcss.Rule).selector).toBe(".variant-checkbox-bg");
+    const shadows: string[] = [];
+    partials[0].walkDecls("box-shadow", (decl) => {
+      shadows.push(decl.value);
+      if (decl.value.includes("--accent-color")) {
+        expect((decl.parent as postcss.AtRule).params).toBe("(hover: hover)");
+        expect((decl.parent?.parent as postcss.Rule).selector).toBe("&:hover");
+      }
+    });
+    expect(shadows).toEqual([
+      "inset 0 0 0 1px var(--standard-color)",
+      "inset 0 0 0 1px var(--accent-color)",
+    ]);
+  },
+);
 
 test("off and disabled controls do not dim their boundary with opacity utilities", () => {
   for (const disabled of [false, true]) {

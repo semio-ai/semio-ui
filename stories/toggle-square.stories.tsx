@@ -88,6 +88,13 @@ function SurfaceStates() {
       {[false, true].flatMap((disabled) =>
         [false, true, "partial" as const].map((value) => (
           <div key={`${disabled}-${value}`} className="flex items-center gap-2">
+            <ToggleSquare
+              value={value}
+              disabled={disabled}
+              variant={Variant.Primary}
+              size={Size.Sm}
+              onChange={() => {}}
+            />
             <ToggleSquareRenderer
               value={value}
               disabled={disabled}

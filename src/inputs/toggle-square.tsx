@@ -1,4 +1,4 @@
-import { type CSSProperties, type ReactNode } from "react";
+import { Children, type CSSProperties, type ReactNode } from "react";
 import { Checkbox as RadixCheckbox } from "radix-ui";
 import { clsx } from "clsx";
 import { Variant, Size } from "../types";
@@ -38,6 +38,7 @@ export function ToggleSquare({
 }: ToggleSquareProps) {
   // Map our tri-state to Radix Checkbox's checked prop
   const checked: boolean | "indeterminate" = value === "partial" ? "indeterminate" : value;
+  const hasContent = Children.toArray(children).some((child) => child !== "");
 
   return (
     <Tooltip disabled={disabled} content={label ?? "Option"}>
@@ -60,6 +61,7 @@ export function ToggleSquare({
           "rounded-xs",
           "flex items-center justify-center",
           asIndicator ? "grid-list-item-indicator" : "variant-checkbox-bg",
+          !asIndicator && hasContent && "toggle-square-content",
           !asIndicator && "variant-responsive-appearing-outline",
           "appearance-none",
           // No foreground named here. Each of the two sizings fills from a different

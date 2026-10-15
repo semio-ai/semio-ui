@@ -123,6 +123,95 @@ function Controls() {
 }
 
 for (const theme of [Theme.Light, Theme.Dark]) {
+  test(`${theme}: icon toggles have no edge while empty toggles and indicators retain it`, async () => {
+    const view = await render(
+      <div className={`${theme} flex gap-4 p-8`}>
+        <div data-pointer-target style={{ position: "fixed", right: 0, bottom: 0 }}>
+          Outside
+        </div>
+        {[false, true].flatMap((disabled) =>
+          [false, true, "partial" as const]
+            .filter((value) => disabled || value !== "partial")
+            .flatMap((value) =>
+              [undefined, "#f56b29"].map((color) => (
+                <ToggleSquare
+                  key={`${disabled}-${value}-${color}`}
+                  value={value}
+                  disabled={disabled}
+                  color={color}
+                  size={Size.Sm}
+                  onChange={() => {}}
+                >
+                  <svg aria-hidden="true" width="16" height="16" viewBox="0 0 16 16">
+                    <path d="M2 2h12v12H2z" />
+                  </svg>
+                </ToggleSquare>
+              )),
+            ),
+        )}
+        <ToggleSquare value={false} size={Size.Sm} onChange={() => {}} />
+        <ToggleSquare value={false} size={Size.Sm} asIndicator onChange={() => {}}>
+          <svg aria-hidden="true" width="16" height="16" />
+        </ToggleSquare>
+      </div>,
+    );
+    try {
+      await userEvent.hover(view.container.querySelector<HTMLElement>("[data-pointer-target]")!);
+      const buttons = [...view.container.querySelectorAll<HTMLElement>("button")];
+      for (const button of buttons.slice(0, -2)) {
+        expect(getComputedStyle(button).boxShadow, button.outerHTML).toBe("none");
+        await userEvent.hover(button);
+        expect(getComputedStyle(button).boxShadow, button.outerHTML).toBe("none");
+        if (!button.hasAttribute("disabled")) {
+          button.focus();
+          expect(getComputedStyle(button).boxShadow, button.outerHTML).toBe("none");
+        }
+      }
+      const expected = theme === Theme.Dark ? [161, 161, 161, 255] : [82, 82, 82, 255];
+      for (const button of buttons.slice(-2)) expect(boundary(button)).toEqual(expected);
+    } finally {
+      await view.unmount();
+    }
+  });
+
+  test.each([undefined, "#f56b29"])(
+    `${theme}: partial icon toggle color=%s paints only a 1px standard inset and accent hover`,
+    async (color) => {
+      const view = await render(
+        <div className={`${theme} p-8`}>
+          <div data-pointer-target style={{ position: "fixed", right: 0, bottom: 0 }}>
+            Outside
+          </div>
+          <ToggleSquare
+            value="partial"
+            variant={Variant.Primary}
+            color={color}
+            size={Size.Sm}
+            onChange={() => {}}
+          >
+            <svg aria-hidden="true" width="16" height="16" viewBox="0 0 16 16">
+              <path d="M2 2h12v12H2z" />
+            </svg>
+          </ToggleSquare>
+        </div>,
+      );
+      try {
+        await userEvent.hover(view.container.querySelector<HTMLElement>("[data-pointer-target]")!);
+        const button = view.container.querySelector<HTMLElement>("button")!;
+        const inset = (token: string) => {
+          const style = getComputedStyle(button);
+          expect(style.boxShadow.match(/inset/g)).toHaveLength(1);
+          expect(boundary(button)).toEqual(rgba(style.getPropertyValue(token)));
+        };
+        inset("--standard-color");
+        await userEvent.hover(button);
+        inset("--accent-color");
+      } finally {
+        await view.unmount();
+      }
+    },
+  );
+
   for (const surface of Object.values(Surface)) {
     test(`${theme}/${surface}: controls retain their exact boundary across states`, async () => {
       const host = document.createElement("div");
