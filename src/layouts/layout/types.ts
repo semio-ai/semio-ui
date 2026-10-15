@@ -5,7 +5,8 @@ export interface ActionItemPlaceholder {
   type: "placeholder";
 }
 
-export type ActionItem = ConfiguredNestedMenu | ActionItemPlaceholder;
+/** Footer actions open a menu by default; onClick makes the entry a direct action. */
+export type ActionItem = (ConfiguredNestedMenu & { onClick?: () => void }) | ActionItemPlaceholder;
 
 export const isPlaceholder = (
   item: Partial<ActionItem> | ActionItem,

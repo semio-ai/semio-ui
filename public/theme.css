@@ -41,6 +41,9 @@
   --color-tertiary-900: var(--color-pink-900);
   --color-tertiary-950: var(--color-pink-950);
 
+  --color-control-light-boundary: var(--color-neutral-600);
+  --color-control-dark-boundary: var(--color-neutral-400);
+
   --color-layout-light-separator: var(--color-neutral-400);
   --color-layout-dark-separator: var(--color-neutral-950);
   --color-layout-light-base: #cccccc;

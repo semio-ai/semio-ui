@@ -57,8 +57,8 @@ function InnerMenu({
               const clickFn = leftMenuItems.find((item) => item.id === value)?.clickFn;
               const preventClose = leftMenuItems.find((item) => item.id === value)?.preventClose;
               const callFn = async () => {
-                await (clickFn as MenuItemClickFn | undefined)?.(value);
-                togglePaneRegion(PaneRegion.Left, value, preventClose);
+                const result = await (clickFn as MenuItemClickFn | undefined)?.(value);
+                if (result !== false) togglePaneRegion(PaneRegion.Left, value, preventClose);
               };
               void callFn();
             }}
@@ -77,7 +77,10 @@ function InnerMenu({
                 icon: (
                   <Icon
                     name="sidebar-toggle"
-                    className={clsx("transition-transform", menuState ? "rotate-180" : "rotate-360")}
+                    className={clsx(
+                      "transition-transform",
+                      menuState ? "rotate-180" : "rotate-360",
+                    )}
                   />
                 ),
               },
@@ -143,7 +146,19 @@ function InnerMenu({
               <div className="flex flex-col">
                 {actionItems.map(
                   (actionItem) =>
-                    !isPlaceholder(actionItem) && (
+                    !isPlaceholder(actionItem) &&
+                    (actionItem.onClick ? (
+                      <MenuButton
+                        key={actionItem.id}
+                        icon={actionItem.left}
+                        variant={actionItem.variant}
+                        disabled={actionItem.disabled}
+                        onClick={actionItem.onClick}
+                        hoverable
+                      >
+                        {actionItem.label ?? "Action"}
+                      </MenuButton>
+                    ) : (
                       <Dropdown
                         side="right"
                         key={actionItem.id}
@@ -168,7 +183,7 @@ function InnerMenu({
                           <NestedChild key={child.id} {...child} />
                         ))}
                       </Dropdown>
-                    ),
+                    )),
                 )}
               </div>
             ) : undefined
@@ -180,11 +195,16 @@ function InnerMenu({
                 key={leftMenuItem.id}
                 onClick={(e: MouseEvent<HTMLButtonElement>) => {
                   const callFn = async (event: MouseEvent<HTMLButtonElement>) => {
-                    await (leftMenuItem.clickFn as MenuItemClickFn | undefined)?.(
+                    const result = await (leftMenuItem.clickFn as MenuItemClickFn | undefined)?.(
                       leftMenuItem.id,
                       event,
                     );
-                    togglePaneRegion(PaneRegion.Left, leftMenuItem.id, leftMenuItem.preventClose);
+                    if (result !== false)
+                      togglePaneRegion(
+                        PaneRegion.Left,
+                        leftMenuItem.id,
+                        leftMenuItem.preventClose,
+                      );
                   };
                   void callFn(e);
                 }}
