@@ -168,6 +168,12 @@ export function Select<T extends string | string[]>({
   const triggerBoxClass = resolveBoxSizingClass(sizing);
 
   const renderSingleOption = (selectOption?: SelectOption) => {
+    // The field label identifies the setting; the option label exposes its
+    // current value, including visible text needed by speech control.
+    const accessibleName =
+      label && selectOption?.label && label !== selectOption.label
+        ? `${label}: ${selectOption.label}`
+        : (selectOption?.label ?? label ?? "Select");
     // Keyed off `data-disabled`, which Radix stamps on a disabled trigger and which
     // `asChild` puts on this element — so the appearance follows the primitive's own
     // state rather than a second copy of the prop that could disagree with it.
@@ -197,7 +203,11 @@ export function Select<T extends string | string[]>({
     if (visuals === "icons") {
       const tooltipContent = selectOption?.label ?? label ?? "Select";
       return (
-        <div
+        <button
+          type="button"
+          disabled={disabled}
+          aria-label={accessibleName}
+          aria-disabled={disabled}
           style={
             {
               "--custom-color": selectOption?.color,
@@ -219,14 +229,18 @@ export function Select<T extends string | string[]>({
               {resolveIcon(selectOption?.icon) || <Icon name="option-placeholder" />}
             </div>
           </Tooltip>
-        </div>
+        </button>
       );
     }
 
     const showIcon = visuals === "both";
 
     return (
-      <div
+      <button
+        type="button"
+        disabled={disabled}
+        aria-label={accessibleName}
+        aria-disabled={disabled}
         style={
           {
             "--custom-color": selectOption?.color,
@@ -300,7 +314,7 @@ export function Select<T extends string | string[]>({
             <Icon name="select-indicator" />
           </StaticIcon>
         </div>
-      </div>
+      </button>
     );
   };
 
