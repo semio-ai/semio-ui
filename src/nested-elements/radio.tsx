@@ -1,6 +1,7 @@
 import { DropdownMenu, ContextMenu } from "radix-ui";
 import { type CSSProperties, type MouseEvent } from "react";
 import { clsx } from "clsx";
+import { useMenuAction } from "../floating/menu-action";
 import { Icon, resolveIcon } from "../icons/registry";
 import { Tooltip } from "../floating/tooltip";
 import { NestedParent, type NestedRadioProps } from "./types";
@@ -13,6 +14,7 @@ import { useNestedParent } from "./context";
  * @returns The rendered NestedRadio component.
  */
 export function NestedRadio({ variant, disabled, onChange, value, options }: NestedRadioProps) {
+  const runAction = useMenuAction();
   const parent = useNestedParent();
 
   const ItemComponent =
@@ -24,7 +26,12 @@ export function NestedRadio({ variant, disabled, onChange, value, options }: Nes
   return (
     <GroupComponent
       value={value}
-      onValueChange={onChange}
+      onValueChange={(next) =>
+        runAction(
+          () => onChange?.(next),
+          options.find((option) => option.value === next)?.closeOnSelect !== false,
+        )
+      }
       onClick={(e: MouseEvent) => {
         e.stopPropagation();
       }}
