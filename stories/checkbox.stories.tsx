@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { Checkbox, type CheckboxProps, Size, Variant } from "@semio/ui";
+import { Checkbox, type CheckboxProps, Size, Variant, Theme } from "@semio/ui";
 import { useState, type ReactNode } from "react";
+import { ControlSurfaces } from "./control-surfaces";
 import { checkboxVariant } from "./figma-links";
 
 // Per-story Figma design link → the matching Checkbox preview frame (1:1).
@@ -175,4 +176,57 @@ export const Disabled: Story = {
     size: Size.Md,
     disabled: true,
   },
+};
+
+function SurfaceStates() {
+  return (
+    <ControlSurfaces>
+      {[false, true].flatMap((disabled) =>
+        [false, true].map((value) => (
+          <div key={`${disabled}-${value}`} className="flex items-center gap-2">
+            <CheckboxRenderer
+              checked={value}
+              disabled={disabled}
+              variant={Variant.Primary}
+              size={Size.Sm}
+              onCheckedChange={() => {}}
+            />
+            <span>
+              {disabled ? "Disabled " : ""}
+              {value ? "On" : "Off"}
+            </span>
+          </div>
+        )),
+      )}
+      {[false, true].flatMap((disabled) =>
+        [false, true].map((value) => (
+          <div key={`indicator-${disabled}-${value}`} className="flex items-center gap-2">
+            <CheckboxRenderer
+              checked={value}
+              disabled={disabled}
+              variant={Variant.Primary}
+              size={Size.Sm}
+              sizing="list-item"
+              asIndicator
+              onCheckedChange={() => {}}
+            />
+            <span>
+              Indicator {disabled ? "disabled " : ""}
+              {value ? "On" : "Off"}
+            </span>
+          </div>
+        )),
+      )}
+    </ControlSurfaces>
+  );
+}
+
+export const LightSurfaces: Story = {
+  globals: { theme: Theme.Light },
+  render: () => <SurfaceStates />,
+};
+
+export const DarkSurfaces: Story = {
+  globals: { theme: Theme.Dark },
+  render: () => <SurfaceStates />,
 };

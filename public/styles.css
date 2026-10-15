@@ -881,6 +881,35 @@
     }
   }
 
+  /* The inset edge identifies a control even when its fill matches its surface.
+   * Keep it opaque when disabled; dim the fill and content instead. The separate
+   * inner band distinguishes a partial value without replacing the neutral edge. */
+  .variant-checkbox-bg,
+  .grid-list-item-indicator {
+    --control-boundary-color: var(--color-control-light-boundary);
+    --control-state-shadow: 0 0 #0000;
+    box-shadow:
+      inset 0 0 0 1px var(--control-boundary-color),
+      var(--control-state-shadow);
+
+    &:where(.dark, .dark *) {
+      --control-boundary-color: var(--color-control-dark-boundary);
+    }
+
+    &[data-state="indeterminate"] {
+      --control-state-shadow: inset 0 0 0 3px var(--standard-color);
+      &:disabled {
+        --control-state-shadow: inset 0 0 0 3px
+          color-mix(in oklab, var(--standard-color) 50%, transparent);
+      }
+      &:hover:not(:disabled) {
+        @media (hover: hover) {
+          --control-state-shadow: inset 0 0 0 3px var(--accent-color);
+        }
+      }
+    }
+  }
+
   .variant-checkbox-bg {
     @apply dark:bg-layout-dark-inset bg-layout-light-inset transition-colors;
 
@@ -909,18 +938,6 @@
       }
     }
 
-    /* Indeterminate/partial state: off-style background + inset colored border. */
-    &:not(*:disabled) {
-      &[data-state="indeterminate"] {
-        box-shadow: inset 0 0 0 1px var(--standard-color);
-        &:hover {
-          @media (hover: hover) {
-            box-shadow: inset 0 0 0 1px var(--accent-color);
-          }
-        }
-      }
-    }
-
     /* When using a custom color, show a subtle tinted background in the off state. */
     &.custom-color:not(*:disabled) {
       &[data-state="unchecked"],
@@ -940,7 +957,6 @@
       /* Indeterminate with custom color: same subtle bg as off + inset border + full color icon. */
       &[data-state="indeterminate"] {
         background-color: color-mix(in oklab, var(--standard-color) 20%, transparent) !important;
-        box-shadow: inset 0 0 0 1px var(--standard-color);
         color: var(--standard-color) !important;
         &:hover {
           @media (hover: hover) {
@@ -949,7 +965,6 @@
               var(--standard-color) 30%,
               transparent
             ) !important;
-            box-shadow: inset 0 0 0 1px var(--accent-color);
           }
         }
       }
@@ -1011,9 +1026,16 @@
     @apply dark:data-[state=on]:text-black data-[state=on]:text-white;
     @apply data-highlighted:data-[state=unchecked]:text-white;
     @apply dark:data-highlighted:data-[state=unchecked]:text-black;
-    @apply data-[state=unchecked]:opacity-50;
     @apply dark:data-[state=checked]:bg-layout-light-base data-[state=checked]:bg-layout-dark-base;
     @apply dark:data-[state=on]:bg-layout-light-base data-[state=on]:bg-layout-dark-base;
+
+    &:disabled {
+      @apply dark:bg-black/20 bg-white/20;
+      &[data-state="checked"],
+      &[data-state="on"] {
+        @apply dark:bg-layout-light-base/50 bg-layout-dark-base/50;
+      }
+    }
 
     &:is(:where(.group\/item)[data-state="unchecked"] *) {
       color: var(--accent-color);
