@@ -211,13 +211,13 @@ function BreadcrumbLevel({
           !showTriggerLabel && "rounded-xs bg-neutral-500/10 hover:bg-neutral-500/25",
           !current && "desktop:!rounded-l-none",
           splitSwitcher && current && "!rounded-l-none",
-          editableSwitcher && "w-full",
+          editableSwitcher && "w-full [&>div:first-child]:!pl-1",
           showTriggerLabel &&
             "flex-1 !flex overflow-hidden [&>div:first-child]:min-w-0 [&>div:first-child]:flex-1 [&>div:last-child]:shrink-0",
         )}
       >
         {showTriggerLabel ? (
-          <span className="block w-full min-w-0 truncate">{item.label}</span>
+          <span className="block w-full min-w-0 truncate text-left">{item.label}</span>
         ) : undefined}
       </Button>
     )

@@ -233,6 +233,9 @@ test("grouped controls keep square shared corners and a stable rename footprint"
   const field = page.getByRole("textbox", { name: "Rename Project A", exact: true });
   const display = page.getByRole("combobox", { name: /^Switch Project:/ });
   const before = display.element().getBoundingClientRect();
+  const labelRange = document.createRange();
+  labelRange.selectNodeContents(display.element().querySelector("span")!);
+  const textLeft = labelRange.getBoundingClientRect().left;
   expect(
     page.getByRole("link", { name: "Projects", exact: true }).element().getBoundingClientRect()
       .height,
@@ -268,6 +271,10 @@ test("grouped controls keep square shared corners and a stable rename footprint"
 
   await userEvent.dblClick(arrow);
   const after = field.element().getBoundingClientRect();
+  const inputStyle = getComputedStyle(field.element());
+  const editingTextLeft =
+    after.left + parseFloat(inputStyle.paddingLeft) + parseFloat(inputStyle.borderLeftWidth);
+  expect(Math.abs(editingTextLeft - textLeft)).toBeLessThan(0.5);
   expect(after.width).toBeLessThan(before.width);
   expect(after.height).toBe(before.height);
   expect(nav.element().getBoundingClientRect().width).toBe(trailBefore.width);
