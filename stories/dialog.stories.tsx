@@ -103,8 +103,8 @@ export const BodyOnly: Story = {
     title: "Heads up",
     children: (
       <p className="max-w-80 text-sm leading-relaxed text-neutral-500">
-        Sometimes the body is the entire message — no header subtitle needed.
-        The hairlines still demarcate the three sections cleanly.
+        Sometimes the body is the entire message — no header subtitle needed. The hairlines still
+        demarcate the three sections cleanly.
       </p>
     ),
     submitText: "Got it",
@@ -126,6 +126,8 @@ function AsyncDialogRenderer(props: DialogProps): ReactNode {
         open={open}
         onStateChange={setOpen}
         submitDisabled={submitting}
+        cancelDisabled={submitting}
+        dismissDisabled={submitting}
         closeOnSubmitClick={false}
         onSubmit={async () => {
           setSubmitting(true);
@@ -204,5 +206,45 @@ export const Error: Story = {
     submitText: "Delete",
     cancelText: "Keep",
     variant: Variant.Error,
+  },
+};
+
+function StepDialogRenderer(): ReactNode {
+  const [open, setOpen] = useState(false);
+  const [confirm, setConfirm] = useState(false);
+  return (
+    <>
+      <Button
+        onClick={() => {
+          setConfirm(false);
+          setOpen(true);
+        }}
+      >
+        Open invitation
+      </Button>
+      <Dialog
+        open={open}
+        onStateChange={setOpen}
+        title="Organization invitation"
+        description={confirm ? "Decline this invitation?" : "Robotics Lab invited you as Member."}
+        closeOnCancelClick={false}
+        onCancel={() => setConfirm(!confirm)}
+        cancelText={confirm ? "Cancel" : "Decline"}
+        submitText={confirm ? "Decline" : "Accept"}
+        onSubmit={() => setOpen(false)}
+      />
+    </>
+  );
+}
+
+export const CancelChangesStep: Story = {
+  render: () => <StepDialogRenderer />,
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "closeOnCancelClick=false keeps the dialog open while the cancel action changes its step. The header X still dismisses the dialog.",
+      },
+    },
   },
 };

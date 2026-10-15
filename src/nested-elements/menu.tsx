@@ -17,6 +17,7 @@ import { NestedLabel } from "./label";
  */
 export function NestedMenu({
   left,
+  right,
   children,
   label,
   variant,
@@ -99,7 +100,7 @@ export function NestedMenu({
           </div>
         )}
 
-        {label}
+        {right ? <span className="pr-12">{label}</span> : label}
 
         <div
           className={clsx(
@@ -108,6 +109,7 @@ export function NestedMenu({
             variant,
           )}
         >
+          {right}
           <Icon
             name="submenu"
             className={clsx(
