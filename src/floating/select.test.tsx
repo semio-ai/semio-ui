@@ -113,3 +113,25 @@ test.each(["icons", "labels", "both"] as const)(
     await waitFor(() => expect(screen.getByRole("tooltip").textContent).toBe("Current role"));
   },
 );
+
+test("a wrapping explanation stays open when the pointer enters its content", async () => {
+  render(
+    <Tooltip content="Members can view the project.">
+      <span data-testid="rung-explanation">
+        <Select value="viewer" options={OPTIONS} onChange={() => {}} label="Role" />
+      </span>
+    </Tooltip>,
+  );
+  const trigger = screen.getByTestId("rung-explanation");
+  fireEvent.pointerMove(trigger, { pointerType: "mouse" });
+  await waitFor(() => expect(document.querySelector(".tooltip-content")).not.toBeNull());
+  const content = document.querySelector<HTMLElement>(".tooltip-content")!;
+  // Deliver both edges of the hover transition to the real Radix primitive.
+  // Browser coverage also checks the pointer's path and the popup's hit testing.
+  fireEvent.pointerLeave(trigger, { pointerType: "mouse", relatedTarget: content });
+  fireEvent.pointerMove(content, { pointerType: "mouse" });
+  expect(content.isConnected).toBe(true);
+  expect(trigger.getAttribute("data-state")).toMatch(/^(instant|delayed)-open$/);
+  fireEvent.keyDown(document, { key: "Escape" });
+  await waitFor(() => expect(trigger.getAttribute("data-state")).toBe("closed"));
+});

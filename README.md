@@ -121,10 +121,9 @@ bubbling into a listing and preserves the selected element as `currentTarget`.
 Consumers using raw Radix items or custom interactive menu content must arrange
 the same teardown ordering before opening a dialog. `Popover` is nonmodal.
 
-`Tooltip` displays non-interactive explanations on hover and focus. Its content
-lets pointer events pass through, and leaving the trigger closes it, so an
-explanation overlapping an adjacent control cannot block that control or retain
-itself through content hover. Use `Popover` for content with links or actions.
+`Tooltip` displays explanatory, never interactive content on hover and keyboard
+focus. The pointer can move from its trigger onto the explanation and keep it
+visible; Escape dismisses it. Use `Popover` for content with links or actions.
 
 **Artwork and attribution.** Solar artwork is by 480 Design under CC BY 4.0, and
 the `@solar-icons/react-perf` components that render it are MIT. That package is
