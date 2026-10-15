@@ -117,7 +117,7 @@ function BreadcrumbLevel({
         }
       }}
       wrapperClassName="w-0 min-w-0 flex-1"
-      className="!rounded-r-none !bg-transparent"
+      className="!rounded-r-none !bg-transparent !pl-1.5"
     />
   );
   const label = editing ? (
@@ -211,7 +211,7 @@ function BreadcrumbLevel({
           !showTriggerLabel && "rounded-xs bg-neutral-500/10 hover:bg-neutral-500/25",
           !current && "desktop:!rounded-l-none",
           splitSwitcher && current && "!rounded-l-none",
-          editableSwitcher && "w-full [&>div:first-child]:!pl-1",
+          editableSwitcher && "w-full",
           showTriggerLabel &&
             "flex-1 !flex overflow-hidden [&>div:first-child]:min-w-0 [&>div:first-child]:flex-1 [&>div:last-child]:shrink-0",
         )}
