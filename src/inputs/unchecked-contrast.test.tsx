@@ -1,4 +1,5 @@
 import { readFileSync } from "node:fs";
+import { createElement, Fragment, type ReactNode } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import postcss from "postcss";
 import tailwindcss from "@tailwindcss/postcss";
@@ -164,7 +165,19 @@ test("the compiled control classes wire the opaque inset ring to both theme toke
         node.value === "var(--color-control-dark-boundary)",
     ),
   ).toBe(true);
-  for (const children of [undefined, null, false, "", [], ["", null, false]]) {
+  // Fragments built with createElement: an empty or falsy-only fragment is the case.
+  const fragment = (...children: ReactNode[]) => createElement(Fragment, null, ...children);
+  for (const children of [
+    undefined,
+    null,
+    false,
+    "",
+    [],
+    ["", null, false],
+    fragment(),
+    fragment(false, null),
+    fragment(fragment(), ""),
+  ]) {
     const markup = renderToStaticMarkup(
       <ToggleSquare value={false} onChange={() => {}}>
         {children}
@@ -173,6 +186,12 @@ test("the compiled control classes wire the opaque inset ring to both theme toke
     expect(markup).toContain("variant-checkbox-bg");
     expect(markup).not.toContain("toggle-square-content");
   }
+  const iconInFragment = renderToStaticMarkup(
+    <ToggleSquare value={false} onChange={() => {}}>
+      {fragment(<svg key="icon" />)}
+    </ToggleSquare>,
+  );
+  expect(iconInFragment).toContain("toggle-square-content");
   const indicator = renderToStaticMarkup(
     <ToggleSquare value={false} asIndicator onChange={() => {}}>
       <svg />
