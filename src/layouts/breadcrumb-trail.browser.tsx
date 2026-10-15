@@ -434,7 +434,7 @@ test("F2 exposes renaming from a semantic trigger without a dormant text input",
   expect(rename).toHaveBeenCalledExactlyOnceWith("Keyboard rename");
 });
 
-test("project picker uses themed text, a medium search and highlighted footer actions", async () => {
+test("project picker uses themed text, a compact search and highlighted footer actions", async () => {
   document.documentElement.classList.add("dark");
   try {
     const current = item();
@@ -442,7 +442,7 @@ test("project picker uses themed text, a medium search and highlighted footer ac
     await render(
       <>
         <Text role={TextRole.Value}>Reference title</Text>
-        <TextField size={Size.Md} aria-label="Reference input" />
+        <TextField size={Size.Sm} aria-label="Reference input" />
         <BreadcrumbTrail items={[current]} />
       </>,
     );
@@ -461,6 +461,17 @@ test("project picker uses themed text, a medium search and highlighted footer ac
         ),
       );
     const browse = page.getByRole("button", { name: "View All Projects" });
+    const list = page.getByRole("listbox", { name: "Switch Project" }).element();
+    await expect
+      .poll(() =>
+        Math.abs(
+          browse.element().getBoundingClientRect().width - list.getBoundingClientRect().width,
+        ),
+      )
+      .toBeLessThan(1);
+    const popup = browse.element().closest(".dropdown-content")!;
+    expect(getComputedStyle(popup).animationName).toBe("slideUpAndFade");
+    expect(getComputedStyle(popup).animationDuration).toBe("0.3s");
     const rest = getComputedStyle(browse.element()).backgroundColor;
     await browse.hover();
     await expect.poll(() => getComputedStyle(browse.element()).backgroundColor).not.toBe(rest);

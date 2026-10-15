@@ -206,6 +206,16 @@ nested segment rows.
 
 Searchable breadcrumb pickers use Base UI combobox primitives and the shared combobox style helpers. Their input retains DOM focus while pointer and keyboard navigation highlight options. Closing selections run after the popup closes, allowing consumers to open a dialog. Display labels are semantic picker triggers; F2 starts optional inline renaming.
 
+The searchable breadcrumb picker is an internal migration adapter, not a template
+for new popups. The shared Combobox currently provides an inline search input;
+it does not expose a custom trigger with search inside the popup, a fixed
+header/action footer, or an action callback after popup teardown. Shared menus
+still use Radix, whose item hover moves DOM focus away from an embedded search.
+Consolidate this adapter into the shared Base UI picker when that composition
+and close handoff are supported, retaining hover typing focus, double-click/F2
+rename, mobile sizing, and popup-to-dialog accessibility tests. Its surface,
+directional caret, and entrance animation follow the existing Dropdown styles.
+
 ## License
 
 MIT
