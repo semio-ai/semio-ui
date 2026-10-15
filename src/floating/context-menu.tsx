@@ -6,6 +6,8 @@ import { NestedParent } from "../nested-elements/types";
 import { NestedParentProvider } from "../nested-elements/context";
 import { ScrollArea } from "../layouts/scroll-area";
 
+import { MenuActionProvider, useMenuActionHandoff, stopMenuEscapePropagation } from "./menu-action";
+
 export interface ContextMenuProps {
   content: ReactNode;
   children: ReactNode;
@@ -26,6 +28,7 @@ function ContextMenu({
   onOpenChange,
   portalContainer,
 }: ContextMenuProps) {
+  const handoff = useMenuActionHandoff();
   return (
     <NestedParentProvider value={NestedParent.Context}>
       <ContextMenuPrimitive.Root onOpenChange={onOpenChange}>
@@ -40,6 +43,9 @@ function ContextMenu({
         </ContextMenuPrimitive.Trigger>
         <ContextMenuPrimitive.Portal container={portalContainer ?? undefined}>
           <ContextMenuPrimitive.Content
+            ref={handoff.contentRef}
+            onCloseAutoFocus={handoff.onCloseAutoFocus}
+            onEscapeKeyDown={stopMenuEscapePropagation}
             alignOffset={3}
             collisionPadding={2}
             className={clsx(
@@ -64,7 +70,7 @@ function ContextMenu({
                 "max-h-[calc(var(--radix-context-menu-content-available-height)-4px)] p-0.5",
               )}
             >
-              {content}
+              <MenuActionProvider value={handoff.enqueue}>{content}</MenuActionProvider>
             </ScrollArea>
           </ContextMenuPrimitive.Content>
         </ContextMenuPrimitive.Portal>

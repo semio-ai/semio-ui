@@ -1,6 +1,7 @@
-import { Fragment, useMemo } from "react";
+import { Fragment, useCallback, useMemo, useRef } from "react";
 import { DropdownMenu, ContextMenu, Collapsible } from "radix-ui";
 import { clsx } from "clsx";
+import { stopMenuEscapePropagation } from "../floating/menu-action";
 import { Icon, resolveIcon } from "../icons/registry";
 import { ScrollArea } from "../layouts/scroll-area";
 import { useLayoutState } from "../hooks/use-layout-state";
@@ -23,6 +24,14 @@ export function NestedMenu({
   hideHeader,
 }: NestedMenuProps) {
   const parent = useNestedParent();
+  const submenuRef = useRef<HTMLDivElement>(null);
+  const onFocusOutside = useCallback((event: Event) => {
+    // Focus moves to a parent menu are menu navigation. Dialog/list focus
+    // restoration must leave this submenu usable until a deliberate dismissal.
+    if ((event.target as HTMLElement).closest('[role="menu"]')) return;
+    event.preventDefault();
+    submenuRef.current?.focus();
+  }, []);
   const { desktop } = useLayoutState();
 
   const heightClass =
@@ -41,7 +50,12 @@ export function NestedMenu({
           DropdownMenu.SubTrigger,
           DropdownMenu.Portal,
           DropdownMenu.SubContent,
-          { side: "right" },
+          {
+            side: "right",
+            ref: submenuRef,
+            onEscapeKeyDown: stopMenuEscapePropagation,
+            onFocusOutside,
+          },
         ];
       else
         return [
@@ -49,9 +63,14 @@ export function NestedMenu({
           ContextMenu.SubTrigger,
           ContextMenu.Portal,
           ContextMenu.SubContent,
-          { side: "right" },
+          {
+            side: "right",
+            ref: submenuRef,
+            onEscapeKeyDown: stopMenuEscapePropagation,
+            onFocusOutside,
+          },
         ];
-    }, [desktop, parent]);
+    }, [desktop, parent, onFocusOutside]);
 
   return (
     <SubComponent>
