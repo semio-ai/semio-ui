@@ -353,7 +353,7 @@ test("consumers can hide Rename while retaining double-click editing", async () 
 });
 
 test.each([false, true])(
-  "toolbar segments preserve exposed ends with responsive wrapper: %s",
+  "toolbar segments preserve exposed ends with an extra wrapper: %s",
   async (wrapped) => {
     const controls = (
       <div className="toolbar-segments flex">
