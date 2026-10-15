@@ -75,6 +75,16 @@ async function openMenu(
   return item;
 }
 
+function menuHasFocus(entry: OverlayEntry) {
+  const submenu = entry === OverlayEntry.DropdownSubmenu || entry === OverlayEntry.ContextSubmenu;
+  const menu = screen.getByRole("menu", submenu ? { name: "Create" } : undefined);
+  return menu.contains(document.activeElement);
+}
+
+async function waitForMenuFocus(entry: OverlayEntry) {
+  await waitFor(() => expect(menuHasFocus(entry)).toBe(true));
+}
+
 test.each(Object.values(OverlayEntry))(
   "%s uses its intended background-hiding policy while open",
   async (entry) => {
@@ -207,7 +217,7 @@ for (const surroundings of Object.values(MenuSurroundings)) {
           await Promise.resolve();
         });
         expect(screen.getAllByRole("menu").length).toBeGreaterThan(0);
-        expect(document.activeElement?.closest('[role="menu"]')).toBeTruthy();
+        await waitForMenuFocus(entry);
       });
       expect(item.isConnected).toBe(true);
       if (entry === OverlayEntry.DropdownSubmenu || entry === OverlayEntry.ContextSubmenu) {
@@ -321,3 +331,46 @@ test("a rapid close and reopen delivers both selections after their own teardown
   fireEvent.click(screen.getByRole("menuitem", { name: "Choose" }));
   await waitFor(() => expect(action).toHaveBeenCalledTimes(2));
 });
+
+for (const surroundings of Object.values(MenuSurroundings)) {
+  test.each([OverlayEntry.DropdownSubmenu, OverlayEntry.ContextSubmenu])(
+    `${surroundings}: %s waits for deferred submenu focus before ArrowLeft`,
+    async (entry) => {
+      render(<MenuUsabilityFixture entry={entry} surroundings={surroundings} />);
+      if (surroundings === MenuSurroundings.Sidebar)
+        fireEvent.click(await screen.findByRole("tab", { name: "Menu tab" }));
+      const outside = screen.getByRole("button", { name: "Outside menu" });
+      await openMenu(entry, false);
+      const trigger = screen.getByRole("menuitem", { name: "Create" });
+      const submenu = screen.getByRole("menu", { name: "Create" });
+      const focus = submenu.focus.bind(submenu);
+      let restore: (() => void) | undefined;
+      const deferredFocus = vi.spyOn(submenu, "focus").mockImplementation(() => {
+        restore = focus;
+      });
+      try {
+        // Hold the submenu's restoration while the parent scope restores its trigger.
+        // The parent menu is an intermediate focus destination, so ArrowLeft must wait.
+        act(() => {
+          outside.focus();
+          trigger.focus();
+        });
+        const waiting = waitForMenuFocus(entry);
+        try {
+          expect(menuHasFocus(entry)).toBe(false);
+        } finally {
+          // Release the controlled late handler even when the readiness assertion fails.
+          deferredFocus.mockRestore();
+          act(() => {
+            restore?.();
+          });
+          await waiting;
+        }
+        fireEvent.keyDown(document.activeElement!, { key: "ArrowLeft" });
+        await waitFor(() => expect(document.activeElement).toBe(trigger));
+      } finally {
+        deferredFocus.mockRestore();
+      }
+    },
+  );
+}
