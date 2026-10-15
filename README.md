@@ -124,6 +124,9 @@ the same teardown ordering before opening a dialog. `Popover` is nonmodal.
 `Tooltip` displays explanatory, never interactive content on hover and keyboard
 focus. The pointer can move from its trigger onto the explanation and keep it
 visible; Escape dismisses it. Use `Popover` for content with links or actions.
+Focus in a React portal outside the trigger's DOM subtree does not open the
+explanation, so a wrapped menu keeps its own Escape handling. Restoring keyboard
+focus to the trigger opens the explanation normally and leaves Tab navigation available.
 
 **Artwork and attribution.** Solar artwork is by 480 Design under CC BY 4.0, and
 the `@solar-icons/react-perf` components that render it are MIT. That package is

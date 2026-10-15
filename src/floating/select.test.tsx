@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, expect, test, vi } from "vitest";
 import { Select } from "./select";
 import { Tooltip } from "./tooltip";
@@ -14,12 +14,17 @@ beforeEach(() => {
       disconnect() {}
     },
   );
+  Object.defineProperty(HTMLElement.prototype, "getAnimations", {
+    configurable: true,
+    value: () => [],
+  });
 });
 
 afterEach(() => {
   cleanup();
   vi.restoreAllMocks();
   vi.unstubAllGlobals();
+  delete (HTMLElement.prototype as Partial<HTMLElement>).getAnimations;
 });
 
 const OPTIONS = [
@@ -135,3 +140,59 @@ test("a wrapping explanation stays open when the pointer enters its content", as
   fireEvent.keyDown(document, { key: "Escape" });
   await waitFor(() => expect(trigger.getAttribute("data-state")).toBe("closed"));
 });
+
+for (const visuals of ["icons", "labels", "both"] as const) {
+  test.each(["ArrowDown", "Enter"])(
+    `${visuals}: %s opens the menu without reopening the wrapping explanation`,
+    async (key) => {
+      const onChange = vi.fn();
+      render(
+        <Tooltip content="Current role">
+          <span data-testid="keyboard-explanation">
+            <Select
+              value="viewer"
+              options={OPTIONS}
+              onChange={onChange}
+              label="Role"
+              visuals={visuals}
+            />
+          </span>
+        </Tooltip>,
+      );
+      const trigger = screen.getByRole("button", { name: /^Role: Viewer$/ });
+      const wrapper = screen.getByTestId("keyboard-explanation");
+      const waitOptions = { timeout: 1_000 };
+      act(() => trigger.focus());
+      await waitFor(
+        () => expect(wrapper.getAttribute("data-state")).toBe("instant-open"),
+        waitOptions,
+      );
+      fireEvent.keyDown(trigger, { key: "Escape" });
+      await waitFor(() => expect(document.querySelector(".tooltip-content")).toBeNull(), waitOptions);
+      expect(wrapper.getAttribute("data-state")).toBe("closed");
+      expect(document.activeElement).toBe(trigger);
+
+      fireEvent.keyDown(trigger, { key });
+      await waitFor(
+        () => expect(screen.getByRole("menu").contains(document.activeElement)).toBe(true),
+        waitOptions,
+      );
+      expect(wrapper.getAttribute("data-state")).toBe("closed");
+      expect(document.querySelector(".tooltip-content")).toBeNull();
+      fireEvent.keyDown(document.activeElement!, { key: "Escape" });
+      await waitFor(() => expect(document.querySelector('[role="menu"]')).toBeNull(), waitOptions);
+      await waitFor(() => expect(document.activeElement).toBe(trigger), waitOptions);
+      expect(screen.getByRole("button", { name: /^Role: Viewer$/ })).toBe(trigger);
+      expect(trigger.getAttribute("aria-expanded")).toBe("false");
+      // Restoring keyboard focus opens the explanation, which must remain dismissible.
+      await waitFor(
+        () => expect(wrapper.getAttribute("data-state")).toBe("instant-open"),
+        waitOptions,
+      );
+      fireEvent.keyDown(trigger, { key: "Escape" });
+      await waitFor(() => expect(document.querySelector(".tooltip-content")).toBeNull(), waitOptions);
+      expect(document.activeElement).toBe(trigger);
+      expect(onChange).not.toHaveBeenCalled();
+    },
+  );
+}
