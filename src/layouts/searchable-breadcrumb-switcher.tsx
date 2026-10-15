@@ -41,9 +41,11 @@ export function SearchableBreadcrumbSwitcher({
   const [query, setQuery] = useState("");
   const pendingAction = useRef<(() => void) | null>(null);
   const selected = switcher.options.find((option) => option.value === switcher.value) ?? null;
-  const visible = switcher.options.filter((option) =>
-    option.label.toLocaleLowerCase().includes(query.trim().toLocaleLowerCase()),
-  );
+  const visible = switcher.searchable
+    ? switcher.options.filter((option) =>
+        option.label.toLocaleLowerCase().includes(query.trim().toLocaleLowerCase()),
+      )
+    : switcher.options;
   const closeWithAction = (action: () => void) => {
     pendingAction.current = action;
     onOpenChange(false);
@@ -106,20 +108,22 @@ export function SearchableBreadcrumbSwitcher({
                   <Text as="div" role={TextRole.Value} className="px-4 font-semibold">
                     {switcher.label}
                   </Text>
-                  <Combobox.InputGroup className={inputGroupClassName(Size.Sm)}>
-                    <Combobox.Input
-                      aria-label={`Search ${switcher.label.toLowerCase()}`}
-                      placeholder="Search…"
-                      className={inputClassName(Size.Sm, Variant.Default, {
-                        leftPadded: false,
-                        rightPadded: false,
-                      })}
-                    />
-                  </Combobox.InputGroup>
+                  {switcher.searchable && (
+                    <Combobox.InputGroup className={inputGroupClassName(Size.Sm)}>
+                      <Combobox.Input
+                        aria-label={`Search ${switcher.label.toLowerCase()}`}
+                        placeholder="Search…"
+                        className={inputClassName(Size.Sm, Variant.Default, {
+                          leftPadded: false,
+                          rightPadded: false,
+                        })}
+                      />
+                    </Combobox.InputGroup>
+                  )}
                 </div>
               }
             >
-              {separator}
+              {switcher.searchable && separator}
               {switcher.loading || switcher.error ? (
                 <p role="status" className="p-2 text-sm">
                   {switcher.loading ? "Loading…" : switcher.error}

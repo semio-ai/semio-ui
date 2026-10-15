@@ -488,3 +488,26 @@ test("project picker uses themed text, a compact search and highlighted footer a
     document.documentElement.classList.remove("dark");
   }
 });
+
+test("editable sibling controls can switch and rename without search enabled", async () => {
+  const rename = vi.fn();
+  const select = vi.fn();
+  const current = item({ onRename: rename });
+  current.switcher!.searchable = false;
+  current.switcher!.onSelect = select;
+  await render(<BreadcrumbTrail items={[current]} />);
+  const trigger = page.getByRole("combobox", { name: /^Switch Project:/ });
+  await trigger.click();
+  await expect.element(page.getByRole("listbox")).toBeVisible();
+  await expect
+    .element(page.getByRole("combobox", { name: "Search switch project" }))
+    .not.toBeInTheDocument();
+  await page.getByRole("option", { name: "Project B · @team", exact: true }).click();
+  await expect.poll(() => select.mock.calls).toEqual([["b"]]);
+  await userEvent.dblClick(trigger);
+  const input = page.getByRole("textbox", { name: "Rename Project A", exact: true });
+  await expect.element(input).toBeVisible();
+  await input.fill("Renamed without search");
+  await userEvent.keyboard("{Enter}");
+  expect(rename).toHaveBeenCalledExactlyOnceWith("Renamed without search");
+});

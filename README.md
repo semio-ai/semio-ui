@@ -204,9 +204,9 @@ edges, preserving rounded exposed ends. It also handles text-field wrappers and
 nested segment rows.
 
 
-Searchable breadcrumb pickers use Base UI combobox primitives and the shared combobox style helpers. Their input retains DOM focus while pointer and keyboard navigation highlight options. Closing selections run after the popup closes, allowing consumers to open a dialog. Display labels are semantic picker triggers; F2 starts optional inline renaming.
+Searchable and editable breadcrumb pickers use Base UI combobox primitives and the shared combobox style helpers. Their input retains DOM focus while pointer and keyboard navigation highlight options. Closing selections run after the popup closes, allowing consumers to open a dialog. Display labels are semantic picker triggers; F2 starts optional inline renaming.
 
-The searchable breadcrumb picker is an internal migration adapter, not a template
+The searchable/editable breadcrumb picker is an internal migration adapter, not a template
 for new popups. The shared Combobox currently provides an inline search input;
 it does not expose a custom trigger with search inside the popup, a fixed
 header/action footer, or an action callback after popup teardown. Shared menus

@@ -241,7 +241,7 @@ function BreadcrumbLevel({
       {switcher &&
         (editing && editableSwitcher ? (
           trigger
-        ) : switcher.searchable ? (
+        ) : switcher.searchable || editableSwitcher ? (
           <SearchableBreadcrumbSwitcher
             switcher={switcher}
             trigger={trigger}
