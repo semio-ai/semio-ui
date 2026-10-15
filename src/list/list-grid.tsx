@@ -202,6 +202,8 @@ export interface ListGridProps<T> {
   className?: string;
   ariaLabel?: string;
   notFound?: ReactNode;
+  /** Empty result rendered as a full-width body row, keeping the column headers. */
+  emptyBody?: ReactNode;
 }
 
 const TYPE_AHEAD_RESET_MS = 1000;
@@ -276,6 +278,7 @@ export function ListGrid<T>({
   className,
   ariaLabel,
   notFound,
+  emptyBody,
 }: ListGridProps<T>) {
   const order = useMemo(() => data.map(getRowId), [data, getRowId]);
   const itemById = useMemo(() => {
@@ -730,7 +733,11 @@ export function ListGrid<T>({
     <TreeNavRoot
       role={isGrid ? "grid" : "listbox"}
       // A grid states its own size; a listbox has no way to and lets its options do it.
-      ariaRowCount={isGrid ? data.length + (headerIsRow ? 1 : 0) : undefined}
+      ariaRowCount={
+        isGrid
+          ? data.length + (headerIsRow ? 1 : 0) + (data.length === 0 && emptyBody != null ? 1 : 0)
+          : undefined
+      }
       ariaLabel={ariaLabel}
       className={className}
       highlightedIndex={safeIndex}
@@ -837,6 +844,21 @@ export function ListGrid<T>({
             rather than being any. */}
         {rowWindow.paddingTop > 0 && (
           <div aria-hidden className="col-span-full" style={{ height: rowWindow.paddingTop }} />
+        )}
+
+        {data.length === 0 && emptyBody != null && (
+          <div
+            className="col-span-full"
+            role={isGrid ? "row" : undefined}
+            aria-rowindex={isGrid ? firstDataRowIndex : undefined}
+          >
+            <div
+              role={isGrid ? "gridcell" : undefined}
+              aria-colspan={isGrid ? columns.length : undefined}
+            >
+              {emptyBody}
+            </div>
+          </div>
         )}
 
         {data.slice(rowWindow.start, rowWindow.end).map((item, offset) => {

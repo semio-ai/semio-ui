@@ -121,6 +121,10 @@ bubbling into a listing and preserves the selected element as `currentTarget`.
 Consumers using raw Radix items or custom interactive menu content must arrange
 the same teardown ordering before opening a dialog. `Popover` is nonmodal.
 
+`ListGrid` accepts `emptyBody` for a full-width empty row that keeps its column
+headers. Pass the resolved empty state only after the read finishes. `notFound`
+replaces the whole listing, including its headers.
+
 `Tooltip` displays explanatory, never interactive content on hover and keyboard
 focus. The pointer can move from its trigger onto the explanation and keep it
 visible; Escape dismisses it. Use `Popover` for content with links or actions.
