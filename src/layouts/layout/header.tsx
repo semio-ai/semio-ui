@@ -123,7 +123,23 @@ function InnerHeader({ homeIcon }: { homeIcon?: IconValue }) {
             </>
           )}
           {actionItems.map(
-            (item) => !isPlaceholder(item) && <NestedChild key={item.id} type="menu" {...item} />,
+            (item) =>
+              !isPlaceholder(item) &&
+              (item.onClick ? (
+                <NestedChild
+                  key={item.id}
+                  id={item.id}
+                  type="item"
+                  left={item.left}
+                  variant={item.variant}
+                  disabled={item.disabled}
+                  onClick={item.onClick}
+                >
+                  {item.label ?? "Action"}
+                </NestedChild>
+              ) : (
+                <NestedChild key={item.id} type="menu" {...item} />
+              )),
           )}
         </Dropdown>
 

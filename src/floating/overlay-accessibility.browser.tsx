@@ -213,6 +213,8 @@ for (const surroundings of Object.values(MenuSurroundings)) {
       });
       await expect.element(item).toBeVisible();
       if (entry === OverlayEntry.DropdownSubmenu || entry === OverlayEntry.ContextSubmenu) {
+        // The focus trap must restore the submenu before its closing key is dispatched.
+        await expect.element(item).toHaveFocus();
         await userEvent.keyboard("{ArrowLeft}");
         await expect
           .element(page.getByRole("menuitem", { name: "Create", exact: true }))
