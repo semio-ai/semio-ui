@@ -2,6 +2,9 @@ import { afterEach, beforeEach, expect, test, vi } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { cleanup, render } from "vitest-browser-react";
 import { IconProvider } from "../icons/registry/icon-provider";
+import { Text, TextRole } from "../text";
+import { TextField } from "../inputs/text-field";
+import { Size } from "../types";
 import { Button } from "../buttons/button";
 import { BreadcrumbTrail, type BreadcrumbTrailItem } from "./breadcrumb-trail";
 import "../test-stylesheet";
@@ -429,4 +432,41 @@ test("F2 exposes renaming from a semantic trigger without a dormant text input",
   await input.fill("Keyboard rename");
   await userEvent.keyboard("{Enter}");
   expect(rename).toHaveBeenCalledExactlyOnceWith("Keyboard rename");
+});
+
+test("project picker uses themed text, a medium search and highlighted footer actions", async () => {
+  document.documentElement.classList.add("dark");
+  try {
+    const current = item();
+    current.switcher!.browse = { label: "View All Projects", onSelect: vi.fn() };
+    await render(
+      <>
+        <Text role={TextRole.Value}>Reference title</Text>
+        <TextField size={Size.Md} aria-label="Reference input" />
+        <BreadcrumbTrail items={[current]} />
+      </>,
+    );
+    await page.getByRole("combobox", { name: /^Switch Project:/ }).click();
+    const title = page.getByText("Switch Project", { exact: true }).element();
+    expect(getComputedStyle(title).color).toBe(
+      getComputedStyle(page.getByText("Reference title").element()).color,
+    );
+    const search = page.getByRole("combobox", { name: "Search switch project" }).element();
+    await expect
+      .poll(() => Math.round(search.getBoundingClientRect().height))
+      .toBe(
+        Math.round(
+          page.getByRole("textbox", { name: "Reference input" }).element().getBoundingClientRect()
+            .height,
+        ),
+      );
+    const browse = page.getByRole("button", { name: "View All Projects" });
+    const rest = getComputedStyle(browse.element()).backgroundColor;
+    await browse.hover();
+    await expect.poll(() => getComputedStyle(browse.element()).backgroundColor).not.toBe(rest);
+    browse.element().focus();
+    await expect.element(browse).toHaveAttribute("data-highlighted");
+  } finally {
+    document.documentElement.classList.remove("dark");
+  }
 });

@@ -1,10 +1,12 @@
-import { useRef, useState, type ReactElement } from "react";
+import { useRef, useState, type ReactElement, type ReactNode } from "react";
 import { Combobox } from "@base-ui/react/combobox";
 import { Icon, resolveIcon, type IconValue } from "../icons/registry";
+import { Text, TextRole } from "../text";
 import { Size, Variant } from "../types";
 import { Arrow } from "../floating/arrow";
 import {
   inputClassName,
+  inputGroupClassName,
   itemClassName,
   itemIndicatorClassName,
   popupClassName,
@@ -88,15 +90,19 @@ export function SearchableBreadcrumbSwitcher({
               className="flex flex-col gap-0.5 p-0.5"
               header={
                 <div className="flex flex-col gap-2 px-2 pt-2 pb-px">
-                  <div className="px-4 text-sm font-semibold">{switcher.label}</div>
-                  <Combobox.Input
-                    aria-label={`Search ${switcher.label.toLowerCase()}`}
-                    placeholder="Search…"
-                    className={inputClassName(Size.Sm, Variant.Default, {
-                      leftPadded: false,
-                      rightPadded: false,
-                    })}
-                  />
+                  <Text as="div" role={TextRole.Value} className="px-4 font-semibold">
+                    {switcher.label}
+                  </Text>
+                  <Combobox.InputGroup className={inputGroupClassName(Size.Md)}>
+                    <Combobox.Input
+                      aria-label={`Search ${switcher.label.toLowerCase()}`}
+                      placeholder="Search…"
+                      className={inputClassName(Size.Md, Variant.Default, {
+                        leftPadded: false,
+                        rightPadded: false,
+                      })}
+                    />
+                  </Combobox.InputGroup>
                 </div>
               }
             >
@@ -140,30 +146,19 @@ export function SearchableBreadcrumbSwitcher({
                 </>
               )}
               {onRename && (
-                <button
-                  type="button"
-                  className={itemClassName()}
-                  onClick={() => closeWithAction(onRename)}
-                >
-                  <span className={itemIndicatorClassName()}>
-                    <span className="icon-slot">{resolveIcon(renameIcon)}</span>
-                  </span>
+                <PickerAction icon={renameIcon} onClick={() => closeWithAction(onRename)}>
                   Rename
-                </button>
+                </PickerAction>
               )}
               {switcher.browse && (
                 <>
                   {separator}
-                  <button
-                    type="button"
-                    className={itemClassName()}
+                  <PickerAction
+                    icon={switcher.browse.icon}
                     onClick={() => closeWithAction(switcher.browse!.onSelect)}
                   >
-                    <span className={itemIndicatorClassName()}>
-                      <span className="icon-slot">{resolveIcon(switcher.browse.icon)}</span>
-                    </span>
                     {switcher.browse.label}
-                  </button>
+                  </PickerAction>
                 </>
               )}
             </ScrollArea>
@@ -171,5 +166,37 @@ export function SearchableBreadcrumbSwitcher({
         </Combobox.Positioner>
       </Combobox.Portal>
     </Combobox.Root>
+  );
+}
+
+/** Native actions share the highlighted treatment used by the picker's options. */
+function PickerAction({
+  icon,
+  onClick,
+  children,
+}: {
+  icon?: IconValue;
+  onClick: () => void;
+  children: ReactNode;
+}) {
+  const [hovered, setHovered] = useState(false);
+  const [focused, setFocused] = useState(false);
+  return (
+    <button
+      type="button"
+      className={itemClassName()}
+      data-state="unchecked"
+      data-highlighted={hovered || focused ? "" : undefined}
+      onPointerEnter={() => setHovered(true)}
+      onPointerLeave={() => setHovered(false)}
+      onFocus={() => setFocused(true)}
+      onBlur={() => setFocused(false)}
+      onClick={onClick}
+    >
+      <span className={itemIndicatorClassName()}>
+        <span className="icon-slot">{resolveIcon(icon)}</span>
+      </span>
+      {children}
+    </button>
   );
 }
