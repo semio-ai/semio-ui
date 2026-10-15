@@ -34,8 +34,9 @@ export function ControlSurfaces({ children }: { children: ReactNode }) {
                 <ListRow
                   key={String(selected)}
                   size={Size.Xl}
-                  style={{ height: "auto" }}
-                  className="py-4"
+                  // ListRow sets its own height and style; the important modifier
+                  // lets the row grow to fit the controls and their outlines.
+                  className="h-auto! py-4"
                   columns={[{ key: "controls" }]}
                   visual={{
                     background: selected
