@@ -95,12 +95,13 @@ function Harness({
 }
 
 async function selectNoAccess() {
-  const trigger = page.getByRole("button", { name: "Role for members", exact: true });
+  const trigger = page.getByRole("button", { name: "Role for members: Editor", exact: true });
   await trigger.click();
   await page.getByRole("menuitemradio", { name: "No access", exact: true }).click();
-  await expect.element(trigger).toHaveTextContent("No access");
+  const selected = page.getByRole("button", { name: "Role for members: No access", exact: true });
+  await expect.element(selected).toHaveTextContent("No access");
   await expect.element(page.getByRole("menu")).not.toBeInTheDocument();
-  await expect.element(trigger).toHaveFocus();
+  await expect.element(selected).toHaveFocus();
 }
 
 for (const priorFocus of ["pointer", "keyboard"] as const) {
@@ -169,7 +170,7 @@ test("leaving the rung closes its explanation while hover and keyboard focus sti
   await outside.click();
   await userEvent.keyboard("{Tab}{Tab}");
   await expect
-    .element(page.getByRole("button", { name: "Role for members", exact: true }))
+    .element(page.getByRole("button", { name: "Role for members: No access", exact: true }))
     .toHaveFocus();
   await expect.element(wrapper).toHaveAttribute("data-state", "instant-open");
   expect(document.querySelector(".tooltip-content[data-side='left']")?.textContent).toContain(

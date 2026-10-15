@@ -40,12 +40,14 @@ for (const visuals of ["labels", "both", "icons"] as const) {
     const onApply = vi.fn();
     await render(<Harness visuals={visuals} onApply={onApply} />);
     await page.getByRole("button", { name: "Before", exact: true }).click();
-    const trigger = page.getByRole("button", { name: "Role", exact: true });
+    const trigger = page.getByRole("button", { name: "Role: Editor", exact: true });
     await trigger.click();
     await page.getByRole("menuitemradio", { name: "Viewer", exact: true }).click();
     // Radix guards focus-open during pointer-down. Restored focus does not
     // require an explanation; hover and keyboard focus are checked separately.
-    await expect.element(trigger).toHaveFocus();
+    await expect
+      .element(page.getByRole("button", { name: "Role: Viewer", exact: true }))
+      .toHaveFocus();
     await expect.element(page.getByRole("menu")).not.toBeInTheDocument();
     await page.getByRole("button", { name: "Apply", exact: true }).click();
     expect(onApply).toHaveBeenCalledOnce();
@@ -68,7 +70,7 @@ for (const visuals of ["labels", "both", "icons"] as const) {
     await render(<Harness visuals={visuals} onApply={() => {}} />);
     await page.getByRole("button", { name: "Apply", exact: true }).click();
     await userEvent.keyboard("{Tab}");
-    const trigger = page.getByRole("button", { name: "Role", exact: true });
+    const trigger = page.getByRole("button", { name: "Role: Editor", exact: true });
     await expect.element(trigger).toHaveFocus();
     await expect.element(page.getByText(DESCRIPTION, { exact: true })).toBeVisible();
     await userEvent.keyboard("{ArrowDown}");

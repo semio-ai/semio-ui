@@ -27,6 +27,35 @@ const OPTIONS = [
   { value: "editor", label: "Editor" },
 ];
 
+test.each(["icons", "labels", "both"] as const)(
+  "%s accessible name includes the field label and follows the selected value",
+  (visuals) => {
+    const { rerender } = render(
+      <Select
+        value="viewer"
+        options={OPTIONS}
+        onChange={() => {}}
+        label="Role"
+        visuals={visuals}
+      />,
+    );
+    const trigger = screen.getByRole("button", { name: "Role: Viewer" });
+    if (visuals !== "icons") expect(trigger.textContent).toContain("Viewer");
+    rerender(
+      <Select
+        value="editor"
+        options={OPTIONS}
+        onChange={() => {}}
+        label="Role"
+        visuals={visuals}
+      />,
+    );
+    expect(screen.getByRole("button", { name: "Role: Editor" })).toBe(trigger);
+    expect(screen.queryByRole("button", { name: "Role: Viewer" })).toBeNull();
+    if (visuals !== "icons") expect(trigger.textContent).toContain("Editor");
+  },
+);
+
 test.each([true, false])("disabled=%s gates a pointer attempt to open the menu", (disabled) => {
   render(
     <Select
@@ -37,7 +66,7 @@ test.each([true, false])("disabled=%s gates a pointer attempt to open the menu",
       disabled={disabled}
     />,
   );
-  fireEvent.pointerDown(screen.getByRole("button", { name: "Role" }), {
+  fireEvent.pointerDown(screen.getByRole("button", { name: "Role: Viewer" }), {
     button: 0,
     ctrlKey: false,
   });
@@ -57,7 +86,7 @@ test.each(["icons", "labels", "both"] as const)(
         disabled
       />,
     );
-    const trigger = screen.getByRole("button", { name: "Role" });
+    const trigger = screen.getByRole("button", { name: "Role: Viewer" });
     expect(trigger.tagName).toBe("BUTTON");
     expect((trigger as HTMLButtonElement).disabled).toBe(true);
   },
@@ -79,7 +108,7 @@ test.each(["icons", "labels", "both"] as const)(
         </span>
       </Tooltip>,
     );
-    const trigger = screen.getByRole("button", { name: "Role" });
+    const trigger = screen.getByRole("button", { name: "Role: Viewer" });
     fireEvent.focus(trigger);
     await waitFor(() => expect(screen.getByRole("tooltip").textContent).toBe("Current role"));
   },
