@@ -108,3 +108,36 @@ export const Empty: Story = {
     ],
   },
 };
+
+function RenameExample({ splitSwitcher = false }: { splitSwitcher?: boolean }) {
+  const [name, setName] = useState("Robot demo");
+  return (
+    <div className="space-y-4">
+      <BreadcrumbTrail
+        items={[
+          {
+            id: "project",
+            label: name,
+            labelWidth: splitSwitcher ? 112 : undefined,
+            onRename: setName,
+            switcher: splitSwitcher
+              ? {
+                  label: "Switch Project",
+                  value: "current",
+                  options: [{ value: "current", label: name }],
+                  onSelect: () => undefined,
+                  searchable: true,
+                }
+              : undefined,
+          },
+        ]}
+      />
+      <p className="text-sm">Focus the name and press F2 to rename. Enter saves; Escape cancels.</p>
+    </div>
+  );
+}
+
+export const RenameWithoutSwitcher: Story = { render: () => <RenameExample /> };
+export const ReservedWidthEditableSwitcher: Story = {
+  render: () => <RenameExample splitSwitcher />,
+};

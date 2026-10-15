@@ -59,8 +59,9 @@ function BreadcrumbLevel({
   const nameRef = useRef<HTMLInputElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const switcher = item.switcher;
-  const editableSwitcher = current && switcher && item.onRename && !item.node;
   const splitSwitcher = switcher && item.labelWidth !== undefined && !item.node;
+  const editable = current && item.onRename && !item.node;
+  const editableSwitcher = editable && switcher && !splitSwitcher;
   const showTriggerLabel = current && !editing && !item.node && !splitSwitcher;
   const labelStyle =
     item.labelWidth === undefined
@@ -105,6 +106,7 @@ function BreadcrumbLevel({
       ref={nameRef}
       aria-label={`Rename ${item.label}`}
       size={size}
+      style={labelStyle}
       value={draft}
       onChange={setDraft}
       outline="hidden"
@@ -116,7 +118,7 @@ function BreadcrumbLevel({
           finishRename(event.key === "Enter", true);
         }
       }}
-      wrapperClassName="w-0 min-w-0 flex-1"
+      wrapperClassName={item.labelWidth !== undefined ? "min-w-0 shrink-0" : "w-0 min-w-0 flex-1"}
       className="!rounded-r-none !bg-transparent !pl-1.5"
     />
   );
@@ -140,6 +142,7 @@ function BreadcrumbLevel({
     </a>
   ) : switcher ? (
     <button
+      ref={editable ? triggerRef : undefined}
       type="button"
       className={labelClass}
       style={labelStyle}
@@ -147,9 +150,36 @@ function BreadcrumbLevel({
       aria-haspopup="menu"
       aria-expanded={open}
       onClick={() => setOpen(true)}
+      onKeyDown={(event) => {
+        if (event.key === "F2" && editable) {
+          event.preventDefault();
+          beginRename();
+        }
+      }}
       onDoubleClick={(event) => {
         event.preventDefault();
         beginRename();
+      }}
+    >
+      {item.label}
+    </button>
+  ) : editable ? (
+    <button
+      ref={triggerRef}
+      type="button"
+      style={labelStyle}
+      aria-label={`Rename ${item.label}`}
+      className={clsx(
+        labelClass,
+        "w-full cursor-pointer bg-neutral-500/10 hover:bg-neutral-500/25",
+      )}
+      onClick={beginRename}
+      onDoubleClick={beginRename}
+      onKeyDown={(event) => {
+        if (event.key === "F2") {
+          event.preventDefault();
+          beginRename();
+        }
       }}
     >
       {item.label}
@@ -175,7 +205,7 @@ function BreadcrumbLevel({
       </div>
     ) : (
       <Button
-        ref={triggerRef}
+        ref={splitSwitcher && editable ? undefined : triggerRef}
         size={size}
         onDoubleClick={(event) => {
           if (!item.onRename || !current) return;
@@ -230,7 +260,7 @@ function BreadcrumbLevel({
       className={clsx(
         size,
         "sized-text flex min-w-0 items-center rounded-xs",
-        editableSwitcher && "w-52 max-w-full",
+        editable && item.labelWidth === undefined && "w-52 max-w-full",
         switcher && (!current || splitSwitcher) && "gap-0.5",
       )}
       aria-current={current ? "page" : undefined}
@@ -241,7 +271,7 @@ function BreadcrumbLevel({
       {switcher &&
         (editing && editableSwitcher ? (
           trigger
-        ) : switcher.searchable || editableSwitcher ? (
+        ) : switcher.searchable || editable ? (
           <SearchableBreadcrumbSwitcher
             switcher={switcher}
             trigger={trigger}
