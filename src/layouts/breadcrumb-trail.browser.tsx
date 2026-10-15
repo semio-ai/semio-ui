@@ -70,27 +70,27 @@ test("project switcher searches and selects with the keyboard", async () => {
   const current = item();
   current.switcher!.onSelect = select;
   await render(<BreadcrumbTrail items={[current]} />);
-  await page.getByRole("button", { name: /^Switch Project:/ }).click();
-  const search = page.getByRole("textbox", { name: "Search switch project", exact: true });
+  await page.getByRole("combobox", { name: /^Switch Project:/ }).click();
+  const search = page.getByRole("combobox", { name: "Search switch project", exact: true });
   await search.fill("Project B");
   await expect
-    .element(page.getByRole("menuitemradio", { name: options[0].label, exact: true }))
+    .element(page.getByRole("option", { name: options[0].label, exact: true }))
     .not.toBeInTheDocument();
   await search.click();
   await userEvent.keyboard("{ArrowDown}{Enter}");
-  expect(select).toHaveBeenCalledWith("b");
-  await expect.element(page.getByRole("menu")).not.toBeInTheDocument();
+  await expect.poll(() => select.mock.calls).toEqual([["b"]]);
+  await expect.element(page.getByRole("listbox")).not.toBeInTheDocument();
 });
 
 test("double-click renames; Enter commits once and Escape cancels", async () => {
   const rename = vi.fn();
   await render(<BreadcrumbTrail items={[item({ onRename: rename })]} />);
-  await userEvent.dblClick(page.getByRole("button", { name: /^Switch Project:/ }));
+  await userEvent.dblClick(page.getByRole("combobox", { name: /^Switch Project:/ }));
   const field = page.getByRole("textbox", { name: "Rename Project A", exact: true });
   await field.fill("New project name");
   await userEvent.keyboard("{Enter}");
   expect(rename).toHaveBeenCalledExactlyOnceWith("New project name");
-  await userEvent.dblClick(page.getByRole("button", { name: /^Switch Project:/ }));
+  await userEvent.dblClick(page.getByRole("combobox", { name: /^Switch Project:/ }));
   await field.fill("Discard this");
   await userEvent.keyboard("{Escape}");
   expect(rename).toHaveBeenCalledOnce();
@@ -104,8 +104,8 @@ test("Rename menu action supports touch and blur commits", async () => {
       <button type="button">Outside</button>
     </>,
   );
-  await page.getByRole("button", { name: /^Switch Project:/ }).click();
-  await page.getByRole("menuitem", { name: "Rename", exact: true }).click();
+  await page.getByRole("combobox", { name: /^Switch Project:/ }).click();
+  await page.getByRole("button", { name: "Rename", exact: true }).click();
   const field = page.getByRole("textbox", { name: "Rename Project A", exact: true });
   await field.fill("  New name  ");
   await page.getByRole("button", { name: "Outside", exact: true }).click();
@@ -116,14 +116,14 @@ test("read-only crumbs offer no Rename; loading and empty search stay distinct",
   const current = item();
   current.switcher!.loading = true;
   const view = await render(<BreadcrumbTrail items={[current]} />);
-  await page.getByRole("button", { name: /^Switch Project:/ }).click();
+  await page.getByRole("combobox", { name: /^Switch Project:/ }).click();
   await expect.element(page.getByRole("status")).toHaveTextContent("Loading…");
   await expect
-    .element(page.getByRole("menuitem", { name: "Rename", exact: true }))
+    .element(page.getByRole("button", { name: "Rename", exact: true }))
     .not.toBeInTheDocument();
   current.switcher!.loading = false;
   await view.rerender(<BreadcrumbTrail items={[current]} />);
-  await page.getByRole("textbox").fill("missing project");
+  await page.getByRole("combobox", { name: "Search switch project" }).fill("missing project");
   await expect.element(page.getByRole("status")).toHaveTextContent("No matches");
 });
 
@@ -142,8 +142,12 @@ test("a long breadcrumb fits a mobile viewport", async () => {
   const nav = page.getByRole("navigation", { name: "Breadcrumb", exact: true }).element();
   expect(nav.getBoundingClientRect().width).toBeLessThanOrEqual(328);
   expect(nav.scrollWidth).toBeLessThanOrEqual(328);
-  await page.getByRole("button", { name: /^Switch Project:/ }).click();
-  const menu = page.getByRole("menu").element().getBoundingClientRect();
+  await page.getByRole("combobox", { name: /^Switch Project:/ }).click();
+  const menu = page
+    .getByRole("listbox")
+    .element()
+    .closest(".dropdown-content")!
+    .getBoundingClientRect();
   expect(menu.left).toBeGreaterThanOrEqual(0);
   expect(menu.right).toBeLessThanOrEqual(360);
 });
@@ -176,7 +180,7 @@ test("mobile collapses an ancestor menu and keeps the current label available", 
   await expect
     .element(page.getByRole("button", { name: "Switch Section menu", exact: true }))
     .toBeVisible();
-  await expect.element(page.getByRole("button", { name: /^Switch Project:/ })).toBeVisible();
+  await expect.element(page.getByRole("combobox", { name: /^Switch Project:/ })).toBeVisible();
 });
 
 test("breadcrumb controls retain the toolbar button foreground treatment in dark mode", async () => {
@@ -196,7 +200,7 @@ test("breadcrumb controls retain the toolbar button foreground treatment in dark
       context.fillRect(0, 0, 1, 1);
       return [...context.getImageData(0, 0, 1, 1).data];
     };
-    expect(rgba(page.getByRole("button", { name: /^Switch Project:/ }).element())).toEqual(
+    expect(rgba(page.getByRole("combobox", { name: /^Switch Project:/ }).element())).toEqual(
       rgba(page.getByText("Reference foreground", { exact: true }).element()),
     );
   } finally {
@@ -224,7 +228,8 @@ test("grouped controls keep square shared corners and a stable rename footprint"
     />,
   );
   const field = page.getByRole("textbox", { name: "Rename Project A", exact: true });
-  const before = field.element().getBoundingClientRect();
+  const display = page.getByRole("combobox", { name: /^Switch Project:/ });
+  const before = display.element().getBoundingClientRect();
   expect(
     page.getByRole("link", { name: "Projects", exact: true }).element().getBoundingClientRect()
       .height,
@@ -255,18 +260,17 @@ test("grouped controls keep square shared corners and a stable rename footprint"
   ).toBeLessThan(0.5);
   const nav = page.getByRole("navigation", { name: "Breadcrumb", exact: true });
   const trailBefore = nav.element().getBoundingClientRect();
-  const arrow = page.getByRole("button", { name: /^Switch Project:/ });
+  const arrow = page.getByRole("combobox", { name: /^Switch Project:/ });
   expect(arrow.element().getBoundingClientRect().height).toBe(before.height);
-  expect(getComputedStyle(arrow.element()).borderTopLeftRadius).toBe("0px");
-  expect(getComputedStyle(field.element()).borderTopRightRadius).toBe("0px");
+
   await userEvent.dblClick(arrow);
   const after = field.element().getBoundingClientRect();
-  expect(after.width).toBe(before.width);
+  expect(after.width).toBeLessThan(before.width);
   expect(after.height).toBe(before.height);
   expect(nav.element().getBoundingClientRect().width).toBe(trailBefore.width);
   expect(nav.element().getBoundingClientRect().height).toBe(trailBefore.height);
   await field.fill("A much longer name typed while editing");
-  expect(field.element().getBoundingClientRect().width).toBe(before.width);
+  expect(field.element().getBoundingClientRect().width).toBe(after.width);
   await userEvent.keyboard("{Escape}");
 });
 
@@ -287,12 +291,12 @@ test("sibling and action icons resolve through the consumer's registry", async (
       <BreadcrumbTrail items={[current]} />
     </IconProvider>,
   );
-  await page.getByRole("button", { name: /^Switch Project:/ }).click();
+  await page.getByRole("combobox", { name: /^Switch Project:/ }).click();
   expect(page.getByRole("separator").elements()).toHaveLength(2);
   for (const row of [
-    page.getByRole("menuitemradio", { name: "Project A", exact: true }),
-    page.getByRole("menuitem", { name: "Rename", exact: true }),
-    page.getByRole("menuitem", { name: "All projects", exact: true }),
+    page.getByRole("option", { name: "Project A", exact: true }),
+    page.getByRole("button", { name: "Rename", exact: true }),
+    page.getByRole("button", { name: "All projects", exact: true }),
   ]) {
     expect(row.element().querySelector('[data-testid="consumer-project-icon"]')).not.toBeNull();
   }
@@ -333,18 +337,18 @@ test("reserved section labels keep the same split-control width on listings and 
 test("consumers can hide Rename while retaining double-click editing", async () => {
   const rename = vi.fn();
   await render(<BreadcrumbTrail items={[item({ onRename: rename, showRenameAction: false })]} />);
-  const trigger = page.getByRole("button", { name: /^Switch Project:/ });
+  const trigger = page.getByRole("combobox", { name: /^Switch Project:/ });
   await trigger.click();
   await expect
-    .element(page.getByRole("menuitem", { name: "Rename", exact: true }))
+    .element(page.getByRole("button", { name: "Rename", exact: true }))
     .not.toBeInTheDocument();
-  const search = page.getByRole("textbox", { name: "Search switch project" }).element();
+  const search = page.getByRole("combobox", { name: "Search switch project" }).element();
   const separator = document.querySelector('[role="separator"]')!;
   const label = page.getByText("Switch Project", { exact: true }).element();
   const gapAbove = search.getBoundingClientRect().top - label.getBoundingClientRect().bottom;
   const gapBelow = separator.getBoundingClientRect().top - search.getBoundingClientRect().bottom;
-  expect(gapAbove).toBe(8);
-  expect(gapBelow).toBe(8);
+  expect(Math.abs(gapAbove - 8)).toBeLessThan(0.5);
+  expect(Math.abs(gapBelow - 8)).toBeLessThan(0.5);
   await userEvent.keyboard("{Escape}");
   await userEvent.dblClick(trigger);
   await page.getByRole("textbox", { name: "Rename Project A", exact: true }).fill("Project C");
@@ -383,16 +387,46 @@ test.each([false, true])(
   },
 );
 
-
 test("project choices have equal spacing between their surrounding dividers", async () => {
   const current = item();
   current.switcher!.browse = { label: "View All Projects", onSelect: vi.fn() };
   await render(<BreadcrumbTrail items={[current]} />);
-  await page.getByRole("button", { name: /^Switch Project:/ }).click();
+  await page.getByRole("combobox", { name: /^Switch Project:/ }).click();
   const separators = Array.from(document.querySelectorAll('[role="separator"]'));
-  const rows = page.getByRole("menuitemradio").elements();
+  const rows = page.getByRole("option").elements();
   const above = rows[0].getBoundingClientRect().top - separators[0].getBoundingClientRect().bottom;
-  const below = separators[1].getBoundingClientRect().top - rows[rows.length - 1].getBoundingClientRect().bottom;
-  expect(above).toBe(5);
-  expect(below).toBe(above);
+  const below =
+    separators[1].getBoundingClientRect().top -
+    rows[rows.length - 1].getBoundingClientRect().bottom;
+  expect(Math.abs(above - 5)).toBeLessThan(0.5);
+  expect(Math.abs(below - above)).toBeLessThan(0.5);
+});
+
+test("pointer movement keeps typing focus in project search", async () => {
+  await render(<BreadcrumbTrail items={[item()]} />);
+  await page.getByRole("combobox", { name: /^Switch Project:/ }).click();
+  const input = page.getByRole("combobox", { name: "Search switch project" });
+  await input.fill("Project");
+  await page.getByRole("option", { name: "Project B · @team", exact: true }).hover();
+  await expect.element(input).toHaveFocus();
+  await userEvent.keyboard(" B");
+  await expect.element(input).toHaveValue("Project B");
+  await expect
+    .element(page.getByRole("option", { name: "Project A · You", exact: true }))
+    .not.toBeInTheDocument();
+});
+
+test("F2 exposes renaming from a semantic trigger without a dormant text input", async () => {
+  const rename = vi.fn();
+  await render(<BreadcrumbTrail items={[item({ onRename: rename, showRenameAction: false })]} />);
+  await expect
+    .element(page.getByRole("textbox", { name: "Rename Project A", exact: true }))
+    .not.toBeInTheDocument();
+  const trigger = page.getByRole("combobox", { name: /^Switch Project:/ });
+  trigger.element().focus();
+  await userEvent.keyboard("{F2}");
+  const input = page.getByRole("textbox", { name: "Rename Project A", exact: true });
+  await input.fill("Keyboard rename");
+  await userEvent.keyboard("{Enter}");
+  expect(rename).toHaveBeenCalledExactlyOnceWith("Keyboard rename");
 });

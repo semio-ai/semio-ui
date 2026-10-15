@@ -9,6 +9,7 @@ import { NestedRadio } from "../nested-elements/radio";
 import { TextField } from "../inputs/text-field";
 import { Icon, type IconValue } from "../icons/registry";
 import { Size } from "../types";
+import { SearchableBreadcrumbSwitcher } from "./searchable-breadcrumb-switcher";
 
 export interface BreadcrumbSibling {
   icon?: IconValue;
@@ -35,8 +36,8 @@ export interface BreadcrumbTrailItem {
     emptyText?: string;
     browse?: { label: string; icon?: IconValue; onSelect: () => void };
   };
-  /** Enables double-click and the menu's Rename action. Enter/blur commit; Escape cancels. */
-  onRename?: (name: string) => void;
+  /** Enables double-click, F2 and the menu's Rename action. Enter/blur commit; Escape cancels. */
+  onRename?: (name: string) => void | Promise<void>;
   renameIcon?: IconValue;
   /** Hide the menu action when the consumer offers renaming through another surface. */
   showRenameAction?: boolean;
@@ -52,13 +53,11 @@ function BreadcrumbLevel({
   size: Size;
 }) {
   const [open, setOpen] = useState(false);
-  const [query, setQuery] = useState("");
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(item.label);
   const editingRef = useRef(false);
-  const searchRef = useRef<HTMLInputElement>(null);
   const nameRef = useRef<HTMLInputElement>(null);
-  const optionsRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
   const switcher = item.switcher;
   const editableSwitcher = current && switcher && item.onRename && !item.node;
   const splitSwitcher = switcher && item.labelWidth !== undefined && !item.node;
@@ -70,12 +69,6 @@ function BreadcrumbLevel({
           width: item.labelWidth,
           minWidth: item.labelWidth,
         };
-
-  useEffect(() => {
-    if (!open || !switcher?.searchable) return;
-    const frame = requestAnimationFrame(() => searchRef.current?.focus());
-    return () => cancelAnimationFrame(frame);
-  }, [open, switcher?.searchable]);
 
   useEffect(() => {
     if (!editing) return;
@@ -93,17 +86,15 @@ function BreadcrumbLevel({
     editingRef.current = true;
     setEditing(true);
   };
-  const finishRename = (commit: boolean) => {
+  const finishRename = (commit: boolean, restoreFocus = false) => {
     if (!editingRef.current) return;
     editingRef.current = false;
     setEditing(false);
+    if (restoreFocus) requestAnimationFrame(() => triggerRef.current?.focus());
     const name = draft.trim();
     if (commit && name && name !== item.label) item.onRename?.(name);
   };
-  const visibleOptions =
-    switcher?.options.filter((option) =>
-      option.label.toLocaleLowerCase().includes(query.trim().toLocaleLowerCase()),
-    ) ?? [];
+  const visibleOptions = switcher?.options ?? [];
   const labelClass = clsx(
     size,
     "sized-height inline-flex min-w-0 items-center truncate rounded-xs px-2",
@@ -114,8 +105,7 @@ function BreadcrumbLevel({
       ref={nameRef}
       aria-label={`Rename ${item.label}`}
       size={size}
-      readOnly={!editing}
-      value={editing ? draft : item.label}
+      value={draft}
       onChange={setDraft}
       outline="hidden"
       onBlur={() => finishRename(true)}
@@ -123,11 +113,11 @@ function BreadcrumbLevel({
         event.stopPropagation();
         if (event.key === "Enter" || event.key === "Escape") {
           event.preventDefault();
-          finishRename(event.key === "Enter");
+          finishRename(event.key === "Enter", true);
         }
       }}
       wrapperClassName="w-0 min-w-0 flex-1"
-      className={clsx("!rounded-r-none !bg-transparent", !editing && "pointer-events-none")}
+      className="!rounded-r-none !bg-transparent"
     />
   );
   const label = editing ? (
@@ -170,6 +160,71 @@ function BreadcrumbLevel({
     </span>
   );
 
+  const trigger = switcher ? (
+    editableSwitcher && editing ? (
+      <div className="flex w-full min-w-0 items-center rounded-xs bg-neutral-500/10 hover:bg-neutral-500/25">
+        {nameField}
+        <Button
+          size={size}
+          visuals="inverted"
+          leftIcon="select-indicator"
+          altText={editing ? `${switcher.label} menu` : `${switcher.label}: ${item.label}`}
+          disabled={editing}
+          className="!rounded-l-none rounded-r-xs shrink-0"
+        />
+      </div>
+    ) : (
+      <Button
+        ref={triggerRef}
+        size={size}
+        onDoubleClick={(event) => {
+          if (!item.onRename || !current) return;
+          event.preventDefault();
+          beginRename();
+        }}
+        onKeyDown={(event) => {
+          if (event.key === "F2" && item.onRename && current) {
+            event.preventDefault();
+            beginRename();
+          }
+        }}
+        visuals="inverted"
+        title={item.label}
+        altText={showTriggerLabel ? `${switcher.label}: ${item.label}` : `${switcher.label} menu`}
+        rightIcon={showTriggerLabel ? "select-indicator" : undefined}
+        leftIcon={
+          !showTriggerLabel ? (
+            current ? (
+              "select-indicator"
+            ) : (
+              <span className="grid h-full w-full place-items-center">
+                <span className="desktop:hidden">…</span>
+                <span className="hidden h-full w-full place-items-center desktop:grid">
+                  <Icon name="select-indicator" />
+                </span>
+              </span>
+            )
+          ) : undefined
+        }
+        className={clsx(
+          "min-w-0 rounded-xs bg-neutral-500/10 hover:bg-neutral-500/25",
+          !showTriggerLabel && "rounded-xs bg-neutral-500/10 hover:bg-neutral-500/25",
+          !current && "desktop:!rounded-l-none",
+          splitSwitcher && current && "!rounded-l-none",
+          editableSwitcher && "w-full",
+          showTriggerLabel &&
+            "flex-1 !flex overflow-hidden [&>div:first-child]:min-w-0 [&>div:first-child]:flex-1 [&>div:last-child]:shrink-0",
+        )}
+      >
+        {showTriggerLabel ? (
+          <span className="block w-full min-w-0 truncate">{item.label}</span>
+        ) : undefined}
+      </Button>
+    )
+  ) : (
+    <span />
+  );
+
   return (
     <span
       className={clsx(
@@ -183,152 +238,91 @@ function BreadcrumbLevel({
       {!editableSwitcher &&
         (!switcher || !current || editing || item.node || splitSwitcher) &&
         (!current && switcher ? <span className="hidden desktop:contents">{label}</span> : label)}
-      {switcher && (
-        <Dropdown
-          modal={false}
-          open={open && !editing}
-          onOpenChange={(next) => {
-            setOpen(next);
-            if (!next) setQuery("");
-          }}
-          disabled={editing}
-          onTriggerDoubleClick={(event) => {
-            if (!item.onRename || !current) return;
-            event.preventDefault();
-            event.stopPropagation();
-            beginRename();
-          }}
-          matchTriggerWidth={false}
-          contentClassName="desktop:w-80 max-w-[calc(100vw-16px)]"
-          trigger={
-            editableSwitcher ? (
-              <div className="flex w-full min-w-0 items-center rounded-xs bg-neutral-500/10 hover:bg-neutral-500/25">
-                {nameField}
-                <Button
-                  size={size}
-                  visuals="inverted"
-                  leftIcon="select-indicator"
-                  altText={editing ? `${switcher.label} menu` : `${switcher.label}: ${item.label}`}
-                  disabled={editing}
-                  className="!rounded-l-none rounded-r-xs shrink-0"
-                />
+      {switcher &&
+        (editing && editableSwitcher ? (
+          trigger
+        ) : switcher.searchable ? (
+          <SearchableBreadcrumbSwitcher
+            switcher={switcher}
+            trigger={trigger}
+            open={open && !editing}
+            onOpenChange={setOpen}
+            onRename={item.onRename && item.showRenameAction !== false ? beginRename : undefined}
+            renameIcon={item.renameIcon}
+          />
+        ) : (
+          <Dropdown
+            open={open && !editing}
+            onOpenChange={(next) => {
+              setOpen(next);
+            }}
+            disabled={editing}
+            onTriggerDoubleClick={(event) => {
+              if (!item.onRename || !current) return;
+              event.preventDefault();
+              event.stopPropagation();
+              beginRename();
+            }}
+            matchTriggerWidth={false}
+            contentClassName="desktop:w-80 max-w-[calc(100vw-16px)]"
+            trigger={trigger}
+            header={
+              <div className="flex flex-col gap-2 px-2 pt-2 pb-px">
+                <NestedLabel>{switcher.label}</NestedLabel>
               </div>
-            ) : (
-              <Button
-                size={size}
-                visuals="inverted"
-                title={item.label}
-                altText={
-                  showTriggerLabel ? `${switcher.label}: ${item.label}` : `${switcher.label} menu`
-                }
-                rightIcon={showTriggerLabel ? "select-indicator" : undefined}
-                leftIcon={
-                  !showTriggerLabel ? (
-                    current ? (
-                      "select-indicator"
-                    ) : (
-                      <span className="grid h-full w-full place-items-center">
-                        <span className="desktop:hidden">…</span>
-                        <span className="hidden h-full w-full place-items-center desktop:grid">
-                          <Icon name="select-indicator" />
-                        </span>
-                      </span>
-                    )
-                  ) : undefined
-                }
-                className={clsx(
-                  "min-w-0",
-                  !showTriggerLabel && "rounded-xs bg-neutral-500/10 hover:bg-neutral-500/25",
-                  !current && "desktop:!rounded-l-none",
-                  splitSwitcher && current && "!rounded-l-none",
-                  showTriggerLabel &&
-                    "flex-1 !flex overflow-hidden [&>div:first-child]:min-w-0 [&>div:first-child]:flex-1 [&>div:last-child]:shrink-0",
-                )}
-              >
-                {showTriggerLabel ? (
-                  <span className="block w-full min-w-0 truncate">{item.label}</span>
-                ) : undefined}
-              </Button>
-            )
-          }
-          header={
-            <div className="flex flex-col gap-2 px-2 pt-2 pb-px">
-              <NestedLabel>{switcher.label}</NestedLabel>
-              {switcher.searchable && (
-                <TextField
-                  ref={searchRef}
-                  size={Size.Sm}
-                  aria-label={`Search ${switcher.label.toLowerCase()}`}
-                  placeholder="Search…"
-                  value={query}
-                  onChange={setQuery}
-                  onKeyDown={(event) => {
-                    if (event.key === "ArrowDown") {
-                      event.preventDefault();
-                      optionsRef.current
-                        ?.querySelector<HTMLElement>('[role="menuitemradio"]')
-                        ?.focus();
-                    }
-                    if (event.key !== "Escape") event.stopPropagation();
-                  }}
-                />
+            }
+          >
+            <div>
+              {switcher.loading ? (
+                <p role="status" className="p-2 text-sm">
+                  Loading…
+                </p>
+              ) : switcher.error ? (
+                <p role="status" className="p-2 text-sm">
+                  {switcher.error}
+                </p>
+              ) : (
+                <>
+                  <NestedRadio
+                    value={switcher.value}
+                    options={visibleOptions.slice(0, 50)}
+                    onChange={(value) => {
+                      setOpen(false);
+                      switcher.onSelect(value);
+                    }}
+                  />
+                  {visibleOptions.length === 0 && (
+                    <p role="status" className="p-2 text-sm">
+                      {switcher.emptyText ?? "No options available"}
+                    </p>
+                  )}
+                  {visibleOptions.length > 50 && (
+                    <p className="p-2 text-sm">Showing 50 results. Refine your search.</p>
+                  )}
+                </>
               )}
             </div>
-          }
-        >
-          {switcher.searchable && <NestedSeparator />}
-          <div ref={optionsRef}>
-            {switcher.loading ? (
-              <p role="status" className="p-2 text-sm">
-                Loading…
-              </p>
-            ) : switcher.error ? (
-              <p role="status" className="p-2 text-sm">
-                {switcher.error}
-              </p>
-            ) : (
+            {item.onRename && item.showRenameAction !== false && (
+              <NestedItem left={item.renameIcon} onClick={beginRename}>
+                Rename
+              </NestedItem>
+            )}
+            {switcher.browse && (
               <>
-                <NestedRadio
-                  value={switcher.value}
-                  options={visibleOptions.slice(0, 50)}
-                  onChange={(value) => {
+                <NestedSeparator />
+                <NestedItem
+                  left={switcher.browse.icon}
+                  onClick={() => {
                     setOpen(false);
-                    setQuery("");
-                    switcher.onSelect(value);
+                    switcher.browse?.onSelect();
                   }}
-                />
-                {visibleOptions.length === 0 && (
-                  <p role="status" className="p-2 text-sm">
-                    {query ? "No matches" : (switcher.emptyText ?? "No options available")}
-                  </p>
-                )}
-                {visibleOptions.length > 50 && (
-                  <p className="p-2 text-sm">Showing 50 results. Refine your search.</p>
-                )}
+                >
+                  {switcher.browse.label}
+                </NestedItem>
               </>
             )}
-          </div>
-          {item.onRename && item.showRenameAction !== false && (
-            <NestedItem left={item.renameIcon} onClick={beginRename}>
-              Rename
-            </NestedItem>
-          )}
-          {switcher.browse && (
-            <>
-              <NestedSeparator />
-              <NestedItem
-                left={switcher.browse.icon}
-                onClick={() => {
-                  setOpen(false);
-                  switcher.browse?.onSelect();
-                }}
-              >
-                {switcher.browse.label}
-              </NestedItem>
-            </>
-          )}
-        </Dropdown>
-      )}
+          </Dropdown>
+        ))}
     </span>
   );
 }

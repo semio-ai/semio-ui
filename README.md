@@ -166,10 +166,6 @@ Components are grouped by concern and all re-exported from the package root:
   [`docs/windowed-lists.md`](docs/windowed-lists.md).
 - **Theming** — the `Theme` / `Variant` / `Size` enums and supporting hooks
 
-## License
-
-MIT
-
 ### Layout navigation actions
 
 Footer `ActionItem` entries with `onClick` render as direct buttons on desktop and
@@ -201,8 +197,15 @@ a separate adjacent segment, including on the current page. This lets consumers
 keep predefined navigation choices the same width on listing and detail pages.
 
 `BreadcrumbTrailItem.showRenameAction` can hide the menu action while keeping
-`onRename` double-click editing, when another surface provides a rename form.
+`onRename` double-click and F2 editing, when another surface provides a rename form.
 
 The `toolbar-segments` style gives adjacent controls a 2px gap and square shared
 edges, preserving rounded exposed ends. It also handles text-field wrappers and
 nested segment rows.
+
+
+Searchable breadcrumb pickers use Base UI combobox primitives and the shared combobox style helpers. Their input retains DOM focus while pointer and keyboard navigation highlight options. Closing selections run after the popup closes, allowing consumers to open a dialog. Display labels are semantic picker triggers; F2 starts optional inline renaming.
+
+## License
+
+MIT
