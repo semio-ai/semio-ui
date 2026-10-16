@@ -17,6 +17,7 @@ import { NestedLabel } from "./label";
  */
 export function NestedMenu({
   left,
+  right,
   children,
   label,
   variant,
@@ -99,7 +100,7 @@ export function NestedMenu({
           </div>
         )}
 
-        {label}
+        {right ? <span className="pr-12">{label}</span> : label}
 
         <div
           className={clsx(
@@ -108,13 +109,19 @@ export function NestedMenu({
             variant,
           )}
         >
-          <Icon
-            name="submenu"
-            className={clsx(
-              "rotate-0 transition-transform",
-              !desktop && "group-data-[state=open]/item:rotate-90",
-            )}
-          />
+          {right}
+          {/* The glyph is sized as a fraction of its parent, so it gets a box of its
+              own. Sized against the shared slot, it would grow with `right` and take
+              the width `right` needs, squeezing a fixed-size indicator. */}
+          <span className="inline-flex h-5 items-center justify-center">
+            <Icon
+              name="submenu"
+              className={clsx(
+                "rotate-0 transition-transform",
+                !desktop && "group-data-[state=open]/item:rotate-90",
+              )}
+            />
+          </span>
         </div>
       </SubTriggerComponent>
       <PortalComponent>

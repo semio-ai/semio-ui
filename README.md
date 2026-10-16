@@ -102,6 +102,13 @@ default variants, respectively; each variant can be configured independently.
 The current step keeps an offset outline so progress is recognizable without
 relying on the caption alone.
 
+`Dialog` places actions in its footer. Set `closeOnCancelClick={false}` for a
+cancel action that changes a step; X remains a separate dismissal action. Async
+flows use `closeOnSubmitClick={false}`, `submitDisabled`, `cancelDisabled` and
+`dismissDisabled` until their action settles. Overlay dismissal is opt-in through
+`closeOnOverlayClick`. `NestedMenu` accepts `right` content beside its disclosure
+icon for indicators shared with ordinary menu items.
+
 `Modal` gives initial focus to the rightmost enabled footer action. With no
 available footer action, it retains the dialog primitive's default focus behavior.
 
