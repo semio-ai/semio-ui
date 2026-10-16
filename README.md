@@ -102,6 +102,13 @@ default variants, respectively; each variant can be configured independently.
 The current step keeps an offset outline so progress is recognizable without
 relying on the caption alone.
 
+`Dialog` places actions in its footer. Set `closeOnCancelClick={false}` for a
+cancel action that changes a step; X remains a separate dismissal action. Async
+flows use `closeOnSubmitClick={false}`, `submitDisabled`, `cancelDisabled` and
+`dismissDisabled` until their action settles. Overlay dismissal is opt-in through
+`closeOnOverlayClick`. `NestedMenu` accepts `right` content beside its disclosure
+icon for indicators shared with ordinary menu items.
+
 `Modal` gives initial focus to the rightmost enabled footer action. With no
 available footer action, it retains the dialog primitive's default focus behavior.
 
@@ -120,6 +127,17 @@ cancel it or alter its propagation. `NestedItem` stops closing clicks from
 bubbling into a listing and preserves the selected element as `currentTarget`.
 Consumers using raw Radix items or custom interactive menu content must arrange
 the same teardown ordering before opening a dialog. `Popover` is nonmodal.
+
+`ListGrid` accepts `emptyBody` for a full-width empty row that keeps its column
+headers. Pass the resolved empty state only after the read finishes. `notFound`
+replaces the whole listing, including its headers.
+
+`Tooltip` displays explanatory, never interactive content on hover and keyboard
+focus. The pointer can move from its trigger onto the explanation and keep it
+visible; Escape dismisses it. Use `Popover` for content with links or actions.
+Focus in a React portal outside the trigger's DOM subtree does not open the
+explanation, so a wrapped menu keeps its own Escape handling. Restoring keyboard
+focus to the trigger opens the explanation normally and leaves Tab navigation available.
 
 **Artwork and attribution.** Solar artwork is by 480 Design under CC BY 4.0, and
 the `@solar-icons/react-perf` components that render it are MIT. That package is
