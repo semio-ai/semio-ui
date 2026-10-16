@@ -42,8 +42,9 @@ async function openMenu(
     await expect.element(submenu).toBeVisible();
     await submenu.hover();
     await expect.element(submenu).toHaveFocus();
-    await userEvent.keyboard("{ArrowRight}");
+    // Finish the pointer-open timer before keyboard navigation can close the submenu.
     await expect.element(submenu).toHaveAttribute("aria-expanded", "true");
+    await userEvent.keyboard("{ArrowRight}");
   }
   const role = entry === OverlayEntry.Popover ? "button" : "menuitem";
   const item = page.getByRole(role, { name: "New entity", exact: true });
@@ -204,15 +205,16 @@ for (const surroundings of Object.values(MenuSurroundings)) {
             new KeyboardEvent("keydown", { key: "ArrowUp", bubbles: true, cancelable: true }),
           );
         } else focusTarget.focus();
-        // Flush the focus managers' microtasks and a paint before judging survival.
-        await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
-        await expect.poll(() => page.getByRole("menu").elements().length).toBeGreaterThan(0);
-        await expect
-          .poll(() => Boolean(document.activeElement?.closest('[role="menu"]')))
-          .toBe(true);
+        const submenu =
+          entry === OverlayEntry.DropdownSubmenu || entry === OverlayEntry.ContextSubmenu;
+        const menu = page.getByRole("menu", submenu ? { name: "Create", exact: true } : undefined);
+        // ArrowLeft closes a submenu only when focus has reached that submenu.
+        await expect.poll(() => menu.element().contains(document.activeElement)).toBe(true);
       });
       await expect.element(item).toBeVisible();
       if (entry === OverlayEntry.DropdownSubmenu || entry === OverlayEntry.ContextSubmenu) {
+        // The focus trap must restore the submenu before its closing key is dispatched.
+        await expect.element(item).toHaveFocus();
         await userEvent.keyboard("{ArrowLeft}");
         await expect
           .element(page.getByRole("menuitem", { name: "Create", exact: true }))

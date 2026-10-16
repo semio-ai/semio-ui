@@ -1,7 +1,8 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { ToggleSquare, type ToggleSquareProps, Size, Variant } from "@semio/ui";
+import { ToggleSquare, type ToggleSquareProps, Size, Variant, Theme } from "@semio/ui";
 import { IconBox } from "@tabler/icons-react";
 import { useState, type ReactNode } from "react";
+import { ControlSurfaces } from "./control-surfaces";
 import { toggleSquareVariant } from "./figma-links";
 
 // Per-story Figma design link → the matching ToggleSquare preview frame (1:1).
@@ -79,4 +80,64 @@ export const Disabled: Story = {
   parameters: design(toggleSquareVariant.primary),
   render: (args) => <ToggleSquareRenderer {...args} />,
   args: { value: true, variant: Variant.Primary, size: Size.Md, disabled: true },
+};
+
+function SurfaceStates() {
+  return (
+    <ControlSurfaces>
+      {[false, true].flatMap((disabled) =>
+        [false, true, "partial" as const].map((value) => (
+          <div key={`${disabled}-${value}`} className="flex items-center gap-2">
+            <ToggleSquare
+              value={value}
+              disabled={disabled}
+              variant={Variant.Primary}
+              size={Size.Sm}
+              onChange={() => {}}
+            />
+            <ToggleSquareRenderer
+              value={value}
+              disabled={disabled}
+              variant={Variant.Primary}
+              size={Size.Sm}
+              onChange={() => {}}
+            />
+            <span>
+              {disabled ? "Disabled " : ""}
+              {value === "partial" ? "Partial" : value ? "On" : "Off"}
+            </span>
+          </div>
+        )),
+      )}
+      {[false, true].flatMap((disabled) =>
+        [false, true, "partial" as const].map((value) => (
+          <div key={`indicator-${disabled}-${value}`} className="flex items-center gap-2">
+            <ToggleSquareRenderer
+              value={value}
+              disabled={disabled}
+              variant={Variant.Primary}
+              size={Size.Sm}
+              sizing="list-item"
+              asIndicator
+              onChange={() => {}}
+            />
+            <span>
+              Indicator {disabled ? "disabled " : ""}
+              {value === "partial" ? "Partial" : value ? "On" : "Off"}
+            </span>
+          </div>
+        )),
+      )}
+    </ControlSurfaces>
+  );
+}
+
+export const LightSurfaces: Story = {
+  globals: { theme: Theme.Light },
+  render: () => <SurfaceStates />,
+};
+
+export const DarkSurfaces: Story = {
+  globals: { theme: Theme.Dark },
+  render: () => <SurfaceStates />,
 };

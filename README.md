@@ -184,6 +184,56 @@ Components are grouped by concern and all re-exported from the package root:
   [`docs/windowed-lists.md`](docs/windowed-lists.md).
 - **Theming** — the `Theme` / `Variant` / `Size` enums and supporting hooks
 
+### Layout navigation actions
+
+Footer `ActionItem` entries with `onClick` render as direct buttons on desktop and
+direct items in the mobile menu. Without `onClick` they open their configured
+menu. A pane's `clickFn` can return `false` (synchronously or asynchronously) to
+handle a navigation action without toggling the selected pane.
+
+### Breadcrumb navigation
+
+`BreadcrumbTrail` takes a flat `items` array. Each item supplies its label and an
+optional ancestor `href`, `onNavigate` callback, sibling `switcher`, custom `node`,
+or `onRename` callback. Routes, data fetching and permission checks belong to the
+consumer. The existing tree-based `Breadcrumbs` API remains available.
+
+On mobile, ancestor labels with sibling menus collapse into an overflow trigger.
+Consumers should keep the ancestor destination available in that menu. Ancestor
+labels navigate independently of their menu chevrons on desktop. A current label
+opens its sibling menu. With `onRename`, double-click or the Rename menu action
+opens a text field: Enter or blur commits a nonempty trimmed name, and Escape
+cancels. Read-only consumers omit `onRename`. Search filters supplied options and
+renders at most 50 matches; `browse` provides a destination for the full listing.
+
+Sibling choices and browse actions accept optional `icon` values; editable crumbs
+accept `renameIcon`. These use the same registry-key or element slots as other UI
+controls. Consumers choose domain icons and provide their registry overrides.
+
+`labelWidth` reserves a label width in pixels and renders its sibling trigger as
+a separate adjacent segment, including on the current page. This lets consumers
+keep predefined navigation choices the same width on listing and detail pages.
+
+`BreadcrumbTrailItem.showRenameAction` can hide the menu action while keeping
+`onRename` double-click and F2 editing, when another surface provides a rename form.
+
+The `toolbar-segments` style gives adjacent controls a 2px gap and square shared
+edges, preserving rounded exposed ends. It also handles text-field wrappers and
+nested segment rows.
+
+
+Searchable and editable breadcrumb pickers use Base UI combobox primitives and the shared combobox style helpers. Their input retains DOM focus while pointer and keyboard navigation highlight options. Closing selections run after the popup closes, allowing consumers to open a dialog. Display labels are semantic picker triggers; F2 starts optional inline renaming.
+
+The searchable/editable breadcrumb picker is an internal migration adapter, not a template
+for new popups. The shared Combobox currently provides an inline search input;
+it does not expose a custom trigger with search inside the popup, a fixed
+header/action footer, or an action callback after popup teardown. Shared menus
+still use Radix, whose item hover moves DOM focus away from an embedded search.
+Consolidate this adapter into the shared Base UI picker when that composition
+and close handoff are supported, retaining hover typing focus, double-click/F2
+rename, mobile sizing, and popup-to-dialog accessibility tests. Its surface,
+directional caret, and entrance animation follow the existing Dropdown styles.
+
 ## License
 
 MIT
