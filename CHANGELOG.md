@@ -1,5 +1,36 @@
 # @semio/ui
 
+## 0.4.0
+
+### Minor Changes
+
+- 68f6c72: Add BreadcrumbTrail for flat navigation with separate ancestor links and sibling switchers, searchable choices, loading/error/empty states, registry icons, reserved label widths, and optional renaming through double-click, F2, or a menu action. Keep the existing tree-based Breadcrumbs API available.
+
+  Add shared toolbar-segments styling for consistent control gaps and adjacent corners. Use Base UI for searchable breadcrumb pickers so typing retains focus while hovering choices. Picker actions hand off after closing before opening a dialog.
+
+- fb2e03d: Add a readOnly mode to ChipInput that displays selected chips without editing controls or interaction styling.
+- 1242fdc: Add closeOnCancelClick to Dialog for footer actions that change a step without closing. Add cancelDisabled, dismissDisabled and opt-in closeOnOverlayClick for async dialog flows. Give the header X a distinct Close label. NestedMenu accepts trailing content beside its disclosure icon.
+- 58ee9aa: Allow layout footer actions to execute directly with onClick, including mobile
+  menu rendering. Menu click handlers can return false to preserve the selected pane
+  while a caller confirms navigation. MenuButton supports native disabled behavior.
+- 5033a08: Add `ListGrid.emptyBody` so consumers can show a full-width empty-state row while keeping the column headers.
+
+### Patch Changes
+
+- 59c07f3: `Select`'s trigger is a keyboard-reachable button whose accessible name includes both its field label and selected value in text and icon-only layouts, `Autocomplete` takes an optional accessible label for its input, and `Snippet`'s copy control announces "Copy" and "Copied!".
+
+  `Select` uses a native button for disabled semantics. Keyboard focus and hover show a wrapping explanatory tooltip. `Tooltip` content is hoverable, so moving the pointer onto the explanation keeps it visible; Escape dismisses it. Tooltip content is never interactive: use `Popover` for links or actions.
+
+- 7eafe8d: Make current breadcrumbs without a sibling switcher keyboard-accessible for renaming, with a sized field and focus restoration. Keep editable split-switcher labels visible and preserve their reserved width during renaming.
+- d25b073: Icon toggle buttons no longer carry the unchecked-control edge; it stays on checkboxes, switches, icon-less toggle squares and list indicators.
+- 4fa327f: Keep dropdown, context, and interactive canvas menus modal so they remain usable
+  inside dialogs and beside focus-managing lists. Run closing nested-item actions
+  after the root menu's teardown and focus restoration, preventing overlapping
+  menu/dialog background-hiding counters from leaving the application aria-hidden.
+- 8101906: Keep checkbox, toggle square, and switch boundaries visible on every layout surface in both themes, including disabled controls and list indicators.
+- Updated dependencies [718aa2c]
+  - @semio/utils@0.4.0
+
 ## 0.3.0
 
 ### Minor Changes
