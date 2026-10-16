@@ -106,8 +106,7 @@ relying on the caption alone.
 cancel action that changes a step; X remains a separate dismissal action. Async
 flows use `closeOnSubmitClick={false}`, `submitDisabled`, `cancelDisabled` and
 `dismissDisabled` until their action settles. Overlay dismissal is opt-in through
-`closeOnOverlayClick`. `NestedMenu` accepts `right` content beside its disclosure
-icon for indicators shared with ordinary menu items.
+`closeOnOverlayClick`.
 
 `Modal` gives initial focus to the rightmost enabled footer action. With no
 available footer action, it retains the dialog primitive's default focus behavior.

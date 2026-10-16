@@ -125,8 +125,6 @@ export interface NestedLabelProps {
  * @prop hideHeader: Whether to hide the header of the menu.
  */
 export interface NestedMenuProps {
-  /** Trailing content beside the submenu disclosure icon. */
-  right?: ReactNode;
   left?: IconValue;
   children: ReactNode;
   label?: string;
