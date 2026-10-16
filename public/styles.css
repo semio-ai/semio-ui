@@ -884,7 +884,7 @@
   /* The inset edge identifies a control even when its fill matches its surface.
    * Keep it opaque when disabled; dim the fill and content instead. The separate
    * inner band distinguishes a partial value without replacing the neutral edge. */
-  .variant-checkbox-bg,
+  .variant-checkbox-bg:not(.toggle-square-content),
   .grid-list-item-indicator {
     --control-boundary-color: var(--color-control-light-boundary);
     --control-state-shadow: 0 0 #0000;
@@ -934,6 +934,17 @@
             color: var(--on-accent-color);
             background-color: var(--accent-color) !important;
           }
+        }
+      }
+    }
+
+    /* Icon toggles need no edge: the icon and fill identify the control.
+     * A partial value uses a single inset stroke to distinguish its state. */
+    &.toggle-square-content:not(:disabled)[data-state="indeterminate"] {
+      box-shadow: inset 0 0 0 1px var(--standard-color);
+      &:hover {
+        @media (hover: hover) {
+          box-shadow: inset 0 0 0 1px var(--accent-color);
         }
       }
     }
@@ -2314,7 +2325,6 @@
 .icon-duotone-inverted > *:not([opacity]) {
   opacity: 0.6;
 }
-
 
 /* Adjacent toolbar segments keep their gap but only expose rounded outer ends.
  * A text-field wrapper or nested segment row carries the same edge to its control. */

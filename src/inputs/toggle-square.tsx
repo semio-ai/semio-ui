@@ -1,4 +1,4 @@
-import { type CSSProperties, type ReactNode } from "react";
+import { Children, Fragment, isValidElement, type CSSProperties, type ReactNode } from "react";
 import { Checkbox as RadixCheckbox } from "radix-ui";
 import { clsx } from "clsx";
 import { Variant, Size } from "../types";
@@ -24,6 +24,21 @@ export interface ToggleSquareProps {
   asIndicator?: boolean;
 }
 
+/**
+ * Whether children render anything. `Children.toArray` drops null, undefined and
+ * booleans but keeps a fragment whole, so an empty fragment is looked inside: a
+ * toggle with nothing in it keeps the unchecked edge that makes it visible.
+ */
+function rendersContent(children: ReactNode): boolean {
+  return Children.toArray(children).some((child) => {
+    if (child === "") return false;
+    if (isValidElement<{ children?: ReactNode }>(child) && child.type === Fragment) {
+      return rendersContent(child.props.children);
+    }
+    return true;
+  });
+}
+
 export function ToggleSquare({
   variant,
   color,
@@ -38,6 +53,7 @@ export function ToggleSquare({
 }: ToggleSquareProps) {
   // Map our tri-state to Radix Checkbox's checked prop
   const checked: boolean | "indeterminate" = value === "partial" ? "indeterminate" : value;
+  const hasContent = rendersContent(children);
 
   return (
     <Tooltip disabled={disabled} content={label ?? "Option"}>
@@ -60,6 +76,7 @@ export function ToggleSquare({
           "rounded-xs",
           "flex items-center justify-center",
           asIndicator ? "grid-list-item-indicator" : "variant-checkbox-bg",
+          !asIndicator && hasContent && "toggle-square-content",
           !asIndicator && "variant-responsive-appearing-outline",
           "appearance-none",
           // No foreground named here. Each of the two sizings fills from a different
