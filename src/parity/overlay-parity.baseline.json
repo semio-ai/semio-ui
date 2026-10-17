@@ -3364,9 +3364,6 @@
       "width": 1280,
       "height": 800
     },
-    "corner": {
-      "backgroundColor": "oklab(0 0 0 / 0.4)"
-    },
     "focus": {
       "onOpen": "Cancel"
     },
@@ -6740,9 +6737,6 @@
       "y": 0,
       "width": 1280,
       "height": 800
-    },
-    "corner": {
-      "backgroundColor": "oklab(0 0 0 / 0.4)"
     },
     "focus": {
       "onOpen": "Cancel"

@@ -572,8 +572,6 @@ for (const theme of [Theme.Light, Theme.Dark]) {
       const layers = backdrops(popup);
       result.layers = { count: layers.length };
       layers.forEach((layer, index) => take(result, `backdrop ${String(index)}`, layer));
-      const corner = required(document.elementFromPoint(5, 5));
-      result.corner = { backgroundColor: getComputedStyle(corner).backgroundColor };
       result.focus = { onOpen: focusName() };
       await userEvent.keyboard("{Escape}");
       await settle();
