@@ -18,6 +18,7 @@ export interface MenuButtonProps {
   icon: IconValue;
   onClick?: MouseEventHandler;
   active?: boolean;
+  disabled?: boolean;
   hoverable?: boolean;
   /**
    * Show a subtle accent-tinted background on hover, and a darker tint when
@@ -61,6 +62,7 @@ export function MenuButton({
   icon,
   onClick,
   active,
+  disabled,
   hoverable,
   bg,
   activeOnDesktopOnly,
@@ -115,6 +117,7 @@ export function MenuButton({
     <button
       ref={ref}
       type="button"
+      disabled={disabled}
       id={id}
       role={role}
       tabIndex={tabIndex}

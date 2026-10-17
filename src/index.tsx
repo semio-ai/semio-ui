@@ -214,3 +214,5 @@ export * from "./markdown";
 
 export * from "./types";
 export * from "./nested-elements/types";
+
+export * from "./layouts/breadcrumb-trail";

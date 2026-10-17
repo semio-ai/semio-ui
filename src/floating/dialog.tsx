@@ -15,6 +15,11 @@ export interface DialogProps {
   title?: ReactNode;
   description?: string;
   submitDisabled?: boolean;
+  cancelDisabled?: boolean;
+  /** Disable X, Escape and overlay dismissal while an action is in flight. */
+  dismissDisabled?: boolean;
+  /** Allow clicking the overlay to dismiss. Defaults to `false` for confirmations. */
+  closeOnOverlayClick?: boolean;
   submitText?: string;
   cancelText?: string;
   onStateChange: (open: boolean) => void;
@@ -37,6 +42,8 @@ export interface DialogProps {
    * for the same semantics.
    */
   closeOnSubmitClick?: boolean;
+  /** Set false for a cancel action that changes a step without closing. Defaults to true. */
+  closeOnCancelClick?: boolean;
   /** Custom container for the dialog portal. Defaults to `document.body`. */
   portalContainer?: HTMLElement | null;
 }
@@ -88,6 +95,9 @@ export function Dialog({
   title,
   description,
   submitDisabled,
+  cancelDisabled,
+  dismissDisabled = false,
+  closeOnOverlayClick = false,
   submitText = "Submit",
   cancelText = "Cancel",
   onStateChange,
@@ -95,6 +105,7 @@ export function Dialog({
   onCancel,
   variant,
   closeOnSubmitClick = true,
+  closeOnCancelClick = true,
   portalContainer,
   size = "content",
   footer,
@@ -118,12 +129,30 @@ export function Dialog({
     </Button>
   );
   const hasBody = Boolean(children);
+  const cancelButton = onCancel && (
+    <Button
+      tabIndex={0}
+      className="flex-1"
+      variant={Variant.Default}
+      onClick={onCancel}
+      disabled={cancelDisabled}
+    >
+      {cancelText}
+    </Button>
+  );
   const hasFooter = footer != null || Boolean(onCancel || submitButton);
+  const changeOpen = (next: boolean) => {
+    if (!next && dismissDisabled) return;
+    onStateChange(next);
+  };
   return (
-    <AlertDialog.Root open={open} onOpenChange={onStateChange}>
+    <AlertDialog.Root open={open} onOpenChange={changeOpen}>
       <AlertDialog.Portal container={portalContainer ?? undefined}>
         <AlertDialog.Overlay
           forceMount
+          onClick={(event) => {
+            if (closeOnOverlayClick && event.target === event.currentTarget) changeOpen(false);
+          }}
           className={clsx(
             "data-[state=open]:animate-fadeIn data-[state=closed]:animate-fadeOut transition-opacity",
             "fixed top-0 right-0 bottom-0 left-0 grid place-items-center",
@@ -132,6 +161,9 @@ export function Dialog({
         >
           <AlertDialog.Content
             forceMount
+            onEscapeKeyDown={(event) => {
+              if (dismissDisabled) event.preventDefault();
+            }}
             className={clsx(
               "variant-scope",
               variant,
@@ -174,7 +206,8 @@ export function Dialog({
                     className="shrink-0"
                     variant={variant}
                     leftIcon="close"
-                    altText={cancelText}
+                    altText="Close"
+                    disabled={dismissDisabled}
                   />
                 </AlertDialog.Cancel>
               </div>
@@ -205,18 +238,12 @@ export function Dialog({
               >
                 {footer ?? (
                   <>
-                    {onCancel && (
-                      <AlertDialog.Cancel asChild>
-                        <Button
-                          tabIndex={0}
-                          className="flex-1"
-                          variant={Variant.Default}
-                          onClick={onCancel}
-                        >
-                          {cancelText ?? "Cancel"}
-                        </Button>
-                      </AlertDialog.Cancel>
-                    )}
+                    {cancelButton &&
+                      (closeOnCancelClick ? (
+                        <AlertDialog.Cancel asChild>{cancelButton}</AlertDialog.Cancel>
+                      ) : (
+                        cancelButton
+                      ))}
                     {submitButton &&
                       (closeOnSubmitClick ? (
                         <AlertDialog.Action asChild>{submitButton}</AlertDialog.Action>

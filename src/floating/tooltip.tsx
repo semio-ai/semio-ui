@@ -5,6 +5,7 @@ import { Size, Variant } from "../types";
 import { Arrow } from "./arrow";
 
 export interface TooltipProps {
+  /** Non-interactive explanation. Use a Popover for links or actions. */
   content: ReactNode;
   children: ReactNode;
   side?: "top" | "right" | "bottom" | "left";
@@ -60,7 +61,16 @@ function Tooltip({
   return (
     <TooltipPrimitive.Provider>
       <TooltipPrimitive.Root open={open} onOpenChange={handleOpenChange}>
-        <TooltipPrimitive.Trigger disabled={disabled} asChild>
+        <TooltipPrimitive.Trigger
+          disabled={disabled}
+          asChild
+          onFocus={(event) => {
+            // React portals bubble focus through the component tree. Only DOM
+            // descendants of this trigger should open its explanation; focus in
+            // a portaled menu must leave that menu as the topmost Escape layer.
+            if (!event.currentTarget.contains(event.target)) event.preventDefault();
+          }}
+        >
           {children}
         </TooltipPrimitive.Trigger>
         <TooltipPrimitive.Portal container={portalContainer ?? undefined}>
