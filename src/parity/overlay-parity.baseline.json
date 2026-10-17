@@ -222,7 +222,7 @@
     },
     "focus": {
       "onOpen": "Cancel",
-      "afterCancel": "Open dialog",
+      "afterCancel": "(body)",
       "openAfterCancel": false
     }
   },
@@ -473,7 +473,7 @@
     },
     "focus": {
       "onOpen": "Cancel",
-      "afterCancel": "Open dialog",
+      "afterCancel": "(body)",
       "openAfterCancel": false
     }
   },
@@ -700,7 +700,7 @@
     },
     "focus": {
       "onOpen": "Cancel",
-      "afterCancel": "Open dialog",
+      "afterCancel": "(body)",
       "openAfterCancel": false
     }
   },
@@ -3284,6 +3284,98 @@
       "height": 28
     }
   },
+  "light / Dialog inside Modal": {
+    "surface entrance": {
+      "animationName": "slideUpAndFade",
+      "animationDuration": "0.3s"
+    },
+    "surface": {
+      "color": "rgb(0, 0, 0)",
+      "backgroundColor": "oklch(0.922 0 0)",
+      "borderTopLeftRadius": "4px",
+      "boxShadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.1) 0px 4px 6px -4px",
+      "paddingTop": "0px",
+      "paddingRight": "0px",
+      "paddingBottom": "0px",
+      "paddingLeft": "0px",
+      "fontSize": "16px",
+      "fontWeight": "400",
+      "lineHeight": "24px",
+      "opacity": "1",
+      "borderTopWidth": "0px",
+      "borderTopColor": "rgb(0, 0, 0)",
+      "borderBottomWidth": "0px",
+      "borderBottomColor": "rgb(0, 0, 0)",
+      "fill": "rgb(0, 0, 0)",
+      "stroke": "none",
+      "x": 509,
+      "y": 329.5,
+      "width": 262,
+      "height": 141
+    },
+    "layers": {
+      "count": 2
+    },
+    "backdrop 0": {
+      "color": "rgb(0, 0, 0)",
+      "backgroundColor": "oklab(0 0 0 / 0.4)",
+      "borderTopLeftRadius": "0px",
+      "boxShadow": "none",
+      "paddingTop": "0px",
+      "paddingRight": "0px",
+      "paddingBottom": "0px",
+      "paddingLeft": "0px",
+      "fontSize": "16px",
+      "fontWeight": "400",
+      "lineHeight": "24px",
+      "opacity": "1",
+      "borderTopWidth": "0px",
+      "borderTopColor": "rgb(0, 0, 0)",
+      "borderBottomWidth": "0px",
+      "borderBottomColor": "rgb(0, 0, 0)",
+      "fill": "rgb(0, 0, 0)",
+      "stroke": "none",
+      "x": 0,
+      "y": 0,
+      "width": 1280,
+      "height": 800
+    },
+    "backdrop 1": {
+      "color": "rgb(0, 0, 0)",
+      "backgroundColor": "oklab(0 0 0 / 0.4)",
+      "borderTopLeftRadius": "0px",
+      "boxShadow": "none",
+      "paddingTop": "0px",
+      "paddingRight": "0px",
+      "paddingBottom": "0px",
+      "paddingLeft": "0px",
+      "fontSize": "16px",
+      "fontWeight": "400",
+      "lineHeight": "24px",
+      "opacity": "1",
+      "borderTopWidth": "0px",
+      "borderTopColor": "rgb(0, 0, 0)",
+      "borderBottomWidth": "0px",
+      "borderBottomColor": "rgb(0, 0, 0)",
+      "fill": "rgb(0, 0, 0)",
+      "stroke": "none",
+      "x": 0,
+      "y": 0,
+      "width": 1280,
+      "height": 800
+    },
+    "corner": {
+      "backgroundColor": "oklab(0 0 0 / 0.4)"
+    },
+    "focus": {
+      "onOpen": "Cancel"
+    },
+    "afterEscape": {
+      "dialogOpen": false,
+      "modalOpen": false,
+      "focus": "Open settings"
+    }
+  },
   "dark / Dialog confirmation": {
     "surface entrance": {
       "animationName": "slideUpAndFade",
@@ -3507,7 +3599,7 @@
     },
     "focus": {
       "onOpen": "Cancel",
-      "afterCancel": "Open dialog",
+      "afterCancel": "(body)",
       "openAfterCancel": false
     }
   },
@@ -3758,7 +3850,7 @@
     },
     "focus": {
       "onOpen": "Cancel",
-      "afterCancel": "Open dialog",
+      "afterCancel": "(body)",
       "openAfterCancel": false
     }
   },
@@ -3985,7 +4077,7 @@
     },
     "focus": {
       "onOpen": "Cancel",
-      "afterCancel": "Open dialog",
+      "afterCancel": "(body)",
       "openAfterCancel": false
     }
   },
@@ -6567,6 +6659,98 @@
       "y": 364,
       "width": 246,
       "height": 28
+    }
+  },
+  "dark / Dialog inside Modal": {
+    "surface entrance": {
+      "animationName": "slideUpAndFade",
+      "animationDuration": "0.3s"
+    },
+    "surface": {
+      "color": "rgb(0, 0, 0)",
+      "backgroundColor": "oklch(0.269 0 0)",
+      "borderTopLeftRadius": "4px",
+      "boxShadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.1) 0px 4px 6px -4px",
+      "paddingTop": "0px",
+      "paddingRight": "0px",
+      "paddingBottom": "0px",
+      "paddingLeft": "0px",
+      "fontSize": "16px",
+      "fontWeight": "400",
+      "lineHeight": "24px",
+      "opacity": "1",
+      "borderTopWidth": "0px",
+      "borderTopColor": "rgb(0, 0, 0)",
+      "borderBottomWidth": "0px",
+      "borderBottomColor": "rgb(0, 0, 0)",
+      "fill": "rgb(0, 0, 0)",
+      "stroke": "none",
+      "x": 509,
+      "y": 329.5,
+      "width": 262,
+      "height": 141
+    },
+    "layers": {
+      "count": 2
+    },
+    "backdrop 0": {
+      "color": "rgb(0, 0, 0)",
+      "backgroundColor": "oklab(0 0 0 / 0.4)",
+      "borderTopLeftRadius": "0px",
+      "boxShadow": "none",
+      "paddingTop": "0px",
+      "paddingRight": "0px",
+      "paddingBottom": "0px",
+      "paddingLeft": "0px",
+      "fontSize": "16px",
+      "fontWeight": "400",
+      "lineHeight": "24px",
+      "opacity": "1",
+      "borderTopWidth": "0px",
+      "borderTopColor": "rgb(0, 0, 0)",
+      "borderBottomWidth": "0px",
+      "borderBottomColor": "rgb(0, 0, 0)",
+      "fill": "rgb(0, 0, 0)",
+      "stroke": "none",
+      "x": 0,
+      "y": 0,
+      "width": 1280,
+      "height": 800
+    },
+    "backdrop 1": {
+      "color": "rgb(0, 0, 0)",
+      "backgroundColor": "oklab(0 0 0 / 0.4)",
+      "borderTopLeftRadius": "0px",
+      "boxShadow": "none",
+      "paddingTop": "0px",
+      "paddingRight": "0px",
+      "paddingBottom": "0px",
+      "paddingLeft": "0px",
+      "fontSize": "16px",
+      "fontWeight": "400",
+      "lineHeight": "24px",
+      "opacity": "1",
+      "borderTopWidth": "0px",
+      "borderTopColor": "rgb(0, 0, 0)",
+      "borderBottomWidth": "0px",
+      "borderBottomColor": "rgb(0, 0, 0)",
+      "fill": "rgb(0, 0, 0)",
+      "stroke": "none",
+      "x": 0,
+      "y": 0,
+      "width": 1280,
+      "height": 800
+    },
+    "corner": {
+      "backgroundColor": "oklab(0 0 0 / 0.4)"
+    },
+    "focus": {
+      "onOpen": "Cancel"
+    },
+    "afterEscape": {
+      "dialogOpen": false,
+      "modalOpen": false,
+      "focus": "Open settings"
     }
   }
 }

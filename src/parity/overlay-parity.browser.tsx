@@ -1,4 +1,19 @@
 /// <reference types="vite/client" />
+/**
+ * Overlay parity: renders each overlay state, reads its computed styles, geometry,
+ * entrance animation and focus, and compares them with a committed baseline.
+ *
+ * **Opt-in.** Text geometry follows the platform's `system-ui` font, so the baseline
+ * holds only on the platform it was captured on (macOS). The file therefore runs only
+ * when asked:
+ *
+ * - `VITE_PARITY=1 npx vitest run --project browser src/parity/overlay-parity.browser.tsx`
+ *   checks the current code against the baseline;
+ * - `VITE_PARITY_CAPTURE=1 …` rewrites the baseline from the current code.
+ *
+ * Capture the baseline from the code being replaced, in its own commit, before changing
+ * it; a difference the check then reports is either a defect or a change to name.
+ */
 import { type ReactNode, useState } from "react";
 import { afterAll, afterEach, beforeEach, describe, expect, test } from "vitest";
 import { commands, page, userEvent } from "vitest/browser";
@@ -37,9 +52,11 @@ enum State {
   TooltipRight = "Tooltip right",
   PopoverOpen = "Popover",
   ComboboxOpen = "Combobox",
+  DialogInModal = "Dialog inside Modal",
 }
 
 const capture = import.meta.env.VITE_PARITY_CAPTURE === "1";
+const enabled = capture || import.meta.env.VITE_PARITY === "1";
 const captured: Record<string, Measurements> = {};
 type Measurements = Record<string, Record<string, string | number | boolean>>;
 const properties = [
@@ -140,7 +157,14 @@ function focusName() {
 }
 
 function backdrop(popup: Element) {
-  const candidates = Array.from(document.querySelectorAll("body *")).filter((element) => {
+  const candidates = backdrops(popup);
+  expect(candidates, "one full-viewport dimming backdrop").toHaveLength(1);
+  return candidates[0];
+}
+
+/** Every full-viewport dimming layer outside `popup`, in document order. */
+function backdrops(popup: Element) {
+  return Array.from(document.querySelectorAll("body *")).filter((element) => {
     if (element === popup || popup.contains(element)) return false;
     const style = getComputedStyle(element);
     const rect = element.getBoundingClientRect();
@@ -153,8 +177,6 @@ function backdrop(popup: Element) {
       style.backgroundColor !== "rgba(0, 0, 0, 0)"
     );
   });
-  expect(candidates, "one full-viewport dimming backdrop").toHaveLength(1);
-  return candidates[0];
 }
 
 function arrow(popup: Element) {
@@ -294,7 +316,7 @@ afterEach(async () => {
 });
 
 afterAll(async () => {
-  if (capture) {
+  if (capture && Object.keys(captured).length > 0) {
     expect(Object.keys(captured)).toHaveLength(Object.values(State).length * 2);
     // Vitest 5 resolves built-in file commands from the project root.
     await commands.writeFile(
@@ -304,8 +326,29 @@ afterAll(async () => {
   }
 });
 
+function DialogInModalFixture() {
+  const [modalOpen, setModalOpen] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  return (
+    <Anchor>
+      <Button onClick={() => setModalOpen(true)}>Open settings</Button>
+      <Modal open={modalOpen} onStateChange={setModalOpen} title="Settings">
+        <Button onClick={() => setDialogOpen(true)}>Delete item</Button>
+        <Dialog
+          open={dialogOpen}
+          onStateChange={setDialogOpen}
+          title="Confirm action"
+          description="Review this action before continuing."
+          onCancel={() => {}}
+          onSubmit={() => {}}
+        />
+      </Modal>
+    </Anchor>
+  );
+}
+
 for (const theme of [Theme.Light, Theme.Dark]) {
-  describe(theme, () => {
+  describe.runIf(enabled)(theme, () => {
     beforeEach(() => document.documentElement.classList.toggle("dark", theme === Theme.Dark));
 
     for (const state of [
@@ -512,5 +555,38 @@ for (const theme of [Theme.Light, Theme.Dark]) {
         take(result, name, role("option", name).element());
       verify(theme, State.ComboboxOpen, result);
     });
+
+    test(State.DialogInModal, async () => {
+      await render(<DialogInModalFixture />);
+      role("button", "Open settings").element().focus();
+      await userEvent.keyboard("{Enter}");
+      await expect.element(role("dialog", "Settings")).toBeVisible();
+      await settle();
+      role("button", "Delete item").element().focus();
+      await userEvent.keyboard("{Enter}");
+      await expect.element(role("alertdialog", "Confirm action")).toBeVisible();
+      const result: Measurements = {};
+      const popup = await surface(".animated-modal", result);
+      // Each open dialog dims what is behind it, so a confirmation over a settings
+      // modal darkens the modal too.
+      const layers = backdrops(popup);
+      result.layers = { count: layers.length };
+      layers.forEach((layer, index) => take(result, `backdrop ${String(index)}`, layer));
+      const corner = required(document.elementFromPoint(5, 5));
+      result.corner = { backgroundColor: getComputedStyle(corner).backgroundColor };
+      result.focus = { onOpen: focusName() };
+      await userEvent.keyboard("{Escape}");
+      await settle();
+      result.afterEscape = {
+        dialogOpen: !!document.querySelector('[role="alertdialog"]'),
+        modalOpen: !!document.querySelector('[role="dialog"]'),
+        focus: focusName(),
+      };
+      verify(theme, State.DialogInModal, result);
+    });
   });
 }
+
+test.runIf(!enabled)("overlay parity runs only with VITE_PARITY=1 or VITE_PARITY_CAPTURE=1", () => {
+  expect(enabled).toBe(false);
+});
