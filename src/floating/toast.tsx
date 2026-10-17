@@ -7,6 +7,7 @@ import {
   memo,
   useRef,
   useEffect,
+  useLayoutEffect,
   type CSSProperties,
 } from "react";
 import {
@@ -17,6 +18,7 @@ import {
   useIsPresent,
   type HTMLMotionProps,
 } from "motion/react";
+import { createPortal } from "react-dom";
 import { Toast as BaseToast } from "@base-ui/react/toast";
 import { clsx } from "clsx";
 import { Button } from "../buttons/button";
@@ -24,7 +26,13 @@ import { Size, Variant } from "../types";
 import { ProgressCircle } from "../feedback/progress";
 import { Icon, type IconName } from "../icons/registry";
 
-/** Only variants with a status glyph have a registry key. */
+/**
+ * Variants that have a status glyph mapped to its registry key. Other variants
+ * (primary/secondary/…) are absent and show no status icon — matching the old
+ * `IconVariant`, which returned `null` for them. Typing the values as `IconName`
+ * means a bad key here is a build error, and the lookup avoids constructing a
+ * `status-${variant}` string that could name a key the registry doesn't have.
+ */
 const STATUS_ICONS: Partial<Record<Variant, IconName>> = {
   [Variant.Success]: "status-success",
   [Variant.Error]: "status-error",
@@ -73,8 +81,56 @@ enum ToastSwipeState {
   Cancel = "cancel",
 }
 
-function toastAnnouncement(data: ToastData): string {
-  return `Notification: ${data.title}${data.content ? `. ${data.content}` : ""}`;
+/** A body sibling stays outside any ancestor a modal has already hidden. */
+function ToastAnnounce({ data }: { data: ToastData }) {
+  const [renderText, setRenderText] = useState(false);
+  const [announced, setAnnounced] = useState(false);
+
+  useLayoutEffect(() => {
+    let secondFrame = 0;
+    const firstFrame = window.requestAnimationFrame(() => {
+      secondFrame = window.requestAnimationFrame(() => setRenderText(true));
+    });
+    return () => {
+      window.cancelAnimationFrame(firstFrame);
+      window.cancelAnimationFrame(secondFrame);
+    };
+  }, []);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => setAnnounced(true), 1000);
+    return () => window.clearTimeout(timer);
+  }, []);
+
+  if (announced || typeof document === "undefined") return null;
+  return createPortal(
+    <span
+      role="status"
+      aria-live="assertive"
+      aria-atomic
+      style={{
+        position: "absolute",
+        border: 0,
+        width: 1,
+        height: 1,
+        padding: 0,
+        margin: -1,
+        overflow: "hidden",
+        clip: "rect(0, 0, 0, 0)",
+        whiteSpace: "nowrap",
+        wordWrap: "normal",
+      }}
+    >
+      {/* Radix joins the toast's text nodes without punctuation and excludes Close. */}
+      {renderText && (
+        <>
+          Notification {data.title}
+          {data.content}
+        </>
+      )}
+    </span>,
+    document.body,
+  );
 }
 
 const ToastPausedContext = createContext(false);
@@ -117,7 +173,8 @@ function InnerToast({ data }: { data: ToastData }) {
     }
   });
 
-  // Viewport hover and focus pause the same clock that fills the ring.
+  // The transport pauses on hover; otherwise show the variant's status glyph (if
+  // it has one). Computed here rather than inline so the registry key narrows.
   const statusIcon = data.variant ? STATUS_ICONS[data.variant] : undefined;
   const toastIcon = paused ? (
     <Icon name="player-pause" />
@@ -199,6 +256,7 @@ function InnerToast({ data }: { data: ToastData }) {
         />
       )}
     >
+      <ToastAnnounce data={data} />
       <div
         className={clsx(
           "relative bg-neutral-50/50 dark:bg-neutral-950/50",
@@ -289,10 +347,9 @@ function ToastContainer({ children }: ToastContainerProps) {
     (data: ToastData) => {
       add({
         id: data.id,
-        title: toastAnnouncement(data),
+        title: data.title,
         data,
         timeout: 0,
-        priority: "high",
       });
     },
     [add],
@@ -302,7 +359,7 @@ function ToastContainer({ children }: ToastContainerProps) {
       const current = managedToasts.find((toast) => toast.id === id)?.data;
       if (current) {
         const next = { ...current, ...data };
-        update(id, { data: next, title: toastAnnouncement(next) });
+        update(id, { data: next, title: next.title });
       }
     },
     [managedToasts, update],
@@ -317,7 +374,8 @@ function ToastContainer({ children }: ToastContainerProps) {
   return (
     <ToastContext.Provider value={{ toasts, addToast, updateToast, removeToast, clear }}>
       <ToastPausedContext.Provider value={paused}>
-        {/* Live-region ancestry keeps notifications available to modal assistive technology. */}
+        {/* Modal hiding exempts this live region, keeping toasts clickable after
+            the separate body-portalled announcers have expired. */}
         <BaseToast.Portal aria-live="off">
           <div
             role="region"

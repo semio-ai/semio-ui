@@ -70,7 +70,7 @@ export function ToggleSquare({
         )}
         checked={value === true}
         indeterminate={value === "partial"}
-        onCheckedChange={onChange}
+        onCheckedChange={(checked) => onChange(checked)}
         className={clsx(
           "variant-scope",
           size,

@@ -77,7 +77,10 @@ export function ImageInput({
           "variant-scope cursor-pointer",
           "grid size-full",
           "place-items-center rounded-sm select-none",
-          // The fill owns the foreground so the fallback initial stays legible.
+          // The fill declares the foreground. Specifically NOT `variant-responsive-text`,
+          // which resolves to `--weak-accent-text-color` — the same -500 shade this fill
+          // paints with — so the fallback initial rendered at exactly 1:1 against its own
+          // background, invisible for every named variant in both themes.
           "variant-responsive-bg variant-responsive-appearing-outline",
         )}
       >

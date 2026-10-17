@@ -64,7 +64,7 @@ export function Switch({
       )}
       id={id}
       checked={checked}
-      onCheckedChange={onCheckedChange}
+      onCheckedChange={(nextChecked) => onCheckedChange(nextChecked)}
       disabled={disabled}
       aria-label={label}
       className={clsx(

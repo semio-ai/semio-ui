@@ -38,7 +38,7 @@ export function Checkbox({
       id={id}
       disabled={disabled}
       checked={checked}
-      onCheckedChange={onCheckedChange}
+      onCheckedChange={(nextChecked) => onCheckedChange(nextChecked)}
       className={clsx(
         "variant-scope",
         size,
