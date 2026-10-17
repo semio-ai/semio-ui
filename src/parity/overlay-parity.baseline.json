@@ -231,7 +231,7 @@
     },
     "focus": {
       "onOpen": "Cancel",
-      "afterCancel": "(body)",
+      "afterCancel": "Open dialog",
       "openAfterCancel": false
     }
   },
@@ -492,7 +492,7 @@
     },
     "focus": {
       "onOpen": "Cancel",
-      "afterCancel": "(body)",
+      "afterCancel": "Open dialog",
       "openAfterCancel": false
     }
   },
@@ -728,7 +728,7 @@
     },
     "focus": {
       "onOpen": "Cancel",
-      "afterCancel": "(body)",
+      "afterCancel": "Open dialog",
       "openAfterCancel": false
     }
   },
@@ -3504,8 +3504,8 @@
     },
     "afterEscape": {
       "dialogOpen": false,
-      "modalOpen": false,
-      "focus": "Open settings"
+      "modalOpen": true,
+      "focus": "Delete item"
     }
   },
   "dark / Dialog confirmation": {
@@ -3740,7 +3740,7 @@
     },
     "focus": {
       "onOpen": "Cancel",
-      "afterCancel": "(body)",
+      "afterCancel": "Open dialog",
       "openAfterCancel": false
     }
   },
@@ -4001,7 +4001,7 @@
     },
     "focus": {
       "onOpen": "Cancel",
-      "afterCancel": "(body)",
+      "afterCancel": "Open dialog",
       "openAfterCancel": false
     }
   },
@@ -4237,7 +4237,7 @@
     },
     "focus": {
       "onOpen": "Cancel",
-      "afterCancel": "(body)",
+      "afterCancel": "Open dialog",
       "openAfterCancel": false
     }
   },
@@ -7013,8 +7013,8 @@
     },
     "afterEscape": {
       "dialogOpen": false,
-      "modalOpen": false,
-      "focus": "Open settings"
+      "modalOpen": true,
+      "focus": "Delete item"
     }
   }
 }
