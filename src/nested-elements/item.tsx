@@ -1,5 +1,7 @@
+import type { MouseEvent } from "react";
 import { DropdownMenu, ContextMenu } from "radix-ui";
 import { clsx } from "clsx";
+import { useMenuAction } from "../floating/menu-action";
 import { resolveIcon } from "../icons/registry";
 import { Tooltip } from "../floating/tooltip";
 import { NestedParent, type NestedItemProps } from "./types";
@@ -17,6 +19,7 @@ export function NestedItem({
   description,
   descriptionVariant,
 }: NestedItemProps) {
+  const runAction = useMenuAction();
   const parent = useNestedParent();
 
   const ItemComponent = parent === NestedParent.Dropdown ? DropdownMenu.Item : ContextMenu.Item;
@@ -30,7 +33,20 @@ export function NestedItem({
         // consumer's `onClick` is composed onto the same DOM node and fires from
         // a real click regardless, which is the difference between a control
         // that merely LOOKS inert and one that is.
-        onClick={disabled ? undefined : onClick}
+        onClick={
+          disabled || !onClick ? undefined : (event) => {
+            if (!closeOnSelect) {
+              onClick(event);
+              return;
+            }
+            event.stopPropagation();
+            // React clears currentTarget after dispatch; the action receives the
+            // selected item even when it runs after the menu has unmounted.
+            const actionEvent = Object.create(event) as MouseEvent;
+            actionEvent.currentTarget = event.currentTarget;
+            runAction(() => onClick(actionEvent), closeOnSelect);
+          }
+        }
         data-testid={testId}
         onSelect={(event: Event) => {
           if (!closeOnSelect) {

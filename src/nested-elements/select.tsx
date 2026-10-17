@@ -1,6 +1,7 @@
 import { DropdownMenu, ContextMenu } from "radix-ui";
 import type { MouseEvent, CSSProperties } from "react";
 import { clsx } from "clsx";
+import { useMenuAction } from "../floating/menu-action";
 import { Icon, resolveIcon } from "../icons/registry";
 import { Tooltip } from "../floating/tooltip";
 import { NestedParent, type NestedSelectProps } from "./types";
@@ -13,6 +14,7 @@ import { useNestedParent } from "./context";
  * @returns The rendered NestedSelect section component.
  */
 export function NestedSelect({ variant, disabled, onChange, values, options }: NestedSelectProps) {
+  const runAction = useMenuAction();
   const parent = useNestedParent();
 
   const ItemComponent =
@@ -42,11 +44,10 @@ export function NestedSelect({ variant, disabled, onChange, values, options }: N
             color={option.color}
             checked={values.find((v) => v === option.value) !== undefined}
             onCheckedChange={(v: boolean) => {
-              if (!v && onChange) {
-                onChange(values.filter((value) => value !== option.value));
-              } else if (onChange) {
-                onChange([...values, option.value]);
-              }
+              runAction(() => {
+                if (!v) onChange?.(values.filter((value) => value !== option.value));
+                else onChange?.([...values, option.value]);
+              }, option.closeOnSelect === true);
             }}
             onSelect={(e: Event) => {
               // Stays open by default, unlike `NestedItem` and `NestedRadio`:

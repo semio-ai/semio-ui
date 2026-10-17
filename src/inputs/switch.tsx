@@ -59,9 +59,9 @@ export function Switch({
       disabled={disabled}
       aria-label={label}
       className={clsx(
-        "variant-scope inline-flex shrink-0 items-center rounded-full outline-hidden transition-colors",
+        "variant-scope inline-flex shrink-0 items-center rounded-full transition-colors",
         "variant-checkbox-bg variant-responsive-appearing-outline",
-        disabled ? "cursor-default opacity-70" : "cursor-pointer",
+        disabled ? "cursor-default" : "cursor-pointer",
         sizeClasses.root,
         color ? "custom-color" : variant,
         className,
@@ -71,6 +71,7 @@ export function Switch({
       <RadixSwitch.Thumb
         className={clsx(
           "pointer-events-none block rounded-full bg-white shadow-sm transition-transform duration-160 ease-out dark:bg-black",
+          disabled && "opacity-50",
           sizeClasses.thumb,
         )}
       />

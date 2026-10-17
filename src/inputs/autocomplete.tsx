@@ -70,6 +70,8 @@ export interface AutocompleteProps<TItem> {
    *  `ref` arrives as an ordinary prop, so this is not supported on React 18. */
   ref?: Ref<HTMLInputElement>;
   placeholder?: string;
+  /** Accessible name for the search input. */
+  label?: string;
   size?: Size;
   variant?: Variant;
   disabled?: boolean;
@@ -121,6 +123,7 @@ export function Autocomplete<TItem>({
   getItemIcon,
   ref,
   placeholder,
+  label,
   size = Size.Md,
   variant = Variant.Default,
   disabled = false,
@@ -190,6 +193,7 @@ export function Autocomplete<TItem>({
           ref={ref}
           id={inputId}
           placeholder={placeholder}
+          aria-label={label}
           className={clsx(
             inputClassName(size, variant, {
               bg,

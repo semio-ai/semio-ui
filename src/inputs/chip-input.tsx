@@ -28,6 +28,8 @@ export interface ChipInputProps {
   subtle?: boolean;
   placeholder?: string;
   disabled?: boolean;
+  /** Show the selected chips without editing controls or interaction styling. */
+  readOnly?: boolean;
   className?: string;
   allowCustomValues?: boolean;
 }
@@ -46,6 +48,7 @@ export interface ChipInputProps {
  * @param placeholder - Prompt shown while the field accepts more input. Defaults
  *   by mode, because the two modes ask for different actions: a field that takes
  *   typing says how to commit it, a field that only opens a menu does not.
+ * @param readOnly - Whether to display chips without editing affordances
  * @param disabled - Whether the component is disabled
  * @param className - Additional CSS classes
  * @param allowCustomValues - Whether to allow typing custom values
@@ -63,6 +66,7 @@ const InnerChipInput = forwardRef(
       subtle,
       placeholder,
       disabled = false,
+      readOnly = false,
       className,
       allowCustomValues = false,
     }: ChipInputProps,
@@ -93,14 +97,20 @@ const InnerChipInput = forwardRef(
     });
 
     const handleChipDelete = (valueToRemove: string) => {
-      if (onChange && !disabled) {
+      if (onChange && !disabled && !readOnly) {
         onChange(selectedValues.filter((value) => value !== valueToRemove));
       }
     };
 
     const addCustomValue = (value: string) => {
       const trimmedValue = value.trim();
-      if (trimmedValue && onChange && !selectedValues.includes(trimmedValue)) {
+      if (
+        !disabled &&
+        !readOnly &&
+        trimmedValue &&
+        onChange &&
+        !selectedValues.includes(trimmedValue)
+      ) {
         onChange([...selectedValues, trimmedValue]);
       }
       setInputValue("");
@@ -139,7 +149,7 @@ const InnerChipInput = forwardRef(
     };
 
     const handleContainerClick = () => {
-      if (allowCustomValues && !disabled && inputRef.current) {
+      if (allowCustomValues && !disabled && !readOnly && inputRef.current) {
         inputRef.current.focus();
       }
     };
@@ -149,6 +159,7 @@ const InnerChipInput = forwardRef(
         (e.key === "Enter" || e.key === " ") &&
         allowCustomValues &&
         !disabled &&
+        !readOnly &&
         inputRef.current
       ) {
         e.preventDefault();
@@ -159,21 +170,25 @@ const InnerChipInput = forwardRef(
     return (
       <div
         ref={ref}
-        onClick={handleContainerClick}
-        onKeyDown={handleContainerKeyDown}
-        role={allowCustomValues && !disabled ? "button" : undefined}
-        tabIndex={allowCustomValues && !disabled ? 0 : undefined}
+        onClick={readOnly ? undefined : handleContainerClick}
+        onKeyDown={readOnly ? undefined : handleContainerKeyDown}
+        role={allowCustomValues && !disabled && !readOnly ? "button" : undefined}
+        tabIndex={allowCustomValues && !disabled && !readOnly ? 0 : undefined}
         className={clsx(
           "variant-scope relative grid grid-cols-[minmax(0,1fr)_auto] gap-1",
           bg && "bg-neutral-50/20 dark:bg-neutral-950/20",
           "rounded-xs",
-          outline === "interact" && "parent-outline variant-responsive-appearing-outline",
-          outline === "always" && "parent-outline variant-responsive-persistent-outline",
+          !readOnly &&
+            outline === "interact" &&
+            "parent-outline variant-responsive-appearing-outline",
+          !readOnly &&
+            outline === "always" &&
+            "parent-outline variant-responsive-persistent-outline",
           variant,
           disabled && "cursor-not-allowed opacity-50",
-          !disabled && allowCustomValues && "cursor-text",
+          !disabled && !readOnly && allowCustomValues && "cursor-text",
           "p-1",
-          subtle && "variant-responsive-text",
+          subtle && (readOnly ? "variant-static-text" : "variant-responsive-text"),
           !subtle && "text-black dark:text-white",
           className,
         )}
@@ -188,7 +203,9 @@ const InnerChipInput = forwardRef(
                 color={option.color}
                 icon={option.icon}
                 onDelete={
-                  !disabled && !option.disabled ? () => handleChipDelete(option.value) : undefined
+                  !disabled && !readOnly && !option.disabled
+                    ? () => handleChipDelete(option.value)
+                    : undefined
                 }
               >
                 {option.label}
@@ -199,7 +216,7 @@ const InnerChipInput = forwardRef(
               it. Muted to match `placeholder:text-neutral-400` below: it stands
               in for a placeholder, so it has to read as one rather than as
               something already entered. */}
-          {selectedOptions.length === 0 && !allowCustomValues && (
+          {selectedOptions.length === 0 && (!allowCustomValues || readOnly) && (
             <span
               className={clsx(
                 size,
@@ -207,10 +224,10 @@ const InnerChipInput = forwardRef(
                 "text-neutral-400 dark:text-neutral-600",
               )}
             >
-              {prompt}
+              {readOnly ? (placeholder ?? "—") : prompt}
             </span>
           )}
-          {allowCustomValues && (
+          {allowCustomValues && !readOnly && (
             <input
               ref={inputRef}
               type="text"
@@ -227,15 +244,9 @@ const InnerChipInput = forwardRef(
             />
           )}
         </div>
-        {options.length > 0 && (
+        {options.length > 0 && !readOnly && (
           <Dropdown
-            trigger={
-              <Button
-                visuals="inverted"
-                size={size}
-                leftIcon={<Icon name="add" />}
-              />
-            }
+            trigger={<Button visuals="inverted" size={size} leftIcon={<Icon name="add" />} />}
             variant={variant}
             disabled={disabled}
           >

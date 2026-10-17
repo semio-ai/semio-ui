@@ -60,6 +60,22 @@ export const DisplayOnly = () => (
   </div>
 );
 
+export const EmptyBody = () => (
+  <div className="w-[520px] p-4">
+    <ListGrid
+      data={[]}
+      getRowId={(r) => r.id}
+      columns={COLUMNS}
+      ariaLabel="Empty list with headers"
+      emptyBody={
+        <div className="flex h-9 items-center justify-center text-xs text-neutral-500">
+          No items found.
+        </div>
+      }
+    />
+  </div>
+);
+
 export const SingleSelect = () => {
   const [sel, setSel] = useState<Set<string>>(new Set(["r2"]));
   return (

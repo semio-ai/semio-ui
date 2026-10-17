@@ -156,10 +156,11 @@ export interface ToolbarSpacer {
 
 export type ToolbarItem = ToolbarWidget | ToolbarSpacer;
 
+/** Returning false handles the click without changing the selected pane. */
 export type MenuItemClickFn = (
   id: string,
   event?: MouseEvent<HTMLButtonElement>,
-) => Promise<void> | void;
+) => Promise<void | boolean> | void | boolean;
 
 export enum PaneRegion {
   Footer = "footer",

@@ -1,7 +1,7 @@
 {
   "contract": "registry key == Figma component name (Icon/<key>) == code usage (<Icon name>)",
   "generatedFrom": "default + animation + studio (composed app set)",
-  "count": 335,
+  "count": 336,
   "icons": [
     {
       "key": "access-none",
@@ -608,6 +608,12 @@
       "source": "studio",
       "figmaComponent": "Icon/internal-link",
       "code": "<Icon name=\"internal-link\" />"
+    },
+    {
+      "key": "invitation",
+      "source": "studio",
+      "figmaComponent": "Icon/invitation",
+      "code": "<Icon name=\"invitation\" />"
     },
     {
       "key": "jacket",

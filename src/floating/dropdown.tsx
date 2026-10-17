@@ -18,6 +18,8 @@ import { ScrollArea } from "../layouts/scroll-area";
 import { Arrow } from "./arrow";
 import { takeDropdownOpenLock, releaseDropdownOpenLock } from "./dropdown-coordinator";
 
+import { MenuActionProvider, useMenuActionHandoff, stopMenuEscapePropagation } from "./menu-action";
+
 export interface DropdownProps {
   trigger: ReactNode;
   children: ReactNode;
@@ -62,6 +64,7 @@ const Dropdown = forwardRef(
     // controlled `open` prop we mirror it; otherwise our internal state
     // is the source of truth and `onOpenChange` is still fired so any
     // listener observes transitions normally.
+    const handoff = useMenuActionHandoff();
     const isControlled = open !== undefined;
     const [internalOpen, setInternalOpen] = useState(false);
     const actualOpen = isControlled ? (open ?? false) : internalOpen;
@@ -121,6 +124,9 @@ const Dropdown = forwardRef(
           </DropdownPrimitive.Trigger>
           <DropdownPrimitive.Portal container={portalContainer ?? undefined}>
             <DropdownPrimitive.Content
+              ref={handoff.contentRef}
+              onCloseAutoFocus={handoff.onCloseAutoFocus}
+              onEscapeKeyDown={stopMenuEscapePropagation}
               align="center"
               side={side}
               collisionPadding={2}
@@ -150,7 +156,7 @@ const Dropdown = forwardRef(
                   "flex max-h-[calc(var(--radix-dropdown-menu-content-available-height)-6px)] flex-col gap-0.5 p-0.5",
                 )}
               >
-                {children}
+                <MenuActionProvider value={handoff.enqueue}>{children}</MenuActionProvider>
               </ScrollArea>
             </DropdownPrimitive.Content>
           </DropdownPrimitive.Portal>

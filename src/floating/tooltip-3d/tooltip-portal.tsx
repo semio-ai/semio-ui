@@ -8,6 +8,7 @@ import { Variant } from "../../types";
 import { ScrollArea } from "../../layouts/scroll-area";
 import { NestedParent } from "../../nested-elements/types";
 import { NestedParentProvider } from "../../nested-elements/context";
+import { MenuActionProvider, useMenuActionHandoff, stopMenuEscapePropagation } from "../menu-action";
 import {
   useTooltipStore,
   type AnchorConfig,
@@ -15,6 +16,7 @@ import {
   type TooltipStore,
 } from "./store";
 import { useRootTooltipHost } from "./tooltip-context";
+
 
 interface OverlayInstanceProps {
   anchor: AnchorConfig;
@@ -29,6 +31,7 @@ interface OverlayInstanceProps {
 function InteractiveOverlayInstance({ anchor, position }: OverlayInstanceProps) {
   const hostContext = useRootTooltipHost();
   const dismissOverlay = useTooltipStore((s) => s.dismissOverlay);
+  const handoff = useMenuActionHandoff();
   const isMenu = anchor.mode === "context-menu";
 
 
@@ -62,6 +65,9 @@ function InteractiveOverlayInstance({ anchor, position }: OverlayInstanceProps) 
       </DropdownPrimitive.Trigger>
       <DropdownPrimitive.Portal>
           <DropdownPrimitive.Content
+            ref={handoff.contentRef}
+            onCloseAutoFocus={handoff.onCloseAutoFocus}
+            onEscapeKeyDown={stopMenuEscapePropagation}
             side={side}
             align={isMenu ? "start" : "center"}
             sideOffset={anchor.positioning?.offset ?? (isMenu ? 2 : 6)}
@@ -74,16 +80,18 @@ function InteractiveOverlayInstance({ anchor, position }: OverlayInstanceProps) 
               isMenu && "max-h-[calc(var(--radix-dropdown-menu-content-available-height)-4px)]",
             )}
           >
-            {isMenu ? (
-              <ScrollArea
-                shrinkHeight
-                className="flex max-h-[calc(var(--radix-dropdown-menu-content-available-height)-6px)] flex-col gap-0.5 p-0.5"
-              >
-                {content}
-              </ScrollArea>
-            ) : (
-              content
-            )}
+            <MenuActionProvider value={handoff.enqueue}>
+              {isMenu ? (
+                <ScrollArea
+                  shrinkHeight
+                  className="flex max-h-[calc(var(--radix-dropdown-menu-content-available-height)-6px)] flex-col gap-0.5 p-0.5"
+                >
+                  {content}
+                </ScrollArea>
+              ) : (
+                content
+              )}
+            </MenuActionProvider>
           </DropdownPrimitive.Content>
       </DropdownPrimitive.Portal>
     </DropdownPrimitive.Root>
