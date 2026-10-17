@@ -103,8 +103,10 @@ The current step keeps an offset outline so progress is recognizable without
 relying on the caption alone.
 
 `Dialog` uses Base UI `AlertDialog` and places actions in its footer. Initial focus
-goes to the closing footer Cancel when present, otherwise to X. Closing returns
-focus to the element focused before opening. Set `closeOnCancelClick={false}` for a
+goes to the closing footer Cancel when present, otherwise to X; when that control is
+disabled on open, focus stays where it was until the first Tab. Closing returns
+focus to the element focused before opening. Opened from a `Modal`, a `Dialog` dims
+the `Modal` with its own backdrop, and Escape closes only the `Dialog`. Set `closeOnCancelClick={false}` for a
 cancel action that changes a step; X remains a separate dismissal action. Async
 flows use `closeOnSubmitClick={false}`, `submitDisabled`, `cancelDisabled` and
 `dismissDisabled` until their action settles. Overlay dismissal is opt-in through
@@ -222,6 +224,7 @@ keep predefined navigation choices the same width on listing and detail pages.
 The `toolbar-segments` style gives adjacent controls a 2px gap and square shared
 edges, preserving rounded exposed ends. It also handles text-field wrappers and
 nested segment rows.
+
 
 Searchable and editable breadcrumb pickers use Base UI combobox primitives and the shared combobox style helpers. Their input retains DOM focus while pointer and keyboard navigation highlight options. Closing selections run after the popup closes, allowing consumers to open a dialog. Display labels are semantic picker triggers; F2 starts optional inline renaming.
 

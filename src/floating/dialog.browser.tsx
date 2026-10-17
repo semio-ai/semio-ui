@@ -5,6 +5,7 @@ import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-react";
 import "../test-stylesheet";
 import { Dialog, type DialogProps } from "./dialog";
+import { Modal } from "./modal";
 
 function Fixture(props: Partial<DialogProps>) {
   const [open, setOpen] = useState(false);
@@ -221,4 +222,66 @@ test("closing unmounts the surface immediately without an exit animation", async
   // Flush the controlled update so this assertion cannot wait through an exit animation.
   flushSync(() => (button("Close").element() as HTMLButtonElement).click());
   expect(surface.isConnected).toBe(false);
+});
+
+function DialogInModal() {
+  const [modalOpen, setModalOpen] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  return (
+    <>
+      <button type="button" onClick={() => setModalOpen(true)}>
+        Open settings
+      </button>
+      <Modal open={modalOpen} onStateChange={setModalOpen} title="Settings">
+        <button type="button" onClick={() => setDialogOpen(true)}>
+          Delete item
+        </button>
+        <Dialog
+          open={dialogOpen}
+          onStateChange={setDialogOpen}
+          title="Confirm action"
+          description="Review the action."
+          onCancel={() => {}}
+          onSubmit={() => {}}
+        />
+      </Modal>
+    </>
+  );
+}
+
+/** Full-viewport, filled, fixed layers: what dims the page behind open dialogs. */
+function dimmingLayers() {
+  return Array.from(document.querySelectorAll("body *")).filter((element) => {
+    const style = getComputedStyle(element);
+    const rect = element.getBoundingClientRect();
+    return (
+      style.position === "fixed" &&
+      rect.width === innerWidth &&
+      rect.height === innerHeight &&
+      style.backgroundColor !== "rgba(0, 0, 0, 0)"
+    );
+  });
+}
+
+async function openDialogInModal() {
+  await render(<DialogInModal />);
+  await button("Open settings").click();
+  await expect.element(page.getByRole("dialog", { name: "Settings", exact: true })).toBeVisible();
+  await button("Delete item").click();
+  await expect.element(popup()).toBeVisible();
+  await settle();
+}
+
+test("a Dialog opened from a Modal dims the Modal with its own backdrop", async () => {
+  await openDialogInModal();
+  // One layer for the Modal, one for the Dialog above it.
+  expect(dimmingLayers()).toHaveLength(2);
+});
+
+test("Escape in a Dialog opened from a Modal closes only the Dialog", async () => {
+  await openDialogInModal();
+  await userEvent.keyboard("{Escape}");
+  await expect.element(popup()).not.toBeInTheDocument();
+  await expect.element(page.getByRole("dialog", { name: "Settings", exact: true })).toBeVisible();
+  await expect.element(button("Delete item")).toHaveFocus();
 });

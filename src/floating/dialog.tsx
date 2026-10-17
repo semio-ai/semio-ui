@@ -147,6 +147,9 @@ export function Dialog({
       {open && (
         <AlertDialog.Portal container={portalContainer ?? undefined}>
           <AlertDialog.Backdrop
+            // A confirmation opened from a Modal dims that Modal too. Base UI draws a
+            // nested dialog's backdrop only when forced.
+            forceRender
             className={clsx(
               "fixed top-0 right-0 bottom-0 left-0",
               "p-0 bg-black/40 transition-opacity",
@@ -213,7 +216,6 @@ export function Dialog({
                         variant={variant}
                         leftIcon="close"
                         altText="Close"
-                        disabled={dismissDisabled}
                       />
                     )}
                   />
