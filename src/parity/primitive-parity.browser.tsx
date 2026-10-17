@@ -5,9 +5,10 @@
  * how to recapture a baseline.
  *
  * Besides styles and geometry, each state records the DOM contract consumers style and
- * query by (tag, role, ARIA and `data-*` state attributes, the Radix size variables the
- * stylesheet animates with) and the keyboard behaviour, so a library change that keeps
- * the look but moves an attribute or a key binding shows up as a named difference.
+ * query by (tag, text content, role, ARIA and `data-*` state attributes, the Radix size
+ * variables the stylesheet animates with) and the keyboard behaviour, so a library
+ * change that keeps the look but moves an attribute, adds hidden text or changes a key
+ * binding shows up as a named difference.
  */
 import { type ReactNode, useEffect, useState } from "react";
 import { beforeEach, describe, expect, test } from "vitest";
@@ -97,6 +98,8 @@ const CONTRACT = [
 function contract(result: Measurements, name: string, element: Element) {
   result[name] = {
     tag: element.tagName.toLowerCase(),
+    // Hidden text a library adds shows up wherever a consumer reads textContent.
+    text: element.textContent ?? "",
     ...Object.fromEntries(
       CONTRACT.map((attribute) => [attribute, element.getAttribute(attribute) ?? "(none)"]),
     ),
