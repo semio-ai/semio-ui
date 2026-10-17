@@ -222,7 +222,7 @@
     },
     "focus": {
       "onOpen": "Cancel",
-      "afterCancel": "(body)",
+      "afterCancel": "Open dialog",
       "openAfterCancel": false
     }
   },
@@ -473,7 +473,7 @@
     },
     "focus": {
       "onOpen": "Cancel",
-      "afterCancel": "(body)",
+      "afterCancel": "Open dialog",
       "openAfterCancel": false
     }
   },
@@ -700,7 +700,7 @@
     },
     "focus": {
       "onOpen": "Cancel",
-      "afterCancel": "(body)",
+      "afterCancel": "Open dialog",
       "openAfterCancel": false
     }
   },
@@ -3507,7 +3507,7 @@
     },
     "focus": {
       "onOpen": "Cancel",
-      "afterCancel": "(body)",
+      "afterCancel": "Open dialog",
       "openAfterCancel": false
     }
   },
@@ -3758,7 +3758,7 @@
     },
     "focus": {
       "onOpen": "Cancel",
-      "afterCancel": "(body)",
+      "afterCancel": "Open dialog",
       "openAfterCancel": false
     }
   },
@@ -3985,7 +3985,7 @@
     },
     "focus": {
       "onOpen": "Cancel",
-      "afterCancel": "(body)",
+      "afterCancel": "Open dialog",
       "openAfterCancel": false
     }
   },
