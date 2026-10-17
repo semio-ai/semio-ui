@@ -100,8 +100,15 @@ test.each(Object.values(OverlayEntry))(
   },
 );
 
-async function pickModelAndClose(container: HTMLElement) {
-  await waitFor(() => expect(screen.getByRole("dialog", { name: "Add Entity" })).toBeTruthy());
+async function pickModelAndClose(container: HTMLElement, surface: DialogSurface) {
+  await waitFor(() =>
+    expect(
+      screen.getByRole(surface === DialogSurface.Dialog ? "alertdialog" : "dialog", {
+        name: "Add Entity",
+      }),
+    ).toBeTruthy(),
+  );
+  expect(screen.queryByRole("button", { name: "Scene row" })).toBeNull();
   // Exercise the child popup before checking the final accessible tree.
   fireEvent.click(screen.getByRole("button", { name: "Toggle options" }));
   await waitFor(() => expect(screen.getByRole("option", { name: "Model" })).toBeTruthy());
@@ -110,8 +117,13 @@ async function pickModelAndClose(container: HTMLElement) {
   await waitFor(() => expect(screen.queryByRole("listbox")).toBeNull());
   expect(screen.queryByRole("button", { name: "Scene row" })).toBeNull();
   fireEvent.click(screen.getByRole("button", { name: /^Add$/ }));
-  await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+  await waitFor(() =>
+    expect(
+      screen.queryByRole(surface === DialogSurface.Dialog ? "alertdialog" : "dialog"),
+    ).toBeNull(),
+  );
   await waitFor(() => expect(container.getAttribute("aria-hidden")).toBeNull());
+  expect(container.closest("[inert]")).toBeNull();
   expect(screen.getByRole("button", { name: "Scene row" })).toBeTruthy();
 }
 
@@ -125,7 +137,7 @@ for (const surface of Object.values(DialogSurface)) {
         </StrictMode>,
       );
       await openMenu(entry, method === "keyboard" ? "keyboard" : true);
-      await pickModelAndClose(container);
+      await pickModelAndClose(container, surface);
     },
   );
 
@@ -136,7 +148,7 @@ for (const surface of Object.values(DialogSurface)) {
       </StrictMode>,
     );
     fireEvent.click(screen.getByRole("button", { name: "Direct dialog" }));
-    await pickModelAndClose(container);
+    await pickModelAndClose(container, surface);
   });
 
   test.each(OVERLAY_SELECTION_CASES)(
@@ -149,7 +161,10 @@ for (const surface of Object.values(DialogSurface)) {
       );
       fireEvent.click(screen.getByRole("button", { name: "Direct dialog" }));
       await waitFor(() => {
-        const dialog = screen.getByRole("dialog", { name: "Add Entity" });
+        const dialog = screen.getByRole(
+          surface === DialogSurface.Dialog ? "alertdialog" : "dialog",
+          { name: "Add Entity" },
+        );
         expect(dialog.contains(document.activeElement)).toBe(true);
       });
       expect(container.getAttribute("aria-hidden")).toBe("true");
@@ -170,18 +185,28 @@ for (const surface of Object.values(DialogSurface)) {
       await waitFor(() => expect(screen.getByRole("dialog", { name: "New Entity" })).toBeTruthy());
       await waitFor(() => expect(screen.queryByRole("menu")).toBeNull());
       expect(screen.queryByRole("button", { name: "Outer dialog action" })).toBeNull();
-      expect(screen.queryByRole("dialog", { name: "Add Entity" })).toBeNull();
+      expect(
+        screen.queryByRole(surface === DialogSurface.Dialog ? "alertdialog" : "dialog", {
+          name: "Add Entity",
+        }),
+      ).toBeNull();
       expect(container.getAttribute("aria-hidden")).toBe("true");
       fireEvent.click(screen.getByRole("button", { name: "Toggle options" }));
       fireEvent.click(await screen.findByRole("option", { name: "Model" }));
       await waitFor(() => expect(screen.queryByRole("listbox")).toBeNull());
       fireEvent.click(screen.getByRole("button", { name: "Create" }));
       await waitFor(() => expect(screen.queryByRole("dialog", { name: "New Entity" })).toBeNull());
-      await waitFor(() => expect(screen.getByRole("dialog", { name: "Add Entity" })).toBeTruthy());
+      await waitFor(() =>
+        expect(
+          screen.getByRole(surface === DialogSurface.Dialog ? "alertdialog" : "dialog", {
+            name: "Add Entity",
+          }),
+        ).toBeTruthy(),
+      );
       expect(screen.getByRole("button", { name: "Outer dialog action" })).toBeTruthy();
       expect(container.getAttribute("aria-hidden")).toBe("true");
       expect(screen.queryByRole("button", { name: "Scene row" })).toBeNull();
-      await pickModelAndClose(container);
+      await pickModelAndClose(container, surface);
     },
   );
 }

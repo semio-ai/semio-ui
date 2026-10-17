@@ -50,6 +50,7 @@ export default defineConfig({
       "@solar-icons/react-perf/Bold",
       "@solar-icons/react-perf/Linear",
       "@solar-icons/react-perf/LineDuotone",
+      "@base-ui/react/alert-dialog",
       "@base-ui/react/autocomplete",
       "@base-ui/react/avatar",
       "@base-ui/react/combobox",

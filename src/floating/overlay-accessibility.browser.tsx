@@ -59,7 +59,13 @@ async function openMenu(
 }
 
 async function showDialogContents(surface: DialogSurface) {
-  await expect.element(page.getByRole("dialog", { name: "Add Entity" })).toBeVisible();
+  await expect
+    .element(
+      page.getByRole(surface === DialogSurface.Dialog ? "alertdialog" : "dialog", {
+        name: "Add Entity",
+      }),
+    )
+    .toBeVisible();
   if (surface === DialogSurface.Sidebar) {
     await page.getByRole("tab", { name: "Assets", exact: true }).click();
     const panel = page.getByRole("tabpanel", { name: "Assets", exact: true });
@@ -74,11 +80,20 @@ async function pickModelAndClose(container: HTMLElement, surface: DialogSurface)
   await page.getByRole("button", { name: "Toggle options", exact: true }).click();
   await page.getByRole("option", { name: "Model", exact: true }).click();
   await expect.element(page.getByRole("listbox")).not.toBeInTheDocument();
-  await expect.element(page.getByRole("dialog", { name: "Add Entity" })).toBeVisible();
+  await expect
+    .element(
+      page.getByRole(surface === DialogSurface.Dialog ? "alertdialog" : "dialog", {
+        name: "Add Entity",
+      }),
+    )
+    .toBeVisible();
   await expect.element(page.getByRole("button", { name: "Scene row" })).not.toBeInTheDocument();
   await page.getByRole("button", { name: "Add", exact: true }).click();
-  await expect.element(page.getByRole("dialog")).not.toBeInTheDocument();
+  await expect
+    .element(page.getByRole(surface === DialogSurface.Dialog ? "alertdialog" : "dialog"))
+    .not.toBeInTheDocument();
   await expect.poll(() => container.getAttribute("aria-hidden")).toBeNull();
+  await expect.poll(() => container.closest("[inert]")).toBeNull();
   await expect.element(page.getByRole("button", { name: "Scene row" })).toBeVisible();
   await page.getByRole("button", { name: "Scene row" }).click();
   await expect.element(page.getByRole("button", { name: "Scene row" })).toHaveFocus();
@@ -121,7 +136,10 @@ for (const surface of Object.values(DialogSurface)) {
       await expect
         .poll(() =>
           page
-            .getByRole("dialog", { name: "Add Entity" })
+            .getByRole(surface === DialogSurface.Dialog ? "alertdialog" : "dialog", {
+              name: "Add Entity",
+              exact: true,
+            })
             .element()
             .contains(document.activeElement),
         )
@@ -154,7 +172,12 @@ for (const surface of Object.values(DialogSurface)) {
         .element(page.getByRole("button", { name: "Outer dialog action" }))
         .not.toBeInTheDocument();
       await expect
-        .element(page.getByRole("dialog", { name: "Add Entity", exact: true }))
+        .element(
+          page.getByRole(surface === DialogSurface.Dialog ? "alertdialog" : "dialog", {
+            name: "Add Entity",
+            exact: true,
+          }),
+        )
         .not.toBeInTheDocument();
       await expect.poll(() => container.getAttribute("aria-hidden")).toBe("true");
       await page.getByRole("button", { name: "Toggle options", exact: true }).click();
@@ -165,7 +188,12 @@ for (const surface of Object.values(DialogSurface)) {
         .element(page.getByRole("dialog", { name: "New Entity", exact: true }))
         .not.toBeInTheDocument();
       await expect
-        .element(page.getByRole("dialog", { name: "Add Entity", exact: true }))
+        .element(
+          page.getByRole(surface === DialogSurface.Dialog ? "alertdialog" : "dialog", {
+            name: "Add Entity",
+            exact: true,
+          }),
+        )
         .toBeVisible();
       await expect.element(page.getByRole("button", { name: "Outer dialog action" })).toBeVisible();
       await expect.poll(() => container.getAttribute("aria-hidden")).toBe("true");
