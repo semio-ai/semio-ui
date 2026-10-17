@@ -83,10 +83,9 @@ async function expectReachableAndInert(
   // tooltip describes its trigger only while it is open.
   expect(tooltip().elements()).toHaveLength(0);
   await expect.element(edit).toHaveAccessibleDescription(REASON);
-  // Its source element is hidden, so it is neither visible text nor part of a name.
-  const reasonElement = document.getElementById(edit.element().getAttribute("aria-describedby")!);
-  expect(reasonElement).not.toBeNull();
-  await expect.element(reasonElement!).not.toBeVisible();
+  // The description adds no text to the page: with the tooltip closed the reason is
+  // nowhere in it, so once the tooltip shows it, a text query finds exactly one copy.
+  expect(page.getByText(REASON).elements()).toHaveLength(0);
   await expect.element(edit).toHaveAccessibleName("Edit");
 
   const seen = await walk(2);
@@ -98,6 +97,7 @@ async function expectReachableAndInert(
   await expect.element(edit).toHaveFocus();
   await expect.element(edit).toHaveAttribute("aria-disabled", "true");
   await expect.element(tooltip()).toHaveTextContent(REASON);
+  await expect.element(page.getByText(REASON)).toBeVisible();
 
   // Acting on the entry does nothing, keeps the menu open, and keeps the reason showing.
   for (const act of [

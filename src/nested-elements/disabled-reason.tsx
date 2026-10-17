@@ -8,9 +8,12 @@ import type { ReactNode, SyntheticEvent } from "react";
  * AND carries a reason therefore does not hand `disabled` to the Radix part. It states
  * its own disabled-ness instead (`aria-disabled`, and the `data-disabled` the styles key
  * off), stays in the focus order, and names its reason as a permanent accessible
- * description. The reason lives in a `hidden` element beside the entry rather than in
- * the tooltip, because a tooltip's own description exists only while it is open, so a
- * screen reader landing on the entry would announce nothing.
+ * description. The description comes from a `hidden` element beside the entry rather
+ * than from the tooltip, because a tooltip's own description exists only while it is
+ * open, so a screen reader landing on the entry would announce nothing. That element
+ * carries the reason as its `aria-label`, not as text: the tooltip already shows the
+ * text, and a second copy in the DOM makes a text query for the reason (such as
+ * `getByText`) match twice and fail.
  *
  * The entry stays inert by preventing its click. Radix routes every selection through
  * the item's click — Enter and Space call `click()`, and a pointer press ends in one —
@@ -69,10 +72,6 @@ export function explainDisabled(
       "aria-describedby": reasonId,
       onClick: prevent,
     },
-    reasonElement: (
-      <span id={reasonId} hidden>
-        {reason}
-      </span>
-    ),
+    reasonElement: <span id={reasonId} hidden aria-label={reason} />,
   };
 }
