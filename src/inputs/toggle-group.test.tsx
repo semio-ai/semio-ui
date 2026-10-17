@@ -35,3 +35,30 @@ test("renders to static markup with no error reported", () => {
   expect(consoleError.mock.calls.map((call) => String(call[0])).join("\n")).toBe("");
   consoleError.mockRestore();
 });
+
+test("single selection exposes radio state and native disabled buttons", () => {
+  const html = renderToStaticMarkup(
+    <ToggleGroup
+      visuals="labels"
+      value="b"
+      onChange={() => undefined}
+      options={[
+        { value: "a", label: "One" },
+        { value: "b", label: "Two" },
+        { value: "c", label: "Three", disabled: true },
+      ]}
+    />,
+  );
+  const buttons = [...html.matchAll(/<button\b([^>]*)>/g)].map((match) => match[1]);
+  expect(buttons).toHaveLength(3);
+  for (const [index, button] of buttons.entries()) {
+    expect(button).toContain('role="radio"');
+    expect(button).toContain(`aria-checked="${index === 1 ? "true" : "false"}"`);
+    expect(button).toContain(`data-state="${index === 1 ? "on" : "off"}"`);
+    expect(button).not.toContain("aria-pressed=");
+    expect(button).not.toContain("aria-disabled=");
+  }
+  expect(buttons[2]).toMatch(/\sdisabled=""/);
+  expect(buttons[2]).toContain('data-disabled=""');
+  expect(html).toContain('role="group"');
+});

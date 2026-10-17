@@ -1,5 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from "react";
-import { ToggleGroup as RadixToggleGroup } from "radix-ui";
+import { ToggleGroup as BaseToggleGroup } from "@base-ui/react/toggle-group";
+import { Toggle } from "@base-ui/react/toggle";
 import { clsx } from "clsx";
 import { Tooltip } from "../floating/tooltip";
 import { Variant, Size } from "../types";
@@ -47,29 +48,9 @@ export function ToggleGroup({
 
   const rootRef = useRef<HTMLDivElement | null>(null);
 
-  // Track the active item's box so the highlight pill can sit exactly behind it.
-  //
-  // Three things made the old version wrong, and a `labels` group showed all of
-  // them at once as a pill clipping the label it was supposed to sit behind:
-  //
-  // 1. The item was located through a ref callback on `RadixToggleGroup.Item`,
-  //    which `Tooltip` wraps (`Trigger asChild`). Each item is re-queried by
-  //    `data-toggle-item` instead, so a trigger that re-renders and swaps its
-  //    DOM node can't leave us measuring a detached element.
-  // 2. Measuring once on mount plus window `resize` missed the webfont swap,
-  //    which changes text metrics without resizing anything. The observer is on
-  //    the ROOT — stable across item re-renders, and it resizes whenever an item
-  //    does, since the track is inline-flex.
-  // 3. `width` was animated. Interrupting that animation (any re-render during
-  //    the 200ms) left the pill stranded at its start value, so it is applied as
-  //    a plain style now and only `x` animates — which is the slide the control
-  //    actually wants.
-  // 4. Measuring after paint left the pill at `left: 0` for one frame whenever the
-  //    initial value was not the first option. Reading layout to position an
-  //    element is what a layout effect is for, so the browser never paints the
-  //    intermediate position. Guarded because the `unit` project renders these
-  //    components through `renderToStaticMarkup`, where `useLayoutEffect` warns
-  //    and cannot run anyway.
+  // Measure the live item by attribute because tooltip triggers can replace their
+  // DOM nodes. Observe the track to include font swaps and option size changes.
+  // Apply width directly and animate only resolved geometry, before first paint.
   useIsomorphicLayoutEffect(() => {
     const root = rootRef.current;
     if (!root) return;
@@ -100,27 +81,23 @@ export function ToggleGroup({
   }, [value, visuals, size, options.length]);
 
   return (
-    <RadixToggleGroup.Root
+    <BaseToggleGroup
       ref={rootRef}
       className={clsx(
         "relative inline-flex items-center overflow-hidden rounded-sm transition-all ",
         bg && "dark:bg-layout-dark-base bg-layout-light-base",
         className,
       )}
-      type="single"
-      value={value}
-      onValueChange={(v: string) => {
-        if (v) onChange(v);
+      value={value ? [value] : []}
+      onValueChange={(values) => {
+        if (values[0]) onChange(values[0]);
       }}
+      render={(props) => (
+        <div {...props} aria-orientation={undefined} data-orientation={undefined} />
+      )}
       aria-label={label ?? "Toggle Group"}
     >
-      {/* The highlight pill. Position and size are plain styles with a CSS
-          transition, NOT a JS animation: as a motion element with `initial`,
-          every re-render of this subtree restarted the tween from its start
-          value, so the pill sat permanently stranded a few percent along —
-          behind the wrong item, at the wrong width. Declaring the resolved
-          geometry means the pill is correct on the very first paint and slides
-          only when it can, instead of depending on an animation completing. */}
+      {/* The pill uses resolved geometry so its first paint matches the active item. */}
       <div
         aria-hidden
         data-toggle-pill=""
@@ -158,12 +135,25 @@ export function ToggleGroup({
             content={option.label ?? "Option"}
             variant={option?.variant}
           >
-            <RadixToggleGroup.Item
+            <Toggle
               key={option.value}
               // The highlight pill measures the active item by this attribute
               // rather than through a collected ref — see the measuring effect.
               data-toggle-item={option.value}
-              data-state={value === option.value ? "on" : "off"}
+              render={(props, state) => (
+                <button
+                  {...props}
+                  type="button"
+                  disabled={option.disabled}
+                  aria-disabled={undefined}
+                  data-disabled={option.disabled ? "" : undefined}
+                  role="radio"
+                  aria-pressed={undefined}
+                  aria-checked={state.pressed}
+                  data-state={state.pressed ? "on" : "off"}
+                />
+              )}
+              data-composite-item-active={value === option.value ? "" : undefined}
               className={clsx(
                 "variant-scope",
                 size,
@@ -190,7 +180,8 @@ export function ToggleGroup({
                   : {}
               }
               value={option.value}
-              disabled={option.disabled}
+              // Native disabled buttons also exclude options from arrow navigation.
+              disabled={false}
               aria-label={option.label}
             >
               {(visuals === "icons" || visuals === "both") && (
@@ -203,10 +194,10 @@ export function ToggleGroup({
                   {option.label}
                 </p>
               )}
-            </RadixToggleGroup.Item>
+            </Toggle>
           </Tooltip>
         ))}
       </div>
-    </RadixToggleGroup.Root>
+    </BaseToggleGroup>
   );
 }

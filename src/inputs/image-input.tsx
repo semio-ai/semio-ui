@@ -1,5 +1,5 @@
 import { ReactNode, useRef } from "react";
-import { Avatar as AvatarPrimitive } from "radix-ui";
+import { Avatar as AvatarPrimitive } from "@base-ui/react/avatar";
 import { clsx } from "clsx";
 import { useImageInput } from "../hooks/formInputHooks";
 import { Size, Variant } from "../types";
@@ -77,10 +77,7 @@ export function ImageInput({
           "variant-scope cursor-pointer",
           "grid size-full",
           "place-items-center rounded-sm select-none",
-          // The fill declares the foreground. Specifically NOT `variant-responsive-text`,
-          // which resolves to `--weak-accent-text-color` — the same -500 shade this fill
-          // paints with — so the fallback initial rendered at exactly 1:1 against its own
-          // background, invisible for every named variant in both themes.
+          // The fill owns the foreground so the fallback initial stays legible.
           "variant-responsive-bg variant-responsive-appearing-outline",
         )}
       >

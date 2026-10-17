@@ -52,6 +52,23 @@ buttons, an add field, a dropdown, or editing hover and focus styling. Unlike
 `disabled`, it keeps the chips at their normal opacity. An empty read-only
 input shows `placeholder` or an em-dash.
 
+### Primitive contracts
+
+`Checkbox`, `ToggleSquare`, `Switch`, `ToggleGroup`, `ImageInput`, `Accordion`,
+`Collapse`, `Separator`, `Progress`, and toast parts use Base UI. Controls retain
+native buttons, label associations, and their public `data-state` values. Panel
+size variables with `--radix-` names remain available for consumer animations.
+Toggle groups expose single selection through `role="radio"` and `aria-checked`;
+the current focus target participates directly in the Tab order.
+
+Use `Collapse` for a titled disclosure. For raw Radix parts with Radix props and
+`data-state`, import `Collapsible` directly from `radix-ui`.
+
+`ToastManager` and `useAddToast` share Base UI's toast store. A single animation
+clock fills each timeout ring and closes its toast; hover or focus inside the
+viewport pauses that clock. F8 focuses the notifications viewport. Toasts support
+right swipes and remain clickable above dialogs.
+
 ### Icons
 
 `<Icon name>` resolves a key through the nearest `IconProvider`, falling back to
@@ -226,7 +243,6 @@ keep predefined navigation choices the same width on listing and detail pages.
 The `toolbar-segments` style gives adjacent controls a 2px gap and square shared
 edges, preserving rounded exposed ends. It also handles text-field wrappers and
 nested segment rows.
-
 
 Searchable and editable breadcrumb pickers use Base UI combobox primitives and the shared combobox style helpers. Their input retains DOM focus while pointer and keyboard navigation highlight options. Closing selections run after the popup closes, allowing consumers to open a dialog. Display labels are semantic picker triggers; F2 starts optional inline renaming.
 

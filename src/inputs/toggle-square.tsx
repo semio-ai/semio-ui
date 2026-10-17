@@ -1,5 +1,5 @@
 import { Children, Fragment, isValidElement, type CSSProperties, type ReactNode } from "react";
-import { Checkbox as RadixCheckbox } from "radix-ui";
+import { Checkbox as BaseCheckbox } from "@base-ui/react/checkbox";
 import { clsx } from "clsx";
 import { Variant, Size } from "../types";
 import { Tooltip } from "../floating/tooltip";
@@ -51,21 +51,26 @@ export function ToggleSquare({
   sizing = "default",
   asIndicator = false,
 }: ToggleSquareProps) {
-  // Map our tri-state to Radix Checkbox's checked prop
-  const checked: boolean | "indeterminate" = value === "partial" ? "indeterminate" : value;
   const hasContent = rendersContent(children);
 
   return (
     <Tooltip disabled={disabled} content={label ?? "Option"}>
-      <RadixCheckbox.Root
+      <BaseCheckbox.Root
         disabled={disabled}
-        checked={checked}
-        data-state={value === "partial" ? "indeterminate" : value ? "checked" : "unchecked"}
-        onCheckedChange={(next) => {
-          // Radix fires with boolean | "indeterminate"
-          // Coerce to boolean: indeterminate → true (toggle on)
-          onChange(next === "indeterminate" ? true : Boolean(next));
-        }}
+        nativeButton
+        render={(props, state) => (
+          <button
+            {...props}
+            type="button"
+            tabIndex={undefined}
+            data-state={
+              state.indeterminate ? "indeterminate" : state.checked ? "checked" : "unchecked"
+            }
+          />
+        )}
+        checked={value === true}
+        indeterminate={value === "partial"}
+        onCheckedChange={onChange}
         className={clsx(
           "variant-scope",
           size,
@@ -92,7 +97,7 @@ export function ToggleSquare({
         {/* Render children directly — not inside Indicator.
             The icon is always visible; its appearance changes based on state. */}
         {children ?? ""}
-      </RadixCheckbox.Root>
+      </BaseCheckbox.Root>
     </Tooltip>
   );
 }

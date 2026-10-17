@@ -1,5 +1,5 @@
 import { type CSSProperties } from "react";
-import { Switch as RadixSwitch } from "radix-ui";
+import { Switch as BaseSwitch } from "@base-ui/react/switch";
 import { clsx } from "clsx";
 import { Size, Variant } from "../types";
 
@@ -52,7 +52,16 @@ export function Switch({
   const sizeClasses = SWITCH_SIZE_CLASSES[size];
 
   return (
-    <RadixSwitch.Root
+    <BaseSwitch.Root
+      nativeButton
+      render={(props, state) => (
+        <button
+          {...props}
+          type="button"
+          tabIndex={undefined}
+          data-state={state.checked ? "checked" : "unchecked"}
+        />
+      )}
       id={id}
       checked={checked}
       onCheckedChange={onCheckedChange}
@@ -68,13 +77,16 @@ export function Switch({
       )}
       style={color ? ({ "--custom-color": color } as CSSProperties) : undefined}
     >
-      <RadixSwitch.Thumb
+      <BaseSwitch.Thumb
+        render={(props, state) => (
+          <span {...props} data-state={state.checked ? "checked" : "unchecked"} />
+        )}
         className={clsx(
           "pointer-events-none block rounded-full bg-white shadow-sm transition-transform duration-160 ease-out dark:bg-black",
           disabled && "opacity-50",
           sizeClasses.thumb,
         )}
       />
-    </RadixSwitch.Root>
+    </BaseSwitch.Root>
   );
 }

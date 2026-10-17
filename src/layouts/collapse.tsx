@@ -1,7 +1,8 @@
 import { ReactNode } from "react";
-import { Collapsible } from "radix-ui";
+import { Collapsible } from "@base-ui/react/collapsible";
 import { clsx } from "clsx";
 import { Icon, DisclosureIcon } from "../icons/registry";
+import { LegacySizePanel } from "./legacy-size-panel";
 
 export interface CollapseProps {
   title: string | ReactNode;
@@ -23,8 +24,21 @@ export function Collapse({
   side = "right",
 }: CollapseProps): ReactNode {
   return (
-    <Collapsible.Root open={open} onOpenChange={onStateChange} disabled={disabled}>
+    <Collapsible.Root
+      open={open}
+      onOpenChange={onStateChange}
+      disabled={disabled}
+      render={(props, state) => <div {...props} data-state={state.open ? "open" : "closed"} />}
+    >
       <Collapsible.Trigger
+        render={(props, state) => (
+          <button
+            {...props}
+            type="button"
+            tabIndex={undefined}
+            data-state={state.open ? "open" : "closed"}
+          />
+        )}
         className={clsx(
           "flex w-full items-center bg-neutral-200 dark:bg-neutral-800",
           "cursor-pointer justify-between pt-1 pr-3 pb-1 pl-3",
@@ -45,7 +59,10 @@ export function Collapse({
         {side === "left" && title}
       </Collapsible.Trigger>
 
-      <Collapsible.Content
+      <Collapsible.Panel
+        render={(props, state) => (
+          <LegacySizePanel {...props} data-state={state.open ? "open" : "closed"} />
+        )}
         className={clsx(
           "bg-transparent",
           direction === "horizontal"
@@ -54,11 +71,7 @@ export function Collapse({
         )}
       >
         <div className={direction === "vertical" ? "h-auto" : "w-auto"}>{children}</div>
-      </Collapsible.Content>
+      </Collapsible.Panel>
     </Collapsible.Root>
   );
 }
-
-export const CollapsibleContent = Collapsible.Content;
-export const CollapsibleTrigger = Collapsible.Trigger;
-export const CollapsibleRoot = Collapsible.Root;

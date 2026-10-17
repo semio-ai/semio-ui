@@ -1,4 +1,4 @@
-import { Checkbox as RadixCheckbox } from "radix-ui";
+import { Checkbox as BaseCheckbox } from "@base-ui/react/checkbox";
 import { clsx } from "clsx";
 import { Size, Variant } from "../types";
 import { Icon } from "../icons/registry";
@@ -25,7 +25,16 @@ export function Checkbox({
   asIndicator = false,
 }: CheckboxProps) {
   return (
-    <RadixCheckbox.Root
+    <BaseCheckbox.Root
+      nativeButton
+      render={(props, state) => (
+        <button
+          {...props}
+          type="button"
+          tabIndex={undefined}
+          data-state={state.checked ? "checked" : "unchecked"}
+        />
+      )}
       id={id}
       disabled={disabled}
       checked={checked}
@@ -44,7 +53,10 @@ export function Checkbox({
         "appearance-none",
       )}
     >
-      <RadixCheckbox.Indicator
+      <BaseCheckbox.Indicator
+        render={(props, state) => (
+          <span {...props} data-state={state.checked ? "checked" : "unchecked"} />
+        )}
         // h-full/w-full so the check's `h-4/5` percentage resolves against the
         // sized Root and scales with `size` (the box is `sized-height/width`).
         //
@@ -54,7 +66,7 @@ export function Checkbox({
         className={clsx(variant, "grid h-full w-full place-items-center")}
       >
         <Icon name="selected" size="none" className="h-4/5 w-4/5" />
-      </RadixCheckbox.Indicator>
-    </RadixCheckbox.Root>
+      </BaseCheckbox.Indicator>
+    </BaseCheckbox.Root>
   );
 }
