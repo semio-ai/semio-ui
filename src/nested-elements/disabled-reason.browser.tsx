@@ -60,6 +60,13 @@ function ItemMenuContent({ onEdit, onDelete }: { onEdit: () => void; onDelete: (
 }
 
 async function expectReachableAndInert(onEdit: ReturnType<typeof vi.fn>) {
+  // The reason is the entry's own description, present before any tooltip opens: a
+  // tooltip describes its trigger only while it is open.
+  expect(page.getByRole("tooltip").elements()).toHaveLength(0);
+  await expect
+    .element(page.getByRole("menuitem", { name: "Edit" }))
+    .toHaveAccessibleDescription(REASON);
+
   const seen = await walk(2);
   // The described entry takes focus; the undescribed one is skipped.
   expect(seen).toEqual(["Open", "Edit", "Duplicate"]);
@@ -177,6 +184,19 @@ test("single Select: a disabled option with a reason is reachable but cannot be 
   await expect
     .element(page.getByRole("menuitemradio", { name: "Editor" }))
     .toHaveAttribute("aria-checked", "true");
+
+  // A closing selection runs when the menu closes, so a refused one has to be refused
+  // before it is queued, or dismissing the menu would apply it.
+  for (let i = 0; i < 3 && document.querySelector('[role="menu"]'); i++) {
+    await userEvent.keyboard("{Escape}");
+    await settle();
+  }
+  await expect.element(page.getByRole("menu")).not.toBeInTheDocument();
+  await settle(8);
+  expect(onChange).not.toHaveBeenCalled();
+  await expect.element(page.getByRole("button", { name: "Role: Editor" })).toHaveFocus();
+  await userEvent.keyboard("{Enter}");
+  await expect.element(page.getByRole("menuitemradio", { name: "Admin" })).toHaveFocus();
 
   // Editor, then Viewer: the undescribed disabled Commenter is skipped.
   expect(await walk(2)).toEqual(["Admin", "Editor", "Viewer"]);
