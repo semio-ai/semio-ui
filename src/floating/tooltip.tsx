@@ -1,6 +1,13 @@
 import { Tooltip as TooltipPrimitive } from "radix-ui";
 import { clsx } from "clsx";
-import { type ReactNode, useCallback, useEffect, useState } from "react";
+import {
+  type ReactNode,
+  type SyntheticEvent,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { Size, Variant } from "../types";
 import { Arrow } from "./arrow";
 
@@ -30,8 +37,23 @@ function Tooltip({
   const [defaultOpen, setDefaultOpen] = useState(false);
   const [open, setOpen] = useState(controlledState?.[0] ?? false);
 
+  // A press on an `aria-disabled` trigger does nothing, so it must not dismiss the
+  // explanation the trigger is showing, which is usually why the control is off.
+  // Radix closes a tooltip on its trigger's pointerdown and click, and on any
+  // pointerdown outside its content. Each of those close requests arrives during the
+  // press, so they are ignored while a press on a disabled trigger is in progress.
+  const pressingDisabledTrigger = useRef(false);
+  const notePress = useCallback((event: SyntheticEvent<HTMLElement>) => {
+    if (event.currentTarget.getAttribute("aria-disabled") !== "true") return;
+    pressingDisabledTrigger.current = true;
+    setTimeout(() => {
+      pressingDisabledTrigger.current = false;
+    }, 0);
+  }, []);
+
   const handleOpenChange = useCallback(
     (value: boolean) => {
+      if (!value && pressingDisabledTrigger.current) return;
       if (controlledState) {
         controlledState[1](value);
       } else {
@@ -64,6 +86,8 @@ function Tooltip({
         <TooltipPrimitive.Trigger
           disabled={disabled}
           asChild
+          onPointerDown={notePress}
+          onClick={notePress}
           onFocus={(event) => {
             // React portals bubble focus through the component tree. Only DOM
             // descendants of this trigger should open its explanation; focus in

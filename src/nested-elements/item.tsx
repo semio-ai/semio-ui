@@ -6,7 +6,7 @@ import { resolveIcon } from "../icons/registry";
 import { Tooltip } from "../floating/tooltip";
 import { NestedParent, type NestedItemProps } from "./types";
 import { useNestedParent } from "./context";
-import { disabledReason } from "./disabled-reason";
+import { explainDisabled } from "./disabled-reason";
 
 export function NestedItem({
   left,
@@ -24,7 +24,7 @@ export function NestedItem({
   const parent = useNestedParent();
 
   const ItemComponent = parent === NestedParent.Dropdown ? DropdownMenu.Item : ContextMenu.Item;
-  const reason = disabledReason(disabled, description, useId());
+  const reason = explainDisabled(disabled, description, useId());
 
   return (
     <>
@@ -37,7 +37,6 @@ export function NestedItem({
       >
         <ItemComponent
           disabled={reason.primitiveDisabled}
-          {...reason.itemProps}
           // Never while disabled, independent of `closeOnSelect`/pointer handling
           // below: Radix's own `disabled` only gates its OWN `onSelect` — a
           // consumer's `onClick` is composed onto the same DOM node and fires from
@@ -59,23 +58,24 @@ export function NestedItem({
                   runAction(() => onClick(actionEvent), closeOnSelect);
                 }
           }
+          // After `onClick`: a disabled entry with a reason replaces it with a
+          // prevented click, which keeps the entry inert.
+          {...reason.itemProps}
           data-testid={testId}
           onSelect={(event: Event) => {
-            // A disabled entry with a reason is reachable, so Enter and a click
-            // reach Radix's select; preventing it keeps the menu open on it.
-            if (reason.explained || !closeOnSelect) {
+            if (!closeOnSelect) {
               event.preventDefault();
             }
           }}
           className={clsx(
             "group/item flex items-center rounded-xs leading-none",
             "relative h-7 px-1.25 pl-7.5 text-sm outline-hidden select-none",
-            // Suppressed only when there is nothing to explain. A description needs
-            // the pointer events this class would remove: the tooltip's trigger is
-            // this same element, and a reader who cannot hover it never learns why.
-            // Keeping them is safe because `onClick` above is gated on `disabled`
-            // and `onSelect` is prevented, so no click goes through.
-            !description && "data-disabled:pointer-events-none",
+            // Suppressed only when there is nothing to explain. A reason needs the
+            // pointer events this class would remove: the tooltip's trigger is this
+            // same element, and a reader who cannot hover it never learns why.
+            // Keeping them lets no click through, because the entry's click is
+            // prevented; the stylesheet gives it the default cursor, not the pointer.
+            !reason.explained && "data-disabled:pointer-events-none",
             "variant-scope highlight-list-item",
             variant,
           )}

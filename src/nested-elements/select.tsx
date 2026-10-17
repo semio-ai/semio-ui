@@ -6,7 +6,7 @@ import { Icon, resolveIcon } from "../icons/registry";
 import { Tooltip } from "../floating/tooltip";
 import { NestedParent, type NestedSelectProps } from "./types";
 import { useNestedParent } from "./context";
-import { disabledReason } from "./disabled-reason";
+import { explainDisabled } from "./disabled-reason";
 
 /**
  * A component that renders a select section in a nested menu.
@@ -34,28 +34,28 @@ export function NestedSelect({ variant, disabled, onChange, values, options }: N
       }}
     >
       {options.map((option, index) => {
-        const reason = disabledReason(
+        // Only the option's own reason makes it reachable while disabled; see
+        // `NestedRadio`.
+        const reason = explainDisabled(
           option.disabled || disabled,
-          option.description,
+          option.disabledReason,
           `${reasonIdPrefix}-${index}`,
         );
+        const tooltip = reason.explained ? option.disabledReason : option.description;
         return (
           <Fragment key={option.value}>
             {reason.reasonElement}
             <Tooltip
-              content={option.description}
+              content={tooltip}
               // Same short-circuit as `NestedRadio`: no description means Tooltip renders
               // the child bare, so an undescribed option is unchanged.
-              disabled={!option.description}
+              disabled={!tooltip}
               side="right"
             >
               <ItemComponent
                 color={option.color}
                 checked={values.find((v) => v === option.value) !== undefined}
                 onCheckedChange={(v: boolean) => {
-                  // Radix reports the toggle even when its select is prevented, so a
-                  // reachable disabled option is refused here.
-                  if (reason.explained) return;
                   runAction(() => {
                     if (!v) onChange?.(values.filter((value) => value !== option.value));
                     else onChange?.([...values, option.value]);
@@ -67,7 +67,7 @@ export function NestedSelect({ variant, disabled, onChange, values, options }: N
                   // rarely the end of the interaction and closing after each would
                   // make selecting two things take two trips. Opt in per option
                   // where a group really does hold a single toggle.
-                  if (reason.explained || option.closeOnSelect !== true) {
+                  if (option.closeOnSelect !== true) {
                     e.preventDefault();
                   }
                 }}
@@ -85,9 +85,9 @@ export function NestedSelect({ variant, disabled, onChange, values, options }: N
                 className={clsx(
                   "group/item flex items-center rounded-xs leading-none",
                   "relative h-7 px-1.25 pl-7.5 text-sm outline-hidden select-none",
-                  // Kept for a described option, whose tooltip needs the pointer; the
-                  // checked change above refuses it while disabled.
-                  !option.description && "data-disabled:pointer-events-none",
+                  // Kept for an option disabled with a reason, whose tooltip needs the
+                  // pointer; its click is prevented, so no toggle goes through.
+                  !reason.explained && "data-disabled:pointer-events-none",
                   "variant-scope highlight-list-item",
                   option.color ? "custom-color" : (option.variant ?? variant),
                 )}

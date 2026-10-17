@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { ReactNode, SyntheticEvent } from "react";
 
 /**
  * How a disabled menu entry with a reason stays reachable by keyboard and screen reader.
@@ -12,53 +12,62 @@ import type { ReactNode } from "react";
  * the tooltip, because a tooltip's own description exists only while it is open, so a
  * screen reader landing on the entry would announce nothing.
  *
- * The consuming component keeps the entry inert: it prevents Radix's `onSelect`, so the
- * menu stays open, and it refuses the entry's value or action.
+ * The entry stays inert by preventing its click. Radix routes every selection through
+ * the item's click — Enter and Space call `click()`, and a pointer press ends in one —
+ * and skips its select when that click is already prevented, so no `onSelect`, value
+ * change or checkbox toggle follows. The reason's tooltip stays open through the
+ * press: `Tooltip` ignores close requests while its `aria-disabled` trigger is being
+ * pressed.
  *
  * An entry that is disabled without a reason has nothing to say and still leaves the
  * focus order, exactly as Radix's `disabled` does.
  */
-export interface DisabledReason {
+export interface ExplainedDisabled {
   /** Disabled and carrying a reason: reachable, inert, described. */
   explained: boolean;
   /** The `disabled` to hand the Radix part. True only for an entry with no reason. */
   primitiveDisabled: boolean;
-  /** Spread onto the Radix part. Empty unless `explained`. */
+  /** Spread onto the Radix part, after any handler it already has. Empty unless `explained`. */
   itemProps: {
     "aria-disabled"?: true;
     "data-disabled"?: "";
     "aria-describedby"?: string;
+    onClick?: (event: SyntheticEvent) => void;
   };
   /** Render beside the entry, inside the menu content. Null unless `explained`. */
   reasonElement: ReactNode;
 }
+
+const prevent = (event: SyntheticEvent) => {
+  event.preventDefault();
+};
 
 /**
  * @param disabled - Whether the entry is disabled.
  * @param reason - Why, when the consumer gave a reason.
  * @param reasonId - A document-unique id for the reason element.
  */
-export function disabledReason(
+export function explainDisabled(
   disabled: boolean | undefined,
   reason: string | undefined,
   reasonId: string,
-): DisabledReason {
-  const explained = Boolean(disabled && reason);
-  if (!explained) {
+): ExplainedDisabled {
+  if (!disabled || !reason) {
     return {
-      explained,
+      explained: false,
       primitiveDisabled: Boolean(disabled),
       itemProps: {},
       reasonElement: null,
     };
   }
   return {
-    explained,
+    explained: true,
     primitiveDisabled: false,
     itemProps: {
       "aria-disabled": true,
       "data-disabled": "",
       "aria-describedby": reasonId,
+      onClick: prevent,
     },
     reasonElement: (
       <span id={reasonId} hidden>

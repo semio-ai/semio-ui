@@ -6,7 +6,7 @@ import { Icon, resolveIcon } from "../icons/registry";
 import { Tooltip } from "../floating/tooltip";
 import { NestedParent, type NestedRadioProps } from "./types";
 import { useNestedParent } from "./context";
-import { disabledReason } from "./disabled-reason";
+import { explainDisabled } from "./disabled-reason";
 
 /**
  * A component that renders a nested radio button with optional child radio buttons.
@@ -25,19 +25,25 @@ export function NestedRadio({ variant, disabled, onChange, value, options }: Nes
   const ItemIndicatorComponent =
     parent === NestedParent.Dropdown ? DropdownMenu.ItemIndicator : ContextMenu.ItemIndicator;
   const reasonIdPrefix = useId();
+  // Only an option's own reason makes it reachable while disabled: a group-level
+  // `disabled` has no reason to give, and an option's `description` says what
+  // choosing it means, which is not why it is off.
   const reasons = options.map((option, index) =>
-    disabledReason(option.disabled || disabled, option.description, `${reasonIdPrefix}-${index}`),
+    explainDisabled(
+      option.disabled || disabled,
+      option.disabledReason,
+      `${reasonIdPrefix}-${index}`,
+    ),
   );
   return (
     <GroupComponent
       value={value}
-      onValueChange={(next) => {
-        const index = options.findIndex((option) => option.value === next);
-        // Radix reports a radio item's value even when its select is prevented, so
-        // a reachable disabled option is refused here.
-        if (reasons[index]?.explained) return;
-        runAction(() => onChange?.(next), options[index]?.closeOnSelect !== false);
-      }}
+      onValueChange={(next) =>
+        runAction(
+          () => onChange?.(next),
+          options.find((option) => option.value === next)?.closeOnSelect !== false,
+        )
+      }
       onClick={(e: MouseEvent) => {
         e.stopPropagation();
       }}
@@ -46,7 +52,7 @@ export function NestedRadio({ variant, disabled, onChange, value, options }: Nes
         <Fragment key={option.value}>
           {reasons[index].reasonElement}
           <Tooltip
-            content={option.description}
+            content={reasons[index].explained ? option.disabledReason : option.description}
             // `disabled` when there is nothing to say, which is Tooltip's own
             // short-circuit: it renders the child bare rather than wrapping it in an
             // armed trigger. So an undescribed option is byte-for-byte the item it has
@@ -54,7 +60,7 @@ export function NestedRadio({ variant, disabled, onChange, value, options }: Nes
             //
             // Falsy, not `=== undefined`: a `?? ""` call site would otherwise arm a
             // trigger that opens an empty tooltip on hover.
-            disabled={!option.description}
+            disabled={!(reasons[index].explained ? option.disabledReason : option.description)}
             side="right"
           >
             <ItemComponent
@@ -75,16 +81,16 @@ export function NestedRadio({ variant, disabled, onChange, value, options }: Nes
                 // the menu. (The multi-value siblings — `NestedSelect` and
                 // `NestedCheckbox` — default the other way for the opposite
                 // reason.) An option can still opt out explicitly.
-                if (reasons[index].explained || option.closeOnSelect === false) {
+                if (option.closeOnSelect === false) {
                   e.preventDefault();
                 }
               }}
               className={clsx(
                 "group/item flex items-center rounded-xs leading-none",
                 "relative h-7 px-1.25 pl-7.5 text-sm outline-hidden select-none",
-                // Kept for a described option, whose tooltip needs the pointer; the
-                // value change above refuses it while disabled.
-                !option.description && "data-disabled:pointer-events-none",
+                // Kept for an option disabled with a reason, whose tooltip needs the
+                // pointer; its click is prevented, so no choice goes through.
+                !reasons[index].explained && "data-disabled:pointer-events-none",
                 "variant-scope highlight-list-item",
                 option.color ? "custom-color" : (option.variant ?? variant),
               )}

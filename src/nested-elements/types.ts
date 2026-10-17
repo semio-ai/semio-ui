@@ -88,10 +88,11 @@ export interface NestedItemProps {
    * not a reader ever hovers to find out why it is greyed out.
    *
    * **A disabled item with a description stays in the menu's keyboard order.** Arrow
-   * keys reach it, it reports `aria-disabled`, and the description is its accessible
-   * description, so a keyboard or screen-reader user learns the reason too. Enter,
-   * Space and a click do nothing and leave the menu open. A disabled item without a
-   * description is skipped. See `disabled-reason.tsx`.
+   * keys, typeahead and Home/End reach it, it reports `aria-disabled`, and the
+   * description is its accessible description, so a keyboard or screen-reader user
+   * learns the reason too. Enter, Space and a click do nothing, leave the menu open and
+   * leave the reason showing. A disabled item without a description is skipped. See
+   * `disabled-reason.tsx`.
    *
    * Additive by construction: with no description the item renders byte-for-byte
    * as before, because `Tooltip` short-circuits when disabled rather than wrapping
@@ -154,6 +155,7 @@ export interface NestedMenuProps {
  * @prop color: [string] The color of the option. Overrides styling from variants.
  * @prop icon: [ReactNode] The icon to display next to the option.
  * @prop description: [string] A tooltip on the option, saying what choosing it means.
+ * @prop disabledReason: [string] Why the option is disabled; keeps it reachable by keyboard.
  */
 export interface NestedOption {
   label: string;
@@ -181,12 +183,20 @@ export interface NestedOption {
    * correctly belongs in the label, or beside the control where it is always
    * visible; use this for the extra sentence that helps and is not load-bearing.
    *
-   * On a **disabled** option it is also the reason, and keeps the option in the
-   * menu's keyboard order with the reason as its accessible description; the option
-   * still cannot be chosen. A disabled option without one is skipped, as before.
-   * See `disabled-reason.tsx`.
+   * It never explains why the option is disabled; that is `disabledReason`.
    */
   description?: string;
+  /**
+   * Why this option is disabled. Read only while the option is disabled, by its own
+   * `disabled` or by its group's.
+   *
+   * A disabled option with a reason stays in the menu's keyboard order: arrow keys,
+   * typeahead and Home/End reach it, it reports `aria-disabled`, and the reason is its
+   * accessible description and its tooltip (in place of `description`). It still
+   * cannot be chosen. A disabled option without one is skipped. See
+   * `disabled-reason.tsx`.
+   */
+  disabledReason?: string;
 }
 
 /**

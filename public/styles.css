@@ -1025,15 +1025,10 @@
     }
 
     /* A focused disabled option keeps the indicator colour it has at rest rather than
-     * the highlighted one; see the matching rule in `.highlight-list-item`. */
-    &:is(
-      :where(.group\/item)[data-highlighted][data-disabled][data-state="unchecked"] *,
-      :where(.group\/item)[data-highlighted][data-disabled][data-state="indeterminate"] *
-    ) {
+     * the highlighted one; see the matching rule in `.highlight-list-item`. Only the
+     * unchecked state needs it: the checked rule above already outranks the highlight. */
+    &:is(:where(.group\/item)[data-highlighted][data-disabled][data-state="unchecked"] *) {
       color: var(--accent-color);
-    }
-    &:is(:where(.group\/item)[data-highlighted][data-disabled][data-state="checked"] *) {
-      color: var(--on-accent-color);
     }
   }
 
@@ -1124,6 +1119,14 @@
     &[data-highlighted][data-disabled] {
       @apply text-neutral-500/50;
       background-color: color-mix(in oklab, var(--accent-color) 20%, transparent);
+    }
+
+    /* A disabled entry with a reason keeps its pointer events, because its tooltip
+     * needs hover. It shows the default cursor, not the pointer that offers a click.
+     * The second selector covers the slots inside the entry that carry this class. */
+    &[data-disabled],
+    &:is(:where(.group\/item)[data-disabled] *) {
+      cursor: default;
     }
   }
 
