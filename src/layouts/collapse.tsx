@@ -36,6 +36,8 @@ export function Collapse({
             {...props}
             type="button"
             tabIndex={undefined}
+            // The native `disabled` attribute carries the disabled state.
+            aria-disabled={undefined}
             data-state={state.open ? "open" : "closed"}
           />
         )}

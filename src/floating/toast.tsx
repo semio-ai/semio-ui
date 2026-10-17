@@ -83,7 +83,11 @@ function InnerToast({ data }: { data: ToastData }) {
   const width = 320;
   const margin = 16;
 
-  const { removeToast } = useContext(ToastContext);
+  const { removeToast, toasts: listed } = useContext(ToastContext);
+  // Layout animation restacks the toasts when one arrives or leaves. A swipe
+  // re-renders the toast as it moves, and a layout animation then would pull it
+  // back toward where it was, so only the stack order triggers one.
+  const stackOrder = listed.map((item) => item.id).join(" ");
   const paused = useContext(ToastPausedContext);
   const { toasts } = BaseToast.useToastManager<ToastData>();
   const isPresent = useIsPresent();
@@ -169,6 +173,7 @@ function InnerToast({ data }: { data: ToastData }) {
             } as CSSProperties
           }
           layout
+          layoutDependency={stackOrder}
           className={clsx(
             "items-center overflow-hidden",
             "pointer-events-auto relative box-border w-[30ch] select-none",
@@ -318,7 +323,8 @@ function ToastContainer({ children }: ToastContainerProps) {
             role="region"
             aria-label="Notifications (F8)"
             tabIndex={-1}
-            style={{ pointerEvents: "none" }}
+            // The region only lets pointers through to toasts while it holds any.
+            style={{ pointerEvents: toasts.length > 0 ? undefined : "none" }}
           >
             <BaseToast.Viewport
               render={<ol ref={viewportRef} />}
