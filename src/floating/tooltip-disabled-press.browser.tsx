@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { page } from "vitest/browser";
+import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-react";
 import { Tooltip } from "./tooltip";
 
@@ -37,6 +37,27 @@ test("pressing an aria-disabled trigger leaves its tooltip open", async () => {
   await trigger.click({ force: true });
   await settle(8);
   expect(shownTooltip()).toContain("Ask the owner for Editor access");
+});
+
+test("Enter and Space on an aria-disabled button leave its tooltip open", async () => {
+  // A keyboard press on a button is a click with no pointerdown before it.
+  await render(
+    <div style={{ padding: 40 }}>
+      <Tooltip content="Ask the owner for Editor access">
+        <button type="button" aria-disabled="true">
+          Add
+        </button>
+      </Tooltip>
+    </div>,
+  );
+  await userEvent.keyboard("{Tab}");
+  await expect.element(page.getByRole("button", { name: "Add" })).toHaveFocus();
+  await expect.poll(shownTooltip).toContain("Ask the owner for Editor access");
+  for (const key of ["{Enter}", " "]) {
+    await userEvent.keyboard(key);
+    await settle(8);
+    expect(shownTooltip()).toContain("Ask the owner for Editor access");
+  }
 });
 
 test("pressing an enabled trigger closes its tooltip", async () => {
