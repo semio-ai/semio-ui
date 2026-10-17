@@ -129,14 +129,14 @@ async function still(element: Element) {
 }
 
 // Fixed inline geometry avoids adding Tailwind utilities to the source scan.
-function Anchor({ children }: { children: ReactNode }) {
+function Anchor({ children, width = 240 }: { children: ReactNode; width?: number | string }) {
   return (
     <div
       style={{
         position: "fixed",
         left: 400,
         top: 160,
-        width: 240,
+        width,
         display: "flex",
         flexDirection: "column",
         gap: 12,
@@ -257,8 +257,10 @@ const GROUP_OPTIONS: ToggleGroupProps["options"] = [
 
 function ToggleGroupFixture() {
   const [value, setValue] = useState("beta");
+  // At its natural width: the track clips its own overflow, and a clipped track
+  // scrolls as focus moves, which is not the state being measured.
   return (
-    <Anchor>
+    <Anchor width="max-content">
       <ToggleGroup
         label="View mode"
         visuals="both"
