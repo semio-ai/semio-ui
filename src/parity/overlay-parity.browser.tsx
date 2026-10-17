@@ -3,19 +3,21 @@
  * Overlay parity: renders each overlay state, reads its computed styles, geometry,
  * entrance animation and focus, and compares them with a committed baseline.
  *
- * **Opt-in.** Text geometry follows the platform's `system-ui` font, so the baseline
- * holds only on the platform it was captured on (macOS). The file therefore runs only
- * when asked:
+ * Every state renders in one fixed webfont, Inter, from the exactly pinned
+ * `@fontsource-variable/inter` devDependency. Text geometry otherwise follows the
+ * platform's `system-ui` font, and a baseline captured on one platform would fail on
+ * another. With the font fixed, the file runs in the ordinary browser suite on macOS
+ * and on Linux CI. A font version change moves glyph metrics, so it needs a recapture.
  *
- * - `VITE_PARITY=1 npx vitest run --project browser src/parity/overlay-parity.browser.tsx`
- *   checks the current code against the baseline;
- * - `VITE_PARITY_CAPTURE=1 …` rewrites the baseline from the current code.
+ * `VITE_PARITY_CAPTURE=1 npx vitest run --project browser src/parity/overlay-parity.browser.tsx`
+ * rewrites the baseline from the current code.
  *
  * Capture the baseline from the code being replaced, in its own commit, before changing
  * it; a difference the check then reports is either a defect or a change to name.
  */
+import "@fontsource-variable/inter";
 import { type ReactNode, useState } from "react";
-import { afterAll, afterEach, beforeEach, describe, expect, test } from "vitest";
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, test } from "vitest";
 import { commands, page, userEvent } from "vitest/browser";
 import { cleanup, render } from "vitest-browser-react";
 import "../test-stylesheet";
@@ -56,7 +58,7 @@ enum State {
 }
 
 const capture = import.meta.env.VITE_PARITY_CAPTURE === "1";
-const enabled = capture || import.meta.env.VITE_PARITY === "1";
+const FONT = '"Inter Variable"';
 const captured: Record<string, Measurements> = {};
 type Measurements = Record<string, Record<string, string | number | boolean>>;
 const properties = [
@@ -68,6 +70,7 @@ const properties = [
   "paddingRight",
   "paddingBottom",
   "paddingLeft",
+  "fontFamily",
   "fontSize",
   "fontWeight",
   "lineHeight",
@@ -303,6 +306,17 @@ async function menuMeasurements(result: Measurements, popup: Element) {
   expect(submenu.contains(role("menuitem", "Submenu action").element())).toBe(true);
 }
 
+beforeAll(async () => {
+  // Tailwind's base layer resolves every family through these variables, and an
+  // inline declaration on the root outranks the theme layer's.
+  for (const variable of ["--font-sans", "--default-font-family"])
+    document.documentElement.style.setProperty(variable, FONT);
+  // A missing font would fall back to the platform's own without an error, so the
+  // run stops unless the webfont actually loaded.
+  for (const weight of [400, 500, 600, 700]) await document.fonts.load(`${weight} 16px ${FONT}`);
+  expect(document.fonts.check(`16px ${FONT}`), "the fixed webfont loaded").toBe(true);
+});
+
 beforeEach(async () => {
   await page.viewport(1280, 800);
   await document.fonts.ready;
@@ -348,7 +362,7 @@ function DialogInModalFixture() {
 }
 
 for (const theme of [Theme.Light, Theme.Dark]) {
-  describe.runIf(enabled)(theme, () => {
+  describe(theme, () => {
     beforeEach(() => document.documentElement.classList.toggle("dark", theme === Theme.Dark));
 
     for (const state of [
@@ -584,7 +598,3 @@ for (const theme of [Theme.Light, Theme.Dark]) {
     });
   });
 }
-
-test.runIf(!enabled)("overlay parity runs only with VITE_PARITY=1 or VITE_PARITY_CAPTURE=1", () => {
-  expect(enabled).toBe(false);
-});
