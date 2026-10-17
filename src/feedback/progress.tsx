@@ -13,6 +13,20 @@ export interface ProgressProps {
 
 export function Progress({ progress, variant, size }: ProgressProps) {
   const value = progress >= 0 && progress <= 1 ? progress * 100 : null;
+  const indicator = (
+    <BaseProgress.Indicator
+      render={(props, state) => (
+        <div
+          {...props}
+          data-state={state.status === "progressing" ? "loading" : state.status}
+          data-value={value ?? undefined}
+          data-max={100}
+        />
+      )}
+      style={{ height: "100%", width: `${(progress * 100).toString()}%` }}
+      className={clsx(variant, "variant-static-bg h-full duration-200 ease-in-out")}
+    />
+  );
   return (
     <BaseProgress.Root
       className={clsx(
@@ -22,28 +36,20 @@ export function Progress({ progress, variant, size }: ProgressProps) {
       )}
       value={value}
       aria-valuetext={value === null ? undefined : `${Math.round(value)}%`}
+      // The bar holds only its indicator. Base UI's root adds a visually hidden "x"
+      // span, which would add text to every element around a progress bar that
+      // reads its textContent.
       render={(props, state) => (
         <div
           {...props}
           data-state={state.status === "progressing" ? "loading" : state.status}
           data-value={value ?? undefined}
           data-max={100}
-        />
+        >
+          {indicator}
+        </div>
       )}
-    >
-      <BaseProgress.Indicator
-        render={(props, state) => (
-          <div
-            {...props}
-            data-state={state.status === "progressing" ? "loading" : state.status}
-            data-value={value ?? undefined}
-            data-max={100}
-          />
-        )}
-        style={{ height: "100%", width: `${(progress * 100).toString()}%` }}
-        className={clsx(variant, "variant-static-bg h-full duration-200 ease-in-out")}
-      />
-    </BaseProgress.Root>
+    />
   );
 }
 
