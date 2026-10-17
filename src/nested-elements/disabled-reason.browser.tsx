@@ -9,6 +9,7 @@ import { Dropdown } from "../floating/dropdown";
 import { ContextMenu } from "../floating/context-menu";
 import { Select } from "../floating/select";
 import { NestedItem } from "./item";
+import { NestedSelect } from "./select";
 
 /**
  * A disabled menu entry that carries a reason is reachable by keyboard and states its
@@ -245,6 +246,41 @@ test("multi Select: a disabled option with a reason is reachable but cannot be t
   expect(await walk(2)).toEqual(["Admin", "Editor", "Viewer"]);
   await userEvent.keyboard(" ");
   await expect.poll(() => onChange.mock.calls).toEqual([[["viewer"]]]);
+});
+
+test("a described disabled option that would close on select keeps the menu open", async () => {
+  // `NestedSelect` stays open by default, which would hide a missing prevention; an
+  // option that opts in to closing is the case that needs it.
+  const onChange = vi.fn();
+  await render(
+    <Dropdown trigger={<button type="button">Filters</button>}>
+      <NestedSelect
+        values={[]}
+        onChange={onChange}
+        options={[
+          {
+            value: "pinned",
+            label: "Pinned",
+            disabled: true,
+            description: "Pinning needs Editor access.",
+            closeOnSelect: true,
+          },
+          { value: "recent", label: "Recent", closeOnSelect: true },
+        ]}
+      />
+    </Dropdown>,
+  );
+  (page.getByRole("button", { name: "Filters" }).element() as HTMLElement).focus();
+  await userEvent.keyboard("{Enter}");
+  const pinned = page.getByRole("menuitemcheckbox", { name: "Pinned" });
+  await expect.element(pinned).toHaveFocus();
+  await userEvent.keyboard("{Enter}");
+  await settle();
+  await expect.element(page.getByRole("menu")).toBeVisible();
+  await pinned.click({ force: true });
+  await settle();
+  await expect.element(page.getByRole("menu")).toBeVisible();
+  expect(onChange).not.toHaveBeenCalled();
 });
 
 test("a described disabled option still shows its reason on hover", async () => {
