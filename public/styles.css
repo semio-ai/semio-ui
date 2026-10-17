@@ -1023,6 +1023,18 @@
       color: var(--accent-color);
       background-color: transparent;
     }
+
+    /* A focused disabled option keeps the indicator colour it has at rest rather than
+     * the highlighted one; see the matching rule in `.highlight-list-item`. */
+    &:is(
+      :where(.group\/item)[data-highlighted][data-disabled][data-state="unchecked"] *,
+      :where(.group\/item)[data-highlighted][data-disabled][data-state="indeterminate"] *
+    ) {
+      color: var(--accent-color);
+    }
+    &:is(:where(.group\/item)[data-highlighted][data-disabled][data-state="checked"] *) {
+      color: var(--on-accent-color);
+    }
   }
 
   .grid-list-item-indicator {
@@ -1074,6 +1086,12 @@
     @apply dark:group-data-[state=checked]/item:text-black group-data-[state=checked]/item:text-white;
     @apply group-data-highlighted/item:group-data-[state=unchecked]/item:text-white;
     @apply dark:group-data-highlighted/item:group-data-[state=unchecked]/item:text-black;
+
+    /* A focused disabled entry keeps its disabled icon colour; see the matching
+     * rule in `.highlight-list-item`. */
+    &:is(:where(.group\/item)[data-highlighted][data-disabled] *) {
+      @apply text-neutral-500/25;
+    }
   }
 
   .responsive-accent-bg {
@@ -1095,6 +1113,17 @@
       &[data-highlighted] {
         background-color: color-mix(in oklab, var(--accent-color) 50%, transparent);
       }
+    }
+
+    /* A disabled entry that carries a reason can take keyboard focus (see
+     * `nested-elements/disabled-reason.tsx`). Its highlight shows where focus is
+     * without reading as an available choice: a lighter fill than an enabled row's,
+     * and the disabled text colour kept instead of the highlighted one. Two
+     * attributes, so it outranks the single-attribute highlight rules above in
+     * both themes. */
+    &[data-highlighted][data-disabled] {
+      @apply text-neutral-500/50;
+      background-color: color-mix(in oklab, var(--accent-color) 20%, transparent);
     }
   }
 

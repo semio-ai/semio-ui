@@ -79,13 +79,19 @@ export interface NestedItemProps {
   onClick?: (event: MouseEvent) => void;
   closeOnSelect?: boolean;
   /**
-   * Why this item is disabled, shown as a TOOLTIP on hover — the same contract as
-   * {@link NestedOption.description}.
+   * Why this item is disabled, shown as a TOOLTIP on hover and on keyboard focus —
+   * the same contract as {@link NestedOption.description}.
    *
    * **A tooltip, not a second line in the item**, for the reason given there: an
    * item that grows to hold prose stops matching the interactive rhythm of every
    * other row, and the label stays the thing the item is always called, whether or
    * not a reader ever hovers to find out why it is greyed out.
+   *
+   * **A disabled item with a description stays in the menu's keyboard order.** Arrow
+   * keys reach it, it reports `aria-disabled`, and the description is its accessible
+   * description, so a keyboard or screen-reader user learns the reason too. Enter,
+   * Space and a click do nothing and leave the menu open. A disabled item without a
+   * description is skipped. See `disabled-reason.tsx`.
    *
    * Additive by construction: with no description the item renders byte-for-byte
    * as before, because `Tooltip` short-circuits when disabled rather than wrapping
@@ -174,6 +180,11 @@ export interface NestedOption {
    * unreachable by a reader who does not go looking. Anything required to choose
    * correctly belongs in the label, or beside the control where it is always
    * visible; use this for the extra sentence that helps and is not load-bearing.
+   *
+   * On a **disabled** option it is also the reason, and keeps the option in the
+   * menu's keyboard order with the reason as its accessible description; the option
+   * still cannot be chosen. A disabled option without one is skipped, as before.
+   * See `disabled-reason.tsx`.
    */
   description?: string;
 }

@@ -39,6 +39,9 @@ export interface SelectOption {
    * Hover- and focus-driven, so it is an AID rather than the only place a fact lives.
    * Anything a user must know to choose correctly belongs in the label, or beside the
    * control where it is always visible.
+   *
+   * On a disabled option it is the reason: the option stays reachable by keyboard, with
+   * the description as its accessible description, and still cannot be chosen.
    */
   description?: string;
 }

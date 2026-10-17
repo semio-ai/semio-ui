@@ -128,6 +128,14 @@ bubbling into a listing and preserves the selected element as `currentTarget`.
 Consumers using raw Radix items or custom interactive menu content must arrange
 the same teardown ordering before opening a dialog. `Popover` is nonmodal.
 
+A disabled `NestedItem`, or a disabled `NestedRadio` or `NestedSelect` option, that
+has a `description` stays in the menu's keyboard order. Arrow keys reach it, it
+reports `aria-disabled`, and the description is its accessible description as well
+as its tooltip, so the reason reaches keyboard and screen-reader users. Enter, Space
+and a click do nothing and leave the menu open. Focused, it takes a lighter fill
+than an enabled row and keeps its disabled text and icon colours. A disabled entry
+without a description is skipped, as before.
+
 `ListGrid` accepts `emptyBody` for a full-width empty row that keeps its column
 headers. Pass the resolved empty state only after the read finishes. `notFound`
 replaces the whole listing, including its headers.
