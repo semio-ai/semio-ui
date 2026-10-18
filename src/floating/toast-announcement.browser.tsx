@@ -16,7 +16,9 @@ function AddToast() {
       id: "announcement",
       title: "Asset published",
       content: "Available to everyone",
-      dismiss: { label: "View", onClick: () => {} },
+      // A numeric dismiss is the timeout. The toast removes its announcer with it, and
+      // an action toast lives four real seconds, which a loaded run can outlast.
+      dismiss: 60000,
     });
   }, [add]);
   return null;
