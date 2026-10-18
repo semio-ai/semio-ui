@@ -231,7 +231,7 @@
     },
     "focus": {
       "onOpen": "Cancel",
-      "afterCancel": "(body)",
+      "afterCancel": "Open dialog",
       "openAfterCancel": false
     }
   },
@@ -492,7 +492,7 @@
     },
     "focus": {
       "onOpen": "Cancel",
-      "afterCancel": "(body)",
+      "afterCancel": "Open dialog",
       "openAfterCancel": false
     }
   },
@@ -728,7 +728,7 @@
     },
     "focus": {
       "onOpen": "Cancel",
-      "afterCancel": "(body)",
+      "afterCancel": "Open dialog",
       "openAfterCancel": false
     }
   },
@@ -3504,8 +3504,8 @@
     },
     "afterEscape": {
       "dialogOpen": false,
-      "modalOpen": false,
-      "focus": "Open settings"
+      "modalOpen": true,
+      "focus": "Delete item"
     }
   },
   "light / Modal inside Dialog": {
@@ -3592,12 +3592,12 @@
       "height": 800
     },
     "focus": {
-      "onOpen": "Edit details"
+      "onOpen": "Close"
     },
     "afterEscape": {
       "modalOpen": false,
-      "dialogOpen": false,
-      "focus": "(body)"
+      "dialogOpen": true,
+      "focus": "Edit details"
     }
   },
   "dark / Dialog confirmation": {
@@ -3832,7 +3832,7 @@
     },
     "focus": {
       "onOpen": "Cancel",
-      "afterCancel": "(body)",
+      "afterCancel": "Open dialog",
       "openAfterCancel": false
     }
   },
@@ -4093,7 +4093,7 @@
     },
     "focus": {
       "onOpen": "Cancel",
-      "afterCancel": "(body)",
+      "afterCancel": "Open dialog",
       "openAfterCancel": false
     }
   },
@@ -4329,7 +4329,7 @@
     },
     "focus": {
       "onOpen": "Cancel",
-      "afterCancel": "(body)",
+      "afterCancel": "Open dialog",
       "openAfterCancel": false
     }
   },
@@ -7105,8 +7105,8 @@
     },
     "afterEscape": {
       "dialogOpen": false,
-      "modalOpen": false,
-      "focus": "Open settings"
+      "modalOpen": true,
+      "focus": "Delete item"
     }
   },
   "dark / Modal inside Dialog": {
@@ -7193,12 +7193,12 @@
       "height": 800
     },
     "focus": {
-      "onOpen": "Edit details"
+      "onOpen": "Close"
     },
     "afterEscape": {
       "modalOpen": false,
-      "dialogOpen": false,
-      "focus": "(body)"
+      "dialogOpen": true,
+      "focus": "Edit details"
     }
   }
 }
