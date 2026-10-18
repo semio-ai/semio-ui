@@ -381,3 +381,46 @@ test("a Modal opened from a Modal adds no second backdrop", async () => {
   // Base UI draws one backdrop for nested modals, and so does this package.
   expectDimming(1);
 });
+
+test("a Modal opened from a Modal inside a Dialog adds no third backdrop", async () => {
+  function Triple() {
+    const [dialogOpen, setDialogOpen] = useState(false);
+    const [outerOpen, setOuterOpen] = useState(false);
+    const [innerOpen, setInnerOpen] = useState(false);
+    return (
+      <>
+        <button type="button" onClick={() => setDialogOpen(true)}>
+          Open confirmation
+        </button>
+        <Dialog
+          open={dialogOpen}
+          onStateChange={setDialogOpen}
+          title="Confirm action"
+          onCancel={() => {}}
+        >
+          <button type="button" onClick={() => setOuterOpen(true)}>
+            Open settings
+          </button>
+          <Modal open={outerOpen} onStateChange={setOuterOpen} title="Settings">
+            <button type="button" onClick={() => setInnerOpen(true)}>
+              Edit details
+            </button>
+            <Modal open={innerOpen} onStateChange={setInnerOpen} title="Details">
+              <p>Details body</p>
+            </Modal>
+          </Modal>
+        </Dialog>
+      </>
+    );
+  }
+  await render(<Triple />);
+  await button("Open confirmation").click();
+  await expect.element(popup()).toBeVisible();
+  await button("Open settings").click();
+  await expect.element(page.getByRole("dialog", { name: "Settings", exact: true })).toBeVisible();
+  await button("Edit details").click();
+  await expect.element(page.getByRole("dialog", { name: "Details", exact: true })).toBeVisible();
+  await settle();
+  // The Dialog's and the outer Modal's; the inner Modal shares the outer one's.
+  expectDimming(2);
+});
