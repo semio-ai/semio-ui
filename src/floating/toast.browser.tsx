@@ -2,9 +2,9 @@ import { Result } from "@semio/utils";
 import { afterEach, expect, test, vi } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { cleanup, render } from "vitest-browser-react";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useAddToast } from "../hooks/use-add-toast";
-import { ToastManager, type ToastData } from "./toast";
+import { ToastContext, ToastManager, type ToastData } from "./toast";
 import "../test-stylesheet";
 
 afterEach(async () => {
@@ -214,4 +214,82 @@ test("provider sibling state survives adding and removing notifications", async 
   await expect.element(page.getByRole("button", { name: "First: 1", exact: true })).toBeVisible();
   await expect.element(page.getByRole("button", { name: "Second: 1", exact: true })).toBeVisible();
   expect(mounted.mock.calls.map(([label]) => label)).toEqual(["First", "Second"]);
+});
+
+/** The next animation frame, by which a frame callback has run. */
+const nextFrame = () => new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+
+test("an expired toast asks once to be removed, so its exit re-renders no toast consumer", async () => {
+  let renders = 0;
+  let rendersAtRemoval: number | null = null;
+  let listed = false;
+  function Consumer() {
+    const { toasts } = useContext(ToastContext);
+    renders += 1;
+    if (toasts.length > 0) listed = true;
+    else if (listed && rendersAtRemoval === null) rendersAtRemoval = renders;
+    return null;
+  }
+  await render(
+    <ToastManager>
+      <Consumer />
+      <SeedToast data={{ id: "expiring", title: "Saved", dismiss: 50 }} />
+    </ToastManager>,
+  );
+  await expect.element(page.getByText("Saved", { exact: true })).toBeVisible();
+  // Gone from the list, then gone from the page once its exit animation ends.
+  await expect.poll(() => rendersAtRemoval, { timeout: 5000 }).not.toBeNull();
+  await expect.element(page.getByText("Saved", { exact: true })).not.toBeInTheDocument();
+  await nextFrame();
+  expect(renders - rendersAtRemoval!).toBe(0);
+});
+
+test("removing a toast that is already gone leaves its consumers alone", async () => {
+  let renders = 0;
+  let removeToast: ((id: string) => void) | undefined;
+  function Consumer() {
+    removeToast = useContext(ToastContext).removeToast;
+    renders += 1;
+    return null;
+  }
+  await render(
+    <ToastManager>
+      <Consumer />
+    </ToastManager>,
+  );
+  await nextFrame();
+  const before = renders;
+  removeToast!("absent");
+  await nextFrame();
+  await nextFrame();
+  expect(renders).toBe(before);
+});
+
+test("a toast added again while it is leaving gets a fresh interval and still expires", async () => {
+  let readded = false;
+  function AddAgainOnRemoval() {
+    const { toasts, addToast } = useContext(ToastContext);
+    const [listed, setListed] = useState(false);
+    useEffect(() => {
+      if (toasts.length > 0) {
+        setListed(true);
+      } else if (listed && !readded) {
+        // While the first one is still playing its exit animation.
+        readded = true;
+        addToast({ id: "repeated", title: "Saved", dismiss: 300 });
+      }
+    }, [toasts, listed, addToast]);
+    return null;
+  }
+  await render(
+    <ToastManager>
+      <AddAgainOnRemoval />
+      <SeedToast data={{ id: "repeated", title: "Saved", dismiss: 50 }} />
+    </ToastManager>,
+  );
+  await expect.poll(() => readded, { timeout: 5000 }).toBe(true);
+  await expect.element(page.getByText("Saved", { exact: true })).toBeVisible();
+  await expect
+    .element(page.getByText("Saved", { exact: true }), { timeout: 5000 })
+    .not.toBeInTheDocument();
 });
