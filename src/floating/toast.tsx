@@ -4,6 +4,7 @@ import {
   useContext,
   useState,
   useCallback,
+  useMemo,
   memo,
   useRef,
   useEffect,
@@ -135,15 +136,31 @@ function ToastAnnounce({ data }: { data: ToastData }) {
 
 const ToastPausedContext = createContext(false);
 
+/** Counts mounted toasts, including those still running their exit animation. */
+const ToastMountContext = createContext({ onMount: () => {}, onUnmount: () => {} });
+
 function InnerToast({ data }: { data: ToastData }) {
   const width = 320;
   const margin = 16;
 
   const { removeToast, toasts: listed } = useContext(ToastContext);
-  // Layout animation restacks the toasts when one arrives or leaves. A swipe
-  // re-renders the toast as it moves, and a layout animation then would pull it
-  // back toward where it was, so only the stack order triggers one.
-  const stackOrder = listed.map((item) => item.id).join(" ");
+  // Layout animation restacks the toasts when one arrives, leaves or changes what it
+  // shows. A swipe re-renders the toast as it moves, and a layout animation then
+  // would pull it back toward where it was, so only the stack's content triggers one.
+  const stackLayout = JSON.stringify(
+    listed.map(({ id, title, content, variant, dismiss }) => [
+      id,
+      title,
+      content,
+      variant,
+      typeof dismiss === "object" ? dismiss.label : dismiss,
+    ]),
+  );
+  const { onMount, onUnmount } = useContext(ToastMountContext);
+  useEffect(() => {
+    onMount();
+    return onUnmount;
+  }, [onMount, onUnmount]);
   const paused = useContext(ToastPausedContext);
   const { toasts } = BaseToast.useToastManager<ToastData>();
   const isPresent = useIsPresent();
@@ -230,7 +247,7 @@ function InnerToast({ data }: { data: ToastData }) {
             } as CSSProperties
           }
           layout
-          layoutDependency={stackOrder}
+          layoutDependency={stackLayout}
           className={clsx(
             "items-center overflow-hidden",
             "pointer-events-auto relative box-border w-[30ch] select-none",
@@ -331,6 +348,14 @@ function ToastContainer({ children }: ToastContainerProps) {
   const focused = useRef(false);
   const [paused, setPaused] = useState(false);
   const syncPaused = () => setPaused(hovering.current || focused.current);
+  const [mounted, setMounted] = useState(0);
+  const mountCount = useMemo(
+    () => ({
+      onMount: () => setMounted((count) => count + 1),
+      onUnmount: () => setMounted((count) => count - 1),
+    }),
+    [],
+  );
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -374,50 +399,53 @@ function ToastContainer({ children }: ToastContainerProps) {
   return (
     <ToastContext.Provider value={{ toasts, addToast, updateToast, removeToast, clear }}>
       <ToastPausedContext.Provider value={paused}>
-        {/* Modal hiding exempts this live region, keeping toasts clickable after
+        <ToastMountContext.Provider value={mountCount}>
+          {/* Modal hiding exempts this live region, keeping toasts clickable after
             the separate body-portalled announcers have expired. */}
-        <BaseToast.Portal aria-live="off">
-          <div
-            role="region"
-            aria-label="Notifications (F8)"
-            tabIndex={-1}
-            // The region only lets pointers through to toasts while it holds any.
-            style={{ pointerEvents: toasts.length > 0 ? undefined : "none" }}
-          >
-            <BaseToast.Viewport
-              render={<ol ref={viewportRef} />}
-              role={undefined}
-              aria-live={undefined}
-              aria-label={undefined}
-              onMouseEnter={() => {
-                hovering.current = true;
-                syncPaused();
-              }}
-              onMouseLeave={() => {
-                hovering.current = false;
-                syncPaused();
-              }}
-              onFocus={() => {
-                focused.current = true;
-                syncPaused();
-              }}
-              onBlur={(event) => {
-                if (!event.currentTarget.contains(event.relatedTarget)) {
-                  focused.current = false;
-                  syncPaused();
-                }
-              }}
-              className="pointer-events-none fixed top-4 right-4 z-2147483647 flex w-80 flex-col-reverse gap-3 max-sm:top-20"
+          <BaseToast.Portal aria-live="off">
+            <div
+              role="region"
+              aria-label="Notifications (F8)"
+              tabIndex={-1}
+              // The region lets pointers through while any toast is mounted, including
+              // one still running its exit animation.
+              style={{ pointerEvents: mounted > 0 ? undefined : "none" }}
             >
-              <AnimatePresence>
-                {toasts.map((toast) => (
-                  <Toast key={toast.id} data={toast} />
-                ))}
-              </AnimatePresence>
-            </BaseToast.Viewport>
-          </div>
-        </BaseToast.Portal>
-        {children}
+              <BaseToast.Viewport
+                render={<ol ref={viewportRef} />}
+                role={undefined}
+                aria-live={undefined}
+                aria-label={undefined}
+                onMouseEnter={() => {
+                  hovering.current = true;
+                  syncPaused();
+                }}
+                onMouseLeave={() => {
+                  hovering.current = false;
+                  syncPaused();
+                }}
+                onFocus={() => {
+                  focused.current = true;
+                  syncPaused();
+                }}
+                onBlur={(event) => {
+                  if (!event.currentTarget.contains(event.relatedTarget)) {
+                    focused.current = false;
+                    syncPaused();
+                  }
+                }}
+                className="pointer-events-none fixed top-4 right-4 z-2147483647 flex w-80 flex-col-reverse gap-3 max-sm:top-20"
+              >
+                <AnimatePresence>
+                  {toasts.map((toast) => (
+                    <Toast key={toast.id} data={toast} />
+                  ))}
+                </AnimatePresence>
+              </BaseToast.Viewport>
+            </div>
+          </BaseToast.Portal>
+          {children}
+        </ToastMountContext.Provider>
       </ToastPausedContext.Provider>
     </ToastContext.Provider>
   );

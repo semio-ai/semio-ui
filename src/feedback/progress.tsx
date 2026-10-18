@@ -36,9 +36,9 @@ export function Progress({ progress, variant, size }: ProgressProps) {
       )}
       value={value}
       aria-valuetext={value === null ? undefined : `${Math.round(value)}%`}
-      // The bar holds only its indicator. Base UI's root adds a visually hidden "x"
-      // span, which would add text to every element around a progress bar that
-      // reads its textContent.
+      // The bar holds only its indicator. Base UI's root appends a visually hidden
+      // "x" span so NVDA announces a `Progress.Label`; this bar takes no label, and
+      // the span's text would join the textContent of whatever holds the bar.
       render={(props, state) => (
         <div
           {...props}
