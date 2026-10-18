@@ -107,7 +107,9 @@ relying on the caption alone.
 goes to the closing footer Cancel when present, otherwise to X; when that control is
 disabled on open, focus stays where it was until the first Tab. Closing returns
 focus to the element focused before opening. Opened from a `Modal`, a `Dialog` dims
-the `Modal` with its own backdrop, and Escape closes only the `Dialog`. Set
+the `Modal` with its own backdrop, and Escape closes only the `Dialog`. A `Modal` or
+`SidebarModal` opened from a `Dialog` likewise dims the `Dialog`; one opened from
+another `Modal` adds no second backdrop. Set
 `closeOnCancelClick={false}` for a cancel action that changes a step; X remains a
 separate dismissal action. Async flows use `closeOnSubmitClick={false}`,
 `submitDisabled`, `cancelDisabled` and `dismissDisabled` until their action
