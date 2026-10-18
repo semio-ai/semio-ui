@@ -73,6 +73,19 @@ function ItemMenuContent({ onEdit, onDelete }: { onEdit: () => void; onDelete: (
 
 const tooltip = () => page.getByRole("tooltip");
 
+/**
+ * Asserts that the tooltip showing `reason` is open. Presence is not enough: a tooltip
+ * that closes before its entry animation has started stays mounted, text and all, until
+ * that animation ends, so only its state tells a reason that is showing from one on its
+ * way out.
+ */
+async function expectShowing(reason: string) {
+  await expect.element(tooltip()).toHaveTextContent(reason);
+  expect(tooltip().element().closest(".tooltip-content")?.getAttribute("data-state")).toMatch(
+    /open$/,
+  );
+}
+
 async function expectReachableAndInert(
   onEdit: ReturnType<typeof vi.fn>,
   onDelete: ReturnType<typeof vi.fn>,
@@ -96,7 +109,7 @@ async function expectReachableAndInert(
   await settle();
   await expect.element(edit).toHaveFocus();
   await expect.element(edit).toHaveAttribute("aria-disabled", "true");
-  await expect.element(tooltip()).toHaveTextContent(REASON);
+  await expectShowing(REASON);
 
   // Acting on the entry does nothing, keeps the menu open, and keeps the reason showing.
   for (const act of [
@@ -108,7 +121,7 @@ async function expectReachableAndInert(
     await settle();
     expect(onEdit).not.toHaveBeenCalled();
     await expect.element(page.getByRole("menu")).toBeVisible();
-    await expect.element(tooltip()).toHaveTextContent(REASON);
+    await expectShowing(REASON);
   }
 
   // A disabled entry without a reason is inert even to a programmatic click, which
@@ -152,6 +165,28 @@ test("ContextMenu: a disabled item with a reason is reachable, described and ine
   await expectReachableAndInert(onEdit, onDelete);
 });
 
+test("ContextMenu: the reason stays showing when the pointer moves onto its entry", async () => {
+  await render(
+    <ContextMenu content={<ItemMenuContent onEdit={() => undefined} onDelete={() => undefined} />}>
+      <div style={{ width: 200, height: 60 }}>Row</div>
+    </ContextMenu>,
+  );
+  // The menu opens beside the pointer, which stays outside it.
+  await page.getByText("Row").click({ button: "right" });
+  await expect.element(page.getByRole("menuitem", { name: "Open" })).toBeVisible();
+  const edit = page.getByRole("menuitem", { name: "Edit" });
+  for (let i = 0; i < 2; i++) {
+    await userEvent.keyboard("{ArrowDown}");
+    await settle();
+  }
+  await expect.element(edit).toHaveFocus();
+  await expectShowing(REASON);
+  // Reaching for the mouse brings the pointer into the menu for the first time.
+  await edit.hover();
+  await settle(8);
+  await expectShowing(REASON);
+});
+
 test("the reason's tooltip opens when keyboard focus reaches the entry", async () => {
   await render(
     <Dropdown trigger={<button type="button">Actions</button>}>
@@ -164,7 +199,7 @@ test("the reason's tooltip opens when keyboard focus reaches the entry", async (
   expect(tooltip().elements()).toHaveLength(0);
   await userEvent.keyboard("{ArrowDown}");
   await expect.element(page.getByRole("menuitem", { name: "Edit" })).toHaveFocus();
-  await expect.element(tooltip()).toHaveTextContent(REASON);
+  await expectShowing(REASON);
 });
 
 const ADMIN_MEANING = "Can edit and manage access.";
@@ -216,7 +251,7 @@ test("single Select: a disabled option with a reason is reachable but cannot be 
   await expect.element(admin).toHaveAttribute("aria-disabled", "true");
   await expect.element(admin).toHaveAccessibleDescription(ADMIN_REASON);
   // While disabled, its tooltip is the reason, not what choosing it would mean.
-  await expect.element(tooltip()).toHaveTextContent(ADMIN_REASON);
+  await expectShowing(ADMIN_REASON);
 
   for (const act of [
     () => userEvent.keyboard("{Enter}"),
@@ -227,7 +262,7 @@ test("single Select: a disabled option with a reason is reachable but cannot be 
     await settle();
     expect(onChange).not.toHaveBeenCalled();
     await expect.element(page.getByRole("menu")).toBeVisible();
-    await expect.element(tooltip()).toHaveTextContent(ADMIN_REASON);
+    await expectShowing(ADMIN_REASON);
   }
   await expect
     .element(page.getByRole("menuitemradio", { name: "Editor" }))
@@ -354,7 +389,7 @@ test("a disabled option with a reason shows it on hover", async () => {
   await render(<SingleSelect onChange={() => undefined} />);
   await page.getByRole("button", { name: "Role: Editor" }).click();
   await page.getByRole("menuitemradio", { name: "Admin" }).hover();
-  await expect.element(tooltip()).toHaveTextContent(ADMIN_REASON);
+  await expectShowing(ADMIN_REASON);
 });
 
 /** The computed cursor of whatever paints at the centre of `element`. */

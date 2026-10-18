@@ -152,6 +152,8 @@ explanation, so a wrapped menu keeps its own Escape handling. Restoring keyboard
 focus to the trigger opens the explanation normally and leaves Tab navigation available.
 Pressing a trigger that is `aria-disabled` leaves its explanation open, since the press
 does nothing and the explanation is usually why; an enabled trigger closes it.
+Scrolling a container of the trigger closes the explanation, and the pointer entering a
+`ScrollArea` around the trigger does not.
 
 **Artwork and attribution.** Solar artwork is by 480 Design under CC BY 4.0, and
 the `@solar-icons/react-perf` components that render it are MIT. That package is
@@ -234,7 +236,6 @@ keep predefined navigation choices the same width on listing and detail pages.
 The `toolbar-segments` style gives adjacent controls a 2px gap and square shared
 edges, preserving rounded exposed ends. It also handles text-field wrappers and
 nested segment rows.
-
 
 Searchable and editable breadcrumb pickers use Base UI combobox primitives and the shared combobox style helpers. Their input retains DOM focus while pointer and keyboard navigation highlight options. Closing selections run after the popup closes, allowing consumers to open a dialog. Display labels are semantic picker triggers; F2 starts optional inline renaming.
 

@@ -24,6 +24,27 @@ export interface TooltipProps {
   portalContainer?: HTMLElement | null;
 }
 
+/**
+ * Whether the event being handled is a `scroll` that a script dispatched.
+ *
+ * Radix closes a tooltip on any scroll of an element that contains its trigger, because
+ * the trigger has moved out from under it. A dispatched `scroll` moves nothing:
+ * `ScrollArea` dispatches one on its viewport whenever the pointer enters, so that its
+ * scrollbar thumb measures itself. Honoured, it closes every open tooltip in the area the
+ * moment the pointer arrives, such as the reason a keyboard user is reading on a disabled
+ * menu entry. A scroll the browser reports is trusted, so a real one still closes it.
+ *
+ * Radix requests the close from inside its scroll listener without passing the event, so
+ * it is read from `window.event`, which holds the event whose listeners are running. That
+ * holds only while the Root is controlled: Radix calls `onOpenChange` synchronously for a
+ * controlled Root, but from an effect, after the event has finished, for an uncontrolled
+ * one.
+ */
+function isDispatchedScroll() {
+  const event = window.event;
+  return event?.type === "scroll" && !event.isTrusted;
+}
+
 function Tooltip({
   content,
   children,
@@ -53,7 +74,7 @@ function Tooltip({
 
   const handleOpenChange = useCallback(
     (value: boolean) => {
-      if (!value && pressingDisabledTrigger.current) return;
+      if (!value && (pressingDisabledTrigger.current || isDispatchedScroll())) return;
       if (controlledState) {
         controlledState[1](value);
       } else {
