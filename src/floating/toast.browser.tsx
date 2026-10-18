@@ -385,3 +385,34 @@ test("removing a toast that is already closing leaves the toast store alone", as
   flushSync(() => api!.removeToast("closing"));
   expect(seen).toBe(before);
 });
+
+test("an expired toast's exit changes the toast store only a few times", async () => {
+  let storeRenders = 0;
+  let listed = false;
+  let storeRendersAtRemoval: number | null = null;
+  function StoreWatcher() {
+    Toast.useToastManager();
+    storeRenders += 1;
+    return null;
+  }
+  function Consumer() {
+    const { toasts } = useContext(ToastContext);
+    if (toasts.length > 0) listed = true;
+    else if (listed && storeRendersAtRemoval === null) storeRendersAtRemoval = storeRenders;
+    return null;
+  }
+  await userEvent.hover(document.documentElement, { position: { x: 5, y: 5 } });
+  await render(
+    <ToastManager>
+      <StoreWatcher />
+      <Consumer />
+      <AddToast data={{ id: "expiring-store", title: "Stored", dismiss: 50 }} />
+    </ToastManager>,
+  );
+  await expect.poll(() => storeRendersAtRemoval, { timeout: 5000 }).not.toBeNull();
+  await expect.element(page.getByText("Stored", { exact: true })).not.toBeInTheDocument();
+  await nextFrame();
+  // Marked ending, measured, released: a handful of changes, not one per frame of a
+  // 200 ms exit.
+  expect(storeRenders - storeRendersAtRemoval!).toBeLessThan(6);
+});
