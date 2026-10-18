@@ -455,12 +455,12 @@ function ToastContainer({ children }: ToastContainerProps) {
     .filter((toast) => toast.transitionStatus !== "ending")
     .map((toast) => toast.data!)
     .reverse();
-  // A closing toast stays rendered until Base UI's store removes it. Base UI removes a
-  // toast only from its own root, once that root finishes animating with the toast
-  // marked as ending. If the exit animation starts first, the root unmounts mid-wait
-  // and the toast stays in the store for good, which keeps Base UI's window listeners
-  // and focus guards active. The store lets go first, and the exit animation then
-  // runs as the toast leaves this list.
+  // A closing toast stays rendered until Base UI's store removes it, with `animate`
+  // already taking it towards `LEAVING`. Base UI removes a dismissed toast from its
+  // store from the toast's own root, once that root stops animating; a root that
+  // unmounted first would leave the toast in the store for good, keeping Base UI's
+  // window listeners and focus guards active. After the store removes it, `exit`
+  // targets the same values.
   const rendered = managedToasts.map((toast) => toast.data!).reverse();
 
   return (
