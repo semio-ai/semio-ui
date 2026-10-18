@@ -1397,7 +1397,7 @@
       "text": "AlphaBetaGammaDelta",
       "role": "group",
       "type": "(none)",
-      "tabindex": "(none)",
+      "tabindex": "0",
       "disabled": "(none)",
       "aria-checked": "(none)",
       "aria-pressed": "(none)",
@@ -1414,7 +1414,7 @@
       "data-orientation": "(none)"
     },
     "group name": {
-      "label": "View mode"
+      "named": true
     },
     "pill": {
       "color": "rgb(0, 0, 0)",
@@ -1529,7 +1529,7 @@
       "text": "Beta",
       "role": "radio",
       "type": "button",
-      "tabindex": "0",
+      "tabindex": "-1",
       "disabled": "(none)",
       "aria-checked": "true",
       "aria-pressed": "(none)",
@@ -1673,7 +1673,7 @@
       "stroke": "none",
       "outlineStyle": "auto",
       "outlineWidth": "1px",
-      "outlineColor": "rgb(0, 95, 204)",
+      "outlineColor": "(native focus ring)",
       "outlineOffset": "0px",
       "x": 481,
       "y": 162,
@@ -2248,7 +2248,7 @@
       "stroke": "none",
       "outlineStyle": "auto",
       "outlineWidth": "1px",
-      "outlineColor": "rgb(0, 95, 204)",
+      "outlineColor": "(native focus ring)",
       "outlineOffset": "0px",
       "x": 400,
       "y": 160,
@@ -2624,7 +2624,7 @@
       "stroke": "none",
       "outlineStyle": "auto",
       "outlineWidth": "1px",
-      "outlineColor": "rgb(0, 95, 204)",
+      "outlineColor": "(native focus ring)",
       "outlineOffset": "0px",
       "x": 400,
       "y": 160,
@@ -2633,7 +2633,8 @@
     },
     "Details opening": {
       "animationName": "expandDown",
-      "animationDuration": "0.2s"
+      "duration": "200",
+      "keyframes": "[{\"offset\":0,\"height\":\"0px\"},{\"offset\":1,\"height\":\"24px\"}]"
     },
     "Details content open": {
       "color": "rgb(0, 0, 0)",
@@ -2735,14 +2736,16 @@
     },
     "Details closing": {
       "animationName": "expandUp",
-      "animationDuration": "0.1s"
+      "duration": "100",
+      "keyframes": "[{\"offset\":0,\"height\":\"24px\"},{\"offset\":1,\"height\":\"0px\"}]"
     },
     "Details after close": {
       "mounted": false
     },
     "Settings opening": {
       "animationName": "expandDown",
-      "animationDuration": "0.2s"
+      "duration": "200",
+      "keyframes": "[{\"offset\":0,\"height\":\"0px\"},{\"offset\":1,\"height\":\"24px\"}]"
     },
     "Settings content open": {
       "color": "rgb(0, 0, 0)",
@@ -2844,14 +2847,16 @@
     },
     "Settings closing": {
       "animationName": "expandUp",
-      "animationDuration": "0.1s"
+      "duration": "100",
+      "keyframes": "[{\"offset\":0,\"height\":\"24px\"},{\"offset\":1,\"height\":\"0px\"}]"
     },
     "Settings after close": {
       "mounted": false
     },
     "Panel opening": {
       "animationName": "expandRight",
-      "animationDuration": "0.2s"
+      "duration": "200",
+      "keyframes": "[{\"offset\":0,\"width\":\"0px\"},{\"offset\":1,\"width\":\"120px\"}]"
     },
     "Panel content open": {
       "color": "rgb(0, 0, 0)",
@@ -2953,7 +2958,8 @@
     },
     "Panel closing": {
       "animationName": "expandLeft",
-      "animationDuration": "0.1s"
+      "duration": "100",
+      "keyframes": "[{\"offset\":0,\"width\":\"120px\"},{\"offset\":1,\"width\":\"0px\"}]"
     },
     "Panel after close": {
       "mounted": false
@@ -3695,7 +3701,7 @@
       "stroke": "none",
       "outlineStyle": "solid",
       "outlineWidth": "2px",
-      "outlineColor": "rgb(0, 95, 204)",
+      "outlineColor": "(native focus ring)",
       "outlineOffset": "2px",
       "x": 400,
       "y": 160,
@@ -6464,7 +6470,7 @@
       "text": "AlphaBetaGammaDelta",
       "role": "group",
       "type": "(none)",
-      "tabindex": "(none)",
+      "tabindex": "0",
       "disabled": "(none)",
       "aria-checked": "(none)",
       "aria-pressed": "(none)",
@@ -6481,7 +6487,7 @@
       "data-orientation": "(none)"
     },
     "group name": {
-      "label": "View mode"
+      "named": true
     },
     "pill": {
       "color": "rgb(0, 0, 0)",
@@ -6596,7 +6602,7 @@
       "text": "Beta",
       "role": "radio",
       "type": "button",
-      "tabindex": "0",
+      "tabindex": "-1",
       "disabled": "(none)",
       "aria-checked": "true",
       "aria-pressed": "(none)",
@@ -6740,7 +6746,7 @@
       "stroke": "none",
       "outlineStyle": "auto",
       "outlineWidth": "1px",
-      "outlineColor": "rgb(0, 95, 204)",
+      "outlineColor": "(native focus ring)",
       "outlineOffset": "0px",
       "x": 481,
       "y": 162,
@@ -7315,7 +7321,7 @@
       "stroke": "none",
       "outlineStyle": "auto",
       "outlineWidth": "1px",
-      "outlineColor": "rgb(0, 95, 204)",
+      "outlineColor": "(native focus ring)",
       "outlineOffset": "0px",
       "x": 400,
       "y": 160,
@@ -7691,7 +7697,7 @@
       "stroke": "none",
       "outlineStyle": "auto",
       "outlineWidth": "1px",
-      "outlineColor": "rgb(0, 95, 204)",
+      "outlineColor": "(native focus ring)",
       "outlineOffset": "0px",
       "x": 400,
       "y": 160,
@@ -7700,7 +7706,8 @@
     },
     "Details opening": {
       "animationName": "expandDown",
-      "animationDuration": "0.2s"
+      "duration": "200",
+      "keyframes": "[{\"offset\":0,\"height\":\"0px\"},{\"offset\":1,\"height\":\"24px\"}]"
     },
     "Details content open": {
       "color": "rgb(0, 0, 0)",
@@ -7802,14 +7809,16 @@
     },
     "Details closing": {
       "animationName": "expandUp",
-      "animationDuration": "0.1s"
+      "duration": "100",
+      "keyframes": "[{\"offset\":0,\"height\":\"24px\"},{\"offset\":1,\"height\":\"0px\"}]"
     },
     "Details after close": {
       "mounted": false
     },
     "Settings opening": {
       "animationName": "expandDown",
-      "animationDuration": "0.2s"
+      "duration": "200",
+      "keyframes": "[{\"offset\":0,\"height\":\"0px\"},{\"offset\":1,\"height\":\"24px\"}]"
     },
     "Settings content open": {
       "color": "rgb(0, 0, 0)",
@@ -7911,14 +7920,16 @@
     },
     "Settings closing": {
       "animationName": "expandUp",
-      "animationDuration": "0.1s"
+      "duration": "100",
+      "keyframes": "[{\"offset\":0,\"height\":\"24px\"},{\"offset\":1,\"height\":\"0px\"}]"
     },
     "Settings after close": {
       "mounted": false
     },
     "Panel opening": {
       "animationName": "expandRight",
-      "animationDuration": "0.2s"
+      "duration": "200",
+      "keyframes": "[{\"offset\":0,\"width\":\"0px\"},{\"offset\":1,\"width\":\"120px\"}]"
     },
     "Panel content open": {
       "color": "rgb(0, 0, 0)",
@@ -8020,7 +8031,8 @@
     },
     "Panel closing": {
       "animationName": "expandLeft",
-      "animationDuration": "0.1s"
+      "duration": "100",
+      "keyframes": "[{\"offset\":0,\"width\":\"120px\"},{\"offset\":1,\"width\":\"0px\"}]"
     },
     "Panel after close": {
       "mounted": false
@@ -8762,7 +8774,7 @@
       "stroke": "none",
       "outlineStyle": "solid",
       "outlineWidth": "2px",
-      "outlineColor": "rgb(0, 95, 204)",
+      "outlineColor": "(native focus ring)",
       "outlineOffset": "2px",
       "x": 400,
       "y": 160,

@@ -29,6 +29,19 @@ export const capture = import.meta.env.VITE_PARITY_CAPTURE === "1";
 
 const FONT = '"Inter Variable"';
 
+/**
+ * Chromium paints an `outline-style: auto` focus ring, and any outline whose colour no
+ * stylesheet sets, in the platform's own focus-ring colour, which differs between
+ * macOS and Linux. A measured colour equal to it records as this token, so a focus
+ * ring that a stylesheet colours is still compared exactly.
+ */
+export const NATIVE_FOCUS_RING = "(native focus ring)";
+const nativeFocusRing: Partial<Record<"light" | "dark", string>> = {};
+
+function currentTheme(): "light" | "dark" {
+  return document.documentElement.classList.contains("dark") ? "dark" : "light";
+}
+
 /** Computed properties read from every measured element. */
 export const properties = [
   "color",
@@ -83,13 +96,14 @@ export function measure(
   const style = getComputedStyle(element);
   const rect = element.getBoundingClientRect();
   const round = (value: number) => Math.round(value * 2) / 2;
+  const value = (property: string) => {
+    const computed = style.getPropertyValue(kebab(property));
+    return property === "outlineColor" && computed === nativeFocusRing[currentTheme()]
+      ? NATIVE_FOCUS_RING
+      : computed;
+  };
   return {
-    ...Object.fromEntries(
-      [...properties, ...extra].map((property) => [
-        property,
-        style.getPropertyValue(kebab(property)),
-      ]),
-    ),
+    ...Object.fromEntries([...properties, ...extra].map((property) => [property, value(property)])),
     x: round(rect.x),
     y: round(rect.y),
     width: round(rect.width),
@@ -130,6 +144,35 @@ export async function surface(target: string | Element, result: Measurements, na
   await settle();
   take(result, name, element);
   return element;
+}
+
+/**
+ * Resolves with the first CSS animation on the element `find` returns, read on the
+ * frame it starts: its name, duration and keyframes. Start it before the action that
+ * triggers the animation; a short animation can finish before an awaited action
+ * returns.
+ */
+export function firstAnimation(find: () => Element | null): Promise<Record<string, string>> {
+  return new Promise((resolve) => {
+    const tick = () => {
+      const animation = find()
+        ?.getAnimations()
+        .find((candidate): candidate is CSSAnimation => candidate instanceof CSSAnimation);
+      if (!animation) {
+        requestAnimationFrame(tick);
+        return;
+      }
+      const effect = animation.effect as KeyframeEffect;
+      resolve({
+        animationName: animation.animationName,
+        duration: String(effect.getComputedTiming().duration),
+        keyframes: JSON.stringify(
+          effect.getKeyframes().map(({ offset, height, width }) => ({ offset, height, width })),
+        ),
+      });
+    };
+    tick();
+  });
 }
 
 export function role(roleName: Parameters<typeof page.getByRole>[0], name: string) {
@@ -183,11 +226,31 @@ export function parityHarness({ baseline, baselinePath, expectedCount }: ParityO
     // inline declaration on the root outranks the theme layer's.
     for (const variable of ["--font-sans", "--default-font-family"])
       document.documentElement.style.setProperty(variable, FONT);
-    // A missing font would fall back to the platform's own without an error, so the
-    // run stops unless the webfont actually loaded.
-    for (const weight of [400, 500, 600, 700])
-      await document.fonts.load(`${String(weight)} 16px ${FONT}`);
-    expect(document.fonts.check(`16px ${FONT}`), "the fixed webfont loaded").toBe(true);
+    // A missing font would fall back to the platform's own without an error, and
+    // `document.fonts.check` is true when no face matches at all, so the run stops
+    // unless every weight loaded a face of the pinned family.
+    for (const weight of [400, 500, 600, 700]) {
+      const faces = await document.fonts.load(`${String(weight)} 16px ${FONT}`);
+      expect(faces.length, `a face loaded for weight ${String(weight)}`).toBeGreaterThan(0);
+      for (const face of faces) {
+        expect(face.family.replace(/["']/g, "")).toBe(FONT.replace(/["']/g, ""));
+        expect(face.status).toBe("loaded");
+      }
+    }
+    // The platform's focus-ring colour, per theme, from a plain button focused by
+    // keyboard.
+    for (const mode of ["light", "dark"] as const) {
+      document.documentElement.classList.toggle("dark", mode === "dark");
+      const probe = document.createElement("button");
+      probe.textContent = "Focus ring probe";
+      document.body.prepend(probe);
+      if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
+      await userEvent.keyboard("{Tab}");
+      expect(document.activeElement, "the focus ring probe has focus").toBe(probe);
+      nativeFocusRing[mode] = getComputedStyle(probe).outlineColor;
+      probe.remove();
+    }
+    document.documentElement.classList.remove("dark");
   });
 
   beforeEach(async () => {

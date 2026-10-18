@@ -29,6 +29,7 @@ import { Icon } from "../icons/registry";
 import { Theme, Variant } from "../types";
 import {
   type Measurements,
+  firstAnimation,
   focusName,
   frame,
   measure,
@@ -476,7 +477,7 @@ for (const theme of [Theme.Light, Theme.Dark]) {
       const root = required(document.querySelector('[aria-label="View mode"]'));
       take(result, "group", root);
       contract(result, "group contract", root);
-      result["group name"] = { label: root.getAttribute("aria-label") ?? "(none)" };
+      result["group name"] = { named: role("group", "View mode").query() === root };
       take(result, "pill", required(document.querySelector("[data-toggle-pill]")), MOTION);
       items().forEach((item, index) => {
         const label = GROUP_OPTIONS[index].label;
@@ -577,26 +578,24 @@ for (const theme of [Theme.Light, Theme.Dark]) {
         ["Panel", "Panel content."],
       ] as const) {
         const trigger = role("button", name).element();
+        // The panel is the content's grandparent: Collapse wraps its children in a
+        // sizing div inside the panel.
+        const panel = () => content(text)?.parentElement?.parentElement ?? null;
+        const opening = firstAnimation(panel);
         trigger.focus();
         await userEvent.keyboard("{Enter}");
-        await expect.poll(() => content(text)).not.toBeNull();
-        const region = required(required(content(text)).parentElement?.parentElement);
-        const opening = getComputedStyle(region);
-        result[`${name} opening`] = {
-          animationName: opening.animationName,
-          animationDuration: opening.animationDuration,
-        };
+        result[`${name} opening`] = await opening;
+        const region = required(panel());
         await settle();
         take(result, `${name} content open`, region, COLLAPSIBLE_SIZE);
         contract(result, `${name} content contract`, region);
         contract(result, `${name} trigger open contract`, trigger);
         take(result, `${name} icon open`, required(trigger.querySelector("svg")), MOTION);
+        const closing = firstAnimation(() =>
+          region.getAttribute("data-state") === "closed" ? region : null,
+        );
         await userEvent.keyboard(" ");
-        const closing = getComputedStyle(region);
-        result[`${name} closing`] = {
-          animationName: closing.animationName,
-          animationDuration: closing.animationDuration,
-        };
+        result[`${name} closing`] = await closing;
         await settle();
         result[`${name} after close`] = { mounted: content(text) !== null };
       }
