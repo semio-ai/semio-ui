@@ -149,7 +149,7 @@ function useStableList<T>(list: T[]): T[] {
 /** Counts mounted toasts, including those still running their exit animation. */
 const ToastMountContext = createContext({ onMount: () => {}, onUnmount: () => {} });
 
-function InnerToast({ data }: { data: ToastData }) {
+function InnerToast({ data, generation }: { data: ToastData; generation: number }) {
   const { removeToast, toasts: listed } = useContext(ToastContext);
   // Layout animation restacks the toasts when one arrives, leaves or changes what it
   // shows. A swipe re-renders the toast as it moves, and a layout animation then
@@ -187,29 +187,32 @@ function InnerToast({ data }: { data: ToastData }) {
   const completion = useMotionValue(0);
 
   /**
-   * Whether this toast has asked to be removed. It asks once.
+   * Whether this toast has asked to be removed. It asks once, and its clock stops
+   * while it leaves.
    *
-   * A closing toast stays rendered while it leaves, and every removal request is a
-   * state change of the toast store. Motion's layout projection runs frame callbacks
-   * from a microtask after each render, so a request per frame becomes a request per
+   * A closing toast stays rendered while it leaves. Closing a toast that Base UI has
+   * already marked ending still gives its store a new list, so a request per frame
+   * would be a store change per frame. Motion's layout projection runs frame
+   * callbacks from a microtask after each render, so that becomes a request per
    * render; inside a discrete event (an `input`, a `pointerdown`) React renders each
-   * of those updates in the next microtask, and the page never reaches another task.
+   * update in the next microtask, and the page never reaches another task.
+   * `removeToast` also ignores a toast that is no longer active.
    */
   const removalRequested = useRef(false);
   const leaving = toast.transitionStatus === "ending";
 
-  // A toast added again under the same id while it is still leaving comes back as
-  // this same component. It is a new notification, so its interval starts over.
-  const wasLeaving = useRef(leaving);
+  // Every `addToast` is a new notification, including one under the id of a toast
+  // that is still leaving, which comes back as this same component. Its interval
+  // starts over.
+  const firstGeneration = useRef(generation);
   useEffect(() => {
-    if (wasLeaving.current && !leaving) {
-      removalRequested.current = false;
-      pauseState.current.accumulatedTime = 0;
-      completion.set(0);
-      setSwipeStarted(false);
-    }
-    wasLeaving.current = leaving;
-  }, [leaving, completion]);
+    if (generation === firstGeneration.current) return;
+    firstGeneration.current = generation;
+    removalRequested.current = false;
+    pauseState.current.accumulatedTime = 0;
+    completion.set(0);
+    setSwipeStarted(false);
+  }, [generation, completion]);
 
   useAnimationFrame((_time, delta) => {
     if (paused || !isPresent || leaving || removalRequested.current) return;
@@ -324,7 +327,13 @@ function InnerToast({ data }: { data: ToastData }) {
           <span className="min-w-0 wrap-break-word">{data.title}</span>
         </BaseToast.Title>
         <BaseToast.Close
-          onClick={() => {
+          onClick={(event) => {
+            // A leaving toast is already closed; closing it again would only give the
+            // store a new list.
+            if (leaving) {
+              event.preventBaseUIHandler();
+              return;
+            }
             if (typeof data.dismiss === "object") data.dismiss.onClick(data);
           }}
           render={(props) => (
@@ -388,6 +397,8 @@ function ToastContainer({ children }: ToastContainerProps) {
   const focused = useRef(false);
   const windowBlurred = useRef(false);
   const currentToasts = useRef(new Map<string, ToastData>());
+  /** How many times each id has been added: each `addToast` is a new notification. */
+  const generations = useRef(new Map<string, number>());
   const [paused, setPaused] = useState(false);
   const syncPaused = useCallback(
     () => setPaused(hovering.current || focused.current || windowBlurred.current),
@@ -453,6 +464,7 @@ function ToastContainer({ children }: ToastContainerProps) {
 
   const addToast = useCallback(
     (data: ToastData) => {
+      generations.current.set(data.id, (generations.current.get(data.id) ?? 0) + 1);
       currentToasts.current.set(data.id, data);
       add({
         id: data.id,
@@ -475,8 +487,9 @@ function ToastContainer({ children }: ToastContainerProps) {
     },
     [update],
   );
-  // Closing a toast that is already closing or gone would still give Base UI's store a
-  // new list, and every subscriber would re-render for a change that changes nothing.
+  // Only an active toast is closed. Base UI's `close` of a toast it has already marked
+  // ending still gives its store a new list, re-rendering every subscriber for a
+  // change that changes nothing.
   const removeToast = useCallback(
     (id: string) => {
       if (!currentToasts.current.delete(id)) return;
@@ -554,7 +567,11 @@ function ToastContainer({ children }: ToastContainerProps) {
                 >
                   <AnimatePresence>
                     {rendered.map((toast) => (
-                      <Toast key={toast.id} data={toast} />
+                      <Toast
+                        key={toast.id}
+                        data={toast}
+                        generation={generations.current.get(toast.id) ?? 0}
+                      />
                     ))}
                   </AnimatePresence>
                 </BaseToast.Viewport>

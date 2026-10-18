@@ -360,7 +360,7 @@ test("a toast added again while it is leaving gets a fresh interval and still ex
 });
 
 test("removing a toast that is already closing leaves the toast store alone", async () => {
-  let seen: unknown;
+  let seen: { id: string; transitionStatus?: string }[] = [];
   let api: ToastState | undefined;
   function StoreWatcher() {
     seen = Toast.useToastManager().toasts;
@@ -378,12 +378,40 @@ test("removing a toast that is already closing leaves the toast store alone", as
     </ToastManager>,
   );
   await expect.element(page.getByText("Closing", { exact: true })).toBeVisible();
-  api!.removeToast("closing");
-  await expect.poll(() => api!.toasts.length).toBe(0);
-  // Synchronously, so the exit's own progress cannot change the store in between.
+  // Synchronously throughout, so the exit's own progress cannot change the store in
+  // between: the toast is in the store, leaving, when it is removed again.
+  flushSync(() => api!.removeToast("closing"));
+  expect(seen.find((toast) => toast.id === "closing")?.transitionStatus).toBe("ending");
   const before = seen;
   flushSync(() => api!.removeToast("closing"));
   expect(seen).toBe(before);
+});
+
+test("a toast closed and added again in one event gets a fresh interval", async () => {
+  const first = 1000;
+  const second = 1500;
+  let api: ToastState | undefined;
+  function Api() {
+    api = useContext(ToastContext);
+    return null;
+  }
+  await userEvent.hover(document.documentElement, { position: { x: 5, y: 5 } });
+  await render(
+    <ToastManager>
+      <Api />
+      <AddToast data={{ id: "batched", title: "Batched", dismiss: first }} />
+    </ToastManager>,
+  );
+  await expect.element(page.getByText("Batched", { exact: true })).toBeVisible();
+  await new Promise((resolve) => setTimeout(resolve, first * 0.6));
+  // One synchronous handler: no render sees the first notification leaving.
+  const readdedAt = performance.now();
+  api!.removeToast("batched");
+  api!.addToast({ id: "batched", title: "Batched", dismiss: second });
+  await expect.poll(() => api!.toasts.length, { timeout: 5000 }).toBe(0);
+  // Its own interval, not what the first notification's clock left (`second - 0.6 *
+  // first`). The bound sits between the two.
+  expect(performance.now() - readdedAt).toBeGreaterThan(second - first * 0.3);
 });
 
 test("an expired toast's exit changes the toast store only a few times", async () => {
@@ -415,4 +443,26 @@ test("an expired toast's exit changes the toast store only a few times", async (
   // Marked ending, measured, released: a handful of changes, not one per frame of a
   // 200 ms exit.
   expect(storeRenders - storeRendersAtRemoval!).toBeLessThan(6);
+});
+
+test("pressing a leaving toast's close button again leaves the toast store alone", async () => {
+  let seen: { id: string; transitionStatus?: string }[] = [];
+  function StoreWatcher() {
+    seen = Toast.useToastManager().toasts;
+    return null;
+  }
+  await render(
+    <ToastManager>
+      <StoreWatcher />
+      <AddToast data={{ id: "pressed", title: "Pressed", dismiss: 60000 }} />
+    </ToastManager>,
+  );
+  const close = page.getByRole("button", { name: "dismiss", exact: true });
+  await expect.element(close).toBeVisible();
+  const button = close.element() as HTMLButtonElement;
+  flushSync(() => button.click());
+  expect(seen.find((toast) => toast.id === "pressed")?.transitionStatus).toBe("ending");
+  const before = seen;
+  flushSync(() => button.click());
+  expect(seen).toBe(before);
 });
