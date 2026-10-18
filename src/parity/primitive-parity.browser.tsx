@@ -10,7 +10,7 @@
  * change that keeps the look but moves an attribute, adds hidden text or changes a key
  * binding shows up as a named difference.
  */
-import { type ReactNode, useEffect, useState } from "react";
+import { type ReactNode, useContext, useEffect, useState } from "react";
 import { beforeEach, describe, expect, test } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-react";
@@ -23,7 +23,8 @@ import { Accordion } from "../layouts/accordion";
 import { Collapse } from "../layouts/collapse";
 import { Separator } from "../layouts/separator";
 import { Progress } from "../feedback/progress";
-import { ToastManager, type ToastData } from "../floating/toast";
+import { ToastContext, ToastManager, type ToastData } from "../floating/toast";
+import { Popover } from "../floating/popover";
 import { useAddToast } from "../hooks/use-add-toast";
 import { Icon } from "../icons/registry";
 import { Theme, Variant } from "../types";
@@ -57,6 +58,8 @@ enum State {
   ToastWarning = "Toast warning",
   ToastInfo = "Toast info",
   ToastAction = "Toast with action",
+  ToastStack = "Toast stack",
+  ToastOverPopover = "Toast over an open Popover",
 }
 
 const verify = parityHarness({
@@ -151,6 +154,30 @@ function Anchor({ children, width = 240 }: { children: ReactNode; width?: number
   );
 }
 
+/** Implicit submissions of the fixture forms since the last reset. */
+const form = { submits: 0 };
+
+/**
+ * `Anchor` as a form with a submit button last, so Enter on a control shows whether it
+ * submits the form it sits in.
+ */
+function FormAnchor({ children }: { children: ReactNode }) {
+  return (
+    <Anchor>
+      <form
+        onSubmit={(event) => {
+          event.preventDefault();
+          form.submits += 1;
+        }}
+        style={{ display: "flex", flexDirection: "column", gap: 12 }}
+      >
+        {children}
+        <button type="submit">Save</button>
+      </form>
+    </Anchor>
+  );
+}
+
 function Labelled({ id, label, children }: { id: string; label: string; children: ReactNode }) {
   return (
     <div data-parity={id} style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -171,7 +198,7 @@ const CHECKBOXES = [
 function CheckboxFixture() {
   const [checked, setChecked] = useState(() => CHECKBOXES.map((box) => box.checked));
   return (
-    <Anchor>
+    <FormAnchor>
       {CHECKBOXES.map((box, index) => (
         <Labelled key={box.id} id={box.id} label={box.label}>
           <Checkbox
@@ -185,7 +212,7 @@ function CheckboxFixture() {
           />
         </Labelled>
       ))}
-    </Anchor>
+    </FormAnchor>
   );
 }
 
@@ -200,7 +227,7 @@ const SWITCHES = [
 function SwitchFixture() {
   const [checked, setChecked] = useState(() => SWITCHES.map((item) => item.checked));
   return (
-    <Anchor>
+    <FormAnchor>
       {SWITCHES.map((item, index) => (
         <div key={item.label} data-parity={item.label}>
           <Switch
@@ -214,7 +241,7 @@ function SwitchFixture() {
           />
         </div>
       ))}
-    </Anchor>
+    </FormAnchor>
   );
 }
 
@@ -230,7 +257,7 @@ const SQUARES: { label: string; value: boolean | "partial"; disabled?: boolean; 
 function ToggleSquareFixture() {
   const [values, setValues] = useState(() => SQUARES.map((square) => square.value));
   return (
-    <Anchor>
+    <FormAnchor>
       <div style={{ display: "flex", gap: 8 }}>
         {SQUARES.map((square, index) => (
           <span key={square.label} data-parity={square.label}>
@@ -248,7 +275,7 @@ function ToggleSquareFixture() {
           </span>
         ))}
       </div>
-    </Anchor>
+    </FormAnchor>
   );
 }
 
@@ -265,6 +292,7 @@ function ToggleGroupFixture() {
   // scrolls as focus moves, which is not the state being measured.
   return (
     <Anchor width="max-content">
+      <button type="button">Before group</button>
       <ToggleGroup
         label="View mode"
         visuals="both"
@@ -272,6 +300,9 @@ function ToggleGroupFixture() {
         onChange={setValue}
         options={GROUP_OPTIONS}
       />
+      <button type="button" onClick={() => setValue("delta")}>
+        Select Delta
+      </button>
     </Anchor>
   );
 }
@@ -321,6 +352,9 @@ function CollapseFixture() {
           <p style={{ width: 120 }}>Panel content.</p>
         </Collapse>
       </div>
+      <Collapse title="Locked" disabled>
+        <p>Locked content.</p>
+      </Collapse>
     </Anchor>
   );
 }
@@ -347,6 +381,23 @@ function ImageInputFixture() {
 function AddOnMount({ data }: { data: ToastData }) {
   const addToast = useAddToast();
   useEffect(() => addToast(data), [addToast, data]);
+  return null;
+}
+
+/** The stack fixture's context, read by the test between steps. */
+const stack: { update: (id: string, data: Partial<ToastData>) => void; order: string } = {
+  update: () => {},
+  order: "",
+};
+
+function ToastStackFixture() {
+  const { addToast, updateToast, toasts } = useContext(ToastContext);
+  stack.update = updateToast;
+  stack.order = toasts.map((toast) => toast.id).join(",");
+  useEffect(() => {
+    addToast({ id: "first", title: "First notification", dismiss: 60000 });
+    addToast({ id: "second", title: "Second notification", dismiss: 60000 });
+  }, [addToast]);
   return null;
 }
 
@@ -411,6 +462,13 @@ for (const theme of [Theme.Light, Theme.Dark]) {
       contract(result, "Checkbox off after Space", first);
       await press("{Tab}");
       result.keyboard.secondTab = focusName();
+      first instanceof HTMLElement && first.focus();
+      form.submits = 0;
+      await press("{Enter}");
+      result.enter = {
+        submits: form.submits,
+        checked: first.getAttribute("aria-checked") ?? "(none)",
+      };
       verify(theme, State.Checkboxes, result);
     });
 
@@ -435,8 +493,10 @@ for (const theme of [Theme.Light, Theme.Dark]) {
       await press(" ");
       contract(result, "Switch off after Space", first);
       take(result, "Switch off thumb after Space", required(first.firstElementChild), MOTION);
+      form.submits = 0;
       await press("{Enter}");
       contract(result, "Switch off after Enter", first);
+      result.enter = { submits: form.submits };
       verify(theme, State.Switches, result);
     });
 
@@ -463,6 +523,12 @@ for (const theme of [Theme.Light, Theme.Dark]) {
       take(result, "Square partial focused", partial, FOCUS);
       await press(" ");
       contract(result, "Square partial after Space", partial);
+      form.submits = 0;
+      await press("{Enter}");
+      result.enter = {
+        submits: form.submits,
+        checked: partial.getAttribute("aria-checked") ?? "(none)",
+      };
       verify(theme, State.ToggleSquares, result);
     });
 
@@ -485,6 +551,7 @@ for (const theme of [Theme.Light, Theme.Dark]) {
         contract(result, `${label} contract`, item);
       });
       await tabFromStart();
+      await press("{Tab}");
       result.keyboard = { firstTab: focusName() };
       take(result, "Beta focused", items()[1], FOCUS);
       await press("{ArrowRight}");
@@ -503,6 +570,19 @@ for (const theme of [Theme.Light, Theme.Dark]) {
       );
       await press("{ArrowLeft}");
       result.keyboard.afterArrowLeft = focusName();
+      for (const key of ["ArrowDown", "ArrowUp", "PageDown", "PageUp"]) {
+        await press(`{${key}}`);
+        result.keyboard[`after${key}`] = focusName();
+      }
+      // A value set from outside the group, then focus entering the group from after
+      // it and from before it.
+      role("button", "Select Delta").element().focus();
+      await press("{Enter}");
+      await press("{Shift>}{Tab}{/Shift}");
+      result.keyboard.afterExternalChangeShiftTab = focusName();
+      role("button", "Before group").element().focus();
+      await press("{Tab}");
+      result.keyboard.afterExternalChangeTab = focusName();
       verify(theme, State.ToggleGroupPressed, result);
     });
 
@@ -599,6 +679,14 @@ for (const theme of [Theme.Light, Theme.Dark]) {
         await settle();
         result[`${name} after close`] = { mounted: content(text) !== null };
       }
+      const locked = role("button", "Locked").element();
+      take(result, "Locked trigger", locked, FOCUS);
+      contract(result, "Locked trigger contract", locked);
+      locked instanceof HTMLElement && locked.focus();
+      result.locked = {
+        focusable: document.activeElement === locked,
+        mounted: content("Locked content.") !== null,
+      };
       verify(theme, State.CollapseSections, result);
     });
 
@@ -721,11 +809,84 @@ for (const theme of [Theme.Light, Theme.Dark]) {
         await userEvent.hover(toast);
         await expect.poll(glyphs).not.toBe(resting);
         result.status.changesOnHover = true;
+        await userEvent.hover(document.documentElement, { position: { x: 5, y: 5 } });
+        await expect.poll(glyphs).toBe(resting);
+        // The window losing focus pauses the toast as hovering does.
+        window.dispatchEvent(new FocusEvent("blur"));
+        await expect.poll(glyphs).not.toBe(resting);
+        result.status.pausesOnWindowBlur = true;
+        window.dispatchEvent(new FocusEvent("focus"));
+        await expect.poll(glyphs).toBe(resting);
+        result.status.resumesOnWindowFocus = true;
         await userEvent.click(close);
         await expect.poll(() => document.querySelector(".card-overlay")).toBeNull();
         result.status.removedOnClose = true;
         verify(theme, state, result);
       });
     }
+
+    test(State.ToastStack, async () => {
+      await render(
+        <ToastManager>
+          <ToastStackFixture key="stack" />
+        </ToastManager>,
+      );
+      await expect.poll(() => document.querySelectorAll(".card-overlay").length).toBe(2);
+      const toast = (title: string) =>
+        required(page.getByText(title, { exact: true }).element().closest(".card-overlay"));
+      await settle();
+      await still(toast("First notification"));
+      await still(toast("Second notification"));
+      const result: Measurements = {};
+      result.context = { order: stack.order };
+      take(result, "first", toast("First notification"));
+      take(result, "second", toast("Second notification"));
+      // An update that grows the newest toast, on top, moves the one below it.
+      stack.update("second", { content: "Second notification, now with details." });
+      await expect
+        .poll(() => page.getByText("Second notification, now with details.").query())
+        .not.toBeNull();
+      await settle();
+      await still(toast("First notification"));
+      take(result, "first after update", toast("First notification"));
+      take(result, "second after update", toast("Second notification"));
+      // Two updates in one tick both apply.
+      stack.update("first", { title: "First, renamed" });
+      stack.update("first", { content: "First details." });
+      await expect
+        .poll(() => page.getByText("First details.", { exact: true }).query())
+        .not.toBeNull();
+      await settle();
+      result.batched = {
+        title: page.getByText("First, renamed", { exact: true }).query() !== null,
+        content: page.getByText("First details.", { exact: true }).query() !== null,
+      };
+      result.context.orderAfterUpdates = stack.order;
+      verify(theme, State.ToastStack, result);
+    });
+
+    test(State.ToastOverPopover, async () => {
+      await render(
+        <ToastManager>
+          <Anchor>
+            <Popover trigger={<button type="button">Open popover</button>}>
+              <p>Popover content.</p>
+            </Popover>
+          </Anchor>
+          <AddOnMount key="add" data={{ id: "popover", title: "Over a popover", dismiss: 60000 }} />
+        </ToastManager>,
+      );
+      await expect.poll(() => document.querySelector(".card-overlay")).not.toBeNull();
+      await settle();
+      await still(required(document.querySelector(".card-overlay")));
+      await role("button", "Open popover").click();
+      await expect.element(page.getByText("Popover content.", { exact: true })).toBeVisible();
+      await userEvent.click(page.getByText("Over a popover", { exact: true }).element());
+      await settle();
+      const result: Measurements = {
+        popover: { openAfterToastClick: page.getByText("Popover content.").query() !== null },
+      };
+      verify(theme, State.ToastOverPopover, result);
+    });
   });
 }

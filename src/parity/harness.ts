@@ -222,6 +222,8 @@ export function parityHarness({ baseline, baselinePath, expectedCount }: ParityO
   const captured: Record<string, Measurements> = {};
 
   beforeAll(async () => {
+    // A baseline state no test produces is a state nothing verifies any more.
+    if (!capture) expect(Object.keys(baseline), "baseline states").toHaveLength(expectedCount);
     // Tailwind's base layer resolves every family through these variables, and an
     // inline declaration on the root outranks the theme layer's.
     for (const variable of ["--font-sans", "--default-font-family"])

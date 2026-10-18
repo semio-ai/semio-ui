@@ -399,6 +399,10 @@
       "data-state": "checked",
       "data-disabled": "(none)",
       "data-orientation": "(none)"
+    },
+    "enter": {
+      "submits": 0,
+      "checked": "true"
     }
   },
   "light / Switch": {
@@ -1019,6 +1023,9 @@
       "data-state": "unchecked",
       "data-disabled": "(none)",
       "data-orientation": "(none)"
+    },
+    "enter": {
+      "submits": 0
     }
   },
   "light / ToggleSquare": {
@@ -1364,6 +1371,10 @@
       "data-state": "checked",
       "data-disabled": "(none)",
       "data-orientation": "(none)"
+    },
+    "enter": {
+      "submits": 0,
+      "checked": "true"
     }
   },
   "light / ToggleGroup": {
@@ -1388,7 +1399,7 @@
       "fill": "rgb(0, 0, 0)",
       "stroke": "none",
       "x": 400,
-      "y": 160,
+      "y": 196,
       "width": 322.5,
       "height": 32
     },
@@ -1397,7 +1408,7 @@
       "text": "AlphaBetaGammaDelta",
       "role": "group",
       "type": "(none)",
-      "tabindex": "(none)",
+      "tabindex": "0",
       "disabled": "(none)",
       "aria-checked": "(none)",
       "aria-pressed": "(none)",
@@ -1441,7 +1452,7 @@
       "rotate": "none",
       "scale": "none",
       "x": 481,
-      "y": 162,
+      "y": 198,
       "width": 70,
       "height": 28
     },
@@ -1470,7 +1481,7 @@
       "outlineColor": "oklch(0.439 0 0)",
       "outlineOffset": "0px",
       "x": 402,
-      "y": 162,
+      "y": 198,
       "width": 79,
       "height": 28
     },
@@ -1520,7 +1531,7 @@
       "outlineColor": "oklch(1 0 0)",
       "outlineOffset": "0px",
       "x": 481,
-      "y": 162,
+      "y": 198,
       "width": 70,
       "height": 28
     },
@@ -1529,7 +1540,7 @@
       "text": "Beta",
       "role": "radio",
       "type": "button",
-      "tabindex": "0",
+      "tabindex": "-1",
       "disabled": "(none)",
       "aria-checked": "true",
       "aria-pressed": "(none)",
@@ -1570,7 +1581,7 @@
       "outlineColor": "oklab(0.439 0 0 / 0.5)",
       "outlineOffset": "0px",
       "x": 551.5,
-      "y": 162,
+      "y": 198,
       "width": 94,
       "height": 28
     },
@@ -1620,7 +1631,7 @@
       "outlineColor": "oklch(0.685 0.169 237.323)",
       "outlineOffset": "0px",
       "x": 645,
-      "y": 162,
+      "y": 198,
       "width": 75.5,
       "height": 28
     },
@@ -1649,7 +1660,13 @@
       "firstTab": "Beta",
       "afterArrowRight": "Delta",
       "afterSecondArrowRight": "Alpha",
-      "afterArrowLeft": "Delta"
+      "afterArrowLeft": "Delta",
+      "afterArrowDown": "Alpha",
+      "afterArrowUp": "Delta",
+      "afterPageDown": "Delta",
+      "afterPageUp": "Alpha",
+      "afterExternalChangeShiftTab": "Alpha",
+      "afterExternalChangeTab": "Delta"
     },
     "Beta focused": {
       "color": "oklch(1 0 0)",
@@ -1676,7 +1693,7 @@
       "outlineColor": "(native focus ring)",
       "outlineOffset": "0px",
       "x": 481,
-      "y": 162,
+      "y": 198,
       "width": 70,
       "height": 28
     },
@@ -1789,7 +1806,7 @@
       "rotate": "none",
       "scale": "none",
       "x": 402,
-      "y": 162,
+      "y": 198,
       "width": 79,
       "height": 28
     }
@@ -2963,6 +2980,60 @@
     },
     "Panel after close": {
       "mounted": false
+    },
+    "Locked trigger": {
+      "color": "oklch(0.439 0 0)",
+      "backgroundColor": "oklch(0.922 0 0)",
+      "borderTopLeftRadius": "0px",
+      "boxShadow": "none",
+      "paddingTop": "4px",
+      "paddingRight": "12px",
+      "paddingBottom": "4px",
+      "paddingLeft": "12px",
+      "fontFamily": "\"Inter Variable\"",
+      "fontSize": "16px",
+      "fontWeight": "400",
+      "lineHeight": "24px",
+      "opacity": "1",
+      "borderTopWidth": "0px",
+      "borderTopColor": "oklch(0.439 0 0)",
+      "borderBottomWidth": "0px",
+      "borderBottomColor": "oklch(0.439 0 0)",
+      "fill": "rgb(0, 0, 0)",
+      "stroke": "none",
+      "outlineStyle": "none",
+      "outlineWidth": "3px",
+      "outlineColor": "oklch(0.439 0 0)",
+      "outlineOffset": "0px",
+      "x": 400,
+      "y": 304,
+      "width": 240,
+      "height": 32
+    },
+    "Locked trigger contract": {
+      "tag": "button",
+      "text": "Locked",
+      "role": "(none)",
+      "type": "button",
+      "tabindex": "(none)",
+      "disabled": "",
+      "aria-checked": "(none)",
+      "aria-pressed": "(none)",
+      "aria-disabled": "(none)",
+      "aria-expanded": "false",
+      "aria-orientation": "(none)",
+      "aria-valuenow": "(none)",
+      "aria-valuemin": "(none)",
+      "aria-valuemax": "(none)",
+      "aria-valuetext": "(none)",
+      "aria-live": "(none)",
+      "data-state": "closed",
+      "data-disabled": "",
+      "data-orientation": "(none)"
+    },
+    "locked": {
+      "focusable": false,
+      "mounted": false
     }
   },
   "light / Progress": {
@@ -3929,6 +4000,8 @@
     "status": {
       "glyph": false,
       "changesOnHover": true,
+      "pausesOnWindowBlur": true,
+      "resumesOnWindowFocus": true,
       "removedOnClose": true
     }
   },
@@ -4152,6 +4225,8 @@
     "status": {
       "glyph": true,
       "changesOnHover": true,
+      "pausesOnWindowBlur": true,
+      "resumesOnWindowFocus": true,
       "removedOnClose": true
     }
   },
@@ -4400,6 +4475,8 @@
     "status": {
       "glyph": true,
       "changesOnHover": true,
+      "pausesOnWindowBlur": true,
+      "resumesOnWindowFocus": true,
       "removedOnClose": true
     }
   },
@@ -4623,6 +4700,8 @@
     "status": {
       "glyph": true,
       "changesOnHover": true,
+      "pausesOnWindowBlur": true,
+      "resumesOnWindowFocus": true,
       "removedOnClose": true
     }
   },
@@ -4846,6 +4925,8 @@
     "status": {
       "glyph": true,
       "changesOnHover": true,
+      "pausesOnWindowBlur": true,
+      "resumesOnWindowFocus": true,
       "removedOnClose": true
     }
   },
@@ -5069,7 +5150,124 @@
     "status": {
       "glyph": false,
       "changesOnHover": true,
+      "pausesOnWindowBlur": true,
+      "resumesOnWindowFocus": true,
       "removedOnClose": true
+    }
+  },
+  "light / Toast stack": {
+    "context": {
+      "order": "first,second",
+      "orderAfterUpdates": "first,second"
+    },
+    "first": {
+      "color": "rgb(0, 0, 0)",
+      "backgroundColor": "rgb(237, 237, 237)",
+      "borderTopLeftRadius": "4px",
+      "boxShadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.1) 0px 4px 6px -4px",
+      "paddingTop": "0px",
+      "paddingRight": "0px",
+      "paddingBottom": "0px",
+      "paddingLeft": "0px",
+      "fontFamily": "\"Inter Variable\"",
+      "fontSize": "16px",
+      "fontWeight": "400",
+      "lineHeight": "24px",
+      "opacity": "1",
+      "borderTopWidth": "0px",
+      "borderTopColor": "rgb(0, 0, 0)",
+      "borderBottomWidth": "0px",
+      "borderBottomColor": "rgb(0, 0, 0)",
+      "fill": "rgb(0, 0, 0)",
+      "stroke": "none",
+      "x": 944,
+      "y": 72,
+      "width": 303,
+      "height": 44
+    },
+    "second": {
+      "color": "rgb(0, 0, 0)",
+      "backgroundColor": "rgb(237, 237, 237)",
+      "borderTopLeftRadius": "4px",
+      "boxShadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.1) 0px 4px 6px -4px",
+      "paddingTop": "0px",
+      "paddingRight": "0px",
+      "paddingBottom": "0px",
+      "paddingLeft": "0px",
+      "fontFamily": "\"Inter Variable\"",
+      "fontSize": "16px",
+      "fontWeight": "400",
+      "lineHeight": "24px",
+      "opacity": "1",
+      "borderTopWidth": "0px",
+      "borderTopColor": "rgb(0, 0, 0)",
+      "borderBottomWidth": "0px",
+      "borderBottomColor": "rgb(0, 0, 0)",
+      "fill": "rgb(0, 0, 0)",
+      "stroke": "none",
+      "x": 944,
+      "y": 16,
+      "width": 303,
+      "height": 44
+    },
+    "first after update": {
+      "color": "rgb(0, 0, 0)",
+      "backgroundColor": "rgb(237, 237, 237)",
+      "borderTopLeftRadius": "4px",
+      "boxShadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.1) 0px 4px 6px -4px",
+      "paddingTop": "0px",
+      "paddingRight": "0px",
+      "paddingBottom": "0px",
+      "paddingLeft": "0px",
+      "fontFamily": "\"Inter Variable\"",
+      "fontSize": "16px",
+      "fontWeight": "400",
+      "lineHeight": "24px",
+      "opacity": "1",
+      "borderTopWidth": "0px",
+      "borderTopColor": "rgb(0, 0, 0)",
+      "borderBottomWidth": "0px",
+      "borderBottomColor": "rgb(0, 0, 0)",
+      "fill": "rgb(0, 0, 0)",
+      "stroke": "none",
+      "x": 944,
+      "y": 128,
+      "width": 303,
+      "height": 44
+    },
+    "second after update": {
+      "color": "rgb(0, 0, 0)",
+      "backgroundColor": "rgb(237, 237, 237)",
+      "borderTopLeftRadius": "4px",
+      "boxShadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.1) 0px 4px 6px -4px",
+      "paddingTop": "0px",
+      "paddingRight": "0px",
+      "paddingBottom": "0px",
+      "paddingLeft": "0px",
+      "fontFamily": "\"Inter Variable\"",
+      "fontSize": "16px",
+      "fontWeight": "400",
+      "lineHeight": "24px",
+      "opacity": "1",
+      "borderTopWidth": "0px",
+      "borderTopColor": "rgb(0, 0, 0)",
+      "borderBottomWidth": "0px",
+      "borderBottomColor": "rgb(0, 0, 0)",
+      "fill": "rgb(0, 0, 0)",
+      "stroke": "none",
+      "x": 944,
+      "y": 16,
+      "width": 303,
+      "height": 100
+    },
+    "batched": {
+      "title": true,
+      "content": true
+    }
+  },
+  "light / Toast over an open Popover": {
+    "popover": {
+      "openAfterToastClick": true
     }
   },
   "dark / Checkbox": {
@@ -5472,6 +5670,10 @@
       "data-state": "checked",
       "data-disabled": "(none)",
       "data-orientation": "(none)"
+    },
+    "enter": {
+      "submits": 0,
+      "checked": "true"
     }
   },
   "dark / Switch": {
@@ -6092,6 +6294,9 @@
       "data-state": "unchecked",
       "data-disabled": "(none)",
       "data-orientation": "(none)"
+    },
+    "enter": {
+      "submits": 0
     }
   },
   "dark / ToggleSquare": {
@@ -6437,6 +6642,10 @@
       "data-state": "checked",
       "data-disabled": "(none)",
       "data-orientation": "(none)"
+    },
+    "enter": {
+      "submits": 0,
+      "checked": "true"
     }
   },
   "dark / ToggleGroup": {
@@ -6461,7 +6670,7 @@
       "fill": "rgb(0, 0, 0)",
       "stroke": "none",
       "x": 400,
-      "y": 160,
+      "y": 196,
       "width": 322.5,
       "height": 32
     },
@@ -6470,7 +6679,7 @@
       "text": "AlphaBetaGammaDelta",
       "role": "group",
       "type": "(none)",
-      "tabindex": "(none)",
+      "tabindex": "0",
       "disabled": "(none)",
       "aria-checked": "(none)",
       "aria-pressed": "(none)",
@@ -6514,7 +6723,7 @@
       "rotate": "none",
       "scale": "none",
       "x": 481,
-      "y": 162,
+      "y": 198,
       "width": 70,
       "height": 28
     },
@@ -6543,7 +6752,7 @@
       "outlineColor": "oklch(0.708 0 0)",
       "outlineOffset": "0px",
       "x": 402,
-      "y": 162,
+      "y": 198,
       "width": 79,
       "height": 28
     },
@@ -6593,7 +6802,7 @@
       "outlineColor": "oklch(0 0 0)",
       "outlineOffset": "0px",
       "x": 481,
-      "y": 162,
+      "y": 198,
       "width": 70,
       "height": 28
     },
@@ -6602,7 +6811,7 @@
       "text": "Beta",
       "role": "radio",
       "type": "button",
-      "tabindex": "0",
+      "tabindex": "-1",
       "disabled": "(none)",
       "aria-checked": "true",
       "aria-pressed": "(none)",
@@ -6643,7 +6852,7 @@
       "outlineColor": "oklab(0.708 0 0 / 0.5)",
       "outlineOffset": "0px",
       "x": 551.5,
-      "y": 162,
+      "y": 198,
       "width": 94,
       "height": 28
     },
@@ -6693,7 +6902,7 @@
       "outlineColor": "oklch(0.685 0.169 237.323)",
       "outlineOffset": "0px",
       "x": 645,
-      "y": 162,
+      "y": 198,
       "width": 75.5,
       "height": 28
     },
@@ -6722,7 +6931,13 @@
       "firstTab": "Beta",
       "afterArrowRight": "Delta",
       "afterSecondArrowRight": "Alpha",
-      "afterArrowLeft": "Delta"
+      "afterArrowLeft": "Delta",
+      "afterArrowDown": "Alpha",
+      "afterArrowUp": "Delta",
+      "afterPageDown": "Delta",
+      "afterPageUp": "Alpha",
+      "afterExternalChangeShiftTab": "Alpha",
+      "afterExternalChangeTab": "Delta"
     },
     "Beta focused": {
       "color": "oklch(0 0 0)",
@@ -6749,7 +6964,7 @@
       "outlineColor": "(native focus ring)",
       "outlineOffset": "0px",
       "x": 481,
-      "y": 162,
+      "y": 198,
       "width": 70,
       "height": 28
     },
@@ -6862,7 +7077,7 @@
       "rotate": "none",
       "scale": "none",
       "x": 402,
-      "y": 162,
+      "y": 198,
       "width": 79,
       "height": 28
     }
@@ -8036,6 +8251,60 @@
     },
     "Panel after close": {
       "mounted": false
+    },
+    "Locked trigger": {
+      "color": "oklch(0.708 0 0)",
+      "backgroundColor": "oklch(0.269 0 0)",
+      "borderTopLeftRadius": "0px",
+      "boxShadow": "none",
+      "paddingTop": "4px",
+      "paddingRight": "12px",
+      "paddingBottom": "4px",
+      "paddingLeft": "12px",
+      "fontFamily": "\"Inter Variable\"",
+      "fontSize": "16px",
+      "fontWeight": "400",
+      "lineHeight": "24px",
+      "opacity": "1",
+      "borderTopWidth": "0px",
+      "borderTopColor": "oklch(0.708 0 0)",
+      "borderBottomWidth": "0px",
+      "borderBottomColor": "oklch(0.708 0 0)",
+      "fill": "rgb(0, 0, 0)",
+      "stroke": "none",
+      "outlineStyle": "none",
+      "outlineWidth": "3px",
+      "outlineColor": "oklch(0.708 0 0)",
+      "outlineOffset": "0px",
+      "x": 400,
+      "y": 304,
+      "width": 240,
+      "height": 32
+    },
+    "Locked trigger contract": {
+      "tag": "button",
+      "text": "Locked",
+      "role": "(none)",
+      "type": "button",
+      "tabindex": "(none)",
+      "disabled": "",
+      "aria-checked": "(none)",
+      "aria-pressed": "(none)",
+      "aria-disabled": "(none)",
+      "aria-expanded": "false",
+      "aria-orientation": "(none)",
+      "aria-valuenow": "(none)",
+      "aria-valuemin": "(none)",
+      "aria-valuemax": "(none)",
+      "aria-valuetext": "(none)",
+      "aria-live": "(none)",
+      "data-state": "closed",
+      "data-disabled": "",
+      "data-orientation": "(none)"
+    },
+    "locked": {
+      "focusable": false,
+      "mounted": false
     }
   },
   "dark / Progress": {
@@ -9002,6 +9271,8 @@
     "status": {
       "glyph": false,
       "changesOnHover": true,
+      "pausesOnWindowBlur": true,
+      "resumesOnWindowFocus": true,
       "removedOnClose": true
     }
   },
@@ -9225,6 +9496,8 @@
     "status": {
       "glyph": true,
       "changesOnHover": true,
+      "pausesOnWindowBlur": true,
+      "resumesOnWindowFocus": true,
       "removedOnClose": true
     }
   },
@@ -9473,6 +9746,8 @@
     "status": {
       "glyph": true,
       "changesOnHover": true,
+      "pausesOnWindowBlur": true,
+      "resumesOnWindowFocus": true,
       "removedOnClose": true
     }
   },
@@ -9696,6 +9971,8 @@
     "status": {
       "glyph": true,
       "changesOnHover": true,
+      "pausesOnWindowBlur": true,
+      "resumesOnWindowFocus": true,
       "removedOnClose": true
     }
   },
@@ -9919,6 +10196,8 @@
     "status": {
       "glyph": true,
       "changesOnHover": true,
+      "pausesOnWindowBlur": true,
+      "resumesOnWindowFocus": true,
       "removedOnClose": true
     }
   },
@@ -10142,7 +10421,124 @@
     "status": {
       "glyph": false,
       "changesOnHover": true,
+      "pausesOnWindowBlur": true,
+      "resumesOnWindowFocus": true,
       "removedOnClose": true
+    }
+  },
+  "dark / Toast stack": {
+    "context": {
+      "order": "first,second",
+      "orderAfterUpdates": "first,second"
+    },
+    "first": {
+      "color": "rgb(0, 0, 0)",
+      "backgroundColor": "oklch(0.205 0 0)",
+      "borderTopLeftRadius": "4px",
+      "boxShadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.1) 0px 4px 6px -4px",
+      "paddingTop": "0px",
+      "paddingRight": "0px",
+      "paddingBottom": "0px",
+      "paddingLeft": "0px",
+      "fontFamily": "\"Inter Variable\"",
+      "fontSize": "16px",
+      "fontWeight": "400",
+      "lineHeight": "24px",
+      "opacity": "1",
+      "borderTopWidth": "0px",
+      "borderTopColor": "rgb(0, 0, 0)",
+      "borderBottomWidth": "0px",
+      "borderBottomColor": "rgb(0, 0, 0)",
+      "fill": "rgb(0, 0, 0)",
+      "stroke": "none",
+      "x": 944,
+      "y": 72,
+      "width": 303,
+      "height": 44
+    },
+    "second": {
+      "color": "rgb(0, 0, 0)",
+      "backgroundColor": "oklch(0.205 0 0)",
+      "borderTopLeftRadius": "4px",
+      "boxShadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.1) 0px 4px 6px -4px",
+      "paddingTop": "0px",
+      "paddingRight": "0px",
+      "paddingBottom": "0px",
+      "paddingLeft": "0px",
+      "fontFamily": "\"Inter Variable\"",
+      "fontSize": "16px",
+      "fontWeight": "400",
+      "lineHeight": "24px",
+      "opacity": "1",
+      "borderTopWidth": "0px",
+      "borderTopColor": "rgb(0, 0, 0)",
+      "borderBottomWidth": "0px",
+      "borderBottomColor": "rgb(0, 0, 0)",
+      "fill": "rgb(0, 0, 0)",
+      "stroke": "none",
+      "x": 944,
+      "y": 16,
+      "width": 303,
+      "height": 44
+    },
+    "first after update": {
+      "color": "rgb(0, 0, 0)",
+      "backgroundColor": "oklch(0.205 0 0)",
+      "borderTopLeftRadius": "4px",
+      "boxShadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.1) 0px 4px 6px -4px",
+      "paddingTop": "0px",
+      "paddingRight": "0px",
+      "paddingBottom": "0px",
+      "paddingLeft": "0px",
+      "fontFamily": "\"Inter Variable\"",
+      "fontSize": "16px",
+      "fontWeight": "400",
+      "lineHeight": "24px",
+      "opacity": "1",
+      "borderTopWidth": "0px",
+      "borderTopColor": "rgb(0, 0, 0)",
+      "borderBottomWidth": "0px",
+      "borderBottomColor": "rgb(0, 0, 0)",
+      "fill": "rgb(0, 0, 0)",
+      "stroke": "none",
+      "x": 944,
+      "y": 128,
+      "width": 303,
+      "height": 44
+    },
+    "second after update": {
+      "color": "rgb(0, 0, 0)",
+      "backgroundColor": "oklch(0.205 0 0)",
+      "borderTopLeftRadius": "4px",
+      "boxShadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.1) 0px 4px 6px -4px",
+      "paddingTop": "0px",
+      "paddingRight": "0px",
+      "paddingBottom": "0px",
+      "paddingLeft": "0px",
+      "fontFamily": "\"Inter Variable\"",
+      "fontSize": "16px",
+      "fontWeight": "400",
+      "lineHeight": "24px",
+      "opacity": "1",
+      "borderTopWidth": "0px",
+      "borderTopColor": "rgb(0, 0, 0)",
+      "borderBottomWidth": "0px",
+      "borderBottomColor": "rgb(0, 0, 0)",
+      "fill": "rgb(0, 0, 0)",
+      "stroke": "none",
+      "x": 944,
+      "y": 16,
+      "width": 303,
+      "height": 100
+    },
+    "batched": {
+      "title": true,
+      "content": true
+    }
+  },
+  "dark / Toast over an open Popover": {
+    "popover": {
+      "openAfterToastClick": true
     }
   }
 }
