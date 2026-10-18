@@ -51,6 +51,7 @@ enum State {
   PopoverOpen = "Popover",
   ComboboxOpen = "Combobox",
   DialogInModal = "Dialog inside Modal",
+  ModalInDialog = "Modal inside Dialog",
 }
 
 const verify = parityHarness({
@@ -187,6 +188,28 @@ async function menuMeasurements(result: Measurements, popup: Element) {
   take(result, "submenu trigger open", role("menuitem", "More actions").element());
   take(result, "submenu item", role("menuitem", "Submenu action").element());
   expect(submenu.contains(role("menuitem", "Submenu action").element())).toBe(true);
+}
+
+function ModalInDialogFixture() {
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+  return (
+    <Anchor>
+      <Button onClick={() => setDialogOpen(true)}>Open confirmation</Button>
+      <Dialog
+        open={dialogOpen}
+        onStateChange={setDialogOpen}
+        title="Confirm action"
+        description="Review this action before continuing."
+        onCancel={() => {}}
+      >
+        <Button onClick={() => setModalOpen(true)}>Edit details</Button>
+        <Modal open={modalOpen} onStateChange={setModalOpen} title="Details">
+          <p>Details body.</p>
+        </Modal>
+      </Dialog>
+    </Anchor>
+  );
 }
 
 function DialogInModalFixture() {
@@ -444,6 +467,32 @@ for (const theme of [Theme.Light, Theme.Dark]) {
         focus: focusName(),
       };
       verify(theme, State.DialogInModal, result);
+    });
+
+    test(State.ModalInDialog, async () => {
+      await render(<ModalInDialogFixture />);
+      role("button", "Open confirmation").element().focus();
+      await userEvent.keyboard("{Enter}");
+      await expect.element(role("alertdialog", "Confirm action")).toBeVisible();
+      await settle();
+      role("button", "Edit details").element().focus();
+      await userEvent.keyboard("{Enter}");
+      await expect.element(role("dialog", "Details")).toBeVisible();
+      const result: Measurements = {};
+      const popup = await surface(role("dialog", "Details").element(), result);
+      // A modal over a confirmation darkens the confirmation too.
+      const layers = backdrops(popup);
+      result.layers = { count: layers.length };
+      layers.forEach((layer, index) => take(result, `backdrop ${String(index)}`, layer));
+      result.focus = { onOpen: focusName() };
+      await userEvent.keyboard("{Escape}");
+      await settle();
+      result.afterEscape = {
+        modalOpen: !!document.querySelector('[role="dialog"]'),
+        dialogOpen: !!document.querySelector('[role="alertdialog"]'),
+        focus: focusName(),
+      };
+      verify(theme, State.ModalInDialog, result);
     });
   });
 }

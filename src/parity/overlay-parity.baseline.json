@@ -231,7 +231,7 @@
     },
     "focus": {
       "onOpen": "Cancel",
-      "afterCancel": "Open dialog",
+      "afterCancel": "(body)",
       "openAfterCancel": false
     }
   },
@@ -492,7 +492,7 @@
     },
     "focus": {
       "onOpen": "Cancel",
-      "afterCancel": "Open dialog",
+      "afterCancel": "(body)",
       "openAfterCancel": false
     }
   },
@@ -728,7 +728,7 @@
     },
     "focus": {
       "onOpen": "Cancel",
-      "afterCancel": "Open dialog",
+      "afterCancel": "(body)",
       "openAfterCancel": false
     }
   },
@@ -3504,8 +3504,100 @@
     },
     "afterEscape": {
       "dialogOpen": false,
-      "modalOpen": true,
-      "focus": "Delete item"
+      "modalOpen": false,
+      "focus": "Open settings"
+    }
+  },
+  "light / Modal inside Dialog": {
+    "surface entrance": {
+      "animationName": "none",
+      "animationDuration": "0s"
+    },
+    "surface": {
+      "color": "rgb(0, 0, 0)",
+      "backgroundColor": "oklch(0.922 0 0)",
+      "borderTopLeftRadius": "4px",
+      "boxShadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.1) 0px 4px 6px -4px",
+      "paddingTop": "0px",
+      "paddingRight": "0px",
+      "paddingBottom": "0px",
+      "paddingLeft": "0px",
+      "fontFamily": "\"Inter Variable\"",
+      "fontSize": "16px",
+      "fontWeight": "400",
+      "lineHeight": "24px",
+      "opacity": "1",
+      "borderTopWidth": "0px",
+      "borderTopColor": "rgb(0, 0, 0)",
+      "borderBottomWidth": "0px",
+      "borderBottomColor": "rgb(0, 0, 0)",
+      "fill": "rgb(0, 0, 0)",
+      "stroke": "none",
+      "x": 448,
+      "y": 256,
+      "width": 384,
+      "height": 288
+    },
+    "layers": {
+      "count": 2
+    },
+    "backdrop 0": {
+      "color": "rgb(0, 0, 0)",
+      "backgroundColor": "oklab(0 0 0 / 0.4)",
+      "borderTopLeftRadius": "0px",
+      "boxShadow": "none",
+      "paddingTop": "0px",
+      "paddingRight": "0px",
+      "paddingBottom": "0px",
+      "paddingLeft": "0px",
+      "fontFamily": "\"Inter Variable\"",
+      "fontSize": "16px",
+      "fontWeight": "400",
+      "lineHeight": "24px",
+      "opacity": "1",
+      "borderTopWidth": "0px",
+      "borderTopColor": "rgb(0, 0, 0)",
+      "borderBottomWidth": "0px",
+      "borderBottomColor": "rgb(0, 0, 0)",
+      "fill": "rgb(0, 0, 0)",
+      "stroke": "none",
+      "x": 0,
+      "y": 0,
+      "width": 1280,
+      "height": 800
+    },
+    "backdrop 1": {
+      "color": "rgb(0, 0, 0)",
+      "backgroundColor": "oklab(0 0 0 / 0.4)",
+      "borderTopLeftRadius": "0px",
+      "boxShadow": "none",
+      "paddingTop": "0px",
+      "paddingRight": "0px",
+      "paddingBottom": "0px",
+      "paddingLeft": "0px",
+      "fontFamily": "\"Inter Variable\"",
+      "fontSize": "16px",
+      "fontWeight": "400",
+      "lineHeight": "24px",
+      "opacity": "1",
+      "borderTopWidth": "0px",
+      "borderTopColor": "rgb(0, 0, 0)",
+      "borderBottomWidth": "0px",
+      "borderBottomColor": "rgb(0, 0, 0)",
+      "fill": "rgb(0, 0, 0)",
+      "stroke": "none",
+      "x": 0,
+      "y": 0,
+      "width": 1280,
+      "height": 800
+    },
+    "focus": {
+      "onOpen": "Edit details"
+    },
+    "afterEscape": {
+      "modalOpen": false,
+      "dialogOpen": false,
+      "focus": "(body)"
     }
   },
   "dark / Dialog confirmation": {
@@ -3740,7 +3832,7 @@
     },
     "focus": {
       "onOpen": "Cancel",
-      "afterCancel": "Open dialog",
+      "afterCancel": "(body)",
       "openAfterCancel": false
     }
   },
@@ -4001,7 +4093,7 @@
     },
     "focus": {
       "onOpen": "Cancel",
-      "afterCancel": "Open dialog",
+      "afterCancel": "(body)",
       "openAfterCancel": false
     }
   },
@@ -4237,7 +4329,7 @@
     },
     "focus": {
       "onOpen": "Cancel",
-      "afterCancel": "Open dialog",
+      "afterCancel": "(body)",
       "openAfterCancel": false
     }
   },
@@ -7013,8 +7105,100 @@
     },
     "afterEscape": {
       "dialogOpen": false,
-      "modalOpen": true,
-      "focus": "Delete item"
+      "modalOpen": false,
+      "focus": "Open settings"
+    }
+  },
+  "dark / Modal inside Dialog": {
+    "surface entrance": {
+      "animationName": "none",
+      "animationDuration": "0s"
+    },
+    "surface": {
+      "color": "rgb(0, 0, 0)",
+      "backgroundColor": "oklch(0.269 0 0)",
+      "borderTopLeftRadius": "4px",
+      "boxShadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.1) 0px 4px 6px -4px",
+      "paddingTop": "0px",
+      "paddingRight": "0px",
+      "paddingBottom": "0px",
+      "paddingLeft": "0px",
+      "fontFamily": "\"Inter Variable\"",
+      "fontSize": "16px",
+      "fontWeight": "400",
+      "lineHeight": "24px",
+      "opacity": "1",
+      "borderTopWidth": "0px",
+      "borderTopColor": "rgb(0, 0, 0)",
+      "borderBottomWidth": "0px",
+      "borderBottomColor": "rgb(0, 0, 0)",
+      "fill": "rgb(0, 0, 0)",
+      "stroke": "none",
+      "x": 448,
+      "y": 256,
+      "width": 384,
+      "height": 288
+    },
+    "layers": {
+      "count": 2
+    },
+    "backdrop 0": {
+      "color": "rgb(0, 0, 0)",
+      "backgroundColor": "oklab(0 0 0 / 0.4)",
+      "borderTopLeftRadius": "0px",
+      "boxShadow": "none",
+      "paddingTop": "0px",
+      "paddingRight": "0px",
+      "paddingBottom": "0px",
+      "paddingLeft": "0px",
+      "fontFamily": "\"Inter Variable\"",
+      "fontSize": "16px",
+      "fontWeight": "400",
+      "lineHeight": "24px",
+      "opacity": "1",
+      "borderTopWidth": "0px",
+      "borderTopColor": "rgb(0, 0, 0)",
+      "borderBottomWidth": "0px",
+      "borderBottomColor": "rgb(0, 0, 0)",
+      "fill": "rgb(0, 0, 0)",
+      "stroke": "none",
+      "x": 0,
+      "y": 0,
+      "width": 1280,
+      "height": 800
+    },
+    "backdrop 1": {
+      "color": "rgb(0, 0, 0)",
+      "backgroundColor": "oklab(0 0 0 / 0.4)",
+      "borderTopLeftRadius": "0px",
+      "boxShadow": "none",
+      "paddingTop": "0px",
+      "paddingRight": "0px",
+      "paddingBottom": "0px",
+      "paddingLeft": "0px",
+      "fontFamily": "\"Inter Variable\"",
+      "fontSize": "16px",
+      "fontWeight": "400",
+      "lineHeight": "24px",
+      "opacity": "1",
+      "borderTopWidth": "0px",
+      "borderTopColor": "rgb(0, 0, 0)",
+      "borderBottomWidth": "0px",
+      "borderBottomColor": "rgb(0, 0, 0)",
+      "fill": "rgb(0, 0, 0)",
+      "stroke": "none",
+      "x": 0,
+      "y": 0,
+      "width": 1280,
+      "height": 800
+    },
+    "focus": {
+      "onOpen": "Edit details"
+    },
+    "afterEscape": {
+      "modalOpen": false,
+      "dialogOpen": false,
+      "focus": "(body)"
     }
   }
 }

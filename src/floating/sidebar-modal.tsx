@@ -19,6 +19,7 @@ import { ScrollArea } from "../layouts/scroll-area";
 import { NestedSelect } from "../nested-elements/select";
 import { Variant } from "../types";
 import { useIsDesktop } from "../hooks/use-is-desktop";
+import { InsideDialogContext, useInsideDialog } from "./dialog-nesting";
 import { ContextMenu } from "./context-menu";
 
 export interface SidebarTab {
@@ -169,6 +170,7 @@ export function SidebarModal({
     setShowingContent(false);
   }, []);
 
+  const insideDialog = useInsideDialog();
   return (
     <Dialog.Root
       open={open}
@@ -178,115 +180,119 @@ export function SidebarModal({
       }}
       disablePointerDismissal={dismissDisabled}
     >
-      <Dialog.Portal container={portalContainer ?? undefined}>
-        <Dialog.Backdrop
-          className={clsx(
-            "fixed inset-0 bg-black/40",
-            "transition-opacity duration-200",
-            "data-starting-style:opacity-0 data-ending-style:opacity-0",
-          )}
-        />
-        <Dialog.Viewport className="fixed inset-0 grid place-items-center p-0">
-          <Dialog.Popup
-            aria-describedby={undefined}
+      <InsideDialogContext.Provider value={false}>
+        <Dialog.Portal container={portalContainer ?? undefined}>
+          <Dialog.Backdrop
+            // Opened from a `Dialog`, it dims that confirmation too (see `InsideDialogContext`).
+            forceRender={insideDialog}
             className={clsx(
-              "variant-scope focus:outline-hidden",
-              variant,
-              // Single `card` surrounds the whole modal — sidebar and content
-              // panes share one surface. On desktop the modal's bg
-              // becomes a frosted-glass layer (mirroring `card-transparent`'s
-              // recipe); the content pane covers its area with a solid bg so
-              // only the SIDEBAR region reads as frosted. Mobile keeps
-              // `card`'s solid `inset` bg.
-              "card",
-              "desktop:bg-layout-light-base/90 desktop:dark:bg-layout-dark-base/90",
-              "desktop:backdrop-blur-xl",
-              // `relative` so the absolute-positioned panes anchor here on
-              // mobile; `overflow-hidden` clips the off-screen pane during
-              // the slide transition AND keeps content inside the card's
-              // rounded corners.
-              "relative overflow-hidden",
-              "flex flex-row",
-              // Mobile: fill viewport.
-              "h-[calc(100dvh-4px)] w-[calc(100vw-4px)]",
-              // Desktop: viewport-relative clamped width AND height so the
-              // modal doesn't reflow when the active tab's content changes
-              // and so the inner ScrollAreas have a definite bound to scroll
-              // against (rather than the modal expanding to fit all tabs).
-              "desktop:w-[clamp(40rem,80vw,72rem)]",
-              "desktop:h-[clamp(24rem,75dvh,calc(100dvh-4rem))]",
-              // Fade plus a short vertical slide. Translate rather than scale, for the
-              // reason spelled out in `Modal`: scaling repaints the whole subtree at a
-              // changing size so fine artwork slides inside stationary boxes, while a
-              // whole-pixel translate resizes nothing and rests at exactly zero. Do not
-              // give `scale` back to either of them.
-              "transition-[opacity,translate] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]",
-              "data-starting-style:opacity-0 data-starting-style:translate-y-2",
-              "data-ending-style:opacity-0 data-ending-style:translate-y-2",
+              "fixed inset-0 bg-black/40",
+              "transition-opacity duration-200",
+              "data-starting-style:opacity-0 data-ending-style:opacity-0",
             )}
-          >
-            <MenuButtonProvider
-              value={{
-                expanded: sidebarExpanded,
-                desktop: isDesktop,
-                // Width depends on (viewport, expanded). Mobile is always
-                // expanded so the base `!w-full` applies. Desktop default is
-                // `w-9` (icon-only collapsed). Desktop+expanded re-applies
-                // `w-full` via the `data-ui="expanded"` group selector. The
-                // descendant selector in the third class has higher
-                // specificity than the second, so it wins on desktop+expanded.
-                expandedWidthClassName: clsx(
-                  "!w-full",
-                  "desktop:!w-9",
-                  "desktop:group-data-expanded/menu:!w-full",
-                ),
-                // Same pattern for label opacity. `pr-3` adds 12px of
-                // breathing room INSIDE the label (so the text doesn't run
-                // flush to the right edge of the sidebar). The label fills
-                // its grid cell with `w-full`, so the cell — and therefore
-                // the button and the `w-fit` nav — grow by the padding to
-                // accommodate it. Active-state bg still covers the full
-                // row because the button itself is unchanged.
-                expandedLabelClassName: clsx(
-                  "!opacity-100 w-full pr-3",
-                  "desktop:!opacity-0",
-                  "desktop:group-data-expanded/menu:!opacity-100",
-                ),
-              }}
+          />
+          <Dialog.Viewport className="fixed inset-0 grid place-items-center p-0">
+            <Dialog.Popup
+              aria-describedby={undefined}
+              className={clsx(
+                "variant-scope focus:outline-hidden",
+                variant,
+                // Single `card` surrounds the whole modal — sidebar and content
+                // panes share one surface. On desktop the modal's bg
+                // becomes a frosted-glass layer (mirroring `card-transparent`'s
+                // recipe); the content pane covers its area with a solid bg so
+                // only the SIDEBAR region reads as frosted. Mobile keeps
+                // `card`'s solid `inset` bg.
+                "card",
+                "desktop:bg-layout-light-base/90 desktop:dark:bg-layout-dark-base/90",
+                "desktop:backdrop-blur-xl",
+                // `relative` so the absolute-positioned panes anchor here on
+                // mobile; `overflow-hidden` clips the off-screen pane during
+                // the slide transition AND keeps content inside the card's
+                // rounded corners.
+                "relative overflow-hidden",
+                "flex flex-row",
+                // Mobile: fill viewport.
+                "h-[calc(100dvh-4px)] w-[calc(100vw-4px)]",
+                // Desktop: viewport-relative clamped width AND height so the
+                // modal doesn't reflow when the active tab's content changes
+                // and so the inner ScrollAreas have a definite bound to scroll
+                // against (rather than the modal expanding to fit all tabs).
+                "desktop:w-[clamp(40rem,80vw,72rem)]",
+                "desktop:h-[clamp(24rem,75dvh,calc(100dvh-4rem))]",
+                // Fade plus a short vertical slide. Translate rather than scale, for the
+                // reason spelled out in `Modal`: scaling repaints the whole subtree at a
+                // changing size so fine artwork slides inside stationary boxes, while a
+                // whole-pixel translate resizes nothing and rests at exactly zero. Do not
+                // give `scale` back to either of them.
+                "transition-[opacity,translate] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]",
+                "data-starting-style:opacity-0 data-starting-style:translate-y-2",
+                "data-ending-style:opacity-0 data-ending-style:translate-y-2",
+              )}
             >
-              <SidebarPane
-                title={title}
-                tabs={tabList}
-                activeKey={activeKey}
-                onSelect={handleSelect}
+              <MenuButtonProvider
+                value={{
+                  expanded: sidebarExpanded,
+                  desktop: isDesktop,
+                  // Width depends on (viewport, expanded). Mobile is always
+                  // expanded so the base `!w-full` applies. Desktop default is
+                  // `w-9` (icon-only collapsed). Desktop+expanded re-applies
+                  // `w-full` via the `data-ui="expanded"` group selector. The
+                  // descendant selector in the third class has higher
+                  // specificity than the second, so it wins on desktop+expanded.
+                  expandedWidthClassName: clsx(
+                    "!w-full",
+                    "desktop:!w-9",
+                    "desktop:group-data-expanded/menu:!w-full",
+                  ),
+                  // Same pattern for label opacity. `pr-3` adds 12px of
+                  // breathing room INSIDE the label (so the text doesn't run
+                  // flush to the right edge of the sidebar). The label fills
+                  // its grid cell with `w-full`, so the cell — and therefore
+                  // the button and the `w-fit` nav — grow by the padding to
+                  // accommodate it. Active-state bg still covers the full
+                  // row because the button itself is unchanged.
+                  expandedLabelClassName: clsx(
+                    "!opacity-100 w-full pr-3",
+                    "desktop:!opacity-0",
+                    "desktop:group-data-expanded/menu:!opacity-100",
+                  ),
+                }}
+              >
+                <SidebarPane
+                  title={title}
+                  tabs={tabList}
+                  activeKey={activeKey}
+                  onSelect={handleSelect}
+                  variant={variant}
+                  sidebarFooter={sidebarFooter}
+                  collapsedIcon={collapsedIcon}
+                  dismissDisabled={dismissDisabled}
+                  offScreenOnMobile={showingContent}
+                  ariaHidden={!isDesktop && showingContent}
+                  sidebarExpanded={sidebarExpanded}
+                  onToggleDesktopCollapsed={handleToggleDesktopCollapsed}
+                  contextMenuExtras={contextMenuExtras}
+                  isDesktop={isDesktop}
+                  tabId={tabId}
+                  panelId={panelId}
+                  portalContainer={portalContainer}
+                />
+              </MenuButtonProvider>
+              <ContentPane
+                tab={activeTab}
+                onBack={handleBack}
                 variant={variant}
-                sidebarFooter={sidebarFooter}
-                collapsedIcon={collapsedIcon}
                 dismissDisabled={dismissDisabled}
-                offScreenOnMobile={showingContent}
-                ariaHidden={!isDesktop && showingContent}
-                sidebarExpanded={sidebarExpanded}
-                onToggleDesktopCollapsed={handleToggleDesktopCollapsed}
-                contextMenuExtras={contextMenuExtras}
-                isDesktop={isDesktop}
-                tabId={tabId}
-                panelId={panelId}
-                portalContainer={portalContainer}
+                offScreenOnMobile={!showingContent}
+                ariaHidden={!isDesktop && !showingContent}
+                tabId={tabId(activeTab.key)}
+                panelId={panelId(activeTab.key)}
               />
-            </MenuButtonProvider>
-            <ContentPane
-              tab={activeTab}
-              onBack={handleBack}
-              variant={variant}
-              dismissDisabled={dismissDisabled}
-              offScreenOnMobile={!showingContent}
-              ariaHidden={!isDesktop && !showingContent}
-              tabId={tabId(activeTab.key)}
-              panelId={panelId(activeTab.key)}
-            />
-          </Dialog.Popup>
-        </Dialog.Viewport>
-      </Dialog.Portal>
+            </Dialog.Popup>
+          </Dialog.Viewport>
+        </Dialog.Portal>
+      </InsideDialogContext.Provider>
     </Dialog.Root>
   );
 }
