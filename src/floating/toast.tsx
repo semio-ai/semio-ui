@@ -136,6 +136,16 @@ function ToastAnnounce({ data }: { data: ToastData }) {
 
 const ToastPausedContext = createContext(false);
 
+/** The previous list while its items are the same objects in the same order. */
+function useStableList<T>(list: T[]): T[] {
+  const previous = useRef(list);
+  const same =
+    previous.current.length === list.length &&
+    previous.current.every((item, index) => item === list[index]);
+  if (!same) previous.current = list;
+  return previous.current;
+}
+
 /** Counts mounted toasts, including those still running their exit animation. */
 const ToastMountContext = createContext({ onMount: () => {}, onUnmount: () => {} });
 
@@ -176,14 +186,39 @@ function InnerToast({ data }: { data: ToastData }) {
 
   const completion = useMotionValue(0);
 
+  /**
+   * Whether this toast has asked to be removed. It asks once.
+   *
+   * A closing toast stays rendered while it leaves, and every removal request is a
+   * state change of the toast store. Motion's layout projection runs frame callbacks
+   * from a microtask after each render, so a request per frame becomes a request per
+   * render; inside a discrete event (an `input`, a `pointerdown`) React renders each
+   * of those updates in the next microtask, and the page never reaches another task.
+   */
+  const removalRequested = useRef(false);
+  const leaving = toast.transitionStatus === "ending";
+
+  // A toast added again under the same id while it is still leaving comes back as
+  // this same component. It is a new notification, so its interval starts over.
+  const wasLeaving = useRef(leaving);
+  useEffect(() => {
+    if (wasLeaving.current && !leaving) {
+      removalRequested.current = false;
+      pauseState.current.accumulatedTime = 0;
+      completion.set(0);
+      setSwipeStarted(false);
+    }
+    wasLeaving.current = leaving;
+  }, [leaving, completion]);
+
   useAnimationFrame((_time, delta) => {
-    if (!paused && isPresent) {
-      pauseState.current.accumulatedTime = delta + pauseState.current.accumulatedTime;
-      const percent = Math.min(1, Math.max(0, pauseState.current.accumulatedTime / duration));
-      completion.set(percent);
-      if (percent >= 1) {
-        removeToast(data.id);
-      }
+    if (paused || !isPresent || leaving || removalRequested.current) return;
+    pauseState.current.accumulatedTime = delta + pauseState.current.accumulatedTime;
+    const percent = Math.min(1, Math.max(0, pauseState.current.accumulatedTime / duration));
+    completion.set(percent);
+    if (percent >= 1) {
+      removalRequested.current = true;
+      removeToast(data.id);
     }
   });
 
@@ -440,21 +475,32 @@ function ToastContainer({ children }: ToastContainerProps) {
     },
     [update],
   );
+  // Closing a toast that is already closing or gone would still give Base UI's store a
+  // new list, and every subscriber would re-render for a change that changes nothing.
   const removeToast = useCallback(
     (id: string) => {
-      currentToasts.current.delete(id);
+      if (!currentToasts.current.delete(id)) return;
       close(id);
     },
     [close],
   );
   const clear = useCallback(() => {
+    if (currentToasts.current.size === 0) return;
     currentToasts.current.clear();
     close();
   }, [close]);
-  const toasts = managedToasts
-    .filter((toast) => toast.transitionStatus !== "ending")
-    .map((toast) => toast.data!)
-    .reverse();
+  // The store changes while a toast leaves (its height, its removal) without the active
+  // list changing; consumers re-render only when the list itself does.
+  const toasts = useStableList(
+    managedToasts
+      .filter((toast) => toast.transitionStatus !== "ending")
+      .map((toast) => toast.data!)
+      .reverse(),
+  );
+  const context = useMemo(
+    () => ({ toasts, addToast, updateToast, removeToast, clear }),
+    [toasts, addToast, updateToast, removeToast, clear],
+  );
   // A closing toast stays rendered until Base UI's store removes it, with `animate`
   // already taking it towards `LEAVING`. Base UI removes a dismissed toast from its
   // store from the toast's own root, once that root stops animating; a root that
@@ -464,7 +510,7 @@ function ToastContainer({ children }: ToastContainerProps) {
   const rendered = managedToasts.map((toast) => toast.data!).reverse();
 
   return (
-    <ToastContext.Provider value={{ toasts, addToast, updateToast, removeToast, clear }}>
+    <ToastContext.Provider value={context}>
       <ToastPausedContext.Provider value={paused}>
         <ToastMountContext.Provider value={mountCount}>
           {/* Modal hiding exempts this live region, keeping toasts clickable after

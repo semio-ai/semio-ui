@@ -1,11 +1,13 @@
-import { useEffect } from "react";
+import { useContext, useEffect, useState } from "react";
+import { flushSync } from "react-dom";
+import { Toast } from "@base-ui/react/toast";
 import { expect, test, vi } from "vitest";
 import { render } from "vitest-browser-react";
 import { page, userEvent } from "vitest/browser";
 import type {} from "@vitest/browser-playwright";
 import "../test-stylesheet";
 import { useAddToast } from "../hooks/use-add-toast";
-import { ToastManager, type ToastData } from "./toast";
+import { ToastContext, ToastManager, type ToastData, type ToastState } from "./toast";
 import { Dialog } from "./dialog";
 import { Modal } from "./modal";
 
@@ -264,4 +266,122 @@ test("window blur pauses the toast glyph and focus resumes it", async () => {
   await expect.poll(glyph).toBeTruthy();
   window.dispatchEvent(new FocusEvent("focus"));
   await expect.poll(glyph).toBe(running);
+});
+
+/** The next animation frame, by which a frame callback has run. */
+const nextFrame = () => new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+
+test("an expired toast asks once to be removed, so its exit re-renders no toast consumer", async () => {
+  let renders = 0;
+  let rendersAtRemoval: number | null = null;
+  let listed = false;
+  function Consumer() {
+    const { toasts } = useContext(ToastContext);
+    renders += 1;
+    if (toasts.length > 0) listed = true;
+    else if (listed && rendersAtRemoval === null) rendersAtRemoval = renders;
+    return null;
+  }
+  await userEvent.hover(document.documentElement, { position: { x: 5, y: 5 } });
+  await render(
+    <ToastManager>
+      <>
+        <Consumer />
+        <AddToast data={{ id: "expiring", title: "Saved", dismiss: 50 }} />
+      </>
+    </ToastManager>,
+  );
+  await expect.element(page.getByText("Saved", { exact: true })).toBeVisible();
+  // Gone from the list, then gone from the page once its exit animation ends.
+  await expect.poll(() => rendersAtRemoval, { timeout: 5000 }).not.toBeNull();
+  await expect.element(page.getByText("Saved", { exact: true })).not.toBeInTheDocument();
+  await nextFrame();
+  expect(renders - rendersAtRemoval!).toBe(0);
+});
+
+test("removing a toast that is already gone leaves its consumers alone", async () => {
+  let renders = 0;
+  let removeToast: ((id: string) => void) | undefined;
+  function Consumer() {
+    removeToast = useContext(ToastContext).removeToast;
+    renders += 1;
+    return null;
+  }
+  await render(
+    <ToastManager>
+      <Consumer />
+    </ToastManager>,
+  );
+  await nextFrame();
+  const before = renders;
+  removeToast!("absent");
+  await nextFrame();
+  await nextFrame();
+  expect(renders).toBe(before);
+});
+
+test("a toast added again while it is leaving gets a fresh interval and still expires", async () => {
+  const first = 1000;
+  const second = 1500;
+  let readdedAt: number | null = null;
+  let removedAgainAt: number | null = null;
+  function AddAgainOnRemoval() {
+    const { toasts, addToast } = useContext(ToastContext);
+    const [listed, setListed] = useState(false);
+    useEffect(() => {
+      if (toasts.length > 0) {
+        setListed(true);
+      } else if (listed && readdedAt === null) {
+        // While the first one is still playing its exit animation.
+        readdedAt = performance.now();
+        addToast({ id: "repeated", title: "Saved", dismiss: second });
+      } else if (readdedAt !== null && removedAgainAt === null) {
+        removedAgainAt = performance.now();
+      }
+    }, [toasts, listed, addToast]);
+    return null;
+  }
+  await userEvent.hover(document.documentElement, { position: { x: 5, y: 5 } });
+  await render(
+    <ToastManager>
+      <>
+        <AddAgainOnRemoval />
+        <AddToast data={{ id: "repeated", title: "Saved", dismiss: first }} />
+      </>
+    </ToastManager>,
+  );
+  await expect.poll(() => readdedAt, { timeout: 5000 }).not.toBeNull();
+  await expect.element(page.getByText("Saved", { exact: true })).toBeVisible();
+  await expect.poll(() => removedAgainAt, { timeout: 5000 }).not.toBeNull();
+  // Listed for its own interval, not for what the first notification's clock left of
+  // it (`second - first`). The bound sits halfway between the two.
+  expect(removedAgainAt! - readdedAt!).toBeGreaterThan(second - first / 2);
+  await expect.element(page.getByText("Saved", { exact: true })).not.toBeInTheDocument();
+});
+
+test("removing a toast that is already closing leaves the toast store alone", async () => {
+  let seen: unknown;
+  let api: ToastState | undefined;
+  function StoreWatcher() {
+    seen = Toast.useToastManager().toasts;
+    return null;
+  }
+  function Api() {
+    api = useContext(ToastContext);
+    return null;
+  }
+  await render(
+    <ToastManager>
+      <StoreWatcher />
+      <Api />
+      <AddToast data={{ id: "closing", title: "Closing", dismiss: 60000 }} />
+    </ToastManager>,
+  );
+  await expect.element(page.getByText("Closing", { exact: true })).toBeVisible();
+  api!.removeToast("closing");
+  await expect.poll(() => api!.toasts.length).toBe(0);
+  // Synchronously, so the exit's own progress cannot change the store in between.
+  const before = seen;
+  flushSync(() => api!.removeToast("closing"));
+  expect(seen).toBe(before);
 });
