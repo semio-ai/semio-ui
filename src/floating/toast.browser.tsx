@@ -172,3 +172,16 @@ test("toast parts keep list elements and accessible native button contracts", as
   expect(close.getAttribute("tabindex")).toBeNull();
   expect(close.getAttribute("aria-hidden")).toBeNull();
 });
+
+test("window blur pauses the toast glyph and focus resumes it", async () => {
+  // A pointer left over the toast area by an earlier test would pause it on hover.
+  await userEvent.hover(document.documentElement, { position: { x: 5, y: 5 } });
+  const toast = await mountToast();
+  const glyph = () => toast()!.querySelector("svg + div svg")?.outerHTML;
+  const running = glyph();
+  expect(running).toBeUndefined();
+  window.dispatchEvent(new FocusEvent("blur"));
+  await expect.poll(glyph).toBeTruthy();
+  window.dispatchEvent(new FocusEvent("focus"));
+  await expect.poll(glyph).toBe(running);
+});

@@ -36,3 +36,14 @@ test("open collapses keep root state and both public size aliases", () => {
     );
   }
 });
+
+test("disabled collapse triggers expose native disabled state", () => {
+  const html = renderToStaticMarkup(
+    <Collapse title="Locked" disabled>
+      Content
+    </Collapse>,
+  );
+  const trigger = /<button\b[^>]*>/.exec(html)?.[0];
+  expect(trigger).toMatch(/\sdisabled=""/);
+  expect(trigger).not.toContain("aria-disabled=");
+});

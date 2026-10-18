@@ -58,6 +58,12 @@ export function ToggleSquare({
       <BaseCheckbox.Root
         disabled={disabled}
         nativeButton
+        onKeyDown={(event) => {
+          if (event.key === "Enter") {
+            event.preventDefault();
+            event.preventBaseUIHandler();
+          }
+        }}
         render={(props, state) => (
           <button
             {...props}

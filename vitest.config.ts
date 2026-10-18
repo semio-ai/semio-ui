@@ -67,6 +67,7 @@ export default defineConfig({
       "@solar-icons/react-perf/LineDuotone",
       "@solar-icons/react-perf/Linear",
       "@tabler/icons-react",
+      "radix-ui/internal",
     ],
   },
   test: {

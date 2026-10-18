@@ -53,3 +53,22 @@ test("a partial ToggleSquare calls its consumer with only true", () => {
   fireEvent.click(view.getByRole("checkbox"));
   expect(callback).toHaveBeenCalledExactlyOnceWith(true);
 });
+
+test.each(controls.filter((control) => control.name !== "Switch"))(
+  "$name ignores Enter inside a form",
+  async (control) => {
+    const callback = vi.fn();
+    const submit = vi.fn((event: React.FormEvent) => event.preventDefault());
+    const view = render(
+      <form onSubmit={submit}>
+        {control.render(false, callback)}
+        <button type="submit">Submit</button>
+      </form>,
+    );
+    expect(fireEvent.keyDown(view.getByRole("checkbox"), { key: "Enter" })).toBe(false);
+    await Promise.resolve();
+    expect(submit).not.toHaveBeenCalled();
+    expect(callback).not.toHaveBeenCalled();
+    expect(view.getByRole("checkbox").getAttribute("aria-checked")).toBe("false");
+  },
+);

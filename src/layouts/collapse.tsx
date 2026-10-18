@@ -31,12 +31,15 @@ export function Collapse({
       render={(props, state) => <div {...props} data-state={state.open ? "open" : "closed"} />}
     >
       <Collapsible.Trigger
+        // The rendered native button owns disabled focus exclusion.
+        disabled={false}
         render={(props, state) => (
           <button
             {...props}
             type="button"
             tabIndex={undefined}
-            // The native `disabled` attribute carries the disabled state.
+            disabled={state.disabled}
+            // Native disabling excludes the trigger from keyboard focus.
             aria-disabled={undefined}
             data-state={state.open ? "open" : "closed"}
           />

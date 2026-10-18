@@ -21,6 +21,7 @@ import {
 } from "motion/react";
 import { createPortal } from "react-dom";
 import { Toast as BaseToast } from "@base-ui/react/toast";
+import { DismissableLayer } from "radix-ui/internal";
 import { clsx } from "clsx";
 import { Button } from "../buttons/button";
 import { Size, Variant } from "../types";
@@ -29,9 +30,8 @@ import { Icon, type IconName } from "../icons/registry";
 
 /**
  * Variants that have a status glyph mapped to its registry key. Other variants
- * (primary/secondary/…) are absent and show no status icon — matching the old
- * `IconVariant`, which returned `null` for them. Typing the values as `IconName`
- * means a bad key here is a build error, and the lookup avoids constructing a
+ * (primary/secondary/…) are absent and show no status icon. Typing the values as
+ * `IconName` means a bad key here is a build error, and avoids constructing a
  * `status-${variant}` string that could name a key the registry doesn't have.
  */
 const STATUS_ICONS: Partial<Record<Variant, IconName>> = {
@@ -190,7 +190,7 @@ function InnerToast({ data }: { data: ToastData }) {
     }
   });
 
-  // The transport pauses on hover; otherwise show the variant's status glyph (if
+  // The transport shows a pause glyph while paused; otherwise the status glyph (if
   // it has one). Computed here rather than inline so the registry key narrows.
   const statusIcon = data.variant ? STATUS_ICONS[data.variant] : undefined;
   const toastIcon = paused ? (
@@ -346,8 +346,13 @@ function ToastContainer({ children }: ToastContainerProps) {
   const viewportRef = useRef<HTMLOListElement | null>(null);
   const hovering = useRef(false);
   const focused = useRef(false);
+  const windowBlurred = useRef(false);
+  const currentToasts = useRef(new Map<string, ToastData>());
   const [paused, setPaused] = useState(false);
-  const syncPaused = () => setPaused(hovering.current || focused.current);
+  const syncPaused = useCallback(
+    () => setPaused(hovering.current || focused.current || windowBlurred.current),
+    [],
+  );
   const [mounted, setMounted] = useState(0);
   const mountCount = useMemo(
     () => ({
@@ -368,29 +373,62 @@ function ToastContainer({ children }: ToastContainerProps) {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
+  const hasToasts = mounted > 0;
+  useEffect(() => {
+    if (!hasToasts) return;
+    const handleBlur = () => {
+      windowBlurred.current = true;
+      syncPaused();
+    };
+    const handleFocus = () => {
+      windowBlurred.current = false;
+      syncPaused();
+    };
+    window.addEventListener("blur", handleBlur);
+    window.addEventListener("focus", handleFocus);
+    return () => {
+      window.removeEventListener("blur", handleBlur);
+      window.removeEventListener("focus", handleFocus);
+      windowBlurred.current = false;
+      syncPaused();
+    };
+  }, [hasToasts, syncPaused]);
+
   const addToast = useCallback(
     (data: ToastData) => {
+      currentToasts.current.set(data.id, data);
       add({
         id: data.id,
         title: data.title,
         data,
         timeout: 0,
+        onClose: () => currentToasts.current.delete(data.id),
       });
     },
     [add],
   );
   const updateToast = useCallback(
     (id: string, data: Partial<ToastData>) => {
-      const current = managedToasts.find((toast) => toast.id === id)?.data;
+      const current = currentToasts.current.get(id);
       if (current) {
         const next = { ...current, ...data };
+        currentToasts.current.set(id, next);
         update(id, { data: next, title: next.title });
       }
     },
-    [managedToasts, update],
+    [update],
   );
-  const removeToast = close;
-  const clear = useCallback(() => close(), [close]);
+  const removeToast = useCallback(
+    (id: string) => {
+      currentToasts.current.delete(id);
+      close(id);
+    },
+    [close],
+  );
+  const clear = useCallback(() => {
+    currentToasts.current.clear();
+    close();
+  }, [close]);
   const toasts = managedToasts
     .filter((toast) => toast.transitionStatus !== "ending")
     .map((toast) => toast.data!)
@@ -403,46 +441,50 @@ function ToastContainer({ children }: ToastContainerProps) {
           {/* Modal hiding exempts this live region, keeping toasts clickable after
             the separate body-portalled announcers have expired. */}
           <BaseToast.Portal aria-live="off">
-            <div
-              role="region"
-              aria-label="Notifications (F8)"
-              tabIndex={-1}
-              // The region lets pointers through while any toast is mounted, including
-              // one still running its exit animation.
-              style={{ pointerEvents: mounted > 0 ? undefined : "none" }}
-            >
-              <BaseToast.Viewport
-                render={<ol ref={viewportRef} />}
-                role={undefined}
-                aria-live={undefined}
-                aria-label={undefined}
-                onMouseEnter={() => {
-                  hovering.current = true;
-                  syncPaused();
-                }}
-                onMouseLeave={() => {
-                  hovering.current = false;
-                  syncPaused();
-                }}
-                onFocus={() => {
-                  focused.current = true;
-                  syncPaused();
-                }}
-                onBlur={(event) => {
-                  if (!event.currentTarget.contains(event.relatedTarget)) {
-                    focused.current = false;
-                    syncPaused();
-                  }
-                }}
-                className="pointer-events-none fixed top-4 right-4 z-2147483647 flex w-80 flex-col-reverse gap-3 max-sm:top-20"
+            {/* Radix layers are still in use; replace this branch when those
+                overlays move to Base UI so toast presses stay inside their layers. */}
+            <DismissableLayer.Branch asChild>
+              <div
+                role="region"
+                aria-label="Notifications (F8)"
+                tabIndex={-1}
+                // The region lets pointers through while any toast is mounted, including
+                // one still running its exit animation.
+                style={{ pointerEvents: mounted > 0 ? undefined : "none" }}
               >
-                <AnimatePresence>
-                  {toasts.map((toast) => (
-                    <Toast key={toast.id} data={toast} />
-                  ))}
-                </AnimatePresence>
-              </BaseToast.Viewport>
-            </div>
+                <BaseToast.Viewport
+                  render={<ol ref={viewportRef} />}
+                  role={undefined}
+                  aria-live={undefined}
+                  aria-label={undefined}
+                  onMouseEnter={() => {
+                    hovering.current = true;
+                    syncPaused();
+                  }}
+                  onMouseLeave={() => {
+                    hovering.current = false;
+                    syncPaused();
+                  }}
+                  onFocus={() => {
+                    focused.current = true;
+                    syncPaused();
+                  }}
+                  onBlur={(event) => {
+                    if (!event.currentTarget.contains(event.relatedTarget)) {
+                      focused.current = false;
+                      syncPaused();
+                    }
+                  }}
+                  className="pointer-events-none fixed top-4 right-4 z-2147483647 flex w-80 flex-col-reverse gap-3 max-sm:top-20"
+                >
+                  <AnimatePresence>
+                    {toasts.map((toast) => (
+                      <Toast key={toast.id} data={toast} />
+                    ))}
+                  </AnimatePresence>
+                </BaseToast.Viewport>
+              </div>
+            </DismissableLayer.Branch>
           </BaseToast.Portal>
           {children}
         </ToastMountContext.Provider>

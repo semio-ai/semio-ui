@@ -12,6 +12,13 @@ import { resolveIcon, type IconValue } from "../icons/registry";
 // renders through `renderToStaticMarkup` in node.
 const useIsomorphicLayoutEffect = typeof document === "undefined" ? useEffect : useLayoutEffect;
 
+enum ToggleNavigationKey {
+  Down = "ArrowDown",
+  Up = "ArrowUp",
+  First = "PageUp",
+  Last = "PageDown",
+}
+
 export interface ToggleGroupProps {
   visuals: "icons" | "labels" | "both";
   bg?: boolean;
@@ -53,8 +60,8 @@ export function ToggleGroup({
   // Three things made the old version wrong, and a `labels` group showed all of
   // them at once as a pill clipping the label it was supposed to sit behind:
   //
-  // 1. The item was located through a ref callback on `Toggle`,
-  //    which `Tooltip` wraps (`Trigger asChild`). Each item is re-queried by
+  // 1. The item was located through a ref callback on the item, which `Tooltip`
+  //    wraps (`Trigger asChild`). Each item is re-queried by
   //    `data-toggle-item` instead, so a trigger that re-renders and swaps its
   //    DOM node can't leave us measuring a detached element.
   // 2. Measuring once on mount plus window `resize` missed the webfont swap,
@@ -100,6 +107,15 @@ export function ToggleGroup({
     return () => observer.disconnect();
   }, [value, visuals, size, options.length]);
 
+  const enteringForward = useRef(false);
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      enteringForward.current = event.key === "Tab" && !event.shiftKey;
+    };
+    document.addEventListener("keydown", handleKeyDown, true);
+    return () => document.removeEventListener("keydown", handleKeyDown, true);
+  }, []);
+
   return (
     <BaseToggleGroup
       ref={rootRef}
@@ -108,6 +124,53 @@ export function ToggleGroup({
         bg && "dark:bg-layout-dark-base bg-layout-light-base",
         className,
       )}
+      onPointerDownCapture={() => {
+        enteringForward.current = false;
+      }}
+      onFocus={(event) => {
+        const forward = enteringForward.current;
+        enteringForward.current = false;
+        if (forward && !event.currentTarget.contains(event.relatedTarget)) {
+          // Forward entry prefers the pressed item. Backward entry keeps the
+          // last-focused item, and Shift+Tab from an item leaves the group.
+          event.currentTarget
+            .querySelector<HTMLButtonElement>(
+              '[data-toggle-item][aria-checked="true"]:not(:disabled)',
+            )
+            ?.focus();
+        }
+      }}
+      onKeyDown={(event) => {
+        if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+        const items = Array.from(
+          event.currentTarget.querySelectorAll<HTMLButtonElement>(
+            "[data-toggle-item]:not(:disabled)",
+          ),
+        );
+        const index = items.indexOf(event.target as HTMLButtonElement);
+        if (index < 0) return;
+        let next: HTMLButtonElement | undefined;
+        switch (event.key) {
+          case ToggleNavigationKey.Down:
+            next = items[(index + 1) % items.length];
+            break;
+          case ToggleNavigationKey.Up:
+            next = items[(index - 1 + items.length) % items.length];
+            break;
+          case ToggleNavigationKey.First:
+            next = items[0];
+            break;
+          case ToggleNavigationKey.Last:
+            next = items[items.length - 1];
+            break;
+          default:
+            return;
+        }
+        event.preventDefault();
+        event.preventBaseUIHandler();
+        // CompositeItem's focus handler updates Base UI's highlighted index.
+        next?.focus();
+      }}
       value={value ? [value] : []}
       onValueChange={(values) => {
         if (values[0]) onChange(values[0]);
@@ -209,7 +272,7 @@ export function ToggleGroup({
                   : {}
               }
               value={option.value}
-              // Native disabled buttons also exclude options from arrow navigation.
+              // Bypass Base UI's focusable-when-disabled handling; the render owns disabling.
               disabled={false}
               aria-label={option.label}
             >
