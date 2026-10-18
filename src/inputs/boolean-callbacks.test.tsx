@@ -1,17 +1,12 @@
 // @vitest-environment jsdom
 import { cleanup, fireEvent, render } from "@testing-library/react";
-import { afterEach, beforeEach, expect, test, vi } from "vitest";
+import { afterEach, expect, test, vi } from "vitest";
 import { Checkbox } from "./checkbox";
 import { Switch } from "./switch";
 import { ToggleSquare } from "./toggle-square";
 
-beforeEach(() => {
-  vi.stubGlobal("PointerEvent", MouseEvent);
-});
-
 afterEach(() => {
   cleanup();
-  vi.unstubAllGlobals();
 });
 
 const controls = [

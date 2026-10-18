@@ -140,9 +140,6 @@ const ToastPausedContext = createContext(false);
 const ToastMountContext = createContext({ onMount: () => {}, onUnmount: () => {} });
 
 function InnerToast({ data }: { data: ToastData }) {
-  const width = 320;
-  const margin = 16;
-
   const { removeToast, toasts: listed } = useContext(ToastContext);
   // Layout animation restacks the toasts when one arrives, leaves or changes what it
   // shows. A swipe re-renders the toast as it moves, and a layout animation then
@@ -257,18 +254,11 @@ function InnerToast({ data }: { data: ToastData }) {
             data.variant,
             "card-overlay variant-scope",
           )}
-          initial={{ x: width + margin }}
-          animate={{ x: 0 }}
-          exit={{
-            opacity: 0,
-            zIndex: -1,
-            x: width + margin,
-            transition: {
-              opacity: {
-                duration: 0.2,
-              },
-            },
-          }}
+          initial={{ x: OFFSCREEN_X }}
+          // A closing toast starts leaving as soon as Base UI marks it ending, while it
+          // is still rendered for Base UI's store to let go of it (see `rendered`).
+          animate={state.transitionStatus === "ending" ? LEAVING : { x: 0 }}
+          exit={LEAVING}
           transition={{ type: "tween", duration: 0.2, ease: "easeInOut" }}
         />
       )}
@@ -334,6 +324,21 @@ function InnerToast({ data }: { data: ToastData }) {
   );
 }
 
+/** A toast's width plus the viewport's margin: just past the right edge. */
+const OFFSCREEN_X = 320 + 16;
+
+/** Where a toast goes as it closes: out to the right, fading. */
+const LEAVING = {
+  opacity: 0,
+  zIndex: -1,
+  x: OFFSCREEN_X,
+  transition: {
+    opacity: {
+      duration: 0.2,
+    },
+  },
+};
+
 const Toast = memo(InnerToast);
 
 export interface ToastContainerProps {
@@ -372,6 +377,23 @@ function ToastContainer({ children }: ToastContainerProps) {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
+
+  const hasManagedOrMountedToasts = mounted > 0 || managedToasts.length > 0;
+  useEffect(() => {
+    if (!hasManagedOrMountedToasts) return;
+    // F6 is the browser's own pane shortcut, and Radix's toasts bound F8 alone. Base
+    // UI's viewport takes F6 (with any modifiers) on window, in the bubble phase, with
+    // no option to turn it off. This capture-phase listener stops the same keydowns
+    // first, without preventing the browser's default.
+    const handleKeyDown = (event: KeyboardEvent) => {
+      const target = event.composedPath ? event.composedPath()[0] : event.target;
+      if (event.key === "F6" && target !== viewportRef.current) {
+        event.stopPropagation();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown, true);
+    return () => window.removeEventListener("keydown", handleKeyDown, true);
+  }, [hasManagedOrMountedToasts]);
 
   const hasToasts = mounted > 0;
   useEffect(() => {
@@ -433,6 +455,13 @@ function ToastContainer({ children }: ToastContainerProps) {
     .filter((toast) => toast.transitionStatus !== "ending")
     .map((toast) => toast.data!)
     .reverse();
+  // A closing toast stays rendered until Base UI's store removes it. Base UI removes a
+  // toast only from its own root, once that root finishes animating with the toast
+  // marked as ending. If the exit animation starts first, the root unmounts mid-wait
+  // and the toast stays in the store for good, which keeps Base UI's window listeners
+  // and focus guards active. The store lets go first, and the exit animation then
+  // runs as the toast leaves this list.
+  const rendered = managedToasts.map((toast) => toast.data!).reverse();
 
   return (
     <ToastContext.Provider value={{ toasts, addToast, updateToast, removeToast, clear }}>
@@ -478,7 +507,7 @@ function ToastContainer({ children }: ToastContainerProps) {
                   className="pointer-events-none fixed top-4 right-4 z-2147483647 flex w-80 flex-col-reverse gap-3 max-sm:top-20"
                 >
                   <AnimatePresence>
-                    {toasts.map((toast) => (
+                    {rendered.map((toast) => (
                       <Toast key={toast.id} data={toast} />
                     ))}
                   </AnimatePresence>

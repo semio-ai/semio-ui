@@ -76,7 +76,14 @@ export function ToggleSquare({
         )}
         checked={value === true}
         indeterminate={value === "partial"}
-        onCheckedChange={(checked) => onChange(checked)}
+        onClick={(event) => {
+          // Base UI's click handler toggles by dispatching a second, bubbling click on its
+          // hidden input, so a clickable row around the control would see two clicks. The
+          // value is controlled, so the next one goes straight to the consumer and ancestors
+          // see only the button's click.
+          event.preventBaseUIHandler();
+          if (!disabled) onChange(value === "partial" ? true : !value);
+        }}
         className={clsx(
           "variant-scope",
           size,

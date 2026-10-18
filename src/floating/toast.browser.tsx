@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { expect, test } from "vitest";
+import { expect, test, vi } from "vitest";
 import { render } from "vitest-browser-react";
 import { page, userEvent } from "vitest/browser";
 import type {} from "@vitest/browser-playwright";
@@ -95,6 +95,86 @@ test("F8 focuses the notifications viewport", async () => {
   expect(toast()!.closest('[role="region"]')?.getAttribute("aria-label")).toBe(
     "Notifications (F8)",
   );
+});
+
+test.each([false, true])(
+  "F6 preserves outside focus and the browser default (shift=%s)",
+  async (shift) => {
+    await mountToast();
+    const outside = page.getByRole("button", { name: "Outside notifications", exact: true });
+    await userEvent.click(outside);
+    const events: KeyboardEvent[] = [];
+    const record = (event: KeyboardEvent) => {
+      if (event.key === "F6") events.push(event);
+    };
+    // A later listener on the same window still records a stopped capture event.
+    window.addEventListener("keydown", record, true);
+    try {
+      await userEvent.keyboard(shift ? "{Shift>}{F6}{/Shift}" : "{F6}");
+      expect(events).toHaveLength(1);
+      expect(events[0].shiftKey).toBe(shift);
+      expect(events[0].defaultPrevented).toBe(false);
+      expect(document.activeElement).toBe(outside.element());
+    } finally {
+      window.removeEventListener("keydown", record, true);
+    }
+  },
+);
+
+test("the toast keydown capture listener exists only while a toast is managed or mounted", async () => {
+  function Controls() {
+    const add = useAddToast();
+    return (
+      <button
+        type="button"
+        onClick={() => add({ id: "listener", title: "Listener notification", dismiss: 60000 })}
+      >
+        Add notification
+      </button>
+    );
+  }
+  const add = vi.spyOn(window, "addEventListener");
+  const remove = vi.spyOn(window, "removeEventListener");
+  const captures = () =>
+    add.mock.calls.filter(
+      ([type, , options]) =>
+        type === "keydown" &&
+        (options === true || (typeof options === "object" && options.capture)),
+    );
+  try {
+    await render(
+      <ToastManager>
+        <Controls />
+      </ToastManager>,
+    );
+    await expect
+      .element(page.getByRole("button", { name: "Add notification", exact: true }))
+      .toBeVisible();
+    expect(captures()).toHaveLength(0);
+
+    await userEvent.click(page.getByRole("button", { name: "Add notification", exact: true }));
+    await expect.element(page.getByText("Listener notification", { exact: true })).toBeVisible();
+    await expect.poll(() => captures().length).toBe(1);
+    const [, handler, options] = captures()[0];
+    expect(
+      remove.mock.calls.some(([type, listener]) => type === "keydown" && listener === handler),
+    ).toBe(false);
+
+    await userEvent.click(page.getByRole("button", { name: "dismiss", exact: true }));
+    await expect.poll(() => document.querySelector("li.card-overlay")).toBeNull();
+    await expect
+      .poll(() =>
+        remove.mock.calls.some(
+          ([type, listener, capture]) =>
+            type === "keydown" && listener === handler && capture === options,
+        ),
+      )
+      .toBe(true);
+    expect(captures()).toHaveLength(1);
+  } finally {
+    add.mockRestore();
+    remove.mockRestore();
+  }
 });
 
 test("hover pauses the timeout ring and leaving resumes dismissal", async () => {

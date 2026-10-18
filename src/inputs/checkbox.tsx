@@ -44,7 +44,14 @@ export function Checkbox({
       id={id}
       disabled={disabled}
       checked={checked}
-      onCheckedChange={(nextChecked) => onCheckedChange(nextChecked)}
+      onClick={(event) => {
+        // Base UI's click handler toggles by dispatching a second, bubbling click on its
+        // hidden input, so a clickable row around the control would see two clicks. The
+        // value is controlled, so the next one goes straight to the consumer and ancestors
+        // see only the button's click.
+        event.preventBaseUIHandler();
+        if (!disabled) onCheckedChange(!checked);
+      }}
       className={clsx(
         "variant-scope",
         size,
