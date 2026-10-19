@@ -68,6 +68,7 @@ function InnerToast({ data }: { data: ToastData }) {
   });
 
   const duration = typeof data.dismiss === "number" ? data.dismiss : 4000;
+  const action = typeof data.dismiss === "object" ? data.dismiss : undefined;
 
   const completionSpring = useSpring(0);
 
@@ -157,11 +158,14 @@ function InnerToast({ data }: { data: ToastData }) {
             </span>
             <span className="min-w-0 wrap-break-word">{data.title}</span>
           </RadixToast.Title>
+          {/* An action toast's button runs the action, then closes the toast: `Close`
+              hands its own click handler to this button through `asChild`, and the
+              merged handler calls the button's `onClick` before closing. */}
           <RadixToast.Close asChild>
             <Button
               size={Size.Sm}
               className="shrink-0"
-              // onClick={() => removeToast(data.id)}
+              onClick={action ? () => action.onClick(data) : undefined}
               variant={data.variant}
               leftIcon={
                 typeof data.dismiss !== "object" ? (

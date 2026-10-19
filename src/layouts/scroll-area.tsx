@@ -291,6 +291,12 @@ export const InnerScrollArea = forwardRef<ScrollAreaRef, ScrollAreaProps>(
     // and would otherwise paint at the top of its track while the viewport sits somewhere
     // else entirely, until the next scroll event corrected it. A scroll event carrying no
     // actual scrolling is what makes it measure.
+    //
+    // A scroll listener on the viewport, or capturing on any ancestor up to the window,
+    // receives this event as it would a real scroll. Radix's tooltip listens that way and
+    // closes on any scroll around its trigger, so `Tooltip` ignores a close requested by
+    // an untrusted scroll; otherwise every tooltip open in this area would close when the
+    // pointer enters it.
     useEffect(() => {
       if (!pointerOver || !viewportNode) return;
       viewportNode.dispatchEvent(new Event("scroll"));
