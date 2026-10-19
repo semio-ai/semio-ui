@@ -145,7 +145,8 @@ test("a toast removed through the context and added again under its id lives its
   await expect.element(page.getByText("Saved", { exact: true })).toBeVisible();
   await expect.poll(() => removedAgainAt, { timeout: 5000 }).not.toBeNull();
   // Its own interval, not what the first notification's deadline left of it
-  // (`interval - removeAfter`). The bound sits halfway between the two.
+  // (`interval - removeAfter`): Radix's timer restarts with the toast's presence.
+  // The bound sits halfway between the two.
   expect(removedAgainAt! - readdedAt!).toBeGreaterThan(interval - removeAfter / 2);
   await expect.element(page.getByText("Saved", { exact: true })).not.toBeInTheDocument();
 });
