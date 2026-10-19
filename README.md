@@ -151,6 +151,18 @@ bubbling into a listing and preserves the selected element as `currentTarget`.
 Consumers using raw Radix items or custom interactive menu content must arrange
 the same teardown ordering before opening a dialog. `Popover` is nonmodal.
 
+A disabled menu entry with a reason stays in the menu's keyboard order. For a
+`NestedItem` the reason is its `description`; for a `NestedRadio` or `NestedSelect`
+option it is `disabledReason`, because an option's `description` says what choosing
+it means. Arrow keys, typeahead and Home/End reach the entry, and a menu opened from
+the keyboard focuses it when it comes first. It reports `aria-disabled`, and the
+reason is its accessible description and its tooltip, so it reaches keyboard and
+screen-reader users. Enter, Space and a click do nothing, leave the menu open and
+leave the reason showing. Focused, the entry takes a lighter fill than an enabled row
+and keeps its disabled text, icon and indicator colours; under the pointer it shows
+the default cursor. A disabled entry without a reason is skipped, and so is an option
+disabled by its group unless it has its own `disabledReason`.
+
 `ListGrid` accepts `emptyBody` for a full-width empty row that keeps its column
 headers. Pass the resolved empty state only after the read finishes. `notFound`
 replaces the whole listing, including its headers.
@@ -161,6 +173,10 @@ visible; Escape dismisses it. Use `Popover` for content with links or actions.
 Focus in a React portal outside the trigger's DOM subtree does not open the
 explanation, so a wrapped menu keeps its own Escape handling. Restoring keyboard
 focus to the trigger opens the explanation normally and leaves Tab navigation available.
+Pressing a trigger that is `aria-disabled` leaves its explanation open, since the press
+does nothing and the explanation is usually why; an enabled trigger closes it.
+Scrolling a container of the trigger closes the explanation, and the pointer entering a
+`ScrollArea` around the trigger does not.
 
 **Artwork and attribution.** Solar artwork is by 480 Design under CC BY 4.0, and
 the `@solar-icons/react-perf` components that render it are MIT. That package is
@@ -243,7 +259,6 @@ keep predefined navigation choices the same width on listing and detail pages.
 The `toolbar-segments` style gives adjacent controls a 2px gap and square shared
 edges, preserving rounded exposed ends. It also handles text-field wrappers and
 nested segment rows.
-
 
 Searchable and editable breadcrumb pickers use Base UI combobox primitives and the shared combobox style helpers. Their input retains DOM focus while pointer and keyboard navigation highlight options. Closing selections run after the popup closes, allowing consumers to open a dialog. Display labels are semantic picker triggers; F2 starts optional inline renaming.
 

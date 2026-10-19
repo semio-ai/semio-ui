@@ -39,8 +39,17 @@ export interface SelectOption {
    * Hover- and focus-driven, so it is an AID rather than the only place a fact lives.
    * Anything a user must know to choose correctly belongs in the label, or beside the
    * control where it is always visible.
+   *
+   * It never explains why the option is disabled; that is `disabledReason`.
    */
   description?: string;
+  /**
+   * Why this option is disabled, read only while it is. The option then stays
+   * reachable by keyboard, with the reason as its accessible description and its
+   * tooltip, and still cannot be chosen. Without one a disabled option is skipped.
+   * See `NestedOption.disabledReason`.
+   */
+  disabledReason?: string;
 }
 
 export type SelectVisuals = "icons" | "labels" | "both";
