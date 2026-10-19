@@ -106,3 +106,46 @@ test("a toast added again while it is leaving gets a fresh interval and still ex
   expect(removedAgainAt! - readdedAt!).toBeGreaterThan(second - first / 2);
   await expect.element(page.getByText("Saved", { exact: true })).not.toBeInTheDocument();
 });
+
+test("a toast removed through the context and added again under its id lives its own interval", async () => {
+  const interval = 1000;
+  const removeAfter = 500;
+  let readdedAt: number | null = null;
+  let removedAgainAt: number | null = null;
+  function RemoveThenAddAgain() {
+    const { toasts, addToast, removeToast } = useContext(ToastContext);
+    const [listed, setListed] = useState(false);
+    useEffect(() => {
+      if (toasts.length > 0 && !listed) {
+        setListed(true);
+        // Removed by a caller before its interval runs out, as a consumer that
+        // dismisses its own notification does.
+        const timer = setTimeout(() => removeToast("repeated"), removeAfter);
+        return () => clearTimeout(timer);
+      }
+      if (toasts.length === 0 && listed && readdedAt === null) {
+        // Added again, with the same interval, while the first one is leaving.
+        readdedAt = performance.now();
+        addToast({ id: "repeated", title: "Saved", dismiss: interval });
+      } else if (toasts.length === 0 && readdedAt !== null && removedAgainAt === null) {
+        removedAgainAt = performance.now();
+      }
+    }, [toasts, listed, addToast, removeToast]);
+    return null;
+  }
+  await render(
+    <ToastManager>
+      <>
+        <RemoveThenAddAgain />
+        <SeedToast data={{ id: "repeated", title: "Saved", dismiss: interval }} />
+      </>
+    </ToastManager>,
+  );
+  await expect.poll(() => readdedAt, { timeout: 5000 }).not.toBeNull();
+  await expect.element(page.getByText("Saved", { exact: true })).toBeVisible();
+  await expect.poll(() => removedAgainAt, { timeout: 5000 }).not.toBeNull();
+  // Its own interval, not what the first notification's deadline left of it
+  // (`interval - removeAfter`). The bound sits halfway between the two.
+  expect(removedAgainAt! - readdedAt!).toBeGreaterThan(interval - removeAfter / 2);
+  await expect.element(page.getByText("Saved", { exact: true })).not.toBeInTheDocument();
+});

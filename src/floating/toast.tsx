@@ -126,7 +126,11 @@ function InnerToast({ data }: { data: ToastData }) {
     <RadixToast.Root
       asChild
       forceMount
-      duration={duration}
+      // The toast's own clock is the one owner of its expiry. Radix's timer runs
+      // from the mount, so a toast re-added under its id while it leaves, or
+      // removed through the context and added again, would be closed by the
+      // first notification's deadline rather than live its own interval.
+      duration={Infinity}
       className={clsx()}
       onOpenChange={() => {
         removeToast(data.id);
