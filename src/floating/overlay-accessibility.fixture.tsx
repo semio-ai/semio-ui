@@ -6,6 +6,7 @@ import { NestedItem } from "../nested-elements/item";
 import { NestedMenu } from "../nested-elements/menu";
 import { ContextMenu as ContextMenuOverlay } from "./context-menu";
 import { Dropdown as DropdownOverlay } from "./dropdown";
+import { Dialog as DialogOverlay } from "./dialog";
 import { Modal as ModalOverlay } from "./modal";
 import { Popover as PopoverOverlay } from "./popover";
 import { SidebarModal } from "./sidebar-modal";
@@ -23,6 +24,7 @@ export enum OverlayEntry {
 }
 
 export enum DialogSurface {
+  Dialog = "alert dialog",
   Modal = "modal",
   Sidebar = "sidebar modal",
 }
@@ -169,7 +171,17 @@ export function OverlayAccessibilityFixture({
           </button>
         </div>
       </div>
-      {surface === DialogSurface.Modal ? (
+      {surface === DialogSurface.Dialog ? (
+        <DialogOverlay
+          open={open}
+          title="Add Entity"
+          onStateChange={setOpen}
+          onSubmit={() => setOpen(false)}
+          submitText="Add"
+        >
+          {content}
+        </DialogOverlay>
+      ) : surface === DialogSurface.Modal ? (
         <ModalOverlay
           open={open}
           title="Add Entity"

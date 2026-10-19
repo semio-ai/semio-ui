@@ -1,8 +1,9 @@
-import { type ReactNode, type MouseEvent } from "react";
-import { AlertDialog } from "radix-ui";
+import { useRef, type ReactNode, type MouseEvent } from "react";
+import { AlertDialog } from "@base-ui/react/alert-dialog";
 import { clsx } from "clsx";
 import { Variant } from "../types";
 import { Button } from "../buttons/button";
+import { InsideDialogContext } from "./dialog-nesting";
 
 export interface DialogProps {
   /**
@@ -28,8 +29,7 @@ export interface DialogProps {
   variant?: Variant;
   /**
    * Whether clicking the submit button should close the dialog
-   * immediately. Default `true` — wraps the submit button in
-   * `AlertDialog.Action`, matching historic behavior. Set `false` for
+   * immediately through the guarded dismissal path. Default `true`. Set `false` for
    * async submit handlers (e.g. delete that hits the network) so the
    * dialog stays open while the work is in flight; the consumer is
    * then responsible for calling `onStateChange(false)` after the
@@ -45,7 +45,7 @@ export interface DialogProps {
 }
 
 /**
- * A confirmation/alert dialog built on Radix `AlertDialog`. Mirrors the
+ * A confirmation/alert dialog built on Base UI `AlertDialog`. Mirrors the
  * structure of `Modal` — header (title + optional description + X close),
  * optional body, optional footer (cancel/submit) — and shares its visual
  * language (frosted card, `bg-black/40` overlay, hairline section dividers).
@@ -104,6 +104,8 @@ export function Dialog({
   closeOnCancelClick = true,
   portalContainer,
 }: DialogProps) {
+  const closeRef = useRef<HTMLButtonElement>(null);
+  const cancelRef = useRef<HTMLButtonElement>(null);
   const submitButton = onSubmit && (
     <Button
       tabIndex={0}
@@ -125,6 +127,7 @@ export function Dialog({
   const hasBody = Boolean(children);
   const cancelButton = onCancel && (
     <Button
+      ref={cancelRef}
       tabIndex={0}
       className="flex-1"
       variant={Variant.Default}
@@ -141,104 +144,137 @@ export function Dialog({
   };
   return (
     <AlertDialog.Root open={open} onOpenChange={changeOpen}>
-      <AlertDialog.Portal container={portalContainer ?? undefined}>
-        <AlertDialog.Overlay
-          forceMount
-          onClick={(event) => {
-            if (closeOnOverlayClick && event.target === event.currentTarget) changeOpen(false);
-          }}
-          className={clsx(
-            "data-[state=open]:animate-fadeIn data-[state=closed]:animate-fadeOut transition-opacity",
-            "fixed top-0 right-0 bottom-0 left-0 grid place-items-center",
-            "p-0 bg-black/40",
-          )}
-        >
-          <AlertDialog.Content
-            forceMount
-            onEscapeKeyDown={(event) => {
-              if (dismissDisabled) event.preventDefault();
-            }}
-            className={clsx(
-              "variant-scope",
-              variant,
-              "flex flex-col overflow-clip focus:outline-hidden",
-              "card animated-modal",
-              // Cap to the viewport so a long title can't push the dialog (and
-              // its close button) off-screen; the title then clips instead.
-              "h-fit max-h-screen w-fit max-w-[calc(100vw-1rem)]",
-            )}
-          >
-            <div
+      <InsideDialogContext.Provider value>
+        {/* Closing removes the portal immediately; only the entrance is animated. */}
+        {open && (
+          <AlertDialog.Portal container={portalContainer ?? undefined}>
+            <AlertDialog.Backdrop
+              // A confirmation opened from a Modal dims that Modal too. Base UI draws a
+              // nested dialog's backdrop only when forced.
+              forceRender
               className={clsx(
-                "flex flex-col gap-1 p-3",
-                // Header gets a bottom divider only when something follows
-                // it. A solo header (no body, no footer — uncommon) reads
-                // cleaner without a dangling underline.
-                (hasBody || hasFooter) && "border-b border-neutral-500/15",
-                variant,
-                "variant-static-text",
+                "fixed top-0 right-0 bottom-0 left-0",
+                "p-0 bg-black/40 transition-opacity",
               )}
+            />
+            <AlertDialog.Viewport
+              onClick={(event) => {
+                if (closeOnOverlayClick && event.target === event.currentTarget) changeOpen(false);
+              }}
+              className="fixed inset-0 grid place-items-center p-0"
             >
-              <div className="flex flex-row items-center justify-between">
-                <AlertDialog.Title
-                  className={clsx(
-                    variant,
-                    "flex items-center text-base/7 font-medium whitespace-nowrap",
-                    // `min-w-0` + `overflow-hidden` let a long title clip instead
-                    // of forcing the dialog wider than the viewport (which pushed
-                    // the close button off-screen); `whitespace-nowrap` still keeps
-                    // short titles on a single line.
-                    "variant-scope variant-static-text min-w-0 overflow-hidden",
-                  )}
-                >
-                  {title}
-                </AlertDialog.Title>
-                <AlertDialog.Cancel asChild>
-                  <Button
-                    tabIndex={0}
-                    className="shrink-0"
-                    variant={variant}
-                    leftIcon="close"
-                    altText="Close"
-                    disabled={dismissDisabled}
-                  />
-                </AlertDialog.Cancel>
-              </div>
-              <AlertDialog.Description className="text-sm/6 text-neutral-600 dark:text-neutral-400">
-                {description ?? ""}
-              </AlertDialog.Description>
-            </div>
-
-            {hasBody && (
-              <div className="flex-1 p-3 text-black md:flex-none dark:text-white">{children}</div>
-            )}
-
-            {hasFooter && (
-              <div
+              <AlertDialog.Popup
+                // The closing footer Cancel owns initial focus when present. A cancel
+                // action that stays open leaves initial focus on the header close button.
+                initialFocus={() =>
+                  onCancel && closeOnCancelClick ? cancelRef.current : closeRef.current
+                }
+                render={(props, state) => (
+                  <div {...props} data-state={state.open ? "open" : "closed"} />
+                )}
                 className={clsx(
-                  "flex flex-row justify-end gap-3 p-3",
-                  // Only divide from a body that actually exists; otherwise the
-                  // header's `border-b` is already the separator above us.
-                  hasBody && "border-t border-neutral-500/15",
+                  "variant-scope",
+                  variant,
+                  "flex flex-col overflow-clip focus:outline-hidden",
+                  "card animated-modal",
+                  // Cap to the viewport so a long title can't push the dialog (and
+                  // its close button) off-screen; the title then clips instead.
+                  "h-fit max-h-screen w-fit max-w-[calc(100vw-1rem)]",
                 )}
               >
-                {cancelButton &&
-                  (closeOnCancelClick ? (
-                    <AlertDialog.Cancel asChild>{cancelButton}</AlertDialog.Cancel>
-                  ) : (
-                    cancelButton
-                  ))}
-                {submitButton &&
-                  (closeOnSubmitClick ? (
-                    <AlertDialog.Action asChild>{submitButton}</AlertDialog.Action>
-                  ) : (
-                    submitButton
-                  ))}
-              </div>
-            )}
-          </AlertDialog.Content>
-        </AlertDialog.Overlay>
-      </AlertDialog.Portal>
+                <div
+                  className={clsx(
+                    "flex flex-col gap-1 p-3",
+                    // Header gets a bottom divider only when something follows
+                    // it. A solo header (no body, no footer — uncommon) reads
+                    // cleaner without a dangling underline.
+                    (hasBody || hasFooter) && "border-b border-neutral-500/15",
+                    variant,
+                    "variant-static-text",
+                  )}
+                >
+                  <div className="flex flex-row items-center justify-between">
+                    <AlertDialog.Title
+                      className={clsx(
+                        variant,
+                        "flex items-center text-base/7 font-medium whitespace-nowrap",
+                        // `min-w-0` + `overflow-hidden` let a long title clip instead
+                        // of forcing the dialog wider than the viewport (which pushed
+                        // the close button off-screen); `whitespace-nowrap` still keeps
+                        // short titles on a single line.
+                        "variant-scope variant-static-text min-w-0 overflow-hidden",
+                      )}
+                    >
+                      {title}
+                    </AlertDialog.Title>
+                    <AlertDialog.Close
+                      ref={closeRef}
+                      disabled={dismissDisabled}
+                      render={(props) => (
+                        <Button
+                          {...props}
+                          tabIndex={0}
+                          className="shrink-0"
+                          variant={variant}
+                          leftIcon="close"
+                          altText="Close"
+                        />
+                      )}
+                    />
+                  </div>
+                  <AlertDialog.Description className="text-sm/6 text-neutral-600 dark:text-neutral-400">
+                    {description ?? ""}
+                  </AlertDialog.Description>
+                </div>
+
+                {hasBody && (
+                  <div className="flex-1 p-3 text-black md:flex-none dark:text-white">
+                    {children}
+                  </div>
+                )}
+
+                {hasFooter && (
+                  <div
+                    className={clsx(
+                      "flex flex-row justify-end gap-3 p-3",
+                      // Only divide from a body that actually exists; otherwise the
+                      // header's `border-b` is already the separator above us.
+                      hasBody && "border-t border-neutral-500/15",
+                    )}
+                  >
+                    {cancelButton &&
+                      (closeOnCancelClick ? (
+                        <AlertDialog.Close
+                          disabled={cancelDisabled}
+                          onClick={(event) => {
+                            // Action handlers can cancel dismissal with preventDefault.
+                            if (event.defaultPrevented) event.preventBaseUIHandler();
+                          }}
+                          render={cancelButton}
+                        />
+                      ) : (
+                        cancelButton
+                      ))}
+                    {submitButton &&
+                      (closeOnSubmitClick ? (
+                        <AlertDialog.Close
+                          disabled={submitDisabled}
+                          onClick={(event) => {
+                            // Action handlers can cancel dismissal with preventDefault.
+                            if (event.defaultPrevented) event.preventBaseUIHandler();
+                          }}
+                          render={submitButton}
+                        />
+                      ) : (
+                        submitButton
+                      ))}
+                  </div>
+                )}
+              </AlertDialog.Popup>
+            </AlertDialog.Viewport>
+          </AlertDialog.Portal>
+        )}
+      </InsideDialogContext.Provider>
     </AlertDialog.Root>
   );
 }

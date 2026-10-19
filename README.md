@@ -1,8 +1,9 @@
 # @semio/ui
 
-Basic React components built by Semio with [Radix](https://www.radix-ui.com/)
-and [Tailwind CSS](https://tailwindcss.com/) — buttons, inputs, dialogs,
-popovers, menus, layout primitives, and the shared theme/size/variant system.
+Basic React components built by Semio with [Base UI](https://base-ui.com/),
+[Radix](https://www.radix-ui.com/) and [Tailwind CSS](https://tailwindcss.com/) —
+buttons, inputs, dialogs, popovers, menus, layout primitives, and the shared
+theme/size/variant system.
 
 ## Installation
 
@@ -102,12 +103,19 @@ default variants, respectively; each variant can be configured independently.
 The current step keeps an offset outline so progress is recognizable without
 relying on the caption alone.
 
-`Dialog` places actions in its footer. Set `closeOnCancelClick={false}` for a
-cancel action that changes a step; X remains a separate dismissal action. Async
-flows use `closeOnSubmitClick={false}`, `submitDisabled`, `cancelDisabled` and
-`dismissDisabled` until their action settles. Overlay dismissal is opt-in through
-`closeOnOverlayClick`. `NestedMenu` accepts `right` content beside its disclosure
-icon for indicators shared with ordinary menu items.
+`Dialog` uses Base UI `AlertDialog` and places actions in its footer. Initial focus
+goes to the closing footer Cancel when present, otherwise to X; when that control is
+disabled on open, focus stays where it was until the first Tab. Closing returns
+focus to the element focused before opening. Opened from a `Modal`, a `Dialog` dims
+the `Modal` with its own backdrop, and Escape closes only the `Dialog`. A `Modal` or
+`SidebarModal` opened from a `Dialog` likewise dims the `Dialog`; one opened from
+another `Modal` adds no second backdrop. Set
+`closeOnCancelClick={false}` for a cancel action that changes a step; X remains a
+separate dismissal action. Async flows use `closeOnSubmitClick={false}`,
+`submitDisabled`, `cancelDisabled` and `dismissDisabled` until their action
+settles. Overlay dismissal is opt-in through `closeOnOverlayClick`. `NestedMenu`
+accepts `right` content beside its disclosure icon for indicators shared with
+ordinary menu items.
 
 `Modal` gives initial focus to the rightmost enabled footer action. With no
 available footer action, it retains the dialog primitive's default focus behavior.
