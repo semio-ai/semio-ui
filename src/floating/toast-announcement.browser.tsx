@@ -46,10 +46,13 @@ test("the Radix status announcement renders after two frames and expires at 1000
     expect(announcement.textContent).toBe("Notification Asset publishedAvailable to everyone");
     expect(document.querySelector('[role="alert"]')).toBeNull();
 
+    // The announcement is present until 1000 ms and gone at that mark,
+    // whichever element carries it.
     flushSync(() => vi.advanceTimersByTime(999));
-    expect(announcement.isConnected).toBe(true);
+    expect(document.querySelector('[role="status"]')?.textContent).toBe(
+      "Notification Asset publishedAvailable to everyone",
+    );
     flushSync(() => vi.advanceTimersByTime(1));
-    expect(announcement.isConnected).toBe(false);
     expect(document.querySelector('[role="status"]')).toBeNull();
     expect(page.getByText("Asset published").elements()).toHaveLength(1);
   } finally {

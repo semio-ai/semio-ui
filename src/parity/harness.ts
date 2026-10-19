@@ -29,6 +29,21 @@ export const capture = import.meta.env.VITE_PARITY_CAPTURE === "1";
 
 const FONT = '"Inter Variable"';
 
+async function loadFont() {
+  // A missing font would fall back to the platform's own without an error, and
+  // `document.fonts.check` is true when no face matches at all, so the run stops
+  // unless every weight loaded a face of the pinned family.
+  for (const weight of [400, 500, 600, 700]) {
+    const faces = await document.fonts.load(`${String(weight)} 16px ${FONT}`);
+    expect(faces.length, `a face loaded for weight ${String(weight)}`).toBeGreaterThan(0);
+    for (const face of faces) {
+      expect(face.family.replace(/["']/g, "")).toBe(FONT.replace(/["']/g, ""));
+      expect(face.status).toBe("loaded");
+    }
+  }
+  await document.fonts.ready;
+}
+
 /**
  * Chromium paints an `outline-style: auto` focus ring, and any outline whose colour no
  * stylesheet sets, in the platform's own focus-ring colour, which differs between
@@ -94,6 +109,14 @@ export function measure(
   extra: readonly string[] = [],
 ): Record<string, string | number> {
   const style = getComputedStyle(element);
+  // Portals inherit from document.body, so check the measured text's family rather
+  // than assuming the test root's font reaches every surface. Empty parts need no font.
+  if (element.textContent?.trim()) {
+    expect(
+      style.fontFamily.split(",").map((family) => family.trim().replace(/["']/g, "")),
+      `pinned parity font for text in <${element.tagName.toLowerCase()}>`,
+    ).toContain(FONT.replace(/["']/g, ""));
+  }
   const rect = element.getBoundingClientRect();
   const round = (value: number) => Math.round(value * 2) / 2;
   const value = (property: string) => {
@@ -220,6 +243,7 @@ export interface ParityOptions {
  */
 export function parityHarness({ baseline, baselinePath, expectedCount }: ParityOptions) {
   const captured: Record<string, Measurements> = {};
+  const scrollbarStyle = document.createElement("style");
 
   beforeAll(async () => {
     // A baseline state no test produces is a state nothing verifies any more.
@@ -228,17 +252,14 @@ export function parityHarness({ baseline, baselinePath, expectedCount }: ParityO
     // inline declaration on the root outranks the theme layer's.
     for (const variable of ["--font-sans", "--default-font-family"])
       document.documentElement.style.setProperty(variable, FONT);
-    // A missing font would fall back to the platform's own without an error, and
-    // `document.fonts.check` is true when no face matches at all, so the run stops
-    // unless every weight loaded a face of the pinned family.
-    for (const weight of [400, 500, 600, 700]) {
-      const faces = await document.fonts.load(`${String(weight)} 16px ${FONT}`);
-      expect(faces.length, `a face loaded for weight ${String(weight)}`).toBeGreaterThan(0);
-      for (const face of faces) {
-        expect(face.family.replace(/["']/g, "")).toBe(FONT.replace(/["']/g, ""));
-        expect(face.status).toBe("loaded");
-      }
-    }
+    // Native scrollbars must reserve no space, matching macOS overlay scrollbars,
+    // including in scrollers portalled outside the test root.
+    scrollbarStyle.textContent = `
+      * { scrollbar-width: none; }
+      *::-webkit-scrollbar { display: none; }
+    `;
+    document.head.append(scrollbarStyle);
+    await loadFont();
     // The platform's focus-ring colour, per theme, from a plain button focused by
     // keyboard.
     for (const mode of ["light", "dark"] as const) {
@@ -257,7 +278,7 @@ export function parityHarness({ baseline, baselinePath, expectedCount }: ParityO
 
   beforeEach(async () => {
     await page.viewport(1280, 800);
-    await document.fonts.ready;
+    await loadFont();
     // The pointer survives React cleanup; park it outside every fixed fixture.
     await userEvent.hover(document.documentElement, { position: { x: 5, y: 5 } });
   });
@@ -268,6 +289,7 @@ export function parityHarness({ baseline, baselinePath, expectedCount }: ParityO
   });
 
   afterAll(async () => {
+    scrollbarStyle.remove();
     if (capture && Object.keys(captured).length > 0) {
       expect(Object.keys(captured)).toHaveLength(expectedCount);
       // Vitest 5 resolves built-in file commands from the project root.

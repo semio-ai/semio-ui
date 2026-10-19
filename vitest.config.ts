@@ -91,7 +91,11 @@ export default defineConfig({
           include: ["src/**/*.browser.tsx"],
           browser: {
             enabled: true,
-            provider: playwright(),
+            // Unhinted text keeps fractional glyph advances on Linux, as macOS does,
+            // so text-dependent geometry matches. This flag leaves macOS measurements
+            // unchanged. Launch options apply per project, not per parity file, so the
+            // whole UI browser project uses it.
+            provider: playwright({ launchOptions: { args: ["--font-render-hinting=none"] } }),
             locators: { exact: false },
             instances: [{ browser: "chromium" }],
             headless: true,
