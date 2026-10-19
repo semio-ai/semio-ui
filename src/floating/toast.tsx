@@ -1,5 +1,14 @@
-import { ReactNode, createContext, useContext, useState, useCallback, memo, useRef } from "react";
-import { AnimatePresence, useAnimationFrame, motion, useSpring } from "motion/react";
+import {
+  ReactNode,
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+  useEffect,
+  memo,
+  useRef,
+} from "react";
+import { AnimatePresence, useAnimationFrame, useIsPresent, motion, useSpring } from "motion/react";
 import { Toast as RadixToast } from "radix-ui";
 import { clsx } from "clsx";
 import { Button } from "../buttons/button";
@@ -72,14 +81,35 @@ function InnerToast({ data }: { data: ToastData }) {
 
   const completionSpring = useSpring(0);
 
+  /**
+   * Whether this toast has asked to be removed. It asks once.
+   *
+   * The frame callback keeps running while the toast plays its exit animation,
+   * and every removal request is a state change of the toast manager. Motion's
+   * layout projection runs frame callbacks from a microtask after each render, so
+   * a request per frame becomes a request per render; inside a discrete event
+   * (an `input`, a `pointerdown`) React renders each of those updates in the next
+   * microtask, and the page never reaches another task again.
+   */
+  const removalRequested = useRef(false);
+
+  // A toast added again under the same id while it is still leaving comes back as
+  // this same component. It is a new notification, so its interval starts over.
+  const isPresent = useIsPresent();
+  useEffect(() => {
+    if (!isPresent) return;
+    removalRequested.current = false;
+    pauseState.current.accumulatedTime = 0;
+  }, [isPresent]);
+
   useAnimationFrame((_time, delta) => {
-    if (!paused) {
-      pauseState.current.accumulatedTime = delta + pauseState.current.accumulatedTime;
-      const percent = Math.min(1, Math.max(0, pauseState.current.accumulatedTime / duration));
-      completionSpring.set(percent);
-      if (percent >= 1) {
-        removeToast(data.id);
-      }
+    if (paused || removalRequested.current) return;
+    pauseState.current.accumulatedTime = delta + pauseState.current.accumulatedTime;
+    const percent = Math.min(1, Math.max(0, pauseState.current.accumulatedTime / duration));
+    completionSpring.set(percent);
+    if (percent >= 1) {
+      removalRequested.current = true;
+      removeToast(data.id);
     }
   });
 
@@ -96,6 +126,13 @@ function InnerToast({ data }: { data: ToastData }) {
     <RadixToast.Root
       asChild
       forceMount
+      // Radix's timer is the toast's wall clock: it closes an expired toast even
+      // while frames are slow or paused, when the frame clock above lags (Motion
+      // caps a frame's delta). Controlled by the toast's presence, the timer
+      // restarts when the toast comes back, so a toast added again under its id
+      // while it leaves, or removed through the context and added again, lives
+      // its own interval rather than ending at the first notification's deadline.
+      open={isPresent}
       duration={duration}
       className={clsx()}
       onOpenChange={() => {
@@ -217,7 +254,13 @@ function InnerToastManager({ children }: ToastContainerProps) {
 
   const removeToast = useCallback(
     (id: string) => {
-      setToasts((prevToasts: ToastData[]) => prevToasts.filter((toast) => toast.id !== id));
+      // The same array when the toast is already gone: a new one would re-render
+      // every toast consumer for a removal that changes nothing.
+      setToasts((prevToasts: ToastData[]) =>
+        prevToasts.some((toast) => toast.id === id)
+          ? prevToasts.filter((toast) => toast.id !== id)
+          : prevToasts,
+      );
     },
     [setToasts],
   );
