@@ -86,10 +86,14 @@ function InnerToast({
   const [actionBusy, setActionBusy] = useState(false);
   const [actionFeedback, setActionFeedback] = useState<ActionMenuFeedback>();
   const hasClipboardContent = data.clipboardContent !== undefined && !data.actionMenu;
-  const isPaused = paused || menuOpen || actionBusy || copyState === "copying";
+  /** Someone is using the toast: its menu is open, or an action or a copy is in flight. */
+  const held = menuOpen || actionBusy || copyState === "copying";
+  const isPaused = paused || held;
   const receiveFeedback = (feedback: ActionMenuFeedback | undefined) => {
     setActionFeedback(feedback);
-    if (feedback) pauseState.current.accumulatedTime = 0;
+    if (!feedback) return;
+    pauseState.current.accumulatedTime = 0;
+    wallElapsed.current = 0;
   };
 
   const copyDetails = async () => {
@@ -107,6 +111,8 @@ function InnerToast({
     paused: false,
     accumulatedTime: 0,
   });
+  /** Wall time the interval has run, which the wall clock below counts down from. */
+  const wallElapsed = useRef(0);
 
   const duration =
     typeof data.dismiss === "number"
@@ -114,6 +120,7 @@ function InnerToast({
       : hasClipboardContent || data.actionMenu
         ? 10000
         : 4000;
+  const action = typeof data.dismiss === "object" ? data.dismiss : undefined;
 
   const completionSpring = useSpring(0);
 
@@ -128,6 +135,11 @@ function InnerToast({
    * microtask, and the page never reaches another task again.
    */
   const removalRequested = useRef(false);
+  const expire = useCallback(() => {
+    if (removalRequested.current) return;
+    removalRequested.current = true;
+    removeToast(data.id);
+  }, [removeToast, data.id]);
 
   // A toast added again under the same id while it is still leaving comes back as
   // this same component. It is a new notification, so its interval starts over.
@@ -136,6 +148,7 @@ function InnerToast({
     if (!isPresent) return;
     removalRequested.current = false;
     pauseState.current.accumulatedTime = 0;
+    wallElapsed.current = 0;
   }, [isPresent]);
 
   useAnimationFrame((_time, delta) => {
@@ -143,11 +156,23 @@ function InnerToast({
     pauseState.current.accumulatedTime = delta + pauseState.current.accumulatedTime;
     const percent = Math.min(1, Math.max(0, pauseState.current.accumulatedTime / duration));
     completionSpring.set(percent);
-    if (percent >= 1) {
-      removalRequested.current = true;
-      removeToast(data.id);
-    }
+    if (percent >= 1) expire();
   });
+
+  // The wall clock. The frame clock above lags wall time when frames are slow or
+  // paused (Motion caps a frame's delta), so a timeout over the rest of the
+  // interval ends the toast on time regardless. It stops whenever the frame clock
+  // does: while Radix pauses the toasts (focus or the pointer in them, the window
+  // in the background) and while the toast is held.
+  useEffect(() => {
+    if (!isPresent || isPaused) return;
+    const armedAt = performance.now();
+    const timer = window.setTimeout(expire, duration - wallElapsed.current);
+    return () => {
+      window.clearTimeout(timer);
+      wallElapsed.current += performance.now() - armedAt;
+    };
+  }, [isPresent, isPaused, duration, expire]);
 
   // The transport pauses on hover; otherwise show the variant's status glyph (if
   // it has one). Computed here rather than inline so the registry key narrows.
@@ -162,7 +187,15 @@ function InnerToast({
     <RadixToast.Root
       asChild
       forceMount
-      // The animation clock owns dismissal so portaled menus and async actions can pause it.
+      // The toast's own clocks above end it, so Radix arms no timer. Radix's timer
+      // cannot be held while someone uses the toast: a viewport resume re-arms it
+      // from Radix's own remaining time whatever `duration` says, and holding it
+      // through `open` only mutes its close while that remaining time still runs
+      // down, so the toast closes the moment Radix next resumes after the hold.
+      // `open` follows the toast's presence: a toast added again under its id while
+      // it leaves is this same Root, and comes back open, so its close button,
+      // Escape and swipe reach `onOpenChange` again.
+      open={isPresent}
       duration={Infinity}
       className={clsx()}
       onOpenChange={() => {
@@ -249,13 +282,14 @@ function InnerToast({
                 onClick={() => void copyDetails()}
               />
             )}
+            {/* An action toast's button runs the action, then closes the toast: `Close`
+                hands its own click handler to this button through `asChild`, and the
+                merged handler calls the button's `onClick` before closing. */}
             <RadixToast.Close asChild>
               <Button
                 size={Size.Sm}
                 className="shrink-0"
-                onClick={() => {
-                  if (typeof data.dismiss === "object") data.dismiss.onClick(data);
-                }}
+                onClick={action ? () => action.onClick(data) : undefined}
                 variant={data.variant}
                 leftIcon={
                   typeof data.dismiss !== "object" ? (
