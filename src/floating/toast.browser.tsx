@@ -172,6 +172,74 @@ test("a held toast does not expire on the wall clock while its menu is open or i
   await expect.element(title, { timeout: interval * 3 }).not.toBeInTheDocument();
 }, 15000);
 
+test("a toast ends on wall time while frames lag", async () => {
+  const interval = 1000;
+  let shownAt: number | null = null;
+  let removedAt: number | null = null;
+  function Consumer() {
+    const { toasts } = useContext(ToastContext);
+    useEffect(() => {
+      if (toasts.length > 0) shownAt ??= performance.now();
+      else if (shownAt !== null) removedAt ??= performance.now();
+    }, [toasts]);
+    return null;
+  }
+  // Each frame takes 250 ms, and Motion counts at most 40 ms of it, so the frame
+  // clock runs at about a sixth of wall time and alone would end the toast after
+  // some six seconds.
+  let lagging = true;
+  const lag = () => {
+    if (!lagging) return;
+    const until = performance.now() + 250;
+    while (performance.now() < until);
+    requestAnimationFrame(lag);
+  };
+  requestAnimationFrame(lag);
+  try {
+    await render(
+      <ToastManager>
+        <>
+          <Consumer />
+          <SeedToast data={{ id: "lagging", title: "Saved", dismiss: interval }} />
+        </>
+      </ToastManager>,
+    );
+    await expect.poll(() => removedAt, { timeout: 5000 }).not.toBeNull();
+    expect(removedAt! - shownAt!).toBeLessThan(interval * 2.5);
+  } finally {
+    lagging = false;
+  }
+}, 15000);
+
+test("a toast whose interval is infinite stays until it is dismissed", async () => {
+  await showToast({ dismiss: Infinity });
+  await new Promise((resolve) => setTimeout(resolve, 1000));
+  await expect.element(page.getByText("Save failed", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "dismiss", exact: true }).click();
+  await expect.element(page.getByText("Save failed", { exact: true })).not.toBeInTheDocument();
+});
+
+test("a toast that arrives while the page is hidden waits for the page to be shown", async () => {
+  const interval = 500;
+  const setHidden = (hidden: boolean) => {
+    Object.defineProperty(document, "hidden", { configurable: true, get: () => hidden });
+    document.dispatchEvent(new Event("visibilitychange"));
+  };
+  setHidden(true);
+  try {
+    await showToast({ dismiss: interval });
+    await new Promise((resolve) => setTimeout(resolve, interval * 3));
+    await expect.element(page.getByText("Save failed", { exact: true })).toBeVisible();
+    setHidden(false);
+    await expect
+      .element(page.getByText("Save failed", { exact: true }), { timeout: interval * 6 })
+      .not.toBeInTheDocument();
+  } finally {
+    // The instance property shadows `Document.prototype.hidden`; removing it restores the real one.
+    delete (document as { hidden?: boolean }).hidden;
+  }
+});
+
 test("a generic menu displays Result failures and clears them after a successful retry", async () => {
   const run = vi
     .fn(() => Result.Err<void, string>("Export failed. Try again."))
@@ -391,7 +459,7 @@ test("a toast removed through the context and added again under its id lives its
   await expect.element(page.getByText("Saved", { exact: true })).toBeVisible();
   await expect.poll(() => removedAgainAt, { timeout: 5000 }).not.toBeNull();
   // Its own interval, not what the first notification's deadline left of it
-  // (`interval - removeAfter`): Radix's timer restarts with the toast's presence.
+  // (`interval - removeAfter`): the toast's clocks restart with its presence.
   // The bound sits halfway between the two.
   expect(removedAgainAt! - readdedAt!).toBeGreaterThan(interval - removeAfter / 2);
   await expect.element(page.getByText("Saved", { exact: true })).not.toBeInTheDocument();

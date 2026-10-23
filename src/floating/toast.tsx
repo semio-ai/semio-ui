@@ -7,6 +7,7 @@ import {
   useEffect,
   memo,
   useRef,
+  useSyncExternalStore,
 } from "react";
 import { AnimatePresence, useAnimationFrame, useIsPresent, motion, useSpring } from "motion/react";
 import { Toast as RadixToast } from "radix-ui";
@@ -24,6 +25,23 @@ import { ActionMenu, type ActionMenuSpec, type ActionMenuFeedback } from "./acti
  * means a bad key here is a build error, and the lookup avoids constructing a
  * `status-${variant}` string that could name a key the registry doesn't have.
  */
+/** The longest delay `setTimeout` honours: a longer one, `Infinity` among them, fires at once. */
+const LONGEST_TIMEOUT = 2 ** 31 - 1;
+
+function subscribeToVisibility(onChange: () => void) {
+  document.addEventListener("visibilitychange", onChange);
+  return () => document.removeEventListener("visibilitychange", onChange);
+}
+
+/** Whether the page is hidden, a background tab for instance. */
+function useDocumentHidden(): boolean {
+  return useSyncExternalStore(
+    subscribeToVisibility,
+    () => document.hidden,
+    () => false,
+  );
+}
+
 const STATUS_ICONS: Partial<Record<Variant, IconName>> = {
   [Variant.Success]: "status-success",
   [Variant.Error]: "status-error",
@@ -88,7 +106,10 @@ function InnerToast({
   const hasClipboardContent = data.clipboardContent !== undefined && !data.actionMenu;
   /** Someone is using the toast: its menu is open, or an action or a copy is in flight. */
   const held = menuOpen || actionBusy || copyState === "copying";
-  const isPaused = paused || held;
+  // A toast's interval counts only while someone can read it: not while the page
+  // is hidden, which Radix's pause does not cover for a toast that arrives there.
+  const documentHidden = useDocumentHidden();
+  const isPaused = paused || held || documentHidden;
   const receiveFeedback = (feedback: ActionMenuFeedback | undefined) => {
     setActionFeedback(feedback);
     if (!feedback) return;
@@ -159,13 +180,15 @@ function InnerToast({
     if (percent >= 1) expire();
   });
 
-  // The wall clock. The frame clock above lags wall time when frames are slow or
-  // paused (Motion caps a frame's delta), so a timeout over the rest of the
-  // interval ends the toast on time regardless. It stops whenever the frame clock
-  // does: while Radix pauses the toasts (focus or the pointer in them, the window
-  // in the background) and while the toast is held.
+  // The wall clock. The frame clock above lags wall time when frames are slow
+  // (Motion caps a frame's delta), so a timeout over the rest of the interval
+  // ends the toast on time regardless. It stops whenever the frame clock does:
+  // while the page is hidden, while Radix has paused this toast (focus or the
+  // pointer in the toasts, the window blurred), and while the toast is held. An
+  // interval longer than a timeout can hold, `Infinity` among them, is left to
+  // the frame clock.
   useEffect(() => {
-    if (!isPresent || isPaused) return;
+    if (!isPresent || isPaused || duration > LONGEST_TIMEOUT) return;
     const armedAt = performance.now();
     const timer = window.setTimeout(expire, duration - wallElapsed.current);
     return () => {

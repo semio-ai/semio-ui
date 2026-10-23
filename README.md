@@ -295,7 +295,8 @@ a generic retry message.
 `ToastData.actionMenu` adds the icon-only version beside Close and takes precedence
 over `clipboardContent`. Toasts with menus default to ten seconds. The toast owns
 its dismissal interval, counted in wall time so it ends on time when frames lag, and
-paused during hover/focus, an open menu, or a pending action; action feedback
-restarts the reading interval. Menus close after selection without
+paused while the page is hidden and during hover/focus, an open menu, or a pending
+action; action feedback restarts the reading interval. A `dismiss` of `Infinity`
+keeps the toast until it is dismissed. Menus close after selection without
 dismissing the toast. `ActionMenu` also supports a labeled trigger, open/busy/feedback
 callbacks, and a portal container for hosts with their own stacking context.
