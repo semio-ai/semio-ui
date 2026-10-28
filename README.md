@@ -52,6 +52,28 @@ buttons, an add field, a dropdown, or editing hover and focus styling. Unlike
 `disabled`, it keeps the chips at their normal opacity. An empty read-only
 input shows `placeholder` or an em-dash.
 
+### Toast clipboard details
+
+`ToastData.clipboardContent?: string` adds an outlined clipboard icon button in the
+header, immediately before Close. Its accessible label and tooltip are **Copy details**. Supply the exact text to copy, with formatting and any redaction handled
+by the caller. The payload is not displayed in the toast. A successful copy shows
+**Copied**; a failed copy shows an inline message and allows retry. Copying does
+not dismiss the toast or invoke its labeled action.
+
+Toasts with clipboard content default to ten seconds; other toasts default to four.
+A numeric `dismiss` still overrides the duration. Hovering or focusing the toast
+pauses dismissal. See `ui/ToastManager` → **Clipboard Examples** in Storybook.
+
+```tsx
+addToast({
+  id: crypto.randomUUID(),
+  title: "Project save failed",
+  content: "Your changes are still here. Try saving again.",
+  variant: Variant.Error,
+  clipboardContent: JSON.stringify({ operation: "save-project", error: "No response" }, null, 2),
+});
+```
+
 ### Icons
 
 `<Icon name>` resolves a key through the nearest `IconProvider`, falling back to
@@ -260,3 +282,29 @@ directional caret, and entrance animation follow the existing Dropdown styles.
 ## License
 
 MIT
+
+### Report-sized dialogs
+
+`Dialog` accepts `size="medium"` for a 36rem width capped to the viewport, and
+`footer` for custom React content replacing its standard actions. Custom footer
+buttons must explicitly handle closing. Long body content scrolls while the header
+and footer remain visible. Omitting these props retains content sizing and the
+standard cancel/submit actions.
+
+### Generic action menus
+
+`ActionMenu` renders a caller-supplied `ActionMenuSpec` (`icon`, `label`, `items`).
+Items have an `id`, `label`, optional `icon`/`description`/`disabled`, and `onSelect`
+returning `Result<string | void, string>` synchronously or asynchronously. A success
+string is feedback; an error string is a user-facing explanation. The caller owns
+all domain behavior, data, destinations and messages. Unexpected exceptions receive
+a generic retry message.
+
+`ToastData.actionMenu` adds the icon-only version beside Close and takes precedence
+over `clipboardContent`. Toasts with menus default to ten seconds. The toast owns
+its dismissal interval, counted in wall time so it ends on time when frames lag, and
+paused while the page is hidden and during hover/focus, an open menu, or a pending
+action; action feedback restarts the reading interval. A `dismiss` of `Infinity`
+keeps the toast until it is dismissed. Menus close after selection without
+dismissing the toast. `ActionMenu` also supports a labeled trigger, open/busy/feedback
+callbacks, and a portal container for hosts with their own stacking context.

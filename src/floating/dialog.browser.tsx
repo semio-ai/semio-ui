@@ -3,7 +3,9 @@ import { flushSync } from "react-dom";
 import { beforeEach, expect, test, vi } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-react";
+import { Result } from "@semio/utils";
 import "../test-stylesheet";
+import { ActionMenu } from "./action-menu";
 import { Dialog, type DialogProps } from "./dialog";
 import { Modal } from "./modal";
 import { SidebarModal } from "./sidebar-modal";
@@ -27,7 +29,7 @@ function Fixture(props: Partial<DialogProps>) {
           setOpen(next);
         }}
       >
-        <p>Confirmation body</p>
+        {props.children ?? <p>Confirmation body</p>}
       </Dialog>
     </>
   );
@@ -83,6 +85,154 @@ test("initial focus belongs to X without a footer Cancel", async () => {
 test("initial focus belongs to X when footer Cancel stays open", async () => {
   await openDialog({ closeOnCancelClick: false });
   await expect.element(button("Close")).toHaveFocus();
+});
+
+test("a custom footer replaces standard actions, keeps the dialog open and focuses X", async () => {
+  const cancel = vi.fn();
+  const submit = vi.fn();
+  const action = vi.fn();
+  const change = vi.fn();
+  await openDialog({
+    onCancel: cancel,
+    onSubmit: submit,
+    onStateChange: change,
+    footer: (
+      <button type="button" onClick={action}>
+        Copy report
+      </button>
+    ),
+  });
+  await expect.element(button("Copy report")).toBeVisible();
+  await expect.element(button("Cancel")).not.toBeInTheDocument();
+  await expect.element(button("Submit")).not.toBeInTheDocument();
+  await expect.element(button("Close")).toHaveFocus();
+  await button("Copy report").click();
+  expect(action).toHaveBeenCalledOnce();
+  expect(cancel).not.toHaveBeenCalled();
+  expect(submit).not.toHaveBeenCalled();
+  expect(change).not.toHaveBeenCalled();
+  await expect.element(popup()).toBeVisible();
+});
+
+test.each([1280, 480])(
+  "medium size at viewport width %s caps the popup and scrolls only the body",
+  async (width) => {
+    await page.viewport(width, 800);
+    await openDialog({
+      size: "medium",
+      children: <div style={{ height: "200vh" }}>Tall confirmation body</div>,
+    });
+    await settle();
+    const surface = popup().element();
+    const rect = surface.getBoundingClientRect();
+    const rem = Number.parseFloat(getComputedStyle(document.documentElement).fontSize);
+    expect(rect.width).toBeCloseTo(Math.min(36 * rem, innerWidth - rem), 0);
+    expect(rect.height).toBeLessThanOrEqual(innerHeight - rem + 1);
+    expect(rect.left).toBeGreaterThanOrEqual(0);
+    expect(rect.right).toBeLessThanOrEqual(innerWidth);
+    expect(rect.top).toBeGreaterThanOrEqual(0);
+    expect(rect.bottom).toBeLessThanOrEqual(innerHeight);
+
+    const body = page.getByText("Tall confirmation body", { exact: true }).element().parentElement!;
+    const header = surface.firstElementChild!;
+    const footer = surface.lastElementChild!;
+    expect(body.scrollHeight).toBeGreaterThan(body.clientHeight);
+    expect(getComputedStyle(body).overflowY).toBe("auto");
+    const headerRect = header.getBoundingClientRect();
+    const footerRect = footer.getBoundingClientRect();
+    for (const section of [headerRect, footerRect]) {
+      expect(section.height).toBeGreaterThan(0);
+      expect(section.top).toBeGreaterThanOrEqual(rect.top);
+      expect(section.bottom).toBeLessThanOrEqual(rect.bottom);
+      expect(section.left).toBeGreaterThanOrEqual(rect.left);
+      expect(section.right).toBeLessThanOrEqual(rect.right);
+    }
+    await expect.element(button("Close")).toBeVisible();
+    await expect.element(button("Cancel")).toBeVisible();
+    await expect.element(button("Submit")).toBeVisible();
+    body.scrollTop = body.scrollHeight;
+    await settle();
+    expect(body.scrollTop).toBeGreaterThan(0);
+    expect(header.getBoundingClientRect().top).toBe(headerRect.top);
+    expect(footer.getBoundingClientRect().bottom).toBe(footerRect.bottom);
+  },
+);
+
+test("default content size keeps a short dialog narrower than 36rem", async () => {
+  await openDialog();
+  await settle();
+  const rem = Number.parseFloat(getComputedStyle(document.documentElement).fontSize);
+  const width = popup().element().getBoundingClientRect().width;
+  expect(width).toBeGreaterThan(0);
+  expect(width).toBeLessThan(36 * rem);
+});
+
+test("a footer ActionMenu supports pointer opening, keyboard reach, selection and isolated Escape", async () => {
+  const select = vi.fn(() => Result.Ok<string, string>("Report copied"));
+  const otherSelect = vi.fn(() => Result.Ok<void, string>(undefined));
+  const feedback = vi.fn();
+  const change = vi.fn();
+  await openDialog({
+    onCancel: undefined,
+    onSubmit: undefined,
+    onStateChange: change,
+    footer: (
+      <ActionMenu
+        menu={{
+          icon: "copy",
+          label: "Report actions",
+          items: [
+            { id: "copy", label: "Copy report", onSelect: select },
+            { id: "download", label: "Download report", onSelect: otherSelect },
+          ],
+        }}
+        side="top"
+        onFeedback={feedback}
+      />
+    ),
+  });
+  const surface = popup().element();
+  const copy = page.getByRole("menuitem", { name: "Copy report", exact: true });
+  const download = page.getByRole("menuitem", { name: "Download report", exact: true });
+  const expectDialogOpen = async () => {
+    // A modal Radix menu can hide the dialog from accessibility queries while open.
+    await expect.element(surface).toBeVisible();
+    expect(surface.getAttribute("data-state")).toBe("open");
+    expect(change).not.toHaveBeenCalled();
+  };
+
+  await button("Report actions").click();
+  await expect.element(copy).toBeVisible();
+  await expect.element(download).toBeVisible();
+  expect(document.body.contains(copy.element())).toBe(true);
+  expect(surface.contains(copy.element())).toBe(false);
+  await expectDialogOpen();
+  await userEvent.keyboard("{Home}");
+  await expect.element(copy).toHaveFocus();
+  await userEvent.keyboard("{ArrowDown}");
+  await expect.element(download).toHaveFocus();
+  await expectDialogOpen();
+  await copy.click();
+  await expect.element(copy).not.toBeInTheDocument();
+  await expect.poll(() => feedback.mock.calls.at(-1)?.[0]).toEqual({
+    message: "Report copied",
+    failed: false,
+  });
+  expect(select).toHaveBeenCalledOnce();
+  expect(otherSelect).not.toHaveBeenCalled();
+  await expectDialogOpen();
+
+  await button("Report actions").click();
+  await expect.element(copy).toBeVisible();
+  await userEvent.keyboard("{Home}");
+  await expect.element(copy).toHaveFocus();
+  await userEvent.keyboard("{Escape}");
+  await expect.element(copy).not.toBeInTheDocument();
+  await expect.element(download).not.toBeInTheDocument();
+  await expect.element(button("Report actions")).toHaveFocus();
+  await expect.element(popup()).toBeVisible();
+  await expectDialogOpen();
+  expect(select).toHaveBeenCalledOnce();
 });
 
 test("closing returns focus to the previously focused opener", async () => {
