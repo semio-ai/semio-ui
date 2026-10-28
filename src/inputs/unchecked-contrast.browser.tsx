@@ -3,6 +3,7 @@ import { render } from "vitest-browser-react";
 import { userEvent } from "vitest/browser";
 import "../test-stylesheet";
 import { Size, Theme, Variant } from "../types";
+import { Accordion } from "../layouts/accordion";
 import { Checkbox } from "./checkbox";
 import { ToggleSquare } from "./toggle-square";
 import { Switch } from "./switch";
@@ -65,41 +66,68 @@ function boundary(element: HTMLElement): number[] {
   return rgba(first![1]);
 }
 
+const variants = Object.values(Variant);
+
 function Controls() {
   return (
     <>
+      {variants.map((variant) => (
+        <div key={variant} className="flex flex-wrap gap-2">
+          {[false, true].flatMap((disabled) =>
+            [false, true].map((checked) => (
+              <div key={`${disabled}-${checked}`} className="flex gap-2">
+                <Checkbox
+                  variant={variant}
+                  checked={checked}
+                  disabled={disabled}
+                  onCheckedChange={() => {}}
+                />
+                <Checkbox
+                  variant={variant}
+                  checked={checked}
+                  disabled={disabled}
+                  asIndicator
+                  onCheckedChange={() => {}}
+                />
+                <ToggleSquare
+                  variant={variant}
+                  value={checked}
+                  disabled={disabled}
+                  onChange={() => {}}
+                />
+                <ToggleSquare
+                  variant={variant}
+                  value={checked}
+                  disabled={disabled}
+                  asIndicator
+                  onChange={() => {}}
+                />
+                <Switch
+                  variant={variant}
+                  checked={checked}
+                  disabled={disabled}
+                  onCheckedChange={() => {}}
+                />
+              </div>
+            )),
+          )}
+        </div>
+      ))}
       {[false, true].flatMap((disabled) =>
         [false, true].map((checked) => (
-          <div key={`${disabled}-${checked}`} className="flex gap-4 p-2">
-            <Checkbox checked={checked} disabled={disabled} onCheckedChange={() => {}} />
-            <Checkbox
-              checked={checked}
-              disabled={disabled}
-              asIndicator
-              sizing="list-item"
-              onCheckedChange={() => {}}
-            />
-            <ToggleSquare value={checked} disabled={disabled} size={Size.Sm} onChange={() => {}} />
+          <div key={`custom-${disabled}-${checked}`} className="flex gap-2">
+            <ToggleSquare color="#f56b29" value={checked} disabled={disabled} onChange={() => {}} />
             <ToggleSquare
-              value={checked}
-              disabled={disabled}
-              size={Size.Sm}
-              asIndicator
-              sizing="list-item"
-              onChange={() => {}}
-            />
-            <Switch checked={checked} disabled={disabled} onCheckedChange={() => {}} />
-            <ToggleSquare
-              value={checked}
-              disabled={disabled}
               color="#f56b29"
-              size={Size.Sm}
+              value={checked}
+              disabled={disabled}
+              asIndicator
               onChange={() => {}}
             />
             <Switch
+              color="#f56b29"
               checked={checked}
               disabled={disabled}
-              color="#f56b29"
               onCheckedChange={() => {}}
             />
           </div>
@@ -113,12 +141,22 @@ function Controls() {
             disabled={disabled}
             asIndicator={asIndicator}
             variant={Variant.Primary}
-            size={Size.Sm}
             onChange={() => {}}
           />
         )),
       )}
+      <Accordion
+        defaultOpen
+        items={[{ key: "disclosure", header: "Disclosure", content: "Panel" }]}
+      />
     </>
+  );
+}
+
+async function settle(element: HTMLElement) {
+  await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+  await Promise.all(
+    element.getAnimations({ subtree: true }).map((animation) => animation.finished),
   );
 }
 
@@ -167,8 +205,11 @@ for (const theme of [Theme.Light, Theme.Dark]) {
           expect(getComputedStyle(button).boxShadow, button.outerHTML).toBe("none");
         }
       }
-      const expected = theme === Theme.Dark ? [161, 161, 161, 255] : [82, 82, 82, 255];
-      for (const button of buttons.slice(-2)) expect(boundary(button)).toEqual(expected);
+      for (const button of buttons.slice(-2)) {
+        expect(boundary(button)).toEqual(
+          rgba(getComputedStyle(button).getPropertyValue("--standard-color")),
+        );
+      }
     } finally {
       await view.unmount();
     }
@@ -212,8 +253,102 @@ for (const theme of [Theme.Light, Theme.Dark]) {
     },
   );
 
+  test(`${theme}: checked edges follow hover fills while switch thumbs hold their checked colour`, async () => {
+    const view = await render(
+      <div className={`${theme} ${surfaces[Surface.Base]} p-8`}>
+        <div data-pointer-target style={{ position: "fixed", right: 0, bottom: 0 }}>
+          Outside
+        </div>
+        <Controls />
+      </div>,
+    );
+    const outside = view.container.querySelector<HTMLElement>("[data-pointer-target]")!;
+    try {
+      await userEvent.hover(outside);
+      for (const button of view.container.querySelectorAll<HTMLElement>("button.variant-scope")) {
+        await settle(button);
+        const style = getComputedStyle(button);
+        const standard = rgba(style.getPropertyValue("--standard-color"));
+        const checked = button.dataset.state === "checked";
+        const disabled = button.hasAttribute("disabled");
+        if (button.getAttribute("role") === "switch") {
+          const thumb = button.querySelector<HTMLElement>("span")!;
+          const thumbStyle = getComputedStyle(thumb);
+          expect(thumbStyle.transitionProperty.split(", ")).toEqual([
+            "translate",
+            "background-color",
+          ]);
+          expect(thumbStyle.transitionDuration).toBe("0.16s");
+          // Tailwind's `ease-out` token.
+          expect(thumbStyle.transitionTimingFunction).toBe("cubic-bezier(0, 0, 0.2, 1)");
+          expect(thumbStyle.opacity).toBe(disabled ? "0.5" : "1");
+          const thumbColor = rgba(thumbStyle.backgroundColor);
+          if (checked) {
+            expect(thumbColor).toEqual(rgba(style.getPropertyValue("--on-standard-color")));
+            if (!disabled)
+              expect(ratio(thumbColor, rgba(style.backgroundColor))).toBeGreaterThanOrEqual(4.4);
+          } else {
+            expect(thumbColor).toEqual(standard);
+          }
+          if (disabled) {
+            const surface = rgba(getComputedStyle(outside.parentElement!).backgroundColor);
+            const trackColor = rgba(style.backgroundColor);
+            const trackAlpha = trackColor[3] / 255;
+            const track = trackColor.map((c, i) =>
+              i === 3 ? 255 : c * trackAlpha + surface[i] * (1 - trackAlpha),
+            );
+            const thumbAlpha = (thumbColor[3] / 255) * Number(thumbStyle.opacity);
+            const painted = thumbColor.map((c, i) =>
+              i === 3 ? 255 : c * thumbAlpha + track[i] * (1 - thumbAlpha),
+            );
+            // Disabled controls carry no contrast requirement, their thumb is dimmed on
+            // purpose, and an unchecked thumb is the variant colour, which on a light
+            // surface is faint for the brightest hues (warning measures about 1.1:1).
+            // This floor is not a legibility claim. It separates a dim thumb from one
+            // painted in its own track's colour, which measures about 1.0:1.
+            expect(ratio(painted, track), button.outerHTML).toBeGreaterThanOrEqual(1.05);
+          }
+        }
+        if (checked && !disabled && button.classList.contains("variant-checkbox-bg")) {
+          const trackColor = rgba(style.backgroundColor);
+          const thumb =
+            button.getAttribute("role") === "switch"
+              ? button.querySelector<HTMLElement>("span")!
+              : null;
+          const thumbColor = thumb ? rgba(getComputedStyle(thumb).backgroundColor) : null;
+          expect(boundary(button)).toEqual(trackColor);
+          await userEvent.hover(button);
+          await settle(button);
+          const hovered = getComputedStyle(button);
+          expect(boundary(button)).toEqual(rgba(hovered.getPropertyValue("--accent-color")));
+          expect(boundary(button)).toEqual(rgba(hovered.backgroundColor));
+          if (thumb) {
+            expect(rgba(getComputedStyle(thumb).backgroundColor)).toEqual(thumbColor);
+            expect(rgba(getComputedStyle(thumb).backgroundColor)).toEqual(
+              rgba(hovered.getPropertyValue("--on-standard-color")),
+            );
+            expect(rgba(hovered.color)).toEqual(
+              rgba(hovered.getPropertyValue("--on-accent-color")),
+            );
+            if (
+              button.classList.contains(theme === Theme.Dark ? Variant.Default : Variant.Secondary)
+            ) {
+              expect(rgba(hovered.backgroundColor)).not.toEqual(trackColor);
+              expect(rgba(hovered.color)).not.toEqual(thumbColor);
+            }
+          }
+          await userEvent.hover(outside);
+          await settle(button);
+          if (thumb) expect(rgba(getComputedStyle(thumb).backgroundColor)).toEqual(thumbColor);
+        }
+      }
+    } finally {
+      await view.unmount();
+    }
+  }, 30_000);
+
   for (const surface of Object.values(Surface)) {
-    test(`${theme}/${surface}: controls retain their exact boundary across states`, async () => {
+    test(`${theme}/${surface}: every variant paints an opaque checked-fill edge across enabled and disabled states`, async () => {
       const host = document.createElement("div");
       host.className = theme;
       document.body.appendChild(host);
@@ -250,8 +385,9 @@ for (const theme of [Theme.Light, Theme.Dark]) {
         const ground = host.querySelector<HTMLElement>("[data-ground]")!;
         const base = rgba(getComputedStyle(ground.parentElement!).backgroundColor);
         const tint = rgba(getComputedStyle(ground).backgroundColor);
-        const alpha = tint[3] / 255;
-        const painted = base.slice(0, 3).map((c, i) => tint[i] * alpha + c * (1 - alpha));
+        expect(tint[3]).toBe(
+          surface === Surface.SelectedList ? 46 : surface === Surface.EmphasizedList ? 20 : 0,
+        );
         const expectedBase =
           theme === Theme.Dark
             ? surface === Surface.Base
@@ -269,21 +405,33 @@ for (const theme of [Theme.Light, Theme.Dark]) {
                   ? 237
                   : 229;
         expect(base).toEqual([expectedBase, expectedBase, expectedBase, 255]);
-        for (const button of host.querySelectorAll<HTMLElement>("button")) {
-          expect(boundary(button)).toEqual(expected);
-          expect(ratio(boundary(button), painted), button.outerHTML).toBeGreaterThanOrEqual(3);
-          if (button.dataset.state === "indeterminate")
-            expect(getComputedStyle(button).boxShadow).toContain("3px");
+        const disclosure = host.querySelector<HTMLElement>("h3 .grid-list-item-indicator")!;
+        expect(disclosure.classList.contains("variant-scope")).toBe(false);
+        expect(boundary(disclosure)).toEqual(expected);
+        const controls = host.querySelectorAll<HTMLElement>("button.variant-scope");
+        expect(controls).toHaveLength(176);
+        for (const button of controls) {
+          const style = getComputedStyle(button);
+          const standard = rgba(style.getPropertyValue("--standard-color"));
+          expect(standard[3]).toBe(255);
+          expect(boundary(button), button.outerHTML).toEqual(standard);
+          if (button.classList.contains("custom-color"))
+            expect(standard).toEqual([245, 107, 41, 255]);
+          if (button.dataset.state === "indeterminate") expect(style.boxShadow).toContain("3px");
         }
         for (const enabled of host.querySelectorAll<HTMLElement>(
-          'button[data-state="unchecked"]:not(:disabled)',
+          'button.default[data-state="unchecked"]:not(:disabled)',
         )) {
           await userEvent.hover(enabled);
-          expect(boundary(enabled)).toEqual(expected);
+          expect(boundary(enabled)).toEqual(
+            rgba(getComputedStyle(enabled).getPropertyValue("--standard-color")),
+          );
           enabled.focus();
           await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
           await Promise.all(enabled.getAnimations().map((animation) => animation.finished));
-          expect(boundary(enabled)).toEqual(expected);
+          expect(boundary(enabled)).toEqual(
+            rgba(getComputedStyle(enabled).getPropertyValue("--standard-color")),
+          );
           if (enabled.classList.contains("variant-responsive-appearing-outline")) {
             expect(getComputedStyle(enabled).outlineStyle).toBe("solid");
             expect(getComputedStyle(enabled).outlineWidth).toBe("2px");

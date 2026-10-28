@@ -89,7 +89,11 @@ export function Switch({
           <span {...props} data-state={state.checked ? "checked" : "unchecked"} />
         )}
         className={clsx(
-          "pointer-events-none block rounded-full bg-white shadow-sm transition-transform duration-160 ease-out dark:bg-black",
+          "pointer-events-none block rounded-full shadow-sm transition-[translate,background-color] duration-160 ease-out",
+          // Checked thumbs use --on-standard-color; unchecked thumbs use --standard-color.
+          // Each holds one colour through hover. A disabled track keeps its fill at half
+          // strength, so the thumb keeps the same foreground at half strength.
+          checked ? "bg-[var(--on-standard-color)]" : "bg-[var(--standard-color)]",
           disabled && "opacity-50",
           sizeClasses.thumb,
         )}
