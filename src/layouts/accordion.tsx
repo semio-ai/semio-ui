@@ -37,7 +37,8 @@ export function Accordion({ items, defaultOpen = false, sticky, stickyOffset }: 
             )}
             className={clsx(
               "h-7 bg-neutral-300/50 backdrop-blur-md dark:bg-neutral-700/50",
-              sticky && "sticky",
+              // Positioned panel content must paint beneath the stuck header's blur.
+              sticky && "sticky z-1",
             )}
             style={
               sticky
