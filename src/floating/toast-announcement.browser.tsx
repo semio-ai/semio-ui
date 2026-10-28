@@ -26,7 +26,25 @@ function AddToast() {
   return null;
 }
 
+/**
+ * Resolves once the announcer carries `text`, waiting on real timers. `expect.poll` and
+ * `expect.element` advance fake timers by their interval on every retry, so a wait that
+ * retries would move the announcer's one-second removal closer by however many retries
+ * a slow frame costs.
+ */
+async function announcedText(text: string, wait: typeof setTimeout) {
+  const deadline = performance.now() + 5000;
+  while (document.querySelector(announcementSelector)?.textContent !== text) {
+    if (performance.now() > deadline) {
+      throw new Error(`The announcer never carried ${JSON.stringify(text)}.`);
+    }
+    await new Promise((resolve) => wait(resolve, 10));
+  }
+  return document.querySelector<HTMLElement>(announcementSelector)!;
+}
+
 test("the Radix status announcement renders after two frames and expires at 1000 ms", async () => {
+  const realSetTimeout = window.setTimeout.bind(window) as typeof setTimeout;
   vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] });
   try {
     await render(
@@ -37,12 +55,10 @@ test("the Radix status announcement renders after two frames and expires at 1000
     await new Promise<void>((resolve) => {
       requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
     });
-    await expect
-      .element(page.elementLocator(document.querySelector(announcementSelector)!))
-      .toHaveTextContent("Notification Asset publishedAvailable to everyone");
-    const announcement = page
-      .elementLocator(document.querySelector(announcementSelector)!)
-      .element();
+    const announcement = await announcedText(
+      "Notification Asset publishedAvailable to everyone",
+      realSetTimeout,
+    );
     expect(announcement.tagName).toBe("SPAN");
     expect(announcement.parentElement).toBe(document.body);
     expect(announcement.getAttribute("aria-live")).toBe("assertive");
