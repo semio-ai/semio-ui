@@ -2053,7 +2053,15 @@
         )
         var(--content-right-gap)
         minmax(0, var(--right-size));
-      grid-template-rows: auto var(--padding-width) 1fr var(--content-footer-gap) minmax(0, auto);
+      /* The middle track's floor is 0 so the footer keeps the height its pane
+         declares and a ScrollArea pane gets a definite height to scroll within.
+         In both arrangements, a side pane is clipped to its row and scrolls its
+         own content — a ScrollArea or an absolutely positioned scroller, as in
+         Studio's SidebarWrapper. */
+      grid-template-rows: auto var(--padding-width) minmax(0, 1fr) var(--content-footer-gap) minmax(
+          0,
+          auto
+        );
     }
 
     .grid-area-menu {

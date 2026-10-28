@@ -7,6 +7,7 @@ import {
   Icon,
   LayoutRoot,
   PaneRegion,
+  ScrollArea,
   Size,
   Variant,
   useLayoutActions,
@@ -145,6 +146,21 @@ function Check({ label, ok, detail }: { label: string; ok: boolean; detail: stri
       <span className="flex-1">{label}</span>
       <span className="text-neutral-500">{detail}</span>
     </li>
+  );
+}
+
+function SidePaneScroller({
+  children,
+  className,
+}: {
+  children: ReactNode;
+  className: string;
+}): ReactNode {
+  // Side panes are clipped to their row, so their content owns vertical scrolling.
+  return (
+    <ScrollArea orientation="vertical" wrapperClassName={className}>
+      {children}
+    </ScrollArea>
   );
 }
 
@@ -302,7 +318,11 @@ function ExpandingSidebarApp(): ReactNode {
           size: "240px",
           inLeftMenu: false,
           inRightMenu: true,
-          content: <div className="bg-info-500/20 h-full w-full p-3 text-xs">Detail pane</div>,
+          content: (
+            <SidePaneScroller className="bg-info-500/20">
+              <div className="w-full p-3 text-xs">Detail pane</div>
+            </SidePaneScroller>
+          ),
         },
         {
           id: ANIMATION_PANE_ID,
@@ -370,27 +390,29 @@ function ExpandingPaneContent(): ReactNode {
   }, [expanded, setPane]);
 
   return (
-    <div className="bg-secondary-500/20 flex h-full w-full flex-col gap-2 p-3">
-      <div className="flex flex-row items-center justify-between gap-2">
-        <span className="text-sm font-bold">Assets</span>
-        <Button size={Size.Sm} variant={Variant.Primary} onClick={toggle}>
-          {expanded ? "Collapse" : "Browse"}
-        </Button>
+    <SidePaneScroller className="bg-secondary-500/20">
+      <div className="flex w-full flex-col gap-2 p-3">
+        <div className="flex flex-row items-center justify-between gap-2">
+          <span className="text-sm font-bold">Assets</span>
+          <Button size={Size.Sm} variant={Variant.Primary} onClick={toggle}>
+            {expanded ? "Collapse" : "Browse"}
+          </Button>
+        </div>
+        {/* The whole point of the named container: this asks how wide the PANE is.
+            A viewport breakpoint cannot see the right sidebar taking room, and an
+            expanding pane changes width without the window moving at all. */}
+        <div className="@[560px]/pane:grid-cols-2 @[900px]/pane:grid-cols-3 grid grid-cols-1 gap-2">
+          {["Chassis", "Gripper", "Torso", "Head", "Wheel", "Arm"].map((name) => (
+            <div key={name} className="h-9 rounded bg-neutral-500/20 px-2 text-xs leading-9">
+              {name}
+            </div>
+          ))}
+        </div>
+        <p className="text-[10px] text-neutral-500">
+          Columns are driven by <code>@[560px]/pane</code>, not the viewport.
+        </p>
       </div>
-      {/* The whole point of the named container: this asks how wide the PANE is.
-          A viewport breakpoint cannot see the right sidebar taking room, and an
-          expanding pane changes width without the window moving at all. */}
-      <div className="@[560px]/pane:grid-cols-2 @[900px]/pane:grid-cols-3 grid grid-cols-1 gap-2">
-        {["Chassis", "Gripper", "Torso", "Head", "Wheel", "Arm"].map((name) => (
-          <div key={name} className="h-9 rounded bg-neutral-500/20 px-2 text-xs leading-9">
-            {name}
-          </div>
-        ))}
-      </div>
-      <p className="text-[10px] text-neutral-500">
-        Columns are driven by <code>@[560px]/pane</code>, not the viewport.
-      </p>
-    </div>
+    </SidePaneScroller>
   );
 }
 
@@ -593,7 +615,11 @@ function CollapsingFooterApp(): ReactNode {
           region: PaneRegion.Left,
           inLeftMenu: true,
           inRightMenu: false,
-          content: <div className="bg-secondary-500/20 h-full w-full p-3 text-xs">Left pane</div>,
+          content: (
+            <SidePaneScroller className="bg-secondary-500/20">
+              <div className="w-full p-3 text-xs">Left pane</div>
+            </SidePaneScroller>
+          ),
         },
       ],
       REPLACE,
@@ -777,7 +803,11 @@ function BatchWriteApp(): ReactNode {
           region: PaneRegion.Left,
           inLeftMenu: true,
           inRightMenu: false,
-          content: <div className="bg-secondary-500/20 h-full w-full p-3 text-xs">Left</div>,
+          content: (
+            <SidePaneScroller className="bg-secondary-500/20">
+              <div className="w-full p-3 text-xs">Left</div>
+            </SidePaneScroller>
+          ),
         },
         {
           id: "right",
@@ -787,7 +817,11 @@ function BatchWriteApp(): ReactNode {
           region: PaneRegion.Right,
           inLeftMenu: false,
           inRightMenu: true,
-          content: <div className="bg-info-500/20 h-full w-full p-3 text-xs">Right</div>,
+          content: (
+            <SidePaneScroller className="bg-info-500/20">
+              <div className="w-full p-3 text-xs">Right</div>
+            </SidePaneScroller>
+          ),
         },
         {
           id: "footer",
