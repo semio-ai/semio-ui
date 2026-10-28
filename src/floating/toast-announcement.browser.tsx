@@ -9,6 +9,8 @@ import { ToastManager } from "./toast";
 import { Dialog } from "./dialog";
 import { Modal } from "./modal";
 
+const announcementSelector = 'body > [role="status"][aria-live="assertive"][aria-atomic="true"]';
+
 function AddToast() {
   const add = useAddToast();
   useEffect(() => {
@@ -36,24 +38,27 @@ test("the Radix status announcement renders after two frames and expires at 1000
       requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
     });
     await expect
-      .element(page.getByRole("status"))
+      .element(page.elementLocator(document.querySelector(announcementSelector)!))
       .toHaveTextContent("Notification Asset publishedAvailable to everyone");
-    const announcement = page.getByRole("status").element();
+    const announcement = page
+      .elementLocator(document.querySelector(announcementSelector)!)
+      .element();
     expect(announcement.tagName).toBe("SPAN");
     expect(announcement.parentElement).toBe(document.body);
     expect(announcement.getAttribute("aria-live")).toBe("assertive");
     expect(announcement.getAttribute("aria-atomic")).toBe("true");
     expect(announcement.textContent).toBe("Notification Asset publishedAvailable to everyone");
     expect(document.querySelector('[role="alert"]')).toBeNull();
+    expect(document.querySelector('li.card-overlay [role="status"]')?.textContent).toBe("");
 
     // The announcement is present until 1000 ms and gone at that mark,
     // whichever element carries it.
     flushSync(() => vi.advanceTimersByTime(999));
-    expect(document.querySelector('[role="status"]')?.textContent).toBe(
+    expect(document.querySelector(announcementSelector)?.textContent).toBe(
       "Notification Asset publishedAvailable to everyone",
     );
     flushSync(() => vi.advanceTimersByTime(1));
-    expect(document.querySelector('[role="status"]')).toBeNull();
+    expect(document.querySelector(announcementSelector)).toBeNull();
     expect(page.getByText("Asset published").elements()).toHaveLength(1);
   } finally {
     vi.useRealTimers();
@@ -87,7 +92,7 @@ test.each(Object.values(Overlay))(
       </ToastManager>,
     );
 
-    const announcement = page.getByRole("status");
+    const announcement = page.elementLocator(document.querySelector(announcementSelector)!);
     await expect
       .element(announcement)
       .toHaveTextContent("Notification Asset publishedAvailable to everyone");

@@ -1,15 +1,22 @@
-import { useContext, useEffect, useState } from "react";
+import { Result } from "@semio/utils";
+import { useContext, useEffect, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import { Toast } from "@base-ui/react/toast";
-import { expect, test, vi } from "vitest";
-import { render } from "vitest-browser-react";
+import { afterEach, expect, test, vi } from "vitest";
+import { cleanup, render } from "vitest-browser-react";
 import { page, userEvent } from "vitest/browser";
 import type {} from "@vitest/browser-playwright";
 import "../test-stylesheet";
 import { useAddToast } from "../hooks/use-add-toast";
 import { ToastContext, ToastManager, type ToastData, type ToastState } from "./toast";
+import { __getToastRetainedMetadataForTests } from "./toast-retained-state";
 import { Dialog } from "./dialog";
 import { Modal } from "./modal";
+
+afterEach(async () => {
+  await cleanup();
+  vi.restoreAllMocks();
+});
 
 function AddToast({ data }: { data: ToastData }) {
   const add = useAddToast();
@@ -247,7 +254,7 @@ test("toast parts keep list elements and accessible native button contracts", as
   expect(viewport.getAttribute("aria-label")).toBeNull();
   const title = page.getByText("Saved notification", { exact: true }).element();
   expect(title.parentElement!.tagName).toBe("DIV");
-  expect(element.lastElementChild!.tagName).toBe("DIV");
+  expect(element.querySelector("p")!.parentElement!.tagName).toBe("DIV");
   const close = page.getByRole("button", { name: "dismiss", exact: true }).element();
   expect(close.tagName).toBe("BUTTON");
   expect(close.getAttribute("type")).toBe("button");
@@ -465,4 +472,535 @@ test("pressing a leaving toast's close button again leaves the toast store alone
   const before = seen;
   flushSync(() => button.click());
   expect(seen).toBe(before);
+});
+
+async function showToast(data: Partial<ToastData> = {}) {
+  await userEvent.hover(document.documentElement, { position: { x: 5, y: 5 } });
+  await render(
+    <ToastManager>
+      <AddToast data={{ id: "test", title: "Save failed", dismiss: 60000, ...data }} />
+      <button type="button">Outside toast</button>
+    </ToastManager>,
+  );
+}
+
+test("copies the exact optional payload without dismissing or displaying it", async () => {
+  const writeText = vi.spyOn(navigator.clipboard, "writeText").mockResolvedValue();
+  const payload = 'Error: save failed\n{"code":"unavailable","session":"anonymous"}';
+  await showToast({ clipboardContent: payload });
+  const copy = page.getByRole("button", { name: "Copy details", exact: true });
+  await expect.element(copy).toBeVisible();
+  const copyButton = document.querySelector<HTMLButtonElement>(
+    'button[aria-label="Copy details"]',
+  )!;
+  const closeButton = document.querySelector<HTMLButtonElement>('button[aria-label="dismiss"]')!;
+  expect(copyButton.textContent).toBe("");
+  expect(copyButton.getBoundingClientRect().right).toBeLessThan(
+    closeButton.getBoundingClientRect().left,
+  );
+  expect(copyButton.getBoundingClientRect().top).toBe(closeButton.getBoundingClientRect().top);
+  await page.getByRole("button", { name: "Copy details", exact: true }).click();
+  expect(writeText).toHaveBeenCalledExactlyOnceWith(payload);
+  await expect
+    .element(page.getByText("Details copied to clipboard.", { exact: true }))
+    .toBeInTheDocument();
+  await expect
+    .element(page.getByRole("button", { name: "Copy details", exact: true }))
+    .toBeVisible();
+  await expect.element(page.getByText("Save failed", { exact: true })).toBeVisible();
+  expect(document.body.textContent).not.toContain(payload);
+});
+
+test("shows a retryable failure when clipboard access is refused", async () => {
+  const writeText = vi
+    .spyOn(navigator.clipboard, "writeText")
+    .mockRejectedValueOnce(new Error("Clipboard denied"))
+    .mockResolvedValueOnce();
+  await showToast({ clipboardContent: "report" });
+  await page.getByRole("button", { name: "Copy details", exact: true }).click();
+  await expect.element(page.getByText("Could not copy. Try again.", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Copy details", exact: true }).click();
+  await expect
+    .element(page.getByRole("button", { name: "Copy details", exact: true }))
+    .toBeVisible();
+  expect(writeText).toHaveBeenCalledTimes(2);
+});
+
+test("omits copying when no payload was supplied and invokes a labeled action", async () => {
+  const onClick = vi.fn();
+  await showToast({ dismiss: { label: "Retry", onClick } });
+  await expect
+    .element(page.getByRole("button", { name: "Copy details", exact: true }))
+    .not.toBeInTheDocument();
+  await page.getByRole("button", { name: "Retry", exact: true }).click();
+  expect(onClick).toHaveBeenCalledOnce();
+  await expect.element(page.getByText("Save failed", { exact: true })).not.toBeInTheDocument();
+});
+
+test("a caller-defined menu overrides the copy shortcut and keeps the toast alive while open or pending", async () => {
+  let finish!: (value: Result<string, string>) => void;
+  const run = vi.fn(
+    () =>
+      new Promise<Result<string, string>>((resolve) => {
+        finish = resolve;
+      }),
+  );
+  await showToast({
+    dismiss: 3000,
+    clipboardContent: "unused",
+    actionMenu: {
+      label: "Export actions",
+      icon: "menu2",
+      items: [{ id: "export", label: "Export data", onSelect: run }],
+    },
+  });
+  await page.getByRole("button", { name: "Export actions", exact: true }).click();
+  await expect
+    .element(page.getByRole("button", { name: "Copy details", exact: true }))
+    .not.toBeInTheDocument();
+  await new Promise((resolve) => setTimeout(resolve, 3200));
+  await expect
+    .element(page.getByRole("menuitem", { name: "Export data", exact: true }))
+    .toBeVisible();
+  await userEvent.keyboard("{Escape}");
+  await expect
+    .element(page.getByRole("menuitem", { name: "Export data", exact: true }))
+    .not.toBeInTheDocument();
+  await expect.element(page.getByText("Save failed", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Export actions", exact: true }).click();
+  await page.getByRole("menuitem", { name: "Export data", exact: true }).click();
+  await expect
+    .element(page.getByRole("button", { name: "Export actions", exact: true }))
+    .toHaveFocus();
+  await new Promise((resolve) => setTimeout(resolve, 3200));
+  await expect.element(page.getByText("Save failed", { exact: true })).toBeVisible();
+  finish(Result.Ok("Data exported"));
+  await expect.element(page.getByText("Data exported", { exact: true })).toBeVisible();
+  expect(run).toHaveBeenCalledOnce();
+}, 15000);
+
+test("a held toast does not expire on the wall clock while its menu is open or its action runs", async () => {
+  const interval = 1000;
+  const pastTheInterval = () => new Promise((resolve) => setTimeout(resolve, interval * 1.5));
+  let finish!: (value: Result<string, string>) => void;
+  await showToast({
+    dismiss: interval,
+    actionMenu: {
+      label: "Export actions",
+      icon: "menu2",
+      items: [
+        {
+          id: "export",
+          label: "Export data",
+          onSelect: () =>
+            new Promise<Result<string, string>>((resolve) => {
+              finish = resolve;
+            }),
+        },
+      ],
+    },
+  });
+  const title = page.getByText("Save failed", { exact: true });
+  const item = page.getByRole("menuitem", { name: "Export data", exact: true });
+
+  // Focus is in the menu's region-local portal, outside the viewport. Moving
+  // the pointer outside releases the viewport pause, so only the menu hold stops
+  // the clocks. Regaining window focus must preserve that hold.
+  await page.getByRole("button", { name: "Export actions", exact: true }).click();
+  await expect.element(item).toBeVisible();
+  await userEvent.hover(document.documentElement, { position: { x: 5, y: 5 } });
+  window.dispatchEvent(new Event("blur"));
+  window.dispatchEvent(new Event("focus"));
+  await pastTheInterval();
+  await expect.element(item).toBeVisible();
+  await expect.element(title).toBeVisible();
+
+  // Focus leaving the toasts resumes them while the action runs.
+  await item.click();
+  await page.getByRole("button", { name: "Outside toast", exact: true }).click();
+  await pastTheInterval();
+  await expect.element(title).toBeVisible();
+
+  // Released, the toast shows the action's feedback and expires again.
+  finish(Result.Ok("Data exported"));
+  await expect.element(page.getByText("Data exported", { exact: true })).toBeVisible();
+  await expect.element(title, { timeout: interval * 3 }).not.toBeInTheDocument();
+}, 15000);
+
+test("a toast ends on wall time while frames lag", async () => {
+  const interval = 1000;
+  let shownAt: number | null = null;
+  let removedAt: number | null = null;
+  function Consumer() {
+    const { toasts } = useContext(ToastContext);
+    useEffect(() => {
+      if (toasts.length > 0) shownAt ??= performance.now();
+      else if (shownAt !== null) removedAt ??= performance.now();
+    }, [toasts]);
+    return null;
+  }
+  // Each frame takes 250 ms, and Motion counts at most 40 ms of it, so the frame
+  // clock runs at about a sixth of wall time and alone would end the toast after
+  // some six seconds.
+  let lagging = true;
+  const lag = () => {
+    if (!lagging) return;
+    const until = performance.now() + 250;
+    while (performance.now() < until);
+    requestAnimationFrame(lag);
+  };
+  requestAnimationFrame(lag);
+  try {
+    await render(
+      <ToastManager>
+        <>
+          <Consumer />
+          <AddToast data={{ id: "lagging", title: "Saved", dismiss: interval }} />
+        </>
+      </ToastManager>,
+    );
+    await expect.poll(() => removedAt, { timeout: 5000 }).not.toBeNull();
+    expect(removedAt! - shownAt!).toBeLessThan(interval * 2.5);
+  } finally {
+    lagging = false;
+  }
+}, 15000);
+
+test("a toast whose interval is infinite stays until it is dismissed", async () => {
+  await showToast({ dismiss: Infinity });
+  await new Promise((resolve) => setTimeout(resolve, 1000));
+  await expect.element(page.getByText("Save failed", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "dismiss", exact: true }).click();
+  await expect.element(page.getByText("Save failed", { exact: true })).not.toBeInTheDocument();
+});
+
+test("a toast that arrives while the page is hidden waits for the page to be shown", async () => {
+  const interval = 500;
+  const setHidden = (hidden: boolean) => {
+    Object.defineProperty(document, "hidden", { configurable: true, get: () => hidden });
+    document.dispatchEvent(new Event("visibilitychange"));
+  };
+  setHidden(true);
+  try {
+    await showToast({ dismiss: interval });
+    await new Promise((resolve) => setTimeout(resolve, interval * 3));
+    await expect.element(page.getByText("Save failed", { exact: true })).toBeVisible();
+    setHidden(false);
+    await expect
+      .element(page.getByText("Save failed", { exact: true }), { timeout: interval * 6 })
+      .not.toBeInTheDocument();
+  } finally {
+    // The instance property shadows `Document.prototype.hidden`; removing it restores the real one.
+    delete (document as { hidden?: boolean }).hidden;
+  }
+});
+
+test("a generic menu displays Result failures and clears them after a successful retry", async () => {
+  const run = vi
+    .fn(() => Result.Err<void, string>("Export failed. Try again."))
+    .mockReturnValueOnce(Result.Err<void, string>("Export failed. Try again."))
+    .mockReturnValueOnce(Result.Ok<void, string>(undefined));
+  await showToast({
+    actionMenu: {
+      label: "Export actions",
+      icon: "menu2",
+      items: [{ id: "export", label: "Export data", onSelect: run }],
+    },
+  });
+  await page.getByRole("button", { name: "Export actions", exact: true }).click();
+  await page.getByRole("menuitem", { name: "Export data", exact: true }).click();
+  await expect.element(page.getByText("Export failed. Try again.", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Export actions", exact: true }).click();
+  await page.getByRole("menuitem", { name: "Export data", exact: true }).click();
+  expect(run).toHaveBeenCalledTimes(2);
+  await expect
+    .element(page.getByText("Export failed. Try again.", { exact: true }))
+    .not.toBeInTheDocument();
+});
+
+test("an ordinary toast still expires after its configured interval", async () => {
+  await showToast({ dismiss: 3000 });
+  await page.getByRole("button", { name: "Outside toast", exact: true }).click();
+  await expect.element(page.getByText("Save failed", { exact: true })).toBeVisible();
+  await expect.element(page.getByText("Save failed", { exact: true })).not.toBeInTheDocument();
+});
+
+test("unexpected action exceptions produce retryable feedback", async () => {
+  await showToast({
+    actionMenu: {
+      label: "Export actions",
+      icon: "menu2",
+      items: [
+        {
+          id: "export",
+          label: "Export data",
+          onSelect: () => {
+            throw new Error("Unexpected");
+          },
+        },
+      ],
+    },
+  });
+  const liveRegion = document.querySelector('li.card-overlay [role="status"]')!;
+  await page.getByRole("button", { name: "Export actions", exact: true }).click();
+  await page.getByRole("menuitem", { name: "Export data", exact: true }).click();
+  await expect
+    .element(page.getByText("Could not complete this action. Try again.", { exact: true }))
+    .toBeVisible();
+  expect(liveRegion.isConnected).toBe(true);
+  expect(liveRegion.textContent).toBe("Could not complete this action. Try again.");
+});
+
+test("provider sibling state survives adding and removing notifications", async () => {
+  const mounted = vi.fn();
+  function Child({ label }: { label: string }) {
+    const addToast = useAddToast();
+    const [count, setCount] = useState(0);
+    useEffect(() => {
+      mounted(label);
+    }, [label]);
+    return (
+      <button
+        type="button"
+        onClick={() => {
+          setCount((value) => value + 1);
+          addToast({ id: label, title: label, dismiss: 60000 });
+        }}
+      >
+        {label}: {count}
+      </button>
+    );
+  }
+  await userEvent.hover(document.documentElement, { position: { x: 5, y: 5 } });
+  await render(
+    <ToastManager>
+      <Child label="First" />
+      <Child label="Second" />
+    </ToastManager>,
+  );
+  await page.getByRole("button", { name: "First: 0", exact: true }).click();
+  await page.getByRole("button", { name: "Second: 0", exact: true }).click();
+  await page.getByRole("button", { name: "dismiss", exact: true }).first().click();
+  await expect.element(page.getByRole("button", { name: "First: 1", exact: true })).toBeVisible();
+  await expect.element(page.getByRole("button", { name: "Second: 1", exact: true })).toBeVisible();
+  expect(mounted.mock.calls.map(([label]) => label)).toEqual(["First", "Second"]);
+});
+
+test("a toast removed through the context and added again under its id lives its own interval", async () => {
+  const interval = 1000;
+  const removeAfter = 500;
+  let readdedAt: number | null = null;
+  let removedAgainAt: number | null = null;
+  function RemoveThenAddAgain() {
+    const { toasts, addToast, removeToast } = useContext(ToastContext);
+    const listed = useRef(false);
+    useEffect(() => {
+      if (toasts.length > 0 && !listed.current) {
+        listed.current = true;
+        // Removed by a caller before its interval runs out, as a consumer that
+        // dismisses its own notification does.
+        const timer = setTimeout(() => removeToast("repeated"), removeAfter);
+        return () => clearTimeout(timer);
+      }
+      if (toasts.length === 0 && listed.current && readdedAt === null) {
+        // Added again, with the same interval, while the first one is leaving.
+        readdedAt = performance.now();
+        addToast({ id: "repeated", title: "Saved", dismiss: interval });
+      } else if (toasts.length === 0 && readdedAt !== null && removedAgainAt === null) {
+        removedAgainAt = performance.now();
+      }
+    }, [toasts, addToast, removeToast]);
+    return null;
+  }
+  await userEvent.hover(document.documentElement, { position: { x: 5, y: 5 } });
+  await render(
+    <ToastManager>
+      <>
+        <RemoveThenAddAgain />
+        <AddToast data={{ id: "repeated", title: "Saved", dismiss: interval }} />
+      </>
+    </ToastManager>,
+  );
+  await expect.poll(() => readdedAt, { timeout: 5000 }).not.toBeNull();
+  await expect.element(page.getByText("Saved", { exact: true })).toBeVisible();
+  await expect.poll(() => removedAgainAt, { timeout: 5000 }).not.toBeNull();
+  // Its own interval, not what the first notification's deadline left of it
+  // (`interval - removeAfter`): the toast's clocks restart with its presence.
+  // The bound sits halfway between the two.
+  expect(removedAgainAt! - readdedAt!).toBeGreaterThan(interval - removeAfter / 2);
+  await expect.element(page.getByText("Saved", { exact: true })).not.toBeInTheDocument();
+});
+
+test.each([false, true])(
+  "a re-added toast announces a new notification while leaving=%s",
+  async (leaving) => {
+    let api!: ToastState;
+    function Api() {
+      api = useContext(ToastContext);
+      return null;
+    }
+    await render(
+      <ToastManager>
+        <Api />
+        <AddToast data={{ id: "announced", title: "First notice", dismiss: 60000 }} />
+      </ToastManager>,
+    );
+    const announcement = () => document.querySelector('[role="status"][aria-live="assertive"]');
+    await expect.poll(() => announcement()?.textContent).toBe("Notification First notice");
+    await expect.poll(announcement, { timeout: 3000 }).toBeNull();
+    if (leaving) {
+      flushSync(() => api.removeToast("announced"));
+      expect(document.querySelector('li[data-state="closed"]')).not.toBeNull();
+    }
+    flushSync(() => api.addToast({ id: "announced", title: "Second notice", dismiss: 60000 }));
+    await expect.poll(() => announcement()?.textContent).toBe("Notification Second notice");
+    const secondAnnouncement = announcement();
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    expect(announcement()).toBe(secondAnnouncement);
+    await expect.poll(announcement, { timeout: 3000 }).toBeNull();
+    expect(api.toasts).toHaveLength(1);
+  },
+);
+
+test.each([false, true])(
+  "changing a toast id preserves its order and permits removal or expiry (remove=%s)",
+  async (remove) => {
+    let api!: ToastState;
+    function Api() {
+      api = useContext(ToastContext);
+      return null;
+    }
+    await userEvent.hover(document.documentElement, { position: { x: 5, y: 5 } });
+    await render(
+      <ToastManager>
+        <Api />
+      </ToastManager>,
+    );
+    flushSync(() => {
+      api.addToast({ id: "before", title: "Before", dismiss: 60000 });
+      api.addToast({ id: "old", title: "Renamed notice", dismiss: 1000 });
+      api.addToast({ id: "after", title: "After", dismiss: 60000 });
+    });
+    await expect.element(page.getByText("Renamed notice", { exact: true })).toBeVisible();
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    const renamedAt = performance.now();
+    flushSync(() => api.updateToast("old", { id: "new" }));
+    expect(api.toasts.map((toast) => toast.id)).toEqual(["before", "new", "after"]);
+    if (remove) flushSync(() => api.removeToast("new"));
+    // The renamed toast starts a fresh 1000 ms interval, longer than the poll's default.
+    await expect
+      .poll(() => api.toasts.map((toast) => toast.id), { timeout: 3000 })
+      .toEqual(["before", "after"]);
+    if (!remove) expect(performance.now() - renamedAt).toBeGreaterThan(750);
+    await expect.element(page.getByText("Renamed notice", { exact: true })).not.toBeInTheDocument();
+  },
+);
+
+test("copying holds both clocks until the clipboard promise settles", async () => {
+  let finish!: () => void;
+  vi.spyOn(navigator.clipboard, "writeText").mockImplementation(
+    () =>
+      new Promise<void>((resolve) => {
+        finish = resolve;
+      }),
+  );
+  await showToast({ dismiss: 1000, clipboardContent: "Exact details" });
+  const copy = page.getByRole("button", { name: "Copy details", exact: true });
+  await copy.click();
+  await expect.element(copy).toBeDisabled();
+  await page.getByRole("button", { name: "Outside toast", exact: true }).click();
+  const circle = document
+    .querySelectorAll<HTMLLIElement>("li.card-overlay")[0]
+    .querySelectorAll("circle")[1];
+  expect(document.activeElement).toBe(
+    page.getByRole("button", { name: "Outside toast", exact: true }).element(),
+  );
+  const offset = circle.style.strokeDashoffset;
+  await new Promise((resolve) => setTimeout(resolve, 1500));
+  await expect.element(page.getByText("Save failed", { exact: true })).toBeVisible();
+  expect(circle.style.strokeDashoffset).toBe(offset);
+  finish();
+  await expect
+    .element(page.getByText("Details copied to clipboard.", { exact: true }))
+    .toBeInTheDocument();
+  await expect
+    .element(page.getByText("Save failed", { exact: true }), { timeout: 3000 })
+    .not.toBeInTheDocument();
+});
+
+test("menu presses stay inside the region and cannot swipe or dismiss its toast", async () => {
+  await showToast({
+    actionMenu: {
+      icon: "menu2",
+      label: "Notification actions",
+      items: [
+        {
+          id: "keep",
+          label: "Keep notification",
+          description: "Available after export",
+          disabled: true,
+          onSelect: () => Result.Ok(undefined),
+        },
+      ],
+    },
+  });
+  const toast = document.querySelector<HTMLElement>("li.card-overlay")!;
+  await expect.poll(() => getComputedStyle(toast).transform).toBe("none");
+  await page.getByRole("button", { name: "Notification actions", exact: true }).click();
+  const menu = page.getByRole("menu");
+  await expect.element(menu).toBeVisible();
+  expect(menu.element().closest('[role="region"][aria-label="Notifications (F8)"]')).not.toBeNull();
+  const initialX = toast.getBoundingClientRect().x;
+  await userEvent.dragAndDrop(menu, menu, {
+    sourcePosition: { x: 4, y: 4 },
+    targetPosition: { x: 100, y: 4 },
+    steps: 10,
+  });
+  expect(toast.dataset.swipe).toBeUndefined();
+  expect(toast.getBoundingClientRect().x).toBeCloseTo(initialX, 0);
+  // The native keyboard command targets the focused frame. Focus the menu
+  // explicitly so Escape reaches its document after the drag.
+  (menu.element() as HTMLElement).focus();
+  expect(document.activeElement).toBe(menu.element());
+  expect(document.hasFocus()).toBe(true);
+  await userEvent.keyboard("{Escape}");
+  await expect.element(menu).not.toBeInTheDocument();
+  expect(toast.dataset.state).toBe("open");
+  await expect.element(page.getByText("Save failed", { exact: true })).toBeVisible();
+});
+
+test("metadata follows store exits and retains an id re-added during clear", async () => {
+  let api!: ToastState;
+  let retained: { id: string; transitionStatus?: string }[] = [];
+  function Api() {
+    api = useContext(ToastContext);
+    retained = Toast.useToastManager().toasts;
+    return null;
+  }
+  await render(
+    <ToastManager>
+      <Api />
+    </ToastManager>,
+  );
+  flushSync(() => {
+    api.addToast({ id: "shared", title: "First generation", dismiss: 60000 });
+    api.addToast({ id: "other", title: "Other notice", dismiss: 60000 });
+  });
+  await expect.element(page.getByText("First generation", { exact: true })).toBeVisible();
+  flushSync(() => api.clear());
+  expect(retained.every((toast) => toast.transitionStatus === "ending")).toBe(true);
+  expect(__getToastRetainedMetadataForTests(api)).toEqual({ generations: 2, positions: 2 });
+  flushSync(() => api.addToast({ id: "shared", title: "Second generation", dismiss: 60000 }));
+  expect(__getToastRetainedMetadataForTests(api)).toEqual({ generations: 2, positions: 2 });
+  await expect.poll(() => retained.map((toast) => toast.id)).toEqual(["shared"]);
+  expect(api.toasts.map((toast) => toast.title)).toEqual(["Second generation"]);
+  expect(__getToastRetainedMetadataForTests(api)).toEqual({ generations: 1, positions: 1 });
+  flushSync(() => api.removeToast("shared"));
+  await expect.poll(() => retained).toEqual([]);
+  await expect
+    .poll(() => __getToastRetainedMetadataForTests(api))
+    .toEqual({
+      generations: 0,
+      positions: 0,
+    });
 });

@@ -9,6 +9,7 @@ import {
   useRef,
   useEffect,
   useLayoutEffect,
+  useSyncExternalStore,
   type CSSProperties,
 } from "react";
 import {
@@ -16,17 +17,35 @@ import {
   useAnimationFrame,
   motion,
   useMotionValue,
-  useIsPresent,
   type HTMLMotionProps,
 } from "motion/react";
 import { createPortal } from "react-dom";
-import { Toast as BaseToast } from "@base-ui/react/toast";
+import { Toast as BaseToast, type ToastObject } from "@base-ui/react/toast";
 import { DismissableLayer } from "radix-ui/internal";
 import { clsx } from "clsx";
 import { Button } from "../buttons/button";
 import { Size, Variant } from "../types";
 import { ProgressCircle } from "../feedback/progress";
 import { Icon, type IconName } from "../icons/registry";
+import { ActionMenu, type ActionMenuSpec, type ActionMenuFeedback } from "./action-menu";
+import { registerToastRetainedState } from "./toast-retained-state";
+
+/** The longest delay `setTimeout` honours: a longer one, `Infinity` among them, fires at once. */
+const LONGEST_TIMEOUT = 2 ** 31 - 1;
+
+function subscribeToVisibility(onChange: () => void) {
+  document.addEventListener("visibilitychange", onChange);
+  return () => document.removeEventListener("visibilitychange", onChange);
+}
+
+/** Whether the page is hidden, a background tab for instance. */
+function useDocumentHidden(): boolean {
+  return useSyncExternalStore(
+    subscribeToVisibility,
+    () => document.hidden,
+    () => false,
+  );
+}
 
 /**
  * Variants that have a status glyph mapped to its registry key. Other variants
@@ -66,6 +85,10 @@ export interface ToastData {
   id: string;
   title: string;
   content?: string;
+  /** Exact text copied by the optional Copy details action. The caller formats and redacts it. */
+  clipboardContent?: string;
+  /** Explicit menu takes precedence over the clipboard shortcut. */
+  actionMenu?: ActionMenuSpec;
   variant?: Variant;
   dismiss?:
     | {
@@ -73,6 +96,13 @@ export interface ToastData {
         onClick: (data: ToastData) => void;
       }
     | number;
+}
+
+enum ToastCopyState {
+  Idle = "idle",
+  Copying = "copying",
+  Copied = "copied",
+  Failed = "failed",
 }
 
 enum ToastSwipeState {
@@ -149,16 +179,29 @@ function useStableList<T>(list: T[]): T[] {
 /** Counts mounted toasts, including those still running their exit animation. */
 const ToastMountContext = createContext({ onMount: () => {}, onUnmount: () => {} });
 
-function InnerToast({ data, generation }: { data: ToastData; generation: number }) {
+function InnerToast({
+  toast,
+  generation,
+  menuPortalContainer,
+}: {
+  toast: ToastObject<ToastData>;
+  generation: number;
+  menuPortalContainer: HTMLElement | null;
+}) {
+  // The root and both clocks use this generation's store snapshot, including its
+  // ending state while Motion retains the root after the store releases it.
+  const data = toast.data!;
   const { removeToast, toasts: listed } = useContext(ToastContext);
   // Layout animation restacks the toasts when one arrives, leaves or changes what it
   // shows. A swipe re-renders the toast as it moves, and a layout animation then
   // would pull it back toward where it was, so only the stack's content triggers one.
   const stackLayout = JSON.stringify(
-    listed.map(({ id, title, content, variant, dismiss }) => [
+    listed.map(({ id, title, content, variant, dismiss, clipboardContent, actionMenu }) => [
       id,
       title,
       content,
+      clipboardContent,
+      actionMenu,
       variant,
       typeof dismiss === "object" ? dismiss.label : dismiss,
     ]),
@@ -169,20 +212,31 @@ function InnerToast({ data, generation }: { data: ToastData; generation: number 
     return onUnmount;
   }, [onMount, onUnmount]);
   const paused = useContext(ToastPausedContext);
-  const { toasts } = BaseToast.useToastManager<ToastData>();
-  const isPresent = useIsPresent();
-  const toast = toasts.find((item) => item.id === data.id) ?? {
-    id: data.id,
-    data,
-    transitionStatus: isPresent ? undefined : ("ending" as const),
-  };
+  const [copyState, setCopyState] = useState(ToastCopyState.Idle);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [actionBusy, setActionBusy] = useState(false);
+  const [actionFeedback, setActionFeedback] = useState<ActionMenuFeedback>();
+  const hasClipboardContent = data.clipboardContent !== undefined && !data.actionMenu;
+  /** Someone is using the toast: its menu is open, or an action or a copy is in flight. */
+  const held = menuOpen || actionBusy || copyState === ToastCopyState.Copying;
+  // Both clocks wait for a visible page, including for a toast first added in a
+  // background tab. The viewport owns hover/focus and window-blur pauses.
+  const documentHidden = useDocumentHidden();
+  const isPaused = paused || held || documentHidden;
   const [swipeStarted, setSwipeStarted] = useState(false);
 
   const pauseState = useRef<{ accumulatedTime: number }>({
     accumulatedTime: 0,
   });
 
-  const duration = typeof data.dismiss === "number" ? data.dismiss : 4000;
+  /** Wall time counted by the timeout, independently of Motion's capped frame delta. */
+  const wallElapsed = useRef(0);
+  const duration =
+    typeof data.dismiss === "number"
+      ? data.dismiss
+      : hasClipboardContent || data.actionMenu
+        ? 10000
+        : 4000;
 
   const completion = useMotionValue(0);
 
@@ -200,6 +254,30 @@ function InnerToast({ data, generation }: { data: ToastData; generation: number 
    */
   const removalRequested = useRef(false);
   const leaving = toast.transitionStatus === "ending";
+  const expire = useCallback(() => {
+    if (removalRequested.current) return;
+    removalRequested.current = true;
+    removeToast(data.id);
+  }, [removeToast, data.id]);
+
+  const receiveFeedback = (feedback: ActionMenuFeedback | undefined) => {
+    setActionFeedback(feedback);
+    if (!feedback) return;
+    // Feedback needs a full reading interval after the action releases its hold.
+    pauseState.current.accumulatedTime = 0;
+    wallElapsed.current = 0;
+    completion.set(0);
+  };
+  const copyDetails = async () => {
+    if (data.clipboardContent === undefined) return;
+    setCopyState(ToastCopyState.Copying);
+    try {
+      await navigator.clipboard.writeText(data.clipboardContent);
+      setCopyState(ToastCopyState.Copied);
+    } catch {
+      setCopyState(ToastCopyState.Failed);
+    }
+  };
 
   // Every `addToast` is a new notification, including one under the id of a toast
   // that is still leaving, which comes back as this same component. Its interval
@@ -210,25 +288,42 @@ function InnerToast({ data, generation }: { data: ToastData; generation: number 
     firstGeneration.current = generation;
     removalRequested.current = false;
     pauseState.current.accumulatedTime = 0;
+    wallElapsed.current = 0;
     completion.set(0);
     setSwipeStarted(false);
+    setCopyState(ToastCopyState.Idle);
+    setMenuOpen(false);
+    setActionBusy(false);
+    setActionFeedback(undefined);
   }, [generation, completion]);
 
   useAnimationFrame((_time, delta) => {
-    if (paused || !isPresent || leaving || removalRequested.current) return;
+    if (isPaused || leaving || removalRequested.current) return;
     pauseState.current.accumulatedTime = delta + pauseState.current.accumulatedTime;
     const percent = Math.min(1, Math.max(0, pauseState.current.accumulatedTime / duration));
     completion.set(percent);
-    if (percent >= 1) {
-      removalRequested.current = true;
-      removeToast(data.id);
-    }
+    if (percent >= 1) expire();
   });
+
+  // Motion caps a frame's delta, so a timeout over the remaining wall time ends
+  // the toast on time even on a slow page. Both clocks stop while paused, held,
+  // hidden or leaving. Each generation restarts them; Base UI's timeout is off,
+  // so the store cannot expire a notification on a separate schedule. Intervals
+  // longer than a timeout can hold, including Infinity, use only the frame clock.
+  useEffect(() => {
+    if (leaving || isPaused || removalRequested.current || duration > LONGEST_TIMEOUT) return;
+    const armedAt = performance.now();
+    const timer = window.setTimeout(expire, duration - wallElapsed.current);
+    return () => {
+      window.clearTimeout(timer);
+      wallElapsed.current += performance.now() - armedAt;
+    };
+  }, [generation, leaving, isPaused, duration, expire]);
 
   // The transport shows a pause glyph while paused; otherwise the status glyph (if
   // it has one). Computed here rather than inline so the registry key narrows.
   const statusIcon = data.variant ? STATUS_ICONS[data.variant] : undefined;
-  const toastIcon = paused ? (
+  const toastIcon = isPaused ? (
     <Icon name="player-pause" />
   ) : statusIcon ? (
     <Icon name={statusIcon} />
@@ -245,6 +340,10 @@ function InnerToast({ data, generation }: { data: ToastData; generation: number 
       aria-hidden={undefined}
       data-state={toast.transitionStatus === "ending" ? "closed" : "open"}
       onPointerDown={() => setSwipeStarted(true)}
+      onKeyDown={(event) => {
+        // The menu owns Escape while open; Base UI owns toast Escape otherwise.
+        if (menuOpen && event.key === "Escape") event.preventBaseUIHandler();
+      }}
       render={(props, state) => (
         <motion.li
           {...(props as HTMLMotionProps<"li">)}
@@ -285,7 +384,7 @@ function InnerToast({ data, generation }: { data: ToastData; generation: number 
           layoutDependency={stackLayout}
           className={clsx(
             "items-center overflow-hidden",
-            "pointer-events-auto relative box-border w-[30ch] select-none",
+            "pointer-events-auto relative box-border w-full select-none",
             "data-[swipe=cancel]:translate-x-0 data-[swipe=move]:translate-x-(--radix-toast-swipe-move-x)",
             "data-[swipe=end]:animate-toastSwipeOut",
             "data-[swipe=cancel]:transition-[transform_200ms_ease-out]",
@@ -301,7 +400,7 @@ function InnerToast({ data, generation }: { data: ToastData; generation: number 
         />
       )}
     >
-      <ToastAnnounce data={data} />
+      <ToastAnnounce key={generation} data={data} />
       <div
         className={clsx(
           "relative bg-neutral-50/50 dark:bg-neutral-950/50",
@@ -326,44 +425,100 @@ function InnerToast({ data, generation }: { data: ToastData; generation: number 
           </span>
           <span className="min-w-0 wrap-break-word">{data.title}</span>
         </BaseToast.Title>
-        <BaseToast.Close
-          onClick={(event) => {
-            // A leaving toast is already closed; closing it again would only give the
-            // store a new list.
-            if (leaving) {
-              event.preventBaseUIHandler();
-              return;
-            }
-            if (typeof data.dismiss === "object") data.dismiss.onClick(data);
-          }}
-          render={(props) => (
-            <Button
-              {...props}
-              tabIndex={undefined}
-              aria-hidden={undefined}
-              size={Size.Sm}
-              className="shrink-0"
+        {/* Controls, including events bubbling through the menu portal, must not
+            start the toast's Base UI swipe gesture. */}
+        <div
+          className="flex shrink-0 items-center gap-2"
+          onPointerDown={(event) => event.stopPropagation()}
+        >
+          {data.actionMenu && (
+            <ActionMenu
+              key={generation}
+              menu={data.actionMenu}
+              portalContainer={menuPortalContainer}
+              iconOnly
               variant={data.variant}
-              leftIcon={
-                typeof data.dismiss !== "object" ? (
-                  <Icon name="close" className="text-black" />
-                ) : undefined
-              }
-              altText={typeof data.dismiss === "object" ? data.dismiss.label : "dismiss"}
-            >
-              {typeof data.dismiss === "object" ? data.dismiss.label : undefined}
-            </Button>
+              onOpenChange={setMenuOpen}
+              onBusyChange={setActionBusy}
+              onFeedback={receiveFeedback}
+            />
           )}
-        />
+          {hasClipboardContent && (
+            <Button
+              size={Size.Sm}
+              variant={data.variant}
+              visuals="inverted-border"
+              leftIcon={copyState === ToastCopyState.Copied ? "copy-complete" : "copy"}
+              altText="Copy details"
+              title={copyState === ToastCopyState.Copied ? "Copied" : "Copy details"}
+              disabled={copyState === ToastCopyState.Copying}
+              onClick={() => void copyDetails()}
+            />
+          )}
+          <BaseToast.Close
+            onClick={(event) => {
+              // A leaving toast is already closed; closing it again would only give the
+              // store a new list.
+              if (leaving) {
+                event.preventBaseUIHandler();
+                return;
+              }
+              // Base UI composes this action before its own close handler.
+              if (typeof data.dismiss === "object") data.dismiss.onClick(data);
+            }}
+            render={(props) => (
+              <Button
+                {...props}
+                tabIndex={undefined}
+                aria-hidden={undefined}
+                size={Size.Sm}
+                className="shrink-0"
+                variant={data.variant}
+                leftIcon={
+                  typeof data.dismiss !== "object" ? (
+                    <Icon name="close" className="text-black" />
+                  ) : undefined
+                }
+                altText={typeof data.dismiss === "object" ? data.dismiss.label : "dismiss"}
+              >
+                {typeof data.dismiss === "object" ? data.dismiss.label : undefined}
+              </Button>
+            )}
+          />
+        </div>
       </div>
       <BaseToast.Description
         render={<div />}
         className={clsx(data.content ? "p-3" : "hidden", "overflow-hidden")}
       >
-        <p className={clsx("mb-3 text-sm text-neutral-700 dark:text-neutral-300")}>
-          {data.content}
-        </p>
+        <p className="text-sm text-neutral-700 dark:text-neutral-300">{data.content}</p>
       </BaseToast.Description>
+      <span
+        role="status"
+        className={
+          actionFeedback
+            ? "block px-3 pb-3 text-xs text-neutral-700 dark:text-neutral-300"
+            : "sr-only"
+        }
+      >
+        {actionFeedback?.message ?? null}
+      </span>
+      {hasClipboardContent && (
+        <span
+          role="status"
+          className={
+            copyState === ToastCopyState.Failed
+              ? "block px-3 pb-3 text-xs text-neutral-700 dark:text-neutral-300"
+              : "sr-only"
+          }
+        >
+          {copyState === ToastCopyState.Failed
+            ? "Could not copy. Try again."
+            : copyState === ToastCopyState.Copied
+              ? "Details copied to clipboard."
+              : null}
+        </span>
+      )}
     </BaseToast.Root>
   );
 }
@@ -389,19 +544,31 @@ export interface ToastContainerProps {
   children?: ReactNode;
 }
 
-/** The public context adapts Base UI's store; the animation clock alone owns timeouts. */
+/** The public context adapts Base UI's store; the toast's two clocks own expiry. */
 function ToastContainer({ children }: ToastContainerProps) {
   const { toasts: managedToasts, add, update, close } = BaseToast.useToastManager<ToastData>();
   const viewportRef = useRef<HTMLOListElement | null>(null);
-  const hovering = useRef(false);
-  const focused = useRef(false);
+  const [menuPortalContainer, setMenuPortalContainer] = useState<HTMLDivElement | null>(null);
+  const registerMenuContainer = useCallback((node: HTMLDivElement | null) => {
+    // Retain the host through ref detaches so a provider update cannot cause a loop.
+    if (node) setMenuPortalContainer(node);
+  }, []);
   const windowBlurred = useRef(false);
   const currentToasts = useRef(new Map<string, ToastData>());
-  /** How many times each id has been added: each `addToast` is a new notification. */
+  /** Live generation metadata lasts until both the active record and store entry are gone. */
   const generations = useRef(new Map<string, number>());
+  const nextGeneration = useRef(0);
+  /** A renamed notification keeps its place while its old root finishes leaving. */
+  const positions = useRef(new Map<string, number>());
+  const nextPosition = useRef(0);
   const [paused, setPaused] = useState(false);
   const syncPaused = useCallback(
-    () => setPaused(hovering.current || focused.current || windowBlurred.current),
+    () =>
+      setPaused(
+        !!viewportRef.current?.matches(":hover") ||
+          !!viewportRef.current?.contains(document.activeElement) ||
+          windowBlurred.current,
+      ),
     [],
   );
   const [mounted, setMounted] = useState(0);
@@ -441,6 +608,26 @@ function ToastContainer({ children }: ToastContainerProps) {
     return () => window.removeEventListener("keydown", handleKeyDown, true);
   }, [hasManagedOrMountedToasts]);
 
+  useEffect(() => {
+    // Disabled controls can omit blur and mouse events. Document focus changes
+    // must read actual hover and focus ownership before resuming the clocks.
+    document.addEventListener("focusin", syncPaused);
+    document.addEventListener("focusout", syncPaused);
+    return () => {
+      document.removeEventListener("focusin", syncPaused);
+      document.removeEventListener("focusout", syncPaused);
+    };
+  }, [syncPaused]);
+
+  useEffect(() => {
+    const retainedIds = new Set(managedToasts.map((toast) => toast.id));
+    for (const id of generations.current.keys()) {
+      if (retainedIds.has(id) || currentToasts.current.has(id)) continue;
+      generations.current.delete(id);
+      positions.current.delete(id);
+    }
+  }, [managedToasts]);
+
   const hasToasts = mounted > 0;
   useEffect(() => {
     if (!hasToasts) return;
@@ -462,9 +649,10 @@ function ToastContainer({ children }: ToastContainerProps) {
     };
   }, [hasToasts, syncPaused]);
 
-  const addToast = useCallback(
-    (data: ToastData) => {
-      generations.current.set(data.id, (generations.current.get(data.id) ?? 0) + 1);
+  const listToast = useCallback(
+    (data: ToastData, position: number) => {
+      positions.current.set(data.id, position);
+      generations.current.set(data.id, ++nextGeneration.current);
       currentToasts.current.set(data.id, data);
       add({
         id: data.id,
@@ -476,16 +664,33 @@ function ToastContainer({ children }: ToastContainerProps) {
     },
     [add],
   );
+  const addToast = useCallback(
+    (data: ToastData) => {
+      const position = currentToasts.current.has(data.id)
+        ? positions.current.get(data.id)!
+        : nextPosition.current++;
+      listToast(data, position);
+    },
+    [listToast],
+  );
   const updateToast = useCallback(
     (id: string, data: Partial<ToastData>) => {
       const current = currentToasts.current.get(id);
-      if (current) {
-        const next = { ...current, ...data };
-        currentToasts.current.set(id, next);
-        update(id, { data: next, title: next.title });
+      if (!current) return;
+      const next = { ...current, ...data };
+      if (next.id !== id) {
+        // Data, the synchronous record and Base UI must share the same key. A new
+        // id is a new notification with its own clocks and announcement, in place.
+        const position = positions.current.get(id)!;
+        currentToasts.current.delete(id);
+        close(id);
+        listToast(next, position);
+        return;
       }
+      currentToasts.current.set(id, next);
+      update(id, { data: next, title: next.title });
     },
-    [update],
+    [update, close, listToast],
   );
   // Only an active toast is closed. Base UI's `close` of a toast it has already marked
   // ending still gives its store a new list, re-rendering every subscriber for a
@@ -504,23 +709,29 @@ function ToastContainer({ children }: ToastContainerProps) {
   }, [close]);
   // The store changes while a toast leaves (its height, its removal) without the active
   // list changing; consumers re-render only when the list itself does.
+  const orderedToasts = [...managedToasts].sort(
+    (a, b) => positions.current.get(a.id)! - positions.current.get(b.id)!,
+  );
   const toasts = useStableList(
-    managedToasts
+    orderedToasts
       .filter((toast) => toast.transitionStatus !== "ending")
-      .map((toast) => toast.data!)
-      .reverse(),
+      .map((toast) => toast.data!),
   );
   const context = useMemo(
     () => ({ toasts, addToast, updateToast, removeToast, clear }),
     [toasts, addToast, updateToast, removeToast, clear],
   );
+  registerToastRetainedState(context, () => ({
+    generations: generations.current.size,
+    positions: positions.current.size,
+  }));
   // A closing toast stays rendered until Base UI's store removes it, with `animate`
   // already taking it towards `LEAVING`. Base UI removes a dismissed toast from its
   // store from the toast's own root, once that root stops animating; a root that
   // unmounted first would leave the toast in the store for good, keeping Base UI's
   // window listeners and focus guards active. After the store removes it, `exit`
   // targets the same values.
-  const rendered = managedToasts.map((toast) => toast.data!).reverse();
+  const rendered = orderedToasts;
 
   return (
     <ToastContext.Provider value={context}>
@@ -545,36 +756,38 @@ function ToastContainer({ children }: ToastContainerProps) {
                   role={undefined}
                   aria-live={undefined}
                   aria-label={undefined}
-                  onMouseEnter={() => {
-                    hovering.current = true;
+                  onPointerEnter={(event) => {
+                    if (!event.currentTarget.contains(event.target as Node)) return;
                     syncPaused();
                   }}
-                  onMouseLeave={() => {
-                    hovering.current = false;
-                    syncPaused();
-                  }}
-                  onFocus={() => {
-                    focused.current = true;
+                  onPointerLeave={syncPaused}
+                  onFocus={(event) => {
+                    // Portal events bubble through React; the menu's hold owns its
+                    // focus pause, independently of focus inside this DOM viewport.
+                    if (!event.currentTarget.contains(event.target)) return;
                     syncPaused();
                   }}
                   onBlur={(event) => {
                     if (!event.currentTarget.contains(event.relatedTarget)) {
-                      focused.current = false;
                       syncPaused();
                     }
                   }}
-                  className="pointer-events-none fixed top-4 right-4 z-2147483647 flex w-80 flex-col-reverse gap-3 max-sm:top-20"
+                  className="pointer-events-none fixed top-4 right-4 z-2147483647 flex w-80 max-w-[calc(100vw-2rem)] flex-col-reverse gap-3 max-sm:top-20"
                 >
                   <AnimatePresence>
                     {rendered.map((toast) => (
                       <Toast
                         key={toast.id}
-                        data={toast}
+                        toast={toast}
+                        menuPortalContainer={menuPortalContainer}
                         generation={generations.current.get(toast.id) ?? 0}
                       />
                     ))}
                   </AnimatePresence>
                 </BaseToast.Viewport>
+                {/* Inside the region's branch, menu presses stay inside surrounding
+                    overlays. A sibling host also keeps popup layout out of the list. */}
+                <div ref={registerMenuContainer} className="fixed z-2147483647" />
               </div>
             </DismissableLayer.Branch>
           </BaseToast.Portal>

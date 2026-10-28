@@ -27,6 +27,10 @@ export interface DialogProps {
   onSubmit?: (event: MouseEvent | KeyboardEvent) => void | Promise<void>;
   onCancel?: (event: MouseEvent | KeyboardEvent) => void;
   variant?: Variant;
+  /** Fixed medium width for report-like dialogs; default retains content sizing. */
+  size?: "content" | "medium";
+  /** Replaces the standard cancel/submit footer. Buttons here do not automatically close the dialog. */
+  footer?: ReactNode;
   /**
    * Whether clicking the submit button should close the dialog
    * immediately through the guarded dismissal path. Default `true`. Set `false` for
@@ -57,7 +61,7 @@ export interface DialogProps {
  * - **Body** is rendered only when `children` is truthy. When absent (the
  *   common confirmation-only case), the empty padded area is skipped and
  *   no body-adjacent dividers are drawn.
- * - **Footer** is rendered when `onCancel` or `onSubmit` is set. It gets a
+ * - **Footer** is rendered when `footer`, `onCancel` or `onSubmit` is set. It gets a
  *   `border-t` only when a body sits above it; otherwise the header's
  *   `border-b` already separates them and a second hairline would read as
  *   a double line.
@@ -103,6 +107,8 @@ export function Dialog({
   closeOnSubmitClick = true,
   closeOnCancelClick = true,
   portalContainer,
+  size = "content",
+  footer,
 }: DialogProps) {
   const closeRef = useRef<HTMLButtonElement>(null);
   const cancelRef = useRef<HTMLButtonElement>(null);
@@ -137,7 +143,7 @@ export function Dialog({
       {cancelText}
     </Button>
   );
-  const hasFooter = Boolean(onCancel || submitButton);
+  const hasFooter = footer != null || Boolean(onCancel || submitButton);
   const changeOpen = (next: boolean) => {
     if (!next && dismissDisabled) return;
     onStateChange(next);
@@ -164,10 +170,13 @@ export function Dialog({
               className="fixed inset-0 grid place-items-center p-0"
             >
               <AlertDialog.Popup
-                // The closing footer Cancel owns initial focus when present. A cancel
-                // action that stays open leaves initial focus on the header close button.
+                // The closing footer Cancel owns initial focus when rendered. A custom
+                // footer replaces Cancel, so focus the header close button; a cancel
+                // action that stays open also leaves initial focus on that button.
                 initialFocus={() =>
-                  onCancel && closeOnCancelClick ? cancelRef.current : closeRef.current
+                  footer == null && onCancel && closeOnCancelClick
+                    ? cancelRef.current
+                    : closeRef.current
                 }
                 render={(props, state) => (
                   <div {...props} data-state={state.open ? "open" : "closed"} />
@@ -179,12 +188,13 @@ export function Dialog({
                   "card animated-modal",
                   // Cap to the viewport so a long title can't push the dialog (and
                   // its close button) off-screen; the title then clips instead.
-                  "h-fit max-h-screen w-fit max-w-[calc(100vw-1rem)]",
+                  "h-fit max-h-[calc(100dvh-1rem)] max-w-[calc(100vw-1rem)]",
+                  size === "medium" ? "w-[36rem]" : "w-fit",
                 )}
               >
                 <div
                   className={clsx(
-                    "flex flex-col gap-1 p-3",
+                    "flex shrink-0 flex-col gap-1 p-3",
                     // Header gets a bottom divider only when something follows
                     // it. A solo header (no body, no footer — uncommon) reads
                     // cleaner without a dangling underline.
@@ -228,7 +238,12 @@ export function Dialog({
                 </div>
 
                 {hasBody && (
-                  <div className="flex-1 p-3 text-black md:flex-none dark:text-white">
+                  <div
+                    className={clsx(
+                      "p-3 text-black dark:text-white",
+                      size === "medium" ? "min-h-0 overflow-auto" : "flex-1 md:flex-none",
+                    )}
+                  >
                     {children}
                   </div>
                 )}
@@ -236,38 +251,42 @@ export function Dialog({
                 {hasFooter && (
                   <div
                     className={clsx(
-                      "flex flex-row justify-end gap-3 p-3",
+                      "flex shrink-0 flex-wrap justify-end gap-3 p-3",
                       // Only divide from a body that actually exists; otherwise the
                       // header's `border-b` is already the separator above us.
                       hasBody && "border-t border-neutral-500/15",
                     )}
                   >
-                    {cancelButton &&
-                      (closeOnCancelClick ? (
-                        <AlertDialog.Close
-                          disabled={cancelDisabled}
-                          onClick={(event) => {
-                            // Action handlers can cancel dismissal with preventDefault.
-                            if (event.defaultPrevented) event.preventBaseUIHandler();
-                          }}
-                          render={cancelButton}
-                        />
-                      ) : (
-                        cancelButton
-                      ))}
-                    {submitButton &&
-                      (closeOnSubmitClick ? (
-                        <AlertDialog.Close
-                          disabled={submitDisabled}
-                          onClick={(event) => {
-                            // Action handlers can cancel dismissal with preventDefault.
-                            if (event.defaultPrevented) event.preventBaseUIHandler();
-                          }}
-                          render={submitButton}
-                        />
-                      ) : (
-                        submitButton
-                      ))}
+                    {footer ?? (
+                      <>
+                        {cancelButton &&
+                          (closeOnCancelClick ? (
+                            <AlertDialog.Close
+                              disabled={cancelDisabled}
+                              onClick={(event) => {
+                                // Action handlers can cancel dismissal with preventDefault.
+                                if (event.defaultPrevented) event.preventBaseUIHandler();
+                              }}
+                              render={cancelButton}
+                            />
+                          ) : (
+                            cancelButton
+                          ))}
+                        {submitButton &&
+                          (closeOnSubmitClick ? (
+                            <AlertDialog.Close
+                              disabled={submitDisabled}
+                              onClick={(event) => {
+                                // Action handlers can cancel dismissal with preventDefault.
+                                if (event.defaultPrevented) event.preventBaseUIHandler();
+                              }}
+                              render={submitButton}
+                            />
+                          ) : (
+                            submitButton
+                          ))}
+                      </>
+                    )}
                   </div>
                 )}
               </AlertDialog.Popup>
