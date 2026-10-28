@@ -26,7 +26,8 @@ export function Collapse({
   return (
     <Collapsible.Root
       open={open}
-      onOpenChange={onStateChange}
+      // Base UI passes event details second; the consumer contract is one boolean.
+      onOpenChange={(next) => onStateChange(next)}
       disabled={disabled}
       render={(props, state) => <div {...props} data-state={state.open ? "open" : "closed"} />}
     >
