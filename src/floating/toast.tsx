@@ -183,10 +183,12 @@ function InnerToast({
   toast,
   generation,
   menuPortalContainer,
+  isCurrentGeneration,
 }: {
   toast: ToastObject<ToastData>;
   generation: number;
   menuPortalContainer: HTMLElement | null;
+  isCurrentGeneration: (id: string, generation: number) => boolean;
 }) {
   // The root and both clocks use this generation's store snapshot, including its
   // ending state while Motion retains the root after the store releases it.
@@ -255,12 +257,15 @@ function InnerToast({
   const removalRequested = useRef(false);
   const leaving = toast.transitionStatus === "ending";
   const expire = useCallback(() => {
-    if (removalRequested.current) return;
+    if (!isCurrentGeneration(data.id, generation) || removalRequested.current) return;
     removalRequested.current = true;
     removeToast(data.id);
-  }, [removeToast, data.id]);
+  }, [removeToast, data.id, generation, isCurrentGeneration]);
 
+  // Callbacks retain the generation that started their work. The synchronous
+  // record invalidates them as soon as an id is replaced, even before a render.
   const receiveFeedback = (feedback: ActionMenuFeedback | undefined) => {
+    if (!isCurrentGeneration(data.id, generation)) return;
     setActionFeedback(feedback);
     if (!feedback) return;
     // Feedback needs a full reading interval after the action releases its hold.
@@ -269,12 +274,14 @@ function InnerToast({
     completion.set(0);
   };
   const copyDetails = async () => {
-    if (data.clipboardContent === undefined) return;
+    if (data.clipboardContent === undefined || !isCurrentGeneration(data.id, generation)) return;
     setCopyState(ToastCopyState.Copying);
     try {
       await navigator.clipboard.writeText(data.clipboardContent);
+      if (!isCurrentGeneration(data.id, generation)) return;
       setCopyState(ToastCopyState.Copied);
     } catch {
+      if (!isCurrentGeneration(data.id, generation)) return;
       setCopyState(ToastCopyState.Failed);
     }
   };
@@ -298,7 +305,14 @@ function InnerToast({
   }, [generation, completion]);
 
   useAnimationFrame((_time, delta) => {
-    if (isPaused || leaving || removalRequested.current) return;
+    if (
+      !isCurrentGeneration(data.id, generation) ||
+      isPaused ||
+      leaving ||
+      removalRequested.current
+    ) {
+      return;
+    }
     pauseState.current.accumulatedTime = delta + pauseState.current.accumulatedTime;
     const percent = Math.min(1, Math.max(0, pauseState.current.accumulatedTime / duration));
     completion.set(percent);
@@ -316,9 +330,11 @@ function InnerToast({
     const timer = window.setTimeout(expire, duration - wallElapsed.current);
     return () => {
       window.clearTimeout(timer);
-      wallElapsed.current += performance.now() - armedAt;
+      if (isCurrentGeneration(data.id, generation)) {
+        wallElapsed.current += performance.now() - armedAt;
+      }
     };
-  }, [generation, leaving, isPaused, duration, expire]);
+  }, [generation, leaving, isPaused, duration, expire, data.id, isCurrentGeneration]);
 
   // The transport shows a pause glyph while paused; otherwise the status glyph (if
   // it has one). Computed here rather than inline so the registry key narrows.
@@ -340,10 +356,6 @@ function InnerToast({
       aria-hidden={undefined}
       data-state={toast.transitionStatus === "ending" ? "closed" : "open"}
       onPointerDown={() => setSwipeStarted(true)}
-      onKeyDown={(event) => {
-        // The menu owns Escape while open; Base UI owns toast Escape otherwise.
-        if (menuOpen && event.key === "Escape") event.preventBaseUIHandler();
-      }}
       render={(props, state) => (
         <motion.li
           {...(props as HTMLMotionProps<"li">)}
@@ -438,8 +450,12 @@ function InnerToast({
               portalContainer={menuPortalContainer}
               iconOnly
               variant={data.variant}
-              onOpenChange={setMenuOpen}
-              onBusyChange={setActionBusy}
+              onOpenChange={(open) => {
+                if (isCurrentGeneration(data.id, generation)) setMenuOpen(open);
+              }}
+              onBusyChange={(busy) => {
+                if (isCurrentGeneration(data.id, generation)) setActionBusy(busy);
+              }}
               onFeedback={receiveFeedback}
             />
           )}
@@ -548,12 +564,17 @@ export interface ToastContainerProps {
 function ToastContainer({ children }: ToastContainerProps) {
   const { toasts: managedToasts, add, update, close } = BaseToast.useToastManager<ToastData>();
   const viewportRef = useRef<HTMLOListElement | null>(null);
-  const [menuPortalContainer, setMenuPortalContainer] = useState<HTMLDivElement | null>(null);
-  const registerMenuContainer = useCallback((node: HTMLDivElement | null) => {
+  const [menuPortalContainer, setMenuPortalContainer] = useState<HTMLLIElement | null>(null);
+  const registerMenuContainer = useCallback((node: HTMLLIElement | null) => {
     // Retain the host through ref detaches so a provider update cannot cause a loop.
     if (node) setMenuPortalContainer(node);
   }, []);
   const windowBlurred = useRef(false);
+  const hovered = useRef(false);
+  // Base UI's close/remove callbacks track closed entries still in its store,
+  // including an id added and closed before the next render. Active entries live
+  // in currentToasts; neither check depends on the render snapshot.
+  const closedStoreIds = useRef(new Set<string>());
   const currentToasts = useRef(new Map<string, ToastData>());
   /** Live generation metadata lasts until both the active record and store entry are gone. */
   const generations = useRef(new Map<string, number>());
@@ -565,7 +586,7 @@ function ToastContainer({ children }: ToastContainerProps) {
   const syncPaused = useCallback(
     () =>
       setPaused(
-        !!viewportRef.current?.matches(":hover") ||
+        hovered.current ||
           !!viewportRef.current?.contains(document.activeElement) ||
           windowBlurred.current,
       ),
@@ -582,7 +603,7 @@ function ToastContainer({ children }: ToastContainerProps) {
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "F8" && viewportRef.current?.childElementCount) {
+      if (event.key === "F8" && viewportRef.current?.querySelector("li[data-state]")) {
         event.preventDefault();
         viewportRef.current.focus();
       }
@@ -597,10 +618,10 @@ function ToastContainer({ children }: ToastContainerProps) {
     // F6 is the browser's own pane shortcut, and Radix's toasts bound F8 alone. Base
     // UI's viewport takes F6 (with any modifiers) on window, in the bubble phase, with
     // no option to turn it off. This capture-phase listener stops the same keydowns
-    // first, without preventing the browser's default.
+    // first, without preventing the browser's default. The viewport needs no F6
+    // event either: its local keydown handler only handles Shift+Tab.
     const handleKeyDown = (event: KeyboardEvent) => {
-      const target = event.composedPath ? event.composedPath()[0] : event.target;
-      if (event.key === "F6" && target !== viewportRef.current) {
+      if (event.key === "F6") {
         event.stopPropagation();
       }
     };
@@ -609,8 +630,8 @@ function ToastContainer({ children }: ToastContainerProps) {
   }, [hasManagedOrMountedToasts]);
 
   useEffect(() => {
-    // Disabled controls can omit blur and mouse events. Document focus changes
-    // must read actual hover and focus ownership before resuming the clocks.
+    // Document focus events are the single focus-pause mechanism. Reading the
+    // active element also releases focus pauses when disabled controls omit blur.
     document.addEventListener("focusin", syncPaused);
     document.addEventListener("focusout", syncPaused);
     return () => {
@@ -620,15 +641,39 @@ function ToastContainer({ children }: ToastContainerProps) {
   }, [syncPaused]);
 
   useEffect(() => {
-    const retainedIds = new Set(managedToasts.map((toast) => toast.id));
     for (const id of generations.current.keys()) {
-      if (retainedIds.has(id) || currentToasts.current.has(id)) continue;
+      if (closedStoreIds.current.has(id) || currentToasts.current.has(id)) continue;
       generations.current.delete(id);
       positions.current.delete(id);
     }
   }, [managedToasts]);
 
   const hasToasts = mounted > 0;
+  useEffect(() => {
+    if (!hasToasts) return;
+    // A node removed under the pointer, such as a selected action menu item,
+    // sends no leave event to its ancestors. Track targets at the document:
+    // engines differ in how :hover updates are ordered against pointer events.
+    const setHovered = (value: boolean) => {
+      if (hovered.current === value) return;
+      hovered.current = value;
+      syncPaused();
+    };
+    const handlePointerOver = (event: PointerEvent) => {
+      setHovered(event.target instanceof Node && !!viewportRef.current?.contains(event.target));
+    };
+    const handlePointerOut = (event: PointerEvent) => {
+      if (event.relatedTarget === null) setHovered(false);
+    };
+    document.addEventListener("pointerover", handlePointerOver, true);
+    document.addEventListener("pointerout", handlePointerOut, true);
+    return () => {
+      document.removeEventListener("pointerover", handlePointerOver, true);
+      document.removeEventListener("pointerout", handlePointerOut, true);
+      setHovered(false);
+    };
+  }, [hasToasts, syncPaused]);
+
   useEffect(() => {
     if (!hasToasts) return;
     const handleBlur = () => {
@@ -652,14 +697,24 @@ function ToastContainer({ children }: ToastContainerProps) {
   const listToast = useCallback(
     (data: ToastData, position: number) => {
       positions.current.set(data.id, position);
-      generations.current.set(data.id, ++nextGeneration.current);
+      const generation = ++nextGeneration.current;
+      generations.current.set(data.id, generation);
       currentToasts.current.set(data.id, data);
+      closedStoreIds.current.delete(data.id);
       add({
         id: data.id,
         title: data.title,
         data,
         timeout: 0,
-        onClose: () => currentToasts.current.delete(data.id),
+        onClose: () => {
+          if (generations.current.get(data.id) !== generation) return;
+          closedStoreIds.current.add(data.id);
+          currentToasts.current.delete(data.id);
+        },
+        onRemove: () => {
+          if (generations.current.get(data.id) !== generation) return;
+          closedStoreIds.current.delete(data.id);
+        },
       });
     },
     [add],
@@ -692,6 +747,11 @@ function ToastContainer({ children }: ToastContainerProps) {
     },
     [update, close, listToast],
   );
+  const isCurrentGeneration = useCallback(
+    (id: string, generation: number) =>
+      currentToasts.current.has(id) && generations.current.get(id) === generation,
+    [],
+  );
   // Only an active toast is closed. Base UI's `close` of a toast it has already marked
   // ending still gives its store a new list, re-rendering every subscriber for a
   // change that changes nothing.
@@ -709,9 +769,11 @@ function ToastContainer({ children }: ToastContainerProps) {
   }, [close]);
   // The store changes while a toast leaves (its height, its removal) without the active
   // list changing; consumers re-render only when the list itself does.
-  const orderedToasts = [...managedToasts].sort(
-    (a, b) => positions.current.get(a.id)! - positions.current.get(b.id)!,
-  );
+  const orderedToasts = [...managedToasts].sort((a, b) => {
+    const aPosition = positions.current.get(a.id) ?? Number.MAX_SAFE_INTEGER;
+    const bPosition = positions.current.get(b.id) ?? Number.MAX_SAFE_INTEGER;
+    return aPosition - bPosition || a.id.localeCompare(b.id);
+  });
   const toasts = useStableList(
     orderedToasts
       .filter((toast) => toast.transitionStatus !== "ending")
@@ -756,22 +818,6 @@ function ToastContainer({ children }: ToastContainerProps) {
                   role={undefined}
                   aria-live={undefined}
                   aria-label={undefined}
-                  onPointerEnter={(event) => {
-                    if (!event.currentTarget.contains(event.target as Node)) return;
-                    syncPaused();
-                  }}
-                  onPointerLeave={syncPaused}
-                  onFocus={(event) => {
-                    // Portal events bubble through React; the menu's hold owns its
-                    // focus pause, independently of focus inside this DOM viewport.
-                    if (!event.currentTarget.contains(event.target)) return;
-                    syncPaused();
-                  }}
-                  onBlur={(event) => {
-                    if (!event.currentTarget.contains(event.relatedTarget)) {
-                      syncPaused();
-                    }
-                  }}
                   className="pointer-events-none fixed top-4 right-4 z-2147483647 flex w-80 max-w-[calc(100vw-2rem)] flex-col-reverse gap-3 max-sm:top-20"
                 >
                   <AnimatePresence>
@@ -781,13 +827,21 @@ function ToastContainer({ children }: ToastContainerProps) {
                         toast={toast}
                         menuPortalContainer={menuPortalContainer}
                         generation={generations.current.get(toast.id) ?? 0}
+                        isCurrentGeneration={isCurrentGeneration}
                       />
                     ))}
                   </AnimatePresence>
+                  {/* A presentational li preserves the list's child semantics. Fixed
+                      positioning excludes the host from flex layout; its z-index
+                      stays inside the list and paints menus above the toasts.
+                      Dropdown stops Escape in Radix's document capture listener,
+                      giving the menu its own dismissal before the toast. */}
+                  <li
+                    role="presentation"
+                    ref={registerMenuContainer}
+                    className="pointer-events-auto fixed z-2147483647"
+                  />
                 </BaseToast.Viewport>
-                {/* Inside the region's branch, menu presses stay inside surrounding
-                    overlays. A sibling host also keeps popup layout out of the list. */}
-                <div ref={registerMenuContainer} className="fixed z-2147483647" />
               </div>
             </DismissableLayer.Branch>
           </BaseToast.Portal>

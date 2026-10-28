@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { useContext } from "react";
+import { useContext, useEffect, useRef } from "react";
 import { act, cleanup, fireEvent, render } from "@testing-library/react";
 import { afterEach, beforeEach, expect, test, vi } from "vitest";
 import { Popover } from "./popover";
@@ -256,4 +256,130 @@ test("an id re-added after store release gets a distinct clock generation", () =
   } finally {
     vi.useRealTimers();
   }
+});
+
+test("id added by a consumer effect in the commit of a store change keeps metadata", () => {
+  let state!: ToastState;
+  function Consumer() {
+    state = useContext(ToastContext);
+    const { toasts, addToast } = state;
+    useEffect(() => {
+      if (toasts.length === 1 && toasts[0].id === "a") {
+        addToast({ id: "b", title: "B", dismiss: 60000 });
+      }
+    }, [toasts, addToast]);
+    return null;
+  }
+  render(
+    <ToastManager>
+      <Consumer />
+    </ToastManager>,
+  );
+  act(() => state.addToast({ id: "a", title: "A", dismiss: 60000 }));
+  expect(state.toasts.map((toast) => toast.id)).toEqual(["a", "b"]);
+  expect(__getToastRetainedMetadataForTests(state)).toEqual({ generations: 2, positions: 2 });
+});
+
+test("add+remove of a new id in one consumer effect never misorders the list", () => {
+  let state!: ToastState;
+  const seen: string[] = [];
+  function Consumer() {
+    state = useContext(ToastContext);
+    const { toasts, addToast, removeToast } = state;
+    const fired = useRef(false);
+    seen.push(toasts.map((toast) => toast.id).join(","));
+    useEffect(() => {
+      if (!fired.current && toasts.length === 3) {
+        fired.current = true;
+        addToast({ id: "x", title: "X", dismiss: 60000 });
+        removeToast("x");
+        addToast({ id: "d", title: "D", dismiss: 60000 });
+      }
+    }, [toasts, addToast, removeToast]);
+    return null;
+  }
+  render(
+    <ToastManager>
+      <Consumer />
+    </ToastManager>,
+  );
+  act(() => {
+    state.addToast({ id: "a", title: "A", dismiss: 60000 });
+    state.addToast({ id: "b", title: "B", dismiss: 60000 });
+    state.addToast({ id: "c", title: "C", dismiss: 60000 });
+  });
+  const distinct = [...new Set(seen)];
+  expect(distinct).not.toContain("d,a,b,c");
+  expect(state.toasts.map((toast) => toast.id)).toEqual(["a", "b", "c", "d"]);
+});
+
+test("re-adding an active id keeps its list slot", () => {
+  let state!: ToastState;
+  function Consumer() {
+    state = useContext(ToastContext);
+    return null;
+  }
+  render(
+    <ToastManager>
+      <Consumer />
+    </ToastManager>,
+  );
+  act(() => {
+    state.addToast({ id: "a", title: "A", dismiss: 60000 });
+    state.addToast({ id: "b", title: "B", dismiss: 60000 });
+    state.addToast({ id: "c", title: "C", dismiss: 60000 });
+  });
+  expect(state.toasts.map((toast) => toast.id)).toEqual(["a", "b", "c"]);
+  act(() => state.addToast({ id: "b", title: "Second B", dismiss: 60000 }));
+  expect(state.toasts.map((toast) => toast.id)).toEqual(["a", "b", "c"]);
+  expect(state.toasts[1].title).toBe("Second B");
+});
+
+test("pointerleave resumes clocks even while the viewport still matches hover", () => {
+  vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] });
+  try {
+    let state!: ToastState;
+    function Consumer() {
+      state = useContext(ToastContext);
+      return null;
+    }
+    const view = render(
+      <ToastManager>
+        <Consumer />
+      </ToastManager>,
+    );
+    act(() => state.addToast({ id: "hover", title: "Hover notice", dismiss: 1000 }));
+    const viewport = view.getByText("Hover notice").closest("ol")!;
+    const matches = vi
+      .spyOn(viewport, "matches")
+      .mockImplementation((selector) => selector === ":hover");
+    try {
+      fireEvent.pointerEnter(viewport);
+      act(() => vi.advanceTimersByTime(1500));
+      expect(state.toasts).toHaveLength(1);
+      fireEvent.pointerLeave(viewport);
+      act(() => vi.advanceTimersByTime(1001));
+      expect(state.toasts).toEqual([]);
+    } finally {
+      matches.mockRestore();
+    }
+  } finally {
+    vi.useRealTimers();
+  }
+});
+
+test("F8 leaves outside focus alone when the viewport has only its menu host", () => {
+  const view = render(
+    <ToastManager>
+      <button type="button">Outside toast</button>
+    </ToastManager>,
+  );
+  const outside = view.getByRole("button", { name: "Outside toast" });
+  act(() => outside.focus());
+  expect(document.querySelector('ol li[role="presentation"]')).toBeTruthy();
+  expect(document.querySelector("ol li[data-state]")).toBeNull();
+  const event = new KeyboardEvent("keydown", { key: "F8", bubbles: true, cancelable: true });
+  act(() => outside.dispatchEvent(event));
+  expect(document.activeElement).toBe(outside);
+  expect(event.defaultPrevented).toBe(false);
 });

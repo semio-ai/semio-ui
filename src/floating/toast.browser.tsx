@@ -109,7 +109,7 @@ test("F8 focuses the notifications viewport", async () => {
 test.each([false, true])(
   "F6 preserves outside focus and the browser default (shift=%s)",
   async (shift) => {
-    await mountToast();
+    const toast = await mountToast();
     const outside = page.getByRole("button", { name: "Outside notifications", exact: true });
     await userEvent.click(outside);
     const events: KeyboardEvent[] = [];
@@ -124,6 +124,16 @@ test.each([false, true])(
       expect(events[0].shiftKey).toBe(shift);
       expect(events[0].defaultPrevented).toBe(false);
       expect(document.activeElement).toBe(outside.element());
+
+      await userEvent.keyboard("{F8}");
+      const viewport = toast()!.parentElement!;
+      expect(document.activeElement).toBe(viewport);
+      await userEvent.keyboard(shift ? "{Shift>}{F6}{/Shift}" : "{F6}");
+      expect(events).toHaveLength(2);
+      expect(events[1].target).toBe(viewport);
+      expect(events[1].shiftKey).toBe(shift);
+      expect(events[1].defaultPrevented).toBe(false);
+      expect(document.activeElement).toBe(viewport);
     } finally {
       window.removeEventListener("keydown", record, true);
     }
@@ -603,9 +613,8 @@ test("a held toast does not expire on the wall clock while its menu is open or i
   const title = page.getByText("Save failed", { exact: true });
   const item = page.getByRole("menuitem", { name: "Export data", exact: true });
 
-  // Focus is in the menu's region-local portal, outside the viewport. Moving
-  // the pointer outside releases the viewport pause, so only the menu hold stops
-  // the clocks. Regaining window focus must preserve that hold.
+  // The modal menu keeps focus inside; regaining window focus must preserve
+  // the open menu's hold while the pointer is away.
   await page.getByRole("button", { name: "Export actions", exact: true }).click();
   await expect.element(item).toBeVisible();
   await userEvent.hover(document.documentElement, { position: { x: 5, y: 5 } });
@@ -615,9 +624,14 @@ test("a held toast does not expire on the wall clock while its menu is open or i
   await expect.element(item).toBeVisible();
   await expect.element(title).toBeVisible();
 
-  // Focus leaving the toasts resumes them while the action runs.
+  // Selecting closes the modal menu before pointer and focus leave the toast.
+  // With the viewport pause released, only the pending action holds the clocks.
   await item.click();
-  await page.getByRole("button", { name: "Outside toast", exact: true }).click();
+  await expect.element(page.getByRole("menu")).not.toBeInTheDocument();
+  await expect.poll(() => typeof finish).toBe("function");
+  const outside = page.getByRole("button", { name: "Outside toast", exact: true });
+  await outside.click();
+  await expect.element(outside).toHaveFocus();
   await pastTheInterval();
   await expect.element(title).toBeVisible();
 
@@ -1003,4 +1017,342 @@ test("metadata follows store exits and retains an id re-added during clear", asy
       generations: 0,
       positions: 0,
     });
+});
+
+test("an old action cannot publish feedback into a re-added toast", async () => {
+  let api!: ToastState;
+  function Api() {
+    api = useContext(ToastContext);
+    return null;
+  }
+  let finish!: (value: Result<string, string>) => void;
+  await userEvent.hover(document.documentElement, { position: { x: 5, y: 5 } });
+  await render(
+    <ToastManager>
+      <Api />
+      <button type="button">Outside toast</button>
+    </ToastManager>,
+  );
+  flushSync(() =>
+    api.addToast({
+      id: "n",
+      title: "First notice",
+      dismiss: 60000,
+      actionMenu: {
+        label: "Export actions",
+        icon: "menu2",
+        items: [
+          {
+            id: "export",
+            label: "Export data",
+            onSelect: () =>
+              new Promise<Result<string, string>>((resolve) => {
+                finish = resolve;
+              }),
+          },
+        ],
+      },
+    }),
+  );
+  await page.getByRole("button", { name: "Export actions", exact: true }).click();
+  await page.getByRole("menuitem", { name: "Export data", exact: true }).click();
+  await expect.poll(() => typeof finish).toBe("function");
+  flushSync(() => api.addToast({ id: "n", title: "Second notice", dismiss: 60000 }));
+  await expect.element(page.getByText("Second notice", { exact: true })).toBeVisible();
+  finish(Result.Ok("Data exported"));
+  await new Promise((resolve) => setTimeout(resolve, 300));
+  expect(page.getByText("Data exported", { exact: true }).query()).toBeNull();
+});
+
+test("an old copy cannot mark a re-added toast as copied", async () => {
+  let api!: ToastState;
+  function Api() {
+    api = useContext(ToastContext);
+    return null;
+  }
+  let finish!: () => void;
+  const writeText = vi.spyOn(navigator.clipboard, "writeText").mockImplementation(
+    () =>
+      new Promise<void>((resolve) => {
+        finish = resolve;
+      }),
+  );
+  await userEvent.hover(document.documentElement, { position: { x: 5, y: 5 } });
+  await render(
+    <ToastManager>
+      <Api />
+    </ToastManager>,
+  );
+  flushSync(() =>
+    api.addToast({ id: "n", title: "First notice", dismiss: 60000, clipboardContent: "old" }),
+  );
+  await page.getByRole("button", { name: "Copy details", exact: true }).click();
+  await expect.poll(() => typeof finish).toBe("function");
+  flushSync(() =>
+    api.addToast({ id: "n", title: "Second notice", dismiss: 60000, clipboardContent: "new" }),
+  );
+  await expect.element(page.getByText("Second notice", { exact: true })).toBeVisible();
+  finish();
+  await new Promise((resolve) => setTimeout(resolve, 300));
+  expect(writeText).toHaveBeenCalledExactlyOnceWith("old");
+  expect(page.getByText("Details copied to clipboard.", { exact: true }).query()).toBeNull();
+});
+
+test("re-added while its menu is open, a toast still expires", async () => {
+  let api!: ToastState;
+  function Api() {
+    api = useContext(ToastContext);
+    return null;
+  }
+  const menu = {
+    label: "Export actions",
+    icon: "menu2" as const,
+    items: [
+      { id: "export", label: "Export data", onSelect: () => Result.Ok<void, string>(undefined) },
+    ],
+  };
+  await userEvent.hover(document.documentElement, { position: { x: 5, y: 5 } });
+  await render(
+    <ToastManager>
+      <Api />
+      <button type="button">Outside toast</button>
+    </ToastManager>,
+  );
+  flushSync(() => api.addToast({ id: "m", title: "First", dismiss: 1000, actionMenu: menu }));
+  await page.getByRole("button", { name: "Export actions", exact: true }).click();
+  await expect.element(page.getByRole("menuitem", { name: "Export data" })).toBeVisible();
+  flushSync(() => api.addToast({ id: "m", title: "Second", dismiss: 1000, actionMenu: menu }));
+  await userEvent.hover(document.documentElement, { position: { x: 5, y: 5 } });
+  (
+    page.getByRole("button", { name: "Outside toast", exact: true }).element() as HTMLElement
+  ).focus();
+  await expect
+    .element(page.getByText("Second", { exact: true }), { timeout: 4000 })
+    .not.toBeInTheDocument();
+}, 15000);
+
+function stackingContextReason(el: HTMLElement): string {
+  const cs = getComputedStyle(el);
+  if (cs.position === "fixed" || cs.position === "sticky") return `position:${cs.position}`;
+  if (cs.position !== "static" && cs.zIndex !== "auto") return "positioned z-index";
+  const parent = el.parentElement;
+  if (parent) {
+    const parentDisplay = getComputedStyle(parent).display;
+    if ((parentDisplay.includes("flex") || parentDisplay.includes("grid")) && cs.zIndex !== "auto")
+      return "flex/grid item z-index";
+  }
+  if (cs.opacity !== "1") return `opacity:${cs.opacity}`;
+  if (cs.transform !== "none") return "transform";
+  if (cs.filter !== "none") return "filter";
+  if (cs.backdropFilter !== "none" && cs.backdropFilter !== "") return "backdrop-filter";
+  if (cs.perspective !== "none") return "perspective";
+  if (cs.mixBlendMode !== "normal") return "mix-blend-mode";
+  if (cs.isolation === "isolate") return "isolation";
+  if (
+    cs.willChange
+      .split(",")
+      .some((value) =>
+        ["transform", "opacity", "filter", "backdrop-filter", "perspective"].includes(value.trim()),
+      )
+  )
+    return `will-change:${cs.willChange}`;
+  if (/(layout|paint|strict|content)/.test(cs.contain)) return `contain:${cs.contain}`;
+  if (cs.containerType === "size") return "container-type:size";
+  return "";
+}
+
+function rootContextPositives(): string[] {
+  return [...document.querySelectorAll<HTMLElement>("*")].flatMap((element) => {
+    const zIndex = Number(getComputedStyle(element).zIndex);
+    if (!Number.isFinite(zIndex) || zIndex <= 0) return [];
+    for (
+      let ancestor = element.parentElement;
+      ancestor && ancestor !== document.documentElement;
+      ancestor = ancestor.parentElement
+    ) {
+      if (stackingContextReason(ancestor)) return [];
+    }
+    return [`${element.tagName.toLowerCase()} z=${zIndex}`];
+  });
+}
+
+test("the toast list is the only positive z-index in the root stacking context with a menu open", async () => {
+  await showToast({
+    actionMenu: {
+      icon: "menu2",
+      label: "Notification actions",
+      items: [{ id: "export", label: "Export data", onSelect: () => Result.Ok(undefined) }],
+    },
+  });
+  const list = document.querySelector("ol")!;
+  expect(rootContextPositives()).toEqual(["ol z=2147483647"]);
+  await page.getByRole("button", { name: "Notification actions", exact: true }).click();
+  const menu = page.getByRole("menu");
+  await expect.element(menu).toBeVisible();
+  expect(rootContextPositives()).toEqual(["ol z=2147483647"]);
+  expect(list.contains(menu.element())).toBe(true);
+  expect([...list.children].every((child) => child.tagName === "LI")).toBe(true);
+  const host = menu.element().closest('li[role="presentation"]')!;
+  expect(host.parentElement).toBe(list);
+  expect(getComputedStyle(host).position).toBe("fixed");
+  expect(Number(getComputedStyle(host).zIndex)).toBe(2147483647);
+});
+
+async function controlledToasts() {
+  let api!: ToastState;
+  function Api() {
+    api = useContext(ToastContext);
+    return null;
+  }
+  await userEvent.hover(document.documentElement, { position: { x: 5, y: 5 } });
+  await render(
+    <ToastManager>
+      <Api />
+      <button type="button">Outside toast</button>
+    </ToastManager>,
+  );
+  return () => api;
+}
+
+test("settling an old action keeps the new generation's pending action hold", async () => {
+  const getApi = await controlledToasts();
+  const interval = 1000;
+  let finishOld!: (value: Result<void, string>) => void;
+  let finishNew!: (value: Result<void, string>) => void;
+  const addAction = (title: string, start: () => Promise<Result<void, string>>) =>
+    flushSync(() =>
+      getApi().addToast({
+        id: "n",
+        title,
+        dismiss: interval,
+        actionMenu: {
+          label: "Export actions",
+          icon: "menu2",
+          items: [{ id: "export", label: "Export data", onSelect: start }],
+        },
+      }),
+    );
+  const select = async () => {
+    await page.getByRole("button", { name: "Export actions", exact: true }).click();
+    await page.getByRole("menuitem", { name: "Export data", exact: true }).click();
+  };
+  addAction(
+    "First notice",
+    () =>
+      new Promise((resolve) => {
+        finishOld = resolve;
+      }),
+  );
+  await select();
+  await expect.poll(() => typeof finishOld).toBe("function");
+  addAction(
+    "Second notice",
+    () =>
+      new Promise((resolve) => {
+        finishNew = resolve;
+      }),
+  );
+  await select();
+  await expect.poll(() => typeof finishNew).toBe("function");
+  await page.getByRole("button", { name: "Outside toast", exact: true }).click();
+  finishOld(Result.Ok(undefined));
+  await new Promise((resolve) => setTimeout(resolve, interval * 1.5));
+  expect(getApi().toasts.map((toast) => toast.title)).toEqual(["Second notice"]);
+  await expect.element(page.getByText("Second notice", { exact: true })).toBeVisible();
+  finishNew(Result.Ok(undefined));
+  await expect.poll(() => getApi().toasts, { timeout: interval * 3 }).toEqual([]);
+}, 15000);
+
+test("action feedback after a late menu hold gets a full reading interval", async () => {
+  const getApi = await controlledToasts();
+  const interval = 3000;
+  let removedAt: number | undefined;
+  flushSync(() =>
+    getApi().addToast({
+      id: "reading",
+      title: "Export notice",
+      dismiss: interval,
+      actionMenu: {
+        label: "Export actions",
+        icon: "menu2",
+        items: [{ id: "export", label: "Export data", onSelect: () => Result.Ok("Data exported") }],
+      },
+    }),
+  );
+  await expect.element(page.getByText("Export notice", { exact: true })).toBeVisible();
+  await new Promise((resolve) => setTimeout(resolve, interval * 0.65));
+  await page.getByRole("button", { name: "Export actions", exact: true }).click();
+  await expect
+    .element(page.getByRole("menuitem", { name: "Export data", exact: true }))
+    .toBeVisible();
+  await userEvent.hover(document.documentElement, { position: { x: 5, y: 5 } });
+  await new Promise((resolve) => setTimeout(resolve, interval * 1.2));
+  await page.getByRole("menuitem", { name: "Export data", exact: true }).click();
+  await expect.element(page.getByText("Data exported", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Outside toast", exact: true }).click();
+  const feedbackAt = performance.now();
+  await new Promise((resolve) => setTimeout(resolve, interval * 0.75));
+  expect(getApi().toasts.map((toast) => toast.id)).toEqual(["reading"]);
+  await expect.element(page.getByText("Data exported", { exact: true })).toBeVisible();
+  await expect
+    .poll(
+      () => {
+        if (getApi().toasts.length === 0) removedAt ??= performance.now();
+        return removedAt;
+      },
+      { timeout: interval * 2 },
+    )
+    .not.toBeUndefined();
+  expect(removedAt! - feedbackAt).toBeGreaterThan(interval * 0.85);
+}, 20000);
+
+test("re-adding a busy menu replaces its items and action state", async () => {
+  const getApi = await controlledToasts();
+  let finish!: (value: Result<void, string>) => void;
+  flushSync(() =>
+    getApi().addToast({
+      id: "menu",
+      title: "First notice",
+      dismiss: 60000,
+      actionMenu: {
+        label: "Notice actions",
+        icon: "menu2",
+        items: [
+          {
+            id: "old",
+            label: "Old action",
+            onSelect: () =>
+              new Promise((resolve) => {
+                finish = resolve;
+              }),
+          },
+        ],
+      },
+    }),
+  );
+  await page.getByRole("button", { name: "Notice actions", exact: true }).click();
+  await page.getByRole("menuitem", { name: "Old action", exact: true }).click();
+  await expect.poll(() => typeof finish).toBe("function");
+  const run = vi.fn(() => Result.Ok<string, string>("New action finished"));
+  flushSync(() =>
+    getApi().addToast({
+      id: "menu",
+      title: "Second notice",
+      dismiss: 60000,
+      actionMenu: {
+        label: "Notice actions",
+        icon: "menu2",
+        items: [{ id: "new", label: "New action", onSelect: run }],
+      },
+    }),
+  );
+  await page.getByRole("button", { name: "Notice actions", exact: true }).click();
+  expect(page.getByRole("menuitem", { name: "Old action", exact: true }).query()).toBeNull();
+  const item = page.getByRole("menuitem", { name: "New action", exact: true });
+  await expect.element(item).toBeVisible();
+  expect(item.element().getAttribute("aria-disabled")).not.toBe("true");
+  await item.click();
+  await expect.element(page.getByText("New action finished", { exact: true })).toBeVisible();
+  expect(run).toHaveBeenCalledOnce();
+  finish(Result.Ok(undefined));
 });
