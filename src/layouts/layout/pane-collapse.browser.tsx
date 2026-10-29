@@ -246,7 +246,7 @@ test("the footer row follows its content's height, before and after a collapse",
   // the footer row is `minmax(0, auto)` and no `PaneSpec.size` feeds it, so the
   // height belongs entirely to whatever is placed there. The studio's animation
   // panel relies on this — it owns a height the viewer drags and hands an explicit
-  // one to `AnimationSheet`, which is what keeps `@semio/animation` free of any
+  // one to `AnimationSheet`, which is what keeps `@semio/timeline-editor` free of any
   // knowledge of panes and usable somewhere other than this row.
   await expect.poll(() => heightOf(".grid-area-footer")).toBe(FOOTER_HEIGHT);
 

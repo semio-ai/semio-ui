@@ -37,7 +37,7 @@ export type IconRegistry = Record<string, IconComponent>;
  * ```
  *
  * Because augmentation follows the dependency graph, each package sees exactly
- * its own keys plus those of its dependencies: `@semio/animation` is checked
+ * its own keys plus those of its dependencies: `@semio/timeline-editor` is checked
  * against `default ∪ animation`, `apps/studio` against `default ∪ animation ∪
  * studio`. The value type (`true`) is irrelevant — only the keys are read.
  */

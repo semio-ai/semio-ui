@@ -105,10 +105,13 @@ const MyComponent = withOptionalMyContext(MyComponentCore);
 
 ## Library-Specific Context Props
 
-### Animation Library (`@semio/animation`)
+### Animation Library (`@semio/timeline-editor`)
 
 ```tsx
-import { WithAnimationContextProps, WithTooltipAndAnimationContextProps } from "@semio/animation";
+import {
+  WithAnimationContextProps,
+  WithTooltipAndAnimationContextProps,
+} from "@semio/timeline-editor";
 
 interface MyAnimationComponentProps extends WithAnimationContextProps {
   skipAnimationContext?: boolean;
@@ -310,7 +313,10 @@ import {
 
 ```tsx
 // Animation library
-import { WithAnimationContextProps, WithTooltipAndAnimationContextProps } from "@semio/animation";
+import {
+  WithAnimationContextProps,
+  WithTooltipAndAnimationContextProps,
+} from "@semio/timeline-editor";
 
 // Scene library
 import { WithSceneContextProps, WithTooltipAndSceneContextProps } from "@semio/scene";
@@ -337,7 +343,7 @@ import { useOptionalContext } from "@semio/ui";
 import { WithAnimationContextProps } from "@semio/ui";
 
 // ✅ New
-import { WithAnimationContextProps } from "@semio/animation";
+import { WithAnimationContextProps } from "@semio/timeline-editor";
 ```
 
 ### Step 3: Split Components

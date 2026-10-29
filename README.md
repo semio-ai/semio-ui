@@ -66,7 +66,7 @@ Code Connect bindings live in `src/**/*.figma.tsx`; `npm run connect:parse` vali
 those files offline without a token. `npm run connect:publish` publishes bindings to Figma.
 
 `parity:figma` and `generate:icon-svgs` compose this library's icon registry with
-`@semio/animation` and Studio's app. Run those checks inside Studio, where those
+`@semio/timeline-editor` and Studio's app. Run those checks inside Studio, where those
 sources are available; Studio's CI runs them there.
 
 Browser tests require Chromium. Install it with
@@ -163,7 +163,7 @@ addToast({
 layer: Semio's own glyphs (`src/icons/`, collected into `semio.generated.ts` by
 `npm run generate:icons`), stock Solar glyphs (`registry/solar.tsx`), the
 semantic roles (`registry/roles.ts`), and a curated Tabler fallback set
-(`tabler.generated.ts`). `@semio/animation` adds editor, playback, data and unit
+(`tabler.generated.ts`). `@semio/timeline-editor` adds editor, playback, data and unit
 keys; Studio adds application keys. No key is defined in two places across the
 three layers — tests fail on a duplicate — so a shared decision is changed in the
 layer that owns it, and every consumer inherits it without an override.

@@ -4,7 +4,7 @@
 // (Tabler / Solar / semio-custom / role keys) because they all render <svg> via React.
 //
 // Composed set = defaultIconRegistry (@semio/ui) ∪ animationIconRegistry
-// (@semio/animation) ∪ studioIconRegistry (apps/studio), resolved studio > animation
+// (@semio/timeline-editor) ∪ studioIconRegistry (apps/studio), resolved studio > animation
 // > default to match the app's `<IconProvider>` composition. This is tooling, so it
 // deliberately reaches across package boundaries to assemble the real app icon set.
 //
@@ -51,7 +51,7 @@ const entrySrc = DEFAULT_ONLY
      export const animationKeys = [];
      export const studioKeys = [];`
   : `import { defaultIconRegistry } from "../src/icons/registry/default-registry";
-     import { animationIconRegistry } from "../../animation/src/icons/registry";
+     import { animationIconRegistry } from "../../timeline-editor/src/icons/registry";
      import { studioIconRegistry } from "../../../apps/studio/src/icons/registry";
      export const defaultKeys = Object.keys(defaultIconRegistry);
      export const animationKeys = Object.keys(animationIconRegistry);

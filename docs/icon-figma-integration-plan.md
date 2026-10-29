@@ -10,7 +10,7 @@ For the plan/tier decision this depends on, see **[figma-code-connect-evaluation
 
 ## Guiding principle: code is the source of truth; Figma derives from it
 
-The registry in `@semio/ui` (+ `@semio/animation`, `apps/studio`) is the single source of truth for *which icons exist* and *what they're named*. Everything on the Figma side is **generated from** or **named after** that registry. Code Connect, when available, is an **additive final layer** on top — not a prerequisite for anything earlier.
+The registry in `@semio/ui` (+ `@semio/timeline-editor`, `apps/studio`) is the single source of truth for *which icons exist* and *what they're named*. Everything on the Figma side is **generated from** or **named after** that registry. Code Connect, when available, is an **additive final layer** on top — not a prerequisite for anything earlier.
 
 This ordering is what makes the work plan-agnostic: phases 1–2 are pure "make Figma match the code," valuable on any plan; phase 3 only switches on the automation once the tier allows it.
 

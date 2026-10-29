@@ -13,7 +13,7 @@ const shared: Options = {
  * Two builds, because `@solar-icons/react-perf` is ESM-only.
  *
  * - **ESM** leaves it external. It is a declared dependency, so an ESM consumer
- *   resolves it from their own install and shares one copy with `@semio/animation`,
+ *   resolves it from their own install and shares one copy with `@semio/timeline-editor`,
  *   which imports it too.
  * - **CJS** bundles it. A `require()` of an ESM-only package fails on every Node
  *   release without `require(esm)` and in CommonJS toolchains, so the CommonJS

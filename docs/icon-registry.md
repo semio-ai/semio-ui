@@ -201,7 +201,7 @@ re-registers a common role key (`close`) could quietly defeat app theming from
 above. To keep app authority intact:
 
 - **Libraries export a registry _object_, not their own `<IconProvider>`.**
-  `@semio/animation` exports `animationIconRegistry`; the app composes it where
+  `@semio/timeline-editor` exports `animationIconRegistry`; the app composes it where
   it controls precedence: `<IconProvider registry={{ ...animationIconRegistry,
 ...appIcons }}>`. Last-wins; the app has the final say.
 - If a library _does_ render its own provider, keep it **additive-only** —
