@@ -1,18 +1,275 @@
-import { storybookConfig } from "@semio/eslint-config/storybook";
+import js from "@eslint/js";
+import tseslint from "typescript-eslint";
+import reactPlugin from "eslint-plugin-react";
+import reactHooksPlugin from "eslint-plugin-react-hooks";
+import jsxA11yPlugin from "eslint-plugin-jsx-a11y";
+import importPlugin from "eslint-plugin-import";
+import unicornPlugin from "eslint-plugin-unicorn";
+import tailwindPlugin from "eslint-plugin-tailwindcss";
+import prettierConfig from "eslint-config-prettier";
+import globals from "globals";
+
 import { semioUiPlugin } from "./eslint-rules/index.mjs";
 
+// Shared React and TypeScript rules, scoped to this repository.
 export default [
-  ...storybookConfig(),
-  { languageOptions: { parserOptions: { tsconfigRootDir: import.meta.dirname } } },
+  // Ignores (must be first for flat config)
+  {
+    ignores: [
+      "node_modules/",
+      "dist/",
+      "storybook-static/",
+      ".vitest/",
+      "**/__screenshots__/",
+      "**/*.css",
+      // `build/` holds the tsbuildinfo and is excluded from the tsconfigs, so
+      // anything appearing there is outside the program eslint would need.
+      "build/",
+      // Ignore tsup's transient bundled config so lint can run alongside builds.
+      "**/tsup.config.bundled_*.mjs",
+    ],
+  },
+
+  // Base JS recommended rules
+  js.configs.recommended,
+
+  // TypeScript (using flat config helpers)
+  ...tseslint.configs.recommendedTypeChecked,
+  ...tseslint.configs.stylisticTypeChecked,
+
+  // Language options for TypeScript
+  {
+    languageOptions: {
+      parserOptions: {
+        projectService: {
+          allowDefaultProject: ["*.mjs", "*.js"],
+        },
+        tsconfigRootDir: import.meta.dirname,
+      },
+    },
+  },
+
+  // React (using flat config)
+  reactPlugin.configs.flat.recommended,
+  reactPlugin.configs.flat["jsx-runtime"],
+
+  // React Hooks
+  {
+    plugins: { "react-hooks": reactHooksPlugin },
+    rules: {
+      "react-hooks/rules-of-hooks": "error",
+      "react-hooks/exhaustive-deps": "warn",
+    },
+  },
+
+  // JSX A11y (using flat config)
+  jsxA11yPlugin.flatConfigs.recommended,
+
+  // Import plugin
+  {
+    plugins: { import: importPlugin },
+    rules: {
+      "import/first": "error",
+      "import/newline-after-import": "warn",
+      "import/no-absolute-path": "error",
+      "import/no-default-export": "off",
+      "import/no-mutable-exports": "error",
+      "import/no-self-import": "error",
+      "import/no-useless-path-segments": "error",
+      "import/order": [
+        "warn",
+        {
+          groups: ["builtin", "external", "internal", "parent", "sibling", "index"],
+        },
+      ],
+    },
+  },
+
+  // Unicorn
+  {
+    plugins: { unicorn: unicornPlugin },
+    rules: {
+      "unicorn/filename-case": "off",
+      "unicorn/prefer-node-protocol": "warn",
+    },
+  },
+
+  // React rule overrides
+  {
+    settings: {
+      react: { version: "detect" },
+    },
+    rules: {
+      "react/prop-types": "off",
+      "react/no-unknown-property": "off",
+      "react/button-has-type": "warn",
+      "react/self-closing-comp": "warn",
+      "react/jsx-boolean-value": "warn",
+      "react/jsx-curly-brace-presence": "warn",
+      "react/jsx-fragments": "warn",
+      "react/jsx-no-useless-fragment": ["warn", { allowExpressions: true }],
+      "react/jsx-pascal-case": "warn",
+      "react/no-unstable-nested-components": "error",
+      "react/function-component-definition": "warn",
+      "react/hook-use-state": "warn",
+    },
+  },
+
+  // TypeScript rule overrides
+  {
+    files: ["**/*.ts", "**/*.tsx"],
+    rules: {
+      // Extension rules
+      "@typescript-eslint/default-param-last": "error",
+      "@typescript-eslint/no-loop-func": "error",
+      "@typescript-eslint/no-shadow": "error",
+      "@typescript-eslint/no-unused-vars": [
+        "error",
+        { args: "after-used", argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
+      ],
+      "@typescript-eslint/no-useless-constructor": "error",
+
+      // Custom rules
+      "@typescript-eslint/consistent-type-exports": "warn",
+      "@typescript-eslint/switch-exhaustiveness-check": "off",
+      "@typescript-eslint/require-array-sort-compare": ["error", { ignoreStringArrays: true }],
+      "@typescript-eslint/naming-convention": [
+        "error",
+        { selector: "typeLike", format: ["PascalCase"] },
+        { selector: "enumMember", format: ["PascalCase"] },
+        {
+          selector: "variable",
+          format: ["camelCase", "UPPER_CASE", "PascalCase"],
+          leadingUnderscore: "allow",
+          trailingUnderscore: "allow",
+        },
+      ],
+
+      // Disabled — too noisy for this codebase
+      "@typescript-eslint/no-unsafe-enum-comparison": "off",
+      "@typescript-eslint/consistent-type-imports": "off",
+      "@typescript-eslint/explicit-function-return-type": "off",
+      "@typescript-eslint/no-confusing-void-expression": "off",
+      "@typescript-eslint/no-unnecessary-condition": "off",
+      "@typescript-eslint/no-unnecessary-type-assertion": "off",
+      "@typescript-eslint/no-empty-function": "off",
+      "@typescript-eslint/no-non-null-assertion": "off",
+      "@typescript-eslint/no-explicit-any": "off",
+      "@typescript-eslint/no-unsafe-member-access": "off",
+      "@typescript-eslint/no-unsafe-assignment": "off",
+      "@typescript-eslint/no-unsafe-call": "off",
+      "@typescript-eslint/no-unsafe-return": "off",
+      "@typescript-eslint/no-unsafe-argument": "off",
+      "@typescript-eslint/prefer-nullish-coalescing": "off",
+      "@typescript-eslint/no-redundant-type-constituents": "off",
+      "@typescript-eslint/no-base-to-string": "off",
+      "@typescript-eslint/restrict-template-expressions": "off",
+      "@typescript-eslint/no-misused-promises": "off",
+      "@typescript-eslint/unbound-method": "off",
+      "@typescript-eslint/only-throw-error": "off",
+      "@typescript-eslint/no-floating-promises": "off",
+      "@typescript-eslint/no-require-imports": "off",
+      "@typescript-eslint/no-empty-object-type": "off",
+      "@typescript-eslint/no-duplicate-type-constituents": "off",
+      "@typescript-eslint/no-unused-expressions": "off",
+      "@typescript-eslint/prefer-optional-chain": "off",
+      "@typescript-eslint/prefer-find": "off",
+      "@typescript-eslint/ban-ts-comment": "off",
+    },
+  },
+
+  // Best practices
+  {
+    rules: {
+      "array-callback-return": ["error", { allowImplicit: true }],
+      curly: ["warn", "multi-line"],
+      eqeqeq: ["error", "always", { null: "ignore" }],
+      "no-alert": "error",
+      "no-caller": "error",
+      "no-eval": "error",
+      "no-extend-native": "error",
+      "no-extra-bind": "error",
+      "no-implied-eval": "error",
+      "no-new": "error",
+      "no-new-func": "error",
+      "no-new-wrappers": "error",
+      "no-param-reassign": "error",
+      "no-return-assign": "error",
+      "no-self-compare": "error",
+      "no-sequences": "error",
+      "no-useless-call": "error",
+      "no-useless-concat": "error",
+      "no-useless-return": "warn",
+      "no-var": "error",
+      "no-console": "off",
+      "no-useless-assignment": "off",
+      "prefer-const": "warn",
+      "prefer-rest-params": "error",
+      "prefer-spread": "error",
+      "prefer-template": "warn",
+      "object-shorthand": "warn",
+    },
+  },
+
+  // Tailwind CSS class linting
+  ...tailwindPlugin.configs["flat/recommended"],
+  {
+    settings: {
+      tailwindcss: {
+        // Tailwind v4 uses CSS-based config, no tailwind.config.js
+        config: {},
+      },
+    },
+    rules: {
+      // Warn when arbitrary values have canonical equivalents (e.g. w-[100px] → w-25)
+      "tailwindcss/no-unnecessary-arbitrary-value": "warn",
+      // Warn on conflicting classes (e.g. p-2 p-4)
+      "tailwindcss/no-contradicting-classname": "warn",
+      // Class ordering — disabled; auto-fix frequently disrupts intentional grouping
+      "tailwindcss/classnames-order": "off",
+      // Allow custom class names (we use them extensively)
+      "tailwindcss/no-custom-classname": "off",
+      // Shorthand enforcement is too aggressive for existing code
+      "tailwindcss/enforces-shorthand": "off",
+    },
+  },
+
+  // JavaScript is outside the TypeScript program. Keep syntactic and stylistic
+  // rules active for scripts and configs, with Node globals; source JS also gets
+  // browser globals. TypeScript uses its ambient libraries.
+  {
+    ...tseslint.configs.disableTypeChecked,
+    files: ["**/*.js", "**/*.mjs", "**/*.cjs"],
+    languageOptions: {
+      ...tseslint.configs.disableTypeChecked.languageOptions,
+      parserOptions: { projectService: false, project: false },
+      globals: { ...globals.node },
+    },
+  },
+  {
+    files: ["**/src/**/*.js", "**/src/**/*.mjs", "**/src/**/*.cjs"],
+    languageOptions: {
+      globals: { ...globals.browser },
+    },
+  },
+
+  // Storybook CSF render functions can use hooks and arrow-function exports.
+  {
+    files: ["**/*.stories.*"],
+    rules: {
+      "react-hooks/rules-of-hooks": "off",
+      "react/function-component-definition": "off",
+    },
+  },
+
+  // Prettier last — disables formatting rules that conflict
+  prettierConfig,
   {
     files: ["src/**/*.tsx"],
     plugins: { "semio-ui": semioUiPlugin },
     rules: {
-      // A literal foreground on a variant-filled element is wrong in some theme or for
-      // some variant, always. The allowlist is empty on purpose: the one entry this was
-      // expected to need — the inverted tooltip — turned out to be a real defect when
-      // its named variants were measured, so it was fixed instead of excused. Any entry
-      // added here must carry a reason that survives being measured.
+      // A literal foreground on a variant-filled element is wrong in some theme or
+      // variant. Every exemption must carry a reason supported by measurements.
       "semio-ui/no-hardcoded-on-fill-foreground": ["error", { allow: [] }],
     },
   },

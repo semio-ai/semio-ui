@@ -1,0 +1,6 @@
+dist/
+build/
+coverage/
+package-lock.json
+.vitest/
+__screenshots__/

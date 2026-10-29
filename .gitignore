@@ -1,4 +1,3 @@
-
 # Generated Figma bridge outputs (regenerable via scripts/generate-icon-svgs.mjs).
 # The committed artifacts in figma/ (icon-manifest.json, button-contract.json) are NOT ignored.
 figma/icon-svgs/
@@ -15,3 +14,17 @@ __screenshots__/
 
 # Storybook build output
 storybook-static/
+
+node_modules/
+dist/
+build/
+.turbo/
+coverage/
+*.tsbuildinfo
+*.log
+.DS_Store
+.env*
+.vitest/
+Thumbs.db
+Desktop.ini
+._*

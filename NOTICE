@@ -1,7 +1,7 @@
 @semio/ui — Third-Party Notices
 ===============================
 
-@semio/ui is MIT licensed; see the LICENSE file in this package.
+@semio/ui is Apache-2.0 licensed; see the LICENSE file in this package.
 
 Its icons come from Tabler Icons (MIT), Solar Icons (artwork CC BY 4.0, package
 code MIT) and supplied artwork. Part of each is compiled into this package's
@@ -11,10 +11,10 @@ are therefore reproduced here in full, because a consumer of the published packa
 has no copy of the source repository and a notice that points outward attributes
 nothing.
 
-Maintainers — this statement is duplicated elsewhere in the source repository
-(https://github.com/semio-ai/studio), and THIRD-PARTY-NOTICES.md at its root
-indexes every copy. Edit them together, because an attribution obligation is
-satisfied by the stated form and not by a paraphrase of it.
+Maintainers — this same statement is kept in Studio's THIRD-PARTY-NOTICES.md
+(https://github.com/semio-ai/studio) and in the NOTICE of each sibling library
+named there. Edit them together, because an attribution obligation is satisfied
+by the stated form and not by a paraphrase of it.
 
 ## Icons
 
