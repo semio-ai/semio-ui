@@ -9,8 +9,8 @@ import { ToastManager, type ToastData } from "./toast";
 /**
  * A toast's dismiss control, in a real browser: an action toast's button runs its
  * action and closes, and a plain toast's close button only closes. The action runs
- * through Radix's `Close`, which merges its own click handler into the button, so
- * whether both happen, and in which order, is only observable with the real parts.
+ * through Base UI's `Toast.Close`, which merges its own click handler into the button,
+ * so whether both happen, and in which order, is only observable with the real parts.
  */
 
 function AddOnMount({ toast }: { toast: ToastData }) {

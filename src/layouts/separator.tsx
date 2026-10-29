@@ -1,5 +1,5 @@
 import { CSSProperties, ReactNode } from "react";
-import { Separator as RadixSeparator } from "radix-ui";
+import { Separator as BaseSeparator } from "@base-ui/react/separator";
 import { clsx } from "clsx";
 import { Variant } from "../types";
 
@@ -32,8 +32,9 @@ export function Separator({
           } as CSSProperties
         }
       >
-        <RadixSeparator.Root
+        <BaseSeparator
           orientation={orientation}
+          aria-orientation={orientation === "vertical" ? "vertical" : undefined}
           className={clsx(
             "flex flex-1 data-[orientation=horizontal]:h-px data-[orientation=vertical]:w-px",
             color ? "custom-color" : variant,
@@ -41,8 +42,9 @@ export function Separator({
           )}
         />
         {children}
-        <RadixSeparator.Root
+        <BaseSeparator
           orientation={orientation}
+          aria-orientation={orientation === "vertical" ? "vertical" : undefined}
           className={clsx(
             "flex flex-1 data-[orientation=horizontal]:h-px data-[orientation=vertical]:w-px",
             color ? "custom-color" : variant,
@@ -53,13 +55,14 @@ export function Separator({
     );
   } else {
     return (
-      <RadixSeparator.Root
+      <BaseSeparator
         style={
           {
             "--custom-color": color,
           } as CSSProperties
         }
         orientation={orientation}
+        aria-orientation={orientation === "vertical" ? "vertical" : undefined}
         className={clsx(
           "data-[orientation=horizontal]:h-[1px] data-[orientation=vertical]:w-[1px]",
           // "data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full",

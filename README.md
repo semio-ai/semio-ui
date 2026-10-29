@@ -52,16 +52,41 @@ buttons, an add field, a dropdown, or editing hover and focus styling. Unlike
 `disabled`, it keeps the chips at their normal opacity. An empty read-only
 input shows `placeholder` or an em-dash.
 
+### Primitive contracts
+
+`Checkbox`, `ToggleSquare`, and `Switch` render native buttons and support label
+associations. Controls expose `data-state` values for styling. Panel size variables
+with `--radix-` names remain available for consumer animations.
+Toggle groups expose single selection through `role="radio"` and `aria-checked`;
+the current focus target participates directly in the Tab order.
+
+Use `Collapse` for a titled disclosure. For raw Radix parts with Radix props and
+`data-state`, import `Collapsible` directly from `radix-ui`.
+
+Use the Base UI `ToastManager` with `useAddToast` to show notifications. Hover or focus inside
+the viewport pauses the timeout ring and dismissal. F8 focuses the viewport.
+Toasts support right swipes and remain clickable above dialogs. The toast owns its
+frame and wall clocks; Base UI's timeout is disabled so both clocks share pauses
+and holds. Menu popups portal inside the notifications region to keep their presses
+inside surrounding overlays, and menu interactions do not start a toast swipe.
+
+Each `addToast` is a new notification, even under an id that is listed or leaving:
+its interval and screen-reader announcement restart. `updateToast` merges patches
+synchronously; changing `id` replaces the notification in its list position with a
+new interval and announcement, removable through the new id.
+
 ### Toast clipboard details
 
 `ToastData.clipboardContent?: string` adds an outlined clipboard icon button in the
 header, immediately before Close. Its accessible label and tooltip are **Copy details**. Supply the exact text to copy, with formatting and any redaction handled
 by the caller. The payload is not displayed in the toast. A successful copy shows
-**Copied**; a failed copy shows an inline message and allows retry. Copying does
-not dismiss the toast or invoke its labeled action.
+**Copied**; a failed copy shows an inline message and allows retry. Copying holds
+the dismissal interval until it settles and does not dismiss the toast or invoke
+its labeled action.
 
-Toasts with clipboard content default to ten seconds; other toasts default to four.
-A numeric `dismiss` still overrides the duration. Hovering or focusing the toast
+Toasts with clipboard content or an action menu default to ten seconds; ordinary
+toasts default to four. A numeric `dismiss` still overrides the duration.
+Hovering or focusing the toast
 pauses dismissal. See `ui/ToastManager` → **Clipboard Examples** in Storybook.
 
 ```tsx

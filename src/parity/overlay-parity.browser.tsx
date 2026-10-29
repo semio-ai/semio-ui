@@ -1,24 +1,12 @@
-/// <reference types="vite/client" />
 /**
- * Overlay parity: renders each overlay state, reads its computed styles, geometry,
- * entrance animation and focus, and compares them with a committed baseline.
- *
- * **Opt-in.** Text geometry follows the platform's `system-ui` font, so the baseline
- * holds only on the platform it was captured on (macOS). The file therefore runs only
- * when asked:
- *
- * - `VITE_PARITY=1 npx vitest run --project browser src/parity/overlay-parity.browser.tsx`
- *   checks the current code against the baseline;
- * - `VITE_PARITY_CAPTURE=1 …` rewrites the baseline from the current code.
- *
- * Capture the baseline from the code being replaced, in its own commit, before changing
- * it; a difference the check then reports is either a defect or a change to name.
+ * Overlay parity: dialogs, menus, selects, tooltips, popovers and the combobox, in
+ * light and dark, against `overlay-parity.baseline.json`. See `harness.ts` for how the
+ * parity files run and how to recapture a baseline.
  */
 import { type ReactNode, useState } from "react";
-import { afterAll, afterEach, beforeEach, describe, expect, test } from "vitest";
-import { commands, page, userEvent } from "vitest/browser";
-import { cleanup, render } from "vitest-browser-react";
-import "../test-stylesheet";
+import { beforeEach, describe, expect, test } from "vitest";
+import { page, userEvent } from "vitest/browser";
+import { render } from "vitest-browser-react";
 import { Button } from "../buttons/button";
 import { Dialog } from "../floating/dialog";
 import { Modal } from "../floating/modal";
@@ -35,6 +23,16 @@ import { NestedRadio } from "../nested-elements/radio";
 import { NestedCheckbox } from "../nested-elements/checkbox";
 import { NestedMenu } from "../nested-elements/menu";
 import { Theme, Variant } from "../types";
+import {
+  type Measurements,
+  focusName,
+  parityHarness,
+  required,
+  role,
+  settle,
+  surface,
+  take,
+} from "./harness";
 import baseline from "./overlay-parity.baseline.json";
 
 enum State {
@@ -56,106 +54,11 @@ enum State {
   ModalInDialog = "Modal inside Dialog",
 }
 
-const capture = import.meta.env.VITE_PARITY_CAPTURE === "1";
-const enabled = capture || import.meta.env.VITE_PARITY === "1";
-const captured: Record<string, Measurements> = {};
-type Measurements = Record<string, Record<string, string | number | boolean>>;
-const properties = [
-  "color",
-  "backgroundColor",
-  "borderTopLeftRadius",
-  "boxShadow",
-  "paddingTop",
-  "paddingRight",
-  "paddingBottom",
-  "paddingLeft",
-  "fontSize",
-  "fontWeight",
-  "lineHeight",
-  "opacity",
-  "borderTopWidth",
-  "borderTopColor",
-  "borderBottomWidth",
-  "borderBottomColor",
-  "fill",
-  "stroke",
-] as const;
-
-const frame = () => new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
-
-async function settle() {
-  // Finishing can schedule React updates and further transitions. Drain those too,
-  // then leave two complete layout frames before measuring viewport coordinates.
-  for (let pass = 0; pass < 3; pass++) {
-    document.getAnimations().forEach((animation) => animation.finish());
-    await frame();
-    await frame();
-  }
-  expect(
-    document.getAnimations().filter((animation) => animation.playState === "running"),
-  ).toHaveLength(0);
-}
-
-function required<T extends Element>(element: T | null | undefined): T {
-  expect(element, "required parity element").toBeTruthy();
-  return element!;
-}
-
-function measure(element: Element): Record<string, string | number> {
-  const style = getComputedStyle(element);
-  const rect = element.getBoundingClientRect();
-  const round = (value: number) => Math.round(value * 2) / 2;
-  return {
-    ...Object.fromEntries(properties.map((property) => [property, style[property]])),
-    x: round(rect.x),
-    y: round(rect.y),
-    width: round(rect.width),
-    height: round(rect.height),
-  };
-}
-
-function take(result: Measurements, name: string, element: Element) {
-  result[name] = measure(element);
-}
-
-async function surface(target: string | Element, result: Measurements, name = "surface") {
-  const resolve = () => (typeof target === "string" ? document.querySelector(target) : target);
-  await expect
-    .poll(() => {
-      const element = resolve();
-      const rect = element?.getBoundingClientRect();
-      return !!rect && rect.width > 0 && rect.height > 0 && rect.x >= 0 && rect.y >= 0;
-    })
-    .toBe(true);
-  const element = required(resolve());
-  // Read entrance metadata before finishing: fill/geometry are sampled at rest.
-  const { animationName, animationDuration } = getComputedStyle(element);
-  result[`${name} entrance`] = { animationName, animationDuration };
-  await settle();
-  take(result, name, element);
-  return element;
-}
-
-function role(roleName: Parameters<typeof page.getByRole>[0], name: string) {
-  return page.getByRole(roleName, { name, exact: true });
-}
-
-function focusName() {
-  const element = required(document.activeElement);
-  if (element === document.body) return "(body)";
-  const labelledBy = element.getAttribute("aria-labelledby");
-  return (
-    element.getAttribute("aria-label") ??
-    (labelledBy
-      ? labelledBy
-          .split(/\s+/)
-          .map((id) => document.getElementById(id)?.textContent ?? "")
-          .join(" ")
-      : null) ??
-    element.textContent ??
-    ""
-  ).trim();
-}
+const verify = parityHarness({
+  baseline: baseline as Record<string, Measurements>,
+  baselinePath: "src/parity/overlay-parity.baseline.json",
+  expectedCount: Object.values(State).length * 2,
+});
 
 function backdrop(popup: Element) {
   const candidates = backdrops(popup);
@@ -184,23 +87,6 @@ function arrow(popup: Element) {
   // Arrow's own viewBox distinguishes the caret from item glyphs without
   // depending on the positioning primitive's wrappers or attributes.
   return required(popup.querySelector('svg[viewBox="0 0 30 10"]'));
-}
-
-function verify(theme: Theme, state: State, measurements: Measurements) {
-  const key = `${theme} / ${state}`;
-  captured[key] = measurements;
-  if (capture) return;
-  const expected = (baseline as Record<string, Measurements>)[key];
-  expect(expected, `${key}: baseline state exists`).toBeDefined();
-  expect(Object.keys(measurements), `${key}: element set`).toEqual(Object.keys(expected));
-  for (const [element, values] of Object.entries(measurements)) {
-    expect(Object.keys(values), `${key} / ${element}: property set`).toEqual(
-      Object.keys(expected[element]),
-    );
-    for (const [property, value] of Object.entries(values)) {
-      expect(value, `${key} / ${element} / ${property}`).toEqual(expected[element][property]);
-    }
-  }
 }
 
 // Fixed inline geometry avoids adding Tailwind utilities to the source scan.
@@ -304,29 +190,6 @@ async function menuMeasurements(result: Measurements, popup: Element) {
   expect(submenu.contains(role("menuitem", "Submenu action").element())).toBe(true);
 }
 
-beforeEach(async () => {
-  await page.viewport(1280, 800);
-  await document.fonts.ready;
-  // The pointer survives React cleanup; park it outside every fixed fixture.
-  await userEvent.hover(document.documentElement, { position: { x: 5, y: 5 } });
-});
-
-afterEach(async () => {
-  await cleanup();
-  document.documentElement.classList.remove("dark");
-});
-
-afterAll(async () => {
-  if (capture && Object.keys(captured).length > 0) {
-    expect(Object.keys(captured)).toHaveLength(Object.values(State).length * 2);
-    // Vitest 5 resolves built-in file commands from the project root.
-    await commands.writeFile(
-      "src/parity/overlay-parity.baseline.json",
-      `${JSON.stringify(captured, null, 2)}\n`,
-    );
-  }
-});
-
 function ModalInDialogFixture() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
@@ -371,7 +234,7 @@ function DialogInModalFixture() {
 }
 
 for (const theme of [Theme.Light, Theme.Dark]) {
-  describe.runIf(enabled)(theme, () => {
+  describe(theme, () => {
     beforeEach(() => document.documentElement.classList.toggle("dark", theme === Theme.Dark));
 
     for (const state of [
@@ -633,7 +496,3 @@ for (const theme of [Theme.Light, Theme.Dark]) {
     });
   });
 }
-
-test.runIf(!enabled)("overlay parity runs only with VITE_PARITY=1 or VITE_PARITY_CAPTURE=1", () => {
-  expect(enabled).toBe(false);
-});

@@ -1,5 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from "react";
-import { ToggleGroup as RadixToggleGroup } from "radix-ui";
+import { ToggleGroup as BaseToggleGroup } from "@base-ui/react/toggle-group";
+import { Toggle } from "@base-ui/react/toggle";
 import { clsx } from "clsx";
 import { Tooltip } from "../floating/tooltip";
 import { Variant, Size } from "../types";
@@ -10,6 +11,13 @@ import { resolveIcon, type IconValue } from "../icons/registry";
 // consumer may render on a server, and this package's own `unit` test project
 // renders through `renderToStaticMarkup` in node.
 const useIsomorphicLayoutEffect = typeof document === "undefined" ? useEffect : useLayoutEffect;
+
+enum ToggleNavigationKey {
+  Down = "ArrowDown",
+  Up = "ArrowUp",
+  First = "PageUp",
+  Last = "PageDown",
+}
 
 export interface ToggleGroupProps {
   visuals: "icons" | "labels" | "both";
@@ -52,8 +60,8 @@ export function ToggleGroup({
   // Three things made the old version wrong, and a `labels` group showed all of
   // them at once as a pill clipping the label it was supposed to sit behind:
   //
-  // 1. The item was located through a ref callback on `RadixToggleGroup.Item`,
-  //    which `Tooltip` wraps (`Trigger asChild`). Each item is re-queried by
+  // 1. The item was located through a ref callback on the item, which `Tooltip`
+  //    wraps (`Trigger asChild`). Each item is re-queried by
   //    `data-toggle-item` instead, so a trigger that re-renders and swaps its
   //    DOM node can't leave us measuring a detached element.
   // 2. Measuring once on mount plus window `resize` missed the webfont swap,
@@ -99,19 +107,77 @@ export function ToggleGroup({
     return () => observer.disconnect();
   }, [value, visuals, size, options.length]);
 
+  const enteringForward = useRef(false);
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      enteringForward.current = event.key === "Tab" && !event.shiftKey;
+    };
+    document.addEventListener("keydown", handleKeyDown, true);
+    return () => document.removeEventListener("keydown", handleKeyDown, true);
+  }, []);
+
   return (
-    <RadixToggleGroup.Root
+    <BaseToggleGroup
       ref={rootRef}
       className={clsx(
         "relative inline-flex items-center overflow-hidden rounded-sm transition-all ",
         bg && "dark:bg-layout-dark-base bg-layout-light-base",
         className,
       )}
-      type="single"
-      value={value}
-      onValueChange={(v: string) => {
-        if (v) onChange(v);
+      onPointerDownCapture={() => {
+        enteringForward.current = false;
       }}
+      onFocus={(event) => {
+        const forward = enteringForward.current;
+        enteringForward.current = false;
+        if (forward && !event.currentTarget.contains(event.relatedTarget)) {
+          // Forward entry prefers the pressed item. Backward entry keeps the
+          // last-focused item, and Shift+Tab from an item leaves the group.
+          event.currentTarget
+            .querySelector<HTMLButtonElement>(
+              '[data-toggle-item][aria-checked="true"]:not(:disabled)',
+            )
+            ?.focus();
+        }
+      }}
+      onKeyDown={(event) => {
+        if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+        const items = Array.from(
+          event.currentTarget.querySelectorAll<HTMLButtonElement>(
+            "[data-toggle-item]:not(:disabled)",
+          ),
+        );
+        const index = items.indexOf(event.target as HTMLButtonElement);
+        if (index < 0) return;
+        let next: HTMLButtonElement | undefined;
+        switch (event.key) {
+          case ToggleNavigationKey.Down:
+            next = items[(index + 1) % items.length];
+            break;
+          case ToggleNavigationKey.Up:
+            next = items[(index - 1 + items.length) % items.length];
+            break;
+          case ToggleNavigationKey.First:
+            next = items[0];
+            break;
+          case ToggleNavigationKey.Last:
+            next = items[items.length - 1];
+            break;
+          default:
+            return;
+        }
+        event.preventDefault();
+        event.preventBaseUIHandler();
+        // CompositeItem's focus handler updates Base UI's highlighted index.
+        next?.focus();
+      }}
+      value={value ? [value] : []}
+      onValueChange={(values) => {
+        if (values[0]) onChange(values[0]);
+      }}
+      render={(props) => (
+        <div {...props} aria-orientation={undefined} data-orientation={undefined} />
+      )}
       aria-label={label ?? "Toggle Group"}
     >
       {/* The highlight pill. Position and size are plain styles with a CSS
@@ -158,12 +224,28 @@ export function ToggleGroup({
             content={option.label ?? "Option"}
             variant={option?.variant}
           >
-            <RadixToggleGroup.Item
+            <Toggle
               key={option.value}
               // The highlight pill measures the active item by this attribute
               // rather than through a collected ref — see the measuring effect.
               data-toggle-item={option.value}
-              data-state={value === option.value ? "on" : "off"}
+              render={(props, state) => (
+                <button
+                  {...props}
+                  type="button"
+                  disabled={option.disabled}
+                  aria-disabled={undefined}
+                  data-disabled={option.disabled ? "" : undefined}
+                  role="radio"
+                  aria-pressed={undefined}
+                  aria-checked={state.pressed}
+                  data-state={state.pressed ? "on" : "off"}
+                />
+              )}
+              // Base UI's composite marker starts roving focus at the selected item.
+              // It is not public API; ToggleGroup/Toggle expose no prop for this.
+              // The parity state's keyboard.firstTab (Beta) guards upgrade support.
+              data-composite-item-active={value === option.value ? "" : undefined}
               className={clsx(
                 "variant-scope",
                 size,
@@ -190,7 +272,8 @@ export function ToggleGroup({
                   : {}
               }
               value={option.value}
-              disabled={option.disabled}
+              // Bypass Base UI's focusable-when-disabled handling; the render owns disabling.
+              disabled={false}
               aria-label={option.label}
             >
               {(visuals === "icons" || visuals === "both") && (
@@ -203,10 +286,10 @@ export function ToggleGroup({
                   {option.label}
                 </p>
               )}
-            </RadixToggleGroup.Item>
+            </Toggle>
           </Tooltip>
         ))}
       </div>
-    </RadixToggleGroup.Root>
+    </BaseToggleGroup>
   );
 }

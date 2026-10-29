@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { Progress as RadixProgress } from "radix-ui";
+import { Progress as BaseProgress } from "@base-ui/react/progress";
 import { MotionValue, motion, useTransform } from "motion/react";
 import { clsx } from "clsx";
 import { Size, Variant } from "../types";
@@ -12,20 +12,44 @@ export interface ProgressProps {
 }
 
 export function Progress({ progress, variant, size }: ProgressProps) {
+  const value = progress >= 0 && progress <= 1 ? progress * 100 : null;
+  const indicator = (
+    <BaseProgress.Indicator
+      render={(props, state) => (
+        <div
+          {...props}
+          data-state={state.status === "progressing" ? "loading" : state.status}
+          data-value={value ?? undefined}
+          data-max={100}
+        />
+      )}
+      style={{ height: "100%", width: `${(progress * 100).toString()}%` }}
+      className={clsx(variant, "variant-static-bg h-full duration-200 ease-in-out")}
+    />
+  );
   return (
-    <RadixProgress.Root
+    <BaseProgress.Root
       className={clsx(
         size,
         variant,
         "variant-scope sized-progress-height variant-static-bg-50 relative w-full translate-z-0 overflow-hidden rounded-sm",
       )}
-      value={progress * 100}
-    >
-      <RadixProgress.Indicator
-        style={{ width: `${(progress * 100).toString()}%` }}
-        className={clsx(variant, "variant-static-bg h-full duration-200 ease-in-out")}
-      />
-    </RadixProgress.Root>
+      value={value}
+      aria-valuetext={value === null ? undefined : `${Math.round(value)}%`}
+      // The bar holds only its indicator. Base UI's root appends a visually hidden
+      // "x" span so NVDA announces a `Progress.Label`; this bar takes no label, and
+      // the span's text would join the textContent of whatever holds the bar.
+      render={(props, state) => (
+        <div
+          {...props}
+          data-state={state.status === "progressing" ? "loading" : state.status}
+          data-value={value ?? undefined}
+          data-max={100}
+        >
+          {indicator}
+        </div>
+      )}
+    />
   );
 }
 

@@ -1,5 +1,5 @@
 import { ReactNode, useRef } from "react";
-import { Avatar as AvatarPrimitive } from "radix-ui";
+import { Avatar as AvatarPrimitive } from "@base-ui/react/avatar";
 import { clsx } from "clsx";
 import { useImageInput } from "../hooks/formInputHooks";
 import { Size, Variant } from "../types";

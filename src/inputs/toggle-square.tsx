@@ -1,5 +1,5 @@
 import { Children, Fragment, isValidElement, type CSSProperties, type ReactNode } from "react";
-import { Checkbox as RadixCheckbox } from "radix-ui";
+import { Checkbox as BaseCheckbox } from "@base-ui/react/checkbox";
 import { clsx } from "clsx";
 import { Variant, Size } from "../types";
 import { Tooltip } from "../floating/tooltip";
@@ -51,20 +51,38 @@ export function ToggleSquare({
   sizing = "default",
   asIndicator = false,
 }: ToggleSquareProps) {
-  // Map our tri-state to Radix Checkbox's checked prop
-  const checked: boolean | "indeterminate" = value === "partial" ? "indeterminate" : value;
   const hasContent = rendersContent(children);
 
   return (
     <Tooltip disabled={disabled} content={label ?? "Option"}>
-      <RadixCheckbox.Root
+      <BaseCheckbox.Root
         disabled={disabled}
-        checked={checked}
-        data-state={value === "partial" ? "indeterminate" : value ? "checked" : "unchecked"}
-        onCheckedChange={(next) => {
-          // Radix fires with boolean | "indeterminate"
-          // Coerce to boolean: indeterminate → true (toggle on)
-          onChange(next === "indeterminate" ? true : Boolean(next));
+        nativeButton
+        onKeyDown={(event) => {
+          if (event.key === "Enter") {
+            event.preventDefault();
+            event.preventBaseUIHandler();
+          }
+        }}
+        render={(props, state) => (
+          <button
+            {...props}
+            type="button"
+            tabIndex={undefined}
+            data-state={
+              state.indeterminate ? "indeterminate" : state.checked ? "checked" : "unchecked"
+            }
+          />
+        )}
+        checked={value === true}
+        indeterminate={value === "partial"}
+        onClick={(event) => {
+          // Base UI's click handler toggles by dispatching a second, bubbling click on its
+          // hidden input, so a clickable row around the control would see two clicks. The
+          // value is controlled, so the next one goes straight to the consumer and ancestors
+          // see only the button's click.
+          event.preventBaseUIHandler();
+          if (!disabled) onChange(value === "partial" ? true : !value);
         }}
         className={clsx(
           "variant-scope",
@@ -92,7 +110,7 @@ export function ToggleSquare({
         {/* Render children directly — not inside Indicator.
             The icon is always visible; its appearance changes based on state. */}
         {children ?? ""}
-      </RadixCheckbox.Root>
+      </BaseCheckbox.Root>
     </Tooltip>
   );
 }

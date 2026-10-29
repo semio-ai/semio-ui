@@ -1,5 +1,5 @@
 import { type CSSProperties } from "react";
-import { Switch as RadixSwitch } from "radix-ui";
+import { Switch as BaseSwitch } from "@base-ui/react/switch";
 import { clsx } from "clsx";
 import { Size, Variant } from "../types";
 
@@ -52,10 +52,26 @@ export function Switch({
   const sizeClasses = SWITCH_SIZE_CLASSES[size];
 
   return (
-    <RadixSwitch.Root
+    <BaseSwitch.Root
+      nativeButton
+      render={(props, state) => (
+        <button
+          {...props}
+          type="button"
+          tabIndex={undefined}
+          data-state={state.checked ? "checked" : "unchecked"}
+        />
+      )}
       id={id}
       checked={checked}
-      onCheckedChange={onCheckedChange}
+      onClick={(event) => {
+        // Base UI's click handler toggles by dispatching a second, bubbling click on its
+        // hidden input, so a clickable row around the control would see two clicks. The
+        // value is controlled, so the next one goes straight to the consumer and ancestors
+        // see only the button's click.
+        event.preventBaseUIHandler();
+        if (!disabled) onCheckedChange(!checked);
+      }}
       disabled={disabled}
       aria-label={label}
       className={clsx(
@@ -68,13 +84,20 @@ export function Switch({
       )}
       style={color ? ({ "--custom-color": color } as CSSProperties) : undefined}
     >
-      <RadixSwitch.Thumb
+      <BaseSwitch.Thumb
+        render={(props, state) => (
+          <span {...props} data-state={state.checked ? "checked" : "unchecked"} />
+        )}
         className={clsx(
-          "pointer-events-none block rounded-full bg-white shadow-sm transition-transform duration-160 ease-out dark:bg-black",
+          "pointer-events-none block rounded-full shadow-sm transition-[translate,background-color] duration-160 ease-out",
+          // Checked thumbs use --on-standard-color; unchecked thumbs use --standard-color.
+          // Each holds one colour through hover. A disabled track keeps its fill at half
+          // strength, so the thumb keeps the same foreground at half strength.
+          checked ? "bg-[var(--on-standard-color)]" : "bg-[var(--standard-color)]",
           disabled && "opacity-50",
           sizeClasses.thumb,
         )}
       />
-    </RadixSwitch.Root>
+    </BaseSwitch.Root>
   );
 }

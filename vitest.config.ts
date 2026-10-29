@@ -46,18 +46,28 @@ export default defineConfig({
   // app keeps the same list for the same reason.
   optimizeDeps: {
     include: [
-      "@tabler/icons-react",
-      "@solar-icons/react-perf/Bold",
-      "@solar-icons/react-perf/Linear",
-      "@solar-icons/react-perf/LineDuotone",
+      "@base-ui/react/accordion",
       "@base-ui/react/alert-dialog",
       "@base-ui/react/autocomplete",
       "@base-ui/react/avatar",
+      "@base-ui/react/checkbox",
+      "@base-ui/react/collapsible",
       "@base-ui/react/combobox",
       "@base-ui/react/dialog",
       "@base-ui/react/internals/composite",
+      "@base-ui/react/progress",
       "@base-ui/react/scroll-area",
+      "@base-ui/react/separator",
+      "@base-ui/react/switch",
       "@base-ui/react/tabs",
+      "@base-ui/react/toast",
+      "@base-ui/react/toggle",
+      "@base-ui/react/toggle-group",
+      "@solar-icons/react-perf/Bold",
+      "@solar-icons/react-perf/LineDuotone",
+      "@solar-icons/react-perf/Linear",
+      "@tabler/icons-react",
+      "radix-ui/internal",
     ],
   },
   test: {
@@ -81,7 +91,11 @@ export default defineConfig({
           include: ["src/**/*.browser.tsx"],
           browser: {
             enabled: true,
-            provider: playwright(),
+            // Unhinted text keeps fractional glyph advances on Linux, as macOS does,
+            // so text-dependent geometry matches. This flag leaves macOS measurements
+            // unchanged. Launch options apply per project, not per parity file, so the
+            // whole UI browser project uses it.
+            provider: playwright({ launchOptions: { args: ["--font-render-hinting=none"] } }),
             locators: { exact: false },
             instances: [{ browser: "chromium" }],
             headless: true,

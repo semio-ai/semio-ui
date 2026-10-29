@@ -881,9 +881,10 @@
     }
   }
 
-  /* The inset edge identifies a control even when its fill matches its surface.
-   * Keep it opaque when disabled; dim the fill and content instead. The separate
-   * inner band distinguishes a partial value without replacing the neutral edge. */
+  /* An opaque inset edge in every state keeps the control present on its surface.
+   * Its variant's checked-fill colour identifies the variant even when unchecked or
+   * disabled. Disclosure boxes without their own variant scope keep a neutral edge;
+   * the separate inner band distinguishes a partial value. */
   .variant-checkbox-bg:not(.toggle-square-content),
   .grid-list-item-indicator {
     --control-boundary-color: var(--color-control-light-boundary);
@@ -894,6 +895,10 @@
 
     &:where(.dark, .dark *) {
       --control-boundary-color: var(--color-control-dark-boundary);
+    }
+
+    &.variant-scope {
+      --control-boundary-color: var(--standard-color);
     }
 
     &[data-state="indeterminate"] {
@@ -931,6 +936,7 @@
         background-color: var(--standard-color) !important;
         &:hover {
           @media (hover: hover) {
+            --control-boundary-color: var(--accent-color);
             color: var(--on-accent-color);
             background-color: var(--accent-color) !important;
           }
@@ -2047,7 +2053,15 @@
         )
         var(--content-right-gap)
         minmax(0, var(--right-size));
-      grid-template-rows: auto var(--padding-width) 1fr var(--content-footer-gap) minmax(0, auto);
+      /* The middle track's floor is 0 so the footer keeps the height its pane
+         declares and a ScrollArea pane gets a definite height to scroll within.
+         In both arrangements, a side pane is clipped to its row and scrolls its
+         own content — a ScrollArea or an absolutely positioned scroller, as in
+         Studio's SidebarWrapper. */
+      grid-template-rows: auto var(--padding-width) minmax(0, 1fr) var(--content-footer-gap) minmax(
+          0,
+          auto
+        );
     }
 
     .grid-area-menu {

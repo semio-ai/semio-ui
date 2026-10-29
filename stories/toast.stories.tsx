@@ -10,7 +10,7 @@ import {
   Button,
   Size,
 } from "@semio/ui";
-import { type ReactElement, type ReactNode, useContext, useEffect } from "react";
+import { type ReactElement, type ReactNode, useContext, useEffect, useRef } from "react";
 
 const meta: Meta<typeof ToastManager> = {
   component: ToastManager,
@@ -29,14 +29,29 @@ export default meta;
 
 type Story = StoryObj<typeof ToastManager>;
 
+enum ToastExampleKind {
+  Plain,
+  Dismiss,
+  Clipboard,
+  ActionMenu,
+}
+
+const toastExampleKinds = [
+  ToastExampleKind.Plain,
+  ToastExampleKind.Dismiss,
+  ToastExampleKind.Clipboard,
+  ToastExampleKind.ActionMenu,
+];
+
 function AddButton(): ReactNode {
   const addToast = useAddToast();
+  const nextExample = useRef(0);
   return (
     <button
       type="button"
       className="pointer-events-auto bg-neutral-500 p-2 text-white select-none"
       onClick={() => {
-        console.log("adding toast");
+        const kind = toastExampleKinds[nextExample.current++ % toastExampleKinds.length];
         const variant = getRandomVariant();
         const id = crypto.randomUUID();
         const [title, content] = getRandomTitleContent();
@@ -45,8 +60,39 @@ function AddButton(): ReactNode {
           title,
           content,
           variant,
+          clipboardContent:
+            kind === ToastExampleKind.Clipboard
+              ? JSON.stringify({ id, title, content, variant }, null, 2)
+              : undefined,
+          actionMenu:
+            kind === ToastExampleKind.ActionMenu
+              ? {
+                  icon: "menu2",
+                  label: "Notification actions",
+                  items: [
+                    {
+                      id: "prepare",
+                      label: "Prepare export",
+                      onSelect: () => Result.Ok<string, string>("Export prepared."),
+                    },
+                    {
+                      id: "fail",
+                      label: "Try unavailable export",
+                      onSelect: () => Result.Err<string, string>("Export unavailable. Try again."),
+                    },
+                    {
+                      id: "slow",
+                      label: "Prepare slowly (6 seconds)",
+                      onSelect: async () => {
+                        await new Promise((resolve) => setTimeout(resolve, 6000));
+                        return Result.Ok<string, string>("Slow export prepared.");
+                      },
+                    },
+                  ],
+                }
+              : undefined,
           dismiss:
-            Math.random() > 0.5
+            kind === ToastExampleKind.Dismiss
               ? {
                   label: getRandomAction(),
                   onClick: (data: ToastData) => {

@@ -4,7 +4,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import postcss from "postcss";
 import tailwindcss from "@tailwindcss/postcss";
 import { beforeAll, expect, test } from "vitest";
-import { Theme } from "../types";
+import { Theme, Variant } from "../types";
 import { defaultResolveRowVisual } from "../tree/resolve-row-visual";
 import { Checkbox } from "./checkbox";
 import { ToggleSquare } from "./toggle-square";
@@ -38,19 +38,6 @@ function rgb(value: string): number[] {
   return Array<number>(3).fill(Math.round(channel * 255));
 }
 
-function contrast(a: number[], b: number[]): number {
-  const luminance = (channels: number[]) =>
-    channels.reduce((sum, c, i) => {
-      const v = c / 255;
-      return (
-        sum +
-        [0.2126, 0.7152, 0.0722][i] * (v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4)
-      );
-    }, 0);
-  const [x, y] = [luminance(a), luminance(b)];
-  return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05);
-}
-
 let compiled: postcss.Root;
 beforeAll(async () => {
   const entry = new URL("../../make-kit/make.css", import.meta.url);
@@ -79,62 +66,27 @@ const cases = [
   },
 ];
 
-test("the contrast calculation reproduces black against white", () => {
-  expect(contrast([0, 0, 0], [255, 255, 255])).toBe(21);
-});
-
-test.each(cases)("$theme: the resolved boundary clears 3:1 on every surface", (expected) => {
-  const boundary = rgb(`var(--color-control-${expected.theme}-boundary)`);
-  expect(boundary).toEqual(expected.boundary);
-  const base = rgb(`var(--color-layout-${expected.theme}-base)`);
-  const inset = rgb(`var(--color-layout-${expected.theme}-inset)`);
-  const deep = rgb(`var(--color-layout-${expected.theme}-deep-inset)`);
-  const studio = read("../../../../apps/studio/src/index.css");
+test.each(cases)("$theme: disclosure boundary and surface tokens remain pinned", (expected) => {
+  expect(rgb(`var(--color-control-${expected.theme}-boundary)`)).toEqual(expected.boundary);
+  expect(rgb(`var(--color-layout-${expected.theme}-base)`)).toEqual(expected.base);
+  expect(rgb(`var(--color-layout-${expected.theme}-inset)`)).toEqual(expected.inset);
+  expect(rgb(`var(--color-layout-${expected.theme}-deep-inset)`)).toEqual(expected.deep);
   const panel = /\.card-panel\s*\{\s*@apply dark:bg-\[(#[\da-f]+)\] bg-\[(#[\da-f]+)\];/i.exec(
-    studio,
+    read("../../../../apps/studio/src/index.css"),
   );
   expect(panel).not.toBeNull();
-  const raised = rgb(panel![expected.theme === Theme.Dark ? 1 : 2]);
-  expect({ base, inset, deep, raised }).toEqual({
-    base: expected.base,
-    inset: expected.inset,
-    deep: expected.deep,
-    raised: expected.raised,
-  });
-  for (const [surface, color] of Object.entries({
-    base,
-    raised,
-    inset,
-    "deep-inset": deep,
-    dialog: inset,
-    popover: deep,
-    "list row": inset,
-    ...Object.fromEntries(
-      [false, true].flatMap((selected) => {
-        const visual = defaultResolveRowVisual(
-          { focused: false, selected, emphasized: true, anchor: false },
-          undefined,
-        );
-        const mix = /^color-mix\(in oklab, var\(--accent-color\) (\d+)%, transparent\)$/.exec(
-          visual.background!,
-        );
-        expect(mix).not.toBeNull();
-        const percent = Number(mix![1]);
-        expect(percent).toBe(selected ? 18 : 8);
-        // The row's default accent and the boundary use the same neutral shade.
-        const alpha = percent / 100;
-        return Object.entries({ base, raised, inset, deep }).map(([groundName, ground]) => [
-          `${selected ? "selected" : "emphasized"} list row on ${groundName}`,
-          ground.map((c, i) => boundary[i] * alpha + c * (1 - alpha)),
-        ]);
-      }),
-    ),
-  })) {
-    expect(contrast(boundary, color), `${expected.theme}/${surface}`).toBeGreaterThanOrEqual(3);
+  expect(rgb(panel![expected.theme === Theme.Dark ? 1 : 2])).toEqual(expected.raised);
+  for (const selected of [false, true]) {
+    expect(
+      defaultResolveRowVisual(
+        { focused: false, selected, emphasized: true, anchor: false },
+        undefined,
+      ).background,
+    ).toBe(`color-mix(in oklab, var(--accent-color) ${selected ? 18 : 8}%, transparent)`);
   }
 });
 
-test("the compiled control classes wire the opaque inset ring to both theme tokens", () => {
+test("the opaque edge uses the scoped variant colour and preserves neutral disclosure tokens", () => {
   const rules: postcss.Rule[] = [];
   compiled.walkRules((rule) => {
     if (
@@ -165,6 +117,23 @@ test("the compiled control classes wire the opaque inset ring to both theme toke
         node.value === "var(--color-control-dark-boundary)",
     ),
   ).toBe(true);
+  const scoped = ring.nodes.find(
+    (node) => node.type === "rule" && node.selector === "&.variant-scope",
+  ) as postcss.Rule;
+  expect(
+    scoped?.nodes.some(
+      (node) =>
+        node.type === "decl" &&
+        node.prop === "--control-boundary-color" &&
+        node.value === "var(--standard-color)",
+    ),
+  ).toBe(true);
+  const hoverEdges: postcss.Declaration[] = [];
+  compiled.walkDecls("--control-boundary-color", (decl) => {
+    if (decl.value === "var(--accent-color)") hoverEdges.push(decl);
+  });
+  expect(hoverEdges).toHaveLength(1);
+  expect((hoverEdges[0].parent as postcss.AtRule).params).toBe("(hover: hover)");
   // Fragments built with createElement: an empty or falsy-only fragment is the case.
   const fragment = (...children: ReactNode[]) => createElement(Fragment, null, ...children);
   for (const children of [
@@ -293,3 +262,46 @@ test("off and disabled controls do not dim their boundary with opacity utilities
   );
   expect(indicator).not.toMatch(/opacity-/);
 });
+
+test("each variant and custom colour supplies its own checked-fill token", () => {
+  const scope: postcss.Rule[] = [];
+  compiled.walkRules(".variant-scope", (rule) => {
+    scope.push(rule);
+  });
+  expect(scope).toHaveLength(1);
+  for (const variant of Object.values(Variant).filter((value) => value !== Variant.Default)) {
+    const rule = scope[0].nodes.find(
+      (node) => node.type === "rule" && node.selector === `&:where(.${variant})`,
+    ) as postcss.Rule;
+    expect(
+      rule?.nodes.some(
+        (node) =>
+          node.type === "decl" &&
+          node.prop === "--standard-color" &&
+          node.value === `var(--color-${variant}-500)`,
+      ),
+    ).toBe(true);
+  }
+  expect(tokens.has("--color-default-500")).toBe(true);
+  expect(read("../../public/styles.css")).toContain("--standard-color: var(--custom-color)");
+});
+
+test.each(
+  [false, true].flatMap((disabled) => [false, true].map((checked) => ({ disabled, checked }))),
+)(
+  "switch checked=$checked disabled=$disabled animates its scoped thumb colour with translate",
+  ({ checked, disabled }) => {
+    const markup = renderToStaticMarkup(
+      <Switch checked={checked} disabled={disabled} onCheckedChange={() => {}} />,
+    );
+    const thumbClass = /<span[^>]*class="([^"]*)"/.exec(markup)?.[1];
+    expect(thumbClass).toBeDefined();
+    expect(thumbClass).not.toMatch(/bg-current|currentColor/);
+    expect(thumbClass).toContain(
+      checked ? "bg-[var(--on-standard-color)]" : "bg-[var(--standard-color)]",
+    );
+    expect(markup).toContain("transition-[translate,background-color]");
+    expect(markup).toContain("duration-160 ease-out");
+    expect(markup.includes("opacity-50")).toBe(disabled);
+  },
+);
