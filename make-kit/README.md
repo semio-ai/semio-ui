@@ -12,11 +12,9 @@ and the Make guidelines. No separate "make build" — the normal `npm run build`
 - **`@semio/data` and `@semio/utils` as real dependencies** (published publicly): Make installs them from npm — no bundling.
 
 ## Publish (public npm)
-1. Publish `@semio/data` and `@semio/utils` first (they are dependencies):
-   ```bash
-   cd packages/data && npm run build && npm publish --access public
-   cd ../utils && npm run build && npm publish --access public
-   ```
+1. Check that the `@semio/data` and `@semio/utils` versions `@semio/ui` declares are on npm (they are
+   dependencies). Both release from their own repositories, `semio-ai/semio-data` and
+   `semio-ai/semio-utils`, never from this one.
 2. Publish `@semio/ui`:
    ```bash
    cd packages/ui && npm run build && npm publish --access public
