@@ -14,7 +14,9 @@ and the Make guidelines. No separate "make build" — the normal `npm run build`
 
 ## Publish (public npm)
 
-1. Publish `@semio/data` and `@semio/utils` from their own repositories first.
+1. Check that the `@semio/data` and `@semio/utils` versions `@semio/ui` declares are on npm (they are
+   dependencies). Both release from their own repositories, `semio-ai/semio-data` and
+   `semio-ai/semio-utils`.
 2. From the UI package root, run:
    ```bash
    npm run build
