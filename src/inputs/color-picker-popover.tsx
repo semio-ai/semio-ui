@@ -4,7 +4,7 @@ import {
   type RawColor,
   rawHSLToHex,
   rawRGBToHex,
-} from "@semio/utils";
+} from "@semio/data";
 import { Dropdown } from "../floating/dropdown";
 import { ColorPickerInput } from "./color-picker-input";
 

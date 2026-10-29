@@ -1,5 +1,5 @@
 import type { ReactNode, MouseEvent } from "react";
-import { RawColor } from "@semio/utils";
+import { RawColor } from "@semio/data";
 import { Variant } from "../types";
 import type { IconValue } from "../icons/registry";
 

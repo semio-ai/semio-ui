@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { ColorPickerPopover, type ColorPickerPopoverProps } from "@semio/ui";
 import { useState, type ReactElement } from "react";
-import { type RawColor } from "@semio/utils";
+import { type RawColor } from "@semio/data";
 
 const meta: Meta<typeof ColorPickerPopover> = {
   component: ColorPickerPopover,

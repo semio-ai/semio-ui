@@ -1,4 +1,4 @@
-import { instanceOfRawRGB, instanceOfRawHSL, type RawColor, RawRGB, RawHSL } from "@semio/utils";
+import { instanceOfRawRGB, instanceOfRawHSL, type RawColor, RawRGB, RawHSL } from "@semio/data";
 import {
   HexColorPicker,
   RgbColorPicker,

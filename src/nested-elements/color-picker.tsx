@@ -1,4 +1,4 @@
-import { RawColor } from "@semio/utils";
+import { RawColor } from "@semio/data";
 import { ColorPickerInput } from "../inputs/color-picker-input";
 import { NestedMenu } from "./menu";
 import { NestedColorPickerProps } from "./types";

@@ -101,11 +101,6 @@ export function createContextProvider<T>(
 }
 
 /**
- * Utility type for extracting context value type
- */
-export type ContextValue<T> = T extends Context<infer U> ? U : never;
-
-/**
  * Configuration for creating a complete context solution
  */
 export interface ContextSolutionConfig<T> {
@@ -139,14 +134,6 @@ export function createContextSolution<T>(config: ContextSolutionConfig<T>) {
     withOptional,
     context: config.context,
   };
-}
-
-/**
- * Standard interface for components that might need tooltip context
- */
-export interface WithTooltipContextProps {
-  /** Skip providing tooltip context (assume parent provides) */
-  skipTooltipContext?: boolean;
 }
 
 /**

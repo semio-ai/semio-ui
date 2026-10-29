@@ -7,7 +7,7 @@ export interface WithTooltipContextProps {
 }
 
 /**
- * Re-export generic utilities from utils package for convenience
+ * Re-export generic context utilities for convenience
  */
 export {
   createContextSolution,
@@ -20,4 +20,4 @@ export {
   type ContextConfig,
   type ContextSolutionConfig,
   type OptionalContextProps,
-} from "@semio/utils";
+} from "./context-providers";

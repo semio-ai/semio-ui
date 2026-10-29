@@ -1,5 +1,5 @@
 import { clsx } from "clsx";
-import { useOptionalContext } from "@semio/utils";
+import { useOptionalContext } from "../../context/context-providers";
 import { IconRegistryContext } from "./icon-context";
 import { defaultIconRegistry } from "./default-registry";
 import { Icon } from "./icon";

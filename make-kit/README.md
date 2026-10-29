@@ -9,12 +9,13 @@ and the Make guidelines. No separate "make build" — the normal `npm run build`
   static stylesheet (Tailwind scans the component source via `make.css`'s `@source`). Exported as
   `@semio/ui/styles.css`. Make imports this once; without it components render unstyled.
 - **React 18 || 19 peers**: so the package runs in Make's React-18 preview iframe and in the React-19 apps.
-- **`@semio/utils` as a real dependency** (`^0.1.0`, published publicly): Make installs it from npm — no bundling.
+- **`@semio/data` and `@semio/utils` as real dependencies** (published publicly): Make installs them from npm — no bundling.
 
 ## Publish (public npm)
-1. Publish `@semio/utils` first (it's a dependency):
+1. Publish `@semio/data` and `@semio/utils` first (they are dependencies):
    ```bash
-   cd packages/utils && npm run build && npm publish --access public
+   cd packages/data && npm run build && npm publish --access public
+   cd ../utils && npm run build && npm publish --access public
    ```
 2. Publish `@semio/ui`:
    ```bash

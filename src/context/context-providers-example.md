@@ -1,11 +1,11 @@
 # Context Providers Pattern
 
-This document explains the standardized approach for handling context providers across the Semio Studio libraries, with generic utilities in `@semio/utils` and library-specific extensions in their respective packages.
+This document explains the standardized approach for handling context providers across the Semio Studio libraries, with generic utilities in `@semio/ui` and library-specific extensions in their respective packages.
 
 ## Architecture Overview
 
-### Generic Utilities (`@semio/utils`)
-- **Location**: `packages/utils/src/react/context-providers.tsx`
+### Generic Utilities (`@semio/ui`)
+- **Location**: `packages/ui/src/context/context-providers.tsx`
 - **Purpose**: Framework-agnostic, reusable context patterns
 - **Exports**: Core utilities like `createContextSolution`, `withOptionalContext`, etc.
 
@@ -49,7 +49,7 @@ Split each component into two parts:
 
 ```tsx
 // ✅ New pattern using utils
-import { useOptionalContext } from '@semio/utils';
+import { useOptionalContext } from '@semio/ui';
 import { WithMyContextProps } from './utils/context-providers';
 
 // 1. Core component that requires context
@@ -83,14 +83,14 @@ export function MyComponent({
 
 ### Using Generic Utilities
 
-For maximum consistency, use the utilities from `@semio/utils`:
+For maximum consistency, use the utilities from `@semio/ui`:
 
 ```tsx
 import {
   createContextSolution,
   useOptionalContext,
   withOptionalContext
-} from '@semio/utils';
+} from '@semio/ui';
 
 // Create a complete context solution
 const {
@@ -161,7 +161,7 @@ interface MyVizijComponentProps extends WithVizijContextProps {
 ### AnimationSheet3D (Migrated)
 
 ```tsx
-import { useOptionalContext } from '@semio/utils';
+import { useOptionalContext } from '@semio/ui';
 import { TooltipProvider, TooltipHost, TooltipContext } from '@semio/ui';
 import { WithTooltipAndAnimationContextProps } from '../utils/context-providers';
 
@@ -210,7 +210,7 @@ export const AnimationSheet3D = memo(function AnimationSheet3D({
 ### Scene Component (Migrated)
 
 ```tsx
-import { useOptionalContext } from '@semio/utils';
+import { useOptionalContext } from '@semio/ui';
 import { WithSceneContextProps } from './utils/context-providers';
 
 export const SceneCore = memo(function SceneCore(props: SceneCoreProps) {
@@ -297,7 +297,7 @@ export function Scene({
 
 ## Import Structure
 
-### From `@semio/utils` (Generic)
+### From `@semio/ui` (Generic)
 ```tsx
 import {
   createContextSolution,
@@ -310,7 +310,7 @@ import {
   type ContextConfig,
   type ContextSolutionConfig,
   type OptionalContextProps,
-} from '@semio/utils';
+} from '@semio/ui';
 ```
 
 ### From Library-Specific Packages
@@ -336,15 +336,9 @@ import { WithVizijContextProps } from '@semio/vizij';
 
 ## Migration Guide
 
-### Step 1: Update Imports
-Replace imports from `@semio/ui` context utilities with `@semio/utils` for generic utilities:
-
+### Step 1: Import Generic Context Utilities
 ```tsx
-// ❌ Old
 import { useOptionalContext } from '@semio/ui';
-
-// ✅ New  
-import { useOptionalContext } from '@semio/utils';
 ```
 
 ### Step 2: Use Library-Specific Props
@@ -378,7 +372,7 @@ import { WithAnimationContextProps } from '@semio/animation';
 
 ## Best Practices
 
-1. **Use `@semio/utils` for generic patterns** - Keep library-agnostic utilities in utils
+1. **Use `@semio/ui` for generic patterns** - Keep library-agnostic context utilities in UI
 2. **Library-specific extensions in their packages** - Each library defines its own context props
 3. **Always provide Core and Full versions** of components that need context
 4. **Use standard prop interfaces** (`WithTooltipContextProps`, etc.)

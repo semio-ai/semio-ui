@@ -73,7 +73,7 @@ sized to the control), and `<Icon>` fills it at the standard proportion;
 
 ### `IconProvider` and nesting-aware resolution
 
-`IconProvider` builds on the shared `@semio/utils` context infrastructure
+`IconProvider` builds on the local `context/context-providers` infrastructure
 (`createContextSolution` / `useOptionalContext`, the same house pattern the
 tooltip context uses) rather than a hand-rolled `createContext`. Resolution is
 **nearest-provider-wins**, with the default registry as the implicit root.
@@ -302,7 +302,7 @@ This is the same discipline the color tokens follow (token name == code-syntax
   `ICON_LG_CLASS_NAME` (`icon-larger`).
 - `packages/ui/src/icons/` — `@semio/ui`'s own custom icons, folded into the
   default registry alongside Solar glyphs and compatibility fallbacks.
-- `packages/utils/src/react/context-providers.tsx` — shared context
+- `packages/ui/src/context/context-providers.tsx` — shared context
   infrastructure the `IconProvider` builds on.
 - `packages/ui/src/context/tooltip-context-utils.tsx` — existing in-package
   precedent using that infrastructure.

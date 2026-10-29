@@ -1,6 +1,6 @@
 import type { ReactElement, ReactNode } from "react";
 import { clsx } from "clsx";
-import { useOptionalContext } from "@semio/utils";
+import { useOptionalContext } from "../../context/context-providers";
 import { ICON_CLASS_NAME, ICON_LG_CLASS_NAME } from "../../constants/icon";
 import { IconRegistryContext } from "./icon-context";
 import { defaultIconRegistry, type IconName } from "./default-registry";

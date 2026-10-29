@@ -1,5 +1,5 @@
 import { useMemo, type ReactNode } from "react";
-import { useOptionalContext } from "@semio/utils";
+import { useOptionalContext } from "../../context/context-providers";
 import { IconRegistryContext } from "./icon-context";
 import { defaultIconRegistry } from "./default-registry";
 import type { IconRegistry } from "./types";
@@ -17,7 +17,7 @@ export interface IconProviderProps {
 }
 
 /**
- * Provides an icon registry to descendants. Built on `@semio/utils`' context
+ * Provides an icon registry to descendants. Built on the context
  * infrastructure (`useOptionalContext`) for consistent, nesting-aware resolution,
  * with one registry-specific extension: `extend` merges over the parent rather
  * than replacing it, so nested providers compose.
