@@ -1,8 +1,9 @@
-import { reactConfig } from "@semio/eslint-config/react";
+import { storybookConfig } from "@semio/eslint-config/storybook";
 import { semioUiPlugin } from "./eslint-rules/index.mjs";
 
 export default [
-  ...reactConfig({ tsconfigRootDir: import.meta.dirname }),
+  ...storybookConfig(),
+  { languageOptions: { parserOptions: { tsconfigRootDir: import.meta.dirname } } },
   {
     files: ["src/**/*.tsx"],
     plugins: { "semio-ui": semioUiPlugin },

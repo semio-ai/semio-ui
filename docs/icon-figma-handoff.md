@@ -15,7 +15,12 @@ Because every Figma icon component is **named by its registry key** (see [icon-r
 [`figma/icon-manifest.json`](../figma/icon-manifest.json) is generated from the composed registry and **committed** (unlike the bulky, gitignored SVG assets alongside it). It's the durable, machine-readable Figma↔code table — the poor-man's Code Connect map:
 
 ```json
-{ "key": "delete", "source": "animation", "figmaComponent": "Icon/delete", "code": "<Icon name=\"delete\" />" }
+{
+  "key": "delete",
+  "source": "animation",
+  "figmaComponent": "Icon/delete",
+  "code": "<Icon name=\"delete\" />"
+}
 ```
 
 - `source` = the registry that wins resolution (`studio` > `animation` > `default`), i.e. which package owns the key.
@@ -24,7 +29,7 @@ Because every Figma icon component is **named by its registry key** (see [icon-r
 Regenerate with the registries (one command, same one that emits the SVGs):
 
 ```sh
-npm run generate:icon-svgs    # in packages/ui → refreshes figma/ (SVGs + icon-manifest.json)
+npm run generate:icon-svgs    # from the package root → refreshes figma/ (SVGs + icon-manifest.json)
 ```
 
 ## Translation rules (what an agent/dev applies)
@@ -42,10 +47,11 @@ This is exactly what Code Connect would emit; we apply it agent-side instead. Th
 The manifest is the **key checklist** for the Figma library — a diff between it and the library's `Icon/*` components surfaces drift (a code key with no Figma component, or vice-versa). Guardrails escalate with plan (resolution test now → manifest diff → Code Connect CI on Org); see the integration plan's sync table.
 
 **Adding an icon** (the one flow):
+
 1. Register it in the right registry (`@semio/ui` default, `animationIconRegistry`, or `studioIconRegistry`).
 2. `npm run generate:icon-svgs` → SVG + manifest update.
 3. Import/sync the new SVG into the Figma library as a keyed `Icon/<key>` component.
-4. *(Org only)* re-run the Code Connect generator — mapping is added automatically.
+4. _(Org only)_ re-run the Code Connect generator — mapping is added automatically.
 
 ## When the plan upgrades (Phase 3, drop-in)
 

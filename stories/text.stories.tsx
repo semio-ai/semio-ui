@@ -110,7 +110,7 @@ function FactList() {
           Pepper Go
         </Text>
         <Text role={TextRole.Caption} className="block">
-          @semio-ai · updated 3 days ago
+          @example · updated 3 days ago
         </Text>
       </div>
       <Text role={TextRole.Body} as="p" className="block">
@@ -119,7 +119,7 @@ function FactList() {
       </Text>
       <dl className="flex flex-col gap-1.5">
         {[
-          ["Owner", "@semio-ai"],
+          ["Owner", "@example"],
           ["Visibility", "Public"],
           ["Version", "2.4.1"],
         ].map(([label, value]) => (

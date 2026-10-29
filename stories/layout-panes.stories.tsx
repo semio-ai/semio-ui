@@ -429,7 +429,8 @@ function ExpandingReadout({
   const { leftExpanded, rightRegionActive } = useLayoutState();
   const panes = usePanes();
   const expanded = panes.find((pane) => pane.id === EXPAND_PANE_ID)?.expanded === true;
-  const animationCollapsed = panes.find((pane) => pane.id === ANIMATION_PANE_ID)?.collapsed === true;
+  const animationCollapsed =
+    panes.find((pane) => pane.id === ANIMATION_PANE_ID)?.collapsed === true;
 
   // The height the panel was left at before it gave up its row. Held HERE, by an
   // observer, precisely because the library holds nothing: if the pane spec were
@@ -762,7 +763,12 @@ function CollapsingReadout({
           remount.
         </p>
         <div className="flex flex-row gap-2">
-          <Button size={Size.Sm} variant={Variant.Primary} onClick={onCollapse} disabled={!registered}>
+          <Button
+            size={Size.Sm}
+            variant={Variant.Primary}
+            onClick={onCollapse}
+            disabled={!registered}
+          >
             {collapsed ? "Restore" : "Collapse"}
           </Button>
           <Button
@@ -875,9 +881,9 @@ function BatchWriteApp(): ReactNode {
           <div className="mx-4 max-w-2xl text-xs text-neutral-500">
             <p className="mb-2">
               Three panes, one <code>setPanes</code> call, one atom write. The previous per-item
-              implementation passes this too — it was checked against it — so this pins the
-              contract rather than a past defect: a rearrangement is one intent, and it must not
-              become possible for a third of it to happen.
+              implementation passes this too — it was checked against it — so this pins the contract
+              rather than a past defect: a rearrangement is one intent, and it must not become
+              possible for a third of it to happen.
             </p>
             <Button size={Size.Sm} variant={Variant.Primary} onClick={rearrange}>
               {wide ? "Restore" : "Rearrange"}

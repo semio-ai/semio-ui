@@ -5,11 +5,13 @@ This document explains the standardized approach for handling context providers 
 ## Architecture Overview
 
 ### Generic Utilities (`@semio/ui`)
-- **Location**: `packages/ui/src/context/context-providers.tsx`
+
+- **Location**: `src/context/context-providers.tsx`
 - **Purpose**: Framework-agnostic, reusable context patterns
 - **Exports**: Core utilities like `createContextSolution`, `withOptionalContext`, etc.
 
 ### Library-Specific Extensions
+
 - **UI Library**: Tooltip-specific utilities (`WithTooltipContextProps`)
 - **Animation Library**: Animation-specific utilities (`WithAnimationContextProps`)
 - **Scene Library**: Scene-specific utilities (`WithSceneContextProps`)
@@ -21,7 +23,7 @@ This document explains the standardized approach for handling context providers 
 // ❌ Old problematic pattern
 export function MyComponent(props: MyProps) {
   const existingContext = useContext(MyContext);
-  
+
   if (existingContext) {
     return <InnerComponent {...props} />;
   } else {
@@ -35,6 +37,7 @@ export function MyComponent(props: MyProps) {
 ```
 
 **Issues:**
+
 - Conditional rendering causes React reconciliation problems
 - Inconsistent implementation across components
 - Hard to reason about what contexts will be available
@@ -49,8 +52,8 @@ Split each component into two parts:
 
 ```tsx
 // ✅ New pattern using utils
-import { useOptionalContext } from '@semio/ui';
-import { WithMyContextProps } from './utils/context-providers';
+import { useOptionalContext } from "@semio/ui";
+import { WithMyContextProps } from "./utils/context-providers";
 
 // 1. Core component that requires context
 export const MyComponentCore = memo(function MyComponentCore(props: MyCoreProps) {
@@ -70,11 +73,7 @@ export function MyComponent({
   let content = <MyComponentCore {...props} />;
 
   if (needsContext) {
-    content = (
-      <MyContext.Provider value={defaultStore}>
-        {content}
-      </MyContext.Provider>
-    );
+    content = <MyContext.Provider value={defaultStore}>{content}</MyContext.Provider>;
   }
 
   return content;
@@ -86,22 +85,18 @@ export function MyComponent({
 For maximum consistency, use the utilities from `@semio/ui`:
 
 ```tsx
-import {
-  createContextSolution,
-  useOptionalContext,
-  withOptionalContext
-} from '@semio/ui';
+import { createContextSolution, useOptionalContext, withOptionalContext } from "@semio/ui";
 
 // Create a complete context solution
 const {
   useContext: useMyContext,
   Provider: MyProvider,
   withOptional: withOptionalMyContext,
-  context: MyContext
+  context: MyContext,
 } = createContextSolution({
   context: MyContext,
   defaultValue: defaultStore,
-  name: 'MyContext'
+  name: "MyContext",
 });
 
 // Use the HOC approach
@@ -113,7 +108,7 @@ const MyComponent = withOptionalMyContext(MyComponentCore);
 ### Animation Library (`@semio/animation`)
 
 ```tsx
-import { WithAnimationContextProps, WithTooltipAndAnimationContextProps } from '@semio/animation';
+import { WithAnimationContextProps, WithTooltipAndAnimationContextProps } from "@semio/animation";
 
 interface MyAnimationComponentProps extends WithAnimationContextProps {
   skipAnimationContext?: boolean;
@@ -129,7 +124,7 @@ interface MyComplexComponentProps extends WithTooltipAndAnimationContextProps {
 ### Scene Library (`@semio/scene`)
 
 ```tsx
-import { WithSceneContextProps, WithTooltipAndSceneContextProps } from '@semio/scene';
+import { WithSceneContextProps, WithTooltipAndSceneContextProps } from "@semio/scene";
 
 interface MySceneComponentProps extends WithSceneContextProps {
   skipSceneContext?: boolean;
@@ -139,7 +134,7 @@ interface MySceneComponentProps extends WithSceneContextProps {
 ### UI Library (`@semio/ui`)
 
 ```tsx
-import { WithTooltipContextProps } from '@semio/ui';
+import { WithTooltipContextProps } from "@semio/ui";
 
 interface MyUIComponentProps extends WithTooltipContextProps {
   skipTooltipContext?: boolean;
@@ -149,7 +144,7 @@ interface MyUIComponentProps extends WithTooltipContextProps {
 ### Vizij Library (`@semio/vizij`)
 
 ```tsx
-import { WithVizijContextProps } from '@semio/vizij';
+import { WithVizijContextProps } from "@semio/vizij";
 
 interface MyVizijComponentProps extends WithVizijContextProps {
   skipVizijContext?: boolean;
@@ -161,9 +156,9 @@ interface MyVizijComponentProps extends WithVizijContextProps {
 ### AnimationSheet3D (Migrated)
 
 ```tsx
-import { useOptionalContext } from '@semio/ui';
-import { TooltipProvider, TooltipHost, TooltipContext } from '@semio/ui';
-import { WithTooltipAndAnimationContextProps } from '../utils/context-providers';
+import { useOptionalContext } from "@semio/ui";
+import { TooltipProvider, TooltipHost, TooltipContext } from "@semio/ui";
+import { WithTooltipAndAnimationContextProps } from "../utils/context-providers";
 
 // Core component - requires contexts
 export const AnimationSheet3DCore = memo(function AnimationSheet3DCore(
@@ -210,20 +205,15 @@ export const AnimationSheet3D = memo(function AnimationSheet3D({
 ### Scene Component (Migrated)
 
 ```tsx
-import { useOptionalContext } from '@semio/ui';
-import { WithSceneContextProps } from './utils/context-providers';
+import { useOptionalContext } from "@semio/ui";
+import { WithSceneContextProps } from "./utils/context-providers";
 
 export const SceneCore = memo(function SceneCore(props: SceneCoreProps) {
   // Assumes SceneContext exists
   return <InnerScene {...props} />;
 });
 
-export function Scene({
-  style,
-  className,
-  skipSceneContext = false,
-  ...props
-}: SceneProps) {
+export function Scene({ style, className, skipSceneContext = false, ...props }: SceneProps) {
   const ctx = useOptionalContext(SceneContext);
   const needsSceneContext = !skipSceneContext && !ctx;
 
@@ -235,7 +225,11 @@ export function Scene({
 
   // Handle styling separately from context logic
   if (style || className) {
-    return <div style={style} className={className}>{content}</div>;
+    return (
+      <div style={style} className={className}>
+        {content}
+      </div>
+    );
   }
 
   return content;
@@ -245,20 +239,19 @@ export function Scene({
 ## Usage Patterns
 
 ### 1. Normal Usage (Auto Context)
+
 ```tsx
 // Automatically provides context if needed
-<AnimationSheet3D 
-  namespaceId="demo"
-  animationInstances={instances}
-/>
+<AnimationSheet3D namespaceId="demo" animationInstances={instances} />
 ```
 
 ### 2. Skip Context (Parent Provides)
+
 ```tsx
 // Parent already provides context
 <AnimationContext.Provider value={myStore}>
   <TooltipProvider>
-    <AnimationSheet3D 
+    <AnimationSheet3D
       skipAnimationContext
       skipTooltipContext
       namespaceId="demo"
@@ -269,28 +262,27 @@ export function Scene({
 ```
 
 ### 3. Nested Components
+
 ```tsx
 // Outer component provides contexts
 <AnimationSheet3D namespaceId="outer" animationInstances={outer}>
   {/* Inner component skips contexts */}
-  <AnimationSheet3D 
-    skipAnimationContext 
+  <AnimationSheet3D
+    skipAnimationContext
     skipTooltipContext
-    namespaceId="inner" 
+    namespaceId="inner"
     animationInstances={inner}
   />
 </AnimationSheet3D>
 ```
 
 ### 4. Using Core Components Directly
+
 ```tsx
 // When you know contexts are available
 <AnimationContext.Provider value={store}>
   <TooltipProvider>
-    <AnimationSheet3DCore 
-      namespaceId="demo"
-      animationInstances={instances}
-    />
+    <AnimationSheet3DCore namespaceId="demo" animationInstances={instances} />
   </TooltipProvider>
 </AnimationContext.Provider>
 ```
@@ -298,6 +290,7 @@ export function Scene({
 ## Import Structure
 
 ### From `@semio/ui` (Generic)
+
 ```tsx
 import {
   createContextSolution,
@@ -310,51 +303,50 @@ import {
   type ContextConfig,
   type ContextSolutionConfig,
   type OptionalContextProps,
-} from '@semio/ui';
+} from "@semio/ui";
 ```
 
 ### From Library-Specific Packages
+
 ```tsx
 // Animation library
-import { 
-  WithAnimationContextProps,
-  WithTooltipAndAnimationContextProps 
-} from '@semio/animation';
+import { WithAnimationContextProps, WithTooltipAndAnimationContextProps } from "@semio/animation";
 
-// Scene library  
-import { 
-  WithSceneContextProps,
-  WithTooltipAndSceneContextProps 
-} from '@semio/scene';
+// Scene library
+import { WithSceneContextProps, WithTooltipAndSceneContextProps } from "@semio/scene";
 
 // UI library
-import { WithTooltipContextProps } from '@semio/ui';
+import { WithTooltipContextProps } from "@semio/ui";
 
 // Vizij library
-import { WithVizijContextProps } from '@semio/vizij';
+import { WithVizijContextProps } from "@semio/vizij";
 ```
 
 ## Migration Guide
 
 ### Step 1: Import Generic Context Utilities
+
 ```tsx
-import { useOptionalContext } from '@semio/ui';
+import { useOptionalContext } from "@semio/ui";
 ```
 
 ### Step 2: Use Library-Specific Props
+
 ```tsx
 // ❌ Old
-import { WithAnimationContextProps } from '@semio/ui';
+import { WithAnimationContextProps } from "@semio/ui";
 
 // ✅ New
-import { WithAnimationContextProps } from '@semio/animation';
+import { WithAnimationContextProps } from "@semio/animation";
 ```
 
 ### Step 3: Split Components
+
 1. Extract the core logic into a `*Core` component
 2. Make the original component a wrapper that handles contexts
 
 ### Step 4: Test Both Patterns
+
 1. Test with auto context provision
 2. Test with explicit context skipping
 3. Test nested scenarios

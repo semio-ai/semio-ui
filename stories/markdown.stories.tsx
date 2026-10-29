@@ -81,12 +81,12 @@ documents look broken.
  *  code is a separate, much quieter treatment. */
 export const CodeBlocks: Story = {
   args: {
-    children: `Install the dependency, then call \`resolve()\` with a range:
+    children: `Import a helper, then clamp a value:
 
 \`\`\`typescript
-import { resolve } from "@semio/core";
+import { clamp } from "lodash";
 
-const pinned = resolve("^1.2.0", releases);
+const progress = clamp(12, 0, 10);
 \`\`\`
 
 A fence with no language still renders, just unhighlighted:

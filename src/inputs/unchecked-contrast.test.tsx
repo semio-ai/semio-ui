@@ -31,12 +31,30 @@ function rgb(value: string): number[] {
   if (/^#[\da-f]{6}$/i.test(value)) {
     return [1, 3, 5].map((offset) => parseInt(value.slice(offset, offset + 2), 16));
   }
-  const neutral = /^oklch\(([\d.]+)(%?) 0 0\)$/.exec(value);
+  const neutral = /^oklch\((\d*\.?\d+)(%?) (?:0|none) (?:0|none)\)$/.exec(value);
   if (!neutral) throw new Error(`Unsupported neutral: ${value}`);
   const linear = (Number(neutral[1]) / (neutral[2] ? 100 : 1)) ** 3;
   const channel = linear <= 0.0031308 ? linear * 12.92 : 1.055 * linear ** (1 / 2.4) - 0.055;
   return Array<number>(3).fill(Math.round(channel * 255));
 }
+
+test.each(["0.5", "50%"])("neutral %s resolves missing chroma and hue as zero", (lightness) => {
+  const expected = rgb(`oklch(${lightness} 0 0)`);
+  expect(expected).toEqual([99, 99, 99]);
+  expect(rgb(`oklch(${lightness} 0 none)`)).toEqual(expected);
+  expect(rgb(`oklch(${lightness} none 0)`)).toEqual(expected);
+  expect(rgb(`oklch(${lightness} none none)`)).toEqual(expected);
+});
+
+test.each([
+  "oklch(0.5 0.1 none)",
+  "oklch(0.5 none 90)",
+  "oklch(none 0 0)",
+  "oklch(.. 0 none)",
+  "oklch(0.5 0 none / 50%)",
+])("rejects unresolved neutral %s", (value) => {
+  expect(() => rgb(value)).toThrow(`Unsupported neutral: ${value}`);
+});
 
 let compiled: postcss.Root;
 beforeAll(async () => {
@@ -54,7 +72,6 @@ const cases = [
     base: [204, 204, 204],
     inset: [229, 229, 229],
     deep: [237, 237, 237],
-    raised: [220, 220, 220],
   },
   {
     theme: Theme.Dark,
@@ -62,7 +79,6 @@ const cases = [
     base: [51, 51, 51],
     inset: [38, 38, 38],
     deep: [23, 23, 23],
-    raised: [37, 37, 37],
   },
 ];
 
@@ -71,11 +87,6 @@ test.each(cases)("$theme: disclosure boundary and surface tokens remain pinned",
   expect(rgb(`var(--color-layout-${expected.theme}-base)`)).toEqual(expected.base);
   expect(rgb(`var(--color-layout-${expected.theme}-inset)`)).toEqual(expected.inset);
   expect(rgb(`var(--color-layout-${expected.theme}-deep-inset)`)).toEqual(expected.deep);
-  const panel = /\.card-panel\s*\{\s*@apply dark:bg-\[(#[\da-f]+)\] bg-\[(#[\da-f]+)\];/i.exec(
-    read("../../../../apps/studio/src/index.css"),
-  );
-  expect(panel).not.toBeNull();
-  expect(rgb(panel![expected.theme === Theme.Dark ? 1 : 2])).toEqual(expected.raised);
   for (const selected of [false, true]) {
     expect(
       defaultResolveRowVisual(

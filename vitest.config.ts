@@ -11,10 +11,14 @@ import tailwindcss from "@tailwindcss/postcss";
  *              DOM (focus, keyboard, roving tabindex): `*.browser.tsx`.
  *
  * Mirrors the studio app's vitest browser setup so the stack is consistent.
+ *
+ * `@semio/utils` and `@semio/data` resolve to their built `dist`, never through the
+ * `source` export condition: their npm packages ship only `dist`, so the condition
+ * fails in this library's own repository, and inside Studio turbo builds the
+ * workspace copies before `test:unit` and `test:browser`.
  */
 export default defineConfig({
   plugins: [react()],
-  resolve: { conditions: ["source"] },
   // Compile the package's REAL stylesheet for tests that make layout claims.
   //
   // Without this, every Tailwind class in the components is inert under vitest, which is

@@ -12,3 +12,6 @@ scripts/.registry-bundle.*
 
 # vitest browser-mode failure artifacts
 __screenshots__/
+
+# Storybook build output
+storybook-static/

@@ -1,19 +1,7 @@
 import { useCallback, useEffect, useMemo, useState, type ReactElement } from "react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import {
-  Autocomplete,
-  Button,
-  ICON_CLASS_NAME,
-  Modal,
-  Size,
-  Variant,
-} from "@semio/ui";
-import {
-  IconBuilding,
-  IconMapPin,
-  IconUser,
-  IconWorld,
-} from "@tabler/icons-react";
+import { Autocomplete, Button, ICON_CLASS_NAME, Modal, Size, Variant } from "@semio/ui";
+import { IconBuilding, IconMapPin, IconUser, IconWorld } from "@tabler/icons-react";
 
 const meta: Meta = {
   title: "ui/Autocomplete",
@@ -73,13 +61,13 @@ interface PersonItem {
 }
 
 const PEOPLE: PersonItem[] = [
-  { id: "1", name: "Ada Lovelace", email: "ada@semio.ai", role: "admin" },
-  { id: "2", name: "Alan Turing", email: "alan@semio.ai", role: "editor" },
-  { id: "3", name: "Grace Hopper", email: "grace@semio.ai", role: "viewer" },
-  { id: "4", name: "Linus Torvalds", email: "linus@semio.ai", role: "editor" },
-  { id: "5", name: "Margaret Hamilton", email: "margaret@semio.ai", role: "admin" },
-  { id: "6", name: "Tim Berners-Lee", email: "tim@semio.ai", role: "viewer" },
-  { id: "7", name: "Vint Cerf", email: "vint@semio.ai", role: "viewer" },
+  { id: "1", name: "Ada Lovelace", email: "ada@example.com", role: "admin" },
+  { id: "2", name: "Alan Turing", email: "alan@example.com", role: "editor" },
+  { id: "3", name: "Grace Hopper", email: "grace@example.com", role: "viewer" },
+  { id: "4", name: "Linus Torvalds", email: "linus@example.com", role: "editor" },
+  { id: "5", name: "Margaret Hamilton", email: "margaret@example.com", role: "admin" },
+  { id: "6", name: "Tim Berners-Lee", email: "tim@example.com", role: "viewer" },
+  { id: "7", name: "Vint Cerf", email: "vint@example.com", role: "viewer" },
 ];
 
 function filterByQuery<T>(items: T[], query: string, getKey: (item: T) => string) {
@@ -90,10 +78,7 @@ function filterByQuery<T>(items: T[], query: string, getKey: (item: T) => string
 
 function BasicDemo(): ReactElement {
   const [value, setValue] = useState("");
-  const items = useMemo(
-    () => filterByQuery(FRUITS, value, (s) => s),
-    [value],
-  );
+  const items = useMemo(() => filterByQuery(FRUITS, value, (s) => s), [value]);
 
   return (
     <Autocomplete<string>
@@ -114,11 +99,7 @@ export const Basic: Story = {
 
 function WithIconsDemo(): ReactElement {
   const [value, setValue] = useState("");
-  const items = useMemo(
-    () =>
-      filterByQuery(PEOPLE, value, (p) => `${p.name} ${p.email}`),
-    [value],
-  );
+  const items = useMemo(() => filterByQuery(PEOPLE, value, (p) => `${p.name} ${p.email}`), [value]);
 
   const renderIcon = useCallback(() => <IconUser className={ICON_CLASS_NAME} />, []);
   const renderItem = useCallback(
@@ -165,9 +146,7 @@ function AsyncDemo(): ReactElement {
 
     setLoading(true);
     const handle = window.setTimeout(() => {
-      setResults(
-        filterByQuery(PEOPLE, trimmed, (p) => `${p.name} ${p.email}`),
-      );
+      setResults(filterByQuery(PEOPLE, trimmed, (p) => `${p.name} ${p.email}`));
       setLoading(false);
     }, 600);
 
@@ -205,10 +184,7 @@ export const Async: Story = {
 
 function EmptyStateDemo(): ReactElement {
   const [value, setValue] = useState("zzz");
-  const items = useMemo(
-    () => filterByQuery(FRUITS, value, (s) => s),
-    [value],
-  );
+  const items = useMemo(() => filterByQuery(FRUITS, value, (s) => s), [value]);
 
   return (
     <Autocomplete<string>
@@ -230,27 +206,77 @@ export const EmptyState: Story = {
 };
 
 const COUNTRIES = [
-  "Argentina","Australia","Austria","Belgium","Brazil","Bulgaria","Canada","Chile","Colombia","Croatia",
-  "Czechia","Denmark","Egypt","Estonia","Finland","France","Germany","Greece","Hungary","Iceland",
-  "India","Indonesia","Ireland","Israel","Italy","Japan","Kenya","Latvia","Lithuania","Luxembourg",
-  "Malaysia","Mexico","Morocco","Netherlands","New Zealand","Nigeria","Norway","Pakistan","Peru","Philippines",
-  "Poland","Portugal","Qatar","Romania","Saudi Arabia","Singapore","Slovakia","Slovenia","South Africa","South Korea",
-  "Spain","Sri Lanka","Sweden","Switzerland","Taiwan","Thailand","Turkey","Ukraine","United Arab Emirates","United Kingdom",
-  "United States","Uruguay","Vietnam",
+  "Argentina",
+  "Australia",
+  "Austria",
+  "Belgium",
+  "Brazil",
+  "Bulgaria",
+  "Canada",
+  "Chile",
+  "Colombia",
+  "Croatia",
+  "Czechia",
+  "Denmark",
+  "Egypt",
+  "Estonia",
+  "Finland",
+  "France",
+  "Germany",
+  "Greece",
+  "Hungary",
+  "Iceland",
+  "India",
+  "Indonesia",
+  "Ireland",
+  "Israel",
+  "Italy",
+  "Japan",
+  "Kenya",
+  "Latvia",
+  "Lithuania",
+  "Luxembourg",
+  "Malaysia",
+  "Mexico",
+  "Morocco",
+  "Netherlands",
+  "New Zealand",
+  "Nigeria",
+  "Norway",
+  "Pakistan",
+  "Peru",
+  "Philippines",
+  "Poland",
+  "Portugal",
+  "Qatar",
+  "Romania",
+  "Saudi Arabia",
+  "Singapore",
+  "Slovakia",
+  "Slovenia",
+  "South Africa",
+  "South Korea",
+  "Spain",
+  "Sri Lanka",
+  "Sweden",
+  "Switzerland",
+  "Taiwan",
+  "Thailand",
+  "Turkey",
+  "Ukraine",
+  "United Arab Emirates",
+  "United Kingdom",
+  "United States",
+  "Uruguay",
+  "Vietnam",
 ];
 
 function LongListDemo(): ReactElement {
   const [value, setValue] = useState("");
-  const items = useMemo(
-    () => filterByQuery(COUNTRIES, value, (s) => s),
-    [value],
-  );
+  const items = useMemo(() => filterByQuery(COUNTRIES, value, (s) => s), [value]);
 
   const renderIcon = useCallback(() => <IconMapPin className={ICON_CLASS_NAME} />, []);
-  const renderItem = useCallback(
-    (item: string) => <span className="truncate">{item}</span>,
-    [],
-  );
+  const renderItem = useCallback((item: string) => <span className="truncate">{item}</span>, []);
 
   return (
     <Autocomplete<string>
@@ -292,10 +318,7 @@ function SizesDemo(): ReactElement {
 
 function SizesRow({ size }: { size: Size }): ReactElement {
   const [value, setValue] = useState("");
-  const items = useMemo(
-    () => filterByQuery(FRUITS, value, (s) => s),
-    [value],
-  );
+  const items = useMemo(() => filterByQuery(FRUITS, value, (s) => s), [value]);
 
   return (
     <Autocomplete<string>
@@ -341,10 +364,7 @@ function VariantsDemo(): ReactElement {
 
 function VariantsRow({ variant }: { variant: Variant }): ReactElement {
   const [value, setValue] = useState("");
-  const items = useMemo(
-    () => filterByQuery(FRUITS, value, (s) => s),
-    [value],
-  );
+  const items = useMemo(() => filterByQuery(FRUITS, value, (s) => s), [value]);
 
   return (
     <Autocomplete<string>
@@ -368,10 +388,7 @@ function InModalDemo(): ReactElement {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState("");
   const [picked, setPicked] = useState<PersonItem | null>(null);
-  const items = useMemo(
-    () => filterByQuery(PEOPLE, value, (p) => `${p.name} ${p.email}`),
-    [value],
-  );
+  const items = useMemo(() => filterByQuery(PEOPLE, value, (p) => `${p.name} ${p.email}`), [value]);
 
   const renderIcon = useCallback(() => <IconUser className={ICON_CLASS_NAME} />, []);
   const renderItem = useCallback(
@@ -414,9 +431,9 @@ function InModalDemo(): ReactElement {
             </div>
           )}
           <div className="text-xs text-neutral-500">
-            Demonstrates Autocomplete inside `Modal`: the popup escapes the
-            modal via Portal, positions against the input, and item clicks
-            select correctly without dismissing the modal.
+            Demonstrates Autocomplete inside `Modal`: the popup escapes the modal via Portal,
+            positions against the input, and item clicks select correctly without dismissing the
+            modal.
           </div>
           <div className="flex flex-row gap-2 opacity-50">
             <IconBuilding className={ICON_CLASS_NAME} />

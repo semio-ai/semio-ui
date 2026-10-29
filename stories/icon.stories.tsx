@@ -106,8 +106,7 @@ export const UnknownFallback: Story = {
   render: () => (
     <div className="flex items-center gap-3">
       <div className="grid size-9 place-items-center rounded-sm bg-neutral-200 dark:bg-neutral-700">
-        {/* @ts-expect-error — intentionally unregistered: demonstrates the fallback,
-            and the error shows the key check rejecting unknown names. */}
+        {/* @ts-expect-error: An unregistered name exercises the runtime fallback. */}
         <Icon name="definitely-not-a-real-icon" />
       </div>
       <span className="text-xs opacity-70">

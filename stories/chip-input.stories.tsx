@@ -47,7 +47,7 @@ const coloredOptions = [
   { label: "Go", value: "go", color: "#00ADD8" },
 ];
 
-const iconOptions = [
+const iconOptions: ChipInputProps["options"] = [
   { label: "Users", value: "users", icon: "user" },
   { label: "Favorites", value: "favorites", icon: "star" },
   { label: "Liked", value: "liked", icon: "heart" },

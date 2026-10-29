@@ -8,13 +8,7 @@ import {
   type TabChild,
   Variant,
 } from "@semio/ui";
-import {
-  IconBell,
-  IconCode,
-  IconPalette,
-  IconShield,
-  IconUser,
-} from "@tabler/icons-react";
+import { IconBell, IconCode, IconPalette, IconShield, IconUser } from "@tabler/icons-react";
 
 const meta: Meta<typeof TabbedModal> = {
   component: TabbedModal,
@@ -42,8 +36,8 @@ const settingsTabs: TabChild[] = [
       <div className="flex flex-col gap-2 p-3">
         <h3 className="font-medium">Profile information</h3>
         <p className="text-sm text-neutral-500">
-          Update your name, email, and avatar. These show up wherever your
-          account appears across the studio.
+          Update your name, email, and avatar. These show up wherever your account appears across
+          the studio.
         </p>
       </div>
     ),

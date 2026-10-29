@@ -34,8 +34,7 @@ export const DefaultPrimary: Story = {
     children: "Hello",
     variant: Variant.Primary,
     onClick: (): void => {
-      // eslint-disable-next-line no-alert -- alert for demo
-      alert("Hello From Semio!");
+      console.info("Activated");
     },
     disabled: false,
   },
@@ -47,8 +46,7 @@ export const DefaultSecondary: Story = {
     children: "Hello",
     variant: Variant.Secondary,
     onClick: (): void => {
-      // eslint-disable-next-line no-alert -- alert for demo
-      alert("Hello From Semio!");
+      console.info("Activated");
     },
     disabled: false,
   },
@@ -60,8 +58,7 @@ export const InvertedPrimary: Story = {
     children: "Hello",
     variant: Variant.Primary,
     onClick: (): void => {
-      // eslint-disable-next-line no-alert -- alert for demo
-      alert("Hello From Semio!");
+      console.info("Activated");
     },
     visuals: "inverted",
     disabled: false,
@@ -74,8 +71,7 @@ export const InvertedSecondary: Story = {
     children: "Hello",
     variant: Variant.Secondary,
     onClick: (): void => {
-      // eslint-disable-next-line no-alert -- alert for demo
-      alert("Hello From Semio!");
+      console.info("Activated");
     },
     visuals: "inverted",
     disabled: false,
@@ -88,8 +84,7 @@ export const BorderedPrimary: Story = {
     children: "Hello",
     variant: Variant.Primary,
     onClick: (): void => {
-      // eslint-disable-next-line no-alert -- alert for demo
-      alert("Hello From Semio!");
+      console.info("Activated");
     },
     visuals: "inverted-border",
     disabled: false,
@@ -102,8 +97,7 @@ export const BorderedSecondary: Story = {
     children: "Hello",
     variant: Variant.Secondary,
     onClick: (): void => {
-      // eslint-disable-next-line no-alert -- alert for demo
-      alert("Hello From Semio!");
+      console.info("Activated");
     },
     visuals: "inverted-border",
     disabled: false,
@@ -118,8 +112,7 @@ export const PrimaryExtraSmall: Story = {
     children: "Hello",
     variant: Variant.Primary,
     onClick: (): void => {
-      // eslint-disable-next-line no-alert -- alert for demo
-      alert("Hello From Semio!");
+      console.info("Activated");
     },
     visuals: "inverted-border",
     size: Size.Xs,
@@ -133,8 +126,7 @@ export const PrimarySmall: Story = {
     children: "Hello",
     variant: Variant.Primary,
     onClick: (): void => {
-      // eslint-disable-next-line no-alert -- alert for demo
-      alert("Hello From Semio!");
+      console.info("Activated");
     },
     visuals: "inverted-border",
     size: Size.Sm,
@@ -148,8 +140,7 @@ export const PrimaryMedium: Story = {
     children: "Hello",
     variant: Variant.Primary,
     onClick: (): void => {
-      // eslint-disable-next-line no-alert -- alert for demo
-      alert("Hello From Semio!");
+      console.info("Activated");
     },
     visuals: "inverted-border",
     size: Size.Md,
@@ -163,8 +154,7 @@ export const PrimaryLarge: Story = {
     children: "Hello",
     variant: Variant.Primary,
     onClick: (): void => {
-      // eslint-disable-next-line no-alert -- alert for demo
-      alert("Hello From Semio!");
+      console.info("Activated");
     },
     visuals: "inverted-border",
     size: Size.Lg,
@@ -178,8 +168,7 @@ export const PrimaryExtraLarge: Story = {
     children: "Hello",
     variant: Variant.Primary,
     onClick: (): void => {
-      // eslint-disable-next-line no-alert -- alert for demo
-      alert("Hello From Semio!");
+      console.info("Activated");
     },
     visuals: "inverted-border",
     size: Size.Xl,
@@ -193,8 +182,7 @@ export const CustomColorButton: Story = {
   args: {
     children: "Hello",
     onClick: (): void => {
-      // eslint-disable-next-line no-alert -- alert for demo
-      alert("Hello From Semio!");
+      console.info("Activated");
     },
     size: Size.Md,
     disabled: false,
@@ -207,8 +195,7 @@ export const CustomColorInvertedButton: Story = {
   args: {
     children: "Hello",
     onClick: (): void => {
-      // eslint-disable-next-line no-alert -- alert for demo
-      alert("Hello From Semio!");
+      console.info("Activated");
     },
     visuals: "inverted",
     size: Size.Md,
@@ -222,8 +209,7 @@ export const CustomColorBorderButton: Story = {
   args: {
     children: "Hello",
     onClick: (): void => {
-      // eslint-disable-next-line no-alert -- alert for demo
-      alert("Hello From Semio!");
+      console.info("Activated");
     },
     visuals: "inverted-border",
     size: Size.Md,
@@ -238,8 +224,7 @@ export const PrimaryIconButton: Story = {
     leftIcon: <IconHome />,
     variant: Variant.Primary,
     onClick: (): void => {
-      // eslint-disable-next-line no-alert -- alert for demo
-      alert("Hello From Semio!");
+      console.info("Activated");
     },
     size: Size.Md,
     disabled: false,
@@ -252,8 +237,7 @@ export const PrimaryInvertedIconButton: Story = {
     leftIcon: <IconHome />,
     variant: Variant.Primary,
     onClick: (): void => {
-      // eslint-disable-next-line no-alert -- alert for demo
-      alert("Hello From Semio!");
+      console.info("Activated");
     },
     visuals: "inverted",
     size: Size.Md,
@@ -267,8 +251,7 @@ export const PrimaryBorderedIconButton: Story = {
     leftIcon: <IconHome />,
     variant: Variant.Primary,
     onClick: (): void => {
-      // eslint-disable-next-line no-alert -- alert for demo
-      alert("Hello From Semio!");
+      console.info("Activated");
     },
     visuals: "inverted-border",
     size: Size.Md,
@@ -283,8 +266,7 @@ export const PrimaryButtonIconText: Story = {
     variant: Variant.Primary,
     leftIcon: <IconHome />,
     onClick: (): void => {
-      // eslint-disable-next-line no-alert -- alert for demo
-      alert("Hello From Semio!");
+      console.info("Activated");
     },
     visuals: "inverted-border",
     size: Size.Md,
@@ -300,8 +282,7 @@ export const PrimaryCallToActionButton: Story = {
     variant: Variant.Primary,
     leftIcon: <IconPlus />,
     onClick: (): void => {
-      // eslint-disable-next-line no-alert -- alert for demo
-      alert("Hello From Semio!");
+      console.info("Activated");
     },
     visuals: "call-to-action",
     size: Size.Md,
@@ -314,8 +295,7 @@ export const CustomCallToActionButton: Story = {
     children: "Join!",
     leftIcon: <IconPlus />,
     onClick: (): void => {
-      // eslint-disable-next-line no-alert -- alert for demo
-      alert("Hello From Semio!");
+      console.info("Activated");
     },
     visuals: "call-to-action",
     size: Size.Md,

@@ -10,11 +10,11 @@ it is preferred over per-icon imports.
 
 Tying icon identity to a concrete import is easy to break:
 
-- Icon *identity* is a concrete import rather than a stable key, so it can't be
+- Icon _identity_ is a concrete import rather than a stable key, so it can't be
   themed, swapped, or serialized.
 - Sizing is re-derived per consuming component (the 60%-of-container rule
   applied by hand in each icon slot), so it drifts.
-- There is no single source of truth for *which* icon library is in use or *how*
+- There is no single source of truth for _which_ icon library is in use or _how_
   icons render, which makes swapping or theming an icon set painful.
 - It round-trips poorly with Figma: because every icon is its own component,
   there is no shared, serializable handle that both code and design agree on.
@@ -40,9 +40,9 @@ export type IconRegistry = Record<string, IconComponent>;
 // (src/icons/), keyed kebab-case. The sets have disjoint keys.
 export const defaultIconRegistry: IconRegistry = {
   ...tablerIconRegistry, // generated from @tabler/icons-react
-  ...semioIconRegistry,  // generated from @semio/ui's own src/icons/ exports
-  ...solarIconRegistry,  // approved stock Solar glyph replacements
-  ...roleIconRegistry,   // hand-maintained semantic role keys
+  ...semioIconRegistry, // generated from @semio/ui's own src/icons/ exports
+  ...solarIconRegistry, // approved stock Solar glyph replacements
+  ...roleIconRegistry, // hand-maintained semantic role keys
 };
 ```
 
@@ -91,7 +91,7 @@ export function IconProvider({ registry, extend = true, children }: IconProvider
 ```
 
 The one extension over the base pattern is **merge-on-nest**: a nested provider
-with `extend` (the default) composes its keys *over* the parent registry rather
+with `extend` (the default) composes its keys _over_ the parent registry rather
 than shadowing it entirely, so a deeper provider adds/overrides keys without
 losing the ones it doesn't set. `extend: false` replaces the registry outright.
 
@@ -101,7 +101,7 @@ losing the ones it doesn't set. `extend: false` replaces the registry outright.
 `home`, `robot`, the keyframe/vector/vertex curve-editing marks, player
 transport, file-type badges, etc.). These are in the **default** registry so
 `<Icon name="home" />` resolves the Semio glyph with zero configuration — the
-default is *not* just Tabler. Each built-in key has one owner. The generator excludes native/custom/Solar keys
+default is _not_ just Tabler. Each built-in key has one owner. The generator excludes native/custom/Solar keys
 from the Tabler fallback map, so shared decisions do not rely on spread order.
 
 The default Tabler set is **curated, not the full library.** Tabler ships
@@ -135,7 +135,7 @@ The two generated maps are produced by `scripts/generate-icon-registry.mjs`
 Keys fall into two kinds, and the distinction drives how they're named and
 overridden:
 
-- **Role keys** name a *function in the UI*, not a picture: `close`, `back`,
+- **Role keys** name a _function in the UI_, not a picture: `close`, `back`,
   `drill-in`, `submenu`, `select-indicator`, `sidebar-toggle`,
   `disclosure-open`/`disclosure-closed`, `selected`, `radio-selected`,
   `step-complete`/`step-pending`, and `status-success`/`status-error`/
@@ -144,12 +144,12 @@ overridden:
   reveal/expand, e.g. accordion/collapse), **`select-indicator`** (double up/down
   chevron — value pickers like select/combobox), and **`submenu`** (static right
   chevron — flyout/nested menus and tree nodes). The glyph is just the default
-  *value*; overriding `close` re-skins every close affordance at once. Role keys
+  _value_; overriding `close` re-skins every close affordance at once. Role keys
   are named for the **role, not the glyph** — `close`, not `close-x`;
   `disclosure`, not `chevron-down` (re-encoding the shape defeats the
   indirection). They live in a hand-maintained `roles.ts`, and a key is added
   only as a component is wired to it — an unused role key is noise.
-- **Glyph keys** name an *arbitrary picture* used as content — `star`, `home`,
+- **Glyph keys** name an _arbitrary picture_ used as content — `star`, `home`,
   `heart`, `trash`. These keep their literal names; a caller asking for
   a star wants a star.
 
@@ -161,7 +161,7 @@ the convenience layer for consumers.
 chevron rotates (or swaps `+`/`−`) on open; the keyframe glyph varies by
 `dashed`/`center`/`fill`. Rather than a one-off branch inside each consuming
 component, the variation logic lives **inside the icon component**, and `<Icon>`
-forwards a *state bag* to it:
+forwards a _state bag_ to it:
 
 ```tsx
 <Icon name="disclosure" open={open} />    // default component rotates on `open`
@@ -175,7 +175,7 @@ component is unchanged either way. A role's prop shape is part of its contract:
 an override must honor it.
 
 **Typed wrappers keep the loose seam honest.** The `Record<string, unknown>` is
-the *only* loose spot, confined to resolution/theming. Everyday call sites stay
+the _only_ loose spot, confined to resolution/theming. Everyday call sites stay
 type-checked one of two ways: a literal-key `<Icon name="check" />` (no state),
 or a thin typed wrapper for stateful roles — `<KeyIcon dashed center="plus" />`,
 `<DisclosureIcon open />` — that forwards checked props into `<Icon name>`. No
@@ -193,21 +193,21 @@ reskin one at a time (`status-*`).
 ### Nesting & library composition (directionality)
 
 Because resolution is nearest-wins with `{ ...parent, ...registry }` merging, on
-a key collision the *deeper* provider wins: an ancestor override takes effect for
+a key collision the _deeper_ provider wins: an ancestor override takes effect for
 every key a nearer provider doesn't itself set, but a nearer provider's explicit
 key shadows the ancestor. This is correct for "library brings defaults, app
 overrides," and backwards for "app has final authority" — a library that
 re-registers a common role key (`close`) could quietly defeat app theming from
 above. To keep app authority intact:
 
-- **Libraries export a registry *object*, not their own `<IconProvider>`.**
+- **Libraries export a registry _object_, not their own `<IconProvider>`.**
   `@semio/animation` exports `animationIconRegistry`; the app composes it where
   it controls precedence: `<IconProvider registry={{ ...animationIconRegistry,
-  ...appIcons }}>`. Last-wins; the app has the final say.
-- If a library *does* render its own provider, keep it **additive-only** —
+...appIcons }}>`. Last-wins; the app has the final say.
+- If a library _does_ render its own provider, keep it **additive-only** —
   net-new keys, no shared role keys — so ancestor overrides always pass through.
 
-### Consumer model — icon slots take a key *or* a node
+### Consumer model — icon slots take a key _or_ a node
 
 Every `@semio/ui` icon slot — `Button`'s `leftIcon`/`rightIcon`, the `icon`
 props across menus/selects/inputs/tabs/breadcrumbs/sidebars, `Chip`'s `icon`,
@@ -245,7 +245,7 @@ components** to render a glyph — it cannot draw an icon from a free-text strin
 Figma's native "pick one of a set" mechanism is the **instance-swap** property.
 So the bridge is:
 
-> registry key  ==  Figma icon component name  ==  Code Connect output
+> registry key == Figma icon component name == Code Connect output
 
 A designer swaps in an icon component visually; Code Connect translates the
 chosen component's name back into the `name` string. The recommended model is
@@ -292,19 +292,19 @@ This is the same discipline the color tokens follow (token name == code-syntax
 
 ## References
 
-- `packages/ui/src/icons/registry/` — the implementation: `icon.tsx`,
+- `src/icons/registry/` — the implementation: `icon.tsx`,
   `icon-provider.tsx`, `icon-context.ts`, `default-registry.ts`, `roles.ts`,
   `disclosure.tsx`, `key-icon.tsx`, `types.ts`, and the generated
   `tabler.generated.ts` / `semio.generated.ts`.
-- `packages/ui/scripts/generate-icon-registry.mjs` — codegen for the two
+- `scripts/generate-icon-registry.mjs` — codegen for the two
   generated registries (`npm run generate:icons`).
-- `packages/ui/src/constants/icon.ts` — `ICON_CLASS_NAME` (`icon-standard`),
+- `src/constants/icon.ts` — `ICON_CLASS_NAME` (`icon-standard`),
   `ICON_LG_CLASS_NAME` (`icon-larger`).
-- `packages/ui/src/icons/` — `@semio/ui`'s own custom icons, folded into the
+- `src/icons/` — `@semio/ui`'s own custom icons, folded into the
   default registry alongside Solar glyphs and compatibility fallbacks.
-- `packages/ui/src/context/context-providers.tsx` — shared context
+- `src/context/context-providers.tsx` — shared context
   infrastructure the `IconProvider` builds on.
-- `packages/ui/src/context/tooltip-context-utils.tsx` — existing in-package
+- `src/context/tooltip-context-utils.tsx` — existing in-package
   precedent using that infrastructure.
 
 The `all` role uses Solar Global LineDuotone for complete selections. Studio

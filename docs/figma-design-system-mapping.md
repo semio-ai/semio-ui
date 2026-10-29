@@ -1,6 +1,6 @@
 # @semio/ui → Figma mapping (shared patterns)
 
-The point of this doc: the styling in `@semio/ui` lives in **shared classes** (`packages/ui/public/styles.css`), not per-component, so the same handful of patterns drive Button, inputs, selects, chips, etc. Mapping those classes to Figma **once** — learned from the Button — means every other component reuses the same recipe. Pair with the `figma-component-fidelity` skill (the build process + Figma gotchas) and the `parity:figma` check (the gate).
+The point of this doc: the styling in `@semio/ui` lives in **shared classes** (`public/styles.css`), not per-component, so the same handful of patterns drive Button, inputs, selects, chips, etc. Mapping those classes to Figma **once** — learned from the Button — means every other component reuses the same recipe. Pair with the `figma-component-fidelity` skill (the build process + Figma gotchas) and the `parity:figma` check (the gate).
 
 Token resolution is brand-driven: a `variant` class sets `--standard-color` / `--accent-color` CSS vars, which resolve through the `Brand` collection (Default/Semio) → `Color` semantic vars → primitives. In Figma, bind to the **semantic** vars (`color/<variant>/bg`, `bg-hover`, `fg`); the active Brand mode picks the hue (blue under Default, orange under Semio).
 
@@ -44,7 +44,7 @@ The most-reused surfaces in studio are one ramp, and which class a surface takes
 
 **None of them draws a border or an outline.** Separation is by fill and the shared two-layer shadow alone. `--card-border-color` still resolves per variant, but no class paints it, so a variant does not change how any of these surfaces looks — which is why the Figma `Card` is a single component rather than a variant set.
 
-That separation does not meet WCAG 1.4.11's 3:1 for a component boundary, and the border it replaced did not either — 1.61:1 to 2.34:1 against the same grounds. `packages/ui/src/floating/surface-separation.browser.tsx` measures every pair in both themes and carries the figures. Closing the gap means moving the `layout-*` steps apart, which is a change to the ramp rather than to any one class.
+That separation does not meet WCAG 1.4.11's 3:1 for a component boundary, and the border it replaced did not either — 1.61:1 to 2.34:1 against the same grounds. `src/floating/surface-separation.browser.tsx` measures every pair in both themes and carries the figures. Closing the gap means moving the `layout-*` steps apart, which is a change to the ramp rather than to any one class.
 
 Represented in Figma as a foundation:
 

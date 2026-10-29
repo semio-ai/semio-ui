@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Button, Card, CardGrid, Chip, Icon, Size, Variant } from "@semio/ui";
+import { IconDotsVertical, IconLink } from "@tabler/icons-react";
 
 const meta: Meta<typeof Card> = {
   component: Card,
@@ -26,9 +27,14 @@ export const Default: Story = {
       <Card
         media={<Icon name="box" size="none" className="size-10 opacity-30" />}
         mediaCorner={
-          <Button size={Size.Sm} visuals="inverted" leftIcon="menu" altText="More actions" />
+          <Button
+            size={Size.Sm}
+            visuals="inverted"
+            leftIcon={<IconDotsVertical />}
+            altText="More actions"
+          />
         }
-        title="Quori"
+        title="Sample robot"
         titleTrailing={
           <Chip size={Size.Xs} variant={Variant.Tertiary}>
             Model
@@ -40,7 +46,7 @@ export const Default: Story = {
           </Button>
         }
       >
-        <MetaLine>@semio/quori</MetaLine>
+        <MetaLine>@example/sample-robot</MetaLine>
         <MetaLine>Created by you · Owner · v1.2.0</MetaLine>
       </Card>
     </div>
@@ -56,10 +62,10 @@ export const InAGrid: Story = {
   render: () => (
     <ul className="grid w-[52rem] grid-cols-3 gap-3">
       {[
-        { name: "Quori", lines: ["@semio/quori", "Owner · v1.2.0"] },
+        { name: "Sample robot", lines: ["@example/sample-robot", "Owner · v1.2.0"] },
         {
           name: "Reception Bot",
-          lines: ["@semio/reception-bot", "Owner · v0.3.0", "3 dependencies"],
+          lines: ["@example/welcome-robot", "Owner · v0.3.0", "3 dependencies"],
         },
         { name: "Wave", lines: [] },
       ].map((item) => (
@@ -182,7 +188,7 @@ export const MediaAspects: Story = {
 export const InteractiveGrid: Story = {
   render: () => {
     const items = [
-      "Quori",
+      "Sample robot",
       "Reception Bot",
       "Wave",
       "Friendly Face",
@@ -238,14 +244,19 @@ export const PrimaryAction: Story = {
   render: () => (
     <div className="flex w-[38rem] flex-row gap-3">
       {[
-        { title: "Published asset", verb: "Go to page", icon: "internal-link" as const },
+        { title: "Published asset", verb: "Go to page", icon: <IconLink /> },
         { title: "Project asset", verb: "Open in project", icon: "drill-in" as const },
       ].map((item) => (
         <div key={item.title} className="w-72">
           <Card
             media={<Icon name="box" size="none" className="size-10 opacity-30" />}
             mediaCorner={
-              <Button size={Size.Sm} visuals="inverted" leftIcon="menu" altText="More actions" />
+              <Button
+                size={Size.Sm}
+                visuals="inverted"
+                leftIcon={<IconDotsVertical />}
+                altText="More actions"
+              />
             }
             title={item.title}
             primaryAction={
@@ -383,20 +394,20 @@ export const Subtitle: Story = {
           <span className="text-xs text-neutral-500 dark:text-neutral-400">{label}</span>
           <Card
             media={<Icon name="box" size="none" className="size-10 opacity-30" />}
-            title="Quori"
+            title="Sample robot"
             titleTrailing={
               <Chip size={Size.Xs} variant={Variant.Tertiary}>
                 Model
               </Chip>
             }
-            subtitle={asSubtitle ? <AddressLine>@semio/quori</AddressLine> : undefined}
+            subtitle={asSubtitle ? <AddressLine>@example/sample-robot</AddressLine> : undefined}
             primaryAction={
               <Button size={Size.Sm} variant={Variant.Tertiary} visuals="inverted-border">
                 Go to page
               </Button>
             }
           >
-            {!asSubtitle && <AddressLine>@semio/quori</AddressLine>}
+            {!asSubtitle && <AddressLine>@example/sample-robot</AddressLine>}
             <MetaLine>Owner · v1.2.0</MetaLine>
           </Card>
         </div>

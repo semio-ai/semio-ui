@@ -25,10 +25,38 @@ Import the compiled stylesheet once, at your app's entry point:
 @import "@semio/ui/dist/styles.css";
 ```
 
+## Development and Storybook
+
+From this package's root:
+
+```sh
+npm install
+npm run storybook        # http://localhost:6007
+npm run build-storybook  # storybook-static/
+npm run typecheck
+npm run lint
+npm run test
+```
+
+Package-root tests use the existing `dist` exports of `@semio/utils` and `@semio/data`.
+In a Studio checkout, edits to those siblings are visible only after rebuilding
+them. Run `npx turbo run test:unit --filter=@semio/ui` from Studio's root
+to build the siblings before testing.
+
+Stories live in `stories/`; `.storybook/` supplies the light/dark toolbar and the
+library's default theme. Storybook aliases only `@semio/ui` to `src/index.tsx`.
+Other `@semio/*` dependencies resolve to their installed `dist` exports. npm
+releases include those builds. With workspace links in Studio, build dependencies
+first: from Studio's root, `npx turbo run storybook --filter=@semio/ui` or
+`npx turbo run build-storybook --filter=@semio/ui` does that automatically
+and reuses cached builds. Stop the dev server with Ctrl-C before handoff.
+Storybook is separate from `npm run build`.
+
 ## Usage
 
-Browser tests run through `npm run test:browser:packages` from the repository
-root. They share Studio's [browser API and React lifecycle conventions](../../apps/studio/browser-tests/README.md#browser-apis-and-react-lifecycle),
+Run browser tests with `npm run test:browser` from this package's root. In Studio,
+`npm run test:browser:packages` from Studio's root builds workspace dependencies
+and runs the shared package browser suites. They share Studio's [browser API and React lifecycle conventions](https://github.com/semio-ai/studio/blob/main/apps/studio/browser-tests/README.md#browser-apis-and-react-lifecycle),
 including awaited rendering/cleanup and explicit text-matching intent.
 Hover-sensitive tests must move the pointer to an explicit target inside or outside
 the component; React cleanup does not reset the browser's pointer position.
