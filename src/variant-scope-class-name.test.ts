@@ -47,7 +47,7 @@ const KNOWN_PROSE = [
 function sourceFiles(): string[] {
   return readdirSync(join(PACKAGE_ROOT, "src"), { withFileTypes: true, recursive: true })
     .filter((entry) => entry.isFile() && /\.tsx?$/.test(entry.name))
-    .map((entry) => join(entry.parentPath ?? entry.path, entry.name))
+    .map((entry) => join(entry.parentPath, entry.name))
     .filter((file) => file !== SELF);
 }
 
