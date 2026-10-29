@@ -32,7 +32,11 @@ function MenuRenderer(props: DropdownProps): ReactNode {
     <Dropdown
       {...props}
       trigger={
-        <Button variant={Variant.Default} rightIcon={<IconChevronDown className={ICON_CLASS_NAME} />} size={Size.Sm}>
+        <Button
+          variant={Variant.Default}
+          rightIcon={<IconChevronDown className={ICON_CLASS_NAME} />}
+          size={Size.Sm}
+        >
           Open menu
         </Button>
       }

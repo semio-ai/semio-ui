@@ -1,7 +1,7 @@
 // Central Figma "Semio UI Library" link builder for Storybook `design` params
 // (@storybook/addon-designs). The file key is a workspace URL identifier — not a
 // secret, and (in URL form) not flagged by our git secret scanning — kept here in
-// one place. Mirrors the same file referenced by Code Connect (packages/ui/figma.config.json).
+// one place. Mirrors the same file referenced by Code Connect (figma.config.json).
 const FIGMA_FILE = "https://www.figma.com/design/ExKZLlbGQ3lJxBddvR500j/Semio-UI-Library";
 
 /** Build a Figma node deep-link for a story's `parameters.design.url`. */
@@ -202,7 +202,7 @@ export const textRole = {
    * The library file carries the design as it stands, not how it got there — so the
    * boards that compared candidate ramps and recorded which was chosen do not live in
    * Figma. Those arguments belong where someone changing the code will meet them, which
-   * is the comments on the `.text-role-*` blocks in `packages/ui/public/styles.css`.
+   * is the comments on the `.text-role-*` blocks in `public/styles.css`.
    */
   specimen: figmaNode("835-1401"),
 } as const;

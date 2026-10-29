@@ -5,6 +5,7 @@ import {
   ICON_CLASS_NAME,
   SidebarModal,
   type SidebarTab,
+  type SidebarModalProps,
   Variant,
 } from "@semio/ui";
 import {
@@ -43,8 +44,8 @@ const settingsTabs: SidebarTab[] = [
       <div className="flex flex-col gap-2">
         <h3 className="font-medium">Profile information</h3>
         <p className="text-sm text-neutral-500">
-          Update your name, email, and avatar. These show up wherever your
-          account appears across the studio.
+          Update your name, email, and avatar. These show up wherever your account appears across
+          the studio.
         </p>
       </div>
     ),
@@ -137,7 +138,7 @@ function SidebarModalDemo({
   tabs: SidebarTab[];
   title: ReactNode;
   sidebarFooter?: ReactNode;
-  collapsedIcon?: ReactNode;
+  collapsedIcon?: SidebarModalProps["collapsedIcon"];
   variant?: Variant;
 }): ReactElement {
   const [open, setOpen] = useState(false);
@@ -178,11 +179,7 @@ export const Basic: Story = {
 export const WithContentFooter: Story = {
   name: "With per-tab content footer",
   render: () => (
-    <SidebarModalDemo
-      title="Settings"
-      tabs={settingsTabs}
-      collapsedIcon={settingsCollapsedIcon}
-    />
+    <SidebarModalDemo title="Settings" tabs={settingsTabs} collapsedIcon={settingsCollapsedIcon} />
   ),
 };
 
@@ -195,7 +192,7 @@ export const WithSidebarFooter: Story = {
       collapsedIcon={settingsCollapsedIcon}
       sidebarFooter={
         <div className="flex flex-col gap-1 text-xs text-neutral-500">
-          <span>Studio v1.4.2</span>
+          <span>Example app v1.4.2</span>
           <button type="button" className="text-left underline">
             Sign out
           </button>
@@ -211,16 +208,18 @@ export const ManyTabs: Story = {
     const lots: SidebarTab[] = [
       ...settingsTabs,
       ...settingsTabs.map((tab) => ({ ...tab, key: `${tab.key}-2`, title: `${tab.title} (alt)` })),
-      ...settingsTabs.map((tab) => ({ ...tab, key: `${tab.key}-3`, title: `${tab.title} (extras)` })),
+      ...settingsTabs.map((tab) => ({
+        ...tab,
+        key: `${tab.key}-3`,
+        title: `${tab.title} (extras)`,
+      })),
     ];
     return (
       <SidebarModalDemo
         title="Settings"
         tabs={lots}
         collapsedIcon={settingsCollapsedIcon}
-        sidebarFooter={
-          <div className="text-xs text-neutral-500">Studio v1.4.2</div>
-        }
+        sidebarFooter={<div className="text-xs text-neutral-500">Example app v1.4.2</div>}
       />
     );
   },
@@ -233,9 +232,7 @@ export const CollapsedIconSwap: Story = {
       title="Settings"
       tabs={settingsTabs}
       collapsedIcon={settingsCollapsedIcon}
-      sidebarFooter={
-        <div className="text-xs text-neutral-500">Studio v1.4.2</div>
-      }
+      sidebarFooter={<div className="text-xs text-neutral-500">Example app v1.4.2</div>}
     />
   ),
 };
@@ -243,11 +240,7 @@ export const CollapsedIconSwap: Story = {
 export const NoTabs: Story = {
   name: "Empty (placeholder)",
   render: () => (
-    <SidebarModalDemo
-      title="Settings"
-      tabs={[]}
-      collapsedIcon={settingsCollapsedIcon}
-    />
+    <SidebarModalDemo title="Settings" tabs={[]} collapsedIcon={settingsCollapsedIcon} />
   ),
 };
 

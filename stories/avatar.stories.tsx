@@ -30,8 +30,7 @@ export const Primary: Story = {
     visuals: "default",
     alt: "Fred",
     onClick: (): void => {
-      // eslint-disable-next-line no-alert -- alert for demo
-      alert("Hello From Semio!");
+      console.info("Activated");
     },
   },
 };
@@ -50,8 +49,7 @@ export const PrimaryBorder: Story = {
     visuals: "border",
     alt: "Fred",
     onClick: (): void => {
-      // eslint-disable-next-line no-alert -- alert for demo
-      alert("Hello From Semio!");
+      console.info("Activated");
     },
   },
 };
@@ -70,8 +68,7 @@ export const PrimaryInverted: Story = {
     visuals: "inverted",
     alt: "Fred",
     onClick: (): void => {
-      // eslint-disable-next-line no-alert -- alert for demo
-      alert("Hello From Semio!");
+      console.info("Activated");
     },
   },
 };
@@ -90,8 +87,7 @@ export const PrimaryInvertedBorder: Story = {
     visuals: "inverted-border",
     alt: "Fred",
     onClick: (): void => {
-      // eslint-disable-next-line no-alert -- alert for demo
-      alert("Hello From Semio!");
+      console.info("Activated");
     },
   },
 };
@@ -111,8 +107,7 @@ export const PrimarySrc: Story = {
     visuals: "default",
     alt: "Fred",
     onClick: (): void => {
-      // eslint-disable-next-line no-alert -- alert for demo
-      alert("Hello From Semio!");
+      console.info("Activated");
     },
   },
 };
@@ -124,8 +119,7 @@ export const PrimaryBorderSrc: Story = {
     visuals: "border",
     alt: "Fred",
     onClick: (): void => {
-      // eslint-disable-next-line no-alert -- alert for demo
-      alert("Hello From Semio!");
+      console.info("Activated");
     },
   },
 };
@@ -137,8 +131,7 @@ export const PrimaryStatusSrc: Story = {
     visuals: "default",
     alt: "Fred",
     onClick: (): void => {
-      // eslint-disable-next-line no-alert -- alert for demo
-      alert("Hello From Semio!");
+      console.info("Activated");
     },
     status: {
       variant: Variant.Success,
@@ -153,8 +146,7 @@ export const PrimaryStatus: Story = {
     visuals: "default",
     alt: "Fred",
     onClick: (): void => {
-      // eslint-disable-next-line no-alert -- alert for demo
-      alert("Hello From Semio!");
+      console.info("Activated");
     },
     status: {
       variant: Variant.Success,
@@ -170,8 +162,7 @@ export const PrimaryIconStatus: Story = {
     visuals: "default",
     alt: "Fred",
     onClick: (): void => {
-      // eslint-disable-next-line no-alert -- alert for demo
-      alert("Hello From Semio!");
+      console.info("Activated");
     },
     status: {
       variant: Variant.Success,
@@ -187,8 +178,7 @@ export const PrimaryBorderStatusSrc: Story = {
     visuals: "border",
     alt: "Fred",
     onClick: (): void => {
-      // eslint-disable-next-line no-alert -- alert for demo
-      alert("Hello From Semio!");
+      console.info("Activated");
     },
     status: {
       variant: Variant.Success,
@@ -204,8 +194,7 @@ export const PrimaryIcon: Story = {
     alt: "Fred",
     icon: <IconUser className={ICON_CLASS_NAME} />,
     onClick: (): void => {
-      // eslint-disable-next-line no-alert -- alert for demo
-      alert("Hello From Semio!");
+      console.info("Activated");
     },
   },
 };
@@ -217,8 +206,7 @@ export const DefaultExtraSmall: Story = {
     alt: "Fred",
     size: Size.Xs,
     onClick: (): void => {
-      // eslint-disable-next-line no-alert -- alert for demo
-      alert("Hello From Semio!");
+      console.info("Activated");
     },
   },
 };
@@ -230,8 +218,7 @@ export const DefaultSmall: Story = {
     alt: "Fred",
     size: Size.Sm,
     onClick: (): void => {
-      // eslint-disable-next-line no-alert -- alert for demo
-      alert("Hello From Semio!");
+      console.info("Activated");
     },
   },
 };
@@ -243,8 +230,7 @@ export const DefaultMedium: Story = {
     alt: "Fred",
     size: Size.Md,
     onClick: (): void => {
-      // eslint-disable-next-line no-alert -- alert for demo
-      alert("Hello From Semio!");
+      console.info("Activated");
     },
   },
 };
@@ -256,8 +242,7 @@ export const DefaultLarge: Story = {
     alt: "Fred",
     size: Size.Lg,
     onClick: (): void => {
-      // eslint-disable-next-line no-alert -- alert for demo
-      alert("Hello From Semio!");
+      console.info("Activated");
     },
   },
 };
@@ -269,8 +254,7 @@ export const DefaultExtraLarge: Story = {
     alt: "Fred",
     size: Size.Xl,
     onClick: (): void => {
-      // eslint-disable-next-line no-alert -- alert for demo
-      alert("Hello From Semio!");
+      console.info("Activated");
     },
   },
 };

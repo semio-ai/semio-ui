@@ -8,13 +8,7 @@ import {
   Size,
   Variant,
 } from "@semio/ui";
-import {
-  IconCircle,
-  IconEye,
-  IconPencil,
-  IconShield,
-  IconWorld,
-} from "@tabler/icons-react";
+import { IconCircle, IconEye, IconPencil, IconShield, IconWorld } from "@tabler/icons-react";
 
 const meta: Meta = {
   title: "ui/Combobox",
@@ -40,24 +34,112 @@ const ROLE_OPTIONS: ComboboxOption[] = [
 ];
 
 const FRUIT_OPTIONS: ComboboxOption[] = [
-  "Apple","Apricot","Banana","Blackberry","Blueberry","Cherry","Cranberry","Date","Elderberry","Fig",
-  "Grape","Grapefruit","Honeydew","Kiwi","Lemon","Lime","Mango","Mulberry","Nectarine","Orange",
-  "Papaya","Peach","Pear","Pineapple","Plum","Pomegranate","Raspberry","Strawberry","Tangerine","Watermelon",
+  "Apple",
+  "Apricot",
+  "Banana",
+  "Blackberry",
+  "Blueberry",
+  "Cherry",
+  "Cranberry",
+  "Date",
+  "Elderberry",
+  "Fig",
+  "Grape",
+  "Grapefruit",
+  "Honeydew",
+  "Kiwi",
+  "Lemon",
+  "Lime",
+  "Mango",
+  "Mulberry",
+  "Nectarine",
+  "Orange",
+  "Papaya",
+  "Peach",
+  "Pear",
+  "Pineapple",
+  "Plum",
+  "Pomegranate",
+  "Raspberry",
+  "Strawberry",
+  "Tangerine",
+  "Watermelon",
 ].map((label) => ({ label, value: label.toLowerCase() }));
 
 const COUNTRY_OPTIONS: ComboboxOption[] = [
-  "Argentina","Australia","Austria","Belgium","Brazil","Bulgaria","Canada","Chile","Colombia","Croatia",
-  "Czechia","Denmark","Egypt","Estonia","Finland","France","Germany","Greece","Hungary","Iceland",
-  "India","Indonesia","Ireland","Israel","Italy","Japan","Kenya","Latvia","Lithuania","Luxembourg",
-  "Malaysia","Mexico","Morocco","Netherlands","New Zealand","Nigeria","Norway","Pakistan","Peru","Philippines",
-  "Poland","Portugal","Qatar","Romania","Saudi Arabia","Singapore","Slovakia","Slovenia","South Africa","South Korea",
-  "Spain","Sri Lanka","Sweden","Switzerland","Taiwan","Thailand","Turkey","Ukraine","United Arab Emirates","United Kingdom",
-  "United States","Uruguay","Vietnam",
+  "Argentina",
+  "Australia",
+  "Austria",
+  "Belgium",
+  "Brazil",
+  "Bulgaria",
+  "Canada",
+  "Chile",
+  "Colombia",
+  "Croatia",
+  "Czechia",
+  "Denmark",
+  "Egypt",
+  "Estonia",
+  "Finland",
+  "France",
+  "Germany",
+  "Greece",
+  "Hungary",
+  "Iceland",
+  "India",
+  "Indonesia",
+  "Ireland",
+  "Israel",
+  "Italy",
+  "Japan",
+  "Kenya",
+  "Latvia",
+  "Lithuania",
+  "Luxembourg",
+  "Malaysia",
+  "Mexico",
+  "Morocco",
+  "Netherlands",
+  "New Zealand",
+  "Nigeria",
+  "Norway",
+  "Pakistan",
+  "Peru",
+  "Philippines",
+  "Poland",
+  "Portugal",
+  "Qatar",
+  "Romania",
+  "Saudi Arabia",
+  "Singapore",
+  "Slovakia",
+  "Slovenia",
+  "South Africa",
+  "South Korea",
+  "Spain",
+  "Sri Lanka",
+  "Sweden",
+  "Switzerland",
+  "Taiwan",
+  "Thailand",
+  "Turkey",
+  "Ukraine",
+  "United Arab Emirates",
+  "United Kingdom",
+  "United States",
+  "Uruguay",
+  "Vietnam",
 ].map((label) => ({ label, value: label.toLowerCase().replace(/\s+/g, "-") }));
 
 const COLORED_OPTIONS: ComboboxOption[] = [
   { label: "Hello", value: "hello", color: "#33bbbb" },
-  { label: "World", value: "world", color: "#737373", icon: <IconWorld className={ICON_CLASS_NAME} /> },
+  {
+    label: "World",
+    value: "world",
+    color: "#737373",
+    icon: <IconWorld className={ICON_CLASS_NAME} />,
+  },
   { label: "Multiple", value: "multiple", color: "#eeee11" },
   { label: "Default", value: "default" },
 ];
@@ -235,7 +317,12 @@ export const Variants: Story = {
 function DisabledDemo(): ReactElement {
   const [value, setValue] = useState<string | null>("viewer");
   const optionsWithDisabled: ComboboxOption[] = [
-    { label: "Owner (locked)", value: "owner", disabled: true, icon: <IconCircle className={ICON_CLASS_NAME} /> },
+    {
+      label: "Owner (locked)",
+      value: "owner",
+      disabled: true,
+      icon: <IconCircle className={ICON_CLASS_NAME} />,
+    },
     { label: "Editor", value: "editor", icon: <IconPencil className={ICON_CLASS_NAME} /> },
     { label: "Viewer", value: "viewer", icon: <IconEye className={ICON_CLASS_NAME} /> },
   ];
@@ -243,20 +330,11 @@ function DisabledDemo(): ReactElement {
     <div className="flex flex-col gap-3">
       <div>
         <div className="mb-1 text-xs text-neutral-500">Whole input disabled</div>
-        <Combobox<string>
-          options={ROLE_OPTIONS}
-          value={value}
-          onChange={setValue}
-          disabled
-        />
+        <Combobox<string> options={ROLE_OPTIONS} value={value} onChange={setValue} disabled />
       </div>
       <div>
         <div className="mb-1 text-xs text-neutral-500">Disabled item</div>
-        <Combobox<string>
-          options={optionsWithDisabled}
-          value={value}
-          onChange={setValue}
-        />
+        <Combobox<string> options={optionsWithDisabled} value={value} onChange={setValue} />
       </div>
     </div>
   );
@@ -270,11 +348,7 @@ function ControlledDemo(): ReactElement {
   const [value, setValue] = useState<string | null>("editor");
   return (
     <div className="flex flex-col gap-3">
-      <Combobox<string>
-        options={ROLE_OPTIONS}
-        value={value}
-        onChange={setValue}
-      />
+      <Combobox<string> options={ROLE_OPTIONS} value={value} onChange={setValue} />
       <div className="text-sm">
         Current value: <span className="font-medium">{value ?? "(none)"}</span>
       </div>

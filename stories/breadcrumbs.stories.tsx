@@ -134,7 +134,7 @@ const STATIC_ELEMENTS: BreadcrumbElement[] = [
       },
       {
         value: "studio",
-        label: "Studio",
+        label: "Workspace",
         icon: <IconHexagonLetterS className={ICON_CLASS_NAME} />,
         children: [
           {
