@@ -803,6 +803,7 @@ test("provider sibling state survives adding and removing notifications", async 
 test("a toast removed through the context and added again under its id lives its own interval", async () => {
   const interval = 1000;
   const removeAfter = 500;
+  let shownAt: number | null = null;
   let readdedAt: number | null = null;
   let removedAgainAt: number | null = null;
   function RemoveThenAddAgain() {
@@ -811,6 +812,7 @@ test("a toast removed through the context and added again under its id lives its
     useEffect(() => {
       if (toasts.length > 0 && !listed.current) {
         listed.current = true;
+        shownAt = performance.now();
         // Removed by a caller before its interval runs out, as a consumer that
         // dismisses its own notification does.
         const timer = setTimeout(() => removeToast("repeated"), removeAfter);
@@ -836,6 +838,8 @@ test("a toast removed through the context and added again under its id lives its
     </ToastManager>,
   );
   await expect.poll(() => readdedAt, { timeout: 5000 }).not.toBeNull();
+  // The first one left at the caller's removal, not at the end of its interval.
+  expect(readdedAt! - shownAt!).toBeLessThan(interval - removeAfter / 2);
   await expect.element(page.getByText("Saved", { exact: true })).toBeVisible();
   await expect.poll(() => removedAgainAt, { timeout: 5000 }).not.toBeNull();
   // Its own interval, not what the first notification's deadline left of it
