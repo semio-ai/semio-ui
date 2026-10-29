@@ -1,7 +1,7 @@
 {
   "name": "@semio/ui",
   "description": "Basic React components, built by Semio with Radix/Tailwind",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/semio-ai/studio.git",
@@ -52,7 +52,7 @@
     "@base-ui/react": "^1.4.1",
     "@floating-ui/react": "^0.27.4",
     "@react-three/fiber": "^9.0.0",
-    "@semio/utils": "^0.4.0",
+    "@semio/utils": "^0.5.0",
     "@solar-icons/react-perf": "^2.1.0",
     "@tabler/icons-react": "^3.34.0",
     "@use-gesture/react": "^10.3.0",

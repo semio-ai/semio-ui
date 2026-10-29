@@ -1,5 +1,119 @@
 # @semio/ui
 
+## 0.5.0
+
+### Minor Changes
+
+- e3be707: `Dialog`, `ToastManager` and the controls `Checkbox`, `ToggleSquare`, `Switch`,
+  `ToggleGroup`, `Progress`, `ImageInput`, `Accordion`, `Collapse` and `Separator` are
+  built on Base UI instead of Radix. Menus (`Dropdown`, `ContextMenu`, the nested menu
+  elements and the canvas menu), `Popover` and `Tooltip` are still built on Radix, so
+  `radix-ui` remains a dependency. Props are unchanged; these behaviours change:
+  - `Dialog` returns focus to the control that opened it when it closes, where before
+    focus fell to the page.
+  - Escape in a `Dialog` opened from a `Modal` closes only the `Dialog`; the `Modal`
+    stays open.
+  - A `Modal` opened from a `Dialog` takes focus, where before focus stayed on the
+    `Dialog` behind it, and Escape closes only the `Modal`.
+  - `CollapsibleRoot`, `CollapsibleTrigger`, and `CollapsibleContent` are not exported.
+    Use `Collapse`, or import `Collapsible` from `radix-ui` directly to use its raw
+    parts and `data-state` contract.
+
+  ## Upgrading
+
+  The `data-state` attributes and Radix panel size and toast swipe variables are
+  kept for now and will be removed in a later minor release. Roles, state ARIA,
+  orientation attributes, and native disabled buttons keep their public contracts.
+
+  Toggle-group roving focus places `tabindex="0"` on the current focus target,
+  starting with the selected item, and `tabindex="-1"` on the other items. The group
+  container has no `tabindex`. Style selection with `aria-checked` or `data-state`,
+  and focus with `:focus-visible`.
+
+  Accordion triggers stop Arrow, Home and End keydowns from bubbling to ancestors
+  and document listeners.
+
+  Escape closes a toast only while focus is within the notifications viewport.
+  Swipe dismissal uses a 40 px threshold.
+
+  `Checkbox`, `ToggleSquare` and `Switch` always render a hidden `<input>` immediately
+  after the control. The control is not `:last-child`, affecting parent `space-x-*`
+  and `last:` utilities.
+
+- 4bb39a2: Add versioned, transport-neutral diagnostic reports compatible with structured
+  Result errors, JavaScript exceptions, and Rust error adapters. Reports preserve
+  error kinds, codes, bounded causes and optional stacks/backtraces, allowlist UI
+  context, and redact common credentials and URL queries.
+
+  Add optional medium sizing and a custom footer to Dialog, with scrolling body
+  content and fixed header/footer controls for long reports.
+
+- 3db3ee1: On a desktop-width layout, a side pane is clipped to the height of its row and
+  scrolls its own content, as it already was on a narrow layout. A left pane whose
+  content is taller than the window no longer makes the page scroll, so the footer
+  pane keeps the height its content declares, and a `ScrollArea` placed directly in a
+  left pane scrolls. A pane whose content does not scroll itself is cut off at the
+  bottom when the window is too short for it; wrap it in a `ScrollArea`.
+- 4bb39a2: Add a domain-neutral ActionMenu and optional ToastData.actionMenu configuration.
+  Callers provide labels, icons, and actions returning Result-based feedback. An
+  explicit action menu replaces the clipboard shortcut. Toast dismissal pauses while
+  menus are open or actions are pending, and feedback starts a fresh reading interval.
+  Keep ordinary provider children outside the animated toast list so multiple
+  children remain independent of notification exit animations.
+  Studio supplies its own error-report copy and email-draft actions.
+- 4bb39a2: Add optional `ToastData.clipboardContent` for copying caller-provided details with
+  an outlined clipboard icon beside the close button. Copying preserves the toast,
+  announces success, and shows a retryable inline message when clipboard access fails.
+  Toasts with clipboard content default to ten seconds; a numeric `dismiss` overrides
+  the duration, and toasts without clipboard content retain their four-second default.
+
+  Keep toast widths within the viewport and invoke the callback supplied by a labeled
+  `dismiss` action when that button is clicked.
+
+- f2ebc2d: `Checkbox`, `Switch` and an icon-less `ToggleSquare` edge themselves in their
+  variant's checked-fill colour (`--standard-color`) in every state, and a checked
+  control's edge follows its fill on hover. The edge is no longer a neutral grey held
+  to 3:1 against the layout surfaces; on a light surface the brightest variants' edges
+  are faint.
+
+  A `Switch` thumb is the variant colour when off, and when on it is the foreground for
+  the checked fill (`--on-standard-color`, white or black, whichever contrasts with
+  it). It keeps that colour while the switch is hovered, and its colour animates with
+  its movement. A disabled thumb keeps the same colours at half strength.
+
+### Patch Changes
+
+- 1e272bf: A sticky `Accordion` header (`sticky`) paints above positioned content in its
+  panels, so rows scroll beneath its blur instead of over it.
+- c2738c1: A disabled menu entry with a reason now stays in the menu's keyboard order: a
+  `NestedItem` with a `description`, or a `NestedRadio` or `NestedSelect` option with
+  the new `disabledReason` field. An option's `description` keeps meaning what choosing
+  it does, and never makes a disabled option reachable; neither does a group-level
+  `disabled` without the option's own `disabledReason`.
+
+  Arrow keys, typeahead and Home/End reach such an entry, and a menu opened from the
+  keyboard focuses it when it comes first. It reports `aria-disabled`, with the reason
+  as its accessible description and its tooltip. Enter, Space and a click do nothing,
+  leave the menu open and leave the reason showing. Focused, it takes a lighter fill
+  than an enabled row and keeps its disabled text, icon and indicator colours; under
+  the pointer it shows the default cursor. A disabled option with a `disabledReason`
+  shows it on hover.
+
+  `Tooltip` stays open when its trigger is `aria-disabled` and is pressed, and when the
+  pointer enters a `ScrollArea` around its trigger. Scrolling that area still closes it.
+
+- 544a676: An action toast's button (`dismiss: { label, onClick }`) runs its `onClick` with the
+  toast's data, then closes the toast. It closed the toast without running the action.
+- f718bde: An expired toast asks the `ToastManager` to remove it once rather than on every animation frame of its exit, and `removeToast` leaves the toast list unchanged when the toast is already gone, so a leaving toast no longer re-renders every toast consumer. A toast added again under the same id while it is still leaving starts its interval over.
+- Updated dependencies [a26939f]
+- Updated dependencies [4bb39a2]
+- Updated dependencies [f286b72]
+- Updated dependencies [6e59734]
+- Updated dependencies [0a439db]
+- Updated dependencies [6371a2a]
+- Updated dependencies [a764cdc]
+  - @semio/utils@0.5.0
+
 ## 0.4.0
 
 ### Minor Changes
