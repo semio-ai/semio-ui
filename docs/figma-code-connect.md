@@ -36,11 +36,11 @@ Refs: [Code Connect (Help Center)](https://help.figma.com/hc/en-us/articles/2392
 
 ## What works on Professional today (use these)
 
-- **Consume the published library** — enable *Semio UI Library* in a file
+- **Consume the published library** — enable _Semio UI Library_ in a file
   (Assets → Libraries) and drag in components / use its variables + styles.
   Plan-independent; this is the main team win.
 - **Storybook `design` links** — every component story links to its exact Figma
-  node via `@storybook/addon-designs` ([`figma-links.ts`](../../../apps/docs/stories/figma-links.ts)).
+  node via `@storybook/addon-designs` ([`figma-links.ts`](https://github.com/semio-ai/studio/blob/main/apps/docs/stories/figma-links.ts)).
   Works for anyone with view access, no Dev Mode needed — the "which code ↔ which
   Figma component" bridge that stands in for Code Connect on Professional.
 - **Dev Mode standard inspect** — with a Dev/Full seat, devs get measurements,
@@ -93,7 +93,7 @@ library components, then map 1:1; don't reproduce styling by hand.
 ## Publishing (automated — dormant on Professional)
 
 The `figma-code-connect` job in
-[`.github/workflows/ci-cd.yml`](../../../.github/workflows/ci-cd.yml) always
+[`.github/workflows/ci-cd.yml`](https://github.com/semio-ai/studio/blob/main/.github/workflows/ci-cd.yml) always
 validates (`connect:parse` + `parity:figma`) on every run, and publishes on push to
 `staging`/`main` **only when the `FIGMA_ACCESS_TOKEN` secret is present**. On
 Professional that secret can't be created (no `code_connect:write` scope), so the
@@ -104,15 +104,16 @@ publish path activates automatically if the org upgrades and the secret is added
 
 1. **Create a Figma access token** (ideally on a shared/service account, not a
    personal one, so publishing isn't tied to one person): file browser → account
-   menu (top-left) → **Settings → Security tab** → *Personal access tokens* →
+   menu (top-left) → **Settings → Security tab** → _Personal access tokens_ →
    Generate new token. Set scopes:
    - **Code Connect: Write** (`code_connect:write`)
    - **File content: Read** (`file_content:read`)
 
    > **No "Code Connect" scope group in the list?** `code_connect:write` only
-   > surfaces when *all* of these hold for the token's account:
+   > surfaces when _all_ of these hold for the token's account:
+   >
    > 1. **Org member, not guest** (guests can view Code Connect but not publish);
-   > 2. a **Dev or Full seat** assigned — this is separate from the team *role*
+   > 2. a **Dev or Full seat** assigned — this is separate from the team _role_
    >    (you can be a team Admin on a Collab/View seat); manage it in the org
    >    **admin dashboard**;
    > 3. the token is generated in the **organization** account context, not a
@@ -123,6 +124,7 @@ publish path activates automatically if the org upgrades and the secret is added
    > **not** substitute `file_dev_resources:write` — publish needs
    > `code_connect:write` or it 403s. If all three hold and it's still missing,
    > it's usually a plan/seat propagation lag → Figma support.
+
 2. **Add it as a GitHub Actions secret** named `FIGMA_ACCESS_TOKEN`
    (repo → Settings → Secrets and variables → Actions), or:
    `gh secret set FIGMA_ACCESS_TOKEN --repo semio-ai/semio_studio`.

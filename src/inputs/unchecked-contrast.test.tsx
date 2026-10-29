@@ -54,7 +54,6 @@ const cases = [
     base: [204, 204, 204],
     inset: [229, 229, 229],
     deep: [237, 237, 237],
-    raised: [220, 220, 220],
   },
   {
     theme: Theme.Dark,
@@ -62,7 +61,6 @@ const cases = [
     base: [51, 51, 51],
     inset: [38, 38, 38],
     deep: [23, 23, 23],
-    raised: [37, 37, 37],
   },
 ];
 
@@ -71,11 +69,6 @@ test.each(cases)("$theme: disclosure boundary and surface tokens remain pinned",
   expect(rgb(`var(--color-layout-${expected.theme}-base)`)).toEqual(expected.base);
   expect(rgb(`var(--color-layout-${expected.theme}-inset)`)).toEqual(expected.inset);
   expect(rgb(`var(--color-layout-${expected.theme}-deep-inset)`)).toEqual(expected.deep);
-  const panel = /\.card-panel\s*\{\s*@apply dark:bg-\[(#[\da-f]+)\] bg-\[(#[\da-f]+)\];/i.exec(
-    read("../../../../apps/studio/src/index.css"),
-  );
-  expect(panel).not.toBeNull();
-  expect(rgb(panel![expected.theme === Theme.Dark ? 1 : 2])).toEqual(expected.raised);
   for (const selected of [false, true]) {
     expect(
       defaultResolveRowVisual(
