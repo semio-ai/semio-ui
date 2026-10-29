@@ -1,5 +1,14 @@
 # @semio/ui
 
+## 0.5.1
+
+### Patch Changes
+
+- Updated dependencies [87f9c41]
+- Updated dependencies [87f9c41]
+  - @semio/data@0.1.0
+  - @semio/utils@0.6.0
+
 ## 0.5.0
 
 ### Minor Changes
