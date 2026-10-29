@@ -27,8 +27,7 @@ Import the compiled stylesheet once, at your app's entry point:
 
 ## Development and Storybook
 
-Run commands from this package's root, either in its own repository or in a
-Studio checkout:
+From this package's root:
 
 ```sh
 npm install
@@ -38,6 +37,11 @@ npm run typecheck
 npm run lint
 npm run test
 ```
+
+Package-root tests use the existing `dist` exports of `@semio/utils` and `@semio/data`.
+In a Studio checkout, edits to those siblings are visible only after rebuilding
+them. Run `npx turbo run test:unit --filter=@semio/ui` from Studio's root
+to build the siblings before testing.
 
 Stories live in `stories/`; `.storybook/` supplies the light/dark toolbar and the
 library's default theme. Storybook aliases only `@semio/ui` to `src/index.tsx`.
