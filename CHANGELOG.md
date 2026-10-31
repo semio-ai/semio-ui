@@ -1,5 +1,11 @@
 # @semio/ui
 
+## 0.5.2
+
+### Patch Changes
+
+- c4e5ee3: The package is now licensed under Apache-2.0 and released from its own repository.
+
 ## 0.5.1
 
 ### Patch Changes
