@@ -1,58 +1,52 @@
-# Figma → code icon handoff (the code-side lever)
+# Figma icon handoff
 
-How to turn a Figma icon selection into real `@semio/ui` code **without Figma Code Connect** (which is Organization/Enterprise-gated — we're on Professional). This is the "code-side lever" from the [integration plan](icon-figma-integration-plan.md): Code Connect's job — mapping a Figma component to our real API — held on **our** side and applied deterministically by an agent or a developer.
+The committed manifest and naming convention provide ui's Figma-to-code table
+in place of Code Connect for icons. An agent or developer can apply the mapping
+without a native Dev Mode snippet; see the
+[plan evaluation](figma-code-connect-evaluation.md) for the plan-dependent features.
 
-## The contract
+The code and design contract is:
 
-```
-registry key  ==  Figma component name (Icon/<key>)  ==  code usage (<Icon name="<key>" />)
-```
-
-Because every Figma icon component is **named by its registry key** (see [icon-registry.md](icon-registry.md)), the translation is mechanical — no per-icon mapping needs to be authored or published.
-
-## The manifest (the lookup table)
-
-[`figma/icon-manifest.json`](../figma/icon-manifest.json) is generated from the composed registry and **committed** (unlike the bulky, gitignored SVG assets alongside it). It's the durable, machine-readable Figma↔code table — the poor-man's Code Connect map:
-
-```json
-{
-  "key": "delete",
-  "source": "animation",
-  "figmaComponent": "Icon/delete",
-  "code": "<Icon name=\"delete\" />"
-}
+```text
+registry key == Figma component name (Icon/<key>) == code usage (<Icon name="<key>" />)
 ```
 
-- `source` = the registry that wins resolution (`studio` > `animation` > `default`), i.e. which package owns the key.
-- One entry per key in the full composed app set (default, animation and studio together). The file's `count` field is the total; it is not restated here because a copy of it goes stale with every key added.
+[`figma/icon-manifest.json`](../figma/icon-manifest.json) is the committed lookup
+table for ui's default registry only. Each entry has a key, `source: "default"`,
+`figmaComponent: "Icon/<key>"` and the corresponding `<Icon name="<key>" />` code.
+Because components are named by registry key, translation is mechanical and
+requires no hand-authored mapping per icon. The manifest's `count` field records
+its size; copying the count into prose would go stale as keys change. Committing
+the table makes the mapping durable even though the bulky SVG assets are ignored.
 
-Regenerate with the registries (one command, same one that emits the SVGs):
+Run `npm run generate:icon-svgs` from the repository root to regenerate the manifest,
+`figma/icon-svgs.generated.json` and individual SVGs in `figma/icon-svgs/`. The SVG
+outputs are ignored by git. The script reads only this repository's registry.
 
-```sh
-npm run generate:icon-svgs    # from the package root → refreshes figma/ (SVGs + icon-manifest.json)
-```
+Translate an `Icon/<key>` component or instance into `<Icon name="<key>" />`.
+Inside a component slot, use the matching icon prop, such as
+`<Button leftIcon="save">Save</Button>`. Check unknown names against the manifest;
+flag names absent from the manifest instead of guessing a key. Strip the `Icon/`
+prefix when reading the key. Consumer-owned icons require the consumer's registry
+and key augmentation. Slots translate into their icon prop values so the result
+uses the component's API.
 
-## Translation rules (what an agent/dev applies)
+One Figma library holds the icon components. Ui's tooling owns only ui's mappings;
+consuming packages and applications supply their own mappings in that library.
+The destination in `figma.config.json` is the shared library destination.
 
-Reading a design via the Figma MCP (`get_design_context` returns component/variant names + variables), translate deterministically:
+To add a generic icon, register it in ui, run `npm run generate:icons` and
+`npm run generate:icon-svgs`, then sync its SVG as `Icon/<key>`. Run
+`npm run parity:figma` to compare the committed ui manifest with a fresh export
+and check ui component contracts. The local parity check does not read live Figma.
+Comparing the manifest's key checklist with the library's `Icon/*` components catches missing or extra design
+components; the local check alone cannot catch that drift.
 
-1. **A node named `Icon/<key>`** (or an instance-swap slot set to it) → `<Icon name="<key>" />`. Strip the `Icon/` prefix; the remainder is the key.
-2. **An icon inside a component slot** (e.g. the Button's `Icon left` / `Icon right`) → the slot's prop value, not a nested element: `<Button leftIcon="<key>" rightIcon="<key>" />`.
-3. **Unknown / off-contract name** → look it up in the manifest; if it's not there, it isn't a registry icon (flag it rather than guessing a key).
-
-This is exactly what Code Connect would emit; we apply it agent-side instead. The remainder Code Connect would add (native Dev-Mode snippets for non-agent devs, Figma-hosted enforcement/analytics) is the only gap on Pro — see the [evaluation](figma-code-connect-evaluation.md).
-
-## Keeping it in sync
-
-The manifest is the **key checklist** for the Figma library — a diff between it and the library's `Icon/*` components surfaces drift (a code key with no Figma component, or vice-versa). Guardrails escalate with plan (resolution test now → manifest diff → Code Connect CI on Org); see the integration plan's sync table.
-
-**Adding an icon** (the one flow):
-
-1. Register it in the right registry (`@semio/ui` default, `animationIconRegistry`, or `studioIconRegistry`).
-2. `npm run generate:icon-svgs` → SVG + manifest update.
-3. Import/sync the new SVG into the Figma library as a keyed `Icon/<key>` component.
-4. _(Org only)_ re-run the Code Connect generator — mapping is added automatically.
-
-## When the plan upgrades (Phase 3, drop-in)
-
-The manifest already carries everything Code Connect needs (key → component name → code). Switching it on = add `@figma/code-connect` + a `figma.config.json`, generate one `figma.connect()` per icon from this manifest + a key→nodeId map, and bulk-apply via the MCP. Nothing here is wasted.
+Code Connect mappings can use the same names and instance-swap slots. Local
+parsing uses `npm run connect:parse`; publishing requires access to the configured
+Figma library. The manifest already contains key, component name and code; a
+key-to-node-ID map supplies the remaining input for generated Code Connect
+mappings. This is an additive layer: the SVGs, names and translation rules remain
+useful when enabling it. Native Dev Mode snippets and Figma-hosted mapping
+enforcement are additional benefits for developers who do not use agent-side
+translation. See [the integration plan](icon-figma-integration-plan.md).

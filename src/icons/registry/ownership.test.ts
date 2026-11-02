@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
+import { defaultIconRegistry } from "./default-registry";
 import { tablerIconRegistry } from "./tabler.generated";
-import { semioIconRegistry } from "./semio.generated";
+import { glyphIconRegistry } from "./glyph.generated";
 import { solarIconRegistry } from "./solar";
 import { roleIconRegistry } from "./roles";
 
@@ -8,10 +9,89 @@ describe("built-in icon ownership", () => {
   it("assigns each key to one source, independent of merge order", () => {
     const keys = [
       tablerIconRegistry,
-      semioIconRegistry,
+      glyphIconRegistry,
       solarIconRegistry,
       roleIconRegistry,
     ].flatMap((registry) => Object.keys(registry));
     expect(keys.filter((key, index) => keys.indexOf(key) !== index)).toEqual([]);
+  });
+  it.each([
+    "angle",
+    "bezier",
+    "bounce",
+    "box-plus",
+    "chevron-up",
+    "clipboard-plus",
+    "data-binary",
+    "data-vector2",
+    "data-vector3",
+    "fast",
+    "file-type-ani",
+    "file-type-face",
+    "file-type-mod",
+    "filter-box",
+    "frame",
+    "graph-view",
+    "hand",
+    "hexagon",
+    "key",
+    "line",
+    "move-player-end-bounds",
+    "move-playhead",
+    "needs-attention",
+    "normalized",
+    "pencil",
+    "pinned",
+    "playback-0.1",
+    "playback-0.5",
+    "playback-1.0",
+    "playback-1.5",
+    "playback-2.0",
+    "player-end-bounds",
+    "player-next-key",
+    "player-play",
+    "player-play2",
+    "preview-view",
+    "project",
+    "robot",
+    "robot-plus",
+    "rotate-3d",
+    "rotate2",
+    "shopping-bag",
+    "slow",
+    "sphere",
+    "time-display-frames",
+    "time-display-milliseconds",
+    "time-display-seconds",
+    "time-display-seconds-frames",
+    "time-display-ticks",
+    "transform-point",
+    "uniform",
+    "vector-angled",
+    "vector-back",
+    "vector-bezier",
+    "vector-bezier-auto-clamp",
+    "vector-bezier-handles",
+    "vector-bezier-insert-flat",
+    "vector-bezier-insert-sloped",
+    "vector-circ",
+    "vector-cubic",
+    "vector-expo",
+    "vector-flat",
+    "vector-linear",
+    "vector-quad",
+    "vector-quart",
+    "vector-quint",
+    "vector-sine",
+    "vertex-free",
+    "vertex-indeterminate",
+    "vertex-paired",
+    "vertical-normalize",
+    "vertical-uniform",
+    "videocamera-off",
+    "view360",
+    "world",
+  ])("excludes domain and pruned key %s", (key) => {
+    expect(Object.hasOwn(defaultIconRegistry, key)).toBe(false);
   });
 });

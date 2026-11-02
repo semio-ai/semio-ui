@@ -418,9 +418,8 @@ const MEDIA_COLUMNS: ListColumn<Row>[] = [
         <span className="sized-row-media grid shrink-0 place-items-center overflow-hidden rounded-xs bg-neutral-300/60 dark:bg-neutral-700/60">
           {/* `size="none"` is required: without it the icon keeps its intrinsic
               sizing and a utility class cannot shrink it. Deliberately a built-in
-              glyph — studio's `entity-*` keys come from its own registry
-              augmentation and do not resolve here. */}
-          <Icon name="robot" size="none" className="size-4 opacity-40" />
+              glyph so the example needs no consumer registry. */}
+          <Icon name="user" size="none" className="size-4 opacity-40" />
         </span>
         <span className="truncate">{r.name}</span>
       </span>

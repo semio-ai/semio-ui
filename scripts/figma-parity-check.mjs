@@ -612,7 +612,7 @@ function checkText() {
 // `figma/icon-manifest.json` is a generated, committed artifact (the code↔Figma
 // key lookup table — see docs/icon-figma-handoff.md), not read live from Figma
 // like the contract snapshots above. It goes stale silently: nothing else fails
-// when the composed icon registry changes and nobody re-runs the generator. So
+// when ui's icon registry changes and nobody re-runs the generator. So
 // this regenerates it into a throwaway directory and diffs by KEY rather than
 // full-file equality — a byte-for-byte diff would also flag SVG re-renders that
 // don't change the manifest's key/source/component fields, which is noise this

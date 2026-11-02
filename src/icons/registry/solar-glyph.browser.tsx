@@ -18,7 +18,7 @@ test("Solar duotone secondary paths use 60% opacity", async () => {
   }
 });
 
-test("inverted duotone is styled by UI without Studio CSS", async () => {
+test("inverted duotone is styled by UI with the ui stylesheet", async () => {
   try {
     await render(<InvertedSettings data-testid="settings" />);
     const svg = document.querySelector('[data-testid="settings"]')!;

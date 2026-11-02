@@ -21,7 +21,7 @@ the `figma-component-fidelity` skill (build process + gotchas), and `parity:figm
 | **Inputs** | TextField 21 · SliderNumberField 13 · NumberField 12 · ToggleSquare 12 · Label 11 · NumberOrList 9 · Search 7 · TimeInput 6 · Checkbox 5 · (Switch/ToggleGroup/Password/Email/TextArea/Autocomplete/ColorPicker/ImageInput 1 each) | **High** — same `Variant`/`Size`, `outline: hidden\|interact\|always` = the appearing-outline focus recipe, same `IconValue` icon slot | Low |
 | **Menus / list items** (`nested-elements`) | NestedItem 57 · NestedLabel 42 · NestedSeparator 26 · NestedRadio 17 · NestedMenu/Select 3 · MenuItem · SelectList 1 · TableList 8 | Medium — variant/size tokens, but row layout is new | Medium (composed, behavioral) |
 | **Floating containers** | Dropdown 19 · Select 15 · Modal 11 · Dialog 7 · TabbedModal 2 · Popover/SelectTree/Toast 1 | Low — overlay composition, not token-bound primitives | Med-High |
-| **Chips / badges / feedback** | KeybindingHint 21 · ToggleSquare (see inputs) · KeyIcon 7 · Progress 5 · StatusBadge 3 · Chip · Snippet 3 · Spinner/Avatar 1 | **High** — Chip reuses `variant-responsive-bg/text` + `Size`/`Variant` + icon slot; Status/Progress are small variant-bound primitives | Low |
+| **Chips / badges / feedback** | KeybindingHint 21 · ToggleSquare (see inputs) · Progress 5 · StatusBadge 3 · Chip · Snippet 3 · Spinner/Avatar 1 | **High** — Chip reuses `variant-responsive-bg/text` + `Size`/`Variant` + icon slot; Status/Progress are small variant-bound primitives | Low |
 | **Layout** (structural) | ScrollArea 19 · Accordion 5 · Breadcrumbs/Collapse/Resizer/Separator 1 | N/A — frames/behavior, minimal token surface | — (examples-only) |
 
 **Headline findings**
