@@ -1,5 +1,5 @@
 import { tablerIconRegistry } from "./tabler.generated";
-import { semioIconRegistry } from "./semio.generated";
+import { glyphIconRegistry } from "./glyph.generated";
 import { solarIconRegistry } from "./solar";
 import { roleIconRegistry } from "./roles";
 import type { IconRegistry, IconRegistryKeys } from "./types";
@@ -11,12 +11,12 @@ import type { IconRegistry, IconRegistryKeys } from "./types";
  */
 export const defaultIconRegistry = {
   ...tablerIconRegistry,
-  ...semioIconRegistry,
+  ...glyphIconRegistry,
   ...solarIconRegistry,
   ...roleIconRegistry,
 } satisfies IconRegistry;
 
-/** The icon keys `@semio/ui` ships out of the box (fallback ∪ Semio ∪ Solar ∪ roles). */
+/** The icon keys `@semio/ui` ships out of the box (Tabler ∪ glyphs ∪ Solar ∪ roles). */
 export type DefaultIconName = keyof typeof defaultIconRegistry;
 
 /**

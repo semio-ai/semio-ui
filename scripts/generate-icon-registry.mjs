@@ -1,17 +1,17 @@
 /**
- * Codegen for the default icon registry (SEM-161).
+ * Codegen for the default icon registry.
  *
  * Emits two generated files consumed by `src/icons/registry/default-registry.ts`:
  *   - `tabler.generated.ts` — the curated set of @tabler/icons-react icons in the
  *     default registry (an explicit seed below), keyed kebab-case.
- *   - `semio.generated.ts`  — @semio/ui's own custom icons from src/icons/,
+ *   - `glyph.generated.ts`  — @semio/ui's own custom icons from src/icons/,
  *     keyed kebab-case, with the non-glyph/parametric exports excluded.
  *
  * Rationale: a full Tabler map would be ~6k icons; @semio/ui only needs a few
  * dozen. We seed the default with exactly those (zero-config for the package's
  * own components) and let consumers extend via <IconProvider>. Run:
  *
- *   npm run generate:icons -w @semio/ui
+ *   npm run generate:icons
  *
  * The generated files are committed; re-run after editing TABLER_SEED or adding
  * a custom icon under src/icons/.
@@ -34,25 +34,16 @@ const OUT_DIR = join(ICONS_DIR, "registry");
  */
 const CUSTOM_EXCLUDE = new Set([
   "StaticIcon", // wrapper: renders an arbitrary passed-in icon (required `children`)
-  "WorldElementIcon", // parametric: picks a glyph from an element type
-  "IconPlayPause", // stateful: requires `center: "play" | "pause"`
-  "IconHandleIndicator", // requires a `handle` prop — an affordance, not a glyph
-  "IconVariant", // parametric: picks a status glyph from `variant`, renders null otherwise
-  // — superseded by the `status-*` role keys
 ]);
 
 /** Compatibility glyph names point callers toward their semantic replacements. */
 const DEPRECATED_CUSTOM_KEYS = {
   "at": "email",
   "arrow-big-up": "key-shift",
-  "bezier": "pane-placeholder or transition-bezier-handles",
   "check": "selected or step-complete",
   "chevron-right-pipe": "menu-toggle",
   "eye": "show or state-visible",
   "eye-off": "hide or state-hidden",
-  "file-type-face": "asset-face in Studio",
-  "graph-view": "view-data",
-  "hexagon": "option-placeholder",
   "letter-c": "key-c",
   "letter-v": "key-v",
   "letter-x": "key-x",
@@ -70,35 +61,13 @@ const DEPRECATED_CUSTOM_KEYS = {
   "speaker": "unmute or state-unmuted",
   "speaker-off": "mute or state-muted",
   "sun-moon": "theme-system",
-  "vector-flat": "view-keys",
-  "vector-angled": "view-transitions",
-  "vector-bezier": "view-preview",
-  "vector-bezier-handles": "view-spline or transition-bezier-handles",
-  "vector-bezier-auto-clamp": "transition-auto-clamped",
   "x": "clear-input or step-stopped",
-  "bounce": "playback-bounce",
-  "player-end-bounds": "playback-seek-start-bounds or playback-seek-end-bounds",
-  "vector-back": "transition-back",
-  "vector-circ": "transition-circular",
-  "vector-cubic": "transition-cubic",
-  "vector-expo": "transition-exponential",
-  "vector-linear": "transition-linear",
-  "vector-quad": "transition-quadratic",
-  "vector-quart": "transition-quartic",
-  "vector-quint": "transition-quintic",
-  "vector-sine": "transition-sine"
 };
 
 /** Preserve established keys independently of component identifier spelling. */
 const CUSTOM_KEYS = {
-  IconRotate3d: "rotate-3d",
   IconAdd: "plus",
   IconClose: "x",
-  Playback01x: "playback-0.1",
-  Playback05x: "playback-0.5",
-  Playback10x: "playback-1.0",
-  Playback15x: "playback-1.5",
-  Playback20x: "playback-2.0",
 };
 
 /** PascalCase / `IconFoo` → kebab-case key (`IconChevronDown` → `chevron-down`). */
@@ -118,18 +87,14 @@ function toKey(name) {
 const TABLER_SEED = [
   "IconArrowBigDown", "IconArrowBigDownLines", "IconArrowBigUp", "IconArrowDown",
   "IconArrowUp", "IconCheck", "IconChefHat", "IconChevronDown", "IconChevronLeft",
-  "IconChevronRight", "IconChevronRightPipe", "IconChevronUp", "IconCircle",
-  "IconClipboardCheck", "IconClipboardPlus", "IconCommand", "IconExclamationMark",
-  "IconHeart", "IconHexagon", "IconJacket", "IconLayoutGrid", "IconLine", "IconMenu2",
-  "IconMinus", "IconMoon", "IconPencil", "IconPinned", "IconPlayerPause", "IconPlus",
-  "IconPoint", "IconPointFilled", "IconRotate", "IconRotate2", "IconSearch", "IconSelector",
-  "IconShoe", "IconShoppingBag", "IconSquare", "IconStar", "IconSun", "IconSunMoon",
-  "IconSunglasses", "IconTransformPoint", "IconUser", "IconView360", "IconWorld", "IconX",
+  "IconChevronRight", "IconChevronRightPipe", "IconCircle",
+  "IconClipboardCheck", "IconCommand", "IconExclamationMark",
+  "IconHeart", "IconJacket", "IconLayoutGrid", "IconMenu2",
+  "IconMinus", "IconMoon", "IconPlayerPause", "IconPlus",
+  "IconPoint", "IconPointFilled", "IconRotate", "IconSearch", "IconSelector",
+  "IconShoe", "IconSquare", "IconStar", "IconSun", "IconSunMoon",
+  "IconSunglasses", "IconUser", "IconX",
 ];
-// Compatibility keys for the unmounted RobotBuilderWidget's WorldElementIcon.
-const DEPRECATED_TABLER_KEYS = new Set([
-  "line", "pencil", "pinned", "transform-point", "view360",
-]);
 const missing = TABLER_SEED.filter((n) => !Tabler[n]);
 if (missing.length) throw new Error(`TABLER_SEED has unknown Tabler icons: ${missing.join(", ")}`);
 let tablerSorted = [...new Set(TABLER_SEED)].sort();
@@ -181,7 +146,7 @@ tablerSorted = tablerSorted.filter((name) => !ownedKeys.has(toKey(name)));
 
 const HEADER =
   "// AUTO-GENERATED by scripts/generate-icon-registry.mjs — do not edit by hand.\n" +
-  "// Run `npm run generate:icons -w @semio/ui` to regenerate.\n";
+  "// Run `npm run generate:icons` to regenerate.\n";
 
 // --- 3. Emit tabler.generated.ts ---
 const tablerOut =
@@ -194,36 +159,33 @@ const tablerOut =
   `export const tablerIconRegistry = {\n${
   tablerSorted.map((n) => {
     const key = toKey(n);
-    const deprecated = DEPRECATED_TABLER_KEYS.has(key)
-      ? "  /** @deprecated Legacy WorldElementIcon compatibility; its Studio robot sidebar is not mounted. Avoid new usage. */\n"
-      : "";
-    return `${deprecated}  "${key}": ${n},`;
+    return `  "${key}": ${n},`;
   }).join("\n")
   }\n} satisfies IconRegistry;\n`;
 writeFileSync(join(OUT_DIR, "tabler.generated.ts"), tablerOut);
 
-// --- 4. Emit semio.generated.ts ---
+// --- 4. Emit glyph.generated.ts ---
 const importsByModule = new Map();
 for (const c of customUnique) {
   if (!importsByModule.has(c.from)) importsByModule.set(c.from, []);
   importsByModule.get(c.from).push(c.name);
 }
-const semioImports = [...importsByModule.entries()]
+const glyphImports = [...importsByModule.entries()]
   .sort()
   .map(([mod, names]) => `import { ${names.sort().join(", ")} } from "${mod}";`)
   .join("\n");
-const semioOut =
+const glyphOut =
   `${HEADER +
-  semioImports
+  glyphImports
   }\nimport type { IconRegistry } from "./types";\n\n` +
-  `export const semioIconRegistry = {\n${
+  `export const glyphIconRegistry = {\n${
   customUnique.map((c) => {
     const replacement = DEPRECATED_CUSTOM_KEYS[c.key];
     const note = replacement ? `  /** @deprecated Use ${replacement}. */\n` : "";
     return `${note}  "${c.key}": ${c.name},`;
   }).join("\n")
   }\n} satisfies IconRegistry;\n`;
-writeFileSync(join(OUT_DIR, "semio.generated.ts"), semioOut);
+writeFileSync(join(OUT_DIR, "glyph.generated.ts"), glyphOut);
 
 console.log(
   `Generated ${tablerSorted.length} Tabler + ${customUnique.length} custom icon registry entries.`,

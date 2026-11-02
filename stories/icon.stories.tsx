@@ -3,7 +3,6 @@ import {
   Icon,
   IconProvider,
   DisclosureIcon,
-  KeyIcon,
   defaultIconRegistry,
   roleIconRegistry,
   type IconName,
@@ -14,7 +13,7 @@ import { figmaNode } from "./figma-links";
 /**
  * Visual coverage for the icon registry: the default registry gallery, semantic
  * role keys, standardized sizing, `IconProvider` overrides, the unknown-name
- * fallback, and the stateful wrappers (`DisclosureIcon`, `KeyIcon`).
+ * fallback, and the stateful wrappers (`DisclosureIcon`).
  */
 const meta: Meta<typeof Icon> = {
   component: Icon,
@@ -140,32 +139,6 @@ export const Disclosure: Story = {
           <span className="text-[10px] opacity-70">overridden: swaps (+ / −)</span>
         </div>
       </IconProvider>
-    </div>
-  ),
-};
-
-/** `KeyIcon`: typed state props forwarded through the `key` role. */
-export const Key: Story = {
-  render: () => (
-    <div className="flex gap-6">
-      {[
-        { label: "filled", props: {} },
-        { label: "outline", props: { fillOpacity: 0 } },
-        { label: "partial", props: { fillOpacity: 0.5 } },
-        { label: "dashed", props: { dashed: true, fillOpacity: 0 } },
-        { label: "+ center", props: { fillOpacity: 0, center: "plus" as const } },
-        { label: "− center", props: { fillOpacity: 0, center: "minus" as const } },
-        { label: "dashed", props: { dashed: true, fillOpacity: 0.5 } },
-        { label: "+ partial", props: { fillOpacity: 0.5, center: "plus" as const } },
-        { label: "− partial", props: { fillOpacity: 0.5, center: "minus" as const } },
-      ].map(({ label, props }) => (
-        <div key={label} className="flex flex-col items-center gap-1">
-          <div className="grid size-9 place-items-center rounded-sm bg-neutral-200 dark:bg-neutral-700">
-            <KeyIcon {...props} />
-          </div>
-          <span className="text-[10px] opacity-70">{label}</span>
-        </div>
-      ))}
     </div>
   ),
 };

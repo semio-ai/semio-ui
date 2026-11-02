@@ -38,12 +38,12 @@ export type IconRegistry = Record<string, IconComponent>;
 // default-registry.ts
 // The generated Tabler set merged with @semio/ui's own custom icons
 // (src/icons/), keyed kebab-case. The sets have disjoint keys.
-export const defaultIconRegistry: IconRegistry = {
+export const defaultIconRegistry = {
   ...tablerIconRegistry, // generated from @tabler/icons-react
-  ...semioIconRegistry, // generated from @semio/ui's own src/icons/ exports
+  ...glyphIconRegistry, // generated from @semio/ui's own src/icons/ exports
   ...solarIconRegistry, // approved stock Solar glyph replacements
   ...roleIconRegistry, // hand-maintained semantic role keys
-};
+} satisfies IconRegistry;
 ```
 
 ```tsx
@@ -97,12 +97,12 @@ losing the ones it doesn't set. `extend: false` replaces the registry outright.
 
 ### The default registry includes `@semio/ui`'s own custom icons
 
-`@semio/ui` ships its own custom glyphs in `src/icons/` (Semio-specific marks:
-`home`, `robot`, the keyframe/vector/vertex curve-editing marks, player
-transport, file-type badges, etc.). These are in the **default** registry so
-`<Icon name="home" />` resolves the Semio glyph with zero configuration — the
-default is _not_ just Tabler. Each built-in key has one owner. The generator excludes native/custom/Solar keys
-from the Tabler fallback map, so shared decisions do not rely on spread order.
+`@semio/ui` ships generic glyphs in `src/icons/`, including `home`, `box`,
+`fit-horizontal` and `fit-vertical`. `glyphIconRegistry` collects the library's
+drawn glyphs, so `<Icon name="home" />` resolves the library glyph without
+configuration; Solar, Tabler and role registries supply the other built-in keys.
+Each key has one source. The generator excludes glyph, Solar and role keys from
+the Tabler map so resolution does not depend on spread order.
 
 The default Tabler set is **curated, not the full library.** Tabler ships
 thousands of icons; `@semio/ui` itself only references a few dozen, and the
@@ -119,12 +119,11 @@ The two generated maps are produced by `scripts/generate-icon-registry.mjs`
 (`npm run generate:icons`; outputs are committed). Two wrinkles it handles:
 
 - **Inconsistent export names.** The custom icons are not uniformly prefixed
-  (`IconHome`, `IconPlayerNextKey`, but also bare `Angle`, `Lock`, `Speaker`).
+  (`IconHome`, but also bare `Lock`, `Speaker`).
   Codegen normalizes each export to a kebab-case key: strip an optional `Icon`
-  prefix, then PascalCase → kebab (`IconHome` → `home`, `Angle` → `angle`,
-  `IconPlayerNextKey` → `player-next-key`).
+  prefix, then PascalCase → kebab (`IconHome` → `home`, `Lock` → `lock`).
 - **Some exports are not plain glyphs.** A component must satisfy `IconComponent`
-  (`{ className?: string }`). Wrappers (`StaticIcon`, `WorldElementIcon`) and any
+  (`{ className?: string }`). Wrappers (`StaticIcon`) and any
   component with a **required prop** beyond `className` are excluded from the
   generated map and remain available as direct imports. The dts typecheck is the
   backstop — anything mistakenly registered that isn't assignable to
@@ -150,7 +149,7 @@ overridden:
   indirection). They live in a hand-maintained `roles.ts`, and a key is added
   only as a component is wired to it — an unused role key is noise.
 - **Glyph keys** name an _arbitrary picture_ used as content — `star`, `home`,
-  `heart`, `trash`. These keep their literal names; a caller asking for
+  `heart`, `save`. These keep their literal names; a caller asking for
   a star wants a star.
 
 `@semio/ui`'s own components reference **role keys**; they are the stable
@@ -158,18 +157,16 @@ contract that also seeds the Figma library / Code Connect naming. Glyph keys are
 the convenience layer for consumers.
 
 **Stateful icons.** Some roles render different glyphs by state — the disclosure
-chevron rotates (or swaps `+`/`−`) on open; the keyframe glyph varies by
-`dashed`/`center`/`fill`. Rather than a one-off branch inside each consuming
+chevron rotates (or swaps `+`/`−`) on open. Rather than a one-off branch inside each consuming
 component, the variation logic lives **inside the icon component**, and `<Icon>`
 forwards a _state bag_ to it:
 
 ```tsx
-<Icon name="disclosure" open={open} />    // default component rotates on `open`
-<Icon name="key" dashed center="plus" />  // IconKey reads its own props
+<DisclosureIcon open={open} /> // rotates or swaps the registered disclosure glyphs
 ```
 
 This is why `IconComponent` accepts `{ className?: string } & Record<string,
-unknown>`. The default `disclosure` component rotates a single element; an
+unknown>`. The `DisclosureIcon` wrapper rotates a single element; an
 override that resolves to two different glyphs swaps instead — the consuming
 component is unchanged either way. A role's prop shape is part of its contract:
 an override must honor it.
@@ -177,8 +174,7 @@ an override must honor it.
 **Typed wrappers keep the loose seam honest.** The `Record<string, unknown>` is
 the _only_ loose spot, confined to resolution/theming. Everyday call sites stay
 type-checked one of two ways: a literal-key `<Icon name="check" />` (no state),
-or a thin typed wrapper for stateful roles — `<KeyIcon dashed center="plus" />`,
-`<DisclosureIcon open />` — that forwards checked props into `<Icon name>`. No
+or a thin typed wrapper for stateful roles — `<DisclosureIcon open />` — that forwards checked props into `<Icon name>`. No
 caller hand-casts props; the looseness never leaks into app code.
 
 **Enumerable sets get discrete keys, not one stateful component.** Where the
@@ -186,8 +182,7 @@ variation is a small, independently-themeable set, prefer discrete keys. Status
 icons are the case: `status-success` / `status-error` / `status-warning` /
 `status-info` (each independently overrideable), used as
 ``<Icon name={`status-${variant}`} />``. Rule of thumb: a **stateful component**
-when the variation is animated / continuous / multi-dimensional (`disclosure`,
-`key`); **discrete keys** when it's a small enumerable set a consumer may want to
+when the variation is animated / continuous / multi-dimensional (disclosure); **discrete keys** when it's a small enumerable set a consumer may want to
 reskin one at a time (`status-*`).
 
 ### Nesting & library composition (directionality)
@@ -201,9 +196,9 @@ re-registers a common role key (`close`) could quietly defeat app theming from
 above. To keep app authority intact:
 
 - **Libraries export a registry _object_, not their own `<IconProvider>`.**
-  `@semio/timeline-editor` exports `animationIconRegistry`; the app composes it where
-  it controls precedence: `<IconProvider registry={{ ...animationIconRegistry,
-...appIcons }}>`. Last-wins; the app has the final say.
+  A consuming package exports `featureIconRegistry`; the application composes it
+  with `<IconProvider registry={{ ...featureIconRegistry, ...appIcons }}>`.
+  Last-wins; the application has the final say.
 - If a library _does_ render its own provider, keep it **additive-only** —
   net-new keys, no shared role keys — so ancestor overrides always pass through.
 
@@ -214,16 +209,16 @@ props across menus/selects/inputs/tabs/breadcrumbs/sidebars, `Chip`'s `icon`,
 etc. — accepts **either a registry key string or a node**:
 
 ```tsx
-<Button leftIcon="trash" />                 // string key → <Icon name="trash"> internally
-<Button leftIcon={<Icon name="trash" />} /> // an explicit node
+<Button leftIcon="save" />                 // string key → <Icon name="save"> internally
+<Button leftIcon={<Icon name="save" />} /> // an explicit node
 <Button leftIcon={<CustomGlyph />} />       // any node
 <Chip icon="home" />                        // same rule on every slot
 ```
 
-Mechanically, slots keep a `ReactNode` type (`ReactNode` already permits a
-string) and each render site funnels the value through the exported
+Slots use `IconValue`, a checked registry key or an element, and each render
+site funnels the value through the exported
 `resolveIcon(value)` helper — a string key becomes a self-sizing `<Icon name>`,
-any node passes through unchanged (`resolveIcon` is idempotent). Sizing is
+any element passes through unchanged (`resolveIcon` is idempotent). Sizing is
 handled by `<Icon>`; the consumer never imports `ICON_CLASS_NAME`. There is
 **one** way to reference an icon (key string or `<Icon>`); `@semio/ui`
 deliberately does **not** add parallel `*IconName` string props per component.
@@ -283,8 +278,7 @@ The system hinges on one rule, enforced by lint/codegen:
 - **Role keys are named for the role, not the glyph** — `close` not `close-x`,
   `disclosure` not `chevron-down`, `selected` not `check`. Glyph/content keys
   keep their literal names.
-- Figma icon component names equal the registry key (an `icon/` prefix for
-  organization is allowed, stripped on read).
+- Figma icon component names are `Icon/<key>`.
 - Code Connect output uses the same key.
 
 This is the same discipline the color tokens follow (token name == code-syntax
@@ -294,8 +288,8 @@ This is the same discipline the color tokens follow (token name == code-syntax
 
 - `src/icons/registry/` — the implementation: `icon.tsx`,
   `icon-provider.tsx`, `icon-context.ts`, `default-registry.ts`, `roles.ts`,
-  `disclosure.tsx`, `key-icon.tsx`, `types.ts`, and the generated
-  `tabler.generated.ts` / `semio.generated.ts`.
+  `disclosure.tsx`, `types.ts`, and the generated
+  `tabler.generated.ts` / `glyph.generated.ts`.
 - `scripts/generate-icon-registry.mjs` — codegen for the two
   generated registries (`npm run generate:icons`).
 - `src/constants/icon.ts` — `ICON_CLASS_NAME` (`icon-standard`),
@@ -307,29 +301,31 @@ This is the same discipline the color tokens follow (token name == code-syntax
 - `src/context/tooltip-context-utils.tsx` — existing in-package
   precedent using that infrastructure.
 
-The `all` role uses Solar Global LineDuotone for complete selections. Studio
-uses the separate `public` role (Earth LineDuotone) for its public sharing audience.
+The `all` role uses Solar Global LineDuotone for complete selections.
+Inverted duotone CSS ships with ui's stylesheet so consumers need no application
+stylesheet to render the opacity swap.
 
-### Built-in layer ownership
+### Built-in ownership and consumer extensions
 
-UI owns base glyphs and UI roles. Animation adds editor actions, playback and data
-aliases. Studio adds application concepts. The three shipped maps have disjoint
-keys; change artwork in its earliest owning layer. Consumer providers still allow
-intentional theming overrides. Registry tests enforce this distinction.
+UI owns generic glyphs and roles. Domain glyphs belong to the consuming package
+or application. Each consumer exports a registry object and augments the checked
+key set without widening `IconName` to `string`:
 
-`edit`, `menu`, and `settings` are owned by Animation, including the Solar Pen,
-vertical MenuDots, and inverted Settings decisions. Inverted duotone CSS ships
-with UI's stylesheet, so it does not depend on Studio. `home`, `box`, `project`,
-and custom data glyphs are owned by UI; direct exports use the same artwork.
+```tsx
+const applicationIconRegistry = { "sample-item": SampleItemGlyph };
 
-### Deprecated robot compatibility keys
+declare module "@semio/ui" {
+  interface IconRegistryKeys extends Record<keyof typeof applicationIconRegistry, true> {}
+}
 
-`line`, `pencil`, `pinned`, `transform-point`, and `view360` remain registered for
-compatibility with the deprecated `WorldElementIcon` helper. Its only Studio
-consumer is `RobotBuilderWidget`, which is not mounted or imported by the app.
-Avoid using these entries for new features; define a semantic role and review
-its artwork if robot editing is introduced. The generator preserves the
-`@deprecated` annotations on these registry properties.
+<IconProvider registry={applicationIconRegistry}>
+  <Icon name="sample-item" />
+</IconProvider>;
+```
+
+The built-in ownership test rejects domain and pruned keys. The Figma manifest
+lists only ui's keys; consumers maintain mappings for their own registries in
+the same Figma library using `Icon/<key>` component names.
 
 ### Semantic roles and compatibility glyphs
 
@@ -338,9 +334,10 @@ Feature call sites use role names: `theme-*`, `sort-*`, `key-*`,
 and action/state pairs such as `mute` and `state-muted`. Distinct roles may
 share a component; overriding one role must not change another.
 
-A role that is superseded stays registered with its original artwork and a
-`@deprecated` annotation naming its replacement, because `@semio/ui` is published
-and a consumer naming the key would otherwise fail typecheck or render nothing.
+Deprecated generic roles retain their artwork and carry a `@deprecated` annotation
+naming the preferred role. Ui is published, so removing these keys would fail
+consumer typechecks or render nothing at runtime; keeping the artwork preserves
+the glyph a consumer expects.
 `preview-open` and `preview-close` (eye and eye-off) are deprecated in favour of
 `inspect` and `close`.
 
@@ -350,10 +347,4 @@ and emitted as `@deprecated` annotations. These glyph names are implementation
 details for composing roles; new feature code should use semantic keys.
 
 UI owns shared add/copy/remove and selection roles because UI components consume
-them. Animation owns transition/view roles and oriented playback bounds. Studio
-owns access roles (`role-*`) and domain/navigation aliases. The maps remain
-disjoint, and each key has one owner. `key` remains the animation data-key name;
-keyboard legends use `key-command`, `key-shift`, and `key-c/v/x/z`.
-
-Five supplied `time-display-*` glyphs are registered, including seconds-frames
-and ticks. Registration does not enable a time format in a control or formatter.
+them. Keyboard legends use `key-command`, `key-shift`, and `key-c/v/x/z`.

@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { Icon } from "./icon";
 
 // Exercise the public registry boundary: styling/accessibility must reach the SVG
-// even when a glyph comes from a custom factory or a curve component.
+// even when a glyph comes from a custom factory wrapper.
 describe("Solar-style glyph props through the registry", () => {
   it.each([
     "hide",
@@ -25,37 +25,21 @@ describe("Solar-style glyph props through the registry", () => {
     expect(new Set(partial)).toEqual(new Set(["0.6"]));
   });
 
-  it("uses 60% secondary detail without changing state-controlled opacity", () => {
+  it("uses 60% secondary detail", () => {
     const custom = renderToStaticMarkup(<Icon name="user" />);
-    const key = renderToStaticMarkup(<Icon name="key" fillOpacity={0.5} />);
 
     expect(custom).toContain('stroke-opacity="0.6"');
-    expect(key).toContain('fill-opacity="0.5"');
   });
 
   it.each([
-    "sphere",
+    "fit-horizontal",
+    "fit-vertical",
     "plus",
     "save",
-    "vector-bezier",
-    "vector-sine",
-    "graph-view",
-    "vertical-uniform",
-    "vertical-normalize",
     "user",
     "moon",
     "sun-moon",
     "replace",
-    "vertex-free",
-    "vertex-paired",
-    "vertex-indeterminate",
-    "bezier",
-    "rotate-3d",
-    "time-display-milliseconds",
-    "time-display-seconds",
-    "time-display-frames",
-    "time-display-seconds-frames",
-    "time-display-ticks",
     "sort-updated",
   ] as const)("%s forwards accessibility, color, mirroring, and caller styles", (name) => {
     const html = renderToStaticMarkup(
@@ -80,5 +64,13 @@ describe("Solar-style glyph props through the registry", () => {
     expect(html).toContain("opacity:0.7");
     expect(html).not.toContain('mirrored="');
     expect(html).not.toContain('alt="');
+  });
+  it("rotates the fit artwork vertically", () => {
+    const horizontal = renderToStaticMarkup(<Icon name="fit-horizontal" />);
+    const vertical = renderToStaticMarkup(<Icon name="fit-vertical" />);
+    expect(vertical).toContain('transform="rotate(90 12 12)"');
+    expect([...vertical.matchAll(/<path[^>]+>/g)].map(([path]) => path)).toEqual(
+      [...horizontal.matchAll(/<path[^>]+>/g)].map(([path]) => path),
+    );
   });
 });

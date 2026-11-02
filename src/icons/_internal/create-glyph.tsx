@@ -1,7 +1,7 @@
 import { forwardRef, type ReactNode } from "react";
 import type { GlyphProps as IconProps } from "./glyph-props";
 
-/** Shared 24-unit canvas for Semio's Solar-style glyphs. */
+/** Shared 24-unit canvas for the library's Solar-style glyphs. */
 export function createGlyph(name: string, artwork: ReactNode) {
   const Glyph = forwardRef<SVGSVGElement, IconProps>(
     ({ size = "18px", color = "currentColor", alt, mirrored = false, ...props }, ref) => (

@@ -2,7 +2,6 @@ import { createGlyph } from "./_internal/create-glyph";
 
 // File-add and exclamation-mark follow the Solar catalogue SVGs:
 // https://github.com/saoudi-h/solar-icons/tree/main/packages/core/svgs
-// Hexagon uses BoxMinimalistic's outer contour. See packages/ui/NOTICE.
 // Save preserves the supplied floppy.svg artwork; keyboard marks retain Tabler geometry.
 
 export const IconAdd = createGlyph("IconAdd", <path d="M12 4V20M4 12H20" />);
@@ -41,14 +40,12 @@ export const IconFitHorizontal = createGlyph(
   </>,
 );
 
-export const IconHexagon = createGlyph(
-  "IconHexagon",
-  <path
-    d="M15.5777 3.38197L17.5777 4.43152C19.7294 5.56066 20.8052 6.12523 21.4026 7.13974C22 8.15425 22 9.41667 22 11.9415V12.0585C22 14.5833 22 15.8458 21.4026 16.8603C20.8052 17.8748 19.7294 18.4393 17.5777 19.5685L15.5777 20.618C13.8221 21.5393 12.9443 22 12 22C11.0557 22 10.1779 21.5393 8.42229 20.618L6.42229 19.5685C4.27063 18.4393 3.19479 17.8748 2.5974 16.8603C2 15.8458 2 14.5833 2 12.0585V11.9415C2 9.41667 2 8.15425 2.5974 7.13974C3.19479 6.12523 4.27063 5.56066 6.42229 4.43152L8.42229 3.38197C10.1779 2.46066 11.0557 2 12 2C12.9443 2 13.8221 2.46066 15.5777 3.38197Z"
-    stroke="currentColor"
-    strokeWidth="1.5"
-    strokeLinecap="round"
-  />,
+export const IconFitVertical = createGlyph(
+  "IconFitVertical",
+  <g transform="rotate(90 12 12)">
+    <path d="M3 12H21" opacity="0.6" />
+    <path d="M7 8L3 12L7 16M17 8L21 12L17 16" />
+  </g>,
 );
 
 export const IconExclamationMark = createGlyph(
@@ -89,30 +86,6 @@ export const IconAddFile = createGlyph(
       strokeLinecap="round"
       strokeLinejoin="round"
     />
-  </>,
-);
-
-export const IconDataVector2 = createGlyph(
-  "IconDataVector2",
-  <>
-    <path d="M3 3V21H21" opacity="0.6" />
-    <g fill="currentColor" stroke="none">
-      <circle cx="8" cy="15" r="1.5" />
-      <circle cx="12" cy="8" r="1.5" />
-      <circle cx="18" cy="12" r="1.5" />
-    </g>
-  </>,
-);
-
-export const IconDataVector3 = createGlyph(
-  "IconDataVector3",
-  <>
-    <path d="M12 2V13M12 13L3 19M12 13L21 19" opacity="0.6" />
-    <g fill="currentColor" stroke="none">
-      <circle cx="6" cy="10" r="1.5" />
-      <circle cx="16" cy="7" r="1.5" />
-      <circle cx="14" cy="19" r="1.5" />
-    </g>
   </>,
 );
 
@@ -209,18 +182,5 @@ export const IconListTree = createGlyph(
   </>,
 );
 
-export const IconBezier = createGlyph(
-  "IconBezier",
-  <>
-    <path d="M3 4a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1v2a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1l0 -2" />
-    <path d="M17 18a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1v2a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1l0 -2" />
-    <path d="M7 5l7 0" />
-    <path d="M10 19l7 0" />
-    <path d="M8 19a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
-    <path d="M14 5a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
-    <path d="M7 5.5a5 6.5 0 0 1 5 6.5a5 6.5 0 0 0 5 6.5" />
-  </>,
-);
-export const IconFrame = createGlyph("IconFrame", <path d="M12 5v14" />);
 export const IconCircle = createGlyph("IconCircle", <circle cx="12" cy="12" r="9" />);
 export const IconPoint = createGlyph("IconPoint", <circle cx="12" cy="12" r="4" />);

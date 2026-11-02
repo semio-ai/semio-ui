@@ -150,9 +150,8 @@ test("a Button and a field render the same explicit glyph step at every size", a
   // adornment, the button's is the control.
   expect(measured[0]?.button.color).not.toBe(measured[0]?.field.color);
 
-  // A call site can still depart from the scale, which is what keeps the two
-  // deliberate departures in the app working — the 10px playback glyphs in
-  // `control-strip`, and `KeyIcon`'s 16px centre. If this breaks, `.sized-icon`
+  // A call site can depart from the scale with an explicit size, so consumer
+  // glyphs can keep their intended dimensions. If this breaks, `.sized-icon`
   // has started overruling `size="none"` and those pins have silently moved.
   expect(pinned.px, "a size=none pin overrides the slot's step").toBe(10);
 });

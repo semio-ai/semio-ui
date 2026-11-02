@@ -65,9 +65,8 @@ mount, the changesets CLI resolves to Studio's workspace root and writes into St
 Code Connect bindings live in `src/**/*.figma.tsx`; `npm run connect:parse` validates
 those files offline without a token. `npm run connect:publish` publishes bindings to Figma.
 
-`parity:figma` and `generate:icon-svgs` compose this library's icon registry with
-`@semio/timeline-editor` and Studio's app. Run those checks inside Studio, where those
-sources are available; Studio's CI runs them there.
+`parity:figma` and `generate:icon-svgs` read this library's registry and components
+only. Run them from this repository to check the ui manifest and export its SVGs.
 
 Browser tests require Chromium. Install it with
 `npx playwright install chromium --with-deps`, then run `npm run test:browser`
@@ -156,22 +155,19 @@ addToast({
   `mute` (an action) versus `state-muted` (a state). `@semio/ui`'s own components
   reference only roles, so a role is the seam for re-skinning a behaviour
   everywhere at once.
-- **Glyph keys** name the picture — `home`, `robot`, `playback-1.5`. A glyph key
-  kept for compatibility is marked `@deprecated` with the role to use instead.
+- **Glyph keys** name the picture — `home`, `box`, `fit-horizontal`, `fit-vertical`.
+  A glyph key with a preferred role is marked `@deprecated` with that role.
 
-**Three layers, one owner per key.** This package's default registry is the base
-layer: Semio's own glyphs (`src/icons/`, collected into `semio.generated.ts` by
-`npm run generate:icons`), stock Solar glyphs (`registry/solar.tsx`), the
-semantic roles (`registry/roles.ts`), and a curated Tabler fallback set
-(`tabler.generated.ts`). `@semio/timeline-editor` adds editor, playback, data and unit
-keys; Studio adds application keys. No key is defined in two places across the
-three layers — tests fail on a duplicate — so a shared decision is changed in the
-layer that owns it, and every consumer inherits it without an override.
+**One source per built-in key.** The default registry combines the library's drawn
+`glyphIconRegistry` (`glyph.generated.ts`), Solar glyphs (`registry/solar.tsx`),
+semantic roles (`registry/roles.ts`), and a curated Tabler set
+(`tabler.generated.ts`). Tests enforce disjoint ownership so a shared decision
+changes in the source that owns it and every consumer inherits it. A consuming
+package or application supplies its domain glyphs through its own registry.
 
-The `needs-attention` semantic role uses Solar's Danger Line Duotone glyph for
-states that require a user's attention. Menu items can pair a trailing status
-icon with `description` and `descriptionVariant` to color the explanatory tooltip
-without changing the row's label or variant.
+Menu items can pair a trailing status icon with `description` and
+`descriptionVariant` to color the explanatory tooltip without changing the row's
+label or variant.
 
 **Overriding.** Pass replacements to `IconProvider`; nested providers merge over
 their parent unless `extend={false}`:
@@ -184,8 +180,7 @@ A replacement must accept `className` and any state props its key is rendered
 with (`DisclosureIcon` passes `open`, for example). Register app-specific keys
 through `IconRegistryKeys` augmentation so `<Icon name>` type-checks them.
 
-**Glyph conventions.** Glyphs draw on a 24-unit canvas with 1.5-unit strokes (the
-vector family keeps its 32-unit geometry with 2-unit strokes), default to 18px,
+**Glyph conventions.** Glyphs draw on a 24-unit canvas with 1.5-unit strokes, default to 18px,
 paint with `currentColor`, and use 60% opacity for secondary strokes. Every glyph
 accepts `size`, `color`, `alt`, `mirrored`, SVG attributes and a forwarded ref.
 `createSolarIcon` wraps a Solar component with the same sizing and an optional

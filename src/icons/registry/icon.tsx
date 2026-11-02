@@ -3,6 +3,7 @@ import { clsx } from "clsx";
 import { useOptionalContext } from "../../context/context-providers";
 import { ICON_CLASS_NAME, ICON_LG_CLASS_NAME } from "../../constants/icon";
 import { IconRegistryContext } from "./icon-context";
+import type { IconRegistry } from "./types";
 import { defaultIconRegistry, type IconName } from "./default-registry";
 
 /**
@@ -48,9 +49,9 @@ export interface IconProps {
   size?: "standard" | "larger" | "none";
   /**
    * Extra props forwarded to the resolved icon component — the "state bag" for
-   * stateful glyphs (`<Icon name="disclosure" open />`, `<Icon name="key" dashed
-   * center="plus" />`). Untyped here by design; prefer the typed wrappers
-   * (`<KeyIcon>`, `<DisclosureIcon>`) at call sites that need checked props.
+   * stateful consumer glyphs. Untyped here by design so overrides can accept
+   * their own state props; prefer typed wrappers such as `<DisclosureIcon>` at
+   * call sites that need checked props.
    */
   [prop: string]: unknown;
 }
@@ -67,7 +68,7 @@ export interface IconProps {
  * Unknown names render nothing and, outside production, warn in the console.
  */
 export function Icon({ name, className, size = "standard", ...rest }: IconProps) {
-  const registry = useOptionalContext(IconRegistryContext) ?? defaultIconRegistry;
+  const registry: IconRegistry = useOptionalContext(IconRegistryContext) ?? defaultIconRegistry;
   // Own-property check so an unexpected `name` (e.g. "toString", "constructor")
   // can't resolve an inherited Object.prototype member instead of an icon.
   const Resolved = Object.hasOwn(registry, name) ? registry[name] : undefined;

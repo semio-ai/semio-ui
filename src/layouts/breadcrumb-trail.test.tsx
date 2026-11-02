@@ -1,9 +1,14 @@
 // @vitest-environment jsdom
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, expect, test, vi } from "vitest";
+import { IconProvider } from "../icons/registry/icon-provider";
 import { BreadcrumbTrail } from "./breadcrumb-trail";
 
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  vi.unstubAllGlobals();
+  delete (HTMLElement.prototype as Partial<HTMLElement>).getAnimations;
+});
 
 test("a current crumb without a switcher supports rename with a sized field and focus restoration", async () => {
   const rename = vi.fn();
@@ -84,5 +89,56 @@ test.each([false, true])(
         screen.getByRole("button", { name: "Switch Project: Project A" }),
       ),
     );
+  },
+);
+
+declare module "../icons/registry/types" {
+  interface IconRegistryKeys {
+    "test-breadcrumb-item": true;
+  }
+}
+
+test.each(["Item A", "Rename", "All items"])(
+  "consumer overrides reach the %s icon",
+  async (label) => {
+    vi.stubGlobal(
+      "ResizeObserver",
+      class {
+        observe() {}
+        unobserve() {}
+        disconnect() {}
+      },
+    );
+    Object.defineProperty(HTMLElement.prototype, "getAnimations", {
+      configurable: true,
+      value: () => [],
+    });
+    render(
+      <IconProvider
+        registry={{ "test-breadcrumb-item": () => <svg data-testid="consumer-item-icon" /> }}
+      >
+        <BreadcrumbTrail
+          items={[
+            {
+              id: "item",
+              label: "Item A",
+              onRename: vi.fn(),
+              renameIcon: "test-breadcrumb-item",
+              switcher: {
+                label: "Switch Item",
+                value: "a",
+                searchable: true,
+                onSelect: vi.fn(),
+                options: [{ value: "a", label: "Item A", icon: "test-breadcrumb-item" }],
+                browse: { label: "All items", icon: "test-breadcrumb-item", onSelect: vi.fn() },
+              },
+            },
+          ]}
+        />
+      </IconProvider>,
+    );
+    fireEvent.click(screen.getByRole("combobox", { name: "Switch Item: Item A" }));
+    const row = await screen.findByRole(label === "Item A" ? "option" : "button", { name: label });
+    expect(row.querySelector('[data-testid="consumer-item-icon"]')).not.toBeNull();
   },
 );

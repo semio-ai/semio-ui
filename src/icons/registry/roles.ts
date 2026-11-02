@@ -1,10 +1,4 @@
-import {
-  Copy,
-  Danger,
-  InfoSquare,
-  SortByTime,
-  SortByAlphabet,
-} from "@solar-icons/react-perf/LineDuotone";
+import { Copy, InfoSquare, SortByTime, SortByAlphabet } from "@solar-icons/react-perf/LineDuotone";
 import {
   IconCircle,
   IconSelector,
@@ -15,7 +9,7 @@ import {
   IconExclamationMark,
 } from "../shared-glyphs";
 import { solarIconRegistry } from "./solar";
-import { semioIconRegistry as glyphs } from "./semio.generated";
+import { glyphIconRegistry as glyphs } from "./glyph.generated";
 import { createSolarIcon as solar } from "./solar-glyph";
 import type { IconRegistry } from "./types";
 
@@ -59,12 +53,10 @@ export const roleIconRegistry = {
   "step-complete": IconCheck,
   "step-pending": IconCircle,
 
-  // Status — discrete keys so each is independently overrideable; replaces the old
-  // `IconVariant` switch (variant → glyph).
+  // Status — discrete keys so each is independently overrideable.
   "status-success": IconCheck,
   "status-error": IconExclamationMark,
   "status-warning": IconExclamationMark,
-  "needs-attention": solar(Danger),
   "status-info": IconExclamationMark,
 
   // Roles may share artwork while remaining independently replaceable.
@@ -112,8 +104,8 @@ export const roleIconRegistry = {
   "state-unlocked": glyphs["lock-off"],
   unlock: glyphs["lock-off"],
   inspect: solar(InfoSquare),
-  // Superseded roles keep the artwork they shipped with, so a consumer naming them
-  // still renders what it did; the annotation names the role to move to.
+  // Deprecated generic roles retain their artwork so published-package consumers
+  // naming these keys still render the expected glyph; annotations name preferred roles.
   /** @deprecated Use inspect. */
   "preview-open": glyphs.eye,
   /** @deprecated Use close. */

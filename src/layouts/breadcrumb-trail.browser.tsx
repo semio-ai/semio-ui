@@ -32,6 +32,12 @@ function item(overrides: Partial<BreadcrumbTrailItem> = {}): BreadcrumbTrailItem
   };
 }
 
+declare module "../icons/registry/types" {
+  interface IconRegistryKeys {
+    "test-breadcrumb-item": true;
+  }
+}
+
 test("ancestor navigation and sibling switching have separate controls", async () => {
   const navigate = vi.fn();
   const select = vi.fn();
@@ -285,14 +291,18 @@ test("grouped controls keep square shared corners and a stable rename footprint"
 });
 
 test("sibling and action icons resolve through the consumer's registry", async () => {
-  const current = item({ onRename: vi.fn(), renameIcon: "project" });
-  current.switcher!.options = [{ value: "a", label: "Project A", icon: "project" }];
-  current.switcher!.browse = { label: "All projects", icon: "project", onSelect: vi.fn() };
+  const current = item({ onRename: vi.fn(), renameIcon: "test-breadcrumb-item" });
+  current.switcher!.options = [{ value: "a", label: "Project A", icon: "test-breadcrumb-item" }];
+  current.switcher!.browse = {
+    label: "All projects",
+    icon: "test-breadcrumb-item",
+    onSelect: vi.fn(),
+  };
   await render(
     <IconProvider
       registry={{
-        project: () => (
-          <svg data-testid="consumer-project-icon" viewBox="0 0 24 24">
+        "test-breadcrumb-item": () => (
+          <svg data-testid="consumer-item-icon" viewBox="0 0 24 24">
             <path d="M2 2h20v20H2z" />
           </svg>
         ),
@@ -308,7 +318,7 @@ test("sibling and action icons resolve through the consumer's registry", async (
     page.getByRole("button", { name: "Rename", exact: true }),
     page.getByRole("button", { name: "All projects", exact: true }),
   ]) {
-    expect(row.element().querySelector('[data-testid="consumer-project-icon"]')).not.toBeNull();
+    expect(row.element().querySelector('[data-testid="consumer-item-icon"]')).not.toBeNull();
   }
 });
 
