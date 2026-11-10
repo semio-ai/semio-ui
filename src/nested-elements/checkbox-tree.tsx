@@ -1,5 +1,12 @@
 import { Menu } from "@base-ui/react/menu";
-import { type MouseEvent, type CSSProperties, type ReactNode, useCallback, useId } from "react";
+import {
+  type MouseEvent,
+  type CSSProperties,
+  type ReactNode,
+  useCallback,
+  useId,
+  useRef,
+} from "react";
 import { clsx } from "clsx";
 import { Icon, resolveIcon, type IconValue } from "../icons/registry";
 import { Variant } from "../types";
@@ -315,20 +322,25 @@ function TreeSubmenu({
   children: ReactNode;
 }) {
   const firstEntryFocus = useFirstMenuEntryFocus();
+  const popupRef = useRef<HTMLDivElement>(null);
+  const returnFocus = useRef(false);
   return (
     <Menu.SubmenuRoot
       loopFocus={false}
       onOpenChange={(next, details) => {
-        if (!next) preserveMenuInteraction(details);
+        if (!next && preserveMenuInteraction(details)) return;
         firstEntryFocus.onOpenChange(next, details);
+        // Closing with focus inside returns it to the parent row; a pointer close does not.
+        returnFocus.current = !next && !!popupRef.current?.contains(document.activeElement);
       }}
     >
       {trigger}
       <Menu.Portal>
         <Menu.Positioner side="right" collisionPadding={0}>
           <Menu.Popup
+            ref={popupRef}
             onFocus={firstEntryFocus.onFocus}
-            finalFocus={(type) => (type === "keyboard" ? document.getElementById(id) : false)}
+            finalFocus={() => (returnFocus.current ? document.getElementById(id) : false)}
             render={(props, state) => (
               <div {...props} data-state={state.open ? "open" : "closed"} />
             )}

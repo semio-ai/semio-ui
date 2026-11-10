@@ -219,8 +219,9 @@ Base UI menu parts. Menus lock page scrolling and an outside press only dismisse
 the menu; a second press can activate the outside element. Dropdowns and canvas
 menus leave the page exposed to assistive technology and allow focus to leave.
 Row `ContextMenu` keeps the primitive's modal focus guards and background hiding.
-Tab closes a Dropdown and resumes the surrounding tab order. Row context menus and
-both canvas menus keep Tab and Shift+Tab on the current entry. A script moving focus
+Tab closes a Dropdown, submenus included, and resumes the surrounding tab order;
+Shift+Tab closes it and returns focus to its trigger. Row context menus and both
+canvas menus keep Tab and Shift+Tab on the current entry, in submenus too. A script moving focus
 outside a Dropdown or canvas menu leaves it open and keeps the page exposed to
 assistive technology. Escape in a submenu closes that level and returns to its
 trigger. A Dropdown closing with focus inside returns focus to its trigger before
@@ -260,9 +261,10 @@ open. `NestedItem` stops closing clicks from bubbling into a listing and retains
 the selected element as `currentTarget`. `Popover` is nonmodal.
 
 Every disabled menu entry remains in the keyboard order, with or without a reason.
-Arrow keys, typeahead and Home/End can reach it, and a keyboard open focuses it if
-it comes first, including when opening a submenu with Enter or ArrowRight. Pointer
-opens retain the primitive's initial focus. It reports `aria-disabled` and cannot activate. For a `NestedItem`,
+Arrow keys, typeahead and Home/End can reach it, and a Dropdown opened from the
+keyboard focuses it if it comes first, as does a submenu opened with Enter or
+ArrowRight. Pointer opens, and a context menu opened from the keyboard, focus the
+popup. It reports `aria-disabled` and cannot activate. For a `NestedItem`,
 `description` supplies its reason; radio and select options use `disabledReason`.
 The reason is a permanent accessible description and a tooltip. Enter, Space and
 click leave the menu and explanation open. Escape dismisses the explanation alone;

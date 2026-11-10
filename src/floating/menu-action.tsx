@@ -11,6 +11,7 @@ import {
   type FocusEvent as ReactFocusEvent,
   type ReactNode,
   type Ref,
+  type RefObject,
 } from "react";
 import { mergeProps } from "@base-ui/react/merge-props";
 import { mergeRefs } from "react-merge-refs";
@@ -69,23 +70,47 @@ export function preserveMenuInteraction(
 }
 
 /**
- * Keeps Shift+Tab inside a context or canvas menu. Base UI's list navigation closes an
- * open menu on Shift+Tab (reason `focus-out`) and focuses its trigger unless the close
- * is cancelled, while its focus guards keep a plain Tab inside. These menus keep focus
- * in both directions.
+ * Keeps Tab and Shift+Tab on the focused entry of a context or canvas menu, its
+ * submenus included. The listener runs in the document's capture phase, ahead of
+ * Base UI: its list navigation closes a menu on Shift+Tab, and its focus guards
+ * close a submenu on Tab.
  */
-export function keepsTabInMenu(
-  details: Pick<Menu.Root.ChangeEventDetails, "reason" | "event" | "cancel">,
+export function useMenuTabContainment(open: boolean, popupRef: RefObject<HTMLElement | null>) {
+  useEffect(() => {
+    if (!open) return;
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== "Tab" || !menuContainsFocus(popupRef.current)) return;
+      event.preventDefault();
+      event.stopPropagation();
+    };
+    document.addEventListener("keydown", handleKeyDown, true);
+    return () => document.removeEventListener("keydown", handleKeyDown, true);
+  }, [open, popupRef]);
+}
+
+/**
+ * Shift+Tab anywhere in an open Dropdown, a submenu included, closes the whole menu
+ * through `exit`, which returns focus to the trigger. Base UI would close only the
+ * submenu that has focus. Tab already closes the whole menu and moves on.
+ */
+export function useMenuShiftTabExit(
+  open: boolean,
+  popupRef: RefObject<HTMLElement | null>,
+  exit: () => void,
 ) {
-  if (
-    details.reason === "focus-out" &&
-    details.event instanceof KeyboardEvent &&
-    details.event.key === "Tab"
-  ) {
-    details.cancel();
-    return true;
-  }
-  return false;
+  const exitRef = useRef(exit);
+  exitRef.current = exit;
+  useEffect(() => {
+    if (!open) return;
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== "Tab" || !event.shiftKey || !menuContainsFocus(popupRef.current)) return;
+      event.preventDefault();
+      event.stopPropagation();
+      exitRef.current();
+    };
+    document.addEventListener("keydown", handleKeyDown, true);
+    return () => document.removeEventListener("keydown", handleKeyDown, true);
+  }, [open, popupRef]);
 }
 
 /** Resolve relay wrappers to the actual control for both immediate and final focus. */
@@ -180,10 +205,17 @@ export function useMenuAction() {
   };
 }
 
-/** Completion is delivered before React removes the popup; dispatch after that commit. */
+/**
+ * Runs closing selections after the menu has finished closing. Base UI reports
+ * completion before React removes the popup and returns focus in a cleanup
+ * microtask, so actions run in a microtask after the commit that removes it: a
+ * dialog an action opens then starts after focus has left the menu. A consumer that
+ * unmounts the menu as it closes still gets the selected action.
+ */
 export function useMenuActionHandoff(afterClose?: () => void) {
   const pending = useRef<(() => void)[]>([]);
-  const [completed, setCompleted] = useState<(() => void)[][]>([]);
+  const completed = useRef<(() => void)[]>([]);
+  const [completions, setCompletions] = useState(0);
   const afterCloseRef = useRef(afterClose);
   afterCloseRef.current = afterClose;
   const enqueue = useCallback((action: () => void) => {
@@ -191,18 +223,27 @@ export function useMenuActionHandoff(afterClose?: () => void) {
   }, []);
   const onOpenChangeComplete = useCallback((open: boolean) => {
     if (open) return;
-    const actions = pending.current.splice(0);
-    setCompleted((cycles) => [...cycles, actions]);
+    completed.current.push(...pending.current.splice(0));
+    setCompletions((count) => count + 1);
   }, []);
   useEffect(() => {
-    if (!completed.length) return;
-    setCompleted([]);
-    // Base UI returns focus in a cleanup microtask. Dialog actions must follow it.
+    if (completions === 0) return;
+    const actions = completed.current.splice(0);
     queueMicrotask(() => {
-      for (const actions of completed) for (const action of actions) action();
+      for (const action of actions) action();
       afterCloseRef.current?.();
     });
-  }, [completed]);
+  }, [completions]);
+  useEffect(
+    () => () => {
+      const actions = [...completed.current.splice(0), ...pending.current.splice(0)];
+      if (actions.length > 0)
+        queueMicrotask(() => {
+          for (const action of actions) action();
+        });
+    },
+    [],
+  );
   return { enqueue, onOpenChangeComplete };
 }
 

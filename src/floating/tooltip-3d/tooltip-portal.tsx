@@ -10,7 +10,7 @@ import {
   MenuActionProvider,
   useMenuActionHandoff,
   preserveMenuInteraction,
-  keepsTabInMenu,
+  useMenuTabContainment,
   useNotificationMenuEscape,
 } from "../menu-action";
 import {
@@ -35,7 +35,9 @@ function InteractiveOverlayInstance({ anchor, position }: OverlayInstanceProps) 
     if (useTooltipStore.getState().anchors.get(anchor.id) === anchor) dismissOverlay(anchor.id);
   });
   const [open, setOpen] = useState(true);
+  const popupRef = useRef<HTMLDivElement>(null);
   useNotificationMenuEscape(open, () => setOpen(false));
+  useMenuTabContainment(open, popupRef);
   const isMenu = anchor.mode === "context-menu";
   const virtualAnchor = useMemo(
     () => ({
@@ -57,7 +59,7 @@ function InteractiveOverlayInstance({ anchor, position }: OverlayInstanceProps) 
       open={open}
       loopFocus={false}
       onOpenChange={(next, details) => {
-        if (!next && (preserveMenuInteraction(details) || keepsTabInMenu(details))) return;
+        if (!next && preserveMenuInteraction(details)) return;
         setOpen(next);
       }}
       onOpenChangeComplete={handoff.onOpenChangeComplete}
@@ -71,10 +73,7 @@ function InteractiveOverlayInstance({ anchor, position }: OverlayInstanceProps) 
           collisionPadding={5}
         >
           <Menu.Popup
-            onKeyDown={(event) => {
-              // Canvas overlays have no page trigger to receive Tab's focus handoff.
-              if (event.key === "Tab") event.preventDefault();
-            }}
+            ref={popupRef}
             render={(props, state) => (
               <div {...props} data-state={state.open ? "open" : "closed"} />
             )}

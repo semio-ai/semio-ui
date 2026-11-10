@@ -19,6 +19,7 @@ import {
   preserveMenuInteraction,
   renderMenuTrigger,
   useNotificationMenuEscape,
+  useMenuShiftTabExit,
   menuTriggerFocusTarget,
   menuContainsFocus,
   useFirstMenuEntryFocus,
@@ -67,6 +68,7 @@ export function Dropdown({
   const triggerRef = useRef<HTMLButtonElement>(null);
   const popupRef = useRef<HTMLDivElement>(null);
   const returnFocus = useRef(false);
+  const closeHandled = useRef(false);
   const firstEntryFocus = useFirstMenuEntryFocus();
   const [internalOpen, setInternalOpen] = useState(false);
   const actualOpen = open ?? internalOpen;
@@ -75,6 +77,12 @@ export function Dropdown({
     onOpenChange?.(next);
   };
   useNotificationMenuEscape(actualOpen, () => changeOpen(false));
+  useMenuShiftTabExit(actualOpen, popupRef, () => {
+    closeHandled.current = true;
+    returnFocus.current = true;
+    menuTriggerFocusTarget(triggerRef.current)?.focus({ preventScroll: true });
+    changeOpen(false);
+  });
   const isNativeButton =
     nativeButton ??
     !(isValidElement(trigger) && typeof trigger.type === "string" && trigger.type !== "button");
@@ -86,6 +94,7 @@ export function Dropdown({
       onOpenChange={(next, details) => {
         if (!next && preserveMenuInteraction(details)) return;
         firstEntryFocus.onOpenChange(next, details);
+        closeHandled.current = !next;
         returnFocus.current =
           !next &&
           details.reason !== "focus-out" &&
@@ -120,9 +129,18 @@ export function Dropdown({
           <Menu.Popup
             ref={popupRef}
             onFocus={firstEntryFocus.onFocus}
-            finalFocus={() =>
-              returnFocus.current ? menuTriggerFocusTarget(triggerRef.current) : false
-            }
+            finalFocus={() => {
+              const handled = closeHandled.current;
+              closeHandled.current = false;
+              const target = menuTriggerFocusTarget(triggerRef.current);
+              if (handled) return returnFocus.current ? target : false;
+              // A close through the `open` prop skips onOpenChange. Return focus when it
+              // was in the menu or has fallen to the body with the removed popup.
+              const active = document.activeElement;
+              return !active || active === document.body || menuContainsFocus(popupRef.current)
+                ? target
+                : false;
+            }}
             render={(props, state) => (
               <div {...props} data-state={state.open ? "open" : "closed"} />
             )}

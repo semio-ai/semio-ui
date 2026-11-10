@@ -20,6 +20,8 @@ export function NestedMenu({
   hideHeader,
 }: NestedMenuProps) {
   const triggerRef = useRef<HTMLElement>(null);
+  const popupRef = useRef<HTMLDivElement>(null);
+  const returnFocus = useRef(false);
   const firstEntryFocus = useFirstMenuEntryFocus();
   const [mobileOpen, setMobileOpen] = useState(false);
   const panelId = useId();
@@ -107,8 +109,11 @@ export function NestedMenu({
     <Menu.SubmenuRoot
       loopFocus={false}
       onOpenChange={(next, details) => {
-        if (!next) preserveMenuInteraction(details);
+        if (!next && preserveMenuInteraction(details)) return;
         firstEntryFocus.onOpenChange(next, details);
+        // A submenu that closes with focus inside (Escape, ArrowLeft) returns it to its
+        // trigger; one closed by the pointer moving to another entry leaves focus there.
+        returnFocus.current = !next && !!popupRef.current?.contains(document.activeElement);
       }}
     >
       <Menu.SubmenuTrigger
@@ -122,9 +127,10 @@ export function NestedMenu({
       <Menu.Portal>
         <Menu.Positioner side="right" collisionPadding={0}>
           <Menu.Popup
+            ref={popupRef}
             onFocus={firstEntryFocus.onFocus}
             className="[outline:none]"
-            finalFocus={(type) => (type === "keyboard" ? triggerRef.current : false)}
+            finalFocus={() => (returnFocus.current ? triggerRef.current : false)}
             render={(props, state) => (
               <div {...props} data-state={state.open ? "open" : "closed"} />
             )}

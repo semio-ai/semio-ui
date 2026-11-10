@@ -8,8 +8,9 @@ TooltipHost's canvas context menu and click popover. The `Nested*` items serve a
 
 Keyboard and focus, following the WAI-ARIA menu pattern where Base UI does:
 
-- Tab in an open `Dropdown` closes it and moves on through the page. Row context menus and
-  canvas menus keep Tab and Shift+Tab inside the open menu.
+- Tab in an open `Dropdown`, a submenu included, closes it and moves on through the page;
+  Shift+Tab closes it and returns focus to its trigger. Row context menus and canvas menus
+  keep Tab and Shift+Tab on the focused entry, in submenus too.
 - Escape in a submenu closes only that submenu.
 - Every disabled entry is keyboard-reachable and `aria-disabled`, with or without a reason, and
   stays inert. A keyboard open still focuses the first entry when it is disabled.

@@ -7,7 +7,7 @@ import {
   MenuActionProvider,
   useMenuActionHandoff,
   preserveMenuInteraction,
-  keepsTabInMenu,
+  useMenuTabContainment,
   renderMenuTrigger,
   useNotificationMenuEscape,
   menuContainsFocus,
@@ -43,6 +43,7 @@ export function ContextMenu({
     onOpenChange?.(next);
   };
   useNotificationMenuEscape(open, () => changeOpen(false));
+  useMenuTabContainment(open, popupRef);
   return (
     <ContextMenuPrimitive.Root
       onOpenChangeComplete={handoff.onOpenChangeComplete}
@@ -50,10 +51,7 @@ export function ContextMenu({
       loopFocus={false}
       onOpenChange={(next, details) => {
         // Disabling blocks opening without disabling navigation in a mounted menu.
-        if (
-          (next && disabled) ||
-          (!next && (preserveMenuInteraction(details) || keepsTabInMenu(details)))
-        ) {
+        if ((next && disabled) || (!next && preserveMenuInteraction(details))) {
           details.cancel();
           return;
         }

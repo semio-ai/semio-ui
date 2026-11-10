@@ -1016,3 +1016,99 @@ test("B: a keyboard-opened Dropdown with only disabled entries focuses the first
   await open(Entry.Dropdown, true);
   await expect.element(item("First")).toHaveFocus();
 });
+
+test("a Dropdown its consumer unmounts as it closes still runs the selected action", async () => {
+  const action = vi.fn();
+  function Unmounting() {
+    const [shown, setShown] = useState(true);
+    return (
+      <UiStoreProvider>
+        {shown && (
+          <DropdownOverlay
+            trigger={<button type="button">Open</button>}
+            onOpenChange={(next) => {
+              if (!next) setShown(false);
+            }}
+          >
+            <NestedItem onClick={action}>First</NestedItem>
+          </DropdownOverlay>
+        )}
+      </UiStoreProvider>
+    );
+  }
+  await render(<Unmounting />);
+  await open(Entry.Dropdown, true);
+  await first();
+  await userEvent.keyboard("{Enter}");
+  await expect.element(button("Open")).not.toBeInTheDocument();
+  await expect.poll(() => action.mock.calls.length).toBe(1);
+});
+
+test("a controlled Dropdown its parent closes returns focus to the trigger", async () => {
+  function Controlled() {
+    const [menuOpen, setMenuOpen] = useState(false);
+    return (
+      <UiStoreProvider>
+        <DropdownOverlay
+          trigger={<button type="button">Open</button>}
+          open={menuOpen}
+          onOpenChange={setMenuOpen}
+        >
+          <NestedItem closeOnSelect={false} onClick={() => setMenuOpen(false)}>
+            First
+          </NestedItem>
+        </DropdownOverlay>
+      </UiStoreProvider>
+    );
+  }
+  await render(<Controlled />);
+  await open(Entry.Dropdown, true);
+  await first();
+  // The item stays open itself; the parent closes the menu through `open`.
+  await userEvent.keyboard("{Enter}");
+  await expect.poll(() => menus().length).toBe(0);
+  await expect.element(button("Open")).toHaveFocus();
+});
+
+test("Shift+Tab in a Dropdown submenu closes the whole menu and returns to the trigger", async () => {
+  await render(
+    <MenuFixture entry={Entry.Dropdown}>
+      <NestedItem>First</NestedItem>
+      <NestedMenu label="More">
+        <NestedItem>Child</NestedItem>
+      </NestedMenu>
+    </MenuFixture>,
+  );
+  await open(Entry.Dropdown, true);
+  await first("First");
+  await userEvent.keyboard("{End}");
+  await expect.element(item("More")).toHaveFocus();
+  await userEvent.keyboard("{ArrowRight}");
+  await expect.element(item("Child")).toHaveFocus();
+  await userEvent.keyboard("{Shift>}{Tab}{/Shift}");
+  await expect.poll(() => document.querySelectorAll('[role="menu"]').length).toBe(0);
+  await expect.element(button("Open")).toHaveFocus();
+});
+
+for (const entry of [Entry.Context, Entry.Canvas])
+  for (const key of ["{Tab}", "{Shift>}{Tab}{/Shift}"])
+    test(`${entry}: ${key} in a submenu keeps focus on the submenu entry`, async () => {
+      await render(
+        <MenuFixture entry={entry}>
+          <NestedItem>First</NestedItem>
+          <NestedMenu label="More">
+            <NestedItem>Child</NestedItem>
+          </NestedMenu>
+        </MenuFixture>,
+      );
+      await open(entry);
+      await first("First");
+      await userEvent.keyboard("{End}");
+      await expect.element(item("More")).toHaveFocus();
+      await userEvent.keyboard("{ArrowRight}");
+      await expect.element(item("Child")).toHaveFocus();
+      await userEvent.keyboard(key);
+      await tick();
+      await expect.element(item("Child")).toHaveFocus();
+      expect(menus()).toHaveLength(2);
+    });
