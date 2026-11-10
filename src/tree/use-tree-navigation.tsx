@@ -66,7 +66,7 @@ import { useCompositeRoot } from "../internals/composite";
  */
 
 interface TreeNavContextValue {
-  elementsRef: RefObject<(HTMLDivElement | null)[]>;
+  elementsRef: RefObject<(HTMLElement | null)[]>;
   tabStopIndex: number;
   onHighlightedIndexChange: (index: number) => void;
 }
