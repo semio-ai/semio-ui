@@ -45,13 +45,21 @@ async function renderField(field: (units: string) => ReactNode, units: string) {
 /**
  * Whether the suffix's text is wider than the box it is drawn in. Measured from the
  * text, because an input's `scrollWidth` does not grow with text it clips.
+ *
+ * The box's content width comes from its drawn rect, less padding and border. An
+ * input's `clientWidth` does not give it reliably: Chromium 158 reports it without
+ * the padding and earlier versions with it, for the same drawn box.
  */
 function textOverflows(input: HTMLInputElement): boolean {
   const style = getComputedStyle(input);
   const context = document.createElement("canvas").getContext("2d")!;
   context.font = style.font;
   const content =
-    input.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
+    input.getBoundingClientRect().width -
+    parseFloat(style.paddingLeft) -
+    parseFloat(style.paddingRight) -
+    parseFloat(style.borderLeftWidth) -
+    parseFloat(style.borderRightWidth);
   return context.measureText(input.value).width > content + 0.5;
 }
 
