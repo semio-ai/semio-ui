@@ -806,6 +806,7 @@ function ToastContainer({ children }: ToastContainerProps) {
                 overlays move to Base UI so toast presses stay inside their layers. */}
             <DismissableLayer.Branch asChild>
               <div
+                data-notifications-region=""
                 role="region"
                 aria-label="Notifications (F8)"
                 tabIndex={-1}
@@ -834,8 +835,7 @@ function ToastContainer({ children }: ToastContainerProps) {
                   {/* A presentational li preserves the list's child semantics. Fixed
                       positioning excludes the host from flex layout; its z-index
                       stays inside the list and paints menus above the toasts.
-                      Dropdown stops Escape in Radix's document capture listener,
-                      giving the menu its own dismissal before the toast. */}
+                      Menu dismissal gives an open menu Escape before a toast. */}
                   <li
                     role="presentation"
                     ref={registerMenuContainer}

@@ -530,7 +530,7 @@ export function ListGrid<T>({
       // out from under the viewer on the way out.
       if (
         (event.target as HTMLElement).closest(
-          "a[href], button, input, select, textarea, [role='menuitem'], [role='menuitemradio'], [data-radix-collection-item]",
+          "a[href], button, input, select, textarea, [role='menuitem'], [role='menuitemradio'], [role='menuitemcheckbox']",
         )
       ) {
         return;
@@ -571,7 +571,7 @@ export function ListGrid<T>({
       // menu would both open the menu and fire the row's handler.
       if (
         (event.target as HTMLElement).closest(
-          "a[href], button, input, select, textarea, [role='menuitem'], [role='menuitemradio'], [data-radix-collection-item]",
+          "a[href], button, input, select, textarea, [role='menuitem'], [role='menuitemradio'], [role='menuitemcheckbox']",
         )
       ) {
         return;

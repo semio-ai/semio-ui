@@ -102,7 +102,11 @@ input shows `placeholder` or an em-dash.
 ### Primitive contracts
 
 `Checkbox`, `ToggleSquare`, and `Switch` render native buttons and support label
-associations. Controls expose `data-state` values for styling. Panel size variables
+associations. Controls expose `data-state` values for styling. Menu triggers,
+popups and submenu triggers expose `open`/`closed`; check items and indicators expose
+`checked`/`unchecked`, and tree parent checks also expose `indeterminate`. These menu
+attributes are compatibility shims. Menu positioning uses `--available-width`,
+`--available-height`, `--anchor-width` and `--transform-origin`. Other panel size variables
 with `--radix-` names remain available for consumer animations.
 Toggle groups expose single selection through `role="radio"` and `aria-checked`;
 the current focus target participates directly in the Tab order.
@@ -210,33 +214,64 @@ ordinary menu items.
 `Modal` gives initial focus to the rightmost enabled footer action. With no
 available footer action, it retains the dialog primitive's default focus behavior.
 
-`Dropdown`, `ContextMenu`, and TooltipHost's interactive canvas overlays use
-modal Radix menus so focus moves from a dialog or a roving list cannot dismiss
-the menu. Submenus retain focus when a dialog or list restores it outside the
-menu; focus moves to parent-menu items remain normal menu navigation. Closing
-selections in `NestedItem`, `NestedRadio`, `NestedCheckbox`, and `NestedSelect` run their actions after the root menu's `onCloseAutoFocus`
-teardown hook, including selections in submenus. The hook follows content
-unmount and `hideOthers` cleanup; a microtask lets Radix finish restoring focus
-before the action opens another overlay. Base UI dialogs then establish their
-background hiding without recording the menu's hidden state as pre-existing.
-Items that opt to stay open run their actions immediately. Use `closeOnSelect`
-to control dismissal; closing-item callbacks run after event dispatch and cannot
-cancel it or alter its propagation. `NestedItem` stops closing clicks from
-bubbling into a listing and preserves the selected element as `currentTarget`.
-Consumers using raw Radix items or custom interactive menu content must arrange
-the same teardown ordering before opening a dialog. `Popover` is nonmodal.
+`Dropdown`, `ContextMenu`, and TooltipHost's canvas menus and click popovers use
+Base UI menu parts. Menus lock page scrolling and an outside press only dismisses
+the menu; a second press can activate the outside element. Dropdowns and canvas
+menus leave the page exposed to assistive technology and allow focus to leave.
+Row `ContextMenu` keeps the primitive's modal focus guards and background hiding.
+Tab closes a Dropdown and resumes the surrounding tab order. Row context menus and
+both canvas menus keep Tab and Shift+Tab on the current entry. A script moving focus
+outside a Dropdown or canvas menu leaves it open and keeps the page exposed to
+assistive technology. Escape in a submenu closes that level and returns to its
+trigger. A Dropdown closing with focus inside returns focus to its trigger before
+popup removal, including inside a Modal; relay wrappers focus their real control.
+Tab keeps its normal focus handoff. ContextMenu returns to the element focused before
+invocation, which can differ from the pressed row. Arrow keys stop at the first and
+last entry, including in submenus.
 
-A disabled menu entry with a reason stays in the menu's keyboard order. For a
-`NestedItem` the reason is its `description`; for a `NestedRadio` or `NestedSelect`
-option it is `disabledReason`, because an option's `description` says what choosing
-it means. Arrow keys, typeahead and Home/End reach the entry, and a menu opened from
-the keyboard focuses it when it comes first. It reports `aria-disabled`, and the
-reason is its accessible description and its tooltip, so it reaches keyboard and
-screen-reader users. Enter, Space and a click do nothing, leave the menu open and
-leave the reason showing. Focused, the entry takes a lighter fill than an enabled row
-and keeps its disabled text, icon and indicator colours; under the pointer it shows
-the default cursor. A disabled entry without a reason is skipped, and so is an option
-disabled by its group unless it has its own `disabledReason`.
+ContextMenu opens to the right of the press point, aligned to its top: with room
+available, the popup starts four pixels right and two pixels down. Menu popups have
+no focus outline. Dropdown arrows use a stretched 12 by 6 SVG and account for the
+popup margin on every side.
+
+A press in the notifications region leaves a menu open. An open menu receives
+Escape before a toast, including when focus is in the notification. `ContextMenu`'s
+`disabled` blocks opening while keeping its child tree mounted and its open menu
+navigable and dismissible. `Dropdown.nativeButton` is inferred from an intrinsic
+trigger element; set it explicitly for a custom component that renders a non-button.
+Mobile submenu disclosures participate in arrow-key navigation and expand inline
+through a Base UI Collapsible. The disclosure is a `menuitem` with `aria-expanded`
+and `aria-controls`; Enter, Space and a press each toggle it once. Closed panels
+remain mounted and hidden.
+
+SelectTree parent checkboxes are outside the tab order but remain clickable and
+script-focusable. Space on the parent row toggles its check and retains focus;
+Enter or ArrowRight opens its children. Enter and Space on the focused checkbox
+toggle the check without opening the submenu or moving focus.
+
+Closing selections in `NestedItem`, `NestedRadio`, `NestedCheckbox`, and `NestedSelect`
+run after root close completion, popup removal and focus restoration, including
+submenu selections. This lets an action open a dialog without focus being pulled
+back into the menu's trigger. Items that stay open run immediately. `ActionMenu`
+always invokes its action synchronously during selection to preserve browser user
+activation for clipboard writes. `closeOnSelect` defaults to true for items and
+radio options, and false for checkbox and multi-select options; tree checks stay
+open. `NestedItem` stops closing clicks from bubbling into a listing and retains
+the selected element as `currentTarget`. `Popover` is nonmodal.
+
+Every disabled menu entry remains in the keyboard order, with or without a reason.
+Arrow keys, typeahead and Home/End can reach it, and a keyboard open focuses it if
+it comes first, including when opening a submenu with Enter or ArrowRight. Pointer
+opens retain the primitive's initial focus. It reports `aria-disabled` and cannot activate. For a `NestedItem`,
+`description` supplies its reason; radio and select options use `disabledReason`.
+The reason is a permanent accessible description and a tooltip. Enter, Space and
+click leave the menu and explanation open. Escape dismisses the explanation alone;
+the next Escape reaches the menu. Disabled highlights keep disabled text, icon and
+indicator colours and use the default cursor.
+
+`NestedParent`, `NestedParentProvider` and `useNestedParent` are deprecated no-ops:
+one item set serves Dropdown, ContextMenu and canvas menus. Custom menu content must
+use Base UI menu parts rather than mixing item providers.
 
 `ListGrid` accepts `emptyBody` for a full-width empty row that keeps its column
 headers. Pass the resolved empty state only after the read finishes. `notFound`
@@ -341,7 +376,7 @@ The searchable/editable breadcrumb picker is an internal migration adapter, not 
 for new popups. The shared Combobox currently provides an inline search input;
 it does not expose a custom trigger with search inside the popup, a fixed
 header/action footer, or an action callback after popup teardown. Shared menus
-still use Radix, whose item hover moves DOM focus away from an embedded search.
+use Base UI Menu, whose item navigation moves DOM focus away from an embedded search.
 Consolidate this adapter into the shared Base UI picker when that composition
 and close handoff are supported, retaining hover typing focus, double-click/F2
 rename, mobile sizing, and popup-to-dialog accessibility tests. Its surface,

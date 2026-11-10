@@ -1,14 +1,13 @@
-import { createContext, useContext } from "react";
+import { createContext, type ReactNode } from "react";
 import { NestedParent } from "./types";
 
+/** @deprecated One item set now serves every menu; parent selection has no effect. */
 export const NestedParentContext = createContext<NestedParent>(NestedParent.Dropdown);
 
-export const NestedParentProvider = NestedParentContext.Provider;
+/** @deprecated One item set now serves every menu; this provider passes children through. */
+export function NestedParentProvider({ children }: { value: NestedParent; children?: ReactNode }) {
+  return <>{children}</>;
+}
 
-export const useNestedParent = (): NestedParent => {
-  const nestedParent = useContext(NestedParentContext);
-  if (!nestedParent) {
-    throw new Error("useNestedParent must be used within a NestedParentProvider");
-  }
-  return nestedParent;
-};
+/** @deprecated One item set now serves every menu; this hook returns the inert default. */
+export const useNestedParent = (): NestedParent => NestedParent.Dropdown;

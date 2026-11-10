@@ -1,7 +1,6 @@
-import { DropdownMenu, ContextMenu } from "radix-ui";
+import { Menu } from "@base-ui/react/menu";
 import { clsx } from "clsx";
-import { NestedParent, NestedSeparatorProps } from "./types";
-import { useNestedParent } from "./context";
+import { type NestedSeparatorProps } from "./types";
 
 /**
  * A component that renders a separator in a nested menu.
@@ -10,13 +9,8 @@ import { useNestedParent } from "./context";
  * @returns The rendered NestedSeparator component.
  */
 export function NestedSeparator({ variant }: NestedSeparatorProps) {
-  const parent = useNestedParent();
-
-  const ItemComponent =
-    parent === NestedParent.Dropdown ? DropdownMenu.Separator : ContextMenu.Separator;
-
   return (
-    <ItemComponent
+    <Menu.Separator
       className={clsx(
         "m-1.25 h-px",
         variant,

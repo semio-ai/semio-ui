@@ -1059,12 +1059,22 @@ for (const theme of [Theme.Light, Theme.Dark]) {
         );
         const result: Measurements = {};
         const trigger = role("button", "Mobile actions").element();
-        const popup = await keyboardOpen(result, "mobile", trigger);
+        let popup = await keyboardOpen(result, "mobile", trigger);
         menuParts(result, "mobile collapsed", popup, trigger);
-        const toggle = role("button", "Mobile more").element();
+        let toggle = role("menuitem", "Mobile more").element();
         pin(result, "collapsible trigger closed", toggle);
         disclosurePanel(result, "collapsible panel closed", toggle);
         result.keyboard = { onOpen: focusName(), tabToToggle: await press("{Tab}") };
+        // A Tab that closes the menu is the recorded fact; reopen without recording so
+        // the disclosure is measured in a live menu.
+        if (!openMenu()) {
+          (trigger as HTMLElement).focus();
+          await userEvent.keyboard("{Enter}");
+          await expect.poll(openMenu).toBe(true);
+          await settle();
+          popup = required(menus()[0]);
+          toggle = role("menuitem", "Mobile more").element();
+        }
         (toggle as HTMLElement).focus();
         result.keyboard.toggleFocus = focusName();
         result.keyboard.expandEnter = await press("{Enter}");

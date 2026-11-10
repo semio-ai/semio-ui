@@ -347,7 +347,7 @@ export function TreeGrid<T>({
       // control belongs to that control, not to the row.
       if (
         (event.target as HTMLElement).closest(
-          "button, input, select, textarea, [role='menuitem'], [role='menuitemradio'], [data-radix-collection-item]",
+          "button, input, select, textarea, [role='menuitem'], [role='menuitemradio'], [role='menuitemcheckbox']",
         )
       ) {
         return;

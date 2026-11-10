@@ -1116,8 +1116,7 @@
       }
     }
 
-    /* A disabled entry that carries a reason can take keyboard focus (see
-     * `nested-elements/disabled-reason.tsx`). Its highlight shows where focus is
+    /* Disabled menu entries can take keyboard focus. Their highlight shows where focus is
      * without reading as an available choice: a lighter fill than an enabled row's,
      * and the disabled text colour kept instead of the highlighted one. Two
      * attributes, so it outranks the single-attribute highlight rules above in
@@ -1127,8 +1126,7 @@
       background-color: color-mix(in oklab, var(--accent-color) 20%, transparent);
     }
 
-    /* A disabled entry with a reason keeps its pointer events, because its tooltip
-     * needs hover. It shows the default cursor, not the pointer that offers a click.
+    /* Disabled entries keep pointer events so explanatory tooltips can open on hover. It shows the default cursor, not the pointer that offers a click.
      * The second selector covers the slots inside the entry that carry this class. */
     &[data-disabled],
     &:is(:where(.group\/item)[data-disabled] *) {
@@ -2184,7 +2182,7 @@
     will-change: transform, opacity;
     animation-duration: 300ms;
     animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
-    transform-origin: var(--radix-dropdown-content-transform-origin);
+    transform-origin: var(--transform-origin);
   }
 
   .dropdown-content[data-state="open"][data-side="top"] {

@@ -1,4 +1,4 @@
-import { useRef, useState, type ReactElement, type ReactNode, type CSSProperties } from "react";
+import { useRef, useState, type ReactElement, type ReactNode } from "react";
 import { Combobox } from "@base-ui/react/combobox";
 import { Icon, resolveIcon, type IconValue } from "../icons/registry";
 import { Text, TextRole } from "../text";
@@ -88,11 +88,6 @@ export function SearchableBreadcrumbSwitcher({
         >
           <Combobox.Popup
             data-state={open ? "open" : "closed"}
-            style={
-              {
-                "--radix-dropdown-content-transform-origin": "var(--transform-origin)",
-              } as CSSProperties
-            }
             className="variant-scope card-overlay dropdown-content m-0.5 min-w-55 w-[calc(var(--available-width)-4px)] max-w-[calc(100vw-16px)] desktop:w-80 max-h-[calc(var(--available-height)-4px)] outline-hidden"
           >
             <Combobox.Arrow className="data-[side=bottom]:-top-1.5 data-[side=bottom]:rotate-180 data-[side=top]:-bottom-1.5 data-[side=right]:-left-2.25 data-[side=right]:rotate-90 data-[side=left]:-right-2.25 data-[side=left]:-rotate-90">

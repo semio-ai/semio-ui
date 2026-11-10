@@ -61,22 +61,25 @@ test.each(["icons", "labels", "both"] as const)(
   },
 );
 
-test.each([true, false])("disabled=%s gates a pointer attempt to open the menu", (disabled) => {
-  render(
-    <Select
-      value="viewer"
-      options={OPTIONS}
-      onChange={() => {}}
-      label="Role"
-      disabled={disabled}
-    />,
-  );
-  fireEvent.pointerDown(screen.getByRole("button", { name: "Role: Viewer" }), {
-    button: 0,
-    ctrlKey: false,
-  });
-  expect(screen.queryByRole("menu") !== null).toBe(!disabled);
-});
+test.each([true, false])(
+  "disabled=%s gates a pointer attempt to open the menu",
+  async (disabled) => {
+    render(
+      <Select
+        value="viewer"
+        options={OPTIONS}
+        onChange={() => {}}
+        label="Role"
+        disabled={disabled}
+      />,
+    );
+    fireEvent.mouseDown(screen.getByRole("button", { name: "Role: Viewer" }), {
+      button: 0,
+      ctrlKey: false,
+    });
+    await waitFor(() => expect(screen.queryByRole("menu") !== null).toBe(!disabled));
+  },
+);
 
 test.each(["icons", "labels", "both"] as const)(
   "%s uses native disabled button semantics",
@@ -168,11 +171,15 @@ for (const visuals of ["icons", "labels", "both"] as const) {
         waitOptions,
       );
       fireEvent.keyDown(trigger, { key: "Escape" });
-      await waitFor(() => expect(document.querySelector(".tooltip-content")).toBeNull(), waitOptions);
+      await waitFor(
+        () => expect(document.querySelector(".tooltip-content")).toBeNull(),
+        waitOptions,
+      );
       expect(wrapper.getAttribute("data-state")).toBe("closed");
       expect(document.activeElement).toBe(trigger);
 
-      fireEvent.keyDown(trigger, { key });
+      if (key === "Enter") fireEvent.click(trigger, { detail: 0 });
+      else fireEvent.keyDown(trigger, { key });
       await waitFor(
         () => expect(screen.getByRole("menu").contains(document.activeElement)).toBe(true),
         waitOptions,
@@ -190,7 +197,10 @@ for (const visuals of ["icons", "labels", "both"] as const) {
         waitOptions,
       );
       fireEvent.keyDown(trigger, { key: "Escape" });
-      await waitFor(() => expect(document.querySelector(".tooltip-content")).toBeNull(), waitOptions);
+      await waitFor(
+        () => expect(document.querySelector(".tooltip-content")).toBeNull(),
+        waitOptions,
+      );
       expect(document.activeElement).toBe(trigger);
       expect(onChange).not.toHaveBeenCalled();
     },

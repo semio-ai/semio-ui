@@ -1,11 +1,10 @@
-import { DropdownMenu, ContextMenu } from "radix-ui";
+import { Menu } from "@base-ui/react/menu";
 import { Fragment, useId, type MouseEvent, type CSSProperties } from "react";
 import { clsx } from "clsx";
 import { useMenuAction } from "../floating/menu-action";
 import { Icon, resolveIcon } from "../icons/registry";
 import { Tooltip } from "../floating/tooltip";
-import { NestedParent, type NestedSelectProps } from "./types";
-import { useNestedParent } from "./context";
+import { type NestedSelectProps } from "./types";
 import { explainDisabled } from "./disabled-reason";
 
 /**
@@ -16,26 +15,16 @@ import { explainDisabled } from "./disabled-reason";
  */
 export function NestedSelect({ variant, disabled, onChange, values, options }: NestedSelectProps) {
   const runAction = useMenuAction();
-  const parent = useNestedParent();
 
-  const ItemComponent =
-    parent === NestedParent.Dropdown ? DropdownMenu.CheckboxItem : ContextMenu.CheckboxItem;
-
-  const ItemIndicatorComponent =
-    parent === NestedParent.Dropdown ? DropdownMenu.ItemIndicator : ContextMenu.ItemIndicator;
-
-  const GroupComponent = parent === NestedParent.Dropdown ? DropdownMenu.Group : ContextMenu.Group;
   const reasonIdPrefix = useId();
 
   return (
-    <GroupComponent
+    <Menu.Group
       onClick={(e: MouseEvent) => {
         e.stopPropagation();
       }}
     >
       {options.map((option, index) => {
-        // Only the option's own reason makes it reachable while disabled; see
-        // `NestedRadio`.
         const reason = explainDisabled(
           option.disabled || disabled,
           option.disabledReason,
@@ -52,8 +41,10 @@ export function NestedSelect({ variant, disabled, onChange, values, options }: N
               disabled={!tooltip}
               side="right"
             >
-              <ItemComponent
-                color={option.color}
+              <Menu.CheckboxItem
+                render={(props, state) => (
+                  <div {...props} data-state={state.checked ? "checked" : "unchecked"} />
+                )}
                 checked={values.find((v) => v === option.value) !== undefined}
                 onCheckedChange={(v: boolean) => {
                   runAction(() => {
@@ -61,19 +52,10 @@ export function NestedSelect({ variant, disabled, onChange, values, options }: N
                     else onChange?.([...values, option.value]);
                   }, option.closeOnSelect === true);
                 }}
-                onSelect={(e: Event) => {
-                  // Stays open by default, unlike `NestedItem` and `NestedRadio`:
-                  // this is the MULTI-value control, so toggling one option is
-                  // rarely the end of the interaction and closing after each would
-                  // make selecting two things take two trips. Opt in per option
-                  // where a group really does hold a single toggle.
-                  if (option.closeOnSelect !== true) {
-                    e.preventDefault();
-                  }
-                }}
+                closeOnClick={option.closeOnSelect === true}
                 disabled={reason.primitiveDisabled}
                 {...reason.itemProps}
-                textValue={option.label}
+                label={option.label}
                 style={
                   option.color
                     ? ({
@@ -85,15 +67,15 @@ export function NestedSelect({ variant, disabled, onChange, values, options }: N
                 className={clsx(
                   "group/item flex items-center rounded-xs leading-none",
                   "relative h-7 px-1.25 pl-7.5 text-sm outline-hidden select-none",
-                  // Kept for an option disabled with a reason, whose tooltip needs the
-                  // pointer; its click is prevented, so no toggle goes through.
-                  !reason.explained && "data-disabled:pointer-events-none",
                   "variant-scope highlight-list-item",
                   option.color ? "custom-color" : (option.variant ?? variant),
                 )}
               >
-                <ItemIndicatorComponent
-                  forceMount
+                <Menu.CheckboxItemIndicator
+                  render={(props, state) => (
+                    <span {...props} data-state={state.checked ? "checked" : "unchecked"} />
+                  )}
+                  keepMounted
                   className={clsx(
                     "absolute top-1/2 left-1 grid -translate-y-1/2 place-items-center",
                     "variant-scope check-indicator",
@@ -108,13 +90,13 @@ export function NestedSelect({ variant, disabled, onChange, values, options }: N
                         <Icon name="unselected" />
                       ))}
                   </span>
-                </ItemIndicatorComponent>
+                </Menu.CheckboxItemIndicator>
                 {option.label}
-              </ItemComponent>
+              </Menu.CheckboxItem>
             </Tooltip>
           </Fragment>
         );
       })}
-    </GroupComponent>
+    </Menu.Group>
   );
 }

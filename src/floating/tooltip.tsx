@@ -11,6 +11,14 @@ import {
 import { Size, Variant } from "../types";
 import { Arrow } from "./arrow";
 
+// Radix dismisses tooltips in document capture, before menu Escape handling. Mark the
+// native event explicitly: disabled menu items also preventDefault on Escape, which
+// says nothing about whether an explanation consumed it. Weak keys need no cleanup.
+const consumedEscapes = new WeakSet<Event>();
+export function isEscapeConsumedByTooltip(event: Event) {
+  return consumedEscapes.has(event);
+}
+
 export interface TooltipProps {
   /** Non-interactive explanation. Use a Popover for links or actions. */
   content: ReactNode;
@@ -107,8 +115,10 @@ function Tooltip({
         <TooltipPrimitive.Trigger
           disabled={disabled}
           asChild
-          onPointerDown={notePress}
-          onClick={notePress}
+          // Capture phase: a disabled Base UI part (a disabled menu entry) does not run its
+          // bubble-phase pointer and click handlers, so only a capture listener sees the press.
+          onPointerDownCapture={notePress}
+          onClickCapture={notePress}
           onFocus={(event) => {
             // React portals bubble focus through the component tree. Only DOM
             // descendants of this trigger should open its explanation; focus in
@@ -120,6 +130,7 @@ function Tooltip({
         </TooltipPrimitive.Trigger>
         <TooltipPrimitive.Portal container={portalContainer ?? undefined}>
           <TooltipPrimitive.Content
+            onEscapeKeyDown={(event) => consumedEscapes.add(event)}
             side={side}
             sideOffset={6}
             className={clsx(

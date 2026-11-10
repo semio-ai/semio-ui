@@ -1,11 +1,10 @@
-import { DropdownMenu, ContextMenu } from "radix-ui";
+import { Menu } from "@base-ui/react/menu";
 import { Fragment, useId, type CSSProperties, type MouseEvent } from "react";
 import { clsx } from "clsx";
 import { useMenuAction } from "../floating/menu-action";
 import { Icon, resolveIcon } from "../icons/registry";
 import { Tooltip } from "../floating/tooltip";
-import { NestedParent, type NestedRadioProps } from "./types";
-import { useNestedParent } from "./context";
+import { type NestedRadioProps } from "./types";
 import { explainDisabled } from "./disabled-reason";
 
 /**
@@ -16,18 +15,8 @@ import { explainDisabled } from "./disabled-reason";
  */
 export function NestedRadio({ variant, disabled, onChange, value, options }: NestedRadioProps) {
   const runAction = useMenuAction();
-  const parent = useNestedParent();
-
-  const ItemComponent =
-    parent === NestedParent.Dropdown ? DropdownMenu.RadioItem : ContextMenu.RadioItem;
-  const GroupComponent =
-    parent === NestedParent.Dropdown ? DropdownMenu.RadioGroup : ContextMenu.RadioGroup;
-  const ItemIndicatorComponent =
-    parent === NestedParent.Dropdown ? DropdownMenu.ItemIndicator : ContextMenu.ItemIndicator;
   const reasonIdPrefix = useId();
-  // Only an option's own reason makes it reachable while disabled: a group-level
-  // `disabled` has no reason to give, and an option's `description` says what
-  // choosing it means, which is not why it is off.
+  // A reason explains disability; descriptions explain what choosing the option means.
   const reasons = options.map((option, index) =>
     explainDisabled(
       option.disabled || disabled,
@@ -36,7 +25,7 @@ export function NestedRadio({ variant, disabled, onChange, value, options }: Nes
     ),
   );
   return (
-    <GroupComponent
+    <Menu.RadioGroup
       value={value}
       onValueChange={(next) =>
         runAction(
@@ -63,11 +52,14 @@ export function NestedRadio({ variant, disabled, onChange, value, options }: Nes
             disabled={!(reasons[index].explained ? option.disabledReason : option.description)}
             side="right"
           >
-            <ItemComponent
+            <Menu.RadioItem
+              render={(props, state) => (
+                <div {...props} data-state={state.checked ? "checked" : "unchecked"} />
+              )}
               value={option.value}
               disabled={reasons[index].primitiveDisabled}
               {...reasons[index].itemProps}
-              textValue={option.label}
+              label={option.label}
               style={
                 option.color
                   ? ({
@@ -75,28 +67,19 @@ export function NestedRadio({ variant, disabled, onChange, value, options }: Nes
                     } as CSSProperties)
                   : {}
               }
-              onSelect={(e: Event) => {
-                // Closes by default: a radio group holds ONE value, so picking a
-                // rung is the whole interaction and there is nothing left to do in
-                // the menu. (The multi-value siblings — `NestedSelect` and
-                // `NestedCheckbox` — default the other way for the opposite
-                // reason.) An option can still opt out explicitly.
-                if (option.closeOnSelect === false) {
-                  e.preventDefault();
-                }
-              }}
+              closeOnClick={option.closeOnSelect !== false}
               className={clsx(
                 "group/item flex items-center rounded-xs leading-none",
                 "relative h-7 px-1.25 pl-7.5 text-sm outline-hidden select-none",
-                // Kept for an option disabled with a reason, whose tooltip needs the
-                // pointer; its click is prevented, so no choice goes through.
-                !reasons[index].explained && "data-disabled:pointer-events-none",
                 "variant-scope highlight-list-item",
                 option.color ? "custom-color" : (option.variant ?? variant),
               )}
             >
-              <ItemIndicatorComponent
-                forceMount
+              <Menu.RadioItemIndicator
+                render={(props, state) => (
+                  <span {...props} data-state={state.checked ? "checked" : "unchecked"} />
+                )}
+                keepMounted
                 className={clsx(
                   "absolute top-1/2 left-1 grid -translate-y-1/2 place-items-center",
                   "variant-scope check-indicator",
@@ -106,12 +89,12 @@ export function NestedRadio({ variant, disabled, onChange, value, options }: Nes
                 <span className="icon-slot">
                   {resolveIcon(option.icon) ?? <Icon name="radio-selected" />}
                 </span>
-              </ItemIndicatorComponent>
+              </Menu.RadioItemIndicator>
               {option.label}
-            </ItemComponent>
+            </Menu.RadioItem>
           </Tooltip>
         </Fragment>
       ))}
-    </GroupComponent>
+    </Menu.RadioGroup>
   );
 }

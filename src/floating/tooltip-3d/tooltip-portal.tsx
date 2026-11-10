@@ -1,14 +1,18 @@
-import { useMemo, useRef } from "react";
+import { useMemo, useRef, useState } from "react";
 import { FloatingPortal, offset, flip, shift, useFloating } from "@floating-ui/react";
-import { DropdownMenu as DropdownPrimitive } from "radix-ui";
+import { Menu } from "@base-ui/react/menu";
 import { motion, AnimatePresence } from "motion/react";
 import { clsx } from "clsx";
 import { useShallow } from "zustand/react/shallow";
 import { Variant } from "../../types";
 import { ScrollArea } from "../../layouts/scroll-area";
-import { NestedParent } from "../../nested-elements/types";
-import { NestedParentProvider } from "../../nested-elements/context";
-import { MenuActionProvider, useMenuActionHandoff, stopMenuEscapePropagation } from "../menu-action";
+import {
+  MenuActionProvider,
+  useMenuActionHandoff,
+  preserveMenuInteraction,
+  keepsTabInMenu,
+  useNotificationMenuEscape,
+} from "../menu-action";
 import {
   useTooltipStore,
   type AnchorConfig,
@@ -17,74 +21,77 @@ import {
 } from "./store";
 import { useRootTooltipHost } from "./tooltip-context";
 
-
 interface OverlayInstanceProps {
   anchor: AnchorConfig;
   position: ScreenPosition;
 }
 
-/**
- * Context menu overlay using Radix DropdownMenu for full keyboard
- * navigation, focus management, and click-outside dismissal.
- * A tiny invisible trigger is fixed-positioned at the click location.
- */
+/** Interactive canvas overlays are menus anchored at the pointer's viewport coordinates. */
 function InteractiveOverlayInstance({ anchor, position }: OverlayInstanceProps) {
   const hostContext = useRootTooltipHost();
   const dismissOverlay = useTooltipStore((s) => s.dismissOverlay);
-  const handoff = useMenuActionHandoff();
+  const handoff = useMenuActionHandoff(() => {
+    // A new invocation can register a replacement while this popup finishes closing.
+    if (useTooltipStore.getState().anchors.get(anchor.id) === anchor) dismissOverlay(anchor.id);
+  });
+  const [open, setOpen] = useState(true);
+  useNotificationMenuEscape(open, () => setOpen(false));
   const isMenu = anchor.mode === "context-menu";
-
-
-  // Convert container-relative position to viewport-relative for the trigger
-  const container = hostContext?.containerRef.current;
-  const containerRect = container?.getBoundingClientRect();
-  const viewportX = (containerRect?.left ?? 0) + position.x;
-  const viewportY = (containerRect?.top ?? 0) + position.y;
-
+  const virtualAnchor = useMemo(
+    () => ({
+      getBoundingClientRect: () => {
+        const rect = hostContext?.containerRef.current?.getBoundingClientRect();
+        return DOMRect.fromRect({
+          x: (rect?.left ?? 0) + position.x,
+          y: (rect?.top ?? 0) + position.y,
+          width: 1,
+          height: 1,
+        });
+      },
+    }),
+    [hostContext?.containerRef, position.x, position.y],
+  );
   const content = typeof anchor.content === "function" ? anchor.content() : anchor.content;
-  const side = anchor.positioning?.side ?? (isMenu ? "bottom" : "top");
-
-  const dropdown = (
-    <DropdownPrimitive.Root
-      open
-      onOpenChange={(open) => {
-        if (!open) dismissOverlay(anchor.id);
+  return (
+    <Menu.Root
+      open={open}
+      loopFocus={false}
+      onOpenChange={(next, details) => {
+        if (!next && (preserveMenuInteraction(details) || keepsTabInMenu(details))) return;
+        setOpen(next);
       }}
+      onOpenChangeComplete={handoff.onOpenChangeComplete}
     >
-      <DropdownPrimitive.Trigger asChild>
-        <div
-          style={{
-            position: "fixed",
-            left: viewportX,
-            top: viewportY,
-            width: 1,
-            height: 1,
-            pointerEvents: "none",
-          }}
-        />
-      </DropdownPrimitive.Trigger>
-      <DropdownPrimitive.Portal>
-          <DropdownPrimitive.Content
-            ref={handoff.contentRef}
-            onCloseAutoFocus={handoff.onCloseAutoFocus}
-            onEscapeKeyDown={stopMenuEscapePropagation}
-            side={side}
-            align={isMenu ? "start" : "center"}
-            sideOffset={anchor.positioning?.offset ?? (isMenu ? 2 : 6)}
-            collisionPadding={5}
+      <Menu.Portal>
+        <Menu.Positioner
+          anchor={virtualAnchor}
+          side={anchor.positioning?.side ?? (isMenu ? "bottom" : "top")}
+          align={isMenu ? "start" : "center"}
+          sideOffset={anchor.positioning?.offset ?? (isMenu ? 2 : 6)}
+          collisionPadding={5}
+        >
+          <Menu.Popup
+            onKeyDown={(event) => {
+              // Canvas overlays have no page trigger to receive Tab's focus handoff.
+              if (event.key === "Tab") event.preventDefault();
+            }}
+            render={(props, state) => (
+              <div {...props} data-state={state.open ? "open" : "closed"} />
+            )}
             className={clsx(
               Variant.Default,
+              "[outline:none]",
               isMenu
                 ? "variant-scope card-overlay dropdown-content m-0.5 min-w-56"
                 : "variant-scope card-overlay m-0.5 overflow-clip shadow-lg",
-              isMenu && "max-h-[calc(var(--radix-dropdown-menu-content-available-height)-4px)]",
+              isMenu && "max-h-[calc(var(--available-height)-4px)]",
             )}
           >
             <MenuActionProvider value={handoff.enqueue}>
               {isMenu ? (
                 <ScrollArea
                   shrinkHeight
-                  className="flex max-h-[calc(var(--radix-dropdown-menu-content-available-height)-6px)] flex-col gap-0.5 p-0.5"
+                  className="flex max-h-[calc(var(--available-height)-6px)] flex-col gap-0.5 p-0.5"
                 >
                   {content}
                 </ScrollArea>
@@ -92,16 +99,11 @@ function InteractiveOverlayInstance({ anchor, position }: OverlayInstanceProps) 
                 content
               )}
             </MenuActionProvider>
-          </DropdownPrimitive.Content>
-      </DropdownPrimitive.Portal>
-    </DropdownPrimitive.Root>
+          </Menu.Popup>
+        </Menu.Positioner>
+      </Menu.Portal>
+    </Menu.Root>
   );
-
-  // Context menus wrap in NestedParentProvider for NestedItem support
-  if (isMenu) {
-    return <NestedParentProvider value={NestedParent.Dropdown}>{dropdown}</NestedParentProvider>;
-  }
-  return dropdown;
 }
 
 /**
@@ -123,7 +125,14 @@ function TooltipInstance({ anchor, position }: OverlayInstanceProps) {
     ) {
       return {
         getBoundingClientRect: () => ({
-          x: 0, y: 0, top: 0, left: 0, bottom: 0, right: 0, width: 0, height: 0,
+          x: 0,
+          y: 0,
+          top: 0,
+          left: 0,
+          bottom: 0,
+          right: 0,
+          width: 0,
+          height: 0,
           toJSON: () => ({}),
         }),
       };
@@ -138,7 +147,14 @@ function TooltipInstance({ anchor, position }: OverlayInstanceProps) {
     if (!containerRect) {
       return {
         getBoundingClientRect: () => ({
-          x: 0, y: 0, top: 0, left: 0, bottom: 0, right: 0, width: 0, height: 0,
+          x: 0,
+          y: 0,
+          top: 0,
+          left: 0,
+          bottom: 0,
+          right: 0,
+          width: 0,
+          height: 0,
           toJSON: () => ({}),
         }),
       };
@@ -158,8 +174,14 @@ function TooltipInstance({ anchor, position }: OverlayInstanceProps) {
 
     return {
       getBoundingClientRect: () => ({
-        x: left, y: top, top, left,
-        bottom: top + height, right: left + width, width, height,
+        x: left,
+        y: top,
+        top,
+        left,
+        bottom: top + height,
+        right: left + width,
+        width,
+        height,
         toJSON: () => ({}),
       }),
     };
@@ -266,14 +288,13 @@ export function TooltipPortal() {
     return null;
   }
 
-  // Interactive overlays (context menus, click-popovers) use Radix DropdownMenu for
-  // built-in click-outside dismissal. Non-interactive tooltips use floating-ui.
+  // Interactive overlays use Menu dismissal; passive tooltips use floating-ui.
   const interactive = visibleTooltips.filter(({ anchor }) => anchor.interactive);
   const tooltips = visibleTooltips.filter(({ anchor }) => !anchor.interactive);
 
   return (
     <>
-      {/* Interactive overlays use Radix DropdownMenu for click-outside dismissal */}
+      {/* Interactive overlays anchor at the pointer. */}
       {interactive.map(({ anchor, position }) => (
         <InteractiveOverlayInstance key={anchor.id} anchor={anchor} position={position} />
       ))}
