@@ -611,10 +611,14 @@ for (const theme of [Theme.Light, Theme.Dark]) {
       await tabFromStart();
       result.keyboard = { firstTab: focusName() };
       take(result, "First section trigger focused", trigger("First section"), FOCUS);
+      // The APG accordion pattern: arrow keys do not move between headers, so a
+      // keyboard user can scroll the page to read an opened panel. Tab and Shift+Tab do.
       await press("{ArrowDown}");
       result.keyboard.afterArrowDown = focusName();
-      await press("{ArrowDown}");
-      result.keyboard.afterSecondArrowDown = focusName();
+      await press("{Tab}");
+      result.keyboard.afterTab = focusName();
+      await press("{Shift>}{Tab}{/Shift}");
+      result.keyboard.afterShiftTab = focusName();
       trigger("Second section").focus();
       await press("{Enter}");
       const second = required(panel("Second section content."));

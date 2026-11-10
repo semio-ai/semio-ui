@@ -2240,8 +2240,9 @@
     },
     "keyboard": {
       "firstTab": "First section",
-      "afterArrowDown": "Second section",
-      "afterSecondArrowDown": "First section"
+      "afterArrowDown": "First section",
+      "afterTab": "Second section",
+      "afterShiftTab": "First section"
     },
     "First section trigger focused": {
       "color": "rgb(0, 0, 0)",
@@ -7511,8 +7512,9 @@
     },
     "keyboard": {
       "firstTab": "First section",
-      "afterArrowDown": "Second section",
-      "afterSecondArrowDown": "First section"
+      "afterArrowDown": "First section",
+      "afterTab": "Second section",
+      "afterShiftTab": "First section"
     },
     "First section trigger focused": {
       "color": "rgb(0, 0, 0)",
