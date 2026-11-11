@@ -8,7 +8,7 @@
       "aria-expanded": "(none)",
       "aria-haspopup": "(none)",
       "aria-controls": "(none)",
-      "data-state": "delayed-open"
+      "data-state": "open"
     },
     "first hover trigger aria-describedby": {
       "present": true,
@@ -31,9 +31,9 @@
       "visible": true
     },
     "first hover surface": {
-      "role": "(none)",
+      "role": "tooltip",
       "ariaModal": "(none)",
-      "dataState": "delayed-open",
+      "dataState": "open",
       "dataSide": "top",
       "dataAlign": "center",
       "focus": "(body)"
@@ -57,7 +57,7 @@
       "aria-expanded": "(none)",
       "aria-haspopup": "(none)",
       "aria-controls": "(none)",
-      "data-state": "instant-open"
+      "data-state": "open"
     },
     "second hover trigger aria-describedby": {
       "present": true,
@@ -80,9 +80,9 @@
       "visible": true
     },
     "second hover surface": {
-      "role": "(none)",
+      "role": "tooltip",
       "ariaModal": "(none)",
-      "dataState": "instant-open",
+      "dataState": "open",
       "dataSide": "top",
       "dataAlign": "center",
       "focus": "(body)"
@@ -106,7 +106,7 @@
       "aria-expanded": "(none)",
       "aria-haspopup": "(none)",
       "aria-controls": "(none)",
-      "data-state": "instant-open"
+      "data-state": "open"
     },
     "first focus trigger aria-describedby": {
       "present": true,
@@ -129,9 +129,9 @@
       "visible": true
     },
     "first focus surface": {
-      "role": "(none)",
+      "role": "tooltip",
       "ariaModal": "(none)",
-      "dataState": "instant-open",
+      "dataState": "open",
       "dataSide": "top",
       "dataAlign": "center",
       "focus": "Tooltip target"
@@ -173,7 +173,7 @@
       "aria-expanded": "(none)",
       "aria-haspopup": "(none)",
       "aria-controls": "(none)",
-      "data-state": "instant-open"
+      "data-state": "open"
     },
     "return focus trigger aria-describedby": {
       "present": true,
@@ -196,9 +196,9 @@
       "visible": true
     },
     "return focus surface": {
-      "role": "(none)",
+      "role": "tooltip",
       "ariaModal": "(none)",
-      "dataState": "instant-open",
+      "dataState": "open",
       "dataSide": "top",
       "dataAlign": "center",
       "focus": "Tooltip target"
@@ -219,7 +219,7 @@
       "aria-expanded": "(none)",
       "aria-haspopup": "(none)",
       "aria-controls": "(none)",
-      "data-state": "instant-open"
+      "data-state": "open"
     },
     "keyboard open trigger aria-describedby": {
       "present": true,
@@ -242,9 +242,9 @@
       "visible": true
     },
     "keyboard open surface": {
-      "role": "(none)",
+      "role": "tooltip",
       "ariaModal": "(none)",
-      "dataState": "instant-open",
+      "dataState": "open",
       "dataSide": "top",
       "dataAlign": "center",
       "focus": "Tooltip target"
@@ -396,19 +396,9 @@
       "inside": true
     },
     "Tab 2": {
-      "focus": "First action",
-      "open": true,
-      "inside": true
-    },
-    "Tab 3": {
-      "focus": "Second action",
-      "open": true,
-      "inside": true
-    },
-    "Tab 4": {
-      "focus": "First action",
-      "open": true,
-      "inside": true
+      "focus": "Outside",
+      "open": false,
+      "inside": false
     },
     "Escape opening trigger": {
       "aria-describedby": "(none)",
@@ -487,7 +477,7 @@
       "zIndex": "auto"
     },
     "Shift+Tab": {
-      "focus": "Second action",
+      "focus": "Open popover",
       "open": true
     }
   },
@@ -538,21 +528,9 @@
       "modalOpen": true
     },
     "Tab 2": {
-      "focus": "First action",
-      "open": true,
-      "inside": true,
-      "modalOpen": true
-    },
-    "Tab 3": {
-      "focus": "Second action",
-      "open": true,
-      "inside": true,
-      "modalOpen": true
-    },
-    "Tab 4": {
-      "focus": "First action",
-      "open": true,
-      "inside": true,
+      "focus": "Outside",
+      "open": false,
+      "inside": false,
       "modalOpen": true
     },
     "Escape opening trigger": {
@@ -592,9 +570,9 @@
       "zIndex": "auto"
     },
     "first Escape": {
-      "focus": "Open modal",
+      "focus": "Open popover",
       "popoverOpen": false,
-      "modalOpen": false
+      "modalOpen": true
     },
     "second Escape": {
       "focus": "Open modal",
@@ -622,7 +600,7 @@
       "count": 0
     },
     "Enter open surface": {
-      "role": "menu",
+      "role": "dialog",
       "ariaModal": "(none)",
       "dataState": "open",
       "dataSide": "top",
@@ -645,24 +623,14 @@
       "inert": false
     },
     "Tab 1": {
-      "focus": "First action",
+      "focus": "Second action",
       "open": true,
       "inside": true
     },
     "Tab 2": {
-      "focus": "First action",
-      "open": true,
-      "inside": true
-    },
-    "Tab 3": {
-      "focus": "First action",
-      "open": true,
-      "inside": true
-    },
-    "Tab 4": {
-      "focus": "First action",
-      "open": true,
-      "inside": true
+      "focus": "Open canvas popover",
+      "open": false,
+      "inside": false
     },
     "Escape opening trigger": {
       "aria-describedby": "(none)",
@@ -683,7 +651,7 @@
       "count": 0
     },
     "Escape opening surface": {
-      "role": "menu",
+      "role": "dialog",
       "ariaModal": "(none)",
       "dataState": "open",
       "dataSide": "top",
@@ -718,7 +686,7 @@
       "count": 0
     },
     "outside press opening surface": {
-      "role": "menu",
+      "role": "dialog",
       "ariaModal": "(none)",
       "dataState": "open",
       "dataSide": "top",
@@ -731,9 +699,9 @@
       "zIndex": "auto"
     },
     "outside press": {
-      "counter": "0",
+      "counter": "1",
       "open": false,
-      "focus": "Open canvas popover"
+      "focus": "Outside"
     }
   },
   "light / Arrow and viewport-edge placement": {
@@ -811,7 +779,7 @@
       "aria-expanded": "(none)",
       "aria-haspopup": "(none)",
       "aria-controls": "(none)",
-      "data-state": "delayed-open"
+      "data-state": "open"
     },
     "first hover trigger aria-describedby": {
       "present": true,
@@ -834,9 +802,9 @@
       "visible": true
     },
     "first hover surface": {
-      "role": "(none)",
+      "role": "tooltip",
       "ariaModal": "(none)",
-      "dataState": "delayed-open",
+      "dataState": "open",
       "dataSide": "top",
       "dataAlign": "center",
       "focus": "(body)"
@@ -860,7 +828,7 @@
       "aria-expanded": "(none)",
       "aria-haspopup": "(none)",
       "aria-controls": "(none)",
-      "data-state": "instant-open"
+      "data-state": "open"
     },
     "second hover trigger aria-describedby": {
       "present": true,
@@ -883,9 +851,9 @@
       "visible": true
     },
     "second hover surface": {
-      "role": "(none)",
+      "role": "tooltip",
       "ariaModal": "(none)",
-      "dataState": "instant-open",
+      "dataState": "open",
       "dataSide": "top",
       "dataAlign": "center",
       "focus": "(body)"
@@ -909,7 +877,7 @@
       "aria-expanded": "(none)",
       "aria-haspopup": "(none)",
       "aria-controls": "(none)",
-      "data-state": "instant-open"
+      "data-state": "open"
     },
     "first focus trigger aria-describedby": {
       "present": true,
@@ -932,9 +900,9 @@
       "visible": true
     },
     "first focus surface": {
-      "role": "(none)",
+      "role": "tooltip",
       "ariaModal": "(none)",
-      "dataState": "instant-open",
+      "dataState": "open",
       "dataSide": "top",
       "dataAlign": "center",
       "focus": "Tooltip target"
@@ -976,7 +944,7 @@
       "aria-expanded": "(none)",
       "aria-haspopup": "(none)",
       "aria-controls": "(none)",
-      "data-state": "instant-open"
+      "data-state": "open"
     },
     "return focus trigger aria-describedby": {
       "present": true,
@@ -999,9 +967,9 @@
       "visible": true
     },
     "return focus surface": {
-      "role": "(none)",
+      "role": "tooltip",
       "ariaModal": "(none)",
-      "dataState": "instant-open",
+      "dataState": "open",
       "dataSide": "top",
       "dataAlign": "center",
       "focus": "Tooltip target"
@@ -1022,7 +990,7 @@
       "aria-expanded": "(none)",
       "aria-haspopup": "(none)",
       "aria-controls": "(none)",
-      "data-state": "instant-open"
+      "data-state": "open"
     },
     "keyboard open trigger aria-describedby": {
       "present": true,
@@ -1045,9 +1013,9 @@
       "visible": true
     },
     "keyboard open surface": {
-      "role": "(none)",
+      "role": "tooltip",
       "ariaModal": "(none)",
-      "dataState": "instant-open",
+      "dataState": "open",
       "dataSide": "top",
       "dataAlign": "center",
       "focus": "Tooltip target"
@@ -1199,19 +1167,9 @@
       "inside": true
     },
     "Tab 2": {
-      "focus": "First action",
-      "open": true,
-      "inside": true
-    },
-    "Tab 3": {
-      "focus": "Second action",
-      "open": true,
-      "inside": true
-    },
-    "Tab 4": {
-      "focus": "First action",
-      "open": true,
-      "inside": true
+      "focus": "Outside",
+      "open": false,
+      "inside": false
     },
     "Escape opening trigger": {
       "aria-describedby": "(none)",
@@ -1290,7 +1248,7 @@
       "zIndex": "auto"
     },
     "Shift+Tab": {
-      "focus": "Second action",
+      "focus": "Open popover",
       "open": true
     }
   },
@@ -1341,21 +1299,9 @@
       "modalOpen": true
     },
     "Tab 2": {
-      "focus": "First action",
-      "open": true,
-      "inside": true,
-      "modalOpen": true
-    },
-    "Tab 3": {
-      "focus": "Second action",
-      "open": true,
-      "inside": true,
-      "modalOpen": true
-    },
-    "Tab 4": {
-      "focus": "First action",
-      "open": true,
-      "inside": true,
+      "focus": "Outside",
+      "open": false,
+      "inside": false,
       "modalOpen": true
     },
     "Escape opening trigger": {
@@ -1395,9 +1341,9 @@
       "zIndex": "auto"
     },
     "first Escape": {
-      "focus": "Open modal",
+      "focus": "Open popover",
       "popoverOpen": false,
-      "modalOpen": false
+      "modalOpen": true
     },
     "second Escape": {
       "focus": "Open modal",
@@ -1425,7 +1371,7 @@
       "count": 0
     },
     "Enter open surface": {
-      "role": "menu",
+      "role": "dialog",
       "ariaModal": "(none)",
       "dataState": "open",
       "dataSide": "top",
@@ -1448,24 +1394,14 @@
       "inert": false
     },
     "Tab 1": {
-      "focus": "First action",
+      "focus": "Second action",
       "open": true,
       "inside": true
     },
     "Tab 2": {
-      "focus": "First action",
-      "open": true,
-      "inside": true
-    },
-    "Tab 3": {
-      "focus": "First action",
-      "open": true,
-      "inside": true
-    },
-    "Tab 4": {
-      "focus": "First action",
-      "open": true,
-      "inside": true
+      "focus": "Open canvas popover",
+      "open": false,
+      "inside": false
     },
     "Escape opening trigger": {
       "aria-describedby": "(none)",
@@ -1486,7 +1422,7 @@
       "count": 0
     },
     "Escape opening surface": {
-      "role": "menu",
+      "role": "dialog",
       "ariaModal": "(none)",
       "dataState": "open",
       "dataSide": "top",
@@ -1521,7 +1457,7 @@
       "count": 0
     },
     "outside press opening surface": {
-      "role": "menu",
+      "role": "dialog",
       "ariaModal": "(none)",
       "dataState": "open",
       "dataSide": "top",
@@ -1534,9 +1470,9 @@
       "zIndex": "auto"
     },
     "outside press": {
-      "counter": "0",
+      "counter": "1",
       "open": false,
-      "focus": "Open canvas popover"
+      "focus": "Outside"
     }
   },
   "dark / Arrow and viewport-edge placement": {
