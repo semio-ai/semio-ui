@@ -4377,12 +4377,12 @@
       "inert": false
     },
     "context first animation": {
-      "animationName": "slideLeftAndFade",
+      "animationName": "slideUpAndFade",
       "duration": "300",
       "keyframes": "[{\"offset\":0},{\"offset\":1}]"
     },
     "context surface entrance": {
-      "animationName": "slideLeftAndFade",
+      "animationName": "slideUpAndFade",
       "animationDuration": "0.3s"
     },
     "context surface": {
@@ -4525,7 +4525,7 @@
       "data-disabled": "(none)",
       "data-orientation": "(none)",
       "data-highlighted": "(none)",
-      "data-side": "right",
+      "data-side": "bottom",
       "data-align": "start"
     },
     "context arrow": {
@@ -7680,12 +7680,12 @@
   },
   "light / Layout navigation menus": {
     "navigation context first animation": {
-      "animationName": "slideLeftAndFade",
+      "animationName": "slideUpAndFade",
       "duration": "300",
       "keyframes": "[{\"offset\":0},{\"offset\":1}]"
     },
     "navigation context surface entrance": {
-      "animationName": "slideLeftAndFade",
+      "animationName": "slideUpAndFade",
       "animationDuration": "0.3s"
     },
     "navigation context surface": {
@@ -7828,7 +7828,7 @@
       "data-disabled": "(none)",
       "data-orientation": "(none)",
       "data-highlighted": "(none)",
-      "data-side": "right",
+      "data-side": "bottom",
       "data-align": "start"
     },
     "navigation context arrow": {
@@ -8083,12 +8083,12 @@
       "menuOpen": false
     },
     "navigation context before dropdown first animation": {
-      "animationName": "slideLeftAndFade",
+      "animationName": "slideUpAndFade",
       "duration": "300",
       "keyframes": "[{\"offset\":0},{\"offset\":1}]"
     },
     "navigation context before dropdown surface entrance": {
-      "animationName": "slideLeftAndFade",
+      "animationName": "slideUpAndFade",
       "animationDuration": "0.3s"
     },
     "navigation context before dropdown surface": {
@@ -10389,12 +10389,12 @@
       "menus": 0
     },
     "modality context first animation": {
-      "animationName": "slideLeftAndFade",
+      "animationName": "slideUpAndFade",
       "duration": "300",
       "keyframes": "[{\"offset\":0},{\"offset\":1}]"
     },
     "modality context surface entrance": {
-      "animationName": "slideLeftAndFade",
+      "animationName": "slideUpAndFade",
       "animationDuration": "0.3s"
     },
     "modality context surface": {
@@ -16666,12 +16666,12 @@
       "inert": false
     },
     "context first animation": {
-      "animationName": "slideLeftAndFade",
+      "animationName": "slideUpAndFade",
       "duration": "300",
       "keyframes": "[{\"offset\":0},{\"offset\":1}]"
     },
     "context surface entrance": {
-      "animationName": "slideLeftAndFade",
+      "animationName": "slideUpAndFade",
       "animationDuration": "0.3s"
     },
     "context surface": {
@@ -16814,7 +16814,7 @@
       "data-disabled": "(none)",
       "data-orientation": "(none)",
       "data-highlighted": "(none)",
-      "data-side": "right",
+      "data-side": "bottom",
       "data-align": "start"
     },
     "context arrow": {
@@ -19969,12 +19969,12 @@
   },
   "dark / Layout navigation menus": {
     "navigation context first animation": {
-      "animationName": "slideLeftAndFade",
+      "animationName": "slideUpAndFade",
       "duration": "300",
       "keyframes": "[{\"offset\":0},{\"offset\":1}]"
     },
     "navigation context surface entrance": {
-      "animationName": "slideLeftAndFade",
+      "animationName": "slideUpAndFade",
       "animationDuration": "0.3s"
     },
     "navigation context surface": {
@@ -20117,7 +20117,7 @@
       "data-disabled": "(none)",
       "data-orientation": "(none)",
       "data-highlighted": "(none)",
-      "data-side": "right",
+      "data-side": "bottom",
       "data-align": "start"
     },
     "navigation context arrow": {
@@ -20372,12 +20372,12 @@
       "menuOpen": false
     },
     "navigation context before dropdown first animation": {
-      "animationName": "slideLeftAndFade",
+      "animationName": "slideUpAndFade",
       "duration": "300",
       "keyframes": "[{\"offset\":0},{\"offset\":1}]"
     },
     "navigation context before dropdown surface entrance": {
-      "animationName": "slideLeftAndFade",
+      "animationName": "slideUpAndFade",
       "animationDuration": "0.3s"
     },
     "navigation context before dropdown surface": {
@@ -22678,12 +22678,12 @@
       "menus": 0
     },
     "modality context first animation": {
-      "animationName": "slideLeftAndFade",
+      "animationName": "slideUpAndFade",
       "duration": "300",
       "keyframes": "[{\"offset\":0},{\"offset\":1}]"
     },
     "modality context surface entrance": {
-      "animationName": "slideLeftAndFade",
+      "animationName": "slideUpAndFade",
       "animationDuration": "0.3s"
     },
     "modality context surface": {
