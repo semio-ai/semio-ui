@@ -230,12 +230,14 @@ Tab keeps its normal focus handoff. ContextMenu returns to the element focused b
 invocation, which can differ from the pressed row. Arrow keys stop at the first and
 last entry, including in submenus.
 
-ContextMenu opens to the right of the press point, aligned to its top: with room
-available, the popup starts four pixels right and two pixels down. Menu popups have
+ContextMenu opens below the press point with its top-left corner four pixels right
+and two pixels down from it, and enters with the same vertical slide as a Dropdown;
+with no room below it opens above. Menu popups have
 no focus outline. Dropdown arrows use a stretched 12 by 6 SVG and account for the
 popup margin on every side.
 
-A press in the notifications region leaves a menu open. An open menu receives
+A press in the notifications region leaves a menu open, unless it is on a menu
+trigger there (a toast's action menu), which closes it like any outside press. An open menu receives
 Escape before a toast, including when focus is in the notification. `ContextMenu`'s
 `disabled` blocks opening while keeping its child tree mounted and its open menu
 navigable and dismissible. `Dropdown.nativeButton` is inferred from an intrinsic

@@ -22,6 +22,7 @@ import {
   useMenuShiftTabExit,
   menuTriggerFocusTarget,
   menuContainsFocus,
+  keepMenuNavigationKeys,
 } from "./menu-action";
 
 export interface DropdownProps {
@@ -124,6 +125,7 @@ export function Dropdown({
           arrowPadding={2}
         >
           <Menu.Popup
+            onKeyDown={keepMenuNavigationKeys}
             ref={popupRef}
             finalFocus={() => {
               const handled = closeHandled.current;

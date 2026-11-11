@@ -840,7 +840,7 @@ test("C: ContextMenu Escape returns to a focusable trigger the press focused", a
   await expect.element(button("Open")).toHaveFocus();
 });
 
-test("D: ContextMenu opens right/start four pixels right and two pixels below the press", async () => {
+test("D: ContextMenu opens below the press, four pixels right and two below it, with the Dropdown's slide", async () => {
   await render(
     <MenuFixture entry={Entry.Context}>
       <NestedItem>First</NestedItem>
@@ -855,7 +855,8 @@ test("D: ContextMenu opens right/start four pixels right and two pixels below th
     });
   await open(Entry.Context);
   const popup = document.querySelector<HTMLElement>('[role="menu"]')!;
-  await expect.element(popup).toHaveAttribute("data-side", "right");
+  await expect.element(popup).toHaveAttribute("data-side", "bottom");
+  expect(getComputedStyle(popup).animationName).toBe("slideUpAndFade");
   await expect
     .poll(() => {
       const rect = popup.getBoundingClientRect();
@@ -1188,3 +1189,61 @@ for (const entry of [Entry.Dropdown, Entry.Context])
     expect(viewport.getAttribute("tabindex")).toBe("-1");
     expect(getComputedStyle(popup).outlineStyle).toBe("none");
   });
+
+test("a press on a toast's menu trigger closes an open Dropdown, so two menus are never open", async () => {
+  function ToastWithMenu() {
+    const add = useAddToast();
+    useEffect(
+      () =>
+        add({
+          id: "toast-with-menu",
+          title: "Toast with menu",
+          dismiss: 60000,
+          actionMenu: {
+            icon: "search",
+            label: "Toast actions",
+            items: [{ id: "copy", label: "Copy", onSelect: () => Result.Ok(undefined) }],
+          },
+        }),
+      [add],
+    );
+    return null;
+  }
+  await render(
+    <ToastManager>
+      <ToastWithMenu />
+      <MenuFixture entry={Entry.Dropdown}>
+        <NestedItem>First</NestedItem>
+      </MenuFixture>
+    </ToastManager>,
+  );
+  await expect.element(button("Toast actions")).toBeVisible();
+  // Motion slides the toast in; press its trigger once it has come to rest.
+  const toast = button("Toast actions").element().closest("li")!;
+  await expect.poll(() => getComputedStyle(toast).transform).toBe("none");
+  await open(Entry.Dropdown);
+  await button("Toast actions").click({ force: true });
+  await expect.poll(() => document.querySelectorAll('[role="menu"]').length).toBeLessThan(2);
+  await expect.element(item("First")).not.toBeInTheDocument();
+});
+
+test("an entry that stays open gets the live event, so stopPropagation keeps it from ancestors", async () => {
+  const ancestor = vi.fn();
+  await render(
+    <UiStoreProvider>
+      {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions -- observes React click propagation only */}
+      <div onClick={ancestor}>
+        <DropdownOverlay trigger={<button type="button">Open</button>}>
+          <NestedItem closeOnSelect={false} onClick={(event) => event.stopPropagation()}>
+            Stays
+          </NestedItem>
+        </DropdownOverlay>
+      </div>
+    </UiStoreProvider>,
+  );
+  await button("Open").click();
+  ancestor.mockClear();
+  await item("Stays").click();
+  expect(menus()).toHaveLength(1);
+  expect(ancestor).not.toHaveBeenCalled();
+});

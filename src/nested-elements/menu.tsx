@@ -5,7 +5,7 @@ import { clsx } from "clsx";
 import { Icon, resolveIcon } from "../icons/registry";
 import { ScrollArea } from "../layouts/scroll-area";
 import { useLayoutState } from "../hooks/use-layout-state";
-import { preserveMenuInteraction } from "../floating/menu-action";
+import { preserveMenuInteraction, keepMenuNavigationKeys } from "../floating/menu-action";
 import type { NestedMenuProps } from "./types";
 import { NestedLabel } from "./label";
 
@@ -125,6 +125,7 @@ export function NestedMenu({
       <Menu.Portal>
         <Menu.Positioner side="right" collisionPadding={0}>
           <Menu.Popup
+            onKeyDown={keepMenuNavigationKeys}
             ref={popupRef}
             className="[outline:none]"
             finalFocus={() => (returnFocus.current ? triggerRef.current : false)}

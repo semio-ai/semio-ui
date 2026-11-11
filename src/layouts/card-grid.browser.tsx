@@ -1,6 +1,8 @@
 import { expect, test, vi } from "vitest";
 import { render } from "vitest-browser-react";
 import { userEvent } from "vitest/browser";
+import { Dropdown } from "../floating/dropdown";
+import { NestedItem } from "../nested-elements/item";
 import { CardGrid } from "./card-grid";
 
 /**
@@ -263,4 +265,45 @@ test("Down from a card with nothing directly beneath lands on the nearest below"
 
   await userEvent.keyboard("{ArrowUp}");
   expect(focusedName()).toBe("Bravo"); // the card directly above Foxtrot, not Delta
+});
+
+test("keys inside a menu portalled from a card stay in the menu", async () => {
+  await render(
+    <>
+      <GridStyles />
+      <CardGrid
+        data={ITEMS}
+        getItemId={(item) => item.id}
+        selectionMode="single"
+        ariaLabel="cards"
+        style={{ display: "grid", width: 600, gridTemplateColumns: "repeat(3, 1fr)" }}
+      >
+        {(item) =>
+          item.id === "a" ? (
+            <Dropdown trigger={<button type="button">Alpha actions</button>}>
+              <NestedItem>First action</NestedItem>
+              <NestedItem>Second action</NestedItem>
+              <NestedItem>Third action</NestedItem>
+            </Dropdown>
+          ) : (
+            <div>{item.name}</div>
+          )
+        }
+      </CardGrid>
+    </>,
+  );
+  await userEvent.click(document.querySelector<HTMLElement>("button")!);
+  await expect.poll(() => !!document.activeElement?.closest('[role="menu"]')).toBe(true);
+  // Up/Down are the grid's capture-phase keys, Left/Right/End its composite's.
+  await userEvent.keyboard("{ArrowDown}");
+  await expect.poll(focusedName).toBe("First action");
+  await userEvent.keyboard("{ArrowDown}");
+  await expect.poll(focusedName).toBe("Second action");
+  await userEvent.keyboard("{ArrowRight}");
+  expect(focusedName()).toBe("Second action");
+  await userEvent.keyboard("{End}");
+  await expect.poll(focusedName).toBe("Third action");
+  await userEvent.keyboard("{ArrowUp}");
+  await expect.poll(focusedName).toBe("Second action");
+  expect(document.querySelectorAll('[role="menu"]')).toHaveLength(1);
 });

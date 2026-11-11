@@ -11,6 +11,7 @@ import {
   renderMenuTrigger,
   useNotificationMenuEscape,
   menuContainsFocus,
+  keepMenuNavigationKeys,
 } from "./menu-action";
 
 export interface ContextMenuProps {
@@ -67,14 +68,18 @@ export function ContextMenu({
         render={(props, state) => renderMenuTrigger(children, props, state.open)}
       />
       <ContextMenuPrimitive.Portal container={portalContainer ?? undefined}>
+        {/* Below the press point, its top-left corner just past the pointer, so it
+            enters with the same vertical slide as a Dropdown and flips above the
+            pointer where there is no room below. */}
         <ContextMenuPrimitive.Positioner
-          side="right"
+          side="bottom"
           align="start"
-          sideOffset={2}
-          alignOffset={0}
+          sideOffset={0}
+          alignOffset={2}
           collisionPadding={2}
         >
           <ContextMenuPrimitive.Popup
+            onKeyDown={keepMenuNavigationKeys}
             ref={popupRef}
             finalFocus={() => (returnFocus.current ? previousFocus.current : false)}
             // Base UI's ContextMenu keeps focus inside the open menu, Tab included, and

@@ -38,10 +38,18 @@ export function NestedItem({
             disabled || !onClick
               ? undefined
               : (event) => {
-                  if (closeOnSelect) event.stopPropagation();
+                  // An entry that stays open runs in the event, with the live event, so
+                  // its handler can stop propagation to ancestors.
+                  if (!closeOnSelect) {
+                    onClick(event);
+                    return;
+                  }
+                  event.stopPropagation();
+                  // A closing entry's action runs after the menu has closed, when React
+                  // has cleared `currentTarget`; this copy keeps the selected element.
                   const actionEvent = Object.create(event) as MouseEvent;
                   actionEvent.currentTarget = event.currentTarget;
-                  runAction(() => onClick(actionEvent), closeOnSelect);
+                  runAction(() => onClick(actionEvent), true);
                 }
           }
           {...reason.itemProps}

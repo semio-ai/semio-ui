@@ -12,6 +12,7 @@ import {
   preserveMenuInteraction,
   useMenuTabContainment,
   useNotificationMenuEscape,
+  keepMenuNavigationKeys,
 } from "../menu-action";
 import {
   useTooltipStore,
@@ -83,6 +84,7 @@ function InteractiveOverlayInstance({ anchor, position, invocation }: OverlayIns
           collisionPadding={5}
         >
           <Menu.Popup
+            onKeyDown={keepMenuNavigationKeys}
             ref={popupRef}
             render={(props, state) => (
               <div {...props} data-state={state.open ? "open" : "closed"} />

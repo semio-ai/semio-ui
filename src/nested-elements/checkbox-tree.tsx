@@ -10,7 +10,7 @@ import {
 import { clsx } from "clsx";
 import { Icon, resolveIcon, type IconValue } from "../icons/registry";
 import { Variant } from "../types";
-import { preserveMenuInteraction } from "../floating/menu-action";
+import { preserveMenuInteraction, keepMenuNavigationKeys } from "../floating/menu-action";
 
 /**
  * An Option case for tree-like data
@@ -336,6 +336,7 @@ function TreeSubmenu({
       <Menu.Portal>
         <Menu.Positioner side="right" collisionPadding={0}>
           <Menu.Popup
+            onKeyDown={keepMenuNavigationKeys}
             ref={popupRef}
             finalFocus={() => (returnFocus.current ? document.getElementById(id) : false)}
             render={(props, state) => (

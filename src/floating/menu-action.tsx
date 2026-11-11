@@ -8,6 +8,7 @@ import {
   useRef,
   useState,
   type HTMLAttributes,
+  type KeyboardEvent as ReactKeyboardEvent,
   type ReactNode,
   type Ref,
   type RefObject,
@@ -52,10 +53,13 @@ export function preserveMenuInteraction(
     details.reason === "focus-out" && details.event instanceof FocusEvent
       ? details.event.relatedTarget
       : details.event.target;
+  // A press on a menu trigger in a toast (an ActionMenu) closes this menu like any other
+  // outside press, so two menus are never open at once.
   if (
     (details.reason === "outside-press" || details.reason === "focus-out") &&
     target instanceof Element &&
-    target.closest("[data-notifications-region]")
+    target.closest("[data-notifications-region]") &&
+    !target.closest('[aria-haspopup="menu"]')
   ) {
     details.cancel();
     return true;
@@ -130,6 +134,27 @@ export function menuContainsFocus(popup: HTMLElement | null) {
   if (popup.contains(active)) return true;
   const owner = popup.getAttribute("data-rootownerid");
   return !!owner && active?.closest('[role="menu"]')?.getAttribute("data-rootownerid") === owner;
+}
+
+const MENU_NAVIGATION_KEYS = new Set([
+  "ArrowUp",
+  "ArrowDown",
+  "ArrowLeft",
+  "ArrowRight",
+  "Home",
+  "End",
+  "PageUp",
+  "PageDown",
+]);
+
+/**
+ * Keeps a menu's navigation keys in the menu once it has handled them. A popup portalled
+ * out of a list, grid or tree still bubbles through that widget in the React tree, where
+ * an arrow key would move the widget's own focus while the menu stays open. Escape is
+ * left alone: Base UI dismisses on it at the document.
+ */
+export function keepMenuNavigationKeys(event: ReactKeyboardEvent) {
+  if (MENU_NAVIGATION_KEYS.has(event.key)) event.stopPropagation();
 }
 
 /** A menu receives Escape before a toast when focus is in the notifications region. */
