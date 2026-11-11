@@ -99,6 +99,7 @@ function InteractiveOverlayInstance({ anchor, position, invocation }: OverlayIns
             <MenuActionProvider value={handoff.enqueue}>
               {isMenu ? (
                 <ScrollArea
+                  focusableViewport={false}
                   shrinkHeight
                   className="flex max-h-[calc(var(--available-height)-6px)] flex-col gap-0.5 p-0.5"
                 >

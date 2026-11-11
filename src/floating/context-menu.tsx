@@ -91,7 +91,11 @@ export function ContextMenu({
               "w-[calc(var(--available-width)-4px)]",
             )}
           >
-            <ScrollArea shrinkHeight className="max-h-[calc(var(--available-height)-4px)] p-0.5">
+            <ScrollArea
+              shrinkHeight
+              focusableViewport={false}
+              className="max-h-[calc(var(--available-height)-4px)] p-0.5"
+            >
               <MenuActionProvider value={handoff.enqueue}>{content}</MenuActionProvider>
             </ScrollArea>
           </ContextMenuPrimitive.Popup>

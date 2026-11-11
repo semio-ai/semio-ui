@@ -1168,3 +1168,23 @@ test("a canvas overlay whose selected action throws is still dismissed in the st
     window.removeEventListener("error", swallow);
   }
 });
+
+for (const entry of [Entry.Dropdown, Entry.Context])
+  test(`${entry}: a pointer open focuses the popup, not its scrolling viewport`, async () => {
+    // A short viewport makes the menu's content overflow and scroll.
+    await page.viewport(800, 240);
+    await render(
+      <MenuFixture entry={entry}>
+        {Array.from({ length: 20 }, (_, index) => (
+          <NestedItem key={index}>{`Entry ${String(index + 1)}`}</NestedItem>
+        ))}
+      </MenuFixture>,
+    );
+    await open(entry);
+    const popup = document.querySelector<HTMLElement>('[role="menu"]')!;
+    const viewport = popup.querySelector<HTMLElement>("[data-scroll-area-viewport]")!;
+    await expect.poll(() => viewport.scrollHeight > viewport.clientHeight).toBe(true);
+    await expect.element(popup).toHaveFocus();
+    expect(viewport.getAttribute("tabindex")).toBe("-1");
+    expect(getComputedStyle(popup).outlineStyle).toBe("none");
+  });

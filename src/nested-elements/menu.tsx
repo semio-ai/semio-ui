@@ -140,6 +140,7 @@ export function NestedMenu({
               )}
             >
               <ScrollArea
+                focusableViewport={false}
                 shrinkHeight
                 wrapperClassName={heightClass}
                 className={clsx("p-0.5", heightClass)}

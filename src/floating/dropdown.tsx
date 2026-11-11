@@ -162,6 +162,7 @@ export function Dropdown({
               />
             </Menu.Arrow>
             <ScrollArea
+              focusableViewport={false}
               header={header}
               shrinkHeight
               orientation={scrollOrientation}
