@@ -240,7 +240,11 @@ test("single Select: a disabled option with a reason is reachable but cannot be 
   (page.getByRole("button", { name: "Role: Editor" }).element() as HTMLElement).focus();
   await userEvent.keyboard("{Enter}");
   await expect.element(page.getByRole("menuitemradio", { name: "Admin" })).toBeVisible();
-  // A keyboard open focuses the first option, including disabled options.
+  // A keyboard open focuses the first enabled option; ArrowUp reaches the disabled one
+  // above it.
+  await settle();
+  expect(focusedText()).toBe("Editor");
+  await userEvent.keyboard("{ArrowUp}");
   await settle();
   expect(focusedText()).toBe("Admin");
   const admin = page.getByRole("menuitemradio", { name: "Admin" });
@@ -269,10 +273,10 @@ test("single Select: a disabled option with a reason is reachable but cannot be 
   expect(onChange).not.toHaveBeenCalled();
   await expect.element(page.getByRole("button", { name: "Role: Editor" })).toHaveFocus();
   await userEvent.keyboard("{Enter}");
-  await expect.element(page.getByRole("menuitemradio", { name: "Admin" })).toHaveFocus();
+  await expect.element(page.getByRole("menuitemradio", { name: "Editor" })).toHaveFocus();
 
   // Commenter is reachable even without a disabled reason.
-  expect(await walk(3)).toEqual(["Admin", "Editor", "Commenter", "Viewer"]);
+  expect(await walk(2)).toEqual(["Editor", "Commenter", "Viewer"]);
 
   // An enabled option still selects and closes.
   await userEvent.keyboard("{Enter}");
@@ -301,6 +305,9 @@ test("multi Select: a disabled option with a reason is reachable but cannot be t
   (page.getByRole("button", { name: "Roles" }).element() as HTMLElement).focus();
   await userEvent.keyboard("{Enter}");
   await expect.element(page.getByRole("menuitemcheckbox", { name: "Admin" })).toBeVisible();
+  await settle();
+  expect(focusedText()).toBe("Editor");
+  await userEvent.keyboard("{ArrowUp}");
   await settle();
   expect(focusedText()).toBe("Admin");
   const admin = page.getByRole("menuitemcheckbox", { name: "Admin" });
@@ -345,6 +352,8 @@ test("a disabled option with a reason that would close on select keeps the menu 
   (page.getByRole("button", { name: "Filters" }).element() as HTMLElement).focus();
   await userEvent.keyboard("{Enter}");
   const pinned = page.getByRole("menuitemcheckbox", { name: "Pinned" });
+  await expect.element(page.getByRole("menuitemcheckbox", { name: "Recent" })).toHaveFocus();
+  await userEvent.keyboard("{ArrowUp}");
   await expect.element(pinned).toHaveFocus();
   await userEvent.keyboard("{Enter}");
   await settle();
@@ -469,8 +478,8 @@ for (const theme of ["light", "dark"] as const) {
       await render(<SingleSelect onChange={() => undefined} />);
       (page.getByRole("button", { name: "Role: Editor" }).element() as HTMLElement).focus();
       await userEvent.keyboard("{Enter}");
-      await expect.element(page.getByRole("menuitemradio", { name: "Admin" })).toHaveFocus();
-      await walk(3);
+      await expect.element(page.getByRole("menuitemradio", { name: "Editor" })).toHaveFocus();
+      await walk(2);
       await expect.element(page.getByRole("menuitemradio", { name: "Viewer" })).toHaveFocus();
       await new Promise((resolve) => setTimeout(resolve, 200));
       const enabledFocused = indicator("Viewer");

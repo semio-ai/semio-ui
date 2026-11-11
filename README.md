@@ -261,10 +261,10 @@ open. `NestedItem` stops closing clicks from bubbling into a listing and retains
 the selected element as `currentTarget`. `Popover` is nonmodal.
 
 Every disabled menu entry remains in the keyboard order, with or without a reason.
-Arrow keys, typeahead and Home/End can reach it, and a Dropdown opened from the
-keyboard focuses it if it comes first, as does a submenu opened with Enter or
-ArrowRight. Pointer opens, and a context menu opened from the keyboard, focus the
-popup. It reports `aria-disabled` and cannot activate. For a `NestedItem`,
+Arrow keys, typeahead and Home/End can reach it. A Dropdown or submenu opened from
+the keyboard focuses its first enabled entry, so a disabled entry before it is
+reached with ArrowUp or Home. Pointer opens, and a context menu opened from the
+keyboard, focus the popup. It reports `aria-disabled` and cannot activate. For a `NestedItem`,
 `description` supplies its reason; radio and select options use `disabledReason`.
 The reason is a permanent accessible description and a tooltip. Enter, Space and
 click leave the menu and explanation open. Escape dismisses the explanation alone;

@@ -22,7 +22,6 @@ import {
   useMenuShiftTabExit,
   menuTriggerFocusTarget,
   menuContainsFocus,
-  useFirstMenuEntryFocus,
 } from "./menu-action";
 
 export interface DropdownProps {
@@ -69,7 +68,6 @@ export function Dropdown({
   const popupRef = useRef<HTMLDivElement>(null);
   const returnFocus = useRef(false);
   const closeHandled = useRef(false);
-  const firstEntryFocus = useFirstMenuEntryFocus();
   const [internalOpen, setInternalOpen] = useState(false);
   const actualOpen = open ?? internalOpen;
   const changeOpen = (next: boolean) => {
@@ -93,7 +91,6 @@ export function Dropdown({
       loopFocus={false}
       onOpenChange={(next, details) => {
         if (!next && preserveMenuInteraction(details)) return;
-        firstEntryFocus.onOpenChange(next, details);
         closeHandled.current = !next;
         returnFocus.current =
           !next &&
@@ -128,7 +125,6 @@ export function Dropdown({
         >
           <Menu.Popup
             ref={popupRef}
-            onFocus={firstEntryFocus.onFocus}
             finalFocus={() => {
               const handled = closeHandled.current;
               closeHandled.current = false;

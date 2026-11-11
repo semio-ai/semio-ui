@@ -13,11 +13,13 @@ Keyboard and focus, following the WAI-ARIA menu pattern where Base UI does:
   keep Tab and Shift+Tab on the focused entry, in submenus too.
 - Escape in a submenu closes only that submenu.
 - Every disabled entry is keyboard-reachable and `aria-disabled`, with or without a reason, and
-  stays inert. A keyboard open still focuses the first entry when it is disabled.
+  stays inert. A keyboard open focuses the first enabled entry; the arrow keys reach disabled
+  entries before it.
 - A `Dropdown` no longer hides the rest of the page from assistive technology or traps focus.
   Row context menus still do. Menus still lock page scrolling, and a press outside only closes
   the menu. Arrow keys still stop at the first and last entry.
-- An open submenu's trigger carries `aria-haspopup` but no `aria-expanded`.
+- On Apple platforms, a submenu trigger drops `aria-expanded` while its keyboard-opened
+  submenu is open, so VoiceOver announces the submenu's first entry; `aria-haspopup` remains.
 - Escape returns focus to the control inside a wrapper trigger such as
   `<span><MenuButton /></span>`; a row context menu returns focus to the element focused when
   it opened.

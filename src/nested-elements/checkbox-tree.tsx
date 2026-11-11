@@ -10,7 +10,7 @@ import {
 import { clsx } from "clsx";
 import { Icon, resolveIcon, type IconValue } from "../icons/registry";
 import { Variant } from "../types";
-import { preserveMenuInteraction, useFirstMenuEntryFocus } from "../floating/menu-action";
+import { preserveMenuInteraction } from "../floating/menu-action";
 
 /**
  * An Option case for tree-like data
@@ -321,7 +321,6 @@ function TreeSubmenu({
   trigger: ReactNode;
   children: ReactNode;
 }) {
-  const firstEntryFocus = useFirstMenuEntryFocus();
   const popupRef = useRef<HTMLDivElement>(null);
   const returnFocus = useRef(false);
   return (
@@ -329,7 +328,6 @@ function TreeSubmenu({
       loopFocus={false}
       onOpenChange={(next, details) => {
         if (!next && preserveMenuInteraction(details)) return;
-        firstEntryFocus.onOpenChange(next, details);
         // Closing with focus inside returns it to the parent row; a pointer close does not.
         returnFocus.current = !next && !!popupRef.current?.contains(document.activeElement);
       }}
@@ -339,7 +337,6 @@ function TreeSubmenu({
         <Menu.Positioner side="right" collisionPadding={0}>
           <Menu.Popup
             ref={popupRef}
-            onFocus={firstEntryFocus.onFocus}
             finalFocus={() => (returnFocus.current ? document.getElementById(id) : false)}
             render={(props, state) => (
               <div {...props} data-state={state.open ? "open" : "closed"} />

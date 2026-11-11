@@ -5,7 +5,7 @@ import { clsx } from "clsx";
 import { Icon, resolveIcon } from "../icons/registry";
 import { ScrollArea } from "../layouts/scroll-area";
 import { useLayoutState } from "../hooks/use-layout-state";
-import { preserveMenuInteraction, useFirstMenuEntryFocus } from "../floating/menu-action";
+import { preserveMenuInteraction } from "../floating/menu-action";
 import type { NestedMenuProps } from "./types";
 import { NestedLabel } from "./label";
 
@@ -22,7 +22,6 @@ export function NestedMenu({
   const triggerRef = useRef<HTMLElement>(null);
   const popupRef = useRef<HTMLDivElement>(null);
   const returnFocus = useRef(false);
-  const firstEntryFocus = useFirstMenuEntryFocus();
   const [mobileOpen, setMobileOpen] = useState(false);
   const panelId = useId();
   const { desktop } = useLayoutState();
@@ -110,7 +109,6 @@ export function NestedMenu({
       loopFocus={false}
       onOpenChange={(next, details) => {
         if (!next && preserveMenuInteraction(details)) return;
-        firstEntryFocus.onOpenChange(next, details);
         // A submenu that closes with focus inside (Escape, ArrowLeft) returns it to its
         // trigger; one closed by the pointer moving to another entry leaves focus there.
         returnFocus.current = !next && !!popupRef.current?.contains(document.activeElement);
@@ -128,7 +126,6 @@ export function NestedMenu({
         <Menu.Positioner side="right" collisionPadding={0}>
           <Menu.Popup
             ref={popupRef}
-            onFocus={firstEntryFocus.onFocus}
             className="[outline:none]"
             finalFocus={() => (returnFocus.current ? triggerRef.current : false)}
             render={(props, state) => (

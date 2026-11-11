@@ -642,6 +642,12 @@ for (const theme of [Theme.Light, Theme.Dark]) {
         // NestedMenu's card is inside the menu role and has no entrance animation.
         const submenu = await surface(required(findSub()), result, "submenu surface");
         menuParts(result, "submenu", submenu, subTrigger);
+        // Base UI omits an open submenu trigger's aria-expanded only where it detects
+        // VoiceOver (Apple platforms) and the submenu opened from the keyboard. Record the
+        // expanded state the trigger has everywhere else, so the record does not depend on
+        // the platform that captures it.
+        result["submenu trigger contract"]["aria-expanded"] =
+          subTrigger.getAttribute("aria-expanded") ?? "true";
         relative(
           result,
           "submenu relative to trigger",

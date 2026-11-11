@@ -8,7 +8,6 @@ import {
   useRef,
   useState,
   type HTMLAttributes,
-  type FocusEvent as ReactFocusEvent,
   type ReactNode,
   type Ref,
   type RefObject,
@@ -129,44 +128,6 @@ export function menuContainsFocus(popup: HTMLElement | null) {
   if (popup.contains(active)) return true;
   const owner = popup.getAttribute("data-rootownerid");
   return !!owner && active?.closest('[role="menu"]')?.getAttribute("data-rootownerid") === owner;
-}
-
-/** Correct only the initial keyboard focus that Base UI skips over disabled entries. */
-export function useFirstMenuEntryFocus() {
-  const pending = useRef(false);
-  const onOpenChange = (open: boolean, details: Pick<Menu.Root.ChangeEventDetails, "event">) => {
-    const event = details.event;
-    pending.current =
-      open &&
-      (event instanceof KeyboardEvent || (event instanceof MouseEvent && event.detail === 0));
-  };
-  const onFocus = (event: ReactFocusEvent<HTMLElement>) => {
-    const popup = event.currentTarget;
-    const focused = event.target;
-    if (!pending.current || focused.closest('[role="menu"]') !== popup) return;
-    // List navigation finishes its initial focus before this correction. Focusing
-    // the first entry also updates Base UI's highlight through its normal onFocus.
-    queueMicrotask(() => {
-      if (!popup.isConnected || !popup.contains(document.activeElement)) return;
-      const entries = Array.from(popup.querySelectorAll<HTMLElement>('[role^="menuitem"]')).filter(
-        (entry) => entry.closest('[role="menu"]') === popup && !entry.closest("[hidden]"),
-      );
-      const index = entries.indexOf(focused);
-      if (
-        (index > 0 &&
-          entries
-            .slice(0, index)
-            .every((entry) => entry.getAttribute("aria-disabled") === "true")) ||
-        (focused === popup &&
-          entries.length > 0 &&
-          entries.every((entry) => entry.getAttribute("aria-disabled") === "true"))
-      ) {
-        pending.current = false;
-        entries[0].focus({ preventScroll: true });
-      } else if (focused !== popup) pending.current = false;
-    });
-  };
-  return { onOpenChange, onFocus };
 }
 
 /** A menu receives Escape before a toast when focus is in the notifications region. */

@@ -115,8 +115,8 @@ async function open(entry: Entry, keyboard = false) {
 
 async function first(name = "First") {
   const popup = document.querySelector<HTMLElement>('[role="menu"][data-state="open"]')!;
-  // A keyboard open already focuses the first entry; a pointer open leaves focus on the
-  // popup, from which Home moves to the first entry.
+  // A keyboard open already focuses the first enabled entry; a pointer open leaves focus
+  // on the popup, from which Home moves to the first entry.
   if (!popup.contains(document.activeElement)) popup.focus();
   await userEvent.keyboard("{Home}");
   await expect.element(item(name)).toHaveFocus();
@@ -496,6 +496,9 @@ for (const entry of Object.values(Entry))
       await open(entry, true);
       await first("More");
       await userEvent.keyboard("{ArrowRight}");
+      // The submenu opens on its first enabled entry; ArrowUp reaches the disabled one.
+      await expect.element(item("Enabled child")).toHaveFocus();
+      await userEvent.keyboard("{ArrowUp}");
       await expect.element(item("Child")).toHaveFocus();
       await expect.element(page.getByRole("tooltip")).toHaveTextContent("Child reason");
       await userEvent.keyboard("{Escape}");
@@ -695,7 +698,7 @@ test("13: ActionMenu calls onSelect inside the selection event and mounts in the
 });
 
 for (const key of ["{Enter}", "{ArrowDown}", " "]) {
-  test(`B: keyboard Dropdown open (${key}) focuses the first disabled entry without navigation`, async () => {
+  test(`B: a keyboard Dropdown open (${key}) focuses the first enabled entry`, async () => {
     await render(
       <MenuFixture entry={Entry.Dropdown}>
         <NestedItem disabled>First</NestedItem>
@@ -704,18 +707,17 @@ for (const key of ["{Enter}", "{ArrowDown}", " "]) {
     );
     button("Open").element().focus();
     await userEvent.keyboard(key);
+    await expect.element(item("Last")).toHaveFocus();
+    // The disabled entry before it stays reachable.
+    await userEvent.keyboard("{ArrowUp}");
     await expect.element(item("First")).toHaveFocus();
     await expect.element(item("First")).toHaveAttribute("data-highlighted");
-    await userEvent.keyboard("{Escape}");
-    await expect.poll(() => menus().length).toBe(0);
-    await open(Entry.Dropdown);
-    await expect.poll(() => document.activeElement?.getAttribute("role")).toBe("menu");
   });
 }
 
 for (const tree of [false, true])
   for (const key of ["{ArrowRight}", "{Enter}"])
-    test(`B: ${tree ? "tree" : "NestedMenu"} ${key} opens on the first disabled child`, async () => {
+    test(`B: ${tree ? "tree" : "NestedMenu"} ${key} opens on the first enabled child`, async () => {
       await render(
         <MenuFixture entry={Entry.Dropdown}>
           {tree ? (
@@ -740,17 +742,14 @@ for (const tree of [false, true])
           )}
         </MenuFixture>,
       );
+      const child = (name: string) =>
+        page.getByRole(tree ? "menuitemcheckbox" : "menuitem", { name, exact: true });
       await open(Entry.Dropdown, true);
       await expect.element(item("More")).toHaveFocus();
       await userEvent.keyboard(key);
-      await expect
-        .element(
-          page.getByRole(tree ? "menuitemcheckbox" : "menuitem", {
-            name: "Disabled child",
-            exact: true,
-          }),
-        )
-        .toHaveFocus();
+      await expect.element(child("Enabled child")).toHaveFocus();
+      await userEvent.keyboard("{ArrowUp}");
+      await expect.element(child("Disabled child")).toHaveFocus();
     });
 
 for (const relay of [false, true])
@@ -905,13 +904,14 @@ for (const side of ["top", "bottom", "left", "right"] as const)
       .poll(() => {
         const box = arrow.getBoundingClientRect();
         const trigger = button("Open").element().getBoundingClientRect();
-        return Math.round(
+        return Math.abs(
           vertical
             ? box.x + box.width / 2 - trigger.x - trigger.width / 2
             : box.y + box.height / 2 - trigger.y - trigger.height / 2,
         );
       })
-      .toBe(0);
+      // Within a pixel: a trigger whose text width is fractional centres on a half pixel.
+      .toBeLessThan(1);
     expect(arrow.getAttribute("preserveAspectRatio")).toBe("none");
     const bounds = fill.getBoundingClientRect();
     expect(vertical ? bounds.height : bounds.width).toBeCloseTo(5.4, 1);
@@ -1004,17 +1004,6 @@ test("I: tree parent row Space checks; row Enter/Right open; scripted checkbox S
   await page.getByRole("checkbox").click();
   await expect.element(checkbox).toHaveAttribute("aria-checked", "false");
   expect(menus()).toHaveLength(1);
-});
-
-test("B: a keyboard-opened Dropdown with only disabled entries focuses the first", async () => {
-  await render(
-    <MenuFixture entry={Entry.Dropdown}>
-      <NestedItem disabled>First</NestedItem>
-      <NestedItem disabled>Last</NestedItem>
-    </MenuFixture>,
-  );
-  await open(Entry.Dropdown, true);
-  await expect.element(item("First")).toHaveFocus();
 });
 
 test("a Dropdown its consumer unmounts as it closes still runs the selected action", async () => {
