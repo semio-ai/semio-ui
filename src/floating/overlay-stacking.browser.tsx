@@ -394,9 +394,9 @@ test("portalContainer moves an overlay's portal into the host's element", async 
   // a `<body>`-level sibling. Without it this test says only that a container was used,
   // not that it changed anything — and `host.contains(document.body)` would have been
   // false whatever the prop did, since `host` is itself inside `<body>`.
-  // Dismiss the first menu before opening the control's: Radix puts a `DismissableLayer`
-  // over the page while a menu is open, and it swallows the click rather than passing it
-  // through — the second click would time out on an element that is visible and enabled.
+  // Dismiss the first menu before opening the control's: an open menu is modal, so a press
+  // outside it only closes it rather than reaching what is underneath, and the second
+  // click would not open the control's menu.
   await userEvent.keyboard("{Escape}");
   await expect.poll(body).toBeNull();
 
