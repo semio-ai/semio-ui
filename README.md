@@ -103,11 +103,15 @@ input shows `placeholder` or an em-dash.
 
 `Checkbox`, `ToggleSquare`, and `Switch` render native buttons and support label
 associations. Controls expose `data-state` values for styling. Menu triggers,
-popups and submenu triggers expose `open`/`closed`; check items and indicators expose
-`checked`/`unchecked`, and tree parent checks also expose `indeterminate`. These menu
-attributes are compatibility shims. Menu positioning uses `--available-width`,
-`--available-height`, `--anchor-width` and `--transform-origin`. Other panel size variables
-with `--radix-` names remain available for consumer animations.
+popups and submenu triggers expose `open`/`closed`. Tooltip and Popover triggers and
+popups also expose `open`/`closed`. Check items and indicators expose
+`checked`/`unchecked`, and tree parent checks also expose `indeterminate`. The menu,
+Tooltip and Popover attributes are compatibility shims alongside Base UI's state
+attributes, including `data-popup-open` on triggers and `data-open`/`data-closed` on
+popups. Tooltip and Popover positioning uses `--transform-origin`, inherited from
+the Positioner. Menu positioning also uses `--available-width`, `--available-height`
+and `--anchor-width`. Other panel size variables with `--radix-` names remain
+available for consumer animations.
 Toggle groups expose single selection through `role="radio"` and `aria-checked`;
 the current focus target participates directly in the Tab order.
 
@@ -214,14 +218,14 @@ ordinary menu items.
 `Modal` gives initial focus to the rightmost enabled footer action. With no
 available footer action, it retains the dialog primitive's default focus behavior.
 
-`Dropdown`, `ContextMenu`, and TooltipHost's canvas menus and click popovers use
-Base UI menu parts. Menus lock page scrolling and an outside press only dismisses
+`Dropdown`, `ContextMenu`, and TooltipHost's canvas context menus use Base UI menu
+parts. Menus lock page scrolling and an outside press only dismisses
 the menu; a second press can activate the outside element. Dropdowns and canvas
 menus leave the page exposed to assistive technology and allow focus to leave.
 Row `ContextMenu` keeps the primitive's modal focus guards and background hiding.
 Tab closes a Dropdown, submenus included, and resumes the surrounding tab order;
-Shift+Tab closes it and returns focus to its trigger. Row context menus and both
-canvas menus keep Tab and Shift+Tab on the current entry, in submenus too. A script moving focus
+Shift+Tab closes it and returns focus to its trigger. Row context menus and canvas
+context menus keep Tab and Shift+Tab on the current entry, in submenus too. A script moving focus
 outside a Dropdown or canvas menu leaves it open and keeps the page exposed to
 assistive technology. Escape in a submenu closes that level and returns to its
 trigger. A Dropdown closing with focus inside returns focus to its trigger before
@@ -260,7 +264,23 @@ always invokes its action synchronously during selection to preserve browser use
 activation for clipboard writes. `closeOnSelect` defaults to true for items and
 radio options, and false for checkbox and multi-select options; tree checks stay
 open. `NestedItem` stops closing clicks from bubbling into a listing and retains
-the selected element as `currentTarget`. `Popover` is nonmodal.
+the selected element as `currentTarget`.
+
+`Popover` uses Base UI's non-modal Popover. Tab and Shift+Tab follow the surrounding
+tab order, and tabbing out closes the popup. An outside press dismisses it and
+activates the pressed element. A press in the notifications region keeps it open.
+Inside a Modal, Escape closes the Popover first, and another Escape closes the Modal.
+The trigger composes the consumer's handlers, ref and classes, including
+`focus:outline-none`. `open`, `onStateChange` and `portalContainer` support controlled
+state and a host-owned portal.
+
+TooltipHost's interactive click overlays also use a non-modal Popover, positioned
+at their virtual canvas anchor. They accept arbitrary content and expose `role="dialog"`.
+A canvas point has no place in the tab order, so Tab or Shift+Tab past either end
+closes the popup and returns focus to where it was before it opened. An outside press
+dismisses it and activates the pressed element.
+Content using `NestedItem` and other menu parts requires `mode: "context-menu"` or a
+`Dropdown`. A closing canvas popup dismisses only its own invocation in the store.
 
 Every disabled menu entry remains in the keyboard order, with or without a reason.
 Arrow keys, typeahead and Home/End can reach it. A Dropdown or submenu opened from
@@ -281,16 +301,24 @@ use Base UI menu parts rather than mixing item providers.
 headers. Pass the resolved empty state only after the read finishes. `notFound`
 replaces the whole listing, including its headers.
 
-`Tooltip` displays explanatory, never interactive content on hover and keyboard
-focus. The pointer can move from its trigger onto the explanation and keep it
-visible; Escape dismisses it. Use `Popover` for content with links or actions.
+`Tooltip` uses Base UI to display non-interactive explanations after a 700 ms hover
+delay or immediately on focus-visible keyboard focus. Reopening the same tooltip
+within 300 ms of closing skips the hover delay. The pointer can move from its
+trigger onto the explanation and keep it visible. Escape dismisses it before its
+surrounding menu. The visible popup has `role="tooltip"` and an ID, which the
+trigger's `aria-describedby` names while open; a trigger that names its own description
+keeps it. The popup and trigger expose `data-state="open"` or `data-state="closed"`.
+Use `Popover` for content with links or actions.
 Focus in a React portal outside the trigger's DOM subtree does not open the
 explanation, so a wrapped menu keeps its own Escape handling. Restoring keyboard
 focus to the trigger opens the explanation normally and leaves Tab navigation available.
 Pressing a trigger that is `aria-disabled` leaves its explanation open, since the press
 does nothing and the explanation is usually why; an enabled trigger closes it.
-Scrolling a container of the trigger closes the explanation, and the pointer entering a
-`ScrollArea` around the trigger does not.
+A trusted scroll of a container containing the trigger closes the explanation.
+Script-dispatched scroll events, including ScrollArea's pointer-entry measurement,
+keep it visible. `disabled` renders the bare child. `side` defaults to top with a
+six-pixel offset, and `portalContainer` selects its portal container. Tooltip's
+Positioner carries `z-10` so explanations paint over overlapping Combobox popups.
 
 **Artwork and attribution.** Solar artwork is by 480 Design under CC BY 4.0, and
 the `@solar-icons/react-perf` components that render it are MIT. That package is

@@ -12,6 +12,7 @@ import {
   OverlayAccessibilityFixture,
   OverlayEntry,
   MENU_ENTRIES,
+  POPOVER_ENTRIES,
   OVERLAY_SELECTION_CASES,
   MenuSurroundings,
   MenuUsabilityFixture,
@@ -66,13 +67,14 @@ async function openMenu(
     const submenu = await screen.findByRole("menuitem", { name: "Create" });
     fireEvent.keyDown(submenu, { key: "ArrowRight" });
   }
-  const role = entry === OverlayEntry.Popover ? "button" : "menuitem";
+  const role = POPOVER_ENTRIES.includes(entry) ? "button" : "menuitem";
   const item = await screen.findByRole(role, { name: "New entity" });
-  if (entry !== OverlayEntry.Popover) await waitForMenuFocus(entry);
+  if (!POPOVER_ENTRIES.includes(entry)) await waitForMenuFocus(entry);
   await afterOpen?.();
-  if (select === "keyboard" && entry !== OverlayEntry.Popover) {
-    item.focus();
+  if (select === "keyboard") {
+    act(() => item.focus());
     fireEvent.keyDown(item, { key: "Enter" });
+    if (POPOVER_ENTRIES.includes(entry)) fireEvent.click(item, { detail: 0 });
   } else if (select) fireEvent.click(item);
   return item;
 }
@@ -180,9 +182,10 @@ for (const surface of Object.values(DialogSurface)) {
       );
       expect(screen.queryByRole("button", { name: "Scene row" })).toBeNull();
       expect(container.getAttribute("aria-hidden")).toBe("true");
-      if (method === "keyboard" && entry !== OverlayEntry.Popover) {
-        item.focus();
+      if (method === "keyboard") {
+        act(() => item.focus());
         fireEvent.keyDown(item, { key: "Enter" });
+        if (POPOVER_ENTRIES.includes(entry)) fireEvent.click(item, { detail: 0 });
       } else fireEvent.click(item);
       await waitFor(() => expect(screen.getByRole("dialog", { name: "New Entity" })).toBeTruthy());
       await waitFor(() => expect(screen.queryByRole("menu")).toBeNull());
@@ -384,6 +387,46 @@ for (const surroundings of Object.values(MenuSurroundings)) {
       await waitForMenuFocus(entry);
       fireEvent.keyDown(document.activeElement!, { key: "ArrowLeft" });
       await waitFor(() => expect(document.activeElement).toBe(trigger));
+    },
+  );
+}
+
+for (const surroundings of Object.values(MenuSurroundings)) {
+  test.each(POPOVER_ENTRIES)(
+    `${surroundings}: %s accepts button actions and dismisses on Escape and outside press`,
+    async (entry) => {
+      render(<MenuUsabilityFixture entry={entry} surroundings={surroundings} />);
+      if (surroundings === MenuSurroundings.Sidebar)
+        fireEvent.click(await screen.findByRole("tab", { name: "Menu tab" }));
+      const item = await openMenu(entry, false);
+      const popup = item.closest('[role="dialog"]')!;
+      expect(screen.queryByRole("menu")).toBeNull();
+      expect(screen.queryByRole("menuitem")).toBeNull();
+      fireEvent.click(item);
+      fireEvent.click(screen.getByRole("button", { name: "Keep popover open" }));
+      const admin = screen.getByRole("button", { name: "Choose Admin" });
+      act(() => admin.focus());
+      fireEvent.keyDown(admin, { key: "Enter" });
+      fireEvent.click(admin, { detail: 0 });
+      expect(screen.getByRole("status", { name: "Selections" }).textContent).toBe("1");
+      expect(screen.getByRole("status", { name: "Kept open" }).textContent).toBe("1");
+      expect(screen.getByRole("status", { name: "Chosen role" }).textContent).toBe("admin");
+      expect(popup.isConnected).toBe(true);
+      const outside = screen.getByRole("button", { name: "Outside menu" });
+      fireEvent.keyDown(admin, { key: "Escape" });
+      await waitFor(() => expect(popup.isConnected).toBe(false));
+
+      const reopened = await openMenu(entry, false);
+      fireEvent.keyDown(reopened, { key: "Escape" });
+      await waitFor(() => expect(reopened.isConnected).toBe(false));
+      if (surroundings !== MenuSurroundings.Listing)
+        expect(screen.getByRole("dialog", { name: "Menu dialog" })).toBeTruthy();
+
+      const last = await openMenu(entry, false);
+      fireEvent.pointerDown(outside, { pointerType: "mouse", button: 0 });
+      fireEvent.click(outside);
+      await waitFor(() => expect(last.isConnected).toBe(false));
+      expect(screen.getByRole("status", { name: "Outside presses" }).textContent).toBe("1");
     },
   );
 }

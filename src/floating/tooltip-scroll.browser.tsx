@@ -10,12 +10,10 @@ import { Tooltip } from "./tooltip";
  * A tooltip inside a `ScrollArea` closes when its trigger scrolls, and stays open when the
  * pointer enters the area.
  *
- * Radix closes a tooltip on any scroll of an element that contains its trigger, because the
- * trigger has moved out from under it. `ScrollArea` also dispatches a `scroll` event on its
- * viewport whenever the pointer enters, so that its scrollbar thumb measures itself, and
- * nothing moves. Taken as a real scroll, that event closes every open tooltip in the area
- * the moment the pointer arrives. The real scroll is the control: a tooltip that ignored
- * every scroll would pass the first test and fail it.
+ * Tooltip listens for trusted ancestor scrolls in capture. `ScrollArea` dispatches
+ * a scroll event for measurement whenever the pointer enters its viewport. That event
+ * moves nothing and must leave the explanation visible. A real scroll provides the
+ * control that verifies dismissal still works.
  */
 
 const REASON = "Ask the owner for Editor access";
@@ -54,8 +52,10 @@ async function renderTooltipInScrollArea() {
   );
   // The pointer rests outside the area, so that moving it in later is an entry.
   await userEvent.hover(page.getByText("Outside"));
-  // Focus opens the tooltip with no pointer involved.
-  (page.getByRole("button", { name: "Add" }).element() as HTMLElement).focus();
+  // Keyboard focus opens the tooltip with no pointer involved. The overflowing viewport is a
+  // tab stop of its own, ahead of the button.
+  await userEvent.keyboard("{Tab}{Tab}");
+  await expect.element(page.getByRole("button", { name: "Add" })).toHaveFocus();
   await expect.poll(openTooltip).toContain(REASON);
 }
 

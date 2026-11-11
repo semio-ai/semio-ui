@@ -1,8 +1,13 @@
-import { Tooltip as TooltipPrimitive } from "radix-ui";
+import { Tooltip as TooltipPrimitive } from "@base-ui/react/tooltip";
 import { clsx } from "clsx";
 import {
   type ReactNode,
-  type SyntheticEvent,
+  type ReactElement,
+  type KeyboardEvent as ReactKeyboardEvent,
+  type KeyboardEventHandler,
+  type RefObject,
+  cloneElement,
+  useId,
   useCallback,
   useEffect,
   useRef,
@@ -10,13 +15,41 @@ import {
 } from "react";
 import { Size, Variant } from "../types";
 import { Arrow } from "./arrow";
+import { renderMenuTrigger } from "./menu-action";
 
-// Radix dismisses tooltips in document capture, before menu Escape handling. Mark the
-// native event explicitly: disabled menu items also preventDefault on Escape, which
-// says nothing about whether an explanation consumed it. Weak keys need no cleanup.
+// Native events consumed by an explanation must leave its menu open. Weak keys
+// retain the mark for every layer handling the same event without cleanup.
 const consumedEscapes = new WeakSet<Event>();
 export function isEscapeConsumedByTooltip(event: Event) {
   return consumedEscapes.has(event);
+}
+
+/** Run Base UI's Escape handler before a containing menu's bubble handlers. */
+function TooltipEscapeCapture({
+  open,
+  triggerRef,
+  onKeyDown,
+  children,
+}: {
+  open: boolean;
+  triggerRef: RefObject<HTMLElement | null>;
+  onKeyDown?: KeyboardEventHandler<HTMLElement>;
+  children: ReactElement;
+}) {
+  useEffect(() => {
+    const doc = triggerRef.current?.ownerDocument;
+    if (!open || !doc || !onKeyDown) return;
+    const onEscape = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      // useDismiss accepts native and React events. Calling its rendered handler
+      // in capture retains its composition guard, escape-key reason and internal
+      // hover/focus dismissal state, even when focus is elsewhere in the menu.
+      onKeyDown(event as unknown as ReactKeyboardEvent<HTMLElement>);
+    };
+    doc.addEventListener("keydown", onEscape, true);
+    return () => doc.removeEventListener("keydown", onEscape, true);
+  }, [open, triggerRef, onKeyDown]);
+  return children;
 }
 
 export interface TooltipProps {
@@ -32,27 +65,6 @@ export interface TooltipProps {
   portalContainer?: HTMLElement | null;
 }
 
-/**
- * Whether the event being handled is a `scroll` that a script dispatched.
- *
- * Radix closes a tooltip on any scroll of an element that contains its trigger, because
- * the trigger has moved out from under it. A dispatched `scroll` moves nothing:
- * `ScrollArea` dispatches one on its viewport whenever the pointer enters, so that its
- * scrollbar thumb measures itself. Honoured, it closes every open tooltip in the area the
- * moment the pointer arrives, such as the reason a keyboard user is reading on a disabled
- * menu entry. A scroll the browser reports is trusted, so a real one still closes it.
- *
- * Radix requests the close from inside its scroll listener without passing the event, so
- * it is read from `window.event`, which holds the event whose listeners are running. That
- * holds only while the Root is controlled: Radix calls `onOpenChange` synchronously for a
- * controlled Root, but from an effect, after the event has finished, for an uncontrolled
- * one.
- */
-function isDispatchedScroll() {
-  const event = window.event;
-  return event?.type === "scroll" && !event.isTrusted;
-}
-
 function Tooltip({
   content,
   children,
@@ -63,109 +75,127 @@ function Tooltip({
   invert,
   portalContainer,
 }: TooltipProps) {
-  const [defaultOpen, setDefaultOpen] = useState(false);
-  const [open, setOpen] = useState(controlledState?.[0] ?? false);
-
-  // A press on an `aria-disabled` trigger does nothing, so it must not dismiss the
-  // explanation the trigger is showing, which is usually why the control is off.
-  // Radix closes a tooltip on its trigger's pointerdown and click, and on any
-  // pointerdown outside its content. Each of those close requests arrives during the
-  // press, so they are ignored while a press on a disabled trigger is in progress.
-  const pressingDisabledTrigger = useRef(false);
-  const notePress = useCallback((event: SyntheticEvent<HTMLElement>) => {
-    if (event.currentTarget.getAttribute("aria-disabled") !== "true") return;
-    pressingDisabledTrigger.current = true;
-    setTimeout(() => {
-      pressingDisabledTrigger.current = false;
-    }, 0);
-  }, []);
-
-  const handleOpenChange = useCallback(
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = controlledState?.[0] ?? internalOpen;
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const popupId = useId();
+  const changeOpen = useCallback(
     (value: boolean) => {
-      if (!value && (pressingDisabledTrigger.current || isDispatchedScroll())) return;
-      if (controlledState) {
-        controlledState[1](value);
-      } else {
-        setOpen(value);
-      }
-      setDefaultOpen(value);
+      if (controlledState) controlledState[1](value);
+      else setInternalOpen(value);
     },
     [controlledState],
   );
+  const handleOpenChange = useCallback(
+    (value: boolean, details: TooltipPrimitive.Root.ChangeEventDetails) => {
+      const trigger = triggerRef.current;
+      // Base UI can request either a trigger or outside press close. Only a press
+      // inside this aria-disabled trigger should keep its explanation visible.
+      if (
+        !value &&
+        (details.reason === "trigger-press" || details.reason === "outside-press") &&
+        trigger?.getAttribute("aria-disabled") === "true" &&
+        details.event.target instanceof Node &&
+        trigger.contains(details.event.target)
+      ) {
+        details.cancel();
+        return;
+      }
+      if (!value && details.reason === "escape-key") consumedEscapes.add(details.event);
+      changeOpen(value);
+    },
+    [changeOpen],
+  );
 
   useEffect(() => {
-    if (controlledState) {
-      setOpen(controlledState[0]);
-    } else {
-      setOpen(defaultOpen);
-    }
-  }, [controlledState, defaultOpen]);
+    if (!open || disabled) return;
+    const doc = triggerRef.current?.ownerDocument;
+    if (!doc) return;
+    const onScroll = (event: Event) => {
+      // ScrollArea dispatches scroll for measurement on pointer entry. Only an
+      // actual scroll of an ancestor moves the trigger and dismisses its hint.
+      if (
+        event.isTrusted &&
+        event.target instanceof Node &&
+        event.target.contains(triggerRef.current)
+      )
+        changeOpen(false);
+    };
+    doc.addEventListener("scroll", onScroll, true);
+    return () => {
+      doc.removeEventListener("scroll", onScroll, true);
+    };
+  }, [open, disabled, changeOpen]);
 
-  // Short-circuit when disabled — Radix's `Tooltip.Trigger` does not honour a
-  // `disabled` prop directly. With `asChild` the prop is forwarded to the
-  // rendered element, but it's silently dropped on non-`<button>` children
-  // (`<div>`, `<span>`, etc.), leaving the tooltip armed.
-  if (disabled) {
-    return <>{children}</>;
-  }
+  if (disabled) return <>{children}</>;
 
   return (
-    <TooltipPrimitive.Provider>
+    <TooltipPrimitive.Provider delay={700} timeout={300}>
       <TooltipPrimitive.Root open={open} onOpenChange={handleOpenChange}>
         <TooltipPrimitive.Trigger
-          disabled={disabled}
-          asChild
-          // Capture phase: a disabled Base UI part (a disabled menu entry) does not run its
-          // bubble-phase pointer and click handlers, so only a capture listener sees the press.
-          onPointerDownCapture={notePress}
-          onClickCapture={notePress}
+          ref={triggerRef}
           onFocus={(event) => {
             // React portals bubble focus through the component tree. Only DOM
-            // descendants of this trigger should open its explanation; focus in
-            // a portaled menu must leave that menu as the topmost Escape layer.
-            if (!event.currentTarget.contains(event.target)) event.preventDefault();
+            // descendants of this trigger should open its explanation.
+            if (!event.currentTarget.contains(event.target)) event.preventBaseUIHandler();
           }}
-        >
-          {children}
-        </TooltipPrimitive.Trigger>
+          render={(props, state) => {
+            const trigger = renderMenuTrigger(children, props, state.open);
+            return (
+              <TooltipEscapeCapture
+                open={state.open}
+                triggerRef={triggerRef}
+                onKeyDown={props.onKeyDown}
+              >
+                {cloneElement(trigger, {
+                  // The open explanation describes the trigger, unless the trigger already
+                  // names its own description: a disabled menu entry's reason is both that
+                  // description and this tooltip's text, and is announced once.
+                  "aria-describedby":
+                    trigger.props["aria-describedby"] ?? (open ? popupId : undefined),
+                })}
+              </TooltipEscapeCapture>
+            );
+          }}
+        />
         <TooltipPrimitive.Portal container={portalContainer ?? undefined}>
-          <TooltipPrimitive.Content
-            onEscapeKeyDown={(event) => consumedEscapes.add(event)}
-            side={side}
-            sideOffset={6}
-            className={clsx(
-              Size.Sm as string,
-              "variant-scope",
-              "sized-text",
-              "tooltip-content",
-              "inline-flex items-center px-2 py-0.5 select-none",
-              invert ? "card-invert" : "variant-static-text card-overlay",
-              variant,
-              // The one `z-index` left in the package's overlays, kept deliberately rather
-              // than by oversight. It is effective where it sits only because of a Radix
-              // detail: `Content` is not itself the positioned element, but
-              // `react-popper` reads its computed `z-index` and copies it onto the
-              // wrapper it positions (`react-popper/dist/index.mjs:141,153`).
-              //
-              // **That makes it inert under any primitive with a Positioner/Popup split**,
-              // base-ui's included — there the value would have to move to the Positioner,
-              // which is the trap `inputs/combobox-shared.ts` documents for the popup. So
-              // swapping this component's provider is the change that silently turns this
-              // line into a no-op, and a tooltip that quietly stops out-ranking anything
-              // is not a failure a test of tooltip *behaviour* would catch.
-              //
-              // Nothing else in the package sets one: overlays portal to the end of
-              // `<body>` at `auto`, and a host stacking against its own ladder passes
-              // `portalContainer`. The effect of keeping this is that a `Tooltip` out-ranks
-              // a `Combobox` popup where the two overlap.
-              "z-10",
-            )}
+          <TooltipPrimitive.Positioner
+            positionMethod="fixed"
+            side={side ?? "top"}
+            collisionPadding={0}
+            // The popup sits 6px from its trigger, plus the 6px arrow that hangs from its edge.
+            sideOffset={12}
+            // A Tooltip out-ranks a Combobox popup where they overlap. The z-index
+            // belongs on the Positioner because it is the positioned element.
+            className="z-10"
           >
-            <TooltipPrimitive.Arrow asChild width={12} height={6}>
-              <Arrow filled={invert ?? false} variant={variant ?? Variant.Default} />
-            </TooltipPrimitive.Arrow>
-            {content}
-          </TooltipPrimitive.Content>
+            <TooltipPrimitive.Popup
+              id={popupId}
+              role="tooltip"
+              render={(props, state) => (
+                <div {...props} data-state={state.open ? "open" : "closed"} />
+              )}
+              className={clsx(
+                Size.Sm as string,
+                "variant-scope",
+                "sized-text",
+                "tooltip-content",
+                "inline-flex items-center px-2 py-0.5 select-none",
+                invert ? "card-invert" : "variant-static-text card-overlay",
+                variant,
+              )}
+            >
+              <TooltipPrimitive.Arrow className="data-[side=bottom]:-top-1.5 data-[side=bottom]:rotate-180 data-[side=top]:-bottom-1.5 data-[side=right]:-left-2.25 data-[side=right]:-translate-y-0.5 data-[side=right]:rotate-90 data-[side=left]:-right-2.25 data-[side=left]:-translate-y-0.5 data-[side=left]:-rotate-90">
+                <Arrow
+                  filled={invert ?? false}
+                  variant={variant ?? Variant.Default}
+                  className="block h-1.5 w-3"
+                  preserveAspectRatio="none"
+                />
+              </TooltipPrimitive.Arrow>
+              {content}
+            </TooltipPrimitive.Popup>
+          </TooltipPrimitive.Positioner>
         </TooltipPrimitive.Portal>
       </TooltipPrimitive.Root>
     </TooltipPrimitive.Provider>

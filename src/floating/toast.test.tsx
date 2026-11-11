@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { useContext, useEffect, useRef } from "react";
-import { act, cleanup, fireEvent, render } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, expect, test, vi } from "vitest";
 import { Popover } from "./popover";
 import { ToastContext, ToastManager, type ToastState } from "./toast";
@@ -59,7 +59,7 @@ test("toast updates in one tick retain both changes and a stable update callback
   expect(state.toasts).toEqual([]);
 });
 
-test("toast presses keep an open Radix popover open", async () => {
+test("toast presses keep an open popover open", async () => {
   let state!: ToastState;
   function Consumer() {
     state = useContext(ToastContext);
@@ -69,22 +69,29 @@ test("toast presses keep an open Radix popover open", async () => {
   const view = render(
     <ToastManager>
       <Consumer />
-      <Popover
-        open
-        onStateChange={onStateChange}
-        trigger={<button type="button">Open popover</button>}
-      >
+      <Popover onStateChange={onStateChange} trigger={<button type="button">Open popover</button>}>
         <button type="button">Popover content</button>
       </Popover>
+      <button type="button">Outside popover</button>
     </ToastManager>,
   );
+  fireEvent.click(view.getByRole("button", { name: "Open popover" }), { detail: 0 });
+  await waitFor(() => expect(view.getByRole("dialog")).toBeTruthy());
+  expect(onStateChange).toHaveBeenCalledWith(true);
+  onStateChange.mockClear();
   act(() => state.addToast({ id: "branch", title: "Notification", dismiss: 60000 }));
-  // Radix installs its outside-press listener after the opening event finishes.
+  // Let Base UI's document dismissal listeners register before pressing outside.
   await act(async () => {
     await new Promise((resolve) => setTimeout(resolve, 0));
   });
   fireEvent.pointerDown(view.getByText("Notification"), { button: 0, pointerType: "mouse" });
+  fireEvent.click(view.getByText("Notification"), { detail: 1 });
   expect(onStateChange).not.toHaveBeenCalled();
+  // The same intentional press outside the shared notification region dismisses.
+  const outside = view.getByRole("button", { name: "Outside popover" });
+  fireEvent.pointerDown(outside, { button: 0, pointerType: "mouse" });
+  fireEvent.click(outside, { detail: 1 });
+  await waitFor(() => expect(onStateChange).toHaveBeenCalledWith(false));
 });
 
 test("renaming a toast keeps its slot and synchronous updates follow the new id", () => {

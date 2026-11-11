@@ -92,10 +92,10 @@ export interface SelectProps<T extends string | string[]> {
    * withholding the reason is worse than either alone.
    *
    * **To attach that tooltip, wrap this in an element — not the `Select` directly.**
-   * `Tooltip` uses Radix's `asChild`, which hands its trigger's ref and pointer handlers
-   * to its child; `Select` is a plain function component that forwards neither, so they
-   * are silently dropped and the tooltip simply never opens. There is no error and the
-   * control looks correct. Verified in `select-disabled.browser.tsx`:
+   * Tooltip's Base UI render composition passes its ref and pointer handlers to its
+   * child. Select forwards neither, so the wrapper receives them on a DOM element.
+   * `select-disabled.browser.tsx` exercises this composition.
+   *
    *
    * ```tsx
    * <Tooltip content="Why this is fixed">

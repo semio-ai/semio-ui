@@ -43,9 +43,9 @@ for (const visuals of ["labels", "both", "icons"] as const) {
     await expect.element(page.getByText(DESCRIPTION, { exact: true }), WAIT_OPTIONS).toBeVisible();
     const content = document.querySelector<HTMLElement>(".tooltip-content")!;
     // A real pointer move crosses the trigger edge and the gap to the popup.
-    // Hover must persist after that move, beyond Radix's transit grace area.
+    // Hover must persist after that move, through Base UI's safe-polygon hover handling.
     await userEvent.hover(content, WAIT_OPTIONS);
-    await expect.element(wrapper, WAIT_OPTIONS).toHaveAttribute("data-state", "delayed-open");
+    await expect.element(wrapper, WAIT_OPTIONS).toHaveAttribute("data-popup-open", "");
     expect(
       content.contains(
         document.elementFromPoint(
@@ -100,7 +100,7 @@ for (const visuals of ["labels", "both", "icons"] as const) {
     await expect.poll(() => document.querySelector('[role="menu"]'), WAIT_OPTIONS).toBeNull();
     await expect.element(trigger, WAIT_OPTIONS).toHaveFocus();
     await expect.element(trigger, WAIT_OPTIONS).toHaveAttribute("aria-expanded", "false");
-    // Radix opens tooltips on restored keyboard focus; the explanation must not trap it.
+    // Restored focus-visible keyboard focus opens the explanation; the explanation must not trap it.
     await expect.element(explanation, WAIT_OPTIONS).toBeVisible();
     await userEvent.keyboard("{Shift>}{Tab}{/Shift}");
     await expect.element(before, WAIT_OPTIONS).toHaveFocus();

@@ -8,7 +8,7 @@ import { Tooltip } from "./tooltip";
  *
  * Such a press does nothing, and the tooltip is usually the reason the control is off,
  * so closing it would hide the explanation at the moment the reader acted. An enabled
- * trigger keeps Radix's behaviour and closes on press: that is the control case.
+ * trigger closes on Base UI's trigger-press request, providing the control case.
  */
 
 const settle = async (frames = 4) => {

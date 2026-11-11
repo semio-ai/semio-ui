@@ -13,6 +13,7 @@ import { LayoutRoot } from "../layouts/layout/root";
 // order, and the assertions could only agree with themselves.
 import "../test-stylesheet";
 import { Dropdown } from "./dropdown";
+import { OverlayEntry, OverlayLauncher } from "./overlay-accessibility.fixture";
 import { Modal } from "./modal";
 import { TooltipHost } from "./tooltip-3d/tooltip-host";
 import { useTooltipStore } from "./tooltip-3d/store";
@@ -567,3 +568,47 @@ test("a 3D tooltip paints over the app chrome, and under a body-level modal", as
     store.unregisterAnchor("probe-anchor");
   }
 });
+
+test.each([OverlayEntry.Popover, OverlayEntry.CanvasPopover])(
+  "%s paints over the pane surface containing its trigger",
+  async (entry) => {
+    await page.viewport(DESKTOP.width, DESKTOP.height);
+    document.documentElement.classList.remove("dark");
+    await render(
+      <>
+        <PaneHarness
+          paneContent={
+            <div className="p-12">
+              <OverlayLauncher entry={entry} onLaunch={() => {}} />
+            </div>
+          }
+        />
+        <LayoutRoot />
+      </>,
+    );
+    await openRightPaneAndSettle();
+    await page.getByRole("button", { name: "Open menu", exact: true }).click();
+    const action = () =>
+      page.getByRole("button", { name: "New entity", exact: true }).element() as HTMLElement;
+    await expect
+      .element(page.getByRole("button", { name: "New entity", exact: true }))
+      .toBeVisible();
+    const rect = await settledRect(action);
+    const popup = action().closest<HTMLElement>('[role="dialog"]')!;
+    expect(document.querySelector('[role="menu"]')).toBeNull();
+    const probe = {
+      x: Math.round(rect.left + rect.width / 2),
+      y: Math.round(rect.top + rect.height / 2),
+    };
+    const surface = paneSurface();
+    expect(depthAt(probe, (element) => element === surface)).not.toBe(Infinity);
+    expect(
+      await heldForFrames(
+        12,
+        () =>
+          depthAt(probe, (element) => popup.contains(element)) <
+          depthAt(probe, (element) => element === surface),
+      ),
+    ).toBe(true);
+  },
+);

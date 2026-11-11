@@ -5,21 +5,9 @@ import { useState } from "react";
 import { Size, Variant } from "../types";
 import { ToggleGroup } from "./toggle-group";
 
-// The highlight pill's geometry is the thing under test, and every way it broke
-// was layout-and-timing: a ref that resolved to the wrong node through
-// `Tooltip`'s `asChild` trigger, a measurement taken before the webfont swapped,
-// and a tween that could be interrupted mid-flight. None of that reproduces in
-// jsdom — a real engine with real text metrics and a real `ResizeObserver` is
-// the only place the pill can land in the wrong place at all. Hence browser mode.
-//
-// Checked by reintroducing each failure individually: measuring only on mount
-// plus a window `resize` fails the re-measure test, and taking width off the
-// declared style fails all four. The `asChild` ref does NOT fail here — putting
-// the old ref-collection mechanism back leaves these tests green, because
-// nothing in a bare render triggers the trigger re-render that detached the
-// node in the app. So these assert the outcome (the pill's box coincides with
-// the active item's), not the mechanism; treat the query-by-attribute lookup in
-// the component as unguarded and reason about it directly if it changes.
+// The highlight pill depends on live text metrics, ResizeObserver and Tooltip's
+// render composition. Browser coverage checks that its box converges on the active
+// item's box through item re-renders, font loads and interrupted motion.
 
 // These tests declare the handful of layout primitives the pill's correctness
 // rests on rather than importing `test-stylesheet`: the root must establish the
@@ -140,9 +128,8 @@ test("pill covers the active item, whose trigger is wrapped by Tooltip", async (
   useLayoutShim();
   await render(<Harness />);
 
-  // Every item is inside `Tooltip` → Radix `Trigger asChild`, which is what made
-  // a collected ref unreliable. Waiting rather than asserting immediately allows
-  // for the post-font-load re-measure; it must converge on the item's box.
+  // Each item participates in Tooltip's render composition. Wait for the
+  // post-font-load measurement to converge on the active item's current box.
   await vi.waitFor(() => expectPillOver("a"));
 
   // A real measurement happened — not a zero/default that trivially matches.

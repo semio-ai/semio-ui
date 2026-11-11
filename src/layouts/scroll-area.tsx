@@ -292,7 +292,7 @@ export const InnerScrollArea = forwardRef<ScrollAreaRef, ScrollAreaProps>(
     // Make the thumb measure itself the moment it appears.
     //
     // Base UI positions the thumb only from the viewport's scroll handler and a resize
-    // observer, never on mount; Radix positioned it on mount. Since the scrollbar here is
+    // observer. Since the scrollbar here is
     // mounted on hover, it is created *after* any scrolling that happened with the pointer
     // elsewhere — a canvas-driven `motionScrollY`, `scrollTo` through the imperative
     // handle, `externalScrollTop`, keyboard scrolling, or a windowed list moving itself —
@@ -301,10 +301,8 @@ export const InnerScrollArea = forwardRef<ScrollAreaRef, ScrollAreaProps>(
     // actual scrolling is what makes it measure.
     //
     // A scroll listener on the viewport, or capturing on any ancestor up to the window,
-    // receives this event as it would a real scroll. Radix's tooltip listens that way and
-    // closes on any scroll around its trigger, so `Tooltip` ignores a close requested by
-    // an untrusted scroll; otherwise every tooltip open in this area would close when the
-    // pointer enters it.
+    // receives this event. Tooltip's capture listener dismisses only on trusted
+    // ancestor scrolls, so this measurement keeps open explanations visible.
     useEffect(() => {
       if (!pointerOver || !viewportNode) return;
       viewportNode.dispatchEvent(new Event("scroll"));
