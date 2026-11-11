@@ -14,7 +14,7 @@ import {
 } from "./overlay-accessibility.fixture";
 
 beforeEach(async () => {
-  // Sidebar panels and Radix submenus render only in the desktop layout.
+  // Sidebar panels and submenus render only in the desktop layout.
   await page.viewport(1280, 800);
   await expect
     .poll(() => {
@@ -148,7 +148,7 @@ for (const surface of Object.values(DialogSurface)) {
       await expect.element(page.getByRole("button", { name: "Scene row" })).not.toBeInTheDocument();
       await expect.element(page.getByRole("button", { name: "Outer dialog action" })).toBeVisible();
       const item = await openMenu(entry, false);
-      if (entry === OverlayEntry.Popover) {
+      if (entry !== OverlayEntry.ContextMenu && entry !== OverlayEntry.ContextSubmenu) {
         await expect
           .element(page.getByRole("button", { name: "Outer dialog action" }))
           .toBeVisible();
@@ -236,12 +236,18 @@ for (const surroundings of Object.values(MenuSurroundings)) {
         const submenu =
           entry === OverlayEntry.DropdownSubmenu || entry === OverlayEntry.ContextSubmenu;
         const menu = page.getByRole("menu", submenu ? { name: "Create", exact: true } : undefined);
-        // ArrowLeft closes a submenu only when focus has reached that submenu.
-        await expect.poll(() => menu.element().contains(document.activeElement)).toBe(true);
+        if (surroundings === MenuSurroundings.Listing) {
+          await expect.poll(() => menu.element().contains(document.activeElement)).toBe(true);
+        } else {
+          await expect.element(focusTarget).toHaveFocus();
+          if (!page.getByRole("menuitem", { name: "New entity", exact: true }).query())
+            await openMenu(entry, false);
+          page.getByRole("menuitem", { name: "New entity", exact: true }).element().focus();
+        }
       });
       await expect.element(item).toBeVisible();
       if (entry === OverlayEntry.DropdownSubmenu || entry === OverlayEntry.ContextSubmenu) {
-        // The focus trap must restore the submenu before its closing key is dispatched.
+        // Dispatch navigation from an item in the open submenu.
         await expect.element(item).toHaveFocus();
         await userEvent.keyboard("{ArrowLeft}");
         await expect
@@ -281,6 +287,12 @@ for (const surroundings of Object.values(MenuSurroundings)) {
       item = await openMenu(entry, false);
       await item.hover();
       await userEvent.keyboard("{Escape}");
+      if (entry === OverlayEntry.DropdownSubmenu || entry === OverlayEntry.ContextSubmenu) {
+        await expect
+          .element(page.getByRole("menuitem", { name: "Create", exact: true }))
+          .toHaveFocus();
+        await userEvent.keyboard("{Escape}");
+      }
       await expect.element(page.getByRole("menu")).not.toBeInTheDocument();
       if (entry === OverlayEntry.Dropdown || entry === OverlayEntry.DropdownSubmenu) {
         await expect

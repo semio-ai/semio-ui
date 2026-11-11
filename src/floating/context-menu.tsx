@@ -1,12 +1,18 @@
-import { ContextMenu as ContextMenuPrimitive } from "radix-ui";
+import { ContextMenu as ContextMenuPrimitive } from "@base-ui/react/context-menu";
 import { clsx } from "clsx";
-import { ReactNode } from "react";
+import { useRef, useState, type ReactNode, type CSSProperties } from "react";
 import { Variant } from "../types";
-import { NestedParent } from "../nested-elements/types";
-import { NestedParentProvider } from "../nested-elements/context";
 import { ScrollArea } from "../layouts/scroll-area";
-
-import { MenuActionProvider, useMenuActionHandoff, stopMenuEscapePropagation } from "./menu-action";
+import {
+  MenuActionProvider,
+  useMenuActionHandoff,
+  preserveMenuInteraction,
+  useMenuTabContainment,
+  renderMenuTrigger,
+  useNotificationMenuEscape,
+  menuContainsFocus,
+  keepMenuNavigationKeys,
+} from "./menu-action";
 
 export interface ContextMenuProps {
   content: ReactNode;
@@ -19,7 +25,7 @@ export interface ContextMenuProps {
   portalContainer?: HTMLElement | null;
 }
 
-function ContextMenu({
+export function ContextMenu({
   content,
   children,
   variant,
@@ -29,54 +35,77 @@ function ContextMenu({
   portalContainer,
 }: ContextMenuProps) {
   const handoff = useMenuActionHandoff();
+  const popupRef = useRef<HTMLDivElement>(null);
+  const previousFocus = useRef<HTMLElement | null>(null);
+  const returnFocus = useRef(false);
+  const [open, setOpen] = useState(false);
+  const changeOpen = (next: boolean) => {
+    setOpen(next);
+    onOpenChange?.(next);
+  };
+  useNotificationMenuEscape(open, () => changeOpen(false));
+  useMenuTabContainment(open, popupRef);
   return (
-    <NestedParentProvider value={NestedParent.Context}>
-      <ContextMenuPrimitive.Root onOpenChange={onOpenChange}>
-        {/* `disabled` MUST be forwarded to Radix's Trigger, not handled by
-            short-circuiting this component to a different element. Swapping the
-            tree (e.g. returning a plain <span> when disabled) unmounts the
-            children's Radix subtree mid-interaction; a sibling Dropdown that
-            just opened never fires its onOpenChange(false), so any external
-            "menu open" counter gets stuck and the row becomes uninteractive. */}
-        <ContextMenuPrimitive.Trigger asChild disabled={disabled}>
-          {children}
-        </ContextMenuPrimitive.Trigger>
-        <ContextMenuPrimitive.Portal container={portalContainer ?? undefined}>
-          <ContextMenuPrimitive.Content
-            ref={handoff.contentRef}
-            onCloseAutoFocus={handoff.onCloseAutoFocus}
-            onEscapeKeyDown={stopMenuEscapePropagation}
-            alignOffset={3}
-            collisionPadding={2}
+    <ContextMenuPrimitive.Root
+      onOpenChangeComplete={handoff.onOpenChangeComplete}
+      open={open}
+      loopFocus={false}
+      onOpenChange={(next, details) => {
+        // Disabling blocks opening without disabling navigation in a mounted menu.
+        if ((next && disabled) || (!next && preserveMenuInteraction(details))) {
+          details.cancel();
+          return;
+        }
+        if (next) previousFocus.current = document.activeElement as HTMLElement | null;
+        returnFocus.current = !next && menuContainsFocus(popupRef.current);
+        // Context menus return to the element focused before invocation, which can
+        // differ from the row that received the context press.
+        if (returnFocus.current) previousFocus.current?.focus({ preventScroll: true });
+        changeOpen(next);
+      }}
+    >
+      <ContextMenuPrimitive.Trigger
+        render={(props, state) => renderMenuTrigger(children, props, state.open)}
+      />
+      <ContextMenuPrimitive.Portal container={portalContainer ?? undefined}>
+        {/* Below the press point, its top-left corner just past the pointer, so it
+            enters with the same vertical slide as a Dropdown and flips above the
+            pointer where there is no room below. */}
+        <ContextMenuPrimitive.Positioner
+          side="bottom"
+          align="start"
+          sideOffset={0}
+          alignOffset={2}
+          collisionPadding={2}
+        >
+          <ContextMenuPrimitive.Popup
+            onKeyDown={keepMenuNavigationKeys}
+            ref={popupRef}
+            finalFocus={() => (returnFocus.current ? previousFocus.current : false)}
+            // Base UI's ContextMenu keeps focus inside the open menu, Tab included, and
+            // hides the page from assistive technology until the menu closes.
+            render={(props, state) => (
+              <div {...props} data-state={state.open ? "open" : "closed"} />
+            )}
+            style={color ? ({ "--custom-color": color } as CSSProperties) : {}}
             className={clsx(
               color ? "custom-color" : variant,
-              "variant-scope card-overlay dropdown-content m-0.5 min-w-55",
-              "max-h-[calc(var(--radix-context-menu-content-available-height)-4px)]",
-              "desktop:w-[calc(var(--radix-context-menu-trigger-width)+10px)]",
-              "w-[calc(var(--radix-context-menu-content-available-width)-4px)]",
+              "variant-scope card-overlay dropdown-content m-0.5 min-w-55 [outline:none]",
+              "max-h-[calc(var(--available-height)-4px)]",
+              "desktop:w-[calc(var(--anchor-width)+10px)]",
+              "w-[calc(var(--available-width)-4px)]",
             )}
           >
-            {/* For now, disabling the arrow because we can't position it in the same way we can with dropdowns */}
-            {/* <ContextMenuPrimitive.Arrow asChild width={12} height={6}>
-                <Arrow
-                  filled={false}
-                  variant={variant ?? Variant.Default}
-                />
-              </ContextMenuPrimitive.Arrow> */}
-
             <ScrollArea
               shrinkHeight
-              className={clsx(
-                "max-h-[calc(var(--radix-context-menu-content-available-height)-4px)] p-0.5",
-              )}
+              focusableViewport={false}
+              className="max-h-[calc(var(--available-height)-4px)] p-0.5"
             >
               <MenuActionProvider value={handoff.enqueue}>{content}</MenuActionProvider>
             </ScrollArea>
-          </ContextMenuPrimitive.Content>
-        </ContextMenuPrimitive.Portal>
-      </ContextMenuPrimitive.Root>
-    </NestedParentProvider>
+          </ContextMenuPrimitive.Popup>
+        </ContextMenuPrimitive.Positioner>
+      </ContextMenuPrimitive.Portal>
+    </ContextMenuPrimitive.Root>
   );
 }
-
-export { ContextMenu };

@@ -1,11 +1,10 @@
 import { useId, type MouseEvent } from "react";
-import { DropdownMenu, ContextMenu } from "radix-ui";
+import { Menu } from "@base-ui/react/menu";
 import { clsx } from "clsx";
 import { useMenuAction } from "../floating/menu-action";
 import { resolveIcon } from "../icons/registry";
 import { Tooltip } from "../floating/tooltip";
-import { NestedParent, type NestedItemProps } from "./types";
-import { useNestedParent } from "./context";
+import { type NestedItemProps } from "./types";
 import { explainDisabled } from "./disabled-reason";
 
 export function NestedItem({
@@ -21,9 +20,6 @@ export function NestedItem({
   descriptionVariant,
 }: NestedItemProps) {
   const runAction = useMenuAction();
-  const parent = useNestedParent();
-
-  const ItemComponent = parent === NestedParent.Dropdown ? DropdownMenu.Item : ContextMenu.Item;
   const reason = explainDisabled(disabled, description, useId());
 
   return (
@@ -35,47 +31,32 @@ export function NestedItem({
         side="right"
         variant={descriptionVariant}
       >
-        <ItemComponent
+        <Menu.Item
           disabled={reason.primitiveDisabled}
-          // Never while disabled, independent of `closeOnSelect`/pointer handling
-          // below: Radix's own `disabled` only gates its OWN `onSelect` — a
-          // consumer's `onClick` is composed onto the same DOM node and fires from
-          // a real click regardless, which is the difference between a control
-          // that merely LOOKS inert and one that is.
+          closeOnClick={closeOnSelect}
           onClick={
             disabled || !onClick
               ? undefined
               : (event) => {
+                  // An entry that stays open runs in the event, with the live event, so
+                  // its handler can stop propagation to ancestors.
                   if (!closeOnSelect) {
                     onClick(event);
                     return;
                   }
                   event.stopPropagation();
-                  // React clears currentTarget after dispatch; the action receives the
-                  // selected item even when it runs after the menu has unmounted.
+                  // A closing entry's action runs after the menu has closed, when React
+                  // has cleared `currentTarget`; this copy keeps the selected element.
                   const actionEvent = Object.create(event) as MouseEvent;
                   actionEvent.currentTarget = event.currentTarget;
-                  runAction(() => onClick(actionEvent), closeOnSelect);
+                  runAction(() => onClick(actionEvent), true);
                 }
           }
-          // After `onClick`: a disabled entry with a reason replaces it with a
-          // prevented click, which keeps the entry inert.
           {...reason.itemProps}
           data-testid={testId}
-          onSelect={(event: Event) => {
-            if (!closeOnSelect) {
-              event.preventDefault();
-            }
-          }}
           className={clsx(
             "group/item flex items-center rounded-xs leading-none",
             "relative h-7 px-1.25 pl-7.5 text-sm outline-hidden select-none",
-            // Suppressed only when there is nothing to explain. A reason needs the
-            // pointer events this class would remove: the tooltip's trigger is this
-            // same element, and a reader who cannot hover it never learns why.
-            // Keeping them lets no click through, because the entry's click is
-            // prevented; the stylesheet gives it the default cursor, not the pointer.
-            !reason.explained && "data-disabled:pointer-events-none",
             "variant-scope highlight-list-item",
             variant,
           )}
@@ -106,7 +87,7 @@ export function NestedItem({
               {right}
             </div>
           )}
-        </ItemComponent>
+        </Menu.Item>
       </Tooltip>
     </>
   );

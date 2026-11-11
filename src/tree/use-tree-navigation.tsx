@@ -311,6 +311,13 @@ export function TreeNavRoot({
   );
   const handleKeyDown = useCallback(
     (event: KeyboardEvent<HTMLElement>) => {
+      const active = document.activeElement;
+      if (
+        active instanceof Element &&
+        active.closest('[role="menu"]') &&
+        !event.currentTarget.contains(active)
+      )
+        return;
       compositeKeyDown?.(event);
       onKeyDown?.(event);
     },

@@ -16,11 +16,8 @@ import { NestedSelect } from "./select";
  * A disabled menu entry that carries a reason is reachable by keyboard and states its
  * reason to assistive technology, while staying inert.
  *
- * Radix drops a `disabled` item from its roving focus order, so without this an arrow
- * key skips the entry and its reason is reachable only by hovering. Each case pairs the
- * reachable entry with a disabled entry that has NO reason, which must still be
- * skipped; that control is what tells a working rule apart from one that makes every
- * disabled entry focusable.
+ * Disabled entries stay in the keyboard order with or without reasons. Both kinds
+ * remain inert, while a supplied reason is also a permanent accessible description.
  */
 
 const REASON = "View only: ask its owner for Editor access";
@@ -101,11 +98,10 @@ async function expectReachableAndInert(
   await expect.element(page.getByRole("menu").getByText(REASON)).not.toBeVisible();
   await expect.element(edit).toHaveAccessibleName("Edit");
 
-  const seen = await walk(2);
-  // The entry with a reason takes focus; the one without is skipped.
-  expect(seen).toEqual(["Open", "Edit", "Duplicate"]);
+  const seen = await walk(3);
+  expect(seen).toEqual(["Open", "Edit", "Delete", "Duplicate"]);
 
-  await userEvent.keyboard("{ArrowUp}");
+  await userEvent.keyboard("{ArrowUp}{ArrowUp}");
   await settle();
   await expect.element(edit).toHaveFocus();
   await expect.element(edit).toHaveAttribute("aria-disabled", "true");
@@ -207,8 +203,8 @@ const ADMIN_REASON = "Only an owner can grant Admin.";
 
 /**
  * Admin is disabled with a reason AND a description; Commenter is disabled with only a
- * description. A description says what choosing an option means, never why it is off,
- * so only Admin is reachable, and it announces its reason.
+ * description. A description says what choosing an option means, never why it is off;
+ * both options are reachable, and Admin announces its reason.
  */
 const ROLES = [
   {
@@ -244,7 +240,11 @@ test("single Select: a disabled option with a reason is reachable but cannot be 
   (page.getByRole("button", { name: "Role: Editor" }).element() as HTMLElement).focus();
   await userEvent.keyboard("{Enter}");
   await expect.element(page.getByRole("menuitemradio", { name: "Admin" })).toBeVisible();
-  // Radix focuses the first focusable option on a keyboard open, which is Admin.
+  // A keyboard open focuses the first enabled option; ArrowUp reaches the disabled one
+  // above it.
+  await settle();
+  expect(focusedText()).toBe("Editor");
+  await userEvent.keyboard("{ArrowUp}");
   await settle();
   expect(focusedText()).toBe("Admin");
   const admin = page.getByRole("menuitemradio", { name: "Admin" });
@@ -273,10 +273,10 @@ test("single Select: a disabled option with a reason is reachable but cannot be 
   expect(onChange).not.toHaveBeenCalled();
   await expect.element(page.getByRole("button", { name: "Role: Editor" })).toHaveFocus();
   await userEvent.keyboard("{Enter}");
-  await expect.element(page.getByRole("menuitemradio", { name: "Admin" })).toHaveFocus();
+  await expect.element(page.getByRole("menuitemradio", { name: "Editor" })).toHaveFocus();
 
-  // Editor, then Viewer: Commenter, disabled with only a description, is skipped.
-  expect(await walk(2)).toEqual(["Admin", "Editor", "Viewer"]);
+  // Commenter is reachable even without a disabled reason.
+  expect(await walk(2)).toEqual(["Editor", "Commenter", "Viewer"]);
 
   // An enabled option still selects and closes.
   await userEvent.keyboard("{Enter}");
@@ -306,6 +306,9 @@ test("multi Select: a disabled option with a reason is reachable but cannot be t
   await userEvent.keyboard("{Enter}");
   await expect.element(page.getByRole("menuitemcheckbox", { name: "Admin" })).toBeVisible();
   await settle();
+  expect(focusedText()).toBe("Editor");
+  await userEvent.keyboard("{ArrowUp}");
+  await settle();
   expect(focusedText()).toBe("Admin");
   const admin = page.getByRole("menuitemcheckbox", { name: "Admin" });
   await expect.element(admin).toHaveAttribute("aria-disabled", "true");
@@ -319,7 +322,7 @@ test("multi Select: a disabled option with a reason is reachable but cannot be t
   await expect.element(admin).toHaveAttribute("aria-checked", "false");
   await expect.element(page.getByRole("menu")).toBeVisible();
 
-  expect(await walk(2)).toEqual(["Admin", "Editor", "Viewer"]);
+  expect(await walk(3)).toEqual(["Admin", "Editor", "Commenter", "Viewer"]);
   await userEvent.keyboard(" ");
   await expect.poll(() => onChange.mock.calls).toEqual([[["viewer"]]]);
 });
@@ -349,6 +352,8 @@ test("a disabled option with a reason that would close on select keeps the menu 
   (page.getByRole("button", { name: "Filters" }).element() as HTMLElement).focus();
   await userEvent.keyboard("{Enter}");
   const pinned = page.getByRole("menuitemcheckbox", { name: "Pinned" });
+  await expect.element(page.getByRole("menuitemcheckbox", { name: "Recent" })).toHaveFocus();
+  await userEvent.keyboard("{ArrowUp}");
   await expect.element(pinned).toHaveFocus();
   await userEvent.keyboard("{Enter}");
   await settle();
@@ -359,7 +364,7 @@ test("a disabled option with a reason that would close on select keeps the menu 
   expect(onChange).not.toHaveBeenCalled();
 });
 
-test("a disabled group skips its options unless an option has its own reason", async () => {
+test("a disabled group keeps every option reachable", async () => {
   await render(
     <Dropdown trigger={<button type="button">Rung</button>}>
       <NestedItem onClick={() => undefined}>First</NestedItem>
@@ -379,7 +384,7 @@ test("a disabled group skips its options unless an option has its own reason", a
   (page.getByRole("button", { name: "Rung" }).element() as HTMLElement).focus();
   await userEvent.keyboard("{Enter}");
   await expect.element(page.getByRole("menuitem", { name: "First" })).toHaveFocus();
-  expect(await walk(2)).toEqual(["First", "Admin", "Last"]);
+  expect(await walk(4)).toEqual(["First", "Editor", "Admin", "Viewer", "Last"]);
   await expect
     .element(page.getByRole("menuitemradio", { name: "Editor" }))
     .not.toHaveAttribute("aria-describedby");
@@ -473,13 +478,13 @@ for (const theme of ["light", "dark"] as const) {
       await render(<SingleSelect onChange={() => undefined} />);
       (page.getByRole("button", { name: "Role: Editor" }).element() as HTMLElement).focus();
       await userEvent.keyboard("{Enter}");
-      await expect.element(page.getByRole("menuitemradio", { name: "Admin" })).toHaveFocus();
+      await expect.element(page.getByRole("menuitemradio", { name: "Editor" })).toHaveFocus();
       await walk(2);
       await expect.element(page.getByRole("menuitemradio", { name: "Viewer" })).toHaveFocus();
       await new Promise((resolve) => setTimeout(resolve, 200));
       const enabledFocused = indicator("Viewer");
       const disabledAtRest = indicator("Admin");
-      await userEvent.keyboard("{ArrowUp}");
+      await userEvent.keyboard("{ArrowUp}{ArrowUp}");
       await settle();
       await userEvent.keyboard("{ArrowUp}");
       await expect.element(page.getByRole("menuitemradio", { name: "Admin" })).toHaveFocus();

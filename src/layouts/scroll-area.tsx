@@ -59,6 +59,13 @@ interface ScrollAreaProps {
   shrinkWidth?: boolean;
   orientation?: "vertical" | "horizontal" | "both";
   showGutter?: boolean;
+  /**
+   * Whether an overflowing viewport is a tab stop (the default), so its content is
+   * reachable without a pointer. Pass `false` inside a widget whose own keyboard
+   * navigation reaches every entry and scrolls it into view, such as a menu: there the
+   * viewport would only take focus meant for the widget.
+   */
+  focusableViewport?: boolean;
   // Scroll tracking callbacks
   onScrollChange?: (scrollInfo: ScrollInfo) => void;
   onViewportChange?: (viewportInfo: ViewportInfo) => void;
@@ -226,6 +233,7 @@ export const InnerScrollArea = forwardRef<ScrollAreaRef, ScrollAreaProps>(
       shrinkWidth = false,
       orientation = "both",
       showGutter = true,
+      focusableViewport = true,
 
       onScrollChange,
       onViewportChange,
@@ -551,7 +559,7 @@ export const InnerScrollArea = forwardRef<ScrollAreaRef, ScrollAreaProps>(
             // exactly the sub-pixel case that verdict gets wrong — leaving a focusable
             // box with nothing to scroll. Driving it from the same measurement that
             // decides whether the axis scrolls at all keeps the two consistent.
-            tabIndex={contentOverflow.x || contentOverflow.y ? 0 : -1}
+            tabIndex={focusableViewport && (contentOverflow.x || contentOverflow.y) ? 0 : -1}
             className={clsx(
               "min-h-0 min-w-0 flex-1",
               orientation === "horizontal" ? "h-full" : "w-full",

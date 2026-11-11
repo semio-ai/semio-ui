@@ -1,28 +1,36 @@
-import { DropdownMenu as DropdownPrimitive } from "radix-ui";
+import { Menu } from "@base-ui/react/menu";
 import { clsx } from "clsx";
 import {
-  ReactNode,
-  ForwardedRef,
-  forwardRef,
-  CSSProperties,
-  type MouseEventHandler,
-  useCallback,
-  useEffect,
-  useRef,
+  isValidElement,
   useState,
+  useRef,
+  type ReactNode,
+  type Ref,
+  type CSSProperties,
+  type MouseEventHandler,
 } from "react";
+import { mergeRefs } from "react-merge-refs";
 import { Variant } from "../types";
-import { NestedParent } from "../nested-elements/types";
-import { NestedParentProvider } from "../nested-elements/context";
 import { ScrollArea } from "../layouts/scroll-area";
 import { Arrow } from "./arrow";
-import { takeDropdownOpenLock, releaseDropdownOpenLock } from "./dropdown-coordinator";
-
-import { MenuActionProvider, useMenuActionHandoff, stopMenuEscapePropagation } from "./menu-action";
+import {
+  MenuActionProvider,
+  useMenuActionHandoff,
+  preserveMenuInteraction,
+  renderMenuTrigger,
+  useNotificationMenuEscape,
+  useMenuShiftTabExit,
+  menuTriggerFocusTarget,
+  menuContainsFocus,
+  keepMenuNavigationKeys,
+} from "./menu-action";
 
 export interface DropdownProps {
   trigger: ReactNode;
   children: ReactNode;
+  ref?: Ref<HTMLButtonElement>;
+  /** Whether the trigger renders a native button. Inferred for intrinsic elements. */
+  nativeButton?: boolean;
   variant?: Variant;
   color?: string;
   header?: ReactNode;
@@ -38,134 +46,136 @@ export interface DropdownProps {
   portalContainer?: HTMLElement | null;
 }
 
-const Dropdown = forwardRef(
-  (
-    {
-      header,
-      trigger,
-      children,
-      variant,
-      color,
-      side,
-      disabled,
-      open,
-      onOpenChange,
-      onTriggerDoubleClick,
-      contentClassName,
-      scrollOrientation = "vertical",
-      matchTriggerWidth = true,
-      portalContainer,
-    }: DropdownProps,
-    ref: ForwardedRef<HTMLButtonElement>,
-  ) => {
-    // Always drive `DropdownPrimitive.Root` from a state we own so the
-    // module-scoped coordinator can close us if another Dropdown opens
-    // (see `dropdown-coordinator.ts`). When the consumer passes a
-    // controlled `open` prop we mirror it; otherwise our internal state
-    // is the source of truth and `onOpenChange` is still fired so any
-    // listener observes transitions normally.
-    const handoff = useMenuActionHandoff();
-    const isControlled = open !== undefined;
-    const [internalOpen, setInternalOpen] = useState(false);
-    const actualOpen = isControlled ? (open ?? false) : internalOpen;
-
-    // The coordinator uses this callback's identity as the lock key, so
-    // it MUST be stable across renders — otherwise the take/release pair
-    // would use different references and the release would no-op,
-    // leaving a stale entry that re-closes this dropdown the next time
-    // it opens. The stable `close` reads the latest controlled-mode /
-    // onOpenChange via refs.
-    const isControlledRef = useRef(isControlled);
-    isControlledRef.current = isControlled;
-    const onOpenChangeRef = useRef(onOpenChange);
-    onOpenChangeRef.current = onOpenChange;
-    const close = useCallback(() => {
-      if (!isControlledRef.current) setInternalOpen(false);
-      onOpenChangeRef.current?.(false);
-    }, []);
-
-    const handleOpenChange = useCallback(
-      (next: boolean) => {
-        if (!isControlled) setInternalOpen(next);
-        onOpenChange?.(next);
-      },
-      [isControlled, onOpenChange],
-    );
-
-    // Take or release the open lock whenever our open state changes.
-    // Taking the lock synchronously calls the previous holder's close,
-    // which propagates back into its own state via the same mechanism
-    // — exactly one dropdown ends up open.
-    useEffect(() => {
-      if (actualOpen) {
-        takeDropdownOpenLock(close);
-      } else {
-        releaseDropdownOpenLock(close);
-      }
-    }, [actualOpen, close]);
-
-    // Belt and braces: if this Dropdown unmounts while open, release
-    // the lock so a future Dropdown isn't blocked by a dead reference.
-    useEffect(() => {
-      return () => releaseDropdownOpenLock(close);
-    }, [close]);
-
-    return (
-      <NestedParentProvider value={NestedParent.Dropdown}>
-        <DropdownPrimitive.Root open={actualOpen} onOpenChange={handleOpenChange}>
-          <DropdownPrimitive.Trigger
-            ref={ref}
-            asChild
-            disabled={disabled}
-            className="group/trigger"
-            onDoubleClick={onTriggerDoubleClick}
+export function Dropdown({
+  header,
+  trigger,
+  children,
+  ref,
+  nativeButton,
+  variant,
+  color,
+  side,
+  disabled,
+  open,
+  onOpenChange,
+  onTriggerDoubleClick,
+  contentClassName,
+  scrollOrientation = "vertical",
+  matchTriggerWidth = true,
+  portalContainer,
+}: DropdownProps) {
+  const handoff = useMenuActionHandoff();
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const popupRef = useRef<HTMLDivElement>(null);
+  const returnFocus = useRef(false);
+  const closeHandled = useRef(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+  const actualOpen = open ?? internalOpen;
+  const changeOpen = (next: boolean) => {
+    if (open === undefined) setInternalOpen(next);
+    onOpenChange?.(next);
+  };
+  useNotificationMenuEscape(actualOpen, () => changeOpen(false));
+  useMenuShiftTabExit(actualOpen, popupRef, () => {
+    closeHandled.current = true;
+    returnFocus.current = true;
+    menuTriggerFocusTarget(triggerRef.current)?.focus({ preventScroll: true });
+    changeOpen(false);
+  });
+  const isNativeButton =
+    nativeButton ??
+    !(isValidElement(trigger) && typeof trigger.type === "string" && trigger.type !== "button");
+  return (
+    <Menu.Root
+      onOpenChangeComplete={handoff.onOpenChangeComplete}
+      open={actualOpen}
+      loopFocus={false}
+      onOpenChange={(next, details) => {
+        if (!next && preserveMenuInteraction(details)) return;
+        closeHandled.current = !next;
+        returnFocus.current =
+          !next &&
+          details.reason !== "focus-out" &&
+          !(details.event instanceof KeyboardEvent && details.event.key === "Tab") &&
+          menuContainsFocus(popupRef.current);
+        // Restore before popup removal so a surrounding Modal never sees focus fall
+        // to body and claims it. Tab retains Base UI's surrounding tab-order handoff.
+        if (returnFocus.current)
+          menuTriggerFocusTarget(triggerRef.current)?.focus({ preventScroll: true });
+        changeOpen(next);
+      }}
+    >
+      <Menu.Trigger
+        ref={mergeRefs([ref, triggerRef])}
+        nativeButton={isNativeButton}
+        disabled={disabled}
+        className="group/trigger"
+        onDoubleClick={onTriggerDoubleClick}
+        onMouseDown={(event) => {
+          if (!actualOpen && event.button === 0) event.preventDefault();
+        }}
+        render={(props, state) => renderMenuTrigger(trigger, props, state.open)}
+      />
+      <Menu.Portal container={portalContainer ?? undefined}>
+        <Menu.Positioner
+          align="center"
+          side={side}
+          collisionPadding={2}
+          sideOffset={9}
+          arrowPadding={2}
+        >
+          <Menu.Popup
+            onKeyDown={keepMenuNavigationKeys}
+            ref={popupRef}
+            finalFocus={() => {
+              const handled = closeHandled.current;
+              closeHandled.current = false;
+              const target = menuTriggerFocusTarget(triggerRef.current);
+              if (handled) return returnFocus.current ? target : false;
+              // A close through the `open` prop skips onOpenChange. Return focus when it
+              // was in the menu or has fallen to the body with the removed popup.
+              const active = document.activeElement;
+              return !active || active === document.body || menuContainsFocus(popupRef.current)
+                ? target
+                : false;
+            }}
+            render={(props, state) => (
+              <div {...props} data-state={state.open ? "open" : "closed"} />
+            )}
+            style={color ? ({ "--custom-color": color } as CSSProperties) : {}}
+            className={clsx(
+              color ? "custom-color" : variant,
+              "variant-scope card-overlay dropdown-content m-0.5 min-w-55 [outline:none]",
+              "max-h-[calc(var(--available-height)-4px)]",
+              matchTriggerWidth && "desktop:w-[calc(var(--anchor-width)+10px)]",
+              "w-[calc(var(--available-width)-4px)]",
+              contentClassName,
+            )}
           >
-            {trigger}
-          </DropdownPrimitive.Trigger>
-          <DropdownPrimitive.Portal container={portalContainer ?? undefined}>
-            <DropdownPrimitive.Content
-              ref={handoff.contentRef}
-              onCloseAutoFocus={handoff.onCloseAutoFocus}
-              onEscapeKeyDown={stopMenuEscapePropagation}
-              align="center"
-              side={side}
-              collisionPadding={2}
-              sideOffset={3}
-              arrowPadding={2}
-              style={color ? ({ "--custom-color": color } as CSSProperties) : {}}
-              className={clsx(
-                color ? "custom-color" : variant,
-                "variant-scope card-overlay dropdown-content m-0.5 min-w-55",
-                "max-h-[calc(var(--radix-dropdown-menu-content-available-height)-4px)]",
-                matchTriggerWidth &&
-                  "desktop:w-[calc(var(--radix-dropdown-menu-trigger-width)+10px)]",
-                "w-[calc(var(--radix-dropdown-menu-content-available-width)-4px)]",
-                contentClassName,
-              )}
+            {/* The six-pixel caret fills part of the nine-pixel side offset. */}
+            {/* Positioner measures without Popup's margin. Remove that margin on the
+                cross axis; stretch the SVG viewBox like Radix's 12 by 6 arrow. */}
+            <Menu.Arrow className="data-[side=bottom]:-top-1.5 data-[side=bottom]:-translate-x-0.5 data-[side=bottom]:rotate-180 data-[side=top]:-bottom-1.5 data-[side=top]:-translate-x-0.5 data-[side=right]:-left-2.25 data-[side=right]:-translate-y-0.5 data-[side=right]:rotate-90 data-[side=left]:-right-2.25 data-[side=left]:-translate-y-0.5 data-[side=left]:-rotate-90">
+              <Arrow
+                filled={false}
+                variant={variant ?? Variant.Default}
+                className="block h-1.5 w-3"
+                preserveAspectRatio="none"
+              />
+            </Menu.Arrow>
+            <ScrollArea
+              focusableViewport={false}
+              header={header}
+              shrinkHeight
+              orientation={scrollOrientation}
+              wrapperClassName="max-h-[calc(var(--available-height)-4px)]"
+              className="flex max-h-[calc(var(--available-height)-6px)] flex-col gap-0.5 p-0.5"
             >
-              <DropdownPrimitive.Arrow asChild width={12} height={6}>
-                <Arrow filled={false} variant={variant ?? Variant.Default} />
-              </DropdownPrimitive.Arrow>
-
-              <ScrollArea
-                header={header}
-                shrinkHeight
-                orientation={scrollOrientation}
-                wrapperClassName="max-h-[calc(var(--radix-dropdown-menu-content-available-height)-4px)]"
-                className={clsx(
-                  "flex max-h-[calc(var(--radix-dropdown-menu-content-available-height)-6px)] flex-col gap-0.5 p-0.5",
-                )}
-              >
-                <MenuActionProvider value={handoff.enqueue}>{children}</MenuActionProvider>
-              </ScrollArea>
-            </DropdownPrimitive.Content>
-          </DropdownPrimitive.Portal>
-        </DropdownPrimitive.Root>
-      </NestedParentProvider>
-    );
-  },
-);
-
-Dropdown.displayName = "Dropdown";
-
-export { Dropdown };
+              <MenuActionProvider value={handoff.enqueue}>{children}</MenuActionProvider>
+            </ScrollArea>
+          </Menu.Popup>
+        </Menu.Positioner>
+      </Menu.Portal>
+    </Menu.Root>
+  );
+}

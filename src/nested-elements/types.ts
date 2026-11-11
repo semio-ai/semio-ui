@@ -4,9 +4,7 @@ import { Variant } from "../types";
 import type { IconValue } from "../icons/registry";
 
 /**
- * Types of nested parent components.
- *
- * Includes Context and Dropdown parents
+ * @deprecated One item set now serves every menu; parent selection has no effect.
  */
 export enum NestedParent {
   /**
@@ -91,12 +89,10 @@ export interface NestedItemProps {
    * keys, typeahead and Home/End reach it, it reports `aria-disabled`, and the
    * description is its accessible description, so a keyboard or screen-reader user
    * learns the reason too. Enter, Space and a click do nothing, leave the menu open and
-   * leave the reason showing. A disabled item without a description is skipped. See
+   * leave the reason showing. Disabled items without a description are keyboard reachable too. See
    * `disabled-reason.tsx`.
    *
-   * Additive by construction: with no description the item renders byte-for-byte
-   * as before, because `Tooltip` short-circuits when disabled rather than wrapping
-   * the child in an armed trigger.
+   * With no description, `Tooltip` renders the child without an armed trigger.
    */
   description?: string;
   /** Semantic color of the explanatory tooltip, independent of the row. */
@@ -174,9 +170,7 @@ export interface NestedOption {
    * explanatory text rather than around its controls. Layering the explanation over
    * the option leaves the option exactly the control it already was.
    *
-   * It is also **additive by construction**: with no description the option renders
-   * byte-for-byte as before, because `Tooltip` short-circuits when disabled rather
-   * than wrapping the child in an armed trigger.
+   * With no description, `Tooltip` renders the child without an armed trigger.
    *
    * **An aid, never the only home for a fact.** It needs hover or focus, so it is
    * unreachable by a reader who does not go looking. Anything required to choose
@@ -193,7 +187,7 @@ export interface NestedOption {
    * A disabled option with a reason stays in the menu's keyboard order: arrow keys,
    * typeahead and Home/End reach it, it reports `aria-disabled`, and the reason is its
    * accessible description and its tooltip (in place of `description`). It still
-   * cannot be chosen. A disabled option without one is skipped. See
+   * cannot be chosen. Disabled options without a reason are keyboard reachable too. See
    * `disabled-reason.tsx`.
    */
   disabledReason?: string;

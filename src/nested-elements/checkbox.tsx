@@ -1,11 +1,9 @@
-import { DropdownMenu, ContextMenu } from "radix-ui";
+import { Menu } from "@base-ui/react/menu";
 import { type MouseEvent, type CSSProperties } from "react";
 import { alpha, altColor } from "@semio/utils";
 import { clsx } from "clsx";
 import { useMenuAction } from "../floating/menu-action";
 import { Icon, resolveIcon } from "../icons/registry";
-import { useNestedParent } from "./context";
-import { NestedParent } from "./types";
 import type { NestedCheckboxProps } from "./types";
 
 /**
@@ -29,34 +27,23 @@ export function NestedCheckbox({
   label,
 }: NestedCheckboxProps) {
   const runAction = useMenuAction();
-  const parent = useNestedParent();
-
-  const ItemComponent =
-    parent === NestedParent.Dropdown ? DropdownMenu.CheckboxItem : ContextMenu.CheckboxItem;
-
-  const ItemIndicatorComponent =
-    parent === NestedParent.Dropdown ? DropdownMenu.ItemIndicator : ContextMenu.ItemIndicator;
-
-  const GroupComponent = parent === NestedParent.Dropdown ? DropdownMenu.Group : ContextMenu.Group;
 
   return (
-    <GroupComponent
+    <Menu.Group
       onClick={(e: MouseEvent) => {
         e.stopPropagation();
       }}
     >
-      <ItemComponent
+      <Menu.CheckboxItem
+        render={(props, state) => (
+          <div {...props} data-state={state.checked ? "checked" : "unchecked"} />
+        )}
         key={label}
-        color={color}
         checked={value}
         onCheckedChange={(next) => runAction(() => onChange?.(next), closeOnSelect)}
-        onSelect={(e: Event) => {
-          if (!closeOnSelect) {
-            e.preventDefault();
-          }
-        }}
+        closeOnClick={closeOnSelect}
         disabled={disabled}
-        textValue={label}
+        label={label}
         style={
           color
             ? ({
@@ -70,21 +57,24 @@ export function NestedCheckbox({
         className={clsx(
           "group/item flex items-center rounded-xs leading-none",
           "relative h-7 px-1.25 pl-7.5 text-sm outline-hidden select-none",
-          "data-disabled:pointer-events-none",
+
           "variant-scope highlight-list-item",
           color ? "custom-color" : variant,
         )}
       >
-        <ItemIndicatorComponent
+        <Menu.CheckboxItemIndicator
+          render={(props, state) => (
+            <span {...props} data-state={state.checked ? "checked" : "unchecked"} />
+          )}
           className={clsx(
             "absolute top-1/2 left-1 grid -translate-y-1/2 place-items-center",
             "variant-scope check-indicator",
           )}
         >
           <span className="icon-slot">{resolveIcon(icon) ?? <Icon name="selected" />}</span>
-        </ItemIndicatorComponent>
+        </Menu.CheckboxItemIndicator>
         {label}
-      </ItemComponent>
-    </GroupComponent>
+      </Menu.CheckboxItem>
+    </Menu.Group>
   );
 }

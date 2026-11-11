@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { IconShoppingBag } from "@tabler/icons-react";
-import { DropdownMenu } from "radix-ui";
+import { Menu } from "@base-ui/react/menu";
 import { renderToStaticMarkup } from "react-dom/server";
 import type { ReactNode } from "react";
 import { describe, expect, it } from "vitest";
@@ -16,11 +16,9 @@ import { NestedParent } from "./types";
 
 function renderWithDropdownParent(node: ReactNode): string {
   return renderToStaticMarkup(
-    <DropdownMenu.Root open>
-      <DropdownMenu.Content>
-        <NestedParentProvider value={NestedParent.Dropdown}>{node}</NestedParentProvider>
-      </DropdownMenu.Content>
-    </DropdownMenu.Root>,
+    <Menu.Root open loopFocus={false}>
+      <NestedParentProvider value={NestedParent.Dropdown}>{node}</NestedParentProvider>
+    </Menu.Root>,
   );
 }
 

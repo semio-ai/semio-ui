@@ -196,6 +196,9 @@ export function GridNavRoot({
           // layering its own handling should still get the event.
           onKeyDownCapture={(event) => {
             if (event.key !== "ArrowUp" && event.key !== "ArrowDown") return;
+            // Keys from a menu or popup portalled out of an item still pass through
+            // this root in the React tree; they belong to that popup, not the grid.
+            if (!event.currentTarget.contains(event.target as Node)) return;
             if (event.defaultPrevented) return;
             const target = verticalTarget(
               event.currentTarget,

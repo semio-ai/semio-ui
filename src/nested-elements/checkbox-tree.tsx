@@ -1,10 +1,16 @@
-import { DropdownMenu, ContextMenu } from "radix-ui";
-import { type MouseEvent, type CSSProperties, useCallback } from "react";
+import { Menu } from "@base-ui/react/menu";
+import {
+  type MouseEvent,
+  type CSSProperties,
+  type ReactNode,
+  useCallback,
+  useId,
+  useRef,
+} from "react";
 import { clsx } from "clsx";
 import { Icon, resolveIcon, type IconValue } from "../icons/registry";
 import { Variant } from "../types";
-import { NestedParent } from "./types";
-import { useNestedParent } from "./context";
+import { preserveMenuInteraction, keepMenuNavigationKeys } from "../floating/menu-action";
 
 /**
  * An Option case for tree-like data
@@ -40,6 +46,12 @@ enum CheckboxState {
   Indeterminate = "indeterminate",
 }
 
+const checkboxIcons = {
+  [CheckboxState.Checked]: "selected",
+  [CheckboxState.Unchecked]: "unselected",
+  [CheckboxState.Indeterminate]: "selection-indeterminate",
+} as const;
+
 /**
  * A component that renders a nested checkbox tree with hierarchical selection.
  * Groups automatically infer their state from their children.
@@ -51,26 +63,7 @@ export function NestedCheckboxTree({
   values,
   options,
 }: NestedCheckboxTreeProps) {
-  const parent = useNestedParent();
-
-  const ItemComponent =
-    parent === NestedParent.Dropdown ? DropdownMenu.CheckboxItem : ContextMenu.CheckboxItem;
-
-  const SubComponent = parent === NestedParent.Dropdown ? DropdownMenu.Sub : ContextMenu.Sub;
-
-  const SubTriggerComponent =
-    parent === NestedParent.Dropdown ? DropdownMenu.SubTrigger : ContextMenu.SubTrigger;
-
-  const PortalComponent =
-    parent === NestedParent.Dropdown ? DropdownMenu.Portal : ContextMenu.Portal;
-
-  const SubContentComponent =
-    parent === NestedParent.Dropdown ? DropdownMenu.SubContent : ContextMenu.SubContent;
-
-  const ItemIndicatorComponent =
-    parent === NestedParent.Dropdown ? DropdownMenu.ItemIndicator : ContextMenu.ItemIndicator;
-
-  const GroupComponent = parent === NestedParent.Dropdown ? DropdownMenu.Group : ContextMenu.Group;
+  const treeId = useId();
 
   // Get all descendant leaf values from a tree node (excluding group IDs)
   const getAllDescendantValues = useCallback((option: TreeOption): string[] => {
@@ -164,108 +157,106 @@ export function NestedCheckboxTree({
     if (hasChildren) {
       // Render as submenu with children
       return (
-        <SubComponent key={option.value}>
-          <SubTriggerComponent
-            disabled={option.disabled || disabled}
-            className={clsx(
-              "group/item",
-              "flex items-center rounded-xs leading-none",
-              "relative min-h-7 min-w-0 px-1.25 py-1 pl-7.5 text-sm outline-hidden select-none",
-              "data-disabled:pointer-events-none",
-              "variant-scope highlight-list-item",
-              option.color ? "custom-color" : (option.variant ?? variant),
-            )}
-            style={
-              option.color
-                ? ({
-                    "--custom-color": option.color,
-                  } as CSSProperties)
-                : {}
-            }
-            data-state={(() => {
-              if (state === CheckboxState.Checked) return "checked";
-              if (state === CheckboxState.Indeterminate) return "indeterminate";
-              return "unchecked";
-            })()}
-          >
-            <div
-              role="checkbox"
-              aria-checked={(() => {
-                if (state === CheckboxState.Checked) return "true";
-                if (state === CheckboxState.Indeterminate) return "mixed";
-                return "false";
-              })()}
-              tabIndex={0}
+        <TreeSubmenu
+          key={option.value}
+          id={`${treeId}-${option.value}`}
+          variant={option.variant ?? variant}
+          trigger={
+            <Menu.SubmenuTrigger
+              id={`${treeId}-${option.value}`}
+              disabled={option.disabled || disabled}
               className={clsx(
-                "absolute top-1/2 left-1 grid -translate-y-1/2 cursor-pointer place-items-center",
-                "variant-scope check-indicator",
+                "group/item",
+                "flex items-center rounded-xs leading-none",
+                "relative min-h-7 min-w-0 px-1.25 py-1 pl-7.5 text-sm outline-hidden select-none",
+
+                "variant-scope highlight-list-item",
                 option.color ? "custom-color" : (option.variant ?? variant),
               )}
-              onClick={(e) => {
-                e.stopPropagation();
-                e.preventDefault();
-                handleCheckboxChange(option);
-              }}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  e.stopPropagation();
-                  e.preventDefault();
+              style={
+                option.color
+                  ? ({
+                      "--custom-color": option.color,
+                    } as CSSProperties)
+                  : {}
+              }
+              onKeyDown={(event) => {
+                if (event.target === event.currentTarget && event.key === " ") {
+                  event.preventDefault();
+                  event.stopPropagation();
+                  // Stop submenu and composite activation, which otherwise synthesize
+                  // an opening click. Space on the row owns only the parent check.
+                  event.preventBaseUIHandler();
                   handleCheckboxChange(option);
                 }
               }}
+              render={(props) => <div {...props} data-state={state} />}
             >
-              <span className="icon-slot">
-                {resolveIcon(option.icon) ||
-                  (() => {
-                    if (state === CheckboxState.Checked) {
-                      return <Icon name="selected" />;
-                    }
-                    if (state === CheckboxState.Indeterminate) {
-                      return <Icon name="selection-indeterminate" />;
-                    }
-                    return <Icon name="unselected" />;
-                  })()}
-              </span>
-            </div>
-            <span className="block min-w-0 truncate">{option.label}</span>
-            <div
-              className={clsx(
-                "ml-auto inline-flex shrink-0 items-center justify-center pl-5",
-                "variant-scope text-variant",
-                option.variant ?? variant,
-              )}
-            >
-              <Icon name="submenu" className="shrink-0" />
-            </div>
-          </SubTriggerComponent>
-          <PortalComponent>
-            <SubContentComponent
-              className={clsx(
-                "variant-scope card-overlay dropdown-content",
-                "min-w-55 p-0.5",
-                option.variant ?? variant,
-              )}
-            >
-              <GroupComponent>
-                {option.children?.map((child) => renderTreeNode(child))}
-              </GroupComponent>
-            </SubContentComponent>
-          </PortalComponent>
-        </SubComponent>
+              <div
+                data-state={state}
+                aria-disabled={option.disabled || disabled || undefined}
+                role="checkbox"
+                aria-checked={(() => {
+                  if (state === CheckboxState.Checked) return "true";
+                  if (state === CheckboxState.Indeterminate) return "mixed";
+                  return "false";
+                })()}
+                tabIndex={-1}
+                // List navigation's bubbling onFocus would refocus the parent row;
+                // then its Space/Enter handler would open the submenu. A scripted
+                // checkbox focus must stay on the checkbox and own its activation.
+                onFocus={(event) => event.stopPropagation()}
+                className={clsx(
+                  "absolute top-1/2 left-1 grid -translate-y-1/2 cursor-pointer place-items-center",
+                  "variant-scope check-indicator",
+                  option.color ? "custom-color" : (option.variant ?? variant),
+                )}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                  if (!option.disabled && !disabled) handleCheckboxChange(option);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    if (!option.disabled && !disabled) handleCheckboxChange(option);
+                  }
+                }}
+              >
+                <span className="icon-slot">
+                  {resolveIcon(option.icon) || <Icon name={checkboxIcons[state]} />}
+                </span>
+              </div>
+              <span className="block min-w-0 truncate">{option.label}</span>
+              <div
+                className={clsx(
+                  "ml-auto inline-flex shrink-0 items-center justify-center pl-5",
+                  "variant-scope text-variant",
+                  option.variant ?? variant,
+                )}
+              >
+                <Icon name="submenu" className="shrink-0" />
+              </div>
+            </Menu.SubmenuTrigger>
+          }
+        >
+          {option.children?.map((child) => renderTreeNode(child))}
+        </TreeSubmenu>
       );
     } else {
       // Render as leaf checkbox item
       return (
-        <ItemComponent
+        <Menu.CheckboxItem
+          render={(props, itemState) => (
+            <div {...props} data-state={itemState.checked ? "checked" : "unchecked"} />
+          )}
           key={option.value}
-          color={option.color}
           checked={state === CheckboxState.Checked}
           onCheckedChange={() => handleCheckboxChange(option)}
-          onSelect={(e: Event) => {
-            e.preventDefault();
-          }}
+          closeOnClick={false}
           disabled={option.disabled || disabled}
-          textValue={option.label}
+          label={option.label}
           style={
             option.color
               ? ({
@@ -276,13 +267,16 @@ export function NestedCheckboxTree({
           className={clsx(
             "group/item flex items-center rounded-xs leading-none",
             "relative min-h-7 min-w-0 px-1.25 py-1 pl-7.5 text-sm outline-hidden select-none",
-            "data-disabled:pointer-events-none",
+
             "variant-scope highlight-list-item",
             option.color ? "custom-color" : (option.variant ?? variant),
           )}
         >
-          <ItemIndicatorComponent
-            forceMount
+          <Menu.CheckboxItemIndicator
+            render={(props, itemState) => (
+              <span {...props} data-state={itemState.checked ? "checked" : "unchecked"} />
+            )}
+            keepMounted
             className={clsx(
               "absolute top-1/2 left-1 grid -translate-y-1/2 place-items-center",
               "variant-scope check-indicator",
@@ -297,20 +291,66 @@ export function NestedCheckboxTree({
                   <Icon name="unselected" />
                 ))}
             </span>
-          </ItemIndicatorComponent>
+          </Menu.CheckboxItemIndicator>
           <span className="block min-w-0 truncate">{option.label}</span>
-        </ItemComponent>
+        </Menu.CheckboxItem>
       );
     }
   };
 
   return (
-    <GroupComponent
+    <Menu.Group
       onClick={(e: MouseEvent) => {
         e.stopPropagation();
       }}
     >
       {options.map((option) => renderTreeNode(option))}
-    </GroupComponent>
+    </Menu.Group>
+  );
+}
+
+/** Each tree level corrects its own initial keyboard focus independently. */
+function TreeSubmenu({
+  id,
+  variant,
+  trigger,
+  children,
+}: {
+  id: string;
+  variant?: Variant;
+  trigger: ReactNode;
+  children: ReactNode;
+}) {
+  const popupRef = useRef<HTMLDivElement>(null);
+  const returnFocus = useRef(false);
+  return (
+    <Menu.SubmenuRoot
+      loopFocus={false}
+      onOpenChange={(next, details) => {
+        if (!next && preserveMenuInteraction(details)) return;
+        // Closing with focus inside returns it to the parent row; a pointer close does not.
+        returnFocus.current = !next && !!popupRef.current?.contains(document.activeElement);
+      }}
+    >
+      {trigger}
+      <Menu.Portal>
+        <Menu.Positioner side="right" collisionPadding={0}>
+          <Menu.Popup
+            onKeyDown={keepMenuNavigationKeys}
+            ref={popupRef}
+            finalFocus={() => (returnFocus.current ? document.getElementById(id) : false)}
+            render={(props, state) => (
+              <div {...props} data-state={state.open ? "open" : "closed"} />
+            )}
+            className={clsx(
+              "variant-scope card-overlay dropdown-content min-w-55 p-0.5 [outline:none]",
+              variant,
+            )}
+          >
+            <Menu.Group>{children}</Menu.Group>
+          </Menu.Popup>
+        </Menu.Positioner>
+      </Menu.Portal>
+    </Menu.SubmenuRoot>
   );
 }

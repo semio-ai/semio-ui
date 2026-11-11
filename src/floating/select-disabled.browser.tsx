@@ -15,7 +15,7 @@ import { Tooltip } from "./tooltip";
  * `Select`'s disabled state, in a real browser.
  *
  * A jsdom test can only check that `disabled` was passed. Whether the menu then refuses
- * to open, and whether a wrapping `Tooltip` still fires, are behaviours of the Radix
+ * to open, and whether a wrapping `Tooltip` still fires, are behaviours of the menu
  * trigger and of pointer-event handling — neither of which exists in jsdom. They are also
  * the two things the state is *for*: a control that dims but still opens is not disabled,
  * and one that dims and swallows hover cannot explain itself.
@@ -55,7 +55,7 @@ test("a disabled Select does not open its menu when clicked", async () => {
   await settle();
 
   // No menu. Asserted on the options that would be in it rather than on a container,
-  // since the content is portalled and its wrapper is Radix's to name.
+  // since the content is portalled and its wrapper is the menu's to name.
   expect(page.getByRole("menuitemradio").elements()).toHaveLength(0);
   expect(page.getByText("Editor").elements()).toHaveLength(0);
 });
@@ -123,8 +123,8 @@ test("the disabled trigger's LABEL dims, not just its container", async () => {
 });
 
 test("a disabled trigger still fires a Tooltip over it", async () => {
-  // The reason this state does not use `pointer-events: none`. Radix already refuses to
-  // open a disabled trigger, so suppressing pointer events would only cost the tooltip —
+  // The reason this state does not use `pointer-events: none`. The menu trigger already
+  // refuses to open while disabled, so suppressing pointer events would only cost the tooltip —
   // and a disabled control that withholds its reason is worse than either alone.
   //
   // Note the wrapping span, which is load-bearing: `Tooltip` uses Radix `asChild` and

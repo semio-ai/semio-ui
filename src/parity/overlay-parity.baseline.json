@@ -1766,7 +1766,7 @@
   },
   "light / ContextMenu": {
     "surface entrance": {
-      "animationName": "slideLeftAndFade",
+      "animationName": "slideUpAndFade",
       "animationDuration": "0.3s"
     },
     "surface": {
@@ -5367,7 +5367,7 @@
   },
   "dark / ContextMenu": {
     "surface entrance": {
-      "animationName": "slideLeftAndFade",
+      "animationName": "slideUpAndFade",
       "animationDuration": "0.3s"
     },
     "surface": {

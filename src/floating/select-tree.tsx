@@ -237,9 +237,12 @@ export function SelectTree({
     };
   }, [value, options, label, variant, getAllLeafValues, findOption, findCompleteGroups]);
 
-  // Render the trigger element
+  // The trigger is a control in its own right, not a wrapper around one, so it carries
+  // its own button role and tab stop; Dropdown relays only to wrappers.
   const renderTrigger = () => (
     <div
+      role="button"
+      tabIndex={0}
       style={
         {
           "--custom-color": triggerDisplay.color,

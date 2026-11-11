@@ -1,4 +1,4 @@
-import { DropdownMenu } from "radix-ui";
+import { Menu } from "@base-ui/react/menu";
 import { expect, test } from "vitest";
 import { render } from "vitest-browser-react";
 import "../test-stylesheet";
@@ -21,28 +21,32 @@ const indicator = (
 
 test("a submenu's trailing indicator keeps its size beside the disclosure, which keeps its own", async () => {
   await render(
-    <DropdownMenu.Root open>
-      <DropdownMenu.Trigger>Open</DropdownMenu.Trigger>
-      <DropdownMenu.Content>
-        <div style={{ width: 220 }}>
-          <NestedChild
-            type="menu"
-            id="submenu"
-            label="With indicator"
-            left="search"
-            right={indicator}
-          >
-            {[]}
-          </NestedChild>
-          <NestedChild type="menu" id="plain" label="Without" left="search">
-            {[]}
-          </NestedChild>
-          <NestedChild type="item" id="item" left="search" right={indicator}>
-            Invitations
-          </NestedChild>
-        </div>
-      </DropdownMenu.Content>
-    </DropdownMenu.Root>,
+    <Menu.Root open loopFocus={false}>
+      <Menu.Trigger>Open</Menu.Trigger>
+      <Menu.Portal>
+        <Menu.Positioner>
+          <Menu.Popup>
+            <div style={{ width: 220 }}>
+              <NestedChild
+                type="menu"
+                id="submenu"
+                label="With indicator"
+                left="search"
+                right={indicator}
+              >
+                {[]}
+              </NestedChild>
+              <NestedChild type="menu" id="plain" label="Without" left="search">
+                {[]}
+              </NestedChild>
+              <NestedChild type="item" id="item" left="search" right={indicator}>
+                Invitations
+              </NestedChild>
+            </div>
+          </Menu.Popup>
+        </Menu.Positioner>
+      </Menu.Portal>
+    </Menu.Root>,
   );
   const [submenu, item] = Array.from(
     document.querySelectorAll<HTMLElement>('[data-testid="indicator"]'),

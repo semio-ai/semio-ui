@@ -178,7 +178,10 @@ async function menuMeasurements(result: Measurements, popup: Element) {
   await expect.element(role("menuitem", "Find item")).toHaveFocus();
   await settle();
   take(result, "Find item highlighted", role("menuitem", "Find item").element());
-  await userEvent.keyboard("{End}{ArrowRight}");
+  await userEvent.keyboard("{End}");
+  // ArrowRight opens the submenu only from its trigger, so wait for the trigger's focus.
+  await expect.element(role("menuitem", "More actions")).toHaveFocus();
+  await userEvent.keyboard("{ArrowRight}");
   await expect.element(role("menuitem", "Submenu action")).toBeVisible();
   const submenu = await surface(
     required(role("menuitem", "Submenu action").element().closest(".card-overlay")),

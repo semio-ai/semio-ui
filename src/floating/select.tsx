@@ -86,8 +86,8 @@ export interface SelectProps<T extends string | string[]> {
    * and "a setting you may not change" will assume the former and stop looking.
    *
    * Deliberately **not** `pointer-events-none`, unlike the disabled state on menu items.
-   * Radix already refuses to open a disabled trigger, so suppressing pointer events buys
-   * nothing — and it would stop a `Tooltip` over this control from ever firing, which is
+   * The menu trigger already refuses to open while disabled, so suppressing pointer events
+   * buys nothing — and it would stop a `Tooltip` over this control from ever firing, which is
    * the one affordance left for explaining *why* it is disabled. Disabling a control and
    * withholding the reason is worse than either alone.
    *
@@ -183,8 +183,8 @@ export function Select<T extends string | string[]>({
       label && selectOption?.label && label !== selectOption.label
         ? `${label}: ${selectOption.label}`
         : (selectOption?.label ?? label ?? "Select");
-    // Keyed off `data-disabled`, which Radix stamps on a disabled trigger and which
-    // `asChild` puts on this element — so the appearance follows the primitive's own
+    // Keyed off `data-disabled`, which the menu trigger sets while disabled and merges
+    // onto this element — so the appearance follows the primitive's own
     // state rather than a second copy of the prop that could disagree with it.
     //
     // `text-neutral-500/50` matches the dimming menu items already use for disabled, so a
@@ -202,8 +202,8 @@ export function Select<T extends string | string[]>({
     // and measuring — the disabled and enabled labels came back the identical
     // `oklch(0.439 0 0)`.
     //
-    // `group/trigger` is already on this element (Radix's trigger sets it and `asChild`
-    // merges it here), which is what these hang off.
+    // `group/trigger` is already on this element (`Dropdown`'s trigger sets it and merges
+    // it here), which is what these hang off.
     // Written as `group-data-[disabled]` rather than composing the package's
     // `data-disabled` custom variant with `group-`. The custom variant works on its own
     // (the trigger above uses it) but does not compose into the named-group form, and the

@@ -195,15 +195,18 @@ test("a footer ActionMenu supports pointer opening, keyboard reach, selection an
   const copy = page.getByRole("menuitem", { name: "Copy report", exact: true });
   const download = page.getByRole("menuitem", { name: "Download report", exact: true });
   const expectDialogOpen = async () => {
-    // A modal Radix menu can hide the dialog from accessibility queries while open.
     await expect.element(surface).toBeVisible();
     expect(surface.getAttribute("data-state")).toBe("open");
     expect(change).not.toHaveBeenCalled();
   };
 
+  // Base UI moves focus into a pointer-opened menu after it opens; keys pressed
+  // before that reach the trigger.
+  const menuHasFocus = () => !!document.activeElement?.closest('[role="menu"]');
   await button("Report actions").click();
   await expect.element(copy).toBeVisible();
   await expect.element(download).toBeVisible();
+  await expect.poll(menuHasFocus).toBe(true);
   expect(document.body.contains(copy.element())).toBe(true);
   expect(surface.contains(copy.element())).toBe(false);
   await expectDialogOpen();
@@ -214,16 +217,19 @@ test("a footer ActionMenu supports pointer opening, keyboard reach, selection an
   await expectDialogOpen();
   await copy.click();
   await expect.element(copy).not.toBeInTheDocument();
-  await expect.poll(() => feedback.mock.calls.at(-1)?.[0]).toEqual({
-    message: "Report copied",
-    failed: false,
-  });
+  await expect
+    .poll(() => feedback.mock.calls.at(-1)?.[0])
+    .toEqual({
+      message: "Report copied",
+      failed: false,
+    });
   expect(select).toHaveBeenCalledOnce();
   expect(otherSelect).not.toHaveBeenCalled();
   await expectDialogOpen();
 
   await button("Report actions").click();
   await expect.element(copy).toBeVisible();
+  await expect.poll(menuHasFocus).toBe(true);
   await userEvent.keyboard("{Home}");
   await expect.element(copy).toHaveFocus();
   await userEvent.keyboard("{Escape}");

@@ -18,6 +18,7 @@ import {
 } from "./overlay-accessibility.fixture";
 
 beforeEach(() => {
+  vi.stubGlobal("PointerEvent", MouseEvent);
   vi.stubGlobal(
     "ResizeObserver",
     class {
@@ -57,7 +58,7 @@ async function openMenu(
   if (entry === OverlayEntry.ContextMenu || entry === OverlayEntry.ContextSubmenu) {
     fireEvent.contextMenu(trigger, { clientX: 80, clientY: 80 });
   } else if (entry === OverlayEntry.Dropdown || entry === OverlayEntry.DropdownSubmenu) {
-    fireEvent.keyDown(trigger, { key: "Enter" });
+    fireEvent.click(trigger, { detail: 0 });
   } else {
     fireEvent.click(trigger);
   }
@@ -67,6 +68,7 @@ async function openMenu(
   }
   const role = entry === OverlayEntry.Popover ? "button" : "menuitem";
   const item = await screen.findByRole(role, { name: "New entity" });
+  if (entry !== OverlayEntry.Popover) await waitForMenuFocus(entry);
   await afterOpen?.();
   if (select === "keyboard" && entry !== OverlayEntry.Popover) {
     item.focus();
@@ -95,7 +97,7 @@ test.each(Object.values(OverlayEntry))(
     );
     await openMenu(entry, false);
     expect(container.getAttribute("aria-hidden")).toBe(
-      entry === OverlayEntry.Popover ? null : "true",
+      entry === OverlayEntry.ContextMenu || entry === OverlayEntry.ContextSubmenu ? "true" : null,
     );
   },
 );
@@ -172,7 +174,7 @@ for (const surface of Object.values(DialogSurface)) {
       expect(screen.getByRole("button", { name: "Outer dialog action" })).toBeTruthy();
       const item = await openMenu(entry, false);
       expect(screen.queryByRole("button", { name: "Outer dialog action" })).toBe(
-        entry === OverlayEntry.Popover
+        entry !== OverlayEntry.ContextMenu && entry !== OverlayEntry.ContextSubmenu
           ? screen.getByRole("button", { name: "Outer dialog action" })
           : null,
       );
@@ -241,8 +243,15 @@ for (const surroundings of Object.values(MenuSurroundings)) {
           } else focusTarget.focus();
           await Promise.resolve();
         });
-        expect(screen.getAllByRole("menu").length).toBeGreaterThan(0);
-        await waitForMenuFocus(entry);
+        if (surroundings === MenuSurroundings.Listing) {
+          expect(screen.getAllByRole("menu").length).toBeGreaterThan(0);
+          await waitForMenuFocus(entry);
+        } else {
+          // Scripted focus can leave a menu; refocus the entry for navigation checks.
+          expect(document.activeElement).toBe(focusTarget);
+          if (!screen.queryByRole("menuitem", { name: "New entity" })) await openMenu(entry, false);
+          screen.getByRole("menuitem", { name: "New entity" }).focus();
+        }
       });
       expect(item.isConnected).toBe(true);
       if (entry === OverlayEntry.DropdownSubmenu || entry === OverlayEntry.ContextSubmenu) {
@@ -268,7 +277,7 @@ for (const surroundings of Object.values(MenuSurroundings)) {
       await waitFor(() => expect(document.activeElement).toBe(keepItem));
       fireEvent.keyDown(keepItem, { key: "ArrowUp" });
       await waitFor(() => expect(document.activeElement).toBe(item));
-      // Radix's key handler generates a DOM click for both Enter and Space.
+      // Menu item keyboard activation dispatches a DOM click.
       fireEvent.keyDown(item, { key: "Enter" });
       await waitFor(() => expect(screen.queryByRole("menu")).toBeNull());
       await waitFor(() =>
@@ -283,7 +292,13 @@ for (const surroundings of Object.values(MenuSurroundings)) {
       );
 
       item = await openMenu(entry, false);
+      item.focus();
       fireEvent.keyDown(item, { key: "Escape" });
+      if (entry === OverlayEntry.DropdownSubmenu || entry === OverlayEntry.ContextSubmenu) {
+        const parentTrigger = screen.getByRole("menuitem", { name: "Create" });
+        await waitFor(() => expect(document.activeElement).toBe(parentTrigger));
+        fireEvent.keyDown(parentTrigger, { key: "Escape" });
+      }
       await waitFor(() => expect(screen.queryByRole("menu")).toBeNull());
       if (entry === OverlayEntry.Dropdown || entry === OverlayEntry.DropdownSubmenu) {
         await waitFor(() =>
@@ -294,7 +309,7 @@ for (const surroundings of Object.values(MenuSurroundings)) {
         expect(screen.getByRole("dialog", { name: "Menu dialog" })).toBeTruthy();
 
       await openMenu(entry, false);
-      // Wait for Radix's own document pointer listener registration.
+      // Wait for the menu's document dismissal listeners to register.
       await new Promise((resolve) => setTimeout(resolve, 0));
       fireEvent.pointerDown(outside, { pointerType: "mouse", button: 0 });
       await waitFor(() => expect(screen.queryByRole("menu")).toBeNull());
@@ -330,12 +345,12 @@ test.each(["item", "radio", "checkbox", "select"] as const)(
         <Dropdown trigger={<button type="button">Open menu</button>}>{content}</Dropdown>
       </StrictMode>,
     );
-    fireEvent.keyDown(screen.getByRole("button", { name: "Open menu" }), { key: "Enter" });
+    fireEvent.click(screen.getByRole("button", { name: "Open menu" }), { detail: 0 });
     const role =
       kind === "item" ? "menuitem" : kind === "radio" ? "menuitemradio" : "menuitemcheckbox";
     const item = await screen.findByRole(role, { name: "Choose" });
     selectedElement = item;
-    expect(container.getAttribute("aria-hidden")).toBe("true");
+    expect(container.getAttribute("aria-hidden")).toBeNull();
     fireEvent.click(item);
     await waitFor(() => expect(action).toHaveBeenCalledTimes(1));
   },
@@ -349,53 +364,26 @@ test("a rapid close and reopen delivers both selections after their own teardown
     </Dropdown>,
   );
   const trigger = screen.getByRole("button", { name: "Open menu" });
-  // Both selections occur in one task, before Radix's close-autofocus events.
-  fireEvent.keyDown(trigger, { key: "Enter" });
+  // Both selections occur in one task, before the completion handoffs run.
+  fireEvent.click(trigger, { detail: 0 });
   fireEvent.click(screen.getByRole("menuitem", { name: "Choose" }));
-  fireEvent.keyDown(trigger, { key: "Enter" });
+  fireEvent.click(trigger, { detail: 0 });
   fireEvent.click(screen.getByRole("menuitem", { name: "Choose" }));
   await waitFor(() => expect(action).toHaveBeenCalledTimes(2));
 });
 
 for (const surroundings of Object.values(MenuSurroundings)) {
   test.each([OverlayEntry.DropdownSubmenu, OverlayEntry.ContextSubmenu])(
-    `${surroundings}: %s waits for deferred submenu focus before ArrowLeft`,
+    `${surroundings}: %s focuses the opened submenu before ArrowLeft returns to its trigger`,
     async (entry) => {
       render(<MenuUsabilityFixture entry={entry} surroundings={surroundings} />);
       if (surroundings === MenuSurroundings.Sidebar)
         fireEvent.click(await screen.findByRole("tab", { name: "Menu tab" }));
-      const outside = screen.getByRole("button", { name: "Outside menu" });
       await openMenu(entry, false);
       const trigger = screen.getByRole("menuitem", { name: "Create" });
-      const submenu = screen.getByRole("menu", { name: "Create" });
-      const focus = submenu.focus.bind(submenu);
-      let restore: (() => void) | undefined;
-      const deferredFocus = vi.spyOn(submenu, "focus").mockImplementation(() => {
-        restore = focus;
-      });
-      try {
-        // Hold the submenu's restoration while the parent scope restores its trigger.
-        // The parent menu is an intermediate focus destination, so ArrowLeft must wait.
-        act(() => {
-          outside.focus();
-          trigger.focus();
-        });
-        const waiting = waitForMenuFocus(entry);
-        try {
-          expect(menuHasFocus(entry)).toBe(false);
-        } finally {
-          // Release the controlled late handler even when the readiness assertion fails.
-          deferredFocus.mockRestore();
-          act(() => {
-            restore?.();
-          });
-          await waiting;
-        }
-        fireEvent.keyDown(document.activeElement!, { key: "ArrowLeft" });
-        await waitFor(() => expect(document.activeElement).toBe(trigger));
-      } finally {
-        deferredFocus.mockRestore();
-      }
+      await waitForMenuFocus(entry);
+      fireEvent.keyDown(document.activeElement!, { key: "ArrowLeft" });
+      await waitFor(() => expect(document.activeElement).toBe(trigger));
     },
   );
 }

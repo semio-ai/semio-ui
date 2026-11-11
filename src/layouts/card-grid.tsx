@@ -20,7 +20,7 @@ import { GridNavItem, GridNavRoot } from "./use-grid-navigation";
  * control would also change the selection.
  */
 const INTERACTIVE_SELECTOR =
-  "button, input, select, textarea, a, [role='menuitem'], [role='menuitemradio'], [data-radix-collection-item]";
+  "button, input, select, textarea, a, [role='menuitem'], [role='menuitemradio'], [role='menuitemcheckbox']";
 
 /** State handed to the item renderer, so the consumer draws its own emphasis. */
 export interface CardGridItemState {

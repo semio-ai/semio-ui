@@ -1,12 +1,7 @@
 import { useRef, useEffect, useId, useCallback, createElement } from "react";
 import type { ThreeEvent } from "@react-three/fiber";
 import type { ReactNode } from "react";
-import {
-  useKeybindingMap,
-  KeybindingProvider,
-  type KeybindingMap,
-} from "../../keybinding-context";
-import { takeDropdownOpenLock, releaseDropdownOpenLock } from "../dropdown-coordinator";
+import { useKeybindingMap, KeybindingProvider, type KeybindingMap } from "../../keybinding-context";
 import { useTooltipStore, type ScreenPosition } from "./store";
 import { useRootTooltipHost } from "./tooltip-context";
 
@@ -86,7 +81,7 @@ export function useCanvasContextMenu(
   itemsRef.current = options.items;
 
   // Capture keybinding map from context — will be re-provided inside the
-  // Radix portal so KeybindingHint components render correctly.
+  // overlay host so KeybindingHint components render correctly.
   const keybindingMap = useKeybindingMap();
   const keybindingMapRef = useRef(keybindingMap);
   keybindingMapRef.current = keybindingMap;
@@ -110,30 +105,6 @@ export function useCanvasContextMenu(
 
     return () => unregisterAnchor(id);
   }, [id, options.priority, options.group, registerAnchor, unregisterAnchor]);
-
-  // Participate in the global single-open-menu lock so opening any Dropdown
-  // dismisses an open canvas context menu (mirrors the existing reverse: a
-  // right-click already dismisses an open Dropdown via Radix's outside-press).
-  // The canvas menu lives in its own overlay store, so without this it stayed
-  // open when a Dropdown opened elsewhere. Hold the lock while visible; release
-  // when hidden. `close` is stable so re-right-clicking doesn't evict itself.
-  const close = useCallback(() => dismissOverlay(id), [dismissOverlay, id]);
-  useEffect(() => {
-    const unsubscribe = useTooltipStore.subscribe(
-      (state) => state.visibility.get(id)?.visible ?? false,
-      (visible) => {
-        if (visible) {
-          takeDropdownOpenLock(close);
-        } else {
-          releaseDropdownOpenLock(close);
-        }
-      },
-    );
-    return () => {
-      releaseDropdownOpenLock(close);
-      unsubscribe();
-    };
-  }, [id, close]);
 
   const onContextMenu = useCallback(
     (event: ThreeEvent<PointerEvent>) => {
@@ -166,7 +137,7 @@ export function useCanvasContextMenu(
       // Eagerly evaluate items with current state so the menu content
       // is a snapshot — standard context menu behavior.
       // Wrap in KeybindingProvider so KeybindingHint components work
-      // inside the Radix portal (which escapes the React context tree).
+      // inside the overlay host, which is a separate React subtree.
       const ctx = contextRef.current;
       const rawContent = itemsRef.current(ctx);
       const content = createElement(
@@ -196,7 +167,16 @@ export function useCanvasContextMenu(
         showTooltip(id, triggerId);
       });
     },
-    [id, triggerId, rootHost, registerAnchor, dismissOverlay, showTooltip, options.priority, options.group],
+    [
+      id,
+      triggerId,
+      rootHost,
+      registerAnchor,
+      dismissOverlay,
+      showTooltip,
+      options.priority,
+      options.group,
+    ],
   );
 
   return { onContextMenu, anchorId: id };

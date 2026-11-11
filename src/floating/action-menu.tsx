@@ -5,6 +5,7 @@ import type { IconName } from "../icons/registry";
 import { NestedItem } from "../nested-elements/item";
 import { Size, Variant } from "../types";
 import { Dropdown } from "./dropdown";
+import { MenuActionProvider, runMenuActionImmediately } from "./menu-action";
 
 export interface ActionMenuItem {
   id: string;
@@ -100,17 +101,19 @@ export function ActionMenu({
           </Button>
         }
       >
-        {menu.items.map((item) => (
-          <NestedItem
-            key={item.id}
-            left={item.icon}
-            description={item.description}
-            disabled={busy || item.disabled}
-            onClick={() => void run(item)}
-          >
-            {item.label}
-          </NestedItem>
-        ))}
+        <MenuActionProvider value={runMenuActionImmediately}>
+          {menu.items.map((item) => (
+            <NestedItem
+              key={item.id}
+              left={item.icon}
+              description={item.description}
+              disabled={busy || item.disabled}
+              onClick={() => void run(item)}
+            >
+              {item.label}
+            </NestedItem>
+          ))}
+        </MenuActionProvider>
       </Dropdown>
       {!onFeedback && (
         <span role="status" className={feedback ? "text-sm" : "sr-only"}>

@@ -48,6 +48,7 @@ function EscapeFixture() {
 }
 
 beforeEach(() => {
+  vi.stubGlobal("PointerEvent", MouseEvent);
   vi.stubGlobal(
     "ResizeObserver",
     class {
@@ -84,7 +85,7 @@ test("Escape closes a combobox then its dialog and restores the accessible app",
       <EscapeFixture />
     </StrictMode>,
   );
-  fireEvent.keyDown(screen.getByRole("button", { name: "Open menu" }), { key: "Enter" });
+  fireEvent.click(screen.getByRole("button", { name: "Open menu" }), { detail: 0 });
   fireEvent.click(await screen.findByRole("menuitem", { name: "New entity" }));
   await screen.findByRole("dialog", { name: "Add Entity" });
   fireEvent.click(screen.getByRole("button", { name: "Toggle options" }));
