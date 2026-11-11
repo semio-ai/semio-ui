@@ -142,3 +142,61 @@ test.each(["Item A", "Rename", "All items"])(
     expect(row.querySelector('[data-testid="consumer-item-icon"]')).not.toBeNull();
   },
 );
+
+test("a menu switcher lists its option groups under their labels and selects from them", async () => {
+  vi.stubGlobal(
+    "ResizeObserver",
+    class {
+      observe() {}
+      unobserve() {}
+      disconnect() {}
+    },
+  );
+  Object.defineProperty(HTMLElement.prototype, "getAnimations", {
+    configurable: true,
+    value: () => [],
+  });
+  const select = vi.fn();
+  render(
+    <BreadcrumbTrail
+      items={[
+        {
+          id: "section",
+          label: "@acme",
+          switcher: {
+            label: "Switch Section",
+            value: "/@acme",
+            options: [{ value: "/projects", label: "Projects" }],
+            groups: [
+              {
+                label: "Quick Links",
+                options: [
+                  { value: "/@me", label: "Your account" },
+                  { value: "/@acme", label: "Acme" },
+                ],
+              },
+              { label: "Empty", options: [] },
+            ],
+            onSelect: select,
+          },
+        },
+      ]}
+    />,
+  );
+  const trigger = screen.getByRole("button", { name: "Switch Section: @acme" });
+  trigger.focus();
+  fireEvent.keyDown(trigger, { key: "ArrowDown" });
+  expect(await screen.findByText("Quick Links")).toBeTruthy();
+  // An empty group draws no label or separator of its own.
+  expect(screen.queryByText("Empty")).toBeNull();
+  const current = screen.getByRole("menuitemradio", { name: "Acme" });
+  expect(current.getAttribute("aria-checked")).toBe("true");
+  expect(screen.getByRole("menuitemradio", { name: "Projects" }).getAttribute("aria-checked")).toBe(
+    "false",
+  );
+  const other = screen.getByRole("menuitemradio", { name: "Your account" });
+  other.focus();
+  fireEvent.keyDown(other, { key: "Enter" });
+  // Selection runs once the menu has closed, so it lands after this event.
+  await waitFor(() => expect(select).toHaveBeenCalledExactlyOnceWith("/@me"));
+});
