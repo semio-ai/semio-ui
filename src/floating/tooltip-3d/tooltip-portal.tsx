@@ -21,18 +21,28 @@ import {
 } from "./store";
 import { useRootTooltipHost } from "./tooltip-context";
 
+interface VisibleOverlay {
+  anchor: AnchorConfig;
+  position: ScreenPosition;
+  invocation: number;
+}
+
 interface OverlayInstanceProps {
   anchor: AnchorConfig;
   position: ScreenPosition;
+  /** The `showTooltip` call this overlay instance renders. */
+  invocation: number;
 }
 
 /** Interactive canvas overlays are menus anchored at the pointer's viewport coordinates. */
-function InteractiveOverlayInstance({ anchor, position }: OverlayInstanceProps) {
+function InteractiveOverlayInstance({ anchor, position, invocation }: OverlayInstanceProps) {
   const hostContext = useRootTooltipHost();
   const dismissOverlay = useTooltipStore((s) => s.dismissOverlay);
   const handoff = useMenuActionHandoff(() => {
-    // A new invocation can register a replacement while this popup finishes closing.
-    if (useTooltipStore.getState().anchors.get(anchor.id) === anchor) dismissOverlay(anchor.id);
+    // Dismiss only this invocation: one started while this popup was closing, including
+    // by a selected action, renders its own instance and stays visible.
+    if (useTooltipStore.getState().visibility.get(anchor.id)?.invocation === invocation)
+      dismissOverlay(anchor.id);
   });
   const [open, setOpen] = useState(true);
   const popupRef = useRef<HTMLDivElement>(null);
@@ -232,16 +242,14 @@ function TooltipInstance({ anchor, position }: OverlayInstanceProps) {
  * Placed at the root level via TooltipHost.
  */
 export function TooltipPortal() {
-  const cacheRef = useRef<Map<string, { anchor: AnchorConfig; position: ScreenPosition }>>(
-    new Map(),
-  );
+  const cacheRef = useRef<Map<string, VisibleOverlay>>(new Map());
 
   const hostContext = useRootTooltipHost();
 
   const visibleTooltips = useTooltipStore(
     useShallow((state: TooltipStore) => {
-      const currentVisible: { anchor: AnchorConfig; position: ScreenPosition }[] = [];
-      const newCache = new Map<string, { anchor: AnchorConfig; position: ScreenPosition }>();
+      const currentVisible: VisibleOverlay[] = [];
+      const newCache = new Map<string, VisibleOverlay>();
 
       state.visibility.forEach((vis, anchorId) => {
         if (vis.visible) {
@@ -259,16 +267,18 @@ export function TooltipPortal() {
 
           if (anchor && isValidPosition && (!anchor.isAvailable || anchor.isAvailable())) {
             const cached = cacheRef.current.get(anchorId);
+            const invocation = vis.invocation ?? 0;
             if (
               cached &&
               cached.anchor === anchor &&
+              cached.invocation === invocation &&
               cached.position.x === position.x &&
               cached.position.y === position.y
             ) {
               newCache.set(anchorId, cached);
               currentVisible.push(cached);
             } else {
-              const newItem = { anchor, position };
+              const newItem = { anchor, position, invocation };
               newCache.set(anchorId, newItem);
               currentVisible.push(newItem);
             }
@@ -294,16 +304,26 @@ export function TooltipPortal() {
   return (
     <>
       {/* Interactive overlays anchor at the pointer. */}
-      {interactive.map(({ anchor, position }) => (
-        <InteractiveOverlayInstance key={anchor.id} anchor={anchor} position={position} />
+      {interactive.map(({ anchor, position, invocation }) => (
+        <InteractiveOverlayInstance
+          key={`${anchor.id}:${String(invocation)}`}
+          anchor={anchor}
+          position={position}
+          invocation={invocation}
+        />
       ))}
 
       {/* Tooltips and popovers use floating-ui */}
       {tooltips.length > 0 && (
         <FloatingPortal root={portalRoot}>
           <AnimatePresence>
-            {tooltips.map(({ anchor, position }) => (
-              <TooltipInstance key={anchor.id} anchor={anchor} position={position} />
+            {tooltips.map(({ anchor, position, invocation }) => (
+              <TooltipInstance
+                key={anchor.id}
+                anchor={anchor}
+                position={position}
+                invocation={invocation}
+              />
             ))}
           </AnimatePresence>
         </FloatingPortal>

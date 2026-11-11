@@ -18,6 +18,7 @@ import { ContextMenu } from "./context-menu";
 import { Dropdown as DropdownOverlay } from "./dropdown";
 import { Dialog as DialogOverlay } from "./dialog";
 import { Modal as ModalOverlay } from "./modal";
+import { SelectTree } from "./select-tree";
 import { ToastManager } from "./toast";
 import { TooltipHost } from "./tooltip-3d/tooltip-host";
 import { TooltipProvider } from "./tooltip-3d/tooltip-provider";
@@ -1101,3 +1102,69 @@ for (const entry of [Entry.Context, Entry.Canvas])
       await expect.element(item("Child")).toHaveFocus();
       expect(menus()).toHaveLength(2);
     });
+
+test("SelectTree's trigger is a tab stop with a button role, and Escape returns focus to it", async () => {
+  await render(
+    <UiStoreProvider>
+      <button type="button">Before</button>
+      <SelectTree
+        value={[]}
+        onChange={() => undefined}
+        options={[{ label: "Leaf", value: "leaf" }]}
+      />
+    </UiStoreProvider>,
+  );
+  button("Before").element().focus();
+  await userEvent.keyboard("{Tab}");
+  const trigger = document.activeElement as HTMLElement;
+  expect(trigger.getAttribute("role")).toBe("button");
+  expect(trigger.getAttribute("aria-haspopup")).toBe("menu");
+  await userEvent.keyboard("{Enter}");
+  await expect.poll(() => menus().length).toBe(1);
+  await userEvent.keyboard("{Escape}");
+  await expect.poll(() => menus().length).toBe(0);
+  await expect.element(trigger).toHaveFocus();
+});
+
+test("a canvas overlay its own selection re-invokes opens again", async () => {
+  const reinvoke = () => useTooltipStore.getState().showTooltip("menu-decisions-canvas", "click");
+  await render(
+    <MenuFixture entry={Entry.Click}>
+      <NestedItem onClick={reinvoke}>Again</NestedItem>
+    </MenuFixture>,
+  );
+  await open(Entry.Click);
+  await item("Again").click();
+  // The closing popup unmounts and the re-invocation renders a fresh, open one.
+  await expect.poll(() => menus().length).toBe(1);
+  await expect.element(item("Again")).toBeVisible();
+  expect(useTooltipStore.getState().visibility.get("menu-decisions-canvas")?.visible).toBe(true);
+});
+
+test("a canvas overlay whose selected action throws is still dismissed in the store", async () => {
+  const swallow = (event: ErrorEvent) => {
+    if (event.message.includes("selection failed")) event.preventDefault();
+  };
+  window.addEventListener("error", swallow);
+  try {
+    await render(
+      <MenuFixture entry={Entry.Canvas}>
+        <NestedItem
+          onClick={() => {
+            throw new Error("selection failed");
+          }}
+        >
+          Fails
+        </NestedItem>
+      </MenuFixture>,
+    );
+    await open(Entry.Canvas);
+    await item("Fails").click();
+    await expect.poll(() => menus().length).toBe(0);
+    await expect
+      .poll(() => useTooltipStore.getState().visibility.get("menu-decisions-canvas")?.visible)
+      .toBe(false);
+  } finally {
+    window.removeEventListener("error", swallow);
+  }
+});

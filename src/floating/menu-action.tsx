@@ -32,7 +32,9 @@ export function renderMenuTrigger(
   }
   // A non-button element such as `<span><MenuButton /></span>` wraps the control the user
   // focuses and only relays its events and menu state. It takes no button role or tab
-  // stop of its own, which would nest a second button around the real one.
+  // stop of its own, which would nest a second button around the real one. A non-button
+  // element that is the control itself declares its own `role` and `tabIndex`, which
+  // win over these defaults below.
   const relay = typeof trigger.type === "string" && trigger.type !== "button";
   const { role: _role, tabIndex: _tabIndex, ...relayProps } = props;
   return cloneElement(trigger, {
@@ -191,8 +193,12 @@ export function useMenuActionHandoff(afterClose?: () => void) {
     if (completions === 0) return;
     const actions = completed.current.splice(0);
     queueMicrotask(() => {
-      for (const action of actions) action();
-      afterCloseRef.current?.();
+      // An action that throws still lets the menu's own close cleanup run.
+      try {
+        for (const action of actions) action();
+      } finally {
+        afterCloseRef.current?.();
+      }
     });
   }, [completions]);
   useEffect(

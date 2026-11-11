@@ -58,6 +58,12 @@ export interface VisibilityState {
   triggers: Set<string>; // Multiple triggers can keep it visible
   lastTrigger?: string;
   priority?: number;
+  /**
+   * Counts `showTooltip` calls for the anchor. An interactive overlay renders one instance
+   * per invocation, so re-invoking it while an earlier one is still closing opens a fresh
+   * popup instead of reusing the closing one.
+   */
+  invocation?: number;
 }
 
 export interface TooltipStore {
@@ -281,6 +287,7 @@ export const useTooltipStore = create<TooltipStore>()(
             visible: true,
             triggers: nextTriggers,
             lastTrigger: triggerId,
+            invocation: (prev?.invocation ?? 0) + 1,
           });
 
           // Track trigger associations
@@ -498,7 +505,6 @@ export const useTooltipStore = create<TooltipStore>()(
           if (newHistory.length > currentState._maxDebugHistory) {
             newHistory.splice(0, newHistory.length - currentState._maxDebugHistory);
           }
-
 
           return { debugHistory: newHistory };
         });
