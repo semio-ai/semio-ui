@@ -5307,9 +5307,9 @@
     "tree trigger closed contract": {
       "tag": "div",
       "text": "3 of 6 selected",
-      "role": "(none)",
+      "role": "button",
       "type": "(none)",
-      "tabindex": "(none)",
+      "tabindex": "0",
       "disabled": "(none)",
       "aria-checked": "(none)",
       "aria-pressed": "(none)",
@@ -5400,9 +5400,9 @@
     "tree trigger contract": {
       "tag": "div",
       "text": "3 of 6 selected",
-      "role": "(none)",
+      "role": "button",
       "type": "(none)",
-      "tabindex": "(none)",
+      "tabindex": "0",
       "disabled": "(none)",
       "aria-checked": "(none)",
       "aria-pressed": "(none)",
@@ -6194,7 +6194,7 @@
       "parentCheckboxFocused": true,
       "space": "",
       "enter": "",
-      "escape": "(body)"
+      "escape": "Checked parent"
     },
     "space": {
       "values": "a,b,e,f",
@@ -17596,9 +17596,9 @@
     "tree trigger closed contract": {
       "tag": "div",
       "text": "3 of 6 selected",
-      "role": "(none)",
+      "role": "button",
       "type": "(none)",
-      "tabindex": "(none)",
+      "tabindex": "0",
       "disabled": "(none)",
       "aria-checked": "(none)",
       "aria-pressed": "(none)",
@@ -17689,9 +17689,9 @@
     "tree trigger contract": {
       "tag": "div",
       "text": "3 of 6 selected",
-      "role": "(none)",
+      "role": "button",
       "type": "(none)",
-      "tabindex": "(none)",
+      "tabindex": "0",
       "disabled": "(none)",
       "aria-checked": "(none)",
       "aria-pressed": "(none)",
@@ -18483,7 +18483,7 @@
       "parentCheckboxFocused": true,
       "space": "",
       "enter": "",
-      "escape": "(body)"
+      "escape": "Checked parent"
     },
     "space": {
       "values": "a,b,e,f",
