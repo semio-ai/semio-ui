@@ -1,11 +1,27 @@
 const FOCUSABLE =
   "a[href], area[href], button, input, select, textarea, iframe, object, embed, audio[controls], video[controls], summary, [contenteditable], [tabindex]";
 
+/**
+ * The element's place in the tab order. An editing host with no `tabindex` (a
+ * `contenteditable` element whose parent is not editable) is a Tab stop, yet its `tabIndex`
+ * property reads -1, so it counts as 0. An editable element inside one is part of that host's
+ * stop, not one of its own, and keeps -1.
+ */
+function tabOrder(element: HTMLElement) {
+  if (
+    !element.hasAttribute("tabindex") &&
+    element.isContentEditable &&
+    !element.parentElement?.isContentEditable
+  )
+    return 0;
+  return element.tabIndex;
+}
+
 /** Roving items, disabled controls and unrendered elements do not take a Tab stop. */
 export function isTabbable(element: HTMLElement) {
   const style = getComputedStyle(element);
   return (
-    element.tabIndex >= 0 &&
+    tabOrder(element) >= 0 &&
     !element.matches(":disabled") &&
     !element.closest("[inert]") &&
     element.getClientRects().length > 0 &&
@@ -34,5 +50,5 @@ export function getTabbableElements(container: HTMLElement) {
   );
   return candidates
     .filter((element) => !isRadio(element) || isRadioGroupStop(element, candidates))
-    .sort((a, b) => (a.tabIndex || Infinity) - (b.tabIndex || Infinity));
+    .sort((a, b) => (tabOrder(a) || Infinity) - (tabOrder(b) || Infinity));
 }

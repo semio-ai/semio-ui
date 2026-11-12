@@ -15,24 +15,32 @@ export function isEscapeConsumedByTooltip(event: Event) {
 
 // Notification listeners can register before an explanation opens. Whichever
 // capture listener runs first must give that explanation the Escape.
-const tooltipEscapeHandlers = new WeakMap<Document, () => void>();
+//
+// Every open tooltip stays registered, newest last. Opening one asks the others to
+// close, but a controlled tooltip can refuse (`Snippet` holds "Copied!" open), so
+// two can be open at once, and the older one must keep its Escape when the newer
+// one closes first.
+const tooltipEscapeHandlers = new WeakMap<Document, { close: () => void }[]>();
 
 function closeTooltipForEscape(doc: Document, event: KeyboardEvent) {
   if (event.key !== "Escape") return false;
   if (isEscapeConsumedByTooltip(event)) return true;
-  const close = tooltipEscapeHandlers.get(doc);
-  if (!close) return false;
+  const newest = tooltipEscapeHandlers.get(doc)?.at(-1);
+  if (!newest) return false;
   consumeTooltipEscape(event);
-  close();
+  newest.close();
   return true;
 }
 
 export function registerTooltipEscape(doc: Document, close: () => void) {
-  tooltipEscapeHandlers.set(doc, close);
+  const registration = { close };
+  const registrations = tooltipEscapeHandlers.get(doc) ?? [];
+  registrations.push(registration);
+  tooltipEscapeHandlers.set(doc, registrations);
   const onEscape = (event: KeyboardEvent) => closeTooltipForEscape(doc, event);
   doc.addEventListener("keydown", onEscape, true);
   return () => {
-    if (tooltipEscapeHandlers.get(doc) === close) tooltipEscapeHandlers.delete(doc);
+    registrations.splice(registrations.indexOf(registration), 1);
     doc.removeEventListener("keydown", onEscape, true);
   };
 }
@@ -69,15 +77,23 @@ export function preserveNotificationInteraction(details: DismissDetails, menu = 
   return false;
 }
 
+// Overlays open with this hook, newest last. Capture listeners on one target run in the
+// order they were added, so the outermost overlay's runs first; only the newest acts, so
+// one Escape closes the topmost overlay rather than the one beneath it.
+const notificationEscapeStack: object[] = [];
+
 /** An open overlay receives Escape before a toast when focus is in notifications. */
 export function useNotificationEscape(open: boolean, close: () => void) {
   const closeRef = useRef(close);
   closeRef.current = close;
   useEffect(() => {
     if (!open) return;
+    const entry = {};
+    notificationEscapeStack.push(entry);
     const handleKeyDown = (event: KeyboardEvent) => {
       if (closeTooltipForEscape(document, event)) return;
       if (
+        notificationEscapeStack.at(-1) !== entry ||
         event.key !== "Escape" ||
         event.defaultPrevented ||
         !(event.target instanceof Element) ||
@@ -90,6 +106,9 @@ export function useNotificationEscape(open: boolean, close: () => void) {
       closeRef.current();
     };
     document.addEventListener("keydown", handleKeyDown, true);
-    return () => document.removeEventListener("keydown", handleKeyDown, true);
+    return () => {
+      notificationEscapeStack.splice(notificationEscapeStack.indexOf(entry), 1);
+      document.removeEventListener("keydown", handleKeyDown, true);
+    };
   }, [open]);
 }
