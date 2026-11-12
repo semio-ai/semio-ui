@@ -115,6 +115,35 @@ test.each([true, false])("aria-disabled=%s controls press dismissal", async (dis
   }
 });
 
+test("an aria-disabled trigger in another document keeps its explanation open when pressed", async () => {
+  // An iframe's document has its own realm, whose nodes fail `instanceof` checks against
+  // this window's `Node`.
+  const frame = document.createElement("iframe");
+  document.body.append(frame);
+  const container = frame.contentDocument!.createElement("div");
+  frame.contentDocument!.body.append(container);
+  try {
+    render(
+      <Tooltip content="Explanation">
+        <button type="button" aria-disabled="true">
+          Trigger
+        </button>
+      </Tooltip>,
+      { container },
+    );
+    const trigger = container.querySelector("button")!;
+    act(() => trigger.focus());
+    await waitFor(() => expect(trigger.getAttribute("data-state")).toBe("open"));
+    fireEvent.pointerDown(trigger, { pointerType: "mouse", button: 0 });
+    fireEvent.click(trigger);
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    expect(trigger.getAttribute("data-state")).toBe("open");
+  } finally {
+    cleanup();
+    frame.remove();
+  }
+});
+
 test.each([true, false])(
   "a disabled entry's explanation consumes Escape before its menu (focused=%s)",
   async (focused) => {

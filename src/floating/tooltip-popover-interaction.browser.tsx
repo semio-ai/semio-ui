@@ -235,6 +235,25 @@ test("Shift+Tab before a roving first control closes the canvas popover", async 
   await expect.element(button("Open surface")).toHaveFocus();
 });
 
+test("Tab past a native radio group's checked radio closes the canvas popover", async () => {
+  // A named radio group is one Tab stop, its checked radio, so the unchecked radio after it
+  // is in the DOM but is not the popover's last stop.
+  await render(
+    <SurfaceFixture kind={Surface.Canvas}>
+      <button type="button">First</button>
+      <input type="radio" name="speed" aria-label="Slow" defaultChecked />
+      <input type="radio" name="speed" aria-label="Fast" />
+    </SurfaceFixture>,
+  );
+  await openSurface();
+  await expect.element(button("First")).toHaveFocus();
+  await userEvent.keyboard("{Tab}");
+  await expect.element(page.getByRole("radio", { name: "Slow" })).toHaveFocus();
+  await userEvent.keyboard("{Tab}");
+  await expect.poll(surface).toBeNull();
+  await expect.element(button("Open surface")).toHaveFocus();
+});
+
 function AddNotification() {
   const add = useAddToast();
   useEffect(

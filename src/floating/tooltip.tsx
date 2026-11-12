@@ -58,8 +58,9 @@ function Tooltip({
         !value &&
         details.reason === "trigger-press" &&
         trigger?.getAttribute("aria-disabled") === "true" &&
-        details.event.target instanceof Node &&
-        trigger.contains(details.event.target)
+        // Not `instanceof Node`: a trigger rendered into another document (an iframe) has
+        // nodes from that document's realm, which fail the check against this one.
+        trigger.contains(details.event.target as Node | null)
       ) {
         details.cancel();
         return;
@@ -98,10 +99,13 @@ function Tooltip({
     const onScroll = (event: Event) => {
       // ScrollArea dispatches scroll for measurement on pointer entry. Only an
       // actual scroll of an ancestor moves the trigger and dismisses its hint.
+      // The target is a node of the trigger's own document, so it is not checked with
+      // `instanceof Node`, which fails for a document in another realm (an iframe).
+      const target = event.target as Node | null;
       if (
         event.isTrusted &&
-        event.target instanceof Node &&
-        event.target.contains(triggerRef.current)
+        typeof target?.contains === "function" &&
+        target.contains(triggerRef.current)
       )
         changeOpen(false);
     };
