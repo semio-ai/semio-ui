@@ -292,6 +292,8 @@ for (const kind of [Surface.Popover, Surface.Canvas]) {
     expect(surface()).not.toBeNull();
     await userEvent.keyboard("{Escape}");
     await expect.poll(surface).toBeNull();
+    // Past the toast's exit animation, so a toast that the same Escape dismissed is gone.
+    await new Promise((resolve) => setTimeout(resolve, 800));
     await expect.element(page.getByText("Review notification", { exact: true })).toBeVisible();
     // A second Escape reaches the toast, showing the first was intercepted for the popup.
     button("Copy details").element().focus();

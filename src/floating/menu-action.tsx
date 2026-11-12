@@ -17,7 +17,6 @@ import { mergeProps } from "@base-ui/react/merge-props";
 import { mergeRefs } from "react-merge-refs";
 import type { Menu } from "@base-ui/react/menu";
 import { preserveNotificationInteraction, preserveTooltipEscape } from "./overlay-interaction";
-import { getTabbableElements, isTabbable } from "./tabbable";
 
 /** Compose a consumer's trigger and retain its ref, handlers and menu state contract. */
 export function renderMenuTrigger(
@@ -101,8 +100,11 @@ export function useMenuShiftTabExit(
 
 /** Resolve relay wrappers to the actual control for both immediate and final focus. */
 export function menuTriggerFocusTarget(trigger: HTMLElement | null) {
-  if (!trigger) return null;
-  return isTabbable(trigger) ? trigger : (getTabbableElements(trigger)[0] ?? null);
+  if (!trigger || trigger.matches("button, a[href], input, select, textarea, [tabindex]"))
+    return trigger;
+  return trigger.querySelector<HTMLElement>(
+    'button:not(:disabled), a[href], input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [tabindex]:not([tabindex="-1"])',
+  );
 }
 
 /** Submenus share Base UI's root owner even when their popups use another portal. */
