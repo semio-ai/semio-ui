@@ -6,9 +6,7 @@ import "../test-stylesheet";
 import { UiStoreProvider } from "../context/ui-store-provider";
 import { useAddToast } from "../hooks/use-add-toast";
 import { ToggleGroup } from "../inputs/toggle-group";
-import { NestedItem } from "../nested-elements/item";
 import { Dialog as DialogOverlay } from "./dialog";
-import { Dropdown as DropdownOverlay } from "./dropdown";
 import { Modal as ModalOverlay } from "./modal";
 import { Popover as PopoverOverlay } from "./popover";
 import { SidebarModal } from "./sidebar-modal";
@@ -401,15 +399,18 @@ test("a tooltip held open keeps its Escape after a newer tooltip closes", async 
 
 test("Escape from a toast closes only the topmost of nested overlays", async () => {
   vi.spyOn(navigator.clipboard, "writeText").mockResolvedValue();
-  const menu = () => document.querySelector('[role="menu"][data-state="open"]');
+  // Two non-modal popovers, one inside the other: focus can rest in the toast while both
+  // stay open, which a modal menu does not allow.
+  const openPopovers = () =>
+    document.querySelectorAll('.popover-content[data-state="open"]').length;
   await render(
     <UiStoreProvider>
       <ToastManager>
         <AddNotification />
         <SurfaceFixture kind={Surface.Popover}>
-          <DropdownOverlay trigger={<button type="button">Open menu</button>}>
-            <NestedItem>Entry</NestedItem>
-          </DropdownOverlay>
+          <PopoverOverlay trigger={<button type="button">Open inner</button>}>
+            <p>Inner content</p>
+          </PopoverOverlay>
         </SurfaceFixture>
       </ToastManager>
     </UiStoreProvider>,
@@ -419,16 +420,18 @@ test("Escape from a toast closes only the topmost of nested overlays", async () 
     .poll(() => getComputedStyle(button("Copy details").element().closest("li")!).transform)
     .toBe("none");
   await openSurface();
-  await button("Open menu").click();
-  await expect.poll(menu).not.toBeNull();
+  await button("Open inner").click();
+  await expect.poll(openPopovers).toBe(2);
   button("Copy details").element().focus();
   await settle();
-  expect(menu()).not.toBeNull();
+  await expect.element(button("Copy details")).toHaveFocus();
+  expect(openPopovers()).toBe(2);
   await userEvent.keyboard("{Escape}");
-  await expect.poll(menu).toBeNull();
-  // The Popover beneath the menu, and the toast, are untouched by that Escape.
+  await expect.poll(openPopovers).toBe(1);
+  // The outer Popover, and the toast, are untouched by that Escape.
   await delay(800);
   expect(surface()).not.toBeNull();
+  await expect.element(page.getByText("Inner content", { exact: true })).not.toBeInTheDocument();
   await expect.element(page.getByText("Sample notification", { exact: true })).toBeVisible();
 });
 
