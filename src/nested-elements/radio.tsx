@@ -107,7 +107,9 @@ export function NestedRadio({ variant, disabled, onChange, value, options }: Nes
                   {resolveIcon(option.icon) ?? <Icon name="radio-selected" />}
                 </span>
               </ItemIndicatorComponent>
-              {option.label}
+              {/* One line, cut short: the row's height is fixed, so a label allowed to
+                wrap spills its second line over the rows around it. */}
+              <span className="min-w-0 truncate">{option.label}</span>
             </ItemComponent>
           </Tooltip>
         </Fragment>
