@@ -4,6 +4,7 @@ import { clsx } from "clsx";
 import { ScrollArea } from "../layouts/scroll-area";
 import { Variant } from "../types";
 import { Button } from "../buttons/button";
+import { preserveTooltipEscape } from "./overlay-interaction";
 import { InsideDialogContext, useInsideDialog } from "./dialog-nesting";
 
 export interface ModalProps {
@@ -145,7 +146,8 @@ export function Modal({
   return (
     <Dialog.Root
       open={open}
-      onOpenChange={(nextOpen) => {
+      onOpenChange={(nextOpen, details) => {
+        if (!nextOpen && preserveTooltipEscape(details)) return;
         // Honour `dismissDisabled` for every close reason (escape, outside
         // press, focus out). Open requests still propagate so a controlled
         // parent can `setOpen(true)` programmatically — though typically

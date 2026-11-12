@@ -13,6 +13,7 @@ import { NestedCheckboxTree } from "../nested-elements/checkbox-tree";
 import { NestedMenu } from "../nested-elements/menu";
 import { NestedRadio } from "../nested-elements/radio";
 import { NestedSelect } from "../nested-elements/select";
+import { isEscapeConsumedByTooltip } from "./overlay-interaction";
 import { ActionMenu } from "./action-menu";
 import { ContextMenu } from "./context-menu";
 import { Dropdown as DropdownOverlay } from "./dropdown";
@@ -464,7 +465,13 @@ for (const entry of [Entry.Dropdown, Entry.Context, Entry.Canvas])
       await open(entry, true);
       await first();
       await expect.element(page.getByRole("tooltip")).toHaveTextContent("Access is required");
+      const received = vi.fn((event: Event) => {
+        expect(isEscapeConsumedByTooltip(event)).toBe(true);
+        expect(event.defaultPrevented).toBe(true);
+      });
+      item("First").element().addEventListener("keydown", received, { once: true });
       await userEvent.keyboard("{Escape}");
+      expect(received).toHaveBeenCalledTimes(1);
       await expect.element(page.getByRole("tooltip")).not.toBeInTheDocument();
       expect(menus()).toHaveLength(1);
       await expect.element(item("First")).toHaveFocus();
@@ -504,7 +511,12 @@ for (const entry of [Entry.Dropdown, Entry.Context, Entry.Canvas])
       await userEvent.keyboard("{ArrowUp}");
       await expect.element(item("Child")).toHaveFocus();
       await expect.element(page.getByRole("tooltip")).toHaveTextContent("Child reason");
+      const received = vi.fn((event: Event) => {
+        expect(isEscapeConsumedByTooltip(event)).toBe(true);
+      });
+      item("Child").element().addEventListener("keydown", received, { once: true });
       await userEvent.keyboard("{Escape}");
+      expect(received).toHaveBeenCalledTimes(1);
       await expect.element(page.getByRole("tooltip")).not.toBeInTheDocument();
       expect(menus()).toHaveLength(2);
       await userEvent.keyboard("{Escape}");

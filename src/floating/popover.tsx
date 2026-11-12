@@ -1,12 +1,19 @@
 import { Popover as PopoverPrimitive } from "@base-ui/react/popover";
 import { clsx } from "clsx";
-import { isValidElement, type ReactNode } from "react";
+import { isValidElement, useState, type ReactNode } from "react";
 import { Variant } from "../types";
+import {
+  preserveTooltipEscape,
+  preserveNotificationInteraction,
+  useNotificationEscape,
+} from "./overlay-interaction";
 import { Arrow } from "./arrow";
 import { renderMenuTrigger } from "./menu-action";
 
 export interface PopoverProps {
   trigger: ReactNode;
+  /** Whether the trigger renders a native button. Inferred for intrinsic elements. */
+  nativeButton?: boolean;
   children: ReactNode;
   open?: boolean;
   onStateChange?: (open: boolean) => void;
@@ -17,37 +24,34 @@ export interface PopoverProps {
 
 function Popover({
   trigger,
+  nativeButton,
   children,
   open,
   onStateChange,
   variant,
   portalContainer,
 }: PopoverProps) {
+  const [internalOpen, setInternalOpen] = useState(false);
+  const actualOpen = open ?? internalOpen;
+  const changeOpen = (next: boolean) => {
+    if (open === undefined) setInternalOpen(next);
+    onStateChange?.(next);
+  };
+  useNotificationEscape(actualOpen, () => changeOpen(false));
   return (
     <div className="relative inline-block text-left">
       <PopoverPrimitive.Root
-        open={open}
+        open={actualOpen}
         modal={false}
         onOpenChange={(next, details) => {
-          const target =
-            details.reason === "focus-out" && details.event instanceof FocusEvent
-              ? details.event.relatedTarget
-              : details.event.target;
-          // Notifications are a shared interaction region for open overlays.
-          if (
-            !next &&
-            (details.reason === "outside-press" || details.reason === "focus-out") &&
-            target instanceof Element &&
-            target.closest("[data-notifications-region]")
-          ) {
-            details.cancel();
+          if (!next && (preserveTooltipEscape(details) || preserveNotificationInteraction(details)))
             return;
-          }
-          onStateChange?.(next);
+          changeOpen(next);
         }}
       >
         <PopoverPrimitive.Trigger
           nativeButton={
+            nativeButton ??
             !(
               isValidElement(trigger) &&
               typeof trigger.type === "string" &&

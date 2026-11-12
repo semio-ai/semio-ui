@@ -16,7 +16,8 @@ import {
 import { mergeProps } from "@base-ui/react/merge-props";
 import { mergeRefs } from "react-merge-refs";
 import type { Menu } from "@base-ui/react/menu";
-import { isEscapeConsumedByTooltip } from "./tooltip";
+import { preserveNotificationInteraction, preserveTooltipEscape } from "./overlay-interaction";
+import { getTabbableElements, isTabbable } from "./tabbable";
 
 /** Compose a consumer's trigger and retain its ref, handlers and menu state contract. */
 export function renderMenuTrigger(
@@ -49,29 +50,9 @@ export function renderMenuTrigger(
 export function preserveMenuInteraction(
   details: Pick<Menu.Root.ChangeEventDetails, "reason" | "event" | "cancel">,
 ) {
-  const target =
-    details.reason === "focus-out" && details.event instanceof FocusEvent
-      ? details.event.relatedTarget
-      : details.event.target;
-  // A press on a menu trigger in a toast (an ActionMenu) closes this menu like any other
-  // outside press, so two menus are never open at once.
-  if (
-    (details.reason === "outside-press" || details.reason === "focus-out") &&
-    target instanceof Element &&
-    target.closest("[data-notifications-region]") &&
-    !target.closest('[aria-haspopup="menu"]')
-  ) {
-    details.cancel();
-    return true;
-  }
-  // Tooltip marks the native Escape it dismisses in document capture. Only that
-  // mark preserves this menu (and its submenus); disabled items preventDefault on
-  // ordinary Escape too, and must still allow dismissal.
-  if (details.reason === "escape-key" && isEscapeConsumedByTooltip(details.event)) {
-    details.cancel();
-    return true;
-  }
-  return false;
+  // The native mark is required: disabled items also preventDefault on ordinary
+  // Escape, which must still dismiss their menu and submenus.
+  return preserveTooltipEscape(details) || preserveNotificationInteraction(details, true);
 }
 
 /**
@@ -120,11 +101,8 @@ export function useMenuShiftTabExit(
 
 /** Resolve relay wrappers to the actual control for both immediate and final focus. */
 export function menuTriggerFocusTarget(trigger: HTMLElement | null) {
-  if (!trigger || trigger.matches("button, a[href], input, select, textarea, [tabindex]"))
-    return trigger;
-  return trigger.querySelector<HTMLElement>(
-    'button:not(:disabled), a[href], input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [tabindex]:not([tabindex="-1"])',
-  );
+  if (!trigger) return null;
+  return isTabbable(trigger) ? trigger : (getTabbableElements(trigger)[0] ?? null);
 }
 
 /** Submenus share Base UI's root owner even when their popups use another portal. */
@@ -155,30 +133,6 @@ const MENU_NAVIGATION_KEYS = new Set([
  */
 export function keepMenuNavigationKeys(event: ReactKeyboardEvent) {
   if (MENU_NAVIGATION_KEYS.has(event.key)) event.stopPropagation();
-}
-
-/** A menu receives Escape before a toast when focus is in the notifications region. */
-export function useNotificationMenuEscape(open: boolean, close: () => void) {
-  const closeRef = useRef(close);
-  closeRef.current = close;
-  useEffect(() => {
-    if (!open) return;
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (
-        event.key !== "Escape" ||
-        event.defaultPrevented ||
-        !(event.target instanceof Element) ||
-        !event.target.closest("[data-notifications-region]") ||
-        event.target.closest('[role="menu"]')
-      )
-        return;
-      event.preventDefault();
-      event.stopPropagation();
-      closeRef.current();
-    };
-    document.addEventListener("keydown", handleKeyDown, true);
-    return () => document.removeEventListener("keydown", handleKeyDown, true);
-  }, [open]);
 }
 
 const MenuActionContext = createContext<((action: () => void) => void) | null>(null);

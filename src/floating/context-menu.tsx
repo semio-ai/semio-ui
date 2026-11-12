@@ -3,13 +3,13 @@ import { clsx } from "clsx";
 import { useRef, useState, type ReactNode, type CSSProperties } from "react";
 import { Variant } from "../types";
 import { ScrollArea } from "../layouts/scroll-area";
+import { useNotificationEscape } from "./overlay-interaction";
 import {
   MenuActionProvider,
   useMenuActionHandoff,
   preserveMenuInteraction,
   useMenuTabContainment,
   renderMenuTrigger,
-  useNotificationMenuEscape,
   menuContainsFocus,
   keepMenuNavigationKeys,
 } from "./menu-action";
@@ -43,7 +43,7 @@ export function ContextMenu({
     setOpen(next);
     onOpenChange?.(next);
   };
-  useNotificationMenuEscape(open, () => changeOpen(false));
+  useNotificationEscape(open, () => changeOpen(false));
   useMenuTabContainment(open, popupRef);
   return (
     <ContextMenuPrimitive.Root

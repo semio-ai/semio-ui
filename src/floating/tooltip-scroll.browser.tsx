@@ -71,3 +71,32 @@ test("an open tooltip closes when its scroll area scrolls", async () => {
   viewport().scrollTop = 30;
   await expect.poll(openTooltip).toBeNull();
 });
+
+test("a trusted scroll of an unrelated element keeps a keyboard tooltip open", async () => {
+  await render(
+    <>
+      <Tooltip content={REASON}>
+        <button type="button">Add</button>
+      </Tooltip>
+      <div data-unrelated-scroll="" style={{ overflow: "auto", height: 100, width: 200 }}>
+        <div style={{ height: 1000 }}>Unrelated content</div>
+      </div>
+    </>,
+  );
+  await userEvent.keyboard("{Tab}");
+  await expect.element(page.getByRole("button", { name: "Add" })).toHaveFocus();
+  await expect.poll(openTooltip).toContain(REASON);
+  const unrelated = document.querySelector<HTMLElement>("[data-unrelated-scroll]")!;
+  let trustedScroll = false;
+  unrelated.addEventListener(
+    "scroll",
+    (event) => {
+      trustedScroll = event.isTrusted;
+    },
+    { once: true },
+  );
+  unrelated.scrollTop = 40;
+  await expect.poll(() => trustedScroll).toBe(true);
+  await settle(8);
+  expect(openTooltip()).toContain(REASON);
+});

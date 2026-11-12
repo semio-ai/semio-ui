@@ -2,10 +2,6 @@ import { Tooltip as TooltipPrimitive } from "@base-ui/react/tooltip";
 import { clsx } from "clsx";
 import {
   type ReactNode,
-  type ReactElement,
-  type KeyboardEvent as ReactKeyboardEvent,
-  type KeyboardEventHandler,
-  type RefObject,
   cloneElement,
   useId,
   useCallback,
@@ -16,41 +12,9 @@ import {
 import { Size, Variant } from "../types";
 import { Arrow } from "./arrow";
 import { renderMenuTrigger } from "./menu-action";
+import { consumeTooltipEscape, registerTooltipEscape } from "./overlay-interaction";
 
-// Native events consumed by an explanation must leave its menu open. Weak keys
-// retain the mark for every layer handling the same event without cleanup.
-const consumedEscapes = new WeakSet<Event>();
-export function isEscapeConsumedByTooltip(event: Event) {
-  return consumedEscapes.has(event);
-}
-
-/** Run Base UI's Escape handler before a containing menu's bubble handlers. */
-function TooltipEscapeCapture({
-  open,
-  triggerRef,
-  onKeyDown,
-  children,
-}: {
-  open: boolean;
-  triggerRef: RefObject<HTMLElement | null>;
-  onKeyDown?: KeyboardEventHandler<HTMLElement>;
-  children: ReactElement;
-}) {
-  useEffect(() => {
-    const doc = triggerRef.current?.ownerDocument;
-    if (!open || !doc || !onKeyDown) return;
-    const onEscape = (event: KeyboardEvent) => {
-      if (event.key !== "Escape") return;
-      // useDismiss accepts native and React events. Calling its rendered handler
-      // in capture retains its composition guard, escape-key reason and internal
-      // hover/focus dismissal state, even when focus is elsewhere in the menu.
-      onKeyDown(event as unknown as ReactKeyboardEvent<HTMLElement>);
-    };
-    doc.addEventListener("keydown", onEscape, true);
-    return () => doc.removeEventListener("keydown", onEscape, true);
-  }, [open, triggerRef, onKeyDown]);
-  return children;
-}
+const TOOLTIP_OPEN = "semio.tooltip.open";
 
 export interface TooltipProps {
   /** Non-interactive explanation. Use a Popover for links or actions. */
@@ -89,11 +53,10 @@ function Tooltip({
   const handleOpenChange = useCallback(
     (value: boolean, details: TooltipPrimitive.Root.ChangeEventDetails) => {
       const trigger = triggerRef.current;
-      // Base UI can request either a trigger or outside press close. Only a press
-      // inside this aria-disabled trigger should keep its explanation visible.
+      // Pressing an aria-disabled trigger does nothing, so its explanation stays visible.
       if (
         !value &&
-        (details.reason === "trigger-press" || details.reason === "outside-press") &&
+        details.reason === "trigger-press" &&
         trigger?.getAttribute("aria-disabled") === "true" &&
         details.event.target instanceof Node &&
         trigger.contains(details.event.target)
@@ -101,11 +64,32 @@ function Tooltip({
         details.cancel();
         return;
       }
-      if (!value && details.reason === "escape-key") consumedEscapes.add(details.event);
+      if (!value && details.reason === "escape-key") {
+        // Base UI handles Escape on both the trigger and document. Whichever path
+        // runs first marks the native event; neither may stop its propagation.
+        consumeTooltipEscape(details.event);
+        details.allowPropagation();
+      }
       changeOpen(value);
     },
     [changeOpen],
   );
+
+  useEffect(() => {
+    if (!open || disabled) return;
+    const doc = triggerRef.current?.ownerDocument;
+    if (!doc) return;
+    const onOtherOpen = (event: Event) => {
+      if ((event as CustomEvent).detail !== popupId) changeOpen(false);
+    };
+    const unregisterEscape = registerTooltipEscape(doc, () => changeOpen(false));
+    doc.addEventListener(TOOLTIP_OPEN, onOtherOpen);
+    doc.dispatchEvent(new CustomEvent(TOOLTIP_OPEN, { detail: popupId }));
+    return () => {
+      doc.removeEventListener(TOOLTIP_OPEN, onOtherOpen);
+      unregisterEscape();
+    };
+  }, [open, disabled, popupId, changeOpen]);
 
   useEffect(() => {
     if (!open || disabled) return;
@@ -136,26 +120,18 @@ function Tooltip({
           ref={triggerRef}
           onFocus={(event) => {
             // React portals bubble focus through the component tree. Only DOM
-            // descendants of this trigger should open its explanation.
+            // descendants of this trigger should open its explanation: focus in a
+            // portalled menu must leave that menu as the topmost Escape layer.
             if (!event.currentTarget.contains(event.target)) event.preventBaseUIHandler();
           }}
           render={(props, state) => {
             const trigger = renderMenuTrigger(children, props, state.open);
-            return (
-              <TooltipEscapeCapture
-                open={state.open}
-                triggerRef={triggerRef}
-                onKeyDown={props.onKeyDown}
-              >
-                {cloneElement(trigger, {
-                  // The open explanation describes the trigger, unless the trigger already
-                  // names its own description: a disabled menu entry's reason is both that
-                  // description and this tooltip's text, and is announced once.
-                  "aria-describedby":
-                    trigger.props["aria-describedby"] ?? (open ? popupId : undefined),
-                })}
-              </TooltipEscapeCapture>
-            );
+            return cloneElement(trigger, {
+              // The open explanation describes the trigger, unless the trigger already
+              // names its own description: a disabled menu entry's reason is both that
+              // description and this tooltip's text, and is announced once.
+              "aria-describedby": trigger.props["aria-describedby"] ?? (open ? popupId : undefined),
+            });
           }}
         />
         <TooltipPrimitive.Portal container={portalContainer ?? undefined}>

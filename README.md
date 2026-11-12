@@ -266,19 +266,25 @@ radio options, and false for checkbox and multi-select options; tree checks stay
 open. `NestedItem` stops closing clicks from bubbling into a listing and retains
 the selected element as `currentTarget`.
 
-`Popover` uses Base UI's non-modal Popover. Tab and Shift+Tab follow the surrounding
-tab order, and tabbing out closes the popup. An outside press dismisses it and
-activates the pressed element. A press in the notifications region keeps it open.
+`Popover` uses Base UI's non-modal Popover. Tab past its last control moves on in
+the page's order and closes it. Shift+Tab from its first control returns focus to
+the trigger and leaves it open. An outside press dismisses it and
+activates the pressed element. A press or focus move into the notifications region keeps it open.
+Escape from that region closes the Popover and leaves the toast visible.
 Inside a Modal, Escape closes the Popover first, and another Escape closes the Modal.
 The trigger composes the consumer's handlers, ref and classes, including
 `focus:outline-none`. `open`, `onStateChange` and `portalContainer` support controlled
-state and a host-owned portal.
+state and a host-owned portal. `nativeButton` overrides trigger inference for custom
+components, as it does on Dropdown.
 
 TooltipHost's interactive click overlays also use a non-modal Popover, positioned
 at their virtual canvas anchor. They accept arbitrary content and expose `role="dialog"`.
 A canvas point has no place in the tab order, so Tab or Shift+Tab past either end
 closes the popup and returns focus to where it was before it opened. An outside press
-dismisses it and activates the pressed element.
+dismisses it and activates the pressed element. Presses and focus moves into the
+notifications region keep it open; Escape from that region closes the popover and
+leaves the toast visible. Navigation keys stay inside the popup instead of reaching
+the canvas host.
 Content using `NestedItem` and other menu parts requires `mode: "context-menu"` or a
 `Dropdown`. A closing canvas popup dismisses only its own invocation in the store.
 
@@ -304,8 +310,9 @@ replaces the whole listing, including its headers.
 `Tooltip` uses Base UI to display non-interactive explanations after a 700 ms hover
 delay or immediately on focus-visible keyboard focus. Reopening the same tooltip
 within 300 ms of closing skips the hover delay. The pointer can move from its
-trigger onto the explanation and keep it visible. Escape dismisses it before its
-surrounding menu. The visible popup has `role="tooltip"` and an ID, which the
+trigger onto the explanation and keep it visible. Opening one Tooltip closes any
+other. Escape closes an open tooltip and nothing else, and still reaches the focused
+element. The visible popup has `role="tooltip"` and an ID, which the
 trigger's `aria-describedby` names while open; a trigger that names its own description
 keeps it. The popup and trigger expose `data-state="open"` or `data-state="closed"`.
 Use `Popover` for content with links or actions.

@@ -12,13 +12,13 @@ import {
 import { mergeRefs } from "react-merge-refs";
 import { Variant } from "../types";
 import { ScrollArea } from "../layouts/scroll-area";
+import { useNotificationEscape } from "./overlay-interaction";
 import { Arrow } from "./arrow";
 import {
   MenuActionProvider,
   useMenuActionHandoff,
   preserveMenuInteraction,
   renderMenuTrigger,
-  useNotificationMenuEscape,
   useMenuShiftTabExit,
   menuTriggerFocusTarget,
   menuContainsFocus,
@@ -75,7 +75,7 @@ export function Dropdown({
     if (open === undefined) setInternalOpen(next);
     onOpenChange?.(next);
   };
-  useNotificationMenuEscape(actualOpen, () => changeOpen(false));
+  useNotificationEscape(actualOpen, () => changeOpen(false));
   useMenuShiftTabExit(actualOpen, popupRef, () => {
     closeHandled.current = true;
     returnFocus.current = true;

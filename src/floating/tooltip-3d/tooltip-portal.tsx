@@ -5,6 +5,12 @@ import { Popover } from "@base-ui/react/popover";
 import { motion, AnimatePresence } from "motion/react";
 import { clsx } from "clsx";
 import { useShallow } from "zustand/react/shallow";
+import { getTabbableElements } from "../tabbable";
+import {
+  preserveTooltipEscape,
+  preserveNotificationInteraction,
+  useNotificationEscape,
+} from "../overlay-interaction";
 import { Variant } from "../../types";
 import { ScrollArea } from "../../layouts/scroll-area";
 import {
@@ -12,7 +18,6 @@ import {
   useMenuActionHandoff,
   preserveMenuInteraction,
   useMenuTabContainment,
-  useNotificationMenuEscape,
   keepMenuNavigationKeys,
 } from "../menu-action";
 import {
@@ -55,18 +60,13 @@ function useOverlayAnchor(position: ScreenPosition) {
   );
 }
 
-const TABBABLE =
-  'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
-
 /**
  * Whether Tab from `target` would leave `popup`: it is the popup itself, or the last (first,
  * for Shift+Tab) tabbable element inside it.
  */
 function tabLeaves(popup: HTMLElement, target: EventTarget, backwards: boolean) {
   if (target === popup) return true;
-  const tabbable = Array.from(popup.querySelectorAll<HTMLElement>(TABBABLE)).filter(
-    (element) => element.getClientRects().length > 0,
-  );
+  const tabbable = getTabbableElements(popup);
   return target === (backwards ? tabbable[0] : tabbable[tabbable.length - 1]);
 }
 
@@ -81,6 +81,7 @@ function InteractiveOverlayInstance(props: OverlayInstanceProps) {
 
 function CanvasPopoverInstance({ anchor, position, invocation }: OverlayInstanceProps) {
   const [open, setOpen] = useState(true);
+  useNotificationEscape(open, () => setOpen(false));
   const dismissOverlay = useTooltipStore((s) => s.dismissOverlay);
   const virtualAnchor = useOverlayAnchor(position);
   const content = typeof anchor.content === "function" ? anchor.content() : anchor.content;
@@ -88,7 +89,11 @@ function CanvasPopoverInstance({ anchor, position, invocation }: OverlayInstance
     <Popover.Root
       open={open}
       modal={false}
-      onOpenChange={setOpen}
+      onOpenChange={(next, details) => {
+        if (!next && (preserveTooltipEscape(details) || preserveNotificationInteraction(details)))
+          return;
+        setOpen(next);
+      }}
       onOpenChangeComplete={(next) => {
         // A close completion belongs only to the invocation that rendered it.
         if (
@@ -115,6 +120,7 @@ function CanvasPopoverInstance({ anchor, position, invocation }: OverlayInstance
             // either end closes it instead, and closing returns focus to where it was before
             // the popover opened, so the next Tab continues from there.
             onKeyDown={(event) => {
+              keepMenuNavigationKeys(event);
               if (
                 event.key !== "Tab" ||
                 !tabLeaves(event.currentTarget, event.target, event.shiftKey)
@@ -146,7 +152,7 @@ function CanvasMenuInstance({ anchor, position, invocation }: OverlayInstancePro
   });
   const [open, setOpen] = useState(true);
   const popupRef = useRef<HTMLDivElement>(null);
-  useNotificationMenuEscape(open, () => setOpen(false));
+  useNotificationEscape(open, () => setOpen(false));
   useMenuTabContainment(open, popupRef);
   const virtualAnchor = useOverlayAnchor(position);
   const content = typeof anchor.content === "function" ? anchor.content() : anchor.content;

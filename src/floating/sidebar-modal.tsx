@@ -19,6 +19,7 @@ import { ScrollArea } from "../layouts/scroll-area";
 import { NestedSelect } from "../nested-elements/select";
 import { Variant } from "../types";
 import { useIsDesktop } from "../hooks/use-is-desktop";
+import { preserveTooltipEscape } from "./overlay-interaction";
 import { InsideDialogContext, useInsideDialog } from "./dialog-nesting";
 import { ContextMenu } from "./context-menu";
 
@@ -174,7 +175,8 @@ export function SidebarModal({
   return (
     <Dialog.Root
       open={open}
-      onOpenChange={(nextOpen) => {
+      onOpenChange={(nextOpen, details) => {
+        if (!nextOpen && preserveTooltipEscape(details)) return;
         if (dismissDisabled && !nextOpen) return;
         onStateChange(nextOpen);
       }}

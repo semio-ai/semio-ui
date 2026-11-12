@@ -5,7 +5,8 @@ import { afterEach, beforeEach, expect, test, vi } from "vitest";
 import { Variant } from "../types";
 import { NestedItem } from "../nested-elements/item";
 import { Dropdown } from "./dropdown";
-import { Tooltip, isEscapeConsumedByTooltip } from "./tooltip";
+import { Tooltip } from "./tooltip";
+import { isEscapeConsumedByTooltip, useNotificationEscape } from "./overlay-interaction";
 
 beforeEach(() => {
   vi.stubGlobal("PointerEvent", MouseEvent);
@@ -164,4 +165,53 @@ test("disabled renders the bare child", () => {
     </Tooltip>,
   );
   expect(container.innerHTML).toBe("<span>Child</span>");
+});
+
+test("Base UI's trigger Escape path marks the native event and allows React ancestors to receive it", async () => {
+  const ancestor = vi.fn();
+  // Keep controlled state open for this event so both the document capture path
+  // and Base UI's trigger handler run, regardless of React's update timing.
+  render(
+    <div role="grid" tabIndex={-1} onKeyDown={ancestor}>
+      <Tooltip content="Explanation" controlledState={[true, () => {}]}>
+        <button type="button">Trigger</button>
+      </Tooltip>
+    </div>,
+  );
+  await screen.findByRole("tooltip");
+  const escape = new KeyboardEvent("keydown", { key: "Escape", bubbles: true, cancelable: true });
+  fireEvent(screen.getByRole("button", { name: "Trigger" }), escape);
+  expect(isEscapeConsumedByTooltip(escape)).toBe(true);
+  expect(escape.defaultPrevented).toBe(true);
+  expect(ancestor).toHaveBeenCalledTimes(1);
+});
+
+test("an earlier notifications listener leaves Escape to a later-opened tooltip", async () => {
+  const close = vi.fn();
+  function Notifications() {
+    useNotificationEscape(true, close);
+    return (
+      <div data-notifications-region="">
+        <input aria-label="Notification input" />
+      </div>
+    );
+  }
+  const view = render(<Notifications />);
+  view.rerender(
+    <>
+      <Notifications />
+      <Tooltip content="Explanation" controlledState={[true, () => {}]}>
+        <button type="button">Trigger</button>
+      </Tooltip>
+    </>,
+  );
+  await screen.findByRole("tooltip");
+  const input = screen.getByRole("textbox", { name: "Notification input" });
+  const received = vi.fn();
+  input.addEventListener("keydown", received);
+  const escape = new KeyboardEvent("keydown", { key: "Escape", bubbles: true, cancelable: true });
+  fireEvent(input, escape);
+  expect(close).not.toHaveBeenCalled();
+  expect(isEscapeConsumedByTooltip(escape)).toBe(true);
+  expect(received).toHaveBeenCalledTimes(1);
 });

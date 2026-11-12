@@ -129,6 +129,8 @@ test("a disabled trigger still fires a Tooltip over it", async () => {
   //
   // Tooltip composes its trigger through Base UI's render function. The wrapping
   // span receives the ref and pointer handlers because Select forwards neither.
+  // Passing Select directly fails silently: the tooltip never opens, there is no
+  // error, and the control looks correct.
   await render(
     <Tooltip content={REASON}>
       <span className="inline-flex">

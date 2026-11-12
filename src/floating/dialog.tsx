@@ -3,6 +3,7 @@ import { AlertDialog } from "@base-ui/react/alert-dialog";
 import { clsx } from "clsx";
 import { Variant } from "../types";
 import { Button } from "../buttons/button";
+import { preserveTooltipEscape } from "./overlay-interaction";
 import { InsideDialogContext } from "./dialog-nesting";
 
 export interface DialogProps {
@@ -149,7 +150,13 @@ export function Dialog({
     onStateChange(next);
   };
   return (
-    <AlertDialog.Root open={open} onOpenChange={changeOpen}>
+    <AlertDialog.Root
+      open={open}
+      onOpenChange={(next, details) => {
+        if (!next && preserveTooltipEscape(details)) return;
+        changeOpen(next);
+      }}
+    >
       <InsideDialogContext.Provider value>
         {/* Closing removes the portal immediately; only the entrance is animated. */}
         {open && (
