@@ -10,7 +10,8 @@ import {
   type MouseEventHandler,
 } from "react";
 import { mergeRefs } from "react-merge-refs";
-import { Variant } from "../types";
+import { Size, Variant } from "../types";
+import { inputClassName, inputGroupClassName } from "../inputs/combobox-shared";
 import { ScrollArea } from "../layouts/scroll-area";
 import { useNotificationEscape } from "./overlay-interaction";
 import { Arrow } from "./arrow";
@@ -25,6 +26,15 @@ import {
   keepMenuNavigationKeys,
 } from "./menu-action";
 
+export interface DropdownSearch {
+  /** The search field's accessible name. */
+  label: string;
+  placeholder?: string;
+  /** The query. Dropdown reports an empty query when the menu closes. */
+  value: string;
+  onValueChange: (value: string) => void;
+}
+
 export interface DropdownProps {
   trigger: ReactNode;
   children: ReactNode;
@@ -34,6 +44,8 @@ export interface DropdownProps {
   variant?: Variant;
   color?: string;
   header?: ReactNode;
+  /** A search field above the entries. The consumer renders only the entries that match. */
+  search?: DropdownSearch;
   side?: "left" | "right" | "top" | "bottom";
   disabled?: boolean;
   open?: boolean;
@@ -48,6 +60,7 @@ export interface DropdownProps {
 
 export function Dropdown({
   header,
+  search,
   trigger,
   children,
   ref,
@@ -85,7 +98,7 @@ export function Dropdown({
   const isNativeButton =
     nativeButton ??
     !(isValidElement(trigger) && typeof trigger.type === "string" && trigger.type !== "button");
-  return (
+  const menu = (
     <Menu.Root
       onOpenChangeComplete={handoff.onOpenChangeComplete}
       open={actualOpen}
@@ -165,17 +178,46 @@ export function Dropdown({
             </Menu.Arrow>
             <ScrollArea
               focusableViewport={false}
-              header={header}
+              header={
+                search ? (
+                  <>
+                    {header}
+                    <div className="px-2 pt-1.75 pb-px">
+                      <div className={inputGroupClassName(Size.Sm)}>
+                        <Menu.Input
+                          aria-label={search.label}
+                          placeholder={search.placeholder ?? "Search…"}
+                          className={inputClassName(Size.Sm, Variant.Default, {
+                            leftPadded: false,
+                            rightPadded: false,
+                          })}
+                        />
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  header
+                )
+              }
               shrinkHeight
               orientation={scrollOrientation}
               wrapperClassName="max-h-[calc(var(--available-height)-4px)]"
               className="flex max-h-[calc(var(--available-height)-6px)] flex-col gap-0.5 p-0.5"
             >
-              <MenuActionProvider value={handoff.enqueue}>{children}</MenuActionProvider>
+              <MenuActionProvider value={handoff.enqueue}>
+                {search ? <Menu.List>{children}</Menu.List> : children}
+              </MenuActionProvider>
             </ScrollArea>
           </Menu.Popup>
         </Menu.Positioner>
       </Menu.Portal>
     </Menu.Root>
+  );
+  return search ? (
+    <Menu.FilterProvider filter={null} value={search.value} onValueChange={search.onValueChange}>
+      {menu}
+    </Menu.FilterProvider>
+  ) : (
+    menu
   );
 }

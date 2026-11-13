@@ -4,12 +4,11 @@ import { Button } from "../buttons/button";
 import { Dropdown } from "../floating/dropdown";
 import { NestedItem } from "../nested-elements/item";
 import { NestedSeparator } from "../nested-elements/separator";
-import { NestedLabel } from "../nested-elements/label";
+import { Text, TextRole } from "../text";
 import { NestedRadio } from "../nested-elements/radio";
 import { TextField } from "../inputs/text-field";
 import { Icon, type IconValue } from "../icons/registry";
 import { Size } from "../types";
-import { SearchableBreadcrumbSwitcher } from "./searchable-breadcrumb-switcher";
 
 export interface BreadcrumbSibling {
   icon?: IconValue;
@@ -53,6 +52,7 @@ function BreadcrumbLevel({
   size: Size;
 }) {
   const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState("");
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(item.label);
   const editingRef = useRef(false);
@@ -95,7 +95,11 @@ function BreadcrumbLevel({
     const name = draft.trim();
     if (commit && name && name !== item.label) item.onRename?.(name);
   };
-  const visibleOptions = switcher?.options ?? [];
+  const visibleOptions = switcher?.searchable
+    ? switcher.options.filter((option) =>
+        option.label.toLocaleLowerCase().includes(query.trim().toLocaleLowerCase()),
+      )
+    : (switcher?.options ?? []);
   const labelClass = clsx(
     size,
     "sized-height inline-flex min-w-0 items-center truncate rounded-xs px-2",
@@ -271,21 +275,19 @@ function BreadcrumbLevel({
       {switcher &&
         (editing && editableSwitcher ? (
           trigger
-        ) : switcher.searchable || editable ? (
-          <SearchableBreadcrumbSwitcher
-            switcher={switcher}
-            trigger={trigger}
-            open={open && !editing}
-            onOpenChange={setOpen}
-            onRename={item.onRename && item.showRenameAction !== false ? beginRename : undefined}
-            renameIcon={item.renameIcon}
-          />
         ) : (
           <Dropdown
             open={open && !editing}
-            onOpenChange={(next) => {
-              setOpen(next);
-            }}
+            onOpenChange={setOpen}
+            search={
+              switcher.searchable
+                ? {
+                    label: `Search ${switcher.label.toLowerCase()}`,
+                    value: query,
+                    onValueChange: setQuery,
+                  }
+                : undefined
+            }
             disabled={editing}
             onTriggerDoubleClick={(event) => {
               if (!item.onRename || !current) return;
@@ -298,10 +300,13 @@ function BreadcrumbLevel({
             trigger={trigger}
             header={
               <div className="flex flex-col gap-2 px-2 pt-2 pb-px">
-                <NestedLabel>{switcher.label}</NestedLabel>
+                <Text as="div" role={TextRole.Value} className="px-4 font-semibold">
+                  {switcher.label}
+                </Text>
               </div>
             }
           >
+            {switcher.searchable && <NestedSeparator />}
             <div>
               {switcher.loading ? (
                 <p role="status" className="p-2 text-sm">
@@ -316,14 +321,11 @@ function BreadcrumbLevel({
                   <NestedRadio
                     value={switcher.value}
                     options={visibleOptions.slice(0, 50)}
-                    onChange={(value) => {
-                      setOpen(false);
-                      switcher.onSelect(value);
-                    }}
+                    onChange={switcher.onSelect}
                   />
                   {visibleOptions.length === 0 && (
                     <p role="status" className="p-2 text-sm">
-                      {switcher.emptyText ?? "No options available"}
+                      {query ? "No matches" : (switcher.emptyText ?? "No options available")}
                     </p>
                   )}
                   {visibleOptions.length > 50 && (
@@ -340,13 +342,7 @@ function BreadcrumbLevel({
             {switcher.browse && (
               <>
                 <NestedSeparator />
-                <NestedItem
-                  left={switcher.browse.icon}
-                  onClick={() => {
-                    setOpen(false);
-                    switcher.browse?.onSelect();
-                  }}
-                >
+                <NestedItem left={switcher.browse.icon} onClick={switcher.browse.onSelect}>
                   {switcher.browse.label}
                 </NestedItem>
               </>
