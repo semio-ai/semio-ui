@@ -234,6 +234,22 @@ Tab keeps its normal focus handoff. ContextMenu returns to the element focused b
 invocation, which can differ from the pressed row. Arrow keys stop at the first and
 last entry, including in submenus.
 
+`Dropdown.search` adds a search field above the entries. Pass its accessible `label`,
+controlled `value`, `onValueChange`, and optional `placeholder` (default: “Search…”).
+The consumer renders matching entries; Dropdown does not filter them. Closing
+reports an empty query through `onValueChange`. The trigger reports
+`aria-haspopup="dialog"`; the popup is a dialog containing a searchbox and a menu.
+The field keeps focus while arrow keys and pointer movement highlight entries.
+Text-editing keys keep editing the query, and Tab and Shift+Tab keep the exit
+behavior described above. Without `search`, Dropdown is an ordinary menu whose
+rows take focus. `search` is built on Base UI's menu filtering (`Menu.FilterProvider`,
+`Menu.Input`, `Menu.List`), which Base UI 1.9 marks as a preview API that a minor
+release may change. This library's CI runs `dropdown-search` and the breadcrumb tests
+against the Base UI its own lockfile holds, so an upgrade here is checked before it
+lands. An application whose lockfile resolves a newer Base UI within this package's
+`^1.9.0` range runs a version these tests have not seen. Setting or clearing `search`
+on a mounted Dropdown remounts the menu and its trigger.
+
 ContextMenu opens below the press point with its top-left corner four pixels right
 and two pixels down from it, and enters with the same vertical slide as a Dropdown;
 with no room below it opens above. Menu popups have
@@ -409,17 +425,11 @@ The `toolbar-segments` style gives adjacent controls a 2px gap and square shared
 edges, preserving rounded exposed ends. It also handles text-field wrappers and
 nested segment rows.
 
-Searchable and editable breadcrumb pickers use Base UI combobox primitives and the shared combobox style helpers. Their input retains DOM focus while pointer and keyboard navigation highlight options. Closing selections run after the popup closes, allowing consumers to open a dialog. Display labels are semantic picker triggers; F2 starts optional inline renaming.
-
-The searchable/editable breadcrumb picker is an internal migration adapter, not a template
-for new popups. The shared Combobox currently provides an inline search input;
-it does not expose a custom trigger with search inside the popup, a fixed
-header/action footer, or an action callback after popup teardown. Shared menus
-use Base UI Menu, whose item navigation moves DOM focus away from an embedded search.
-Consolidate this adapter into the shared Base UI picker when that composition
-and close handoff are supported, retaining hover typing focus, double-click/F2
-rename, mobile sizing, and popup-to-dialog accessibility tests. Its surface,
-directional caret, and entrance animation follow the existing Dropdown styles.
+Every sibling picker is a menu. A searchable picker has a search field that keeps
+focus while arrow keys and the pointer highlight its rows, including Rename and
+the browse action. A chosen row's action runs after the menu closes, so it can
+open a dialog. Display labels are semantic picker triggers; F2 starts optional
+inline renaming.
 
 ### Report-sized dialogs
 

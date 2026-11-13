@@ -73,7 +73,7 @@ test.each([false, true])(
     expect(label.textContent).toBe("Project A");
     const width = getComputedStyle(label).width;
     expect(width).toBe("112px");
-    expect(screen.getByRole("combobox", { name: "Switch Project menu" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Switch Project menu" })).toBeTruthy();
     label.focus();
     fireEvent.keyDown(label, { key: "F2" });
     const field = screen.getByRole("textbox", { name: "Rename Project A" });
@@ -137,8 +137,66 @@ test.each(["Item A", "Rename", "All items"])(
         />
       </IconProvider>,
     );
-    fireEvent.click(screen.getByRole("combobox", { name: "Switch Item: Item A" }));
-    const row = await screen.findByRole(label === "Item A" ? "option" : "button", { name: label });
+    fireEvent.click(screen.getByRole("button", { name: "Switch Item: Item A" }));
+    const row = await screen.findByRole(label === "Item A" ? "menuitemradio" : "menuitem", {
+      name: label,
+    });
     expect(row.querySelector('[data-testid="consumer-item-icon"]')).not.toBeNull();
   },
 );
+
+test("starting a rename clears the picker's search query", async () => {
+  vi.stubGlobal(
+    "ResizeObserver",
+    class {
+      observe() {}
+      unobserve() {}
+      disconnect() {}
+    },
+  );
+  Object.defineProperty(HTMLElement.prototype, "getAnimations", {
+    configurable: true,
+    value: () => [],
+  });
+  render(
+    <BreadcrumbTrail
+      items={[
+        {
+          id: "project",
+          label: "Project A",
+          onRename: vi.fn(),
+          switcher: {
+            label: "Switch Project",
+            value: "a",
+            searchable: true,
+            onSelect: vi.fn(),
+            options: [
+              { value: "a", label: "Project A" },
+              { value: "b", label: "Project B" },
+            ],
+          },
+        },
+      ]}
+    />,
+  );
+  const trigger = () => screen.getByRole("button", { name: "Switch Project: Project A" });
+  fireEvent.click(trigger());
+  fireEvent.change(await screen.findByRole("searchbox", { name: "Search switch project" }), {
+    target: { value: "B" },
+  });
+  await waitFor(() =>
+    expect(screen.queryByRole("menuitemradio", { name: "Project A" })).toBeNull(),
+  );
+  // Renaming removes the open picker at once, before it can report its own close.
+  trigger().focus();
+  fireEvent.keyDown(trigger(), { key: "F2" });
+  fireEvent.keyDown(await screen.findByRole("textbox", { name: "Rename Project A" }), {
+    key: "Escape",
+  });
+  fireEvent.click(trigger());
+  expect(
+    ((await screen.findByRole("searchbox", { name: "Search switch project" })) as HTMLInputElement)
+      .value,
+  ).toBe("");
+  expect(screen.getAllByRole("menuitemradio")).toHaveLength(2);
+});

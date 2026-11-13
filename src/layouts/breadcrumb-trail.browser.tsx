@@ -79,27 +79,27 @@ test("project switcher searches and selects with the keyboard", async () => {
   const current = item();
   current.switcher!.onSelect = select;
   await render(<BreadcrumbTrail items={[current]} />);
-  await page.getByRole("combobox", { name: /^Switch Project:/ }).click();
-  const search = page.getByRole("combobox", { name: "Search switch project", exact: true });
+  await page.getByRole("button", { name: /^Switch Project:/ }).click();
+  const search = page.getByRole("searchbox", { name: "Search switch project", exact: true });
   await search.fill("Project B");
   await expect
-    .element(page.getByRole("option", { name: options[0].label, exact: true }))
+    .element(page.getByRole("menuitemradio", { name: options[0].label, exact: true }))
     .not.toBeInTheDocument();
   await search.click();
   await userEvent.keyboard("{ArrowDown}{Enter}");
   await expect.poll(() => select.mock.calls).toEqual([["b"]]);
-  await expect.element(page.getByRole("listbox")).not.toBeInTheDocument();
+  await expect.element(page.getByRole("menu")).not.toBeInTheDocument();
 });
 
 test("double-click renames; Enter commits once and Escape cancels", async () => {
   const rename = vi.fn();
   await render(<BreadcrumbTrail items={[item({ onRename: rename })]} />);
-  await userEvent.dblClick(page.getByRole("combobox", { name: /^Switch Project:/ }));
+  await userEvent.dblClick(page.getByRole("button", { name: /^Switch Project:/ }));
   const field = page.getByRole("textbox", { name: "Rename Project A", exact: true });
   await field.fill("New project name");
   await userEvent.keyboard("{Enter}");
   expect(rename).toHaveBeenCalledExactlyOnceWith("New project name");
-  await userEvent.dblClick(page.getByRole("combobox", { name: /^Switch Project:/ }));
+  await userEvent.dblClick(page.getByRole("button", { name: /^Switch Project:/ }));
   await field.fill("Discard this");
   await userEvent.keyboard("{Escape}");
   expect(rename).toHaveBeenCalledOnce();
@@ -113,8 +113,8 @@ test("Rename menu action supports touch and blur commits", async () => {
       <button type="button">Outside</button>
     </>,
   );
-  await page.getByRole("combobox", { name: /^Switch Project:/ }).click();
-  await page.getByRole("button", { name: "Rename", exact: true }).click();
+  await page.getByRole("button", { name: /^Switch Project:/ }).click();
+  await page.getByRole("menuitem", { name: "Rename", exact: true }).click();
   const field = page.getByRole("textbox", { name: "Rename Project A", exact: true });
   await field.fill("  New name  ");
   await page.getByRole("button", { name: "Outside", exact: true }).click();
@@ -125,14 +125,14 @@ test("read-only crumbs offer no Rename; loading and empty search stay distinct",
   const current = item();
   current.switcher!.loading = true;
   const view = await render(<BreadcrumbTrail items={[current]} />);
-  await page.getByRole("combobox", { name: /^Switch Project:/ }).click();
+  await page.getByRole("button", { name: /^Switch Project:/ }).click();
   await expect.element(page.getByRole("status")).toHaveTextContent("Loading…");
   await expect
-    .element(page.getByRole("button", { name: "Rename", exact: true }))
+    .element(page.getByRole("menuitem", { name: "Rename", exact: true }))
     .not.toBeInTheDocument();
   current.switcher!.loading = false;
   await view.rerender(<BreadcrumbTrail items={[current]} />);
-  await page.getByRole("combobox", { name: "Search switch project" }).fill("missing project");
+  await page.getByRole("searchbox", { name: "Search switch project" }).fill("missing project");
   await expect.element(page.getByRole("status")).toHaveTextContent("No matches");
 });
 
@@ -151,9 +151,9 @@ test("a long breadcrumb fits a mobile viewport", async () => {
   const nav = page.getByRole("navigation", { name: "Breadcrumb", exact: true }).element();
   expect(nav.getBoundingClientRect().width).toBeLessThanOrEqual(328);
   expect(nav.scrollWidth).toBeLessThanOrEqual(328);
-  await page.getByRole("combobox", { name: /^Switch Project:/ }).click();
+  await page.getByRole("button", { name: /^Switch Project:/ }).click();
   const menu = page
-    .getByRole("listbox")
+    .getByRole("menu")
     .element()
     .closest(".dropdown-content")!
     .getBoundingClientRect();
@@ -189,7 +189,7 @@ test("mobile collapses an ancestor menu and keeps the current label available", 
   await expect
     .element(page.getByRole("button", { name: "Switch Section menu", exact: true }))
     .toBeVisible();
-  await expect.element(page.getByRole("combobox", { name: /^Switch Project:/ })).toBeVisible();
+  await expect.element(page.getByRole("button", { name: /^Switch Project:/ })).toBeVisible();
 });
 
 test("breadcrumb controls retain the toolbar button foreground treatment in dark mode", async () => {
@@ -209,7 +209,7 @@ test("breadcrumb controls retain the toolbar button foreground treatment in dark
       context.fillRect(0, 0, 1, 1);
       return [...context.getImageData(0, 0, 1, 1).data];
     };
-    expect(rgba(page.getByRole("combobox", { name: /^Switch Project:/ }).element())).toEqual(
+    expect(rgba(page.getByRole("button", { name: /^Switch Project:/ }).element())).toEqual(
       rgba(page.getByText("Reference foreground", { exact: true }).element()),
     );
   } finally {
@@ -237,7 +237,7 @@ test("grouped controls keep square shared corners and a stable rename footprint"
     />,
   );
   const field = page.getByRole("textbox", { name: "Rename Project A", exact: true });
-  const display = page.getByRole("combobox", { name: /^Switch Project:/ });
+  const display = page.getByRole("button", { name: /^Switch Project:/ });
   const before = display.element().getBoundingClientRect();
   const labelRange = document.createRange();
   labelRange.selectNodeContents(display.element().querySelector("span")!);
@@ -272,7 +272,7 @@ test("grouped controls keep square shared corners and a stable rename footprint"
   ).toBeLessThan(0.5);
   const nav = page.getByRole("navigation", { name: "Breadcrumb", exact: true });
   const trailBefore = nav.element().getBoundingClientRect();
-  const arrow = page.getByRole("combobox", { name: /^Switch Project:/ });
+  const arrow = page.getByRole("button", { name: /^Switch Project:/ });
   expect(arrow.element().getBoundingClientRect().height).toBe(before.height);
 
   await userEvent.dblClick(arrow);
@@ -311,12 +311,12 @@ test("sibling and action icons resolve through the consumer's registry", async (
       <BreadcrumbTrail items={[current]} />
     </IconProvider>,
   );
-  await page.getByRole("combobox", { name: /^Switch Project:/ }).click();
+  await page.getByRole("button", { name: /^Switch Project:/ }).click();
   expect(page.getByRole("separator").elements()).toHaveLength(2);
   for (const row of [
-    page.getByRole("option", { name: "Project A", exact: true }),
-    page.getByRole("button", { name: "Rename", exact: true }),
-    page.getByRole("button", { name: "All projects", exact: true }),
+    page.getByRole("menuitemradio", { name: "Project A", exact: true }),
+    page.getByRole("menuitem", { name: "Rename", exact: true }),
+    page.getByRole("menuitem", { name: "All projects", exact: true }),
   ]) {
     expect(row.element().querySelector('[data-testid="consumer-item-icon"]')).not.toBeNull();
   }
@@ -357,12 +357,12 @@ test("reserved section labels keep the same split-control width on listings and 
 test("consumers can hide Rename while retaining double-click editing", async () => {
   const rename = vi.fn();
   await render(<BreadcrumbTrail items={[item({ onRename: rename, showRenameAction: false })]} />);
-  const trigger = page.getByRole("combobox", { name: /^Switch Project:/ });
+  const trigger = page.getByRole("button", { name: /^Switch Project:/ });
   await trigger.click();
   await expect
-    .element(page.getByRole("button", { name: "Rename", exact: true }))
+    .element(page.getByRole("menuitem", { name: "Rename", exact: true }))
     .not.toBeInTheDocument();
-  const search = page.getByRole("combobox", { name: "Search switch project" }).element();
+  const search = page.getByRole("searchbox", { name: "Search switch project" }).element();
   const separator = document.querySelector('[role="separator"]')!;
   const label = page.getByText("Switch Project", { exact: true }).element();
   const gapAbove = search.getBoundingClientRect().top - label.getBoundingClientRect().bottom;
@@ -411,9 +411,9 @@ test("project choices have equal spacing between their surrounding dividers", as
   const current = item();
   current.switcher!.browse = { label: "View All Projects", onSelect: vi.fn() };
   await render(<BreadcrumbTrail items={[current]} />);
-  await page.getByRole("combobox", { name: /^Switch Project:/ }).click();
+  await page.getByRole("button", { name: /^Switch Project:/ }).click();
   const separators = Array.from(document.querySelectorAll('[role="separator"]'));
-  const rows = page.getByRole("option").elements();
+  const rows = page.getByRole("menuitemradio").elements();
   const above = rows[0].getBoundingClientRect().top - separators[0].getBoundingClientRect().bottom;
   const below =
     separators[1].getBoundingClientRect().top -
@@ -424,15 +424,15 @@ test("project choices have equal spacing between their surrounding dividers", as
 
 test("pointer movement keeps typing focus in project search", async () => {
   await render(<BreadcrumbTrail items={[item()]} />);
-  await page.getByRole("combobox", { name: /^Switch Project:/ }).click();
-  const input = page.getByRole("combobox", { name: "Search switch project" });
+  await page.getByRole("button", { name: /^Switch Project:/ }).click();
+  const input = page.getByRole("searchbox", { name: "Search switch project" });
   await input.fill("Project");
-  await page.getByRole("option", { name: "Project B · @team", exact: true }).hover();
+  await page.getByRole("menuitemradio", { name: "Project B · @team", exact: true }).hover();
   await expect.element(input).toHaveFocus();
   await userEvent.keyboard(" B");
   await expect.element(input).toHaveValue("Project B");
   await expect
-    .element(page.getByRole("option", { name: "Project A · You", exact: true }))
+    .element(page.getByRole("menuitemradio", { name: "Project A · You", exact: true }))
     .not.toBeInTheDocument();
 });
 
@@ -442,7 +442,7 @@ test("F2 exposes renaming from a semantic trigger without a dormant text input",
   await expect
     .element(page.getByRole("textbox", { name: "Rename Project A", exact: true }))
     .not.toBeInTheDocument();
-  const trigger = page.getByRole("combobox", { name: /^Switch Project:/ });
+  const trigger = page.getByRole("button", { name: /^Switch Project:/ });
   trigger.element().focus();
   await userEvent.keyboard("{F2}");
   const input = page.getByRole("textbox", { name: "Rename Project A", exact: true });
@@ -463,12 +463,12 @@ test("project picker uses themed text, a compact search and highlighted footer a
         <BreadcrumbTrail items={[current]} />
       </>,
     );
-    await page.getByRole("combobox", { name: /^Switch Project:/ }).click();
+    await page.getByRole("button", { name: /^Switch Project:/ }).click();
     const title = page.getByText("Switch Project", { exact: true }).element();
     expect(getComputedStyle(title).color).toBe(
       getComputedStyle(page.getByText("Reference title").element()).color,
     );
-    const search = page.getByRole("combobox", { name: "Search switch project" }).element();
+    const search = page.getByRole("searchbox", { name: "Search switch project" }).element();
     await expect
       .poll(() => Math.round(search.getBoundingClientRect().height))
       .toBe(
@@ -477,8 +477,8 @@ test("project picker uses themed text, a compact search and highlighted footer a
             .height,
         ),
       );
-    const browse = page.getByRole("button", { name: "View All Projects" });
-    const list = page.getByRole("listbox", { name: "Switch Project" }).element();
+    const browse = page.getByRole("menuitem", { name: "View All Projects" });
+    const list = page.getByRole("menu").element();
     await expect
       .poll(() =>
         Math.abs(
@@ -506,13 +506,13 @@ test("editable sibling controls can switch and rename without search enabled", a
   current.switcher!.searchable = false;
   current.switcher!.onSelect = select;
   await render(<BreadcrumbTrail items={[current]} />);
-  const trigger = page.getByRole("combobox", { name: /^Switch Project:/ });
+  const trigger = page.getByRole("button", { name: /^Switch Project:/ });
   await trigger.click();
-  await expect.element(page.getByRole("listbox")).toBeVisible();
+  await expect.element(page.getByRole("menu")).toBeVisible();
   await expect
-    .element(page.getByRole("combobox", { name: "Search switch project" }))
+    .element(page.getByRole("searchbox", { name: "Search switch project" }))
     .not.toBeInTheDocument();
-  await page.getByRole("option", { name: "Project B · @team", exact: true }).click();
+  await page.getByRole("menuitemradio", { name: "Project B · @team", exact: true }).click();
   await expect.poll(() => select.mock.calls).toEqual([["b"]]);
   await userEvent.dblClick(trigger);
   const input = page.getByRole("textbox", { name: "Rename Project A", exact: true });
@@ -520,4 +520,239 @@ test("editable sibling controls can switch and rename without search enabled", a
   await input.fill("Renamed without search");
   await userEvent.keyboard("{Enter}");
   expect(rename).toHaveBeenCalledExactlyOnceWith("Renamed without search");
+});
+
+test("search arrows visit every option and action once, stop at both ends and keep field focus", async () => {
+  const current = item({ onRename: vi.fn() });
+  current.switcher!.browse = { label: "All projects", onSelect: vi.fn() };
+  await render(<BreadcrumbTrail items={[current]} />);
+  await page.getByRole("button", { name: /^Switch Project:/ }).click();
+  const search = page.getByRole("searchbox", { name: "Search switch project", exact: true });
+  await expect.element(search).toHaveFocus();
+  const rows = [
+    page.getByRole("menuitemradio", { name: options[0].label, exact: true }),
+    page.getByRole("menuitemradio", { name: options[1].label, exact: true }),
+    page.getByRole("menuitem", { name: "Rename", exact: true }),
+    page.getByRole("menuitem", { name: "All projects", exact: true }),
+  ];
+  const assertHighlight = async (index: number) => {
+    await expect.element(rows[index]).toHaveAttribute("data-highlighted");
+    // A radio row's check indicator carries the row's highlight too, so count rows.
+    expect(
+      page.getByRole("menu").element().querySelectorAll('[role^="menuitem"][data-highlighted]'),
+    ).toHaveLength(1);
+    await expect.element(search).toHaveFocus();
+  };
+  for (let index = 0; index < rows.length; index++) {
+    await userEvent.keyboard("{ArrowDown}");
+    await assertHighlight(index);
+  }
+  await userEvent.keyboard("{ArrowDown}{ArrowDown}");
+  await assertHighlight(3);
+  for (let index = rows.length - 2; index >= 0; index--) {
+    await userEvent.keyboard("{ArrowUp}");
+    await assertHighlight(index);
+  }
+  await userEvent.keyboard("{ArrowUp}{ArrowUp}");
+  await assertHighlight(0);
+});
+
+test("Enter on Rename closes the picker and focuses the rename field", async () => {
+  await render(<BreadcrumbTrail items={[item({ onRename: vi.fn() })]} />);
+  const trigger = page.getByRole("button", { name: /^Switch Project:/ });
+  trigger.element().focus();
+  await userEvent.keyboard("{Enter}");
+  const search = page.getByRole("searchbox", { name: "Search switch project", exact: true });
+  await expect.element(search).toHaveFocus();
+  // Keyboard opening highlights the first option; subsequent arrows reach the action.
+  await expect
+    .element(page.getByRole("menuitemradio", { name: options[0].label, exact: true }))
+    .toHaveAttribute("data-highlighted");
+  await userEvent.keyboard("{ArrowDown}{ArrowDown}");
+  await expect
+    .element(page.getByRole("menuitem", { name: "Rename", exact: true }))
+    .toHaveAttribute("data-highlighted");
+  await userEvent.keyboard("{Enter}");
+  await expect.element(page.getByRole("menu")).not.toBeInTheDocument();
+  await expect
+    .element(page.getByRole("textbox", { name: "Rename Project A", exact: true }))
+    .toHaveFocus();
+});
+
+test("Enter on browse runs it once after the menu is removed, even with an unmatched query", async () => {
+  const browse = vi.fn(() => {
+    expect(document.querySelector('[role="menu"]')).toBeNull();
+    expect(document.querySelector('[role="searchbox"]')).toBeNull();
+  });
+  const current = item({ onRename: vi.fn() });
+  current.switcher!.browse = { label: "All projects", onSelect: browse };
+  await render(<BreadcrumbTrail items={[current]} />);
+  await page.getByRole("button", { name: /^Switch Project:/ }).click();
+  await page.getByRole("searchbox", { name: "Search switch project", exact: true }).fill("missing");
+  await expect.element(page.getByRole("status")).toHaveTextContent("No matches");
+  await userEvent.keyboard("{ArrowDown}{ArrowDown}");
+  await expect
+    .element(page.getByRole("menuitem", { name: "All projects", exact: true }))
+    .toHaveAttribute("data-highlighted");
+  await userEvent.keyboard("{Enter}");
+  await expect.poll(() => browse.mock.calls.length).toBe(1);
+  await expect.element(page.getByRole("menu")).not.toBeInTheDocument();
+});
+
+test("Tab exits search to the next page control; Shift+Tab exits to the trigger", async () => {
+  await render(
+    <>
+      <button type="button">Before trail</button>
+      <BreadcrumbTrail items={[item()]} />
+      <button type="button">After trail</button>
+    </>,
+  );
+  const trigger = page.getByRole("button", { name: /^Switch Project:/ });
+  const search = page.getByRole("searchbox", { name: "Search switch project", exact: true });
+  await trigger.click();
+  await expect.element(search).toHaveFocus();
+  await userEvent.keyboard("{Tab}");
+  await expect.element(page.getByRole("menu")).not.toBeInTheDocument();
+  await expect
+    .element(page.getByRole("button", { name: "After trail", exact: true }))
+    .toHaveFocus();
+  await trigger.click();
+  await expect.element(search).toHaveFocus();
+  await userEvent.keyboard("{Shift>}{Tab}{/Shift}");
+  await expect.element(page.getByRole("menu")).not.toBeInTheDocument();
+  await expect.element(trigger).toHaveFocus();
+});
+
+test("an editable menu without search opens, navigates and selects from the keyboard", async () => {
+  const select = vi.fn(() => expect(document.querySelector('[role="menu"]')).toBeNull());
+  const current = item({ onRename: vi.fn() });
+  current.switcher!.searchable = false;
+  current.switcher!.onSelect = select;
+  await render(<BreadcrumbTrail items={[current]} />);
+  const trigger = page.getByRole("button", { name: /^Switch Project:/ });
+  trigger.element().focus();
+  await userEvent.keyboard("{Enter}");
+  await expect
+    .element(page.getByRole("menuitemradio", { name: options[0].label, exact: true }))
+    .toHaveFocus();
+  await expect.element(page.getByRole("searchbox")).not.toBeInTheDocument();
+  await userEvent.keyboard("{ArrowDown}");
+  await expect
+    .element(page.getByRole("menuitemradio", { name: options[1].label, exact: true }))
+    .toHaveFocus();
+  await userEvent.keyboard("{Enter}");
+  await expect.poll(() => select.mock.calls).toEqual([["b"]]);
+  await expect.element(page.getByRole("menu")).not.toBeInTheDocument();
+});
+
+test("section and project menus share their entrance animation, arrow and row treatment", async () => {
+  await render(
+    <BreadcrumbTrail
+      items={[
+        {
+          id: "section",
+          label: "Projects",
+          href: "/projects",
+          switcher: {
+            label: "Switch Section",
+            value: "projects",
+            onSelect: vi.fn(),
+            options: [{ value: "projects", label: "Projects" }],
+          },
+        },
+        item(),
+      ]}
+    />,
+  );
+  const treatment = () => {
+    const menu = page.getByRole("menu").element();
+    const popup = menu.closest(".dropdown-content")!;
+    const arrow = popup.querySelector("svg")!;
+    const row = page.getByRole("menuitemradio").elements()[0];
+    const popupStyle = getComputedStyle(popup);
+    const rowStyle = getComputedStyle(row);
+    return {
+      animation: popupStyle.animationName,
+      duration: popupStyle.animationDuration,
+      arrowWidth: arrow.getBoundingClientRect().width,
+      arrowHeight: arrow.getBoundingClientRect().height,
+      arrowAspect: arrow.getAttribute("preserveAspectRatio"),
+      rowHeight: rowStyle.height,
+      rowPadding: rowStyle.padding,
+      rowRadius: rowStyle.borderRadius,
+      rowFont: rowStyle.fontSize,
+      rowHighlight: row.classList.contains("highlight-list-item"),
+    };
+  };
+  await page.getByRole("button", { name: "Switch Section menu", exact: true }).click();
+  const section = treatment();
+  expect(section).toMatchObject({
+    animation: "slideUpAndFade",
+    duration: "0.3s",
+    arrowWidth: 12,
+    arrowHeight: 6,
+    arrowAspect: "none",
+    rowHeight: "28px",
+    rowHighlight: true,
+  });
+  const sectionRow = page.getByRole("menuitemradio", { name: "Projects", exact: true });
+  const rest = getComputedStyle(sectionRow.element()).backgroundColor;
+  await sectionRow.hover();
+  await expect.element(sectionRow).toHaveAttribute("data-highlighted");
+  await Promise.all(
+    sectionRow
+      .element()
+      .getAnimations()
+      .map((animation) => animation.finished),
+  );
+  const highlighted = getComputedStyle(sectionRow.element()).backgroundColor;
+  expect(highlighted).not.toBe(rest);
+  await userEvent.keyboard("{Escape}");
+  await expect.element(page.getByRole("menu")).not.toBeInTheDocument();
+  await page.getByRole("button", { name: /^Switch Project:/ }).click();
+  expect(treatment()).toEqual(section);
+  const projectRow = page.getByRole("menuitemradio", { name: options[0].label, exact: true });
+  await projectRow.hover();
+  await expect.element(projectRow).toHaveAttribute("data-highlighted");
+  await expect.poll(() => getComputedStyle(projectRow.element()).backgroundColor).toBe(highlighted);
+});
+
+test("search matches regardless of case and surrounding spaces", async () => {
+  await render(<BreadcrumbTrail items={[item()]} />);
+  await page.getByRole("button", { name: /^Switch Project:/ }).click();
+  await page
+    .getByRole("searchbox", { name: "Search switch project", exact: true })
+    .fill("  project b ");
+  await expect
+    .element(page.getByRole("menuitemradio", { name: options[1].label, exact: true }))
+    .toBeVisible();
+  await expect
+    .element(page.getByRole("menuitemradio", { name: options[0].label, exact: true }))
+    .not.toBeInTheDocument();
+  // The picker's dialog and menu take their name from the trigger.
+  await expect.element(page.getByRole("menu")).toHaveAccessibleName("Switch Project: Project A");
+});
+
+test("a searchable picker's label button reports the dialog it opens", async () => {
+  await render(
+    <BreadcrumbTrail
+      items={[
+        item({ id: "searchable", labelWidth: 120 }),
+        item({
+          id: "plain",
+          label: "Project B",
+          labelWidth: 120,
+          switcher: { ...item().switcher!, label: "Switch Plain", searchable: false },
+        }),
+      ]}
+    />,
+  );
+  const searchable = page.getByRole("button", { name: "Switch Project: Project A", exact: true });
+  await expect.element(searchable).toHaveAttribute("aria-haspopup", "dialog");
+  const plain = page.getByRole("button", { name: "Switch Plain: Project B", exact: true });
+  await expect.element(plain).toHaveAttribute("aria-haspopup", "menu");
+  await searchable.click();
+  await expect
+    .element(page.getByRole("searchbox", { name: "Search switch project", exact: true }))
+    .toHaveFocus();
 });
