@@ -43,13 +43,20 @@ function Tooltip({
   const open = controlledState?.[0] ?? internalOpen;
   const triggerRef = useRef<HTMLButtonElement>(null);
   const popupId = useId();
-  const changeOpen = useCallback(
-    (value: boolean) => {
-      if (controlledState) controlledState[1](value);
-      else setInternalOpen(value);
-    },
-    [controlledState],
-  );
+  // Every request is recorded, controlled or not, so a tooltip whose control is released
+  // (Snippet releases "Copied!" after a moment) shows the state last asked for, not the one
+  // it had before control began.
+  //
+  // Read through a ref: a caller's inline `controlledState` tuple is new on every render,
+  // and the effects below must follow open-state transitions, not that identity. Re-run
+  // on a parent's render, the open effect would announce this tooltip as newly opened and
+  // close a newer one.
+  const controlledStateRef = useRef(controlledState);
+  controlledStateRef.current = controlledState;
+  const changeOpen = useCallback((value: boolean) => {
+    setInternalOpen(value);
+    controlledStateRef.current?.[1](value);
+  }, []);
   const handleOpenChange = useCallback(
     (value: boolean, details: TooltipPrimitive.Root.ChangeEventDetails) => {
       const trigger = triggerRef.current;

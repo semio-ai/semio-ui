@@ -244,3 +244,50 @@ test("an earlier notifications listener leaves Escape to a later-opened tooltip"
   expect(isEscapeConsumedByTooltip(escape)).toBe(true);
   expect(received).toHaveBeenCalledTimes(1);
 });
+
+test("a tooltip released from control shows the state last requested", async () => {
+  function Fixture({ held }: { held: boolean }) {
+    return (
+      <Tooltip content="Explanation" controlledState={held ? [true, () => {}] : undefined}>
+        <button type="button">Trigger</button>
+      </Tooltip>
+    );
+  }
+  const { rerender } = render(<Fixture held={false} />);
+  const trigger = screen.getByRole("button", { name: "Trigger" });
+  act(() => trigger.focus());
+  await waitFor(() => expect(trigger.getAttribute("data-state")).toBe("open"));
+  // Held open, as Snippet holds "Copied!": the close request is refused for now.
+  rerender(<Fixture held />);
+  fireEvent.keyDown(document, { key: "Escape" });
+  await act(async () => {});
+  expect(trigger.getAttribute("data-state")).toBe("open");
+  // Released, it shows the state last asked for.
+  rerender(<Fixture held={false} />);
+  await waitFor(() => expect(trigger.getAttribute("data-state")).toBe("closed"));
+});
+
+test("a parent's render does not close a newer tooltip beside one held open", async () => {
+  function Fixture({ renders }: { renders: number }) {
+    return (
+      <>
+        <output>{renders}</output>
+        {/* An inline tuple, new on every render of this parent. */}
+        <Tooltip content="Held" controlledState={[true, () => {}]}>
+          <button type="button">Held trigger</button>
+        </Tooltip>
+        <Tooltip content="Newer">
+          <button type="button">Newer trigger</button>
+        </Tooltip>
+      </>
+    );
+  }
+  const { rerender } = render(<Fixture renders={0} />);
+  const newer = screen.getByRole("button", { name: "Newer trigger" });
+  act(() => newer.focus());
+  await waitFor(() => expect(newer.getAttribute("data-state")).toBe("open"));
+  rerender(<Fixture renders={1} />);
+  await act(async () => {});
+  expect(screen.getByText("1")).toBeTruthy();
+  expect(newer.getAttribute("data-state")).toBe("open");
+});
