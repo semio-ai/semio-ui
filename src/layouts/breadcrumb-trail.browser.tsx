@@ -716,3 +716,43 @@ test("section and project menus share their entrance animation, arrow and row tr
   await expect.element(projectRow).toHaveAttribute("data-highlighted");
   await expect.poll(() => getComputedStyle(projectRow.element()).backgroundColor).toBe(highlighted);
 });
+
+test("search matches regardless of case and surrounding spaces", async () => {
+  await render(<BreadcrumbTrail items={[item()]} />);
+  await page.getByRole("button", { name: /^Switch Project:/ }).click();
+  await page
+    .getByRole("searchbox", { name: "Search switch project", exact: true })
+    .fill("  project b ");
+  await expect
+    .element(page.getByRole("menuitemradio", { name: options[1].label, exact: true }))
+    .toBeVisible();
+  await expect
+    .element(page.getByRole("menuitemradio", { name: options[0].label, exact: true }))
+    .not.toBeInTheDocument();
+  // The picker's dialog and menu take their name from the trigger.
+  await expect.element(page.getByRole("menu")).toHaveAccessibleName("Switch Project: Project A");
+});
+
+test("a searchable picker's label button reports the dialog it opens", async () => {
+  await render(
+    <BreadcrumbTrail
+      items={[
+        item({ id: "searchable", labelWidth: 120 }),
+        item({
+          id: "plain",
+          label: "Project B",
+          labelWidth: 120,
+          switcher: { ...item().switcher!, label: "Switch Plain", searchable: false },
+        }),
+      ]}
+    />,
+  );
+  const searchable = page.getByRole("button", { name: "Switch Project: Project A", exact: true });
+  await expect.element(searchable).toHaveAttribute("aria-haspopup", "dialog");
+  const plain = page.getByRole("button", { name: "Switch Plain: Project B", exact: true });
+  await expect.element(plain).toHaveAttribute("aria-haspopup", "menu");
+  await searchable.click();
+  await expect
+    .element(page.getByRole("searchbox", { name: "Search switch project", exact: true }))
+    .toHaveFocus();
+});

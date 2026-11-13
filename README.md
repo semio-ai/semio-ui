@@ -244,8 +244,11 @@ Text-editing keys keep editing the query, and Tab and Shift+Tab keep the exit
 behavior described above. Without `search`, Dropdown is an ordinary menu whose
 rows take focus. `search` is built on Base UI's menu filtering (`Menu.FilterProvider`,
 `Menu.Input`, `Menu.List`), which Base UI 1.9 marks as a preview API that a minor
-release may change, so a Base UI upgrade reruns `dropdown-search` and the breadcrumb
-tests before it lands.
+release may change. This library's CI runs `dropdown-search` and the breadcrumb tests
+against the Base UI its own lockfile holds, so an upgrade here is checked before it
+lands. An application whose lockfile resolves a newer Base UI within this package's
+`^1.9.0` range runs a version these tests have not seen. Setting or clearing `search`
+on a mounted Dropdown remounts the menu and its trigger.
 
 ContextMenu opens below the press point with its top-left corner four pixels right
 and two pixels down from it, and enters with the same vertical slide as a Dropdown;

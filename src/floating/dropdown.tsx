@@ -44,7 +44,12 @@ export interface DropdownProps {
   variant?: Variant;
   color?: string;
   header?: ReactNode;
-  /** A search field above the entries. The consumer renders only the entries that match. */
+  /**
+   * A search field above the entries. The consumer renders only the entries that match.
+   *
+   * Keep it set, or unset, for the Dropdown's lifetime: setting or clearing it while
+   * mounted remounts the menu and its trigger, so a focused trigger loses focus.
+   */
   search?: DropdownSearch;
   side?: "left" | "right" | "top" | "bottom";
   disabled?: boolean;
@@ -182,12 +187,13 @@ export function Dropdown({
                 search ? (
                   <>
                     {header}
-                    <div className="px-2 pt-1.75 pb-px">
+                    {/* The field keeps its own eight pixels from whatever is above it. */}
+                    <div className="px-2 pt-2 pb-px">
                       <div className={inputGroupClassName(Size.Sm)}>
                         <Menu.Input
                           aria-label={search.label}
                           placeholder={search.placeholder ?? "Search…"}
-                          className={inputClassName(Size.Sm, Variant.Default, {
+                          className={inputClassName(Size.Sm, variant ?? Variant.Default, {
                             leftPadded: false,
                             rightPadded: false,
                           })}

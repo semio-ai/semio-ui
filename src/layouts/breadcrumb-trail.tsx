@@ -83,6 +83,9 @@ function BreadcrumbLevel({
   const beginRename = () => {
     if (!item.onRename) return;
     setOpen(false);
+    // Renaming removes an open picker at once, before it reports its own close, which
+    // is where the query is otherwise cleared.
+    setQuery("");
     setDraft(item.label);
     editingRef.current = true;
     setEditing(true);
@@ -151,7 +154,9 @@ function BreadcrumbLevel({
       className={labelClass}
       style={labelStyle}
       aria-label={`${switcher.label}: ${item.label}`}
-      aria-haspopup="menu"
+      // As the picker's own trigger reports it: a searchable picker opens a dialog that
+      // holds its search field and its menu.
+      aria-haspopup={switcher.searchable ? "dialog" : "menu"}
       aria-expanded={open}
       onClick={() => setOpen(true)}
       onKeyDown={(event) => {
@@ -299,7 +304,10 @@ function BreadcrumbLevel({
             contentClassName="desktop:w-80 max-w-[calc(100vw-16px)]"
             trigger={trigger}
             header={
-              <div className="flex flex-col gap-2 px-2 pt-2 pb-px">
+              // Dropdown spaces its search field from whatever comes above it.
+              <div
+                className={clsx("flex flex-col gap-2 px-2 pt-2", !switcher.searchable && "pb-px")}
+              >
                 <Text as="div" role={TextRole.Value} className="px-4 font-semibold">
                   {switcher.label}
                 </Text>
