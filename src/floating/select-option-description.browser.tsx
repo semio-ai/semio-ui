@@ -12,12 +12,9 @@ import { Select } from "./select";
  * other row in the menu and makes the menu size itself around prose; a tooltip leaves
  * the option exactly the control it already was.
  *
- * **That claim is mostly a negative one, so this file is mostly about what did NOT
- * change.** Wrapping every item in a `Tooltip` puts a Radix trigger — with its own ref
- * and pointer handlers — onto the same DOM node as the menu item, which is precisely the
- * kind of change that can break selection, roving focus, type-ahead or the menu's close
- * behaviour while the tooltip itself works perfectly. A test that only proved the
- * tooltip appears would miss all of it.
+ * Base UI's Tooltip trigger shares its ref and pointer handlers with the menu item.
+ * These checks exercise selection, roving focus, typeahead and dismissal alongside
+ * the explanation, so tooltip composition must preserve the item's interactions.
  *
  * No stylesheet import here on purpose: every assertion is about behaviour and DOM
  * identity, not paint. Pulling in the real stylesheet would let these quietly come to
@@ -176,8 +173,7 @@ test("an undescribed option renders exactly as it did — no wrapper, no trigger
   const items = page.getByRole("menuitemradio").elements();
   expect(items).toHaveLength(3);
   for (const item of items) {
-    // Radix's tooltip trigger stamps `data-state` and describes its child; neither
-    // should exist on an option that has nothing to say.
+    // An option without explanatory content has no tooltip description.
     expect(item.getAttribute("aria-describedby")).toBeNull();
   }
 });

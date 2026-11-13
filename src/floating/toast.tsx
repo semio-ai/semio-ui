@@ -802,8 +802,8 @@ function ToastContainer({ children }: ToastContainerProps) {
           {/* Modal hiding exempts this live region, keeping toasts clickable after
             the separate body-portalled announcers have expired. */}
           <BaseToast.Portal aria-live="off">
-            {/* Radix layers are still in use; replace this branch when those
-                overlays move to Base UI so toast presses stay inside their layers. */}
+            {/* Nothing in this package mounts a Radix dismissable layer, so this branch
+                has no effect. It leaves with the radix-ui dependency. */}
             <DismissableLayer.Branch asChild>
               <div
                 data-notifications-region=""

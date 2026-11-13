@@ -13,6 +13,7 @@ import { NestedCheckboxTree } from "../nested-elements/checkbox-tree";
 import { NestedMenu } from "../nested-elements/menu";
 import { NestedRadio } from "../nested-elements/radio";
 import { NestedSelect } from "../nested-elements/select";
+import { isEscapeConsumedByTooltip } from "./overlay-interaction";
 import { ActionMenu } from "./action-menu";
 import { ContextMenu } from "./context-menu";
 import { Dropdown as DropdownOverlay } from "./dropdown";
@@ -47,7 +48,8 @@ function CanvasTrigger({ children, click }: { children: ReactNode; click: boolea
   const { onContextMenu } = useCanvasContextMenu({ id, items: () => children });
   useEffect(() => {
     if (!click) return;
-    useTooltipStore.getState().registerAnchor({
+    const store = useTooltipStore.getState();
+    store.registerAnchor({
       id,
       content: children,
       mode: "click",
@@ -55,6 +57,7 @@ function CanvasTrigger({ children, click }: { children: ReactNode; click: boolea
       interactive: true,
       screenPosition: { x: 180, y: 150 },
     });
+    return () => store.unregisterAnchor(id);
   }, [children, click]);
   return (
     <button
@@ -136,7 +139,7 @@ beforeEach(async () => {
   await page.viewport(1280, 800);
 });
 
-for (const entry of Object.values(Entry))
+for (const entry of [Entry.Dropdown, Entry.Context, Entry.Canvas])
   describe(entry, () => {
     test("1: Dropdown Tab closes and advances; context and canvas Tab retain the entry", async () => {
       await render(
@@ -462,7 +465,13 @@ for (const entry of Object.values(Entry))
       await open(entry, true);
       await first();
       await expect.element(page.getByRole("tooltip")).toHaveTextContent("Access is required");
+      const received = vi.fn((event: Event) => {
+        expect(isEscapeConsumedByTooltip(event)).toBe(true);
+        expect(event.defaultPrevented).toBe(true);
+      });
+      item("First").element().addEventListener("keydown", received, { once: true });
       await userEvent.keyboard("{Escape}");
+      expect(received).toHaveBeenCalledTimes(1);
       await expect.element(page.getByRole("tooltip")).not.toBeInTheDocument();
       expect(menus()).toHaveLength(1);
       await expect.element(item("First")).toHaveFocus();
@@ -502,7 +511,12 @@ for (const entry of Object.values(Entry))
       await userEvent.keyboard("{ArrowUp}");
       await expect.element(item("Child")).toHaveFocus();
       await expect.element(page.getByRole("tooltip")).toHaveTextContent("Child reason");
+      const received = vi.fn((event: Event) => {
+        expect(isEscapeConsumedByTooltip(event)).toBe(true);
+      });
+      item("Child").element().addEventListener("keydown", received, { once: true });
       await userEvent.keyboard("{Escape}");
+      expect(received).toHaveBeenCalledTimes(1);
       await expect.element(page.getByRole("tooltip")).not.toBeInTheDocument();
       expect(menus()).toHaveLength(2);
       await userEvent.keyboard("{Escape}");
@@ -865,7 +879,7 @@ test("D: ContextMenu opens below the press, four pixels right and two below it, 
     .toEqual([4, 2]);
 });
 
-for (const entry of Object.values(Entry))
+for (const entry of [Entry.Dropdown, Entry.Context, Entry.Canvas])
   test(`E: ${entry} pointer popup and submenu have no focus outline`, async () => {
     await render(
       <MenuFixture entry={entry}>
@@ -1130,11 +1144,11 @@ test("SelectTree's trigger is a tab stop with a button role, and Escape returns 
 test("a canvas overlay its own selection re-invokes opens again", async () => {
   const reinvoke = () => useTooltipStore.getState().showTooltip("menu-decisions-canvas", "click");
   await render(
-    <MenuFixture entry={Entry.Click}>
+    <MenuFixture entry={Entry.Canvas}>
       <NestedItem onClick={reinvoke}>Again</NestedItem>
     </MenuFixture>,
   );
-  await open(Entry.Click);
+  await open(Entry.Canvas);
   await item("Again").click();
   // The closing popup unmounts and the re-invocation renders a fresh, open one.
   await expect.poll(() => menus().length).toBe(1);
@@ -1246,4 +1260,128 @@ test("an entry that stays open gets the live event, so stopPropagation keeps it 
   await item("Stays").click();
   expect(menus()).toHaveLength(1);
   expect(ancestor).not.toHaveBeenCalled();
+});
+
+describe(Entry.Click, () => {
+  const popup = () =>
+    document.querySelector<HTMLElement>('.card-overlay[role="dialog"][data-state="open"]');
+  async function openPopover() {
+    await button("Open").click();
+    await expect.poll(popup).not.toBeNull();
+    return popup()!;
+  }
+
+  test("button content uses ordinary focus, preserves the accessible background and allows Tab to leave", async () => {
+    const { container } = await render(
+      <MenuFixture entry={Entry.Click}>
+        <button type="button">First</button>
+        <button type="button">Second</button>
+      </MenuFixture>,
+    );
+    const surface = await openPopover();
+    expect(menus()).toHaveLength(0);
+    expect(container.getAttribute("aria-hidden")).toBeNull();
+    await expect.element(button("First")).toHaveFocus();
+    expect(getComputedStyle(surface).outlineStyle).toBe("none");
+    await userEvent.keyboard("{ArrowDown}");
+    await expect.element(button("First")).toHaveFocus();
+    await userEvent.keyboard("{Tab}");
+    await expect.element(button("Second")).toHaveFocus();
+    await userEvent.keyboard("{Tab}");
+    await expect.poll(popup).toBeNull();
+  });
+
+  test("page scrolling remains available and the first outside press reaches its action", async () => {
+    const clicked = vi.fn();
+    await render(
+      <>
+        <MenuFixture entry={Entry.Click}>
+          <button type="button">First</button>
+        </MenuFixture>
+        <button
+          type="button"
+          style={{ position: "fixed", right: 40, bottom: 40 }}
+          onClick={clicked}
+        >
+          Outside
+        </button>
+      </>,
+    );
+    const overflow = () => ({
+      html: document.documentElement.style.overflowY,
+      body: document.body.style.overflowY,
+    });
+    const original = overflow();
+    await openPopover();
+    expect(overflow()).toEqual(original);
+    await button("Outside").click();
+    await expect.poll(popup).toBeNull();
+    expect(clicked).toHaveBeenCalledTimes(1);
+    await expect
+      .poll(() => useTooltipStore.getState().visibility.get("menu-decisions-canvas")?.visible)
+      .toBe(false);
+  });
+
+  for (const surface of Object.values(Surface))
+    test(`Escape returns focus inside ${surface} and leaves the parent open`, async () => {
+      function Fixture() {
+        const [visible, setVisible] = useState(true);
+        const content = (
+          <MenuFixture entry={Entry.Click}>
+            <button type="button">First</button>
+          </MenuFixture>
+        );
+        return surface === Surface.Modal ? (
+          <ModalOverlay open={visible} onStateChange={setVisible} title="Surrounding">
+            {content}
+          </ModalOverlay>
+        ) : (
+          <DialogOverlay
+            open={visible}
+            onStateChange={setVisible}
+            title="Surrounding"
+            onCancel={() => setVisible(false)}
+          >
+            {content}
+          </DialogOverlay>
+        );
+      }
+      await render(<Fixture />);
+      await openPopover();
+      await userEvent.keyboard("{Escape}");
+      await expect.poll(popup).toBeNull();
+      await expect.element(button("Open")).toHaveFocus();
+      await expect
+        .element(
+          page.getByRole(surface === Surface.Modal ? "dialog" : "alertdialog", {
+            name: "Surrounding",
+            exact: true,
+          }),
+        )
+        .toBeVisible();
+    });
+
+  test("a button can re-invoke its own canvas popover", async () => {
+    const store = useTooltipStore.getState();
+    await render(
+      <MenuFixture entry={Entry.Click}>
+        <button type="button" onClick={() => store.showTooltip("menu-decisions-canvas", "click")}>
+          Again
+        </button>
+      </MenuFixture>,
+    );
+    await openPopover();
+    const invocation =
+      useTooltipStore.getState().visibility.get("menu-decisions-canvas")?.invocation ?? 0;
+    await button("Again").click();
+    await expect.element(button("Again")).toBeVisible();
+    await expect.poll(popup).not.toBeNull();
+    expect(useTooltipStore.getState().visibility.get("menu-decisions-canvas")?.invocation).toBe(
+      invocation + 1,
+    );
+    await userEvent.keyboard("{Escape}");
+    await expect
+      .poll(() => useTooltipStore.getState().visibility.get("menu-decisions-canvas")?.visible)
+      .toBe(false);
+  });
 });

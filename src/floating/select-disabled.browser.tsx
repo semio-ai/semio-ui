@@ -127,11 +127,10 @@ test("a disabled trigger still fires a Tooltip over it", async () => {
   // refuses to open while disabled, so suppressing pointer events would only cost the tooltip —
   // and a disabled control that withholds its reason is worse than either alone.
   //
-  // Note the wrapping span, which is load-bearing: `Tooltip` uses Radix `asChild` and
-  // hands its ref and pointer handlers to its child, and `Select` forwards neither, so
-  // passing it directly drops them and the tooltip never opens — silently, with a control
-  // that still looks right. This test was written asserting the direct form and failed,
-  // which is how the requirement was found.
+  // Tooltip composes its trigger through Base UI's render function. The wrapping
+  // span receives the ref and pointer handlers because Select forwards neither.
+  // Passing Select directly fails silently: the tooltip never opens, there is no
+  // error, and the control looks correct.
   await render(
     <Tooltip content={REASON}>
       <span className="inline-flex">

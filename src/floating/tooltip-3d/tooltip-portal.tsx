@@ -1,9 +1,16 @@
 import { useMemo, useRef, useState } from "react";
 import { FloatingPortal, offset, flip, shift, useFloating } from "@floating-ui/react";
 import { Menu } from "@base-ui/react/menu";
+import { Popover } from "@base-ui/react/popover";
 import { motion, AnimatePresence } from "motion/react";
 import { clsx } from "clsx";
 import { useShallow } from "zustand/react/shallow";
+import { getTabbableElements } from "../tabbable";
+import {
+  preserveTooltipEscape,
+  preserveNotificationInteraction,
+  useNotificationEscape,
+} from "../overlay-interaction";
 import { Variant } from "../../types";
 import { ScrollArea } from "../../layouts/scroll-area";
 import {
@@ -11,7 +18,6 @@ import {
   useMenuActionHandoff,
   preserveMenuInteraction,
   useMenuTabContainment,
-  useNotificationMenuEscape,
   keepMenuNavigationKeys,
 } from "../menu-action";
 import {
@@ -35,22 +41,10 @@ interface OverlayInstanceProps {
   invocation: number;
 }
 
-/** Interactive canvas overlays are menus anchored at the pointer's viewport coordinates. */
-function InteractiveOverlayInstance({ anchor, position, invocation }: OverlayInstanceProps) {
+/** Both interactive surfaces position against the pointer in viewport coordinates. */
+function useOverlayAnchor(position: ScreenPosition) {
   const hostContext = useRootTooltipHost();
-  const dismissOverlay = useTooltipStore((s) => s.dismissOverlay);
-  const handoff = useMenuActionHandoff(() => {
-    // Dismiss only this invocation: one started while this popup was closing, including
-    // by a selected action, renders its own instance and stays visible.
-    if (useTooltipStore.getState().visibility.get(anchor.id)?.invocation === invocation)
-      dismissOverlay(anchor.id);
-  });
-  const [open, setOpen] = useState(true);
-  const popupRef = useRef<HTMLDivElement>(null);
-  useNotificationMenuEscape(open, () => setOpen(false));
-  useMenuTabContainment(open, popupRef);
-  const isMenu = anchor.mode === "context-menu";
-  const virtualAnchor = useMemo(
+  return useMemo(
     () => ({
       getBoundingClientRect: () => {
         const rect = hostContext?.containerRef.current?.getBoundingClientRect();
@@ -64,6 +58,106 @@ function InteractiveOverlayInstance({ anchor, position, invocation }: OverlayIns
     }),
     [hostContext?.containerRef, position.x, position.y],
   );
+}
+
+/**
+ * Whether Tab from `target` would leave `popup`: it is the popup itself, or the last (first,
+ * for Shift+Tab) tabbable element inside it.
+ */
+function tabLeaves(popup: HTMLElement, target: EventTarget, backwards: boolean) {
+  if (target === popup) return true;
+  const tabbable = getTabbableElements(popup);
+  return target === (backwards ? tabbable[0] : tabbable[tabbable.length - 1]);
+}
+
+/** Canvas content chooses its own semantics through the invocation mode. */
+function InteractiveOverlayInstance(props: OverlayInstanceProps) {
+  return props.anchor.mode === "context-menu" ? (
+    <CanvasMenuInstance {...props} />
+  ) : (
+    <CanvasPopoverInstance {...props} />
+  );
+}
+
+function CanvasPopoverInstance({ anchor, position, invocation }: OverlayInstanceProps) {
+  const [open, setOpen] = useState(true);
+  useNotificationEscape(open, () => setOpen(false));
+  const dismissOverlay = useTooltipStore((s) => s.dismissOverlay);
+  const virtualAnchor = useOverlayAnchor(position);
+  const content = typeof anchor.content === "function" ? anchor.content() : anchor.content;
+  return (
+    <Popover.Root
+      open={open}
+      modal={false}
+      onOpenChange={(next, details) => {
+        if (!next && (preserveTooltipEscape(details) || preserveNotificationInteraction(details)))
+          return;
+        setOpen(next);
+      }}
+      onOpenChangeComplete={(next) => {
+        // A close completion belongs only to the invocation that rendered it.
+        if (
+          !next &&
+          useTooltipStore.getState().visibility.get(anchor.id)?.invocation === invocation
+        )
+          dismissOverlay(anchor.id);
+      }}
+    >
+      <Popover.Portal>
+        <Popover.Positioner
+          anchor={virtualAnchor}
+          side={anchor.positioning?.side ?? "top"}
+          align="center"
+          sideOffset={anchor.positioning?.offset ?? 6}
+          collisionPadding={5}
+        >
+          <Popover.Popup
+            render={(props, state) => (
+              <div {...props} data-state={state.open ? "open" : "closed"} />
+            )}
+            // A non-modal popover hands Tab on to whatever follows its trigger, and this one
+            // has no trigger: the canvas point it is anchored to is not an element. Tab past
+            // either end closes it instead, and closing returns focus to where it was before
+            // the popover opened, so the next Tab continues from there. A control that
+            // handled Tab itself (an editor indenting, a composite moving focus inside)
+            // prevented its default, so focus is not leaving and the popover stays.
+            onKeyDown={(event) => {
+              keepMenuNavigationKeys(event);
+              if (
+                event.key !== "Tab" ||
+                event.defaultPrevented ||
+                !tabLeaves(event.currentTarget, event.target, event.shiftKey)
+              )
+                return;
+              event.preventDefault();
+              setOpen(false);
+            }}
+            className={clsx(
+              Variant.Default,
+              "[outline:none]",
+              "variant-scope card-overlay m-0.5 overflow-clip shadow-lg",
+            )}
+          >
+            {content}
+          </Popover.Popup>
+        </Popover.Positioner>
+      </Popover.Portal>
+    </Popover.Root>
+  );
+}
+
+function CanvasMenuInstance({ anchor, position, invocation }: OverlayInstanceProps) {
+  const dismissOverlay = useTooltipStore((s) => s.dismissOverlay);
+  const handoff = useMenuActionHandoff(() => {
+    // Dismiss only this invocation: a selected action may have opened another one.
+    if (useTooltipStore.getState().visibility.get(anchor.id)?.invocation === invocation)
+      dismissOverlay(anchor.id);
+  });
+  const [open, setOpen] = useState(true);
+  const popupRef = useRef<HTMLDivElement>(null);
+  useNotificationEscape(open, () => setOpen(false));
+  useMenuTabContainment(open, popupRef);
+  const virtualAnchor = useOverlayAnchor(position);
   const content = typeof anchor.content === "function" ? anchor.content() : anchor.content;
   return (
     <Menu.Root
@@ -78,9 +172,9 @@ function InteractiveOverlayInstance({ anchor, position, invocation }: OverlayIns
       <Menu.Portal>
         <Menu.Positioner
           anchor={virtualAnchor}
-          side={anchor.positioning?.side ?? (isMenu ? "bottom" : "top")}
-          align={isMenu ? "start" : "center"}
-          sideOffset={anchor.positioning?.offset ?? (isMenu ? 2 : 6)}
+          side={anchor.positioning?.side ?? "bottom"}
+          align="start"
+          sideOffset={anchor.positioning?.offset ?? 2}
           collisionPadding={5}
         >
           <Menu.Popup
@@ -92,24 +186,18 @@ function InteractiveOverlayInstance({ anchor, position, invocation }: OverlayIns
             className={clsx(
               Variant.Default,
               "[outline:none]",
-              isMenu
-                ? "variant-scope card-overlay dropdown-content m-0.5 min-w-56"
-                : "variant-scope card-overlay m-0.5 overflow-clip shadow-lg",
-              isMenu && "max-h-[calc(var(--available-height)-4px)]",
+              "variant-scope card-overlay dropdown-content m-0.5 min-w-56",
+              "max-h-[calc(var(--available-height)-4px)]",
             )}
           >
             <MenuActionProvider value={handoff.enqueue}>
-              {isMenu ? (
-                <ScrollArea
-                  focusableViewport={false}
-                  shrinkHeight
-                  className="flex max-h-[calc(var(--available-height)-6px)] flex-col gap-0.5 p-0.5"
-                >
-                  {content}
-                </ScrollArea>
-              ) : (
-                content
-              )}
+              <ScrollArea
+                focusableViewport={false}
+                shrinkHeight
+                className="flex max-h-[calc(var(--available-height)-6px)] flex-col gap-0.5 p-0.5"
+              >
+                {content}
+              </ScrollArea>
             </MenuActionProvider>
           </Menu.Popup>
         </Menu.Positioner>
@@ -300,7 +388,7 @@ export function TooltipPortal() {
     return null;
   }
 
-  // Interactive overlays use Menu dismissal; passive tooltips use floating-ui.
+  // Interactive overlays use their Menu or Popover primitive; passive tooltips use floating-ui.
   const interactive = visibleTooltips.filter(({ anchor }) => anchor.interactive);
   const tooltips = visibleTooltips.filter(({ anchor }) => !anchor.interactive);
 

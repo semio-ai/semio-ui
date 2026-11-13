@@ -1,0 +1,1544 @@
+{
+  "light / Tooltip by pointer": {
+    "first hover at 400 ms": {
+      "open": false
+    },
+    "first hover trigger": {
+      "aria-describedby": "(present)",
+      "aria-expanded": "(none)",
+      "aria-haspopup": "(none)",
+      "aria-controls": "(none)",
+      "data-state": "open"
+    },
+    "first hover trigger aria-describedby": {
+      "present": true,
+      "count": 1
+    },
+    "first hover trigger aria-describedby reference 1": {
+      "resolves": true,
+      "role": "tooltip",
+      "text": "Helpful explanation"
+    },
+    "first hover trigger aria-controls": {
+      "present": false,
+      "count": 0
+    },
+    "first hover tooltip roles": {
+      "count": 1
+    },
+    "first hover tooltip role 1": {
+      "text": "Helpful explanation",
+      "visible": true
+    },
+    "first hover surface": {
+      "role": "tooltip",
+      "ariaModal": "(none)",
+      "dataState": "open",
+      "dataSide": "top",
+      "dataAlign": "center",
+      "focus": "(body)"
+    },
+    "first hover positioned element": {
+      "present": true,
+      "position": "fixed",
+      "zIndex": "10"
+    },
+    "pointer on surface": {
+      "open": true
+    },
+    "pointer away at 100 ms": {
+      "open": false
+    },
+    "second hover at 150 ms": {
+      "open": true
+    },
+    "second hover trigger": {
+      "aria-describedby": "(present)",
+      "aria-expanded": "(none)",
+      "aria-haspopup": "(none)",
+      "aria-controls": "(none)",
+      "data-state": "open"
+    },
+    "second hover trigger aria-describedby": {
+      "present": true,
+      "count": 1
+    },
+    "second hover trigger aria-describedby reference 1": {
+      "resolves": true,
+      "role": "tooltip",
+      "text": "Helpful explanation"
+    },
+    "second hover trigger aria-controls": {
+      "present": false,
+      "count": 0
+    },
+    "second hover tooltip roles": {
+      "count": 1
+    },
+    "second hover tooltip role 1": {
+      "text": "Helpful explanation",
+      "visible": true
+    },
+    "second hover surface": {
+      "role": "tooltip",
+      "ariaModal": "(none)",
+      "dataState": "open",
+      "dataSide": "top",
+      "dataAlign": "center",
+      "focus": "(body)"
+    },
+    "second hover positioned element": {
+      "present": true,
+      "position": "fixed",
+      "zIndex": "10"
+    },
+    "trigger press": {
+      "open": false,
+      "focus": "Tooltip target"
+    }
+  },
+  "light / Tooltip by keyboard": {
+    "first focus at 150 ms": {
+      "open": true
+    },
+    "first focus trigger": {
+      "aria-describedby": "(present)",
+      "aria-expanded": "(none)",
+      "aria-haspopup": "(none)",
+      "aria-controls": "(none)",
+      "data-state": "open"
+    },
+    "first focus trigger aria-describedby": {
+      "present": true,
+      "count": 1
+    },
+    "first focus trigger aria-describedby reference 1": {
+      "resolves": true,
+      "role": "tooltip",
+      "text": "Helpful explanation"
+    },
+    "first focus trigger aria-controls": {
+      "present": false,
+      "count": 0
+    },
+    "first focus tooltip roles": {
+      "count": 1
+    },
+    "first focus tooltip role 1": {
+      "text": "Helpful explanation",
+      "visible": true
+    },
+    "first focus surface": {
+      "role": "tooltip",
+      "ariaModal": "(none)",
+      "dataState": "open",
+      "dataSide": "top",
+      "dataAlign": "center",
+      "focus": "Tooltip target"
+    },
+    "first focus positioned element": {
+      "present": true,
+      "position": "fixed",
+      "zIndex": "10"
+    },
+    "first Escape": {
+      "focus": "Tooltip target",
+      "open": false
+    },
+    "after first Escape trigger": {
+      "aria-describedby": "(none)",
+      "aria-expanded": "(none)",
+      "aria-haspopup": "(none)",
+      "aria-controls": "(none)",
+      "data-state": "closed"
+    },
+    "after first Escape trigger aria-describedby": {
+      "present": false,
+      "count": 0
+    },
+    "after first Escape trigger aria-controls": {
+      "present": false,
+      "count": 0
+    },
+    "second Escape": {
+      "focus": "Tooltip target",
+      "open": false
+    },
+    "return focus at 150 ms": {
+      "open": true,
+      "focus": "Tooltip target"
+    },
+    "return focus trigger": {
+      "aria-describedby": "(present)",
+      "aria-expanded": "(none)",
+      "aria-haspopup": "(none)",
+      "aria-controls": "(none)",
+      "data-state": "open"
+    },
+    "return focus trigger aria-describedby": {
+      "present": true,
+      "count": 1
+    },
+    "return focus trigger aria-describedby reference 1": {
+      "resolves": true,
+      "role": "tooltip",
+      "text": "Helpful explanation"
+    },
+    "return focus trigger aria-controls": {
+      "present": false,
+      "count": 0
+    },
+    "return focus tooltip roles": {
+      "count": 1
+    },
+    "return focus tooltip role 1": {
+      "text": "Helpful explanation",
+      "visible": true
+    },
+    "return focus surface": {
+      "role": "tooltip",
+      "ariaModal": "(none)",
+      "dataState": "open",
+      "dataSide": "top",
+      "dataAlign": "center",
+      "focus": "Tooltip target"
+    },
+    "return focus positioned element": {
+      "present": true,
+      "position": "fixed",
+      "zIndex": "10"
+    },
+    "pointer focus at 150 ms": {
+      "open": false,
+      "focus": "Tooltip target"
+    }
+  },
+  "light / Tooltip on an aria-disabled trigger": {
+    "keyboard open trigger": {
+      "aria-describedby": "(present)",
+      "aria-expanded": "(none)",
+      "aria-haspopup": "(none)",
+      "aria-controls": "(none)",
+      "data-state": "open"
+    },
+    "keyboard open trigger aria-describedby": {
+      "present": true,
+      "count": 1
+    },
+    "keyboard open trigger aria-describedby reference 1": {
+      "resolves": true,
+      "role": "tooltip",
+      "text": "Helpful explanation"
+    },
+    "keyboard open trigger aria-controls": {
+      "present": false,
+      "count": 0
+    },
+    "keyboard open tooltip roles": {
+      "count": 1
+    },
+    "keyboard open tooltip role 1": {
+      "text": "Helpful explanation",
+      "visible": true
+    },
+    "keyboard open surface": {
+      "role": "tooltip",
+      "ariaModal": "(none)",
+      "dataState": "open",
+      "dataSide": "top",
+      "dataAlign": "center",
+      "focus": "Tooltip target"
+    },
+    "keyboard open positioned element": {
+      "present": true,
+      "position": "fixed",
+      "zIndex": "10"
+    },
+    "disabled trigger press": {
+      "open": true,
+      "focus": "Tooltip target"
+    }
+  },
+  "light / Popover by pointer": {
+    "pointer open trigger": {
+      "aria-describedby": "(none)",
+      "aria-expanded": "true",
+      "aria-haspopup": "dialog",
+      "aria-controls": "(present)",
+      "data-state": "open"
+    },
+    "pointer open trigger aria-describedby": {
+      "present": false,
+      "count": 0
+    },
+    "pointer open trigger aria-controls": {
+      "present": true,
+      "count": 1
+    },
+    "pointer open trigger aria-controls reference 1": {
+      "resolves": true,
+      "role": "dialog",
+      "text": "Popover contentFirst actionSecond action"
+    },
+    "pointer open tooltip roles": {
+      "count": 0
+    },
+    "pointer open surface": {
+      "role": "dialog",
+      "ariaModal": "(none)",
+      "dataState": "open",
+      "dataSide": "bottom",
+      "dataAlign": "center",
+      "focus": "First action"
+    },
+    "pointer open positioned element": {
+      "present": true,
+      "position": "fixed",
+      "zIndex": "auto"
+    },
+    "Outside while open": {
+      "ariaHidden": "(none)",
+      "inert": false
+    },
+    "Outside body ancestor while open": {
+      "ariaHidden": "(none)",
+      "inert": false
+    },
+    "paragraph press": {
+      "open": true
+    },
+    "outside press": {
+      "counter": "1",
+      "open": false,
+      "focus": "Outside"
+    },
+    "reopened trigger": {
+      "aria-describedby": "(none)",
+      "aria-expanded": "true",
+      "aria-haspopup": "dialog",
+      "aria-controls": "(present)",
+      "data-state": "open"
+    },
+    "reopened trigger aria-describedby": {
+      "present": false,
+      "count": 0
+    },
+    "reopened trigger aria-controls": {
+      "present": true,
+      "count": 1
+    },
+    "reopened trigger aria-controls reference 1": {
+      "resolves": true,
+      "role": "dialog",
+      "text": "Popover contentFirst actionSecond action"
+    },
+    "reopened tooltip roles": {
+      "count": 0
+    },
+    "reopened surface": {
+      "role": "dialog",
+      "ariaModal": "(none)",
+      "dataState": "open",
+      "dataSide": "bottom",
+      "dataAlign": "center",
+      "focus": "First action"
+    },
+    "reopened positioned element": {
+      "present": true,
+      "position": "fixed",
+      "zIndex": "auto"
+    },
+    "trigger toggle": {
+      "open": false,
+      "focus": "Open popover"
+    }
+  },
+  "light / Popover by keyboard": {
+    "Enter open trigger": {
+      "aria-describedby": "(none)",
+      "aria-expanded": "true",
+      "aria-haspopup": "dialog",
+      "aria-controls": "(present)",
+      "data-state": "open"
+    },
+    "Enter open trigger aria-describedby": {
+      "present": false,
+      "count": 0
+    },
+    "Enter open trigger aria-controls": {
+      "present": true,
+      "count": 1
+    },
+    "Enter open trigger aria-controls reference 1": {
+      "resolves": true,
+      "role": "dialog",
+      "text": "Popover contentFirst actionSecond action"
+    },
+    "Enter open tooltip roles": {
+      "count": 0
+    },
+    "Enter open surface": {
+      "role": "dialog",
+      "ariaModal": "(none)",
+      "dataState": "open",
+      "dataSide": "bottom",
+      "dataAlign": "center",
+      "focus": "First action"
+    },
+    "Enter open positioned element": {
+      "present": true,
+      "position": "fixed",
+      "zIndex": "auto"
+    },
+    "Tab 1": {
+      "focus": "Second action",
+      "open": true,
+      "inside": true
+    },
+    "Tab 2": {
+      "focus": "Outside",
+      "open": false,
+      "inside": false
+    },
+    "Escape opening trigger": {
+      "aria-describedby": "(none)",
+      "aria-expanded": "true",
+      "aria-haspopup": "dialog",
+      "aria-controls": "(present)",
+      "data-state": "open"
+    },
+    "Escape opening trigger aria-describedby": {
+      "present": false,
+      "count": 0
+    },
+    "Escape opening trigger aria-controls": {
+      "present": true,
+      "count": 1
+    },
+    "Escape opening trigger aria-controls reference 1": {
+      "resolves": true,
+      "role": "dialog",
+      "text": "Popover contentFirst actionSecond action"
+    },
+    "Escape opening tooltip roles": {
+      "count": 0
+    },
+    "Escape opening surface": {
+      "role": "dialog",
+      "ariaModal": "(none)",
+      "dataState": "open",
+      "dataSide": "bottom",
+      "dataAlign": "center",
+      "focus": "First action"
+    },
+    "Escape opening positioned element": {
+      "present": true,
+      "position": "fixed",
+      "zIndex": "auto"
+    },
+    "Escape": {
+      "focus": "Open popover",
+      "open": false
+    },
+    "reverse Tab opening trigger": {
+      "aria-describedby": "(none)",
+      "aria-expanded": "true",
+      "aria-haspopup": "dialog",
+      "aria-controls": "(present)",
+      "data-state": "open"
+    },
+    "reverse Tab opening trigger aria-describedby": {
+      "present": false,
+      "count": 0
+    },
+    "reverse Tab opening trigger aria-controls": {
+      "present": true,
+      "count": 1
+    },
+    "reverse Tab opening trigger aria-controls reference 1": {
+      "resolves": true,
+      "role": "dialog",
+      "text": "Popover contentFirst actionSecond action"
+    },
+    "reverse Tab opening tooltip roles": {
+      "count": 0
+    },
+    "reverse Tab opening surface": {
+      "role": "dialog",
+      "ariaModal": "(none)",
+      "dataState": "open",
+      "dataSide": "bottom",
+      "dataAlign": "center",
+      "focus": "First action"
+    },
+    "reverse Tab opening positioned element": {
+      "present": true,
+      "position": "fixed",
+      "zIndex": "auto"
+    },
+    "Shift+Tab": {
+      "focus": "Open popover",
+      "open": true
+    }
+  },
+  "light / Popover inside a Modal": {
+    "Enter open trigger": {
+      "aria-describedby": "(none)",
+      "aria-expanded": "true",
+      "aria-haspopup": "dialog",
+      "aria-controls": "(present)",
+      "data-state": "open"
+    },
+    "Enter open trigger aria-describedby": {
+      "present": false,
+      "count": 0
+    },
+    "Enter open trigger aria-controls": {
+      "present": true,
+      "count": 1
+    },
+    "Enter open trigger aria-controls reference 1": {
+      "resolves": true,
+      "role": "dialog",
+      "text": "Popover contentFirst actionSecond action"
+    },
+    "Enter open tooltip roles": {
+      "count": 0
+    },
+    "Enter open surface": {
+      "role": "dialog",
+      "ariaModal": "(none)",
+      "dataState": "open",
+      "dataSide": "bottom",
+      "dataAlign": "center",
+      "focus": "First action"
+    },
+    "Enter open positioned element": {
+      "present": true,
+      "position": "fixed",
+      "zIndex": "auto"
+    },
+    "modal after popover opens": {
+      "open": true
+    },
+    "Tab 1": {
+      "focus": "Second action",
+      "open": true,
+      "inside": true,
+      "modalOpen": true
+    },
+    "Tab 2": {
+      "focus": "Outside",
+      "open": false,
+      "inside": false,
+      "modalOpen": true
+    },
+    "Escape opening trigger": {
+      "aria-describedby": "(none)",
+      "aria-expanded": "true",
+      "aria-haspopup": "dialog",
+      "aria-controls": "(present)",
+      "data-state": "open"
+    },
+    "Escape opening trigger aria-describedby": {
+      "present": false,
+      "count": 0
+    },
+    "Escape opening trigger aria-controls": {
+      "present": true,
+      "count": 1
+    },
+    "Escape opening trigger aria-controls reference 1": {
+      "resolves": true,
+      "role": "dialog",
+      "text": "Popover contentFirst actionSecond action"
+    },
+    "Escape opening tooltip roles": {
+      "count": 0
+    },
+    "Escape opening surface": {
+      "role": "dialog",
+      "ariaModal": "(none)",
+      "dataState": "open",
+      "dataSide": "bottom",
+      "dataAlign": "center",
+      "focus": "First action"
+    },
+    "Escape opening positioned element": {
+      "present": true,
+      "position": "fixed",
+      "zIndex": "auto"
+    },
+    "first Escape": {
+      "focus": "Open popover",
+      "popoverOpen": false,
+      "modalOpen": true
+    },
+    "second Escape": {
+      "focus": "Open modal",
+      "popoverOpen": false,
+      "modalOpen": false
+    }
+  },
+  "light / Canvas click popover": {
+    "Enter open trigger": {
+      "aria-describedby": "(none)",
+      "aria-expanded": "(none)",
+      "aria-haspopup": "(none)",
+      "aria-controls": "(none)",
+      "data-state": "(none)"
+    },
+    "Enter open trigger aria-describedby": {
+      "present": false,
+      "count": 0
+    },
+    "Enter open trigger aria-controls": {
+      "present": false,
+      "count": 0
+    },
+    "Enter open tooltip roles": {
+      "count": 0
+    },
+    "Enter open surface": {
+      "role": "dialog",
+      "ariaModal": "(none)",
+      "dataState": "open",
+      "dataSide": "top",
+      "dataAlign": "center",
+      "focus": "First action"
+    },
+    "Enter open positioned element": {
+      "present": true,
+      "position": "absolute",
+      "zIndex": "auto"
+    },
+    "surface relative to canvas anchor": {
+      "left": -62,
+      "top": -96,
+      "width": 124.5,
+      "height": 88
+    },
+    "Outside while open": {
+      "ariaHidden": "(none)",
+      "inert": false
+    },
+    "Tab 1": {
+      "focus": "Second action",
+      "open": true,
+      "inside": true
+    },
+    "Tab 2": {
+      "focus": "Open canvas popover",
+      "open": false,
+      "inside": false
+    },
+    "Escape opening trigger": {
+      "aria-describedby": "(none)",
+      "aria-expanded": "(none)",
+      "aria-haspopup": "(none)",
+      "aria-controls": "(none)",
+      "data-state": "(none)"
+    },
+    "Escape opening trigger aria-describedby": {
+      "present": false,
+      "count": 0
+    },
+    "Escape opening trigger aria-controls": {
+      "present": false,
+      "count": 0
+    },
+    "Escape opening tooltip roles": {
+      "count": 0
+    },
+    "Escape opening surface": {
+      "role": "dialog",
+      "ariaModal": "(none)",
+      "dataState": "open",
+      "dataSide": "top",
+      "dataAlign": "center",
+      "focus": "First action"
+    },
+    "Escape opening positioned element": {
+      "present": true,
+      "position": "absolute",
+      "zIndex": "auto"
+    },
+    "Escape": {
+      "focus": "Open canvas popover",
+      "open": false
+    },
+    "outside press opening trigger": {
+      "aria-describedby": "(none)",
+      "aria-expanded": "(none)",
+      "aria-haspopup": "(none)",
+      "aria-controls": "(none)",
+      "data-state": "(none)"
+    },
+    "outside press opening trigger aria-describedby": {
+      "present": false,
+      "count": 0
+    },
+    "outside press opening trigger aria-controls": {
+      "present": false,
+      "count": 0
+    },
+    "outside press opening tooltip roles": {
+      "count": 0
+    },
+    "outside press opening surface": {
+      "role": "dialog",
+      "ariaModal": "(none)",
+      "dataState": "open",
+      "dataSide": "top",
+      "dataAlign": "center",
+      "focus": "First action"
+    },
+    "outside press opening positioned element": {
+      "present": true,
+      "position": "absolute",
+      "zIndex": "auto"
+    },
+    "outside press": {
+      "counter": "1",
+      "open": false,
+      "focus": "Outside"
+    }
+  },
+  "light / Arrow and viewport-edge placement": {
+    "tooltip top": {
+      "side": "top",
+      "arrowX": -0.5,
+      "arrowY": -25,
+      "popupX": -7,
+      "popupY": -32,
+      "gapToViewportRight": 543
+    },
+    "tooltip right": {
+      "side": "right",
+      "arrowX": 65,
+      "arrowY": 2,
+      "popupX": 124,
+      "popupY": 8,
+      "gapToViewportRight": 412
+    },
+    "tooltip bottom": {
+      "side": "bottom",
+      "arrowX": -0.5,
+      "arrowY": 29,
+      "popupX": -7,
+      "popupY": 48,
+      "gapToViewportRight": 543
+    },
+    "tooltip left": {
+      "side": "left",
+      "arrowX": -65,
+      "arrowY": 2,
+      "popupX": -137,
+      "popupY": 8,
+      "gapToViewportRight": 673
+    },
+    "tooltip top at the right edge": {
+      "side": "top",
+      "arrowX": 0,
+      "arrowY": -25,
+      "popupX": -13,
+      "popupY": -32,
+      "gapToViewportRight": 0
+    },
+    "popover": {
+      "side": "bottom",
+      "arrowX": 0,
+      "arrowY": 25,
+      "popupX": -50,
+      "popupY": 44,
+      "gapToViewportRight": 530
+    },
+    "popover at the bottom edge": {
+      "side": "top",
+      "arrowX": 0,
+      "arrowY": -25,
+      "popupX": -50,
+      "popupY": -36,
+      "gapToViewportRight": 530
+    },
+    "popover at the right edge": {
+      "side": "bottom",
+      "arrowX": 0,
+      "arrowY": 25,
+      "popupX": -102,
+      "popupY": 44,
+      "gapToViewportRight": 2
+    }
+  },
+  "dark / Tooltip by pointer": {
+    "first hover at 400 ms": {
+      "open": false
+    },
+    "first hover trigger": {
+      "aria-describedby": "(present)",
+      "aria-expanded": "(none)",
+      "aria-haspopup": "(none)",
+      "aria-controls": "(none)",
+      "data-state": "open"
+    },
+    "first hover trigger aria-describedby": {
+      "present": true,
+      "count": 1
+    },
+    "first hover trigger aria-describedby reference 1": {
+      "resolves": true,
+      "role": "tooltip",
+      "text": "Helpful explanation"
+    },
+    "first hover trigger aria-controls": {
+      "present": false,
+      "count": 0
+    },
+    "first hover tooltip roles": {
+      "count": 1
+    },
+    "first hover tooltip role 1": {
+      "text": "Helpful explanation",
+      "visible": true
+    },
+    "first hover surface": {
+      "role": "tooltip",
+      "ariaModal": "(none)",
+      "dataState": "open",
+      "dataSide": "top",
+      "dataAlign": "center",
+      "focus": "(body)"
+    },
+    "first hover positioned element": {
+      "present": true,
+      "position": "fixed",
+      "zIndex": "10"
+    },
+    "pointer on surface": {
+      "open": true
+    },
+    "pointer away at 100 ms": {
+      "open": false
+    },
+    "second hover at 150 ms": {
+      "open": true
+    },
+    "second hover trigger": {
+      "aria-describedby": "(present)",
+      "aria-expanded": "(none)",
+      "aria-haspopup": "(none)",
+      "aria-controls": "(none)",
+      "data-state": "open"
+    },
+    "second hover trigger aria-describedby": {
+      "present": true,
+      "count": 1
+    },
+    "second hover trigger aria-describedby reference 1": {
+      "resolves": true,
+      "role": "tooltip",
+      "text": "Helpful explanation"
+    },
+    "second hover trigger aria-controls": {
+      "present": false,
+      "count": 0
+    },
+    "second hover tooltip roles": {
+      "count": 1
+    },
+    "second hover tooltip role 1": {
+      "text": "Helpful explanation",
+      "visible": true
+    },
+    "second hover surface": {
+      "role": "tooltip",
+      "ariaModal": "(none)",
+      "dataState": "open",
+      "dataSide": "top",
+      "dataAlign": "center",
+      "focus": "(body)"
+    },
+    "second hover positioned element": {
+      "present": true,
+      "position": "fixed",
+      "zIndex": "10"
+    },
+    "trigger press": {
+      "open": false,
+      "focus": "Tooltip target"
+    }
+  },
+  "dark / Tooltip by keyboard": {
+    "first focus at 150 ms": {
+      "open": true
+    },
+    "first focus trigger": {
+      "aria-describedby": "(present)",
+      "aria-expanded": "(none)",
+      "aria-haspopup": "(none)",
+      "aria-controls": "(none)",
+      "data-state": "open"
+    },
+    "first focus trigger aria-describedby": {
+      "present": true,
+      "count": 1
+    },
+    "first focus trigger aria-describedby reference 1": {
+      "resolves": true,
+      "role": "tooltip",
+      "text": "Helpful explanation"
+    },
+    "first focus trigger aria-controls": {
+      "present": false,
+      "count": 0
+    },
+    "first focus tooltip roles": {
+      "count": 1
+    },
+    "first focus tooltip role 1": {
+      "text": "Helpful explanation",
+      "visible": true
+    },
+    "first focus surface": {
+      "role": "tooltip",
+      "ariaModal": "(none)",
+      "dataState": "open",
+      "dataSide": "top",
+      "dataAlign": "center",
+      "focus": "Tooltip target"
+    },
+    "first focus positioned element": {
+      "present": true,
+      "position": "fixed",
+      "zIndex": "10"
+    },
+    "first Escape": {
+      "focus": "Tooltip target",
+      "open": false
+    },
+    "after first Escape trigger": {
+      "aria-describedby": "(none)",
+      "aria-expanded": "(none)",
+      "aria-haspopup": "(none)",
+      "aria-controls": "(none)",
+      "data-state": "closed"
+    },
+    "after first Escape trigger aria-describedby": {
+      "present": false,
+      "count": 0
+    },
+    "after first Escape trigger aria-controls": {
+      "present": false,
+      "count": 0
+    },
+    "second Escape": {
+      "focus": "Tooltip target",
+      "open": false
+    },
+    "return focus at 150 ms": {
+      "open": true,
+      "focus": "Tooltip target"
+    },
+    "return focus trigger": {
+      "aria-describedby": "(present)",
+      "aria-expanded": "(none)",
+      "aria-haspopup": "(none)",
+      "aria-controls": "(none)",
+      "data-state": "open"
+    },
+    "return focus trigger aria-describedby": {
+      "present": true,
+      "count": 1
+    },
+    "return focus trigger aria-describedby reference 1": {
+      "resolves": true,
+      "role": "tooltip",
+      "text": "Helpful explanation"
+    },
+    "return focus trigger aria-controls": {
+      "present": false,
+      "count": 0
+    },
+    "return focus tooltip roles": {
+      "count": 1
+    },
+    "return focus tooltip role 1": {
+      "text": "Helpful explanation",
+      "visible": true
+    },
+    "return focus surface": {
+      "role": "tooltip",
+      "ariaModal": "(none)",
+      "dataState": "open",
+      "dataSide": "top",
+      "dataAlign": "center",
+      "focus": "Tooltip target"
+    },
+    "return focus positioned element": {
+      "present": true,
+      "position": "fixed",
+      "zIndex": "10"
+    },
+    "pointer focus at 150 ms": {
+      "open": false,
+      "focus": "Tooltip target"
+    }
+  },
+  "dark / Tooltip on an aria-disabled trigger": {
+    "keyboard open trigger": {
+      "aria-describedby": "(present)",
+      "aria-expanded": "(none)",
+      "aria-haspopup": "(none)",
+      "aria-controls": "(none)",
+      "data-state": "open"
+    },
+    "keyboard open trigger aria-describedby": {
+      "present": true,
+      "count": 1
+    },
+    "keyboard open trigger aria-describedby reference 1": {
+      "resolves": true,
+      "role": "tooltip",
+      "text": "Helpful explanation"
+    },
+    "keyboard open trigger aria-controls": {
+      "present": false,
+      "count": 0
+    },
+    "keyboard open tooltip roles": {
+      "count": 1
+    },
+    "keyboard open tooltip role 1": {
+      "text": "Helpful explanation",
+      "visible": true
+    },
+    "keyboard open surface": {
+      "role": "tooltip",
+      "ariaModal": "(none)",
+      "dataState": "open",
+      "dataSide": "top",
+      "dataAlign": "center",
+      "focus": "Tooltip target"
+    },
+    "keyboard open positioned element": {
+      "present": true,
+      "position": "fixed",
+      "zIndex": "10"
+    },
+    "disabled trigger press": {
+      "open": true,
+      "focus": "Tooltip target"
+    }
+  },
+  "dark / Popover by pointer": {
+    "pointer open trigger": {
+      "aria-describedby": "(none)",
+      "aria-expanded": "true",
+      "aria-haspopup": "dialog",
+      "aria-controls": "(present)",
+      "data-state": "open"
+    },
+    "pointer open trigger aria-describedby": {
+      "present": false,
+      "count": 0
+    },
+    "pointer open trigger aria-controls": {
+      "present": true,
+      "count": 1
+    },
+    "pointer open trigger aria-controls reference 1": {
+      "resolves": true,
+      "role": "dialog",
+      "text": "Popover contentFirst actionSecond action"
+    },
+    "pointer open tooltip roles": {
+      "count": 0
+    },
+    "pointer open surface": {
+      "role": "dialog",
+      "ariaModal": "(none)",
+      "dataState": "open",
+      "dataSide": "bottom",
+      "dataAlign": "center",
+      "focus": "First action"
+    },
+    "pointer open positioned element": {
+      "present": true,
+      "position": "fixed",
+      "zIndex": "auto"
+    },
+    "Outside while open": {
+      "ariaHidden": "(none)",
+      "inert": false
+    },
+    "Outside body ancestor while open": {
+      "ariaHidden": "(none)",
+      "inert": false
+    },
+    "paragraph press": {
+      "open": true
+    },
+    "outside press": {
+      "counter": "1",
+      "open": false,
+      "focus": "Outside"
+    },
+    "reopened trigger": {
+      "aria-describedby": "(none)",
+      "aria-expanded": "true",
+      "aria-haspopup": "dialog",
+      "aria-controls": "(present)",
+      "data-state": "open"
+    },
+    "reopened trigger aria-describedby": {
+      "present": false,
+      "count": 0
+    },
+    "reopened trigger aria-controls": {
+      "present": true,
+      "count": 1
+    },
+    "reopened trigger aria-controls reference 1": {
+      "resolves": true,
+      "role": "dialog",
+      "text": "Popover contentFirst actionSecond action"
+    },
+    "reopened tooltip roles": {
+      "count": 0
+    },
+    "reopened surface": {
+      "role": "dialog",
+      "ariaModal": "(none)",
+      "dataState": "open",
+      "dataSide": "bottom",
+      "dataAlign": "center",
+      "focus": "First action"
+    },
+    "reopened positioned element": {
+      "present": true,
+      "position": "fixed",
+      "zIndex": "auto"
+    },
+    "trigger toggle": {
+      "open": false,
+      "focus": "Open popover"
+    }
+  },
+  "dark / Popover by keyboard": {
+    "Enter open trigger": {
+      "aria-describedby": "(none)",
+      "aria-expanded": "true",
+      "aria-haspopup": "dialog",
+      "aria-controls": "(present)",
+      "data-state": "open"
+    },
+    "Enter open trigger aria-describedby": {
+      "present": false,
+      "count": 0
+    },
+    "Enter open trigger aria-controls": {
+      "present": true,
+      "count": 1
+    },
+    "Enter open trigger aria-controls reference 1": {
+      "resolves": true,
+      "role": "dialog",
+      "text": "Popover contentFirst actionSecond action"
+    },
+    "Enter open tooltip roles": {
+      "count": 0
+    },
+    "Enter open surface": {
+      "role": "dialog",
+      "ariaModal": "(none)",
+      "dataState": "open",
+      "dataSide": "bottom",
+      "dataAlign": "center",
+      "focus": "First action"
+    },
+    "Enter open positioned element": {
+      "present": true,
+      "position": "fixed",
+      "zIndex": "auto"
+    },
+    "Tab 1": {
+      "focus": "Second action",
+      "open": true,
+      "inside": true
+    },
+    "Tab 2": {
+      "focus": "Outside",
+      "open": false,
+      "inside": false
+    },
+    "Escape opening trigger": {
+      "aria-describedby": "(none)",
+      "aria-expanded": "true",
+      "aria-haspopup": "dialog",
+      "aria-controls": "(present)",
+      "data-state": "open"
+    },
+    "Escape opening trigger aria-describedby": {
+      "present": false,
+      "count": 0
+    },
+    "Escape opening trigger aria-controls": {
+      "present": true,
+      "count": 1
+    },
+    "Escape opening trigger aria-controls reference 1": {
+      "resolves": true,
+      "role": "dialog",
+      "text": "Popover contentFirst actionSecond action"
+    },
+    "Escape opening tooltip roles": {
+      "count": 0
+    },
+    "Escape opening surface": {
+      "role": "dialog",
+      "ariaModal": "(none)",
+      "dataState": "open",
+      "dataSide": "bottom",
+      "dataAlign": "center",
+      "focus": "First action"
+    },
+    "Escape opening positioned element": {
+      "present": true,
+      "position": "fixed",
+      "zIndex": "auto"
+    },
+    "Escape": {
+      "focus": "Open popover",
+      "open": false
+    },
+    "reverse Tab opening trigger": {
+      "aria-describedby": "(none)",
+      "aria-expanded": "true",
+      "aria-haspopup": "dialog",
+      "aria-controls": "(present)",
+      "data-state": "open"
+    },
+    "reverse Tab opening trigger aria-describedby": {
+      "present": false,
+      "count": 0
+    },
+    "reverse Tab opening trigger aria-controls": {
+      "present": true,
+      "count": 1
+    },
+    "reverse Tab opening trigger aria-controls reference 1": {
+      "resolves": true,
+      "role": "dialog",
+      "text": "Popover contentFirst actionSecond action"
+    },
+    "reverse Tab opening tooltip roles": {
+      "count": 0
+    },
+    "reverse Tab opening surface": {
+      "role": "dialog",
+      "ariaModal": "(none)",
+      "dataState": "open",
+      "dataSide": "bottom",
+      "dataAlign": "center",
+      "focus": "First action"
+    },
+    "reverse Tab opening positioned element": {
+      "present": true,
+      "position": "fixed",
+      "zIndex": "auto"
+    },
+    "Shift+Tab": {
+      "focus": "Open popover",
+      "open": true
+    }
+  },
+  "dark / Popover inside a Modal": {
+    "Enter open trigger": {
+      "aria-describedby": "(none)",
+      "aria-expanded": "true",
+      "aria-haspopup": "dialog",
+      "aria-controls": "(present)",
+      "data-state": "open"
+    },
+    "Enter open trigger aria-describedby": {
+      "present": false,
+      "count": 0
+    },
+    "Enter open trigger aria-controls": {
+      "present": true,
+      "count": 1
+    },
+    "Enter open trigger aria-controls reference 1": {
+      "resolves": true,
+      "role": "dialog",
+      "text": "Popover contentFirst actionSecond action"
+    },
+    "Enter open tooltip roles": {
+      "count": 0
+    },
+    "Enter open surface": {
+      "role": "dialog",
+      "ariaModal": "(none)",
+      "dataState": "open",
+      "dataSide": "bottom",
+      "dataAlign": "center",
+      "focus": "First action"
+    },
+    "Enter open positioned element": {
+      "present": true,
+      "position": "fixed",
+      "zIndex": "auto"
+    },
+    "modal after popover opens": {
+      "open": true
+    },
+    "Tab 1": {
+      "focus": "Second action",
+      "open": true,
+      "inside": true,
+      "modalOpen": true
+    },
+    "Tab 2": {
+      "focus": "Outside",
+      "open": false,
+      "inside": false,
+      "modalOpen": true
+    },
+    "Escape opening trigger": {
+      "aria-describedby": "(none)",
+      "aria-expanded": "true",
+      "aria-haspopup": "dialog",
+      "aria-controls": "(present)",
+      "data-state": "open"
+    },
+    "Escape opening trigger aria-describedby": {
+      "present": false,
+      "count": 0
+    },
+    "Escape opening trigger aria-controls": {
+      "present": true,
+      "count": 1
+    },
+    "Escape opening trigger aria-controls reference 1": {
+      "resolves": true,
+      "role": "dialog",
+      "text": "Popover contentFirst actionSecond action"
+    },
+    "Escape opening tooltip roles": {
+      "count": 0
+    },
+    "Escape opening surface": {
+      "role": "dialog",
+      "ariaModal": "(none)",
+      "dataState": "open",
+      "dataSide": "bottom",
+      "dataAlign": "center",
+      "focus": "First action"
+    },
+    "Escape opening positioned element": {
+      "present": true,
+      "position": "fixed",
+      "zIndex": "auto"
+    },
+    "first Escape": {
+      "focus": "Open popover",
+      "popoverOpen": false,
+      "modalOpen": true
+    },
+    "second Escape": {
+      "focus": "Open modal",
+      "popoverOpen": false,
+      "modalOpen": false
+    }
+  },
+  "dark / Canvas click popover": {
+    "Enter open trigger": {
+      "aria-describedby": "(none)",
+      "aria-expanded": "(none)",
+      "aria-haspopup": "(none)",
+      "aria-controls": "(none)",
+      "data-state": "(none)"
+    },
+    "Enter open trigger aria-describedby": {
+      "present": false,
+      "count": 0
+    },
+    "Enter open trigger aria-controls": {
+      "present": false,
+      "count": 0
+    },
+    "Enter open tooltip roles": {
+      "count": 0
+    },
+    "Enter open surface": {
+      "role": "dialog",
+      "ariaModal": "(none)",
+      "dataState": "open",
+      "dataSide": "top",
+      "dataAlign": "center",
+      "focus": "First action"
+    },
+    "Enter open positioned element": {
+      "present": true,
+      "position": "absolute",
+      "zIndex": "auto"
+    },
+    "surface relative to canvas anchor": {
+      "left": -62,
+      "top": -96,
+      "width": 124.5,
+      "height": 88
+    },
+    "Outside while open": {
+      "ariaHidden": "(none)",
+      "inert": false
+    },
+    "Tab 1": {
+      "focus": "Second action",
+      "open": true,
+      "inside": true
+    },
+    "Tab 2": {
+      "focus": "Open canvas popover",
+      "open": false,
+      "inside": false
+    },
+    "Escape opening trigger": {
+      "aria-describedby": "(none)",
+      "aria-expanded": "(none)",
+      "aria-haspopup": "(none)",
+      "aria-controls": "(none)",
+      "data-state": "(none)"
+    },
+    "Escape opening trigger aria-describedby": {
+      "present": false,
+      "count": 0
+    },
+    "Escape opening trigger aria-controls": {
+      "present": false,
+      "count": 0
+    },
+    "Escape opening tooltip roles": {
+      "count": 0
+    },
+    "Escape opening surface": {
+      "role": "dialog",
+      "ariaModal": "(none)",
+      "dataState": "open",
+      "dataSide": "top",
+      "dataAlign": "center",
+      "focus": "First action"
+    },
+    "Escape opening positioned element": {
+      "present": true,
+      "position": "absolute",
+      "zIndex": "auto"
+    },
+    "Escape": {
+      "focus": "Open canvas popover",
+      "open": false
+    },
+    "outside press opening trigger": {
+      "aria-describedby": "(none)",
+      "aria-expanded": "(none)",
+      "aria-haspopup": "(none)",
+      "aria-controls": "(none)",
+      "data-state": "(none)"
+    },
+    "outside press opening trigger aria-describedby": {
+      "present": false,
+      "count": 0
+    },
+    "outside press opening trigger aria-controls": {
+      "present": false,
+      "count": 0
+    },
+    "outside press opening tooltip roles": {
+      "count": 0
+    },
+    "outside press opening surface": {
+      "role": "dialog",
+      "ariaModal": "(none)",
+      "dataState": "open",
+      "dataSide": "top",
+      "dataAlign": "center",
+      "focus": "First action"
+    },
+    "outside press opening positioned element": {
+      "present": true,
+      "position": "absolute",
+      "zIndex": "auto"
+    },
+    "outside press": {
+      "counter": "1",
+      "open": false,
+      "focus": "Outside"
+    }
+  },
+  "dark / Arrow and viewport-edge placement": {
+    "tooltip top": {
+      "side": "top",
+      "arrowX": -0.5,
+      "arrowY": -25,
+      "popupX": -7,
+      "popupY": -32,
+      "gapToViewportRight": 543
+    },
+    "tooltip right": {
+      "side": "right",
+      "arrowX": 65,
+      "arrowY": 2,
+      "popupX": 124,
+      "popupY": 8,
+      "gapToViewportRight": 412
+    },
+    "tooltip bottom": {
+      "side": "bottom",
+      "arrowX": -0.5,
+      "arrowY": 29,
+      "popupX": -7,
+      "popupY": 48,
+      "gapToViewportRight": 543
+    },
+    "tooltip left": {
+      "side": "left",
+      "arrowX": -65,
+      "arrowY": 2,
+      "popupX": -137,
+      "popupY": 8,
+      "gapToViewportRight": 673
+    },
+    "tooltip top at the right edge": {
+      "side": "top",
+      "arrowX": 0,
+      "arrowY": -25,
+      "popupX": -13,
+      "popupY": -32,
+      "gapToViewportRight": 0
+    },
+    "popover": {
+      "side": "bottom",
+      "arrowX": 0,
+      "arrowY": 25,
+      "popupX": -50,
+      "popupY": 44,
+      "gapToViewportRight": 530
+    },
+    "popover at the bottom edge": {
+      "side": "top",
+      "arrowX": 0,
+      "arrowY": -25,
+      "popupX": -50,
+      "popupY": -36,
+      "gapToViewportRight": 530
+    },
+    "popover at the right edge": {
+      "side": "bottom",
+      "arrowX": 0,
+      "arrowY": 25,
+      "popupX": -102,
+      "popupY": 44,
+      "gapToViewportRight": 2
+    }
+  }
+}

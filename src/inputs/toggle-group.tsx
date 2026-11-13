@@ -61,7 +61,7 @@ export function ToggleGroup({
   // them at once as a pill clipping the label it was supposed to sit behind:
   //
   // 1. The item was located through a ref callback on the item, which `Tooltip`
-  //    wraps (`Trigger asChild`). Each item is re-queried by
+  //    wraps (Tooltip's trigger composition). Each item is re-queried by
   //    `data-toggle-item` instead, so a trigger that re-renders and swaps its
   //    DOM node can't leave us measuring a detached element.
   // 2. Measuring once on mount plus window `resize` missed the webfont swap,

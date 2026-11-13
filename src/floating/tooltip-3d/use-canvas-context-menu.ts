@@ -1,3 +1,4 @@
+import { useShallow } from "zustand/react/shallow";
 import { useRef, useEffect, useId, useCallback, createElement } from "react";
 import type { ThreeEvent } from "@react-three/fiber";
 import type { ReactNode } from "react";
@@ -70,7 +71,14 @@ export function useCanvasContextMenu(
   const triggerId = `${id}-trigger`;
   const rootHost = useRootTooltipHost();
 
-  const { registerAnchor, unregisterAnchor, showTooltip, dismissOverlay } = useTooltipStore();
+  const { registerAnchor, unregisterAnchor, showTooltip, dismissOverlay } = useTooltipStore(
+    useShallow((state) => ({
+      registerAnchor: state.registerAnchor,
+      unregisterAnchor: state.unregisterAnchor,
+      showTooltip: state.showTooltip,
+      dismissOverlay: state.dismissOverlay,
+    })),
+  );
 
   // Store the latest context so the lazy content function reads it
   const contextRef = useRef<CanvasContextMenuContext>({

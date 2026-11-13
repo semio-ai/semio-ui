@@ -7,14 +7,14 @@ import { ToggleGroup } from "./toggle-group";
 
 // The highlight pill's geometry is the thing under test, and every way it broke
 // was layout-and-timing: a ref that resolved to the wrong node through
-// `Tooltip`'s `asChild` trigger, a measurement taken before the webfont swapped,
+// Tooltip's trigger composition, a measurement taken before the webfont swapped,
 // and a tween that could be interrupted mid-flight. None of that reproduces in
 // jsdom — a real engine with real text metrics and a real `ResizeObserver` is
 // the only place the pill can land in the wrong place at all. Hence browser mode.
 //
 // Checked by reintroducing each failure individually: measuring only on mount
 // plus a window `resize` fails the re-measure test, and taking width off the
-// declared style fails all four. The `asChild` ref does NOT fail here — putting
+// declared style fails all four. The composed trigger ref does NOT fail here — putting
 // the old ref-collection mechanism back leaves these tests green, because
 // nothing in a bare render triggers the trigger re-render that detached the
 // node in the app. So these assert the outcome (the pill's box coincides with
@@ -140,7 +140,7 @@ test("pill covers the active item, whose trigger is wrapped by Tooltip", async (
   useLayoutShim();
   await render(<Harness />);
 
-  // Every item is inside `Tooltip` → Radix `Trigger asChild`, which is what made
+  // Every item is inside Tooltip's trigger composition, which is what makes
   // a collected ref unreliable. Waiting rather than asserting immediately allows
   // for the post-font-load re-measure; it must converge on the item's box.
   await vi.waitFor(() => expectPillOver("a"));

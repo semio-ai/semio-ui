@@ -222,6 +222,8 @@ export const useTooltipStore = create<TooltipStore>()(
 
       // Update anchor content
       updateAnchorContent: (id: string, content: ReactNode | (() => ReactNode)) => {
+        // The same content is not a change, and writing it would re-render every subscriber.
+        if (Object.is(get().anchors.get(id)?.content, content)) return;
         set((state) => {
           const anchors = new Map(state.anchors);
           const anchor = anchors.get(id);

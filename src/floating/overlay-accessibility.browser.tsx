@@ -8,6 +8,7 @@ import {
   OverlayAccessibilityFixture,
   OverlayEntry,
   MENU_ENTRIES,
+  POPOVER_ENTRIES,
   OVERLAY_SELECTION_CASES,
   MenuSurroundings,
   MenuUsabilityFixture,
@@ -46,12 +47,13 @@ async function openMenu(
     await expect.element(submenu).toHaveAttribute("aria-expanded", "true");
     await userEvent.keyboard("{ArrowRight}");
   }
-  const role = entry === OverlayEntry.Popover ? "button" : "menuitem";
+  const role = POPOVER_ENTRIES.includes(entry) ? "button" : "menuitem";
   const item = page.getByRole(role, { name: "New entity", exact: true });
   await expect.element(item).toBeVisible();
   await afterOpen?.();
   if (select === "keyboard") {
-    await item.hover();
+    if (POPOVER_ENTRIES.includes(entry)) item.element().focus();
+    else await item.hover();
     await expect.element(item).toHaveFocus();
     await userEvent.keyboard("{Enter}");
   } else if (select) await item.click();
@@ -160,7 +162,8 @@ for (const surface of Object.values(DialogSurface)) {
       await expect.element(page.getByRole("button", { name: "Scene row" })).not.toBeInTheDocument();
       await expect.poll(() => container.getAttribute("aria-hidden")).toBe("true");
       if (method === "keyboard") {
-        await item.hover();
+        if (POPOVER_ENTRIES.includes(entry)) item.element().focus();
+        else await item.hover();
         await expect.element(item).toHaveFocus();
         await userEvent.keyboard("{Enter}");
       } else await item.click();
@@ -311,6 +314,59 @@ for (const surroundings of Object.values(MenuSurroundings)) {
       // Chromium still hit-tests its centre and sends the native pointerdown outside.
       await userEvent.click(outsideElement, { force: true });
       await expect.element(page.getByRole("menu")).not.toBeInTheDocument();
+    },
+  );
+}
+
+for (const surroundings of Object.values(MenuSurroundings)) {
+  test.each(POPOVER_ENTRIES)(
+    `${surroundings}: %s supports button actions, free Tab navigation, Escape and an outside action`,
+    async (entry) => {
+      await render(<MenuUsabilityFixture entry={entry} surroundings={surroundings} />);
+      if (surroundings === MenuSurroundings.Sidebar)
+        await page.getByRole("tab", { name: "Menu tab", exact: true }).click();
+      let action = await openMenu(entry, false);
+      await expect.element(page.getByRole("menu")).not.toBeInTheDocument();
+      await expect.element(page.getByRole("menuitem")).not.toBeInTheDocument();
+      await action.click();
+      await page.getByRole("button", { name: "Keep popover open", exact: true }).click();
+      const admin = page.getByRole("button", { name: "Choose Admin", exact: true });
+      admin.element().focus();
+      await userEvent.keyboard("{Enter}");
+      await expect.element(page.getByRole("status", { name: "Selections" })).toHaveTextContent("1");
+      await expect.element(page.getByRole("status", { name: "Kept open" })).toHaveTextContent("1");
+      await expect
+        .element(page.getByRole("status", { name: "Chosen role" }))
+        .toHaveTextContent("admin");
+      await userEvent.keyboard("{Tab}");
+      await expect.element(action).not.toBeInTheDocument();
+
+      action = await openMenu(entry, false);
+      const reversePopup = action.element().closest('[role="dialog"]')!;
+      action.element().focus();
+      await userEvent.keyboard("{Shift>}{Tab}{/Shift}");
+      await expect.poll(() => reversePopup.contains(document.activeElement)).toBe(false);
+      // Base UI may hand reverse Tab back to the trigger before leaving the
+      // trigger/popup focus boundary. Dismiss that open surface before reopening.
+      if (reversePopup.getAttribute("data-state") === "open") await userEvent.keyboard("{Escape}");
+      await expect.element(action).not.toBeInTheDocument();
+
+      action = await openMenu(entry, false);
+      action.element().focus();
+      await userEvent.keyboard("{Escape}");
+      await expect.element(action).not.toBeInTheDocument();
+      if (surroundings !== MenuSurroundings.Listing)
+        await expect
+          .element(page.getByRole("dialog", { name: "Menu dialog", exact: true }))
+          .toBeVisible();
+
+      action = await openMenu(entry, false);
+      const outside = page.getByRole("button", { name: "Outside menu", exact: true });
+      await outside.click();
+      await expect.element(action).not.toBeInTheDocument();
+      await expect
+        .element(page.getByRole("status", { name: "Outside presses" }))
+        .toHaveTextContent("1");
     },
   );
 }

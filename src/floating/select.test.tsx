@@ -117,7 +117,7 @@ test.each(["icons", "labels", "both"] as const)(
       </Tooltip>,
     );
     const trigger = screen.getByRole("button", { name: "Role: Viewer" });
-    fireEvent.focus(trigger);
+    act(() => trigger.focus());
     await waitFor(() => expect(screen.getByRole("tooltip").textContent).toBe("Current role"));
   },
 );
@@ -131,15 +131,17 @@ test("a wrapping explanation stays open when the pointer enters its content", as
     </Tooltip>,
   );
   const trigger = screen.getByTestId("rung-explanation");
-  fireEvent.pointerMove(trigger, { pointerType: "mouse" });
+  fireEvent.pointerEnter(trigger, { pointerType: "mouse" });
+  fireEvent.mouseEnter(trigger);
+  fireEvent.mouseMove(trigger);
   await waitFor(() => expect(document.querySelector(".tooltip-content")).not.toBeNull());
   const content = document.querySelector<HTMLElement>(".tooltip-content")!;
-  // Deliver both edges of the hover transition to the real Radix primitive.
+  // Deliver both edges of the hover transition to the Base UI primitive.
   // Browser coverage also checks the pointer's path and the popup's hit testing.
-  fireEvent.pointerLeave(trigger, { pointerType: "mouse", relatedTarget: content });
-  fireEvent.pointerMove(content, { pointerType: "mouse" });
+  fireEvent.mouseLeave(trigger, { relatedTarget: content });
+  fireEvent.mouseEnter(content, { relatedTarget: trigger });
   expect(content.isConnected).toBe(true);
-  expect(trigger.getAttribute("data-state")).toMatch(/^(instant|delayed)-open$/);
+  expect(trigger.hasAttribute("data-popup-open")).toBe(true);
   fireEvent.keyDown(document, { key: "Escape" });
   await waitFor(() => expect(trigger.getAttribute("data-state")).toBe("closed"));
 });
@@ -166,10 +168,7 @@ for (const visuals of ["icons", "labels", "both"] as const) {
       const wrapper = screen.getByTestId("keyboard-explanation");
       const waitOptions = { timeout: 1_000 };
       act(() => trigger.focus());
-      await waitFor(
-        () => expect(wrapper.getAttribute("data-state")).toBe("instant-open"),
-        waitOptions,
-      );
+      await waitFor(() => expect(wrapper.getAttribute("data-state")).toBe("open"), waitOptions);
       fireEvent.keyDown(trigger, { key: "Escape" });
       await waitFor(
         () => expect(document.querySelector(".tooltip-content")).toBeNull(),
@@ -192,10 +191,7 @@ for (const visuals of ["icons", "labels", "both"] as const) {
       expect(screen.getByRole("button", { name: /^Role: Viewer$/ })).toBe(trigger);
       expect(trigger.getAttribute("aria-expanded")).toBe("false");
       // Restoring keyboard focus opens the explanation, which must remain dismissible.
-      await waitFor(
-        () => expect(wrapper.getAttribute("data-state")).toBe("instant-open"),
-        waitOptions,
-      );
+      await waitFor(() => expect(wrapper.getAttribute("data-state")).toBe("open"), waitOptions);
       fireEvent.keyDown(trigger, { key: "Escape" });
       await waitFor(
         () => expect(document.querySelector(".tooltip-content")).toBeNull(),

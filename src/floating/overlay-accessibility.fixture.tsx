@@ -98,14 +98,23 @@ export function OverlayLauncher({
         </ContextMenuOverlay>
       );
     case OverlayEntry.CanvasMenu:
+      return <CanvasEntry popover={false}>{item}</CanvasEntry>;
     case OverlayEntry.CanvasPopover:
-      return <CanvasEntry popover={entry === OverlayEntry.CanvasPopover}>{item}</CanvasEntry>;
+      return (
+        <CanvasEntry popover>
+          <button type="button" onClick={onLaunch}>
+            New entity
+          </button>
+          {extraItems}
+        </CanvasEntry>
+      );
     case OverlayEntry.Popover:
       return (
         <PopoverOverlay trigger={<button type="button">Open menu</button>}>
           <button type="button" onClick={onLaunch}>
             New entity
           </button>
+          {extraItems}
         </PopoverOverlay>
       );
   }
@@ -220,8 +229,10 @@ export enum MenuSurroundings {
   Listing = "ListGrid",
 }
 
+export const POPOVER_ENTRIES = [OverlayEntry.Popover, OverlayEntry.CanvasPopover];
+
 export const MENU_ENTRIES = Object.values(OverlayEntry).filter(
-  (entry) => entry !== OverlayEntry.Popover,
+  (entry) => !POPOVER_ENTRIES.includes(entry),
 );
 
 export function MenuUsabilityFixture({
@@ -234,25 +245,37 @@ export function MenuUsabilityFixture({
   const [open, setOpen] = useState(true);
   const [selected, setSelected] = useState(0);
   const [kept, setKept] = useState(0);
+  const [outsidePresses, setOutsidePresses] = useState(0);
   const [role, setRole] = useState("editor");
   const launcher = (
     <OverlayLauncher
       entry={entry}
       onLaunch={() => setSelected((count) => count + 1)}
       extraItems={
-        <>
-          <NestedItem closeOnSelect={false} onClick={() => setKept((count) => count + 1)}>
-            Keep menu open
-          </NestedItem>
-          <NestedRadio
-            value={role}
-            onChange={setRole}
-            options={[
-              { value: "editor", label: "Editor" },
-              { value: "admin", label: "Admin" },
-            ]}
-          />
-        </>
+        POPOVER_ENTRIES.includes(entry) ? (
+          <>
+            <button type="button" onClick={() => setKept((count) => count + 1)}>
+              Keep popover open
+            </button>
+            <button type="button" onClick={() => setRole("admin")}>
+              Choose Admin
+            </button>
+          </>
+        ) : (
+          <>
+            <NestedItem closeOnSelect={false} onClick={() => setKept((count) => count + 1)}>
+              Keep menu open
+            </NestedItem>
+            <NestedRadio
+              value={role}
+              onChange={setRole}
+              options={[
+                { value: "editor", label: "Editor" },
+                { value: "admin", label: "Admin" },
+              ]}
+            />
+          </>
+        )
       }
     />
   );
@@ -263,7 +286,12 @@ export function MenuUsabilityFixture({
       <output aria-label="Kept open">{kept}</output>
       <output aria-label="Chosen role">{role}</output>
       {/* Keep the outside press below the root menu, including its radio group. */}
-      <button type="button">Outside menu</button>
+      <button type="button" onClick={() => setOutsidePresses((count) => count + 1)}>
+        Outside menu
+      </button>
+      {POPOVER_ENTRIES.includes(entry) && (
+        <output aria-label="Outside presses">{outsidePresses}</output>
+      )}
     </div>
   );
   if (surroundings === MenuSurroundings.Modal)

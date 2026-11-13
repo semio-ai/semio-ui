@@ -2128,7 +2128,7 @@
     will-change: transform, opacity;
     animation-duration: 300ms;
     animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
-    transform-origin: var(--radix-tooltip-content-transform-origin);
+    transform-origin: var(--transform-origin);
   }
 
   .tooltip-content[data-side="top"] {
@@ -2162,7 +2162,7 @@
     will-change: transform, opacity;
     animation-duration: 300ms;
     animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
-    transform-origin: var(--radix-popover-content-transform-origin);
+    transform-origin: var(--transform-origin);
   }
 
   .popover-content[data-state="open"][data-side="top"] {
