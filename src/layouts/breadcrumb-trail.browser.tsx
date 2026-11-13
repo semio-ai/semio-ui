@@ -521,3 +521,31 @@ test("editable sibling controls can switch and rename without search enabled", a
   await userEvent.keyboard("{Enter}");
   expect(rename).toHaveBeenCalledExactlyOnceWith("Renamed without search");
 });
+
+/**
+ * The current crumb is a control as well as a name, so a short name keeps the target
+ * a long one gets (`w-52`) rather than shrinking to the text. That holds for the
+ * switcher's searchable and plain-menu forms alike; a crumb that reserves its own
+ * width with `labelWidth` takes that width instead.
+ */
+test.each([
+  ["searchable", true],
+  ["menu", false],
+])("a short current switcher keeps a 208px target, %s form", async (_, searchable) => {
+  const current = item({ label: "Home" });
+  current.switcher!.searchable = searchable;
+  await render(<BreadcrumbTrail items={[current]} />);
+  const crumb = () => document.querySelector<HTMLElement>('[aria-current="page"]')!;
+  await expect.poll(crumb).not.toBeNull();
+  expect(crumb().getBoundingClientRect().width).toBe(208);
+});
+
+test("a current switcher with a reserved label width keeps that width, not 208px", async () => {
+  const current = item({ label: "Home", labelWidth: 112 });
+  await render(<BreadcrumbTrail items={[current]} />);
+  const crumb = () => document.querySelector<HTMLElement>('[aria-current="page"]')!;
+  await expect.poll(crumb).not.toBeNull();
+  const label = crumb().querySelector<HTMLElement>("button, [role=combobox]")!;
+  expect(label.getBoundingClientRect().width).toBe(112);
+  expect(crumb().getBoundingClientRect().width).toBeLessThan(208);
+});

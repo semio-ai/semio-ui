@@ -17,6 +17,12 @@ export interface BreadcrumbSibling {
   label: string;
 }
 
+/** A labelled set of options listed after a switcher's own, under a separator. */
+export interface BreadcrumbOptionGroup {
+  label: string;
+  options: BreadcrumbSibling[];
+}
+
 export interface BreadcrumbTrailItem {
   id: string;
   label: string;
@@ -35,6 +41,15 @@ export interface BreadcrumbTrailItem {
     error?: string;
     emptyText?: string;
     browse?: { label: string; icon?: IconValue; onSelect: () => void };
+    /**
+     * Further destinations of a different kind, each under its own label. They share
+     * {@link value} and {@link onSelect} with the main options, so the current page is
+     * marked wherever it is listed.
+     *
+     * Menu form only: a `searchable` or renameable switcher filters one flat list,
+     * and does not render these.
+     */
+    groups?: BreadcrumbOptionGroup[];
   };
   /** Enables double-click, F2 and the menu's Rename action. Enter/blur commit; Escape cancels. */
   onRename?: (name: string) => void | Promise<void>;
@@ -260,7 +275,11 @@ function BreadcrumbLevel({
       className={clsx(
         size,
         "sized-text flex min-w-0 items-center rounded-xs",
-        editable && item.labelWidth === undefined && "w-52 max-w-full",
+        // The current page's crumb is a control as well as a name, so a short name
+        // keeps a target the size of a long one's rather than shrinking to fit it.
+        (editable || (current && switcher && !item.node)) &&
+          item.labelWidth === undefined &&
+          "w-52 max-w-full",
         switcher && (!current || splitSwitcher) && "gap-0.5",
       )}
       aria-current={current ? "page" : undefined}
@@ -332,6 +351,24 @@ function BreadcrumbLevel({
                 </>
               )}
             </div>
+            {switcher.groups
+              ?.filter((group) => group.options.length > 0)
+              .map((group) => (
+                <div key={group.label}>
+                  <NestedSeparator />
+                  <div className="px-2 pt-1 pb-px">
+                    <NestedLabel>{group.label}</NestedLabel>
+                  </div>
+                  <NestedRadio
+                    value={switcher.value}
+                    options={group.options}
+                    onChange={(value) => {
+                      setOpen(false);
+                      switcher.onSelect(value);
+                    }}
+                  />
+                </div>
+              ))}
             {item.onRename && item.showRenameAction !== false && (
               <NestedItem left={item.renameIcon} onClick={beginRename}>
                 Rename

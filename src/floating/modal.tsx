@@ -58,6 +58,12 @@ export interface ModalProps {
    *  first kind, and widening them all would be a worse fit for each.
    */
   size?: "fit" | "medium" | "wide";
+  /**
+   * Lets the modal's height follow its content on desktop, below the usual
+   * 18rem floor. For a dialog holding one short field, where the floor would
+   * leave most of the body empty. Ignored by `size="wide"`, whose height is set.
+   */
+  fitHeight?: boolean;
   /** Custom container for the dialog portal. Defaults to `document.body`. */
   portalContainer?: HTMLElement | null;
 }
@@ -120,6 +126,7 @@ export function Modal({
   variant,
   closeOnSubmitClick = true,
   size = "fit",
+  fitHeight = false,
   portalContainer,
 }: ModalProps) {
   const popupRef = useRef<HTMLDivElement>(null);
@@ -199,7 +206,11 @@ export function Modal({
                 variant,
                 "h-[calc(100dvh-4px)] w-[calc(100vw-4px)]",
                 "desktop:max-w-[calc(100vw-4px)] desktop:max-h-[calc(100dvh-4px)]",
-                "desktop:min-h-72",
+                // The floor is capped at the window's height, because a minimum
+                // outranks the maximum above: in a short desktop-width window an
+                // uncapped 18rem floor runs past the window's bottom edge, and a wide
+                // modal's height would differ with and without `fitHeight`.
+                !fitHeight && "desktop:min-h-[min(18rem,calc(100dvh-4px))]",
                 // A DEFINITE height for the wide form, not `h-fit`. `fit-content`
                 // leaves the popup's height indefinite during layout, so every
                 // percentage and flex basis inside it resolves to `auto` and the

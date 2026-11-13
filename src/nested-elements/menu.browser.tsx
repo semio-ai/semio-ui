@@ -4,6 +4,44 @@ import { render } from "vitest-browser-react";
 import "../test-stylesheet";
 import { Icon } from "../icons/registry";
 import { NestedChild } from "./configured-render";
+import { NestedRadio } from "./radio";
+
+test("a radio option too long for its menu stays on one line, cut short, at row height", async () => {
+  const long = "Robotics Collective of Greater Portland · @robotics-collective-pdx";
+  await render(
+    <DropdownMenu.Root open>
+      <DropdownMenu.Trigger>Open</DropdownMenu.Trigger>
+      <DropdownMenu.Content>
+        <div style={{ width: 220 }}>
+          <NestedRadio
+            value="short"
+            options={[
+              { value: "short", label: "Semio" },
+              { value: "long", label: long },
+            ]}
+          />
+        </div>
+      </DropdownMenu.Content>
+    </DropdownMenu.Root>,
+  );
+  const rows = Array.from(document.querySelectorAll<HTMLElement>('[role="menuitemradio"]'));
+  const [short, longRow] = rows.map((row) => row.getBoundingClientRect());
+  // The row's height is fixed either way, so it cannot show a wrap: the text's own
+  // line boxes can. A wrapped label lays out a second line below the first.
+  expect(longRow.height).toBe(short.height);
+  const walker = document.createTreeWalker(rows[1], NodeFilter.SHOW_TEXT);
+  let text: Node | null = walker.nextNode();
+  while (text && text.textContent !== long) text = walker.nextNode();
+  expect(text?.textContent).toBe(long);
+  const range = document.createRange();
+  range.selectNodeContents(text!);
+  const lines = new Set(Array.from(range.getClientRects(), (rect) => Math.round(rect.top)));
+  expect(lines.size).toBe(1);
+  // Cut short inside the row rather than running past the menu's edge.
+  const label = text!.parentElement!;
+  expect(label.scrollWidth).toBeGreaterThan(label.clientWidth);
+  expect(label.getBoundingClientRect().right).toBeLessThanOrEqual(longRow.right);
+});
 
 // A fixed-size square, as a consumer's status indicator is. Sized inline: the
 // package's stylesheet carries only the utilities its own components name.
