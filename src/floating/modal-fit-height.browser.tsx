@@ -69,3 +69,20 @@ test("fitHeight leaves a wide modal's height", async () => {
   expect(wide).toBeGreaterThan(FLOOR);
   expect(fitted).toBe(wide);
 });
+
+/**
+ * In a desktop-width window too short for the 18rem floor, the floor gives way to the
+ * window: every modal stays inside it, and a wide one is the same height with or
+ * without `fitHeight`.
+ */
+test("in a short desktop window the floor stops at the window's height", async () => {
+  await page.viewport(1280, 280);
+  const window = 280 - 4;
+  const floored = await popupHeight({});
+  const wide = await popupHeight({ size: "wide" });
+  const wideFitted = await popupHeight({ size: "wide", fitHeight: true });
+
+  expect(floored).toBe(window);
+  expect(wide).toBe(window);
+  expect(wideFitted).toBe(wide);
+});
