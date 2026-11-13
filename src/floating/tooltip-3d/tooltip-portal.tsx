@@ -118,11 +118,14 @@ function CanvasPopoverInstance({ anchor, position, invocation }: OverlayInstance
             // A non-modal popover hands Tab on to whatever follows its trigger, and this one
             // has no trigger: the canvas point it is anchored to is not an element. Tab past
             // either end closes it instead, and closing returns focus to where it was before
-            // the popover opened, so the next Tab continues from there.
+            // the popover opened, so the next Tab continues from there. A control that
+            // handled Tab itself (an editor indenting, a composite moving focus inside)
+            // prevented its default, so focus is not leaving and the popover stays.
             onKeyDown={(event) => {
               keepMenuNavigationKeys(event);
               if (
                 event.key !== "Tab" ||
+                event.defaultPrevented ||
                 !tabLeaves(event.currentTarget, event.target, event.shiftKey)
               )
                 return;

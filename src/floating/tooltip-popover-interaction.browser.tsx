@@ -457,3 +457,30 @@ test("Tab reaches a contenteditable editor in the canvas popover before leaving 
   await expect.poll(surface).toBeNull();
   await expect.element(button("Open surface")).toHaveFocus();
 });
+
+test("Tab that the last control handles itself leaves the canvas popover open", async () => {
+  await render(
+    <SurfaceFixture kind={Surface.Canvas}>
+      <button type="button">First</button>
+      {/* An editor that indents on Tab: it prevents the default, so focus stays in it. */}
+      <div
+        contentEditable
+        suppressContentEditableWarning
+        role="textbox"
+        aria-label="Code"
+        tabIndex={0}
+        style={{ minHeight: 20, minWidth: 80 }}
+        onKeyDown={(event) => {
+          if (event.key === "Tab") event.preventDefault();
+        }}
+      />
+    </SurfaceFixture>,
+  );
+  await openSurface();
+  await userEvent.keyboard("{Tab}");
+  await expect.element(page.getByRole("textbox", { name: "Code" })).toHaveFocus();
+  await userEvent.keyboard("{Tab}");
+  await settle();
+  expect(surface()).not.toBeNull();
+  await expect.element(page.getByRole("textbox", { name: "Code" })).toHaveFocus();
+});
