@@ -4,6 +4,7 @@ import type * as THREE from "three";
 import { Canvas } from "@react-three/fiber";
 import { Box, OrbitControls, Grid } from "@react-three/drei";
 import {
+  Button,
   TooltipProvider,
   TooltipHost,
   useTooltipAnchor,
@@ -954,6 +955,102 @@ export const NestedTooltipHosts = {
             </div>
           </div>
         </div>
+      </div>
+    </TooltipProvider>
+  ),
+};
+
+// Click mode: an interactive popover pinned at the mesh, not a hover tooltip.
+function ClickPopoverContent({ title }: { title: string }) {
+  return (
+    <div className="flex max-w-xs flex-col gap-2 p-3">
+      <h4 className="text-sm font-semibold">{title}</h4>
+      <p className="text-xs">
+        Tab moves between the actions. Tab past either end, Escape, or a press outside closes the
+        popover.
+      </p>
+      <div className="flex gap-2">
+        <Button>First action</Button>
+        <Button>Second action</Button>
+      </div>
+    </div>
+  );
+}
+
+function ClickMesh({
+  position,
+  color,
+  tooltipId,
+  title,
+}: {
+  position: [number, number, number];
+  color: string;
+  tooltipId: string;
+  title: string;
+}) {
+  // Inline content, as most callers write it: a new element on every render.
+  const { ref, onClick } = useTooltipAnchor({
+    id: tooltipId,
+    content: <ClickPopoverContent title={title} />,
+    mode: "click",
+    side: "top",
+    offset: 8,
+  });
+  return (
+    <Box
+      ref={ref as unknown as RefObject<THREE.Mesh | null>}
+      args={[1, 1, 1]}
+      position={position}
+      onClick={(event) => {
+        event.stopPropagation();
+        onClick?.(event);
+      }}
+    >
+      <meshStandardMaterial color={color} />
+    </Box>
+  );
+}
+
+function ClickPopoverPanel() {
+  const { showTooltip } = useTooltipControls();
+  const [outsidePresses, setOutsidePresses] = useState(0);
+  return (
+    <div className="absolute top-4 left-4 z-10 flex w-72 flex-col gap-2 rounded-lg bg-gray-100 p-3 text-sm dark:bg-gray-800">
+      <p>Click a cube to open its popover, or open one from the keyboard:</p>
+      <Button onClick={() => showTooltip("click-blue", { triggerId: "click-blue-click" })}>
+        Open the blue cube&apos;s popover
+      </Button>
+      <Button onClick={() => setOutsidePresses((count) => count + 1)}>Outside</Button>
+      <output aria-label="Outside presses">Outside presses: {outsidePresses}</output>
+    </div>
+  );
+}
+
+export const ClickPopover = {
+  render: () => (
+    <TooltipProvider>
+      <div className="relative h-full w-full">
+        <ClickPopoverPanel />
+        <TooltipHost className="h-full w-full">
+          <Canvas camera={{ position: [0, 5, 10], fov: 50 }}>
+            <ambientLight intensity={0.8} />
+            <directionalLight position={[5, 10, 5]} intensity={1.2} />
+            <OrbitControls />
+            <Grid infiniteGrid rotation={[Math.PI / 2, 0, 0]} />
+            <ClickMesh
+              position={[-2, 0, 0]}
+              color="orange"
+              tooltipId="click-orange"
+              title="Orange cube"
+            />
+            <ClickMesh
+              position={[2, 0, 0]}
+              color="royalblue"
+              tooltipId="click-blue"
+              title="Blue cube"
+            />
+          </Canvas>
+        </TooltipHost>
       </div>
     </TooltipProvider>
   ),

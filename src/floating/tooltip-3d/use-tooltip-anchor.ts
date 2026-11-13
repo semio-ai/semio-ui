@@ -1,4 +1,5 @@
 import { useRef, useEffect, useId, useCallback } from "react";
+import { useShallow } from "zustand/react/shallow";
 import { useFrame, type ThreeEvent } from "@react-three/fiber";
 import type { ReactNode } from "react";
 import * as THREE from "three";
@@ -71,6 +72,9 @@ export function useTooltipAnchor(options: UseTooltipAnchorOptions): UseTooltipAn
   const id = options.id || autoId;
   const ref = useRef<THREE.Object3D>(null);
 
+  // Actions only. A component holding an anchor must not re-render on every store change:
+  // its `content` is often inline JSX, new on each render, and the effect below writes it
+  // back to the store, so a whole-store subscription renders, writes and renders again.
   const {
     registerAnchor,
     unregisterAnchor,
@@ -78,7 +82,18 @@ export function useTooltipAnchor(options: UseTooltipAnchorOptions): UseTooltipAn
     updateAnchorContent,
     updateCursorPosition,
     logCoordinateDebug,
-  } = useTooltipStore();
+    toggleTooltip,
+  } = useTooltipStore(
+    useShallow((state) => ({
+      registerAnchor: state.registerAnchor,
+      unregisterAnchor: state.unregisterAnchor,
+      updateAnchorPosition: state.updateAnchorPosition,
+      updateAnchorContent: state.updateAnchorContent,
+      updateCursorPosition: state.updateCursorPosition,
+      logCoordinateDebug: state.logCoordinateDebug,
+      toggleTooltip: state.toggleTooltip,
+    })),
+  );
 
   // Get both immediate and root contexts
   // Immediate context for canvas-relative calculations
@@ -86,11 +101,10 @@ export function useTooltipAnchor(options: UseTooltipAnchorOptions): UseTooltipAn
   const immediateHost = useTooltipHost();
   const rootHost = useRootTooltipHost();
 
-  // Remove complex memoization - rely on store-level safety net to prevent infinite loops
   const memoizedContent = options.content;
 
   const mode = options.mode ?? "hover";
-  const interactive = options.interactive ?? (mode !== "hover");
+  const interactive = options.interactive ?? mode !== "hover";
 
   // Register anchor on mount
   useEffect(() => {
@@ -321,13 +335,16 @@ export function useTooltipAnchor(options: UseTooltipAnchorOptions): UseTooltipAn
   // Click handler for mode === 'click': toggles visibility.
   // If this anchor belongs to a group, dismiss other group members first
   // so only one overlay per group is visible at a time.
-  const store = useTooltipStore();
   const clickTriggerId = `${id}-click`;
   const handleClick = useCallback(
     (event: ThreeEvent<MouseEvent>) => {
       if (options.group) {
         // Read current state imperatively — store Maps are stale if captured in closure
-        const { anchors: currentAnchors, visibility: currentVis, dismissOverlay: dismiss } = useTooltipStore.getState();
+        const {
+          anchors: currentAnchors,
+          visibility: currentVis,
+          dismissOverlay: dismiss,
+        } = useTooltipStore.getState();
         currentVis.forEach((vis, anchorId) => {
           if (anchorId !== id && vis.visible) {
             const other = currentAnchors.get(anchorId);
@@ -350,9 +367,17 @@ export function useTooltipAnchor(options: UseTooltipAnchorOptions): UseTooltipAn
         }
       }
 
-      store.toggleTooltip(id, clickTriggerId);
+      toggleTooltip(id, clickTriggerId);
     },
-    [id, clickTriggerId, options.group, options.axis, store, rootHost, updateCursorPosition],
+    [
+      id,
+      clickTriggerId,
+      options.group,
+      options.axis,
+      toggleTooltip,
+      rootHost,
+      updateCursorPosition,
+    ],
   );
 
   // Build result based on mode and axis tracking

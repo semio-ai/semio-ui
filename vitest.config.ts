@@ -72,11 +72,13 @@ export default defineConfig({
       "@base-ui/react/tooltip",
       "@base-ui/react/toggle",
       "@base-ui/react/toggle-group",
+      "@react-three/fiber",
       "@solar-icons/react-perf/Bold",
       "@solar-icons/react-perf/LineDuotone",
       "@solar-icons/react-perf/Linear",
       "@tabler/icons-react",
       "radix-ui/internal",
+      "three",
     ],
   },
   test: {

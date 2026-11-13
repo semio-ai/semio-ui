@@ -1,3 +1,4 @@
+import { useShallow } from "zustand/react/shallow";
 import { useId, useCallback, useEffect, useRef } from "react";
 import { useTooltipStore } from "./store";
 
@@ -71,7 +72,13 @@ export function useTooltipTrigger(
   const hideTimeoutRef = useRef<number | null>(null);
   const { showDelay = 16 } = options;
 
-  const { showTooltip, hideTooltip, toggleTooltip } = useTooltipStore();
+  const { showTooltip, hideTooltip, toggleTooltip } = useTooltipStore(
+    useShallow((state) => ({
+      showTooltip: state.showTooltip,
+      hideTooltip: state.hideTooltip,
+      toggleTooltip: state.toggleTooltip,
+    })),
+  );
 
   // Clear any pending timeouts
   const clearTimeouts = useCallback(() => {
