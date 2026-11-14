@@ -1,5 +1,27 @@
 # @semio/ui
 
+## 0.7.0
+
+### Minor Changes
+
+- b7b9618: The Accordion follows the keyboard behaviour of the [APG accordion pattern](https://www.w3.org/WAI/ARIA/apg/patterns/accordion/): ArrowUp, ArrowDown, Home and End no longer move focus between Accordion headers, so a keyboard user can scroll the page to read an opened panel. Tab and Shift+Tab move between headers, and Enter and Space open and close a section.
+
+  Those four keys, pressed on a header, now reach ancestors and document listeners, where they were stopped at the header before. A shortcut an application binds to them at the document level now fires while an Accordion header has focus.
+
+  `@semio/ui` requires `@base-ui/react` 1.9 or later, which provides this behaviour. Releases before 1.6 moved focus with the arrow keys, so the earlier range let an install behave either way. An application that also depends on `@base-ui/react` directly needs 1.9 or later to share one copy with ui.
+
+- 95263d3: `BreadcrumbTrail`: a switcher can list further option groups under its own options. `switcher.groups` takes `{ label, options }[]`; each non-empty group renders after a separator under its own label, sharing the switcher's `value` and `onSelect`, so the current page is marked wherever it is listed. Rendered by the menu form only — a `searchable` or renameable switcher filters one flat list and does not show them. `BreadcrumbOptionGroup` is exported.
+
+  `BreadcrumbTrail`: the current crumb takes the same 208px width when it has a switcher as when it is renameable, so a short name keeps a full-size target.
+
+  `NestedRadio`: an option's label stays on one line and is cut short with an ellipsis when it is wider than the menu. The row's height is fixed, so a wrapped label drew its second line over the rows around it.
+
+  `Modal`: `fitHeight` lets a dialog's height follow its content instead of the 18rem desktop floor, for a dialog holding one short field. The floor itself now stops at the window's height, so in a desktop-width window shorter than 18rem a modal stays inside the window instead of running past its bottom edge.
+
+### Patch Changes
+
+- 1605777: `radix-ui` is limited to `>=1.4.2 <1.6.0`, the releases ui is verified against. From 1.6 the menu of a held toast no longer exposes its items by role, and from 1.7 a disabled Select option loses the description that says why it is disabled, so an install that resolved a newer `radix-ui` broke both. Tree navigation accepts the element list `@base-ui/react` 1.9's composite provides, so it typechecks against both 1.5 and 1.9.
+
 ## 0.6.0
 
 ### Minor Changes
