@@ -48,7 +48,7 @@ export interface UseRowWindowOptions {
    * `scrollTop` and `clientHeight` are the only inputs.
    *
    * A consumer whose scroll container is a `ScrollArea` passes that component's
-   * `viewportRef` — the Radix viewport is the element that actually scrolls, not the
+   * `viewportRef` — the viewport is the element that actually scrolls, not the
    * `ScrollArea` root.
    */
   scrollRef: RefObject<HTMLElement | null>;

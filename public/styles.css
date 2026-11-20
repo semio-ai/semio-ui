@@ -21,7 +21,7 @@
 @custom-variant desktop (@media (min-width: theme(--breakpoint-md)));
 
 @custom-variant data-expanded (&[data-ui~="expanded"]);
-@custom-variant data-checked (&[data-ui~="checked"]);
+@custom-variant data-checked (&[data-checked]);
 
 /* Attribute-presence variants. Tailwind v4 doesn't auto-name kebab-case
    data attributes, so without these registrations the only working form
@@ -208,8 +208,12 @@
     @apply focus:not-disabled:outline-2 focus-within:not-disabled:outline-2;
     @apply focus:hover:not-disabled:outline-2 hover:focus-within:not-disabled:outline-2;
     @apply focus:group-data-[popup-open]/trigger:not-disabled:outline-2;
-    @apply focus:[&.popup-trigger:not([data-popup-open])]:outline-0;
-    @apply data-[popup-open]:not-disabled:outline-2;
+    /* A focused popup or tooltip trigger whose popup is closed drops its ring, unless the
+     * control reports a checked state of its own. `:where()` keeps each rule as specific
+     * as the hover and focus rules above, so hover still shows the ring. Only triggers
+     * take part: a Combobox input also carries `data-popup-open`. */
+    @apply focus:[&:where(.popup-trigger):not([data-popup-open],[data-checked],[data-unchecked],[data-indeterminate])]:outline-0;
+    @apply [&:where(.popup-trigger)[data-popup-open]]:not-disabled:outline-2;
   }
 
   .parent-outline {
@@ -926,9 +930,7 @@
     @apply dark:data-[indeterminate]:text-neutral-200 data-[indeterminate]:text-neutral-800;
 
     &:not(*:disabled) {
-      &[data-checked],
-      &[data-pressed],
-      &[data-active] {
+      &[data-checked] {
         /* The check mark is a child of this element and inherits `color`, so the
          * foreground is declared here, next to the fill it has to contrast against.
          * A child that names its own literal colour instead cannot follow the fill
@@ -958,9 +960,7 @@
 
     /* When using a custom color, show a subtle tinted background in the off state. */
     &.custom-color:not(*:disabled) {
-      &[data-unchecked],
-      &:is([aria-pressed], [role="radio"]):not([data-pressed]),
-      &[role="tab"]:not([data-active]) {
+      &[data-unchecked] {
         background-color: color-mix(in oklab, var(--standard-color) 20%, transparent) !important;
         color: var(--standard-color) !important;
         &:hover {
@@ -991,9 +991,7 @@
 
     &:disabled {
       @apply dark:bg-layout-dark-base/50 bg-layout-light-base/50;
-      &[data-checked],
-      &[data-pressed],
-      &[data-active] {
+      &[data-checked] {
         background-color: color-mix(in oklab, var(--standard-color) 50%, transparent) !important;
       }
     }
@@ -1056,19 +1054,13 @@
     @apply dark:text-default-400 text-default-600;
     @apply dark:data-highlighted:text-black data-highlighted:text-white;
     @apply dark:data-[checked]:text-black data-[checked]:text-white;
-    @apply dark:data-[pressed]:text-black data-[pressed]:text-white;
-    @apply dark:data-active:text-black data-active:text-white;
     @apply data-highlighted:data-[unchecked]:text-white;
     @apply dark:data-highlighted:data-[unchecked]:text-black;
     @apply dark:data-[checked]:bg-layout-light-base data-[checked]:bg-layout-dark-base;
-    @apply dark:data-[pressed]:bg-layout-light-base data-[pressed]:bg-layout-dark-base;
-    @apply dark:data-active:bg-layout-light-base data-active:bg-layout-dark-base;
 
     &:disabled {
       @apply dark:bg-black/20 bg-white/20;
-      &[data-checked],
-      &[data-pressed],
-      &[data-active] {
+      &[data-checked] {
         @apply dark:bg-layout-light-base/50 bg-layout-dark-base/50;
       }
     }
@@ -1083,9 +1075,7 @@
      * branch is the one that fires if a consumer does nest it: the fill becomes a
      * variant hue that does not flip with the theme, so the foreground is derived
      * here rather than inheriting a pairing chosen for a different fill. */
-    &:is(:where(.group\/item):is([data-checked], [data-selected]) *),
-    &:is(:where(.group\/item)[data-pressed] *),
-    &:is(:where(.group\/item)[data-active] *) {
+    &:is(:where(.group\/item):is([data-checked], [data-selected]) *) {
       color: var(--on-accent-color);
       background-color: var(--accent-color);
     }
@@ -2346,10 +2336,6 @@
       opacity: 1;
       transform: translateX(0);
     }
-  }
-
-  [data-open] > .radix-accordion-content {
-    height: var(--accordion-panel-height);
   }
 }
 

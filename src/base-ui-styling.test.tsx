@@ -4,6 +4,9 @@ import { useContext, useEffect } from "react";
 import { cleanup, render, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, expect, test, vi } from "vitest";
 import { Dropdown } from "./floating/dropdown";
+import { Popover } from "./floating/popover";
+import { Combobox } from "./inputs/combobox";
+import { Autocomplete } from "./inputs/autocomplete";
 import { Dialog } from "./floating/dialog";
 import { Tooltip } from "./floating/tooltip";
 import { ToastContext, ToastManager } from "./floating/toast";
@@ -78,6 +81,28 @@ test("mounted library controls and overlays never set data-state", async () => {
       <Dialog open title="Dialog" onStateChange={ignore}>
         Dialog content
       </Dialog>
+      <Popover open trigger={<button type="button">Popover trigger</button>}>
+        Popover content
+      </Popover>
+      <Combobox
+        value="a"
+        onChange={ignore}
+        options={[
+          { value: "a", label: "Combobox selected" },
+          { value: "b", label: "Combobox other" },
+        ]}
+        open
+      />
+      <Autocomplete
+        items={[{ value: "a", label: "Autocomplete item" }]}
+        value=""
+        onChange={ignore}
+        onSelect={ignore}
+        label="Find item"
+        getItemKey={(item) => item.value}
+        renderItem={(item) => item.label}
+        open
+      />
       <Tooltip content="Explanation" controlledState={[true, ignore]}>
         <button type="button">Tooltip trigger</button>
       </Tooltip>
@@ -108,6 +133,8 @@ test("mounted library controls and overlays never set data-state", async () => {
     expect(document.querySelector('[role="menu"][data-open]')).not.toBeNull();
     expect(document.querySelector('[role="alertdialog"][data-open]')).not.toBeNull();
     expect(document.querySelector('[role="tooltip"][data-open]')).not.toBeNull();
+    expect(document.querySelector(".popover-content[data-open]")).not.toBeNull();
+    expect(document.querySelectorAll('[role="listbox"]').length).toBeGreaterThanOrEqual(2);
     expect(document.querySelector("li.card-overlay")).not.toBeNull();
   });
   for (const selector of [
@@ -121,6 +148,7 @@ test("mounted library controls and overlays never set data-state", async () => {
     'button[role="checkbox"][data-checked]',
     "[data-toggle-item][data-pressed]",
     '[role="tab"][data-active]',
+    '[role="option"][data-selected]',
     '[role="progressbar"][data-progressing]',
     '[role="progressbar"][data-complete]',
     '[role="progressbar"][data-indeterminate]',

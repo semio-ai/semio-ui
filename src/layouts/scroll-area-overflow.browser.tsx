@@ -18,8 +18,8 @@ import "../test-stylesheet";
  * Base UI decides scrollability from precisely that comparison (`clientHeight >=
  * scrollHeight`), so it raises a scrollbar for content that fits — which is how the app
  * came to show one on a menu holding 144px of content in a 564px box. The fractional
- * measurement in `ScrollArea` is what overrides that verdict, so it survives the move off
- * Radix rather than being replaced by `data-has-overflow-y`.
+ * measurement in `ScrollArea` is what overrides that verdict, so `ScrollArea` keeps it
+ * rather than reading Base UI's `data-has-overflow-y`.
  *
  * ## What can and cannot be observed here
  *

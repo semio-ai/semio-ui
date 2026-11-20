@@ -151,7 +151,7 @@ function ToastAnnounce({ data }: { data: ToastData }) {
         wordWrap: "normal",
       }}
     >
-      {/* Radix joins the toast's text nodes without punctuation and excludes Close. */}
+      {/* The announcement joins the toast's text nodes without punctuation and leaves out Close. */}
       {renderText && (
         <>
           Notification {data.title}
@@ -601,7 +601,7 @@ function ToastContainer({ children }: ToastContainerProps) {
   const hasManagedOrMountedToasts = mounted > 0 || managedToasts.length > 0;
   useEffect(() => {
     if (!hasManagedOrMountedToasts) return;
-    // F6 is the browser's own pane shortcut, and Radix's toasts bound F8 alone. Base
+    // F6 is the browser's own pane shortcut, and the region's shortcut is F8 alone. Base
     // UI's viewport takes F6 (with any modifiers) on window, in the bubble phase, with
     // no option to turn it off. This capture-phase listener stops the same keydowns
     // first, without preventing the browser's default. The viewport needs no F6

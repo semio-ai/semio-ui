@@ -57,7 +57,7 @@ export interface ListRowProps extends NativeRowProps {
  * Everything a row element natively accepts, minus the four this component owns.
  *
  * Widening to the native attributes rather than listing them is what lets a row be a
- * TRIGGER. A floating component — Radix's `asChild`, Base UI's `render` — puts its own
+ * TRIGGER. A floating component's `render` puts its own
  * pointer handlers, `data-popup-open` and ref onto the element it was given, and a closed
  * prop list drops every one of them silently: the row still renders, still reads
  * correctly, and simply never opens its menu.

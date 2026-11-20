@@ -121,8 +121,8 @@ function measure(el: HTMLElement, theme: Theme): Measured {
 }
 
 /**
- * Renders under a theme. The class goes on `<html>`, not on a wrapper: Radix portals
- * its menu content to `<body>`, so a wrapper-scoped `.dark` would leave every portalled
+ * Renders under a theme. The class goes on `<html>`, not on a wrapper: a menu portals
+ * its content to `<body>`, so a wrapper-scoped `.dark` would leave every portalled
  * case measuring light mode while reporting dark.
  */
 async function withTheme<T>(

@@ -35,6 +35,5 @@ API and styling:
 - Menu popups size themselves with `--available-width`, `--available-height`,
   `--anchor-width` and `--transform-origin`; the `--radix-dropdown-menu-*` and
   `--radix-context-menu-*` variables are gone.
-- Menu triggers, popups and check items keep their `data-state` values.
 - Opening one menu by pointer closes another through Base UI's outside-press handling; menus
   opened from code are not limited to one at a time.

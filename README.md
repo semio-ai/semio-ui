@@ -1,7 +1,7 @@
 # @semio/ui
 
-Basic React components built by Semio with [Base UI](https://base-ui.com/),
-[Base UI](https://base-ui.com/) and [Tailwind CSS](https://tailwindcss.com/) —
+Basic React components built by Semio with [Base UI](https://base-ui.com/) and
+[Tailwind CSS](https://tailwindcss.com/) —
 buttons, inputs, dialogs, popovers, menus, layout primitives, and the shared
 theme/size/variant system.
 
