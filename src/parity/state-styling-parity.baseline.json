@@ -1670,7 +1670,7 @@
   "light / Open-state fills": {
     "NestedCheckboxTree parent open with submenu focus": {
       "color": "oklch(0.439 0 0)",
-      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "backgroundColor": "oklab(0.439 0 0 / 0.25)",
       "borderTopLeftRadius": "2px",
       "boxShadow": "none",
       "paddingTop": "4px",
@@ -7837,7 +7837,7 @@
   "dark / Open-state fills": {
     "NestedCheckboxTree parent open with submenu focus": {
       "color": "oklch(0.708 0 0)",
-      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "backgroundColor": "oklab(0.708 0 0 / 0.25)",
       "borderTopLeftRadius": "2px",
       "boxShadow": "none",
       "paddingTop": "4px",
