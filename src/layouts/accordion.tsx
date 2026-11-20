@@ -3,7 +3,7 @@ import { Accordion as BaseAccordion } from "@base-ui/react/accordion";
 import { clsx } from "clsx";
 import { Size } from "../types";
 import { DisclosureIcon } from "../icons/registry";
-import { LegacySizePanel } from "./legacy-size-panel";
+import { SizePanel } from "./size-panel";
 
 export interface AccordionProps {
   sticky?: boolean;
@@ -23,18 +23,8 @@ export function Accordion({ items, defaultOpen = false, sticky, stickyOffset }: 
   return (
     <BaseAccordion.Root className="relative" multiple defaultValue={defaultValue}>
       {items.map((item) => (
-        <BaseAccordion.Item
-          key={item.key}
-          value={item.key}
-          disabled={item.disabled}
-          render={(props, state) => <div {...props} data-state={state.open ? "open" : "closed"} />}
-        >
+        <BaseAccordion.Item key={item.key} value={item.key} disabled={item.disabled}>
           <BaseAccordion.Header
-            render={(props, state) => (
-              <h3 {...props} data-state={state.open ? "open" : "closed"}>
-                {props.children}
-              </h3>
-            )}
             className={clsx(
               "h-7 bg-neutral-300/50 backdrop-blur-md dark:bg-neutral-700/50",
               // Positioned panel content must paint beneath the stuck header's blur.
@@ -58,7 +48,6 @@ export function Accordion({ items, defaultOpen = false, sticky, stickyOffset }: 
                   tabIndex={undefined}
                   disabled={state.disabled}
                   aria-disabled={undefined}
-                  data-state={state.open ? "open" : "closed"}
                 />
               )}
               className="group grid w-full grid-cols-[auto_1fr] items-center gap-2 p-1 text-left text-sm"
@@ -76,11 +65,7 @@ export function Accordion({ items, defaultOpen = false, sticky, stickyOffset }: 
               </span>
             </BaseAccordion.Trigger>
           </BaseAccordion.Header>
-          <BaseAccordion.Panel
-            render={(props, state) => (
-              <LegacySizePanel {...props} data-state={state.open ? "open" : "closed"} accordion />
-            )}
-          >
+          <BaseAccordion.Panel render={(props) => <SizePanel {...props} accordion />}>
             {item.content}
           </BaseAccordion.Panel>
         </BaseAccordion.Item>

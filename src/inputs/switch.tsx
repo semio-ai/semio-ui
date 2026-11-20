@@ -18,23 +18,23 @@ export interface SwitchProps {
 const SWITCH_SIZE_CLASSES: Record<Size, { root: string; thumb: string }> = {
   [Size.Xs]: {
     root: "h-4 w-7 p-0.5",
-    thumb: "h-3 w-3 data-[state=checked]:translate-x-3",
+    thumb: "h-3 w-3 data-[checked]:translate-x-3",
   },
   [Size.Sm]: {
     root: "h-5 w-9 p-0.5",
-    thumb: "h-4 w-4 data-[state=checked]:translate-x-4",
+    thumb: "h-4 w-4 data-[checked]:translate-x-4",
   },
   [Size.Md]: {
     root: "h-6 w-11 p-0.5",
-    thumb: "h-5 w-5 data-[state=checked]:translate-x-5",
+    thumb: "h-5 w-5 data-[checked]:translate-x-5",
   },
   [Size.Lg]: {
     root: "h-7 w-[3.25rem] p-0.5",
-    thumb: "h-6 w-6 data-[state=checked]:translate-x-6",
+    thumb: "h-6 w-6 data-[checked]:translate-x-6",
   },
   [Size.Xl]: {
     root: "h-8 w-14 p-0.5",
-    thumb: "h-7 w-7 data-[state=checked]:translate-x-6",
+    thumb: "h-7 w-7 data-[checked]:translate-x-6",
   },
 };
 
@@ -54,14 +54,7 @@ export function Switch({
   return (
     <BaseSwitch.Root
       nativeButton
-      render={(props, state) => (
-        <button
-          {...props}
-          type="button"
-          tabIndex={undefined}
-          data-state={state.checked ? "checked" : "unchecked"}
-        />
-      )}
+      render={(props) => <button {...props} type="button" tabIndex={undefined} />}
       id={id}
       checked={checked}
       onClick={(event) => {
@@ -85,9 +78,6 @@ export function Switch({
       style={color ? ({ "--custom-color": color } as CSSProperties) : undefined}
     >
       <BaseSwitch.Thumb
-        render={(props, state) => (
-          <span {...props} data-state={state.checked ? "checked" : "unchecked"} />
-        )}
         className={clsx(
           "pointer-events-none block rounded-full shadow-sm transition-[translate,background-color] duration-160 ease-out",
           // Checked thumbs use --on-standard-color; unchecked thumbs use --standard-color.

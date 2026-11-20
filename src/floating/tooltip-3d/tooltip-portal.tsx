@@ -112,9 +112,6 @@ function CanvasPopoverInstance({ anchor, position, invocation }: OverlayInstance
           collisionPadding={5}
         >
           <Popover.Popup
-            render={(props, state) => (
-              <div {...props} data-state={state.open ? "open" : "closed"} />
-            )}
             // A non-modal popover hands Tab on to whatever follows its trigger, and this one
             // has no trigger: the canvas point it is anchored to is not an element. Tab past
             // either end closes it instead, and closing returns focus to where it was before
@@ -180,9 +177,6 @@ function CanvasMenuInstance({ anchor, position, invocation }: OverlayInstancePro
           <Menu.Popup
             onKeyDown={keepMenuNavigationKeys}
             ref={popupRef}
-            render={(props, state) => (
-              <div {...props} data-state={state.open ? "open" : "closed"} />
-            )}
             className={clsx(
               Variant.Default,
               "[outline:none]",

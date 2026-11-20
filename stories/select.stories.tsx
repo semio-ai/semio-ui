@@ -182,7 +182,7 @@ export const VisualsLabels: Story = {
  * are "is this deliberate?" and "what would change it?".
  *
  * Note the tooltip still works. `disabled` deliberately does not set
- * `pointer-events: none` — Radix already refuses to open a disabled trigger, so
+ * `pointer-events: none` — Base UI already refuses to open a disabled trigger, so
  * suppressing pointer events would buy nothing and would cost the only affordance left
  * for carrying the reason. Compare the two below: the same control, one of them
  * unexplained.
@@ -194,8 +194,8 @@ export const Disabled: Story = {
         <div className="mb-1 font-mono text-xs text-neutral-500">
           disabled, with the reason attached — hover it
         </div>
-        {/* The wrapping span is required: `Tooltip` uses Radix `asChild` and hands its
-            ref and pointer handlers to its child, which `Select` does not forward. Pass
+        {/* The wrapping span is required: `Tooltip` renders its child as the trigger and
+            hands it a ref and pointer handlers, which `Select` does not forward. Pass
             the Select directly and the tooltip silently never opens. */}
         <Tooltip content="Keeping a published asset private is a paid capability, so this cannot be lowered on the current plan.">
           <span className="flex w-full">

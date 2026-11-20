@@ -30,7 +30,7 @@ const settle = async (frames = 4) => {
  * animation ends.
  */
 const openTooltip = () =>
-  document.querySelector('.tooltip-content[data-state$="open"]')?.textContent ?? null;
+  document.querySelector(".tooltip-content[data-open]")?.textContent ?? null;
 
 const viewport = () => document.querySelector<HTMLElement>("[data-scroll-area-viewport]")!;
 

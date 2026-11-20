@@ -72,11 +72,11 @@ export interface ModalProps {
  * are configurable; custom content can be slotted into the header area
  * below the description.
  *
- * Why base-ui (not Radix): Radix's `DismissableLayer` treats clicks
- * inside other portals (e.g. base-ui's `Autocomplete` popup) as
- * "outside", which closed the modal *and* swallowed the popup's option
- * `onClick`. base-ui's `Dialog` and `Autocomplete` coordinate via the
- * `FloatingPortal` machinery and don't have that conflict.
+ * A popup portalled from inside the modal (an `Autocomplete` list, a menu)
+ * belongs to it: base-ui's `Dialog` and those popups share the `FloatingPortal`
+ * tree, so a press on a portalled option is inside the modal. A dismiss layer
+ * that judged it by DOM position would call it an outside press, close the
+ * modal and swallow the option's `onClick`.
  *
  * Features:
  * - Full-screen dim overlay on every breakpoint; centred card on desktop

@@ -588,8 +588,8 @@ export const InnerScrollArea = forwardRef<ScrollAreaRef, ScrollAreaProps>(
             {/*
               Always rendered, though Base UI makes it optional, because the overflow
               measurement needs exactly one box to compare against the viewport. Being a
-              block div rather than Radix's `display: table` wrapper, it also leaves
-              padding and margin on the children working.
+              block div rather than a `display: table` wrapper, it also leaves padding
+              and margin on the children working.
 
               `min-w-0!` on a vertical-only area, because Base UI sets `min-width:
               fit-content` on this element as an inline style, to let content wider than

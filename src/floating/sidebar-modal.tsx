@@ -79,9 +79,9 @@ const PLACEHOLDER_TAB: SidebarTab = {
  * the sidebar tab list — analogous to the action items at the bottom of the
  * main app menu.
  *
- * Built on base-ui's `Dialog` (not Radix). See `Modal` for the rationale —
- * Radix's `DismissableLayer` interferes with base-ui's `Autocomplete`/
- * `Combobox` clicks, which a settings-style modal commonly contains.
+ * Built on base-ui's `Dialog`, like `Modal`, so a press inside a portalled
+ * `Autocomplete` or `Combobox` list, which a settings-style modal commonly
+ * contains, stays inside it.
  *
  * Layout:
  * - Desktop: both panes side-by-side at equal height. The modal is sized to a
@@ -449,8 +449,8 @@ function SidebarPane({
         // Hide the scrollbar element only when the sidebar is collapsed —
         // it would overlap the icons in the narrow rail. Visible when
         // expanded (mobile and desktop expanded). Targets descendants with
-        // `data-orientation` (only the Radix Scrollbar exposes that under
-        // ScrollArea's tree).
+        // `data-orientation` (only the scrollbar and its thumb carry that
+        // attribute in ScrollArea's tree).
         wrapperClassName={clsx(
           "h-full",
           !sidebarExpanded && "[&_[data-orientation=vertical]]:hidden",

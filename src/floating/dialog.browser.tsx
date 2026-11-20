@@ -196,7 +196,7 @@ test("a footer ActionMenu supports pointer opening, keyboard reach, selection an
   const download = page.getByRole("menuitem", { name: "Download report", exact: true });
   const expectDialogOpen = async () => {
     await expect.element(surface).toBeVisible();
-    expect(surface.getAttribute("data-state")).toBe("open");
+    expect(surface.hasAttribute("data-open")).toBe(true);
     expect(change).not.toHaveBeenCalled();
   };
 
@@ -363,10 +363,10 @@ test("portalContainer contains the dialog surface", async () => {
   }
 });
 
-test("popup data-state selects the 300ms entrance animation", async () => {
+test("popup data-open selects the 300ms entrance animation", async () => {
   await openDialog();
   const surface = popup().element();
-  expect(surface.getAttribute("data-state")).toBe("open");
+  expect(surface.hasAttribute("data-open")).toBe(true);
   expect(getComputedStyle(surface).animationName).toBe("slideUpAndFade");
   expect(getComputedStyle(surface).animationDuration).toBe("0.3s");
 });

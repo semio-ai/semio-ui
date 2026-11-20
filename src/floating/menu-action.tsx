@@ -22,14 +22,10 @@ import { preserveNotificationInteraction, preserveTooltipEscape } from "./overla
 export function renderMenuTrigger(
   trigger: ReactNode,
   props: HTMLAttributes<HTMLElement> & { ref?: Ref<HTMLElement> },
-  open: boolean,
 ) {
+  const triggerProps = mergeProps(props, { className: "popup-trigger" });
   if (!isValidElement<HTMLAttributes<HTMLElement> & { ref?: Ref<HTMLElement> }>(trigger)) {
-    return (
-      <span {...props} data-state={open ? "open" : "closed"}>
-        {trigger}
-      </span>
-    );
+    return <span {...triggerProps}>{trigger}</span>;
   }
   // A non-button element such as `<span><MenuButton /></span>` wraps the control the user
   // focuses and only relays its events and menu state. It takes no button role or tab
@@ -37,11 +33,10 @@ export function renderMenuTrigger(
   // element that is the control itself declares its own `role` and `tabIndex`, which
   // win over these defaults below.
   const relay = typeof trigger.type === "string" && trigger.type !== "button";
-  const { role: _role, tabIndex: _tabIndex, ...relayProps } = props;
+  const { role: _role, tabIndex: _tabIndex, ...relayProps } = triggerProps;
   return cloneElement(trigger, {
-    ...mergeProps(relay ? relayProps : props, trigger.props),
+    ...mergeProps(relay ? relayProps : triggerProps, trigger.props),
     ref: mergeRefs([props.ref, trigger.props.ref]),
-    "data-state": open ? "open" : "closed",
   } as typeof props);
 }
 

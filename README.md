@@ -1,7 +1,7 @@
 # @semio/ui
 
-Basic React components built by Semio with [Base UI](https://base-ui.com/),
-[Radix](https://www.radix-ui.com/) and [Tailwind CSS](https://tailwindcss.com/) —
+Basic React components built by Semio with [Base UI](https://base-ui.com/) and
+[Tailwind CSS](https://tailwindcss.com/) —
 buttons, inputs, dialogs, popovers, menus, layout primitives, and the shared
 theme/size/variant system.
 
@@ -102,21 +102,36 @@ input shows `placeholder` or an em-dash.
 ### Primitive contracts
 
 `Checkbox`, `ToggleSquare`, and `Switch` render native buttons and support label
-associations. Controls expose `data-state` values for styling. Menu triggers,
-popups and submenu triggers expose `open`/`closed`. Tooltip and Popover triggers and
-popups also expose `open`/`closed`. Check items and indicators expose
-`checked`/`unchecked`, and tree parent checks also expose `indeterminate`. The menu,
-Tooltip and Popover attributes are compatibility shims alongside Base UI's state
-attributes, including `data-popup-open` on triggers and `data-open`/`data-closed` on
-popups. Tooltip and Popover positioning uses `--transform-origin`, inherited from
-the Positioner. Menu positioning also uses `--available-width`, `--available-height`
-and `--anchor-width`. Other panel size variables with `--radix-` names remain
-available for consumer animations.
+associations. Styling uses Base UI presence attributes:
+
+- Checkbox roots and indicators, Switch roots and thumbs, and menu checkbox/radio
+  items and indicators expose `data-checked` / `data-unchecked`. Partial
+  `ToggleSquare` controls and aggregate tree checks expose `data-indeterminate`.
+- ToggleGroup items expose `data-pressed` when on; its absence means off. Tabs
+  expose `data-active` when selected; its absence means inactive. Combobox items
+  expose `data-selected`; Autocomplete suggestions expose `data-unchecked`.
+- Menu, submenu, Tooltip, and Popover triggers expose `data-popup-open`; its
+  absence means closed. Their popups and Dialog popups expose `data-open` /
+  `data-closed`. Mobile submenu items expose `data-open` while expanded.
+- Accordion items and headers expose `data-open`; its absence means closed.
+  Accordion and Collapse triggers expose `data-panel-open`. Accordion panels
+  expose `data-open` (closed is its absence); Collapse roots and panels expose
+  `data-open` / `data-closed`. `DisclosureIcon.fromGroupState` reads
+  `data-panel-open` from its `group` trigger, rotating closed when absent.
+- Progress roots and indicators expose `data-progressing`, `data-complete`, or
+  `data-indeterminate`. Toast roots expose `data-starting-style` /
+  `data-ending-style` during entrance / exit and `data-swiping` during a swipe.
+
+Tooltip, Popover, and menu positioning uses `--transform-origin`, inherited from
+its Positioner. Menus also use `--available-width`, `--available-height`, and
+`--anchor-width`. Collapse panels publish `--collapsible-panel-height` and
+`--collapsible-panel-width`; Accordion panels publish `--accordion-panel-height`
+and `--accordion-panel-width`. Toast swipe displacement is available as
+`--toast-swipe-movement-x` and `--toast-swipe-movement-y`.
 Toggle groups expose single selection through `role="radio"` and `aria-checked`;
 the current focus target participates directly in the Tab order.
 
-Use `Collapse` for a titled disclosure. For raw Radix parts with Radix props and
-`data-state`, import `Collapsible` directly from `radix-ui`.
+Use `Collapse` for a titled disclosure, or Base UI's `Collapsible` for raw parts.
 
 Use the Base UI `ToastManager` with `useAddToast` to show notifications. Hover or focus inside
 the viewport pauses the timeout ring and dismissal. F8 focuses the viewport.
@@ -330,7 +345,8 @@ trigger onto the explanation and keep it visible. Opening one Tooltip closes any
 other. Escape closes an open tooltip and nothing else, and still reaches the focused
 element. The visible popup has `role="tooltip"` and an ID, which the
 trigger's `aria-describedby` names while open; a trigger that names its own description
-keeps it. The popup and trigger expose `data-state="open"` or `data-state="closed"`.
+keeps it. The popup exposes `data-open` / `data-closed`; the trigger exposes
+`data-popup-open` while open.
 Use `Popover` for content with links or actions.
 Focus in a React portal outside the trigger's DOM subtree does not open the
 explanation, so a wrapped menu keeps its own Escape handling. Restoring keyboard

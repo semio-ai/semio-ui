@@ -121,8 +121,8 @@ function measure(el: HTMLElement, theme: Theme): Measured {
 }
 
 /**
- * Renders under a theme. The class goes on `<html>`, not on a wrapper: Radix portals
- * its menu content to `<body>`, so a wrapper-scoped `.dark` would leave every portalled
+ * Renders under a theme. The class goes on `<html>`, not on a wrapper: a menu portals
+ * its content to `<body>`, so a wrapper-scoped `.dark` would leave every portalled
  * case measuring light mode while reporting dark.
  */
 async function withTheme<T>(
@@ -258,14 +258,14 @@ const ON_STANDARD_FILL: {
   {
     name: "Checkbox check mark",
     render: (v) => <Checkbox checked onCheckedChange={() => undefined} variant={v} />,
-    find: (root) => root.querySelector<HTMLElement>("[data-state='checked'] > *")!,
+    find: (root) => root.querySelector<HTMLElement>("[data-checked] > *")!,
   },
   {
     name: "ToggleSquare glyph when checked",
     render: (v) => (
       <ToggleSquare value onChange={() => undefined} variant={v} size={Size.Md} label="T" />
     ),
-    find: (root) => root.querySelector<HTMLElement>("[data-state='checked'], [data-state='on']")!,
+    find: (root) => root.querySelector<HTMLElement>("[data-checked], [data-pressed]")!,
   },
   {
     name: "ImageInput fallback initial",

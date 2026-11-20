@@ -78,9 +78,7 @@ const tooltip = () => page.getByRole("tooltip");
  */
 async function expectShowing(reason: string) {
   await expect.element(tooltip()).toHaveTextContent(reason);
-  expect(tooltip().element().closest(".tooltip-content")?.getAttribute("data-state")).toMatch(
-    /open$/,
-  );
+  expect(tooltip().element().closest(".tooltip-content")?.hasAttribute("data-open")).toBe(true);
 }
 
 async function expectReachableAndInert(

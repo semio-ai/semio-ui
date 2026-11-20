@@ -132,7 +132,7 @@ export function Dropdown({
         onMouseDown={(event) => {
           if (!actualOpen && event.button === 0) event.preventDefault();
         }}
-        render={(props, state) => renderMenuTrigger(trigger, props, state.open)}
+        render={(props) => renderMenuTrigger(trigger, props)}
       />
       <Menu.Portal container={portalContainer ?? undefined}>
         <Menu.Positioner
@@ -157,9 +157,6 @@ export function Dropdown({
                 ? target
                 : false;
             }}
-            render={(props, state) => (
-              <div {...props} data-state={state.open ? "open" : "closed"} />
-            )}
             style={color ? ({ "--custom-color": color } as CSSProperties) : {}}
             className={clsx(
               color ? "custom-color" : variant,
@@ -172,7 +169,7 @@ export function Dropdown({
           >
             {/* The six-pixel caret fills part of the nine-pixel side offset. */}
             {/* Positioner measures without Popup's margin. Remove that margin on the
-                cross axis; stretch the SVG viewBox like Radix's 12 by 6 arrow. */}
+                cross axis; stretch the SVG viewBox to a 12 by 6 arrow. */}
             <Menu.Arrow className="data-[side=bottom]:-top-1.5 data-[side=bottom]:-translate-x-0.5 data-[side=bottom]:rotate-180 data-[side=top]:-bottom-1.5 data-[side=top]:-translate-x-0.5 data-[side=right]:-left-2.25 data-[side=right]:-translate-y-0.5 data-[side=right]:rotate-90 data-[side=left]:-right-2.25 data-[side=left]:-translate-y-0.5 data-[side=left]:-rotate-90">
               <Arrow
                 filled={false}

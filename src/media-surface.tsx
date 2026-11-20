@@ -1,8 +1,4 @@
 import type { ReactNode, Ref } from "react";
-// Base UI, not Radix. This package is migrating off Radix, so a NEW component
-// wrapping a primitive takes the one we are moving toward — `Avatar` still wraps
-// Radix and is left alone until that migration reaches it.
-//
 // ⚠ A `@base-ui/react/*` subpath must be pinned in the studio app's
 // `optimizeDeps.include`. Vite has not pre-bundled it otherwise, so it is
 // discovered mid-run and the re-optimize reloads the page out from under the
@@ -84,7 +80,7 @@ export function MediaSurface({
         variant,
         "variant-scope",
         "variant-static-bg",
-        // ⚠ `block` is load-bearing, not tidiness. Radix renders the root as a `span`,
+        // ⚠ `block` is load-bearing, not tidiness. The Avatar root is a `span`,
         // and `aspect-ratio` does not apply to a non-replaced INLINE box — so a caller
         // passing `aspect-video w-full` gets a box sized to its content instead: a
         // 400px-wide hero came out 48px tall, the height of the glyph inside it.

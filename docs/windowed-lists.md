@@ -53,7 +53,7 @@ Two mistakes to avoid:
 
 ### Inside a `ScrollArea`
 
-`ScrollArea` is a Radix scroll area, so the element that scrolls is its _viewport_,
+`ScrollArea` is a Base UI scroll area, so the element that scrolls is its _viewport_,
 not its root. Reach it with `viewportRef` and hand the same ref to the grid:
 
 ```tsx

@@ -52,10 +52,10 @@ const REFERENCES = new Set<string>(["aria-describedby", "aria-controls"]);
 const POINT = { x: 120, y: 120 };
 const CANVAS_ID = "tooltip-popover-parity-canvas";
 
-const tooltipSurface = () => document.querySelector('.tooltip-content[data-state$="open"]');
-const popoverSurface = () => document.querySelector('.popover-content[data-state="open"]');
+const tooltipSurface = () => document.querySelector(".tooltip-content[data-open]");
+const popoverSurface = () => document.querySelector(".popover-content[data-open]");
 // The canvas content's role is an observation, so locating it uses its styled surface.
-const canvasSurface = () => document.querySelector('.card-overlay[data-state="open"]');
+const canvasSurface = () => document.querySelector(".card-overlay[data-open]");
 type FindSurface = () => Element | null;
 
 function visible(element: Element) {

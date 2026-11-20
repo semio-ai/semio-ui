@@ -384,7 +384,7 @@ test("F8 leaves outside focus alone when the viewport has only its menu host", (
   const outside = view.getByRole("button", { name: "Outside toast" });
   act(() => outside.focus());
   expect(document.querySelector('ol li[role="presentation"]')).toBeTruthy();
-  expect(document.querySelector("ol li[data-state]")).toBeNull();
+  expect(document.querySelector("ol li.card-overlay")).toBeNull();
   const event = new KeyboardEvent("keydown", { key: "F8", bubbles: true, cancelable: true });
   act(() => outside.dispatchEvent(event));
   expect(document.activeElement).toBe(outside);

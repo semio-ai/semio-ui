@@ -64,7 +64,7 @@ export function NestedMenu({
             name="submenu"
             className={clsx(
               "rotate-0 transition-transform",
-              !desktop && "group-data-[state=open]/item:rotate-90",
+              !desktop && "group-data-[open]/item:rotate-90",
             )}
           />
         </span>
@@ -84,15 +84,11 @@ export function NestedMenu({
           // Menu.Item owns pointer, Enter and Space activation. Composing a second
           // button keyboard handler here would synthesize a second Space click.
           onClick={() => setMobileOpen((value) => !value)}
-          render={(props) => <div {...props} data-state={mobileOpen ? "open" : "closed"} />}
+          data-open={mobileOpen ? "" : undefined}
         >
           {triggerContent}
         </Menu.Item>
-        <Collapsible.Panel
-          id={panelId}
-          keepMounted
-          render={(props, state) => <div {...props} data-state={state.open ? "open" : "closed"} />}
-        >
+        <Collapsible.Panel id={panelId} keepMounted>
           <div
             className={clsx(
               variant,
@@ -114,12 +110,7 @@ export function NestedMenu({
         returnFocus.current = !next && !!popupRef.current?.contains(document.activeElement);
       }}
     >
-      <Menu.SubmenuTrigger
-        ref={triggerRef}
-        disabled={disabled}
-        className={triggerClass}
-        render={(props, state) => <div {...props} data-state={state.open ? "open" : "closed"} />}
-      >
+      <Menu.SubmenuTrigger ref={triggerRef} disabled={disabled} className={triggerClass}>
         {triggerContent}
       </Menu.SubmenuTrigger>
       <Menu.Portal>
@@ -129,9 +120,6 @@ export function NestedMenu({
             ref={popupRef}
             className="[outline:none]"
             finalFocus={() => (returnFocus.current ? triggerRef.current : false)}
-            render={(props, state) => (
-              <div {...props} data-state={state.open ? "open" : "closed"} />
-            )}
           >
             <div
               className={clsx(

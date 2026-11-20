@@ -64,16 +64,7 @@ export function ToggleSquare({
             event.preventBaseUIHandler();
           }
         }}
-        render={(props, state) => (
-          <button
-            {...props}
-            type="button"
-            tabIndex={undefined}
-            data-state={
-              state.indeterminate ? "indeterminate" : state.checked ? "checked" : "unchecked"
-            }
-          />
-        )}
+        render={(props) => <button {...props} type="button" tabIndex={undefined} />}
         checked={value === true}
         indeterminate={value === "partial"}
         onClick={(event) => {

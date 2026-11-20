@@ -675,9 +675,7 @@ for (const theme of [Theme.Light, Theme.Dark]) {
         contract(result, `${name} content contract`, region);
         contract(result, `${name} trigger open contract`, trigger);
         take(result, `${name} icon open`, required(trigger.querySelector("svg")), MOTION);
-        const closing = firstAnimation(() =>
-          region.getAttribute("data-state") === "closed" ? region : null,
-        );
+        const closing = firstAnimation(() => (region.hasAttribute("data-closed") ? region : null));
         await userEvent.keyboard(" ");
         result[`${name} closing`] = await closing;
         await settle();

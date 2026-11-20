@@ -43,7 +43,7 @@ async function announcedText(text: string, wait: typeof setTimeout) {
   return document.querySelector<HTMLElement>(announcementSelector)!;
 }
 
-test("the Radix status announcement renders after two frames and expires at 1000 ms", async () => {
+test("the status announcement renders after two frames and expires at 1000 ms", async () => {
   const realSetTimeout = window.setTimeout.bind(window) as typeof setTimeout;
   vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] });
   try {

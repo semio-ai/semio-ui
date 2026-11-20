@@ -239,7 +239,6 @@ export function ToggleGroup({
                   role="radio"
                   aria-pressed={undefined}
                   aria-checked={state.pressed}
-                  data-state={state.pressed ? "on" : "off"}
                 />
               )}
               // Base UI's composite marker starts roving focus at the selected item.

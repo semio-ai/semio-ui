@@ -190,10 +190,14 @@ export function NestedCheckboxTree({
                   handleCheckboxChange(option);
                 }
               }}
-              render={(props) => <div {...props} data-state={state} />}
+              data-checked={state === CheckboxState.Checked ? "" : undefined}
+              data-unchecked={state === CheckboxState.Unchecked ? "" : undefined}
+              data-indeterminate={state === CheckboxState.Indeterminate ? "" : undefined}
             >
               <div
-                data-state={state}
+                data-checked={state === CheckboxState.Checked ? "" : undefined}
+                data-unchecked={state === CheckboxState.Unchecked ? "" : undefined}
+                data-indeterminate={state === CheckboxState.Indeterminate ? "" : undefined}
                 aria-disabled={option.disabled || disabled || undefined}
                 role="checkbox"
                 aria-checked={(() => {
@@ -248,9 +252,6 @@ export function NestedCheckboxTree({
       // Render as leaf checkbox item
       return (
         <Menu.CheckboxItem
-          render={(props, itemState) => (
-            <div {...props} data-state={itemState.checked ? "checked" : "unchecked"} />
-          )}
           key={option.value}
           checked={state === CheckboxState.Checked}
           onCheckedChange={() => handleCheckboxChange(option)}
@@ -273,9 +274,6 @@ export function NestedCheckboxTree({
           )}
         >
           <Menu.CheckboxItemIndicator
-            render={(props, itemState) => (
-              <span {...props} data-state={itemState.checked ? "checked" : "unchecked"} />
-            )}
             keepMounted
             className={clsx(
               "absolute top-1/2 left-1 grid -translate-y-1/2 place-items-center",
@@ -339,9 +337,6 @@ function TreeSubmenu({
             onKeyDown={keepMenuNavigationKeys}
             ref={popupRef}
             finalFocus={() => (returnFocus.current ? document.getElementById(id) : false)}
-            render={(props, state) => (
-              <div {...props} data-state={state.open ? "open" : "closed"} />
-            )}
             className={clsx(
               "variant-scope card-overlay dropdown-content min-w-55 p-0.5 [outline:none]",
               variant,

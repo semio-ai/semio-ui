@@ -348,7 +348,7 @@ for (const surroundings of Object.values(MenuSurroundings)) {
       await expect.poll(() => reversePopup.contains(document.activeElement)).toBe(false);
       // Base UI may hand reverse Tab back to the trigger before leaving the
       // trigger/popup focus boundary. Dismiss that open surface before reopening.
-      if (reversePopup.getAttribute("data-state") === "open") await userEvent.keyboard("{Escape}");
+      if (reversePopup.hasAttribute("data-open")) await userEvent.keyboard("{Escape}");
       await expect.element(action).not.toBeInTheDocument();
 
       action = await openMenu(entry, false);

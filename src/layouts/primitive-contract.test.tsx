@@ -3,38 +3,35 @@ import { expect, test } from "vitest";
 import { Accordion } from "./accordion";
 import { Collapse } from "./collapse";
 
-test("open accordion items and panels keep disclosure state and all public size aliases", () => {
+test("open accordion items, headers, triggers and panels expose Base UI state and size variables", () => {
   const html = renderToStaticMarkup(
     <Accordion defaultOpen items={[{ key: "first", header: "First", content: "Content" }]} />,
   );
   const containers = [...html.slice(0, html.indexOf("<h3")).matchAll(/<div\b[^>]*>/g)];
   expect(containers).toHaveLength(2);
-  expect(containers[1][0]).toContain('data-state="open"');
-  expect(html).toMatch(/<h3[^>]*data-state="open"/);
-  expect(html).toMatch(/<div[^>]*role="region"[^>]*data-state="open"/);
+  expect(containers[1][0]).toContain('data-open=""');
+  expect(html).toMatch(/<h3[^>]*data-open=""/);
+  expect(html).toMatch(/<button[^>]*data-panel-open=""/);
+  expect(html).toMatch(/<div[^>]*data-open=""[^>]*role="region"/);
   for (const dimension of ["height", "width"]) {
-    for (const part of ["accordion", "collapsible"]) {
-      expect(html).toContain(
-        `--radix-${part}-content-${dimension}:var(--accordion-panel-${dimension})`,
-      );
-    }
+    expect(html).toContain(`--accordion-panel-${dimension}:`);
   }
+  expect(html).not.toContain("--radix-");
 });
 
-test("open collapses keep root state and both public size aliases", () => {
+test("open collapses expose root, trigger and panel state and Base UI size variables", () => {
   const html = renderToStaticMarkup(
     <Collapse title="Details" open>
       Content
     </Collapse>,
   );
-  expect(html).toMatch(/^<div[^>]*data-state="open"/);
-  expect(html).toMatch(/<button[^>]*data-state="open"/);
-  expect([...html.matchAll(/<div[^>]*data-state="open"/g)]).toHaveLength(2);
+  expect(html).toMatch(/^<div[^>]*data-open=""/);
+  expect(html).toMatch(/<button[^>]*data-panel-open=""/);
+  expect([...html.matchAll(/<div[^>]*data-open=""/g)]).toHaveLength(2);
   for (const dimension of ["height", "width"]) {
-    expect(html).toContain(
-      `--radix-collapsible-content-${dimension}:var(--collapsible-panel-${dimension})`,
-    );
+    expect(html).toContain(`--collapsible-panel-${dimension}:`);
   }
+  expect(html).not.toContain("--radix-");
 });
 
 test("disabled collapse triggers expose native disabled state", () => {

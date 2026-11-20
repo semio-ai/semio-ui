@@ -8,7 +8,7 @@
       "aria-expanded": "(none)",
       "aria-haspopup": "(none)",
       "aria-controls": "(none)",
-      "data-state": "open"
+      "data-state": "(none)"
     },
     "first hover trigger aria-describedby": {
       "present": true,
@@ -33,7 +33,7 @@
     "first hover surface": {
       "role": "tooltip",
       "ariaModal": "(none)",
-      "dataState": "open",
+      "dataState": "(none)",
       "dataSide": "top",
       "dataAlign": "center",
       "focus": "(body)"
@@ -57,7 +57,7 @@
       "aria-expanded": "(none)",
       "aria-haspopup": "(none)",
       "aria-controls": "(none)",
-      "data-state": "open"
+      "data-state": "(none)"
     },
     "second hover trigger aria-describedby": {
       "present": true,
@@ -82,7 +82,7 @@
     "second hover surface": {
       "role": "tooltip",
       "ariaModal": "(none)",
-      "dataState": "open",
+      "dataState": "(none)",
       "dataSide": "top",
       "dataAlign": "center",
       "focus": "(body)"
@@ -106,7 +106,7 @@
       "aria-expanded": "(none)",
       "aria-haspopup": "(none)",
       "aria-controls": "(none)",
-      "data-state": "open"
+      "data-state": "(none)"
     },
     "first focus trigger aria-describedby": {
       "present": true,
@@ -131,7 +131,7 @@
     "first focus surface": {
       "role": "tooltip",
       "ariaModal": "(none)",
-      "dataState": "open",
+      "dataState": "(none)",
       "dataSide": "top",
       "dataAlign": "center",
       "focus": "Tooltip target"
@@ -150,7 +150,7 @@
       "aria-expanded": "(none)",
       "aria-haspopup": "(none)",
       "aria-controls": "(none)",
-      "data-state": "closed"
+      "data-state": "(none)"
     },
     "after first Escape trigger aria-describedby": {
       "present": false,
@@ -173,7 +173,7 @@
       "aria-expanded": "(none)",
       "aria-haspopup": "(none)",
       "aria-controls": "(none)",
-      "data-state": "open"
+      "data-state": "(none)"
     },
     "return focus trigger aria-describedby": {
       "present": true,
@@ -198,7 +198,7 @@
     "return focus surface": {
       "role": "tooltip",
       "ariaModal": "(none)",
-      "dataState": "open",
+      "dataState": "(none)",
       "dataSide": "top",
       "dataAlign": "center",
       "focus": "Tooltip target"
@@ -219,7 +219,7 @@
       "aria-expanded": "(none)",
       "aria-haspopup": "(none)",
       "aria-controls": "(none)",
-      "data-state": "open"
+      "data-state": "(none)"
     },
     "keyboard open trigger aria-describedby": {
       "present": true,
@@ -244,7 +244,7 @@
     "keyboard open surface": {
       "role": "tooltip",
       "ariaModal": "(none)",
-      "dataState": "open",
+      "dataState": "(none)",
       "dataSide": "top",
       "dataAlign": "center",
       "focus": "Tooltip target"
@@ -265,7 +265,7 @@
       "aria-expanded": "true",
       "aria-haspopup": "dialog",
       "aria-controls": "(present)",
-      "data-state": "open"
+      "data-state": "(none)"
     },
     "pointer open trigger aria-describedby": {
       "present": false,
@@ -286,7 +286,7 @@
     "pointer open surface": {
       "role": "dialog",
       "ariaModal": "(none)",
-      "dataState": "open",
+      "dataState": "(none)",
       "dataSide": "bottom",
       "dataAlign": "center",
       "focus": "First action"
@@ -317,7 +317,7 @@
       "aria-expanded": "true",
       "aria-haspopup": "dialog",
       "aria-controls": "(present)",
-      "data-state": "open"
+      "data-state": "(none)"
     },
     "reopened trigger aria-describedby": {
       "present": false,
@@ -338,7 +338,7 @@
     "reopened surface": {
       "role": "dialog",
       "ariaModal": "(none)",
-      "dataState": "open",
+      "dataState": "(none)",
       "dataSide": "bottom",
       "dataAlign": "center",
       "focus": "First action"
@@ -359,7 +359,7 @@
       "aria-expanded": "true",
       "aria-haspopup": "dialog",
       "aria-controls": "(present)",
-      "data-state": "open"
+      "data-state": "(none)"
     },
     "Enter open trigger aria-describedby": {
       "present": false,
@@ -380,7 +380,7 @@
     "Enter open surface": {
       "role": "dialog",
       "ariaModal": "(none)",
-      "dataState": "open",
+      "dataState": "(none)",
       "dataSide": "bottom",
       "dataAlign": "center",
       "focus": "First action"
@@ -405,7 +405,7 @@
       "aria-expanded": "true",
       "aria-haspopup": "dialog",
       "aria-controls": "(present)",
-      "data-state": "open"
+      "data-state": "(none)"
     },
     "Escape opening trigger aria-describedby": {
       "present": false,
@@ -426,7 +426,7 @@
     "Escape opening surface": {
       "role": "dialog",
       "ariaModal": "(none)",
-      "dataState": "open",
+      "dataState": "(none)",
       "dataSide": "bottom",
       "dataAlign": "center",
       "focus": "First action"
@@ -445,7 +445,7 @@
       "aria-expanded": "true",
       "aria-haspopup": "dialog",
       "aria-controls": "(present)",
-      "data-state": "open"
+      "data-state": "(none)"
     },
     "reverse Tab opening trigger aria-describedby": {
       "present": false,
@@ -466,7 +466,7 @@
     "reverse Tab opening surface": {
       "role": "dialog",
       "ariaModal": "(none)",
-      "dataState": "open",
+      "dataState": "(none)",
       "dataSide": "bottom",
       "dataAlign": "center",
       "focus": "First action"
@@ -487,7 +487,7 @@
       "aria-expanded": "true",
       "aria-haspopup": "dialog",
       "aria-controls": "(present)",
-      "data-state": "open"
+      "data-state": "(none)"
     },
     "Enter open trigger aria-describedby": {
       "present": false,
@@ -508,7 +508,7 @@
     "Enter open surface": {
       "role": "dialog",
       "ariaModal": "(none)",
-      "dataState": "open",
+      "dataState": "(none)",
       "dataSide": "bottom",
       "dataAlign": "center",
       "focus": "First action"
@@ -538,7 +538,7 @@
       "aria-expanded": "true",
       "aria-haspopup": "dialog",
       "aria-controls": "(present)",
-      "data-state": "open"
+      "data-state": "(none)"
     },
     "Escape opening trigger aria-describedby": {
       "present": false,
@@ -559,7 +559,7 @@
     "Escape opening surface": {
       "role": "dialog",
       "ariaModal": "(none)",
-      "dataState": "open",
+      "dataState": "(none)",
       "dataSide": "bottom",
       "dataAlign": "center",
       "focus": "First action"
@@ -602,7 +602,7 @@
     "Enter open surface": {
       "role": "dialog",
       "ariaModal": "(none)",
-      "dataState": "open",
+      "dataState": "(none)",
       "dataSide": "top",
       "dataAlign": "center",
       "focus": "First action"
@@ -653,7 +653,7 @@
     "Escape opening surface": {
       "role": "dialog",
       "ariaModal": "(none)",
-      "dataState": "open",
+      "dataState": "(none)",
       "dataSide": "top",
       "dataAlign": "center",
       "focus": "First action"
@@ -688,7 +688,7 @@
     "outside press opening surface": {
       "role": "dialog",
       "ariaModal": "(none)",
-      "dataState": "open",
+      "dataState": "(none)",
       "dataSide": "top",
       "dataAlign": "center",
       "focus": "First action"
@@ -779,7 +779,7 @@
       "aria-expanded": "(none)",
       "aria-haspopup": "(none)",
       "aria-controls": "(none)",
-      "data-state": "open"
+      "data-state": "(none)"
     },
     "first hover trigger aria-describedby": {
       "present": true,
@@ -804,7 +804,7 @@
     "first hover surface": {
       "role": "tooltip",
       "ariaModal": "(none)",
-      "dataState": "open",
+      "dataState": "(none)",
       "dataSide": "top",
       "dataAlign": "center",
       "focus": "(body)"
@@ -828,7 +828,7 @@
       "aria-expanded": "(none)",
       "aria-haspopup": "(none)",
       "aria-controls": "(none)",
-      "data-state": "open"
+      "data-state": "(none)"
     },
     "second hover trigger aria-describedby": {
       "present": true,
@@ -853,7 +853,7 @@
     "second hover surface": {
       "role": "tooltip",
       "ariaModal": "(none)",
-      "dataState": "open",
+      "dataState": "(none)",
       "dataSide": "top",
       "dataAlign": "center",
       "focus": "(body)"
@@ -877,7 +877,7 @@
       "aria-expanded": "(none)",
       "aria-haspopup": "(none)",
       "aria-controls": "(none)",
-      "data-state": "open"
+      "data-state": "(none)"
     },
     "first focus trigger aria-describedby": {
       "present": true,
@@ -902,7 +902,7 @@
     "first focus surface": {
       "role": "tooltip",
       "ariaModal": "(none)",
-      "dataState": "open",
+      "dataState": "(none)",
       "dataSide": "top",
       "dataAlign": "center",
       "focus": "Tooltip target"
@@ -921,7 +921,7 @@
       "aria-expanded": "(none)",
       "aria-haspopup": "(none)",
       "aria-controls": "(none)",
-      "data-state": "closed"
+      "data-state": "(none)"
     },
     "after first Escape trigger aria-describedby": {
       "present": false,
@@ -944,7 +944,7 @@
       "aria-expanded": "(none)",
       "aria-haspopup": "(none)",
       "aria-controls": "(none)",
-      "data-state": "open"
+      "data-state": "(none)"
     },
     "return focus trigger aria-describedby": {
       "present": true,
@@ -969,7 +969,7 @@
     "return focus surface": {
       "role": "tooltip",
       "ariaModal": "(none)",
-      "dataState": "open",
+      "dataState": "(none)",
       "dataSide": "top",
       "dataAlign": "center",
       "focus": "Tooltip target"
@@ -990,7 +990,7 @@
       "aria-expanded": "(none)",
       "aria-haspopup": "(none)",
       "aria-controls": "(none)",
-      "data-state": "open"
+      "data-state": "(none)"
     },
     "keyboard open trigger aria-describedby": {
       "present": true,
@@ -1015,7 +1015,7 @@
     "keyboard open surface": {
       "role": "tooltip",
       "ariaModal": "(none)",
-      "dataState": "open",
+      "dataState": "(none)",
       "dataSide": "top",
       "dataAlign": "center",
       "focus": "Tooltip target"
@@ -1036,7 +1036,7 @@
       "aria-expanded": "true",
       "aria-haspopup": "dialog",
       "aria-controls": "(present)",
-      "data-state": "open"
+      "data-state": "(none)"
     },
     "pointer open trigger aria-describedby": {
       "present": false,
@@ -1057,7 +1057,7 @@
     "pointer open surface": {
       "role": "dialog",
       "ariaModal": "(none)",
-      "dataState": "open",
+      "dataState": "(none)",
       "dataSide": "bottom",
       "dataAlign": "center",
       "focus": "First action"
@@ -1088,7 +1088,7 @@
       "aria-expanded": "true",
       "aria-haspopup": "dialog",
       "aria-controls": "(present)",
-      "data-state": "open"
+      "data-state": "(none)"
     },
     "reopened trigger aria-describedby": {
       "present": false,
@@ -1109,7 +1109,7 @@
     "reopened surface": {
       "role": "dialog",
       "ariaModal": "(none)",
-      "dataState": "open",
+      "dataState": "(none)",
       "dataSide": "bottom",
       "dataAlign": "center",
       "focus": "First action"
@@ -1130,7 +1130,7 @@
       "aria-expanded": "true",
       "aria-haspopup": "dialog",
       "aria-controls": "(present)",
-      "data-state": "open"
+      "data-state": "(none)"
     },
     "Enter open trigger aria-describedby": {
       "present": false,
@@ -1151,7 +1151,7 @@
     "Enter open surface": {
       "role": "dialog",
       "ariaModal": "(none)",
-      "dataState": "open",
+      "dataState": "(none)",
       "dataSide": "bottom",
       "dataAlign": "center",
       "focus": "First action"
@@ -1176,7 +1176,7 @@
       "aria-expanded": "true",
       "aria-haspopup": "dialog",
       "aria-controls": "(present)",
-      "data-state": "open"
+      "data-state": "(none)"
     },
     "Escape opening trigger aria-describedby": {
       "present": false,
@@ -1197,7 +1197,7 @@
     "Escape opening surface": {
       "role": "dialog",
       "ariaModal": "(none)",
-      "dataState": "open",
+      "dataState": "(none)",
       "dataSide": "bottom",
       "dataAlign": "center",
       "focus": "First action"
@@ -1216,7 +1216,7 @@
       "aria-expanded": "true",
       "aria-haspopup": "dialog",
       "aria-controls": "(present)",
-      "data-state": "open"
+      "data-state": "(none)"
     },
     "reverse Tab opening trigger aria-describedby": {
       "present": false,
@@ -1237,7 +1237,7 @@
     "reverse Tab opening surface": {
       "role": "dialog",
       "ariaModal": "(none)",
-      "dataState": "open",
+      "dataState": "(none)",
       "dataSide": "bottom",
       "dataAlign": "center",
       "focus": "First action"
@@ -1258,7 +1258,7 @@
       "aria-expanded": "true",
       "aria-haspopup": "dialog",
       "aria-controls": "(present)",
-      "data-state": "open"
+      "data-state": "(none)"
     },
     "Enter open trigger aria-describedby": {
       "present": false,
@@ -1279,7 +1279,7 @@
     "Enter open surface": {
       "role": "dialog",
       "ariaModal": "(none)",
-      "dataState": "open",
+      "dataState": "(none)",
       "dataSide": "bottom",
       "dataAlign": "center",
       "focus": "First action"
@@ -1309,7 +1309,7 @@
       "aria-expanded": "true",
       "aria-haspopup": "dialog",
       "aria-controls": "(present)",
-      "data-state": "open"
+      "data-state": "(none)"
     },
     "Escape opening trigger aria-describedby": {
       "present": false,
@@ -1330,7 +1330,7 @@
     "Escape opening surface": {
       "role": "dialog",
       "ariaModal": "(none)",
-      "dataState": "open",
+      "dataState": "(none)",
       "dataSide": "bottom",
       "dataAlign": "center",
       "focus": "First action"
@@ -1373,7 +1373,7 @@
     "Enter open surface": {
       "role": "dialog",
       "ariaModal": "(none)",
-      "dataState": "open",
+      "dataState": "(none)",
       "dataSide": "top",
       "dataAlign": "center",
       "focus": "First action"
@@ -1424,7 +1424,7 @@
     "Escape opening surface": {
       "role": "dialog",
       "ariaModal": "(none)",
-      "dataState": "open",
+      "dataState": "(none)",
       "dataSide": "top",
       "dataAlign": "center",
       "focus": "First action"
@@ -1459,7 +1459,7 @@
     "outside press opening surface": {
       "role": "dialog",
       "ariaModal": "(none)",
-      "dataState": "open",
+      "dataState": "(none)",
       "dataSide": "top",
       "dataAlign": "center",
       "focus": "First action"

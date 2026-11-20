@@ -26,8 +26,8 @@ function ThemeProvider({
   children: React.ReactNode;
   theme: Theme.Light | Theme.Dark;
 }) {
-  // Toggle the `dark` class on `<html>` so Radix `Dialog.Portal` (and other
-  // portaled overlays rendered into `document.body`) inherit dark mode.
+  // Toggle the `dark` class on `<html>` so portalled overlays rendered into
+  // `document.body` inherit dark mode.
   // Without this, the `&:where(.dark, .dark *)` selector misses portaled
   // content because portals are siblings of — not descendants of — the
   // wrapper div below.

@@ -15,14 +15,7 @@ export function Progress({ progress, variant, size }: ProgressProps) {
   const value = progress >= 0 && progress <= 1 ? progress * 100 : null;
   const indicator = (
     <BaseProgress.Indicator
-      render={(props, state) => (
-        <div
-          {...props}
-          data-state={state.status === "progressing" ? "loading" : state.status}
-          data-value={value ?? undefined}
-          data-max={100}
-        />
-      )}
+      render={(props) => <div {...props} data-value={value ?? undefined} data-max={100} />}
       style={{ height: "100%", width: `${(progress * 100).toString()}%` }}
       className={clsx(variant, "variant-static-bg h-full duration-200 ease-in-out")}
     />
@@ -39,13 +32,8 @@ export function Progress({ progress, variant, size }: ProgressProps) {
       // The bar holds only its indicator. Base UI's root appends a visually hidden
       // "x" span so NVDA announces a `Progress.Label`; this bar takes no label, and
       // the span's text would join the textContent of whatever holds the bar.
-      render={(props, state) => (
-        <div
-          {...props}
-          data-state={state.status === "progressing" ? "loading" : state.status}
-          data-value={value ?? undefined}
-          data-max={100}
-        >
+      render={(props) => (
+        <div {...props} data-value={value ?? undefined} data-max={100}>
           {indicator}
         </div>
       )}

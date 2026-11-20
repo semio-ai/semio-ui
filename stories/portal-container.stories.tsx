@@ -44,9 +44,7 @@ function HostLadder({ onContainer }: { onContainer?: (el: HTMLDivElement | null)
       <p className="p-4 font-mono text-xs text-white">host layer — z-index: 100</p>
       {/* `pointer-events-auto` back on, because `pointer-events` INHERITS and base-ui sets
           none of its own on the positioner or popup — a popup portalled in here would
-          inherit the scrim's `none` and be visible but unclickable. Radix's
-          `DismissableLayer` sets `auto` itself, so its overlays are unaffected either way,
-          which is exactly what makes this easy to miss. */}
+          inherit the scrim's `none` and be visible but unclickable. */}
       <div className="pointer-events-auto" ref={onContainer ?? (() => {})} />
     </div>
   );

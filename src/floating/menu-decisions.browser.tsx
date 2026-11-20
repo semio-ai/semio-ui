@@ -40,7 +40,7 @@ enum Surface {
 
 const item = (name: string) => page.getByRole("menuitem", { name, exact: true });
 const button = (name: string) => page.getByRole("button", { name, exact: true });
-const menus = () => document.querySelectorAll('[role="menu"][data-state="open"]');
+const menus = () => document.querySelectorAll('[role="menu"][data-open]');
 const tick = () => new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
 
 function CanvasTrigger({ children, click }: { children: ReactNode; click: boolean }) {
@@ -118,7 +118,7 @@ async function open(entry: Entry, keyboard = false) {
 }
 
 async function first(name = "First") {
-  const popup = document.querySelector<HTMLElement>('[role="menu"][data-state="open"]')!;
+  const popup = document.querySelector<HTMLElement>('[role="menu"][data-open]')!;
   // A keyboard open already focuses the first enabled entry; a pointer open leaves focus
   // on the popup, from which Home moves to the first entry.
   if (!popup.contains(document.activeElement)) popup.focus();
@@ -575,7 +575,7 @@ for (const entry of [Entry.Dropdown, Entry.Context, Entry.Canvas])
       await expect.poll(() => changed.mock.calls.length).toBe(8);
     });
 
-    test("14: trigger, popup, sub-trigger and check states expose exact data-state values", async () => {
+    test("14: trigger, popup, sub-trigger and check states expose Base UI presence attributes", async () => {
       await render(
         <MenuFixture entry={entry}>
           <NestedCheckbox label="Checked" value />
@@ -601,33 +601,36 @@ for (const entry of [Entry.Dropdown, Entry.Context, Entry.Canvas])
       );
       const trigger = button("Open").element();
       if (entry === Entry.Dropdown || entry === Entry.Context)
-        expect(trigger.getAttribute("data-state")).toBe("closed");
+        expect(trigger.hasAttribute("data-popup-open")).toBe(false);
       await open(entry);
       if (entry === Entry.Dropdown || entry === Entry.Context)
-        expect(trigger.getAttribute("data-state")).toBe("open");
-      expect(document.querySelector('[role="menu"]')!.getAttribute("data-state")).toBe("open");
+        expect(trigger.hasAttribute("data-popup-open")).toBe(true);
+      expect(document.querySelector('[role="menu"]')!.hasAttribute("data-open")).toBe(true);
       await expect
         .element(page.getByRole("menuitemcheckbox", { name: "Checked", exact: true }))
-        .toHaveAttribute("data-state", "checked");
+        .toHaveAttribute("data-checked", "");
       await expect
         .element(page.getByRole("menuitemcheckbox", { name: "Unchecked", exact: true }))
-        .toHaveAttribute("data-state", "unchecked");
+        .toHaveAttribute("data-unchecked", "");
       await expect
         .element(page.getByRole("menuitemradio", { name: "Radio", exact: true }))
-        .toHaveAttribute("data-state", "checked");
+        .toHaveAttribute("data-checked", "");
       expect(
-        item("Partial").element().querySelector('[role="checkbox"]')!.getAttribute("data-state"),
-      ).toBe("indeterminate");
-      await expect.element(item("More")).toHaveAttribute("data-state", "closed");
+        item("Partial")
+          .element()
+          .querySelector('[role="checkbox"]')!
+          .hasAttribute("data-indeterminate"),
+      ).toBe(true);
+      await expect.element(item("More")).not.toHaveAttribute("data-popup-open");
       item("More").element().focus();
       await userEvent.keyboard("{ArrowRight}");
-      await expect.element(item("More")).toHaveAttribute("data-state", "open");
+      await expect.element(item("More")).toHaveAttribute("data-popup-open", "");
       await userEvent.keyboard("{Escape}");
-      await expect.element(item("More")).toHaveAttribute("data-state", "closed");
+      await expect.element(item("More")).not.toHaveAttribute("data-popup-open");
       await userEvent.keyboard("{Escape}");
       await expect.poll(() => menus().length).toBe(0);
       if (entry === Entry.Dropdown || entry === Entry.Context)
-        expect(trigger.getAttribute("data-state")).toBe("closed");
+        expect(trigger.hasAttribute("data-popup-open")).toBe(false);
     });
   });
 
@@ -1264,7 +1267,7 @@ test("an entry that stays open gets the live event, so stopPropagation keeps it 
 
 describe(Entry.Click, () => {
   const popup = () =>
-    document.querySelector<HTMLElement>('.card-overlay[role="dialog"][data-state="open"]');
+    document.querySelector<HTMLElement>('.card-overlay[role="dialog"][data-open]');
   async function openPopover() {
     await button("Open").click();
     await expect.poll(popup).not.toBeNull();

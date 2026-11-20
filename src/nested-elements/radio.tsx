@@ -53,9 +53,6 @@ export function NestedRadio({ variant, disabled, onChange, value, options }: Nes
             side="right"
           >
             <Menu.RadioItem
-              render={(props, state) => (
-                <div {...props} data-state={state.checked ? "checked" : "unchecked"} />
-              )}
               value={option.value}
               disabled={reasons[index].primitiveDisabled}
               {...reasons[index].itemProps}
@@ -76,9 +73,6 @@ export function NestedRadio({ variant, disabled, onChange, value, options }: Nes
               )}
             >
               <Menu.RadioItemIndicator
-                render={(props, state) => (
-                  <span {...props} data-state={state.checked ? "checked" : "unchecked"} />
-                )}
                 keepMounted
                 className={clsx(
                   "absolute top-1/2 left-1 grid -translate-y-1/2 place-items-center",

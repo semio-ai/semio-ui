@@ -25,12 +25,12 @@ enum Surface {
 }
 
 const button = (name: string) => page.getByRole("button", { name, exact: true });
-const tooltip = () => document.querySelector('.tooltip-content[data-state="open"]');
+const tooltip = () => document.querySelector(".tooltip-content[data-open]");
 const surface = () =>
   document
     .querySelector("[data-surface-content]")
     ?.closest(
-      '[data-state="open"], [role="alertdialog"]:not([data-closed]), [role="dialog"]:not([data-closed]):not([data-state="closed"])',
+      '[data-open], [role="alertdialog"]:not([data-closed]), [role="dialog"]:not([data-closed])',
     ) ?? null;
 const delay = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
 const settle = async () => {
@@ -138,7 +138,7 @@ test("opening a hovered tooltip closes the keyboard-opened tooltip", async () =>
   await delay(1200);
   expect(
     Array.from(
-      document.querySelectorAll('.tooltip-content[data-state="open"]'),
+      document.querySelectorAll(".tooltip-content[data-open]"),
       (node) => node.textContent,
     ),
   ).toEqual(["Explanation B"]);
@@ -382,7 +382,7 @@ test("a tooltip held open keeps its Escape after a newer tooltip closes", async 
   );
   await openSurface();
   const openTexts = () =>
-    [...document.querySelectorAll('.tooltip-content[data-state="open"]')].map(
+    [...document.querySelectorAll(".tooltip-content[data-open]")].map(
       (element) => element.textContent,
     );
   await expect.poll(openTexts).toEqual(["Copied!"]);
@@ -401,8 +401,7 @@ test("Escape from a toast closes only the topmost of nested overlays", async () 
   vi.spyOn(navigator.clipboard, "writeText").mockResolvedValue();
   // Two non-modal popovers, one inside the other: focus can rest in the toast while both
   // stay open, which a modal menu does not allow.
-  const openPopovers = () =>
-    document.querySelectorAll('.popover-content[data-state="open"]').length;
+  const openPopovers = () => document.querySelectorAll(".popover-content[data-open]").length;
   await render(
     <UiStoreProvider>
       <ToastManager>

@@ -54,7 +54,7 @@ test("single selection exposes radio state and native disabled buttons", () => {
   for (const [index, button] of buttons.entries()) {
     expect(button).toContain('role="radio"');
     expect(button).toContain(`aria-checked="${index === 1 ? "true" : "false"}"`);
-    expect(button).toContain(`data-state="${index === 1 ? "on" : "off"}"`);
+    expect(button.includes('data-pressed=""')).toBe(index === 1);
     expect(button).not.toContain("aria-pressed=");
     expect(button).not.toContain("aria-disabled=");
   }
