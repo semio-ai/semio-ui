@@ -55,8 +55,8 @@ test("the visible controlled tooltip supplies its trigger's accessible descripti
     expect(popup.textContent).toBe("Explanation");
     expect(popup.id).not.toBe("");
     expect(trigger.getAttribute("aria-describedby")).toBe(popup.id);
-    expect(popup.getAttribute("data-state")).toBe("open");
-    expect(trigger.getAttribute("data-state")).toBe("open");
+    expect(popup.hasAttribute("data-open")).toBe(true);
+    expect(trigger.hasAttribute("data-popup-open")).toBe(true);
     expect(portalContainer.contains(popup)).toBe(true);
     expect(popup.closest(".z-10")).not.toBeNull();
     expect(popup.classList.contains("card-invert")).toBe(true);
@@ -65,7 +65,7 @@ test("the visible controlled tooltip supplies its trigger's accessible descripti
     fireEvent.keyDown(document, { key: "Escape" });
     await waitFor(() => expect(screen.queryByRole("tooltip")).toBeNull());
     expect(trigger.hasAttribute("aria-describedby")).toBe(false);
-    expect(trigger.getAttribute("data-state")).toBe("closed");
+    expect(trigger.hasAttribute("data-popup-open")).toBe(false);
   } finally {
     cleanup();
     portalContainer.remove();
@@ -102,16 +102,14 @@ test.each([true, false])("aria-disabled=%s controls press dismissal", async (dis
   await screen.findByRole("tooltip");
   fireEvent.pointerDown(trigger, { pointerType: "mouse", button: 0 });
   fireEvent.click(trigger);
-  await waitFor(() =>
-    expect(trigger.getAttribute("data-state")).toBe(disabled ? "open" : "closed"),
-  );
+  await waitFor(() => expect(trigger.hasAttribute("data-popup-open")).toBe(disabled));
   if (disabled) {
     // A dispatched scroll is measurement feedback and keeps the explanation open.
     fireEvent.scroll(trigger.parentElement!);
-    expect(trigger.getAttribute("data-state")).toBe("open");
+    expect(trigger.hasAttribute("data-popup-open")).toBe(true);
     // The press exemption is scoped to this trigger.
     fireEvent.pointerDown(document.body, { pointerType: "mouse", button: 0 });
-    await waitFor(() => expect(trigger.getAttribute("data-state")).toBe("closed"));
+    await waitFor(() => expect(trigger.hasAttribute("data-popup-open")).toBe(false));
   }
 });
 
@@ -133,11 +131,11 @@ test("an aria-disabled trigger in another document keeps its explanation open wh
     );
     const trigger = container.querySelector("button")!;
     act(() => trigger.focus());
-    await waitFor(() => expect(trigger.getAttribute("data-state")).toBe("open"));
+    await waitFor(() => expect(trigger.hasAttribute("data-popup-open")).toBe(true));
     fireEvent.pointerDown(trigger, { pointerType: "mouse", button: 0 });
     fireEvent.click(trigger);
     await new Promise((resolve) => setTimeout(resolve, 50));
-    expect(trigger.getAttribute("data-state")).toBe("open");
+    expect(trigger.hasAttribute("data-popup-open")).toBe(true);
   } finally {
     cleanup();
     frame.remove();
@@ -256,15 +254,15 @@ test("a tooltip released from control shows the state last requested", async () 
   const { rerender } = render(<Fixture held={false} />);
   const trigger = screen.getByRole("button", { name: "Trigger" });
   act(() => trigger.focus());
-  await waitFor(() => expect(trigger.getAttribute("data-state")).toBe("open"));
+  await waitFor(() => expect(trigger.hasAttribute("data-popup-open")).toBe(true));
   // Held open, as Snippet holds "Copied!": the close request is refused for now.
   rerender(<Fixture held />);
   fireEvent.keyDown(document, { key: "Escape" });
   await act(async () => {});
-  expect(trigger.getAttribute("data-state")).toBe("open");
+  expect(trigger.hasAttribute("data-popup-open")).toBe(true);
   // Released, it shows the state last asked for.
   rerender(<Fixture held={false} />);
-  await waitFor(() => expect(trigger.getAttribute("data-state")).toBe("closed"));
+  await waitFor(() => expect(trigger.hasAttribute("data-popup-open")).toBe(false));
 });
 
 test("a parent's render does not close a newer tooltip beside one held open", async () => {
@@ -285,9 +283,9 @@ test("a parent's render does not close a newer tooltip beside one held open", as
   const { rerender } = render(<Fixture renders={0} />);
   const newer = screen.getByRole("button", { name: "Newer trigger" });
   act(() => newer.focus());
-  await waitFor(() => expect(newer.getAttribute("data-state")).toBe("open"));
+  await waitFor(() => expect(newer.hasAttribute("data-popup-open")).toBe(true));
   rerender(<Fixture renders={1} />);
   await act(async () => {});
   expect(screen.getByText("1")).toBeTruthy();
-  expect(newer.getAttribute("data-state")).toBe("open");
+  expect(newer.hasAttribute("data-popup-open")).toBe(true);
 });

@@ -135,8 +135,8 @@ function Tooltip({
             // portalled menu must leave that menu as the topmost Escape layer.
             if (!event.currentTarget.contains(event.target)) event.preventBaseUIHandler();
           }}
-          render={(props, state) => {
-            const trigger = renderMenuTrigger(children, props, state.open);
+          render={(props) => {
+            const trigger = renderMenuTrigger(children, props);
             return cloneElement(trigger, {
               // The open explanation describes the trigger, unless the trigger already
               // names its own description: a disabled menu entry's reason is both that
@@ -159,9 +159,6 @@ function Tooltip({
             <TooltipPrimitive.Popup
               id={popupId}
               role="tooltip"
-              render={(props, state) => (
-                <div {...props} data-state={state.open ? "open" : "closed"} />
-              )}
               className={clsx(
                 Size.Sm as string,
                 "variant-scope",

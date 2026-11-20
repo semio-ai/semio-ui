@@ -21,7 +21,6 @@ import {
 } from "motion/react";
 import { createPortal } from "react-dom";
 import { Toast as BaseToast, type ToastObject } from "@base-ui/react/toast";
-import { DismissableLayer } from "radix-ui/internal";
 import { clsx } from "clsx";
 import { Button } from "../buttons/button";
 import { Size, Variant } from "../types";
@@ -354,7 +353,6 @@ function InnerToast({
       aria-labelledby={undefined}
       aria-describedby={undefined}
       aria-hidden={undefined}
-      data-state={toast.transitionStatus === "ending" ? "closed" : "open"}
       onPointerDown={() => setSwipeStarted(true)}
       render={(props, state) => (
         <motion.li
@@ -378,18 +376,6 @@ function InnerToast({
               touchAction: "none",
               // CSS translate composes with Motion's entrance and exit transform.
               transform: undefined,
-              ...(state.swiping && state.swipeDirection
-                ? {
-                    "--radix-toast-swipe-move-x": "var(--toast-swipe-movement-x)",
-                    "--radix-toast-swipe-move-y": "var(--toast-swipe-movement-y)",
-                  }
-                : {}),
-              ...(state.transitionStatus === "ending" && state.swipeDirection
-                ? {
-                    "--radix-toast-swipe-end-x": "var(--toast-swipe-movement-x)",
-                    "--radix-toast-swipe-end-y": "var(--toast-swipe-movement-y)",
-                  }
-                : {}),
             } as CSSProperties
           }
           layout
@@ -397,7 +383,7 @@ function InnerToast({
           className={clsx(
             "items-center overflow-hidden",
             "pointer-events-auto relative box-border w-full select-none",
-            "data-[swipe=cancel]:translate-x-0 data-[swipe=move]:translate-x-(--radix-toast-swipe-move-x)",
+            "data-[swipe=cancel]:translate-x-0 data-[swipe=move]:translate-x-(--toast-swipe-movement-x)",
             "data-[swipe=end]:animate-toastSwipeOut",
             "data-[swipe=cancel]:transition-[transform_200ms_ease-out]",
             data.variant,
@@ -603,7 +589,7 @@ function ToastContainer({ children }: ToastContainerProps) {
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "F8" && viewportRef.current?.querySelector("li[data-state]")) {
+      if (event.key === "F8" && viewportRef.current?.querySelector("li.card-overlay")) {
         event.preventDefault();
         viewportRef.current.focus();
       }
@@ -802,48 +788,44 @@ function ToastContainer({ children }: ToastContainerProps) {
           {/* Modal hiding exempts this live region, keeping toasts clickable after
             the separate body-portalled announcers have expired. */}
           <BaseToast.Portal aria-live="off">
-            {/* Nothing in this package mounts a Radix dismissable layer, so this branch
-                has no effect. It leaves with the radix-ui dependency. */}
-            <DismissableLayer.Branch asChild>
-              <div
-                data-notifications-region=""
-                role="region"
-                aria-label="Notifications (F8)"
-                tabIndex={-1}
-                // The region lets pointers through while any toast is mounted, including
-                // one still running its exit animation.
-                style={{ pointerEvents: mounted > 0 ? undefined : "none" }}
+            <div
+              data-notifications-region=""
+              role="region"
+              aria-label="Notifications (F8)"
+              tabIndex={-1}
+              // The region lets pointers through while any toast is mounted, including
+              // one still running its exit animation.
+              style={{ pointerEvents: mounted > 0 ? undefined : "none" }}
+            >
+              <BaseToast.Viewport
+                render={<ol ref={viewportRef} />}
+                role={undefined}
+                aria-live={undefined}
+                aria-label={undefined}
+                className="pointer-events-none fixed top-4 right-4 z-2147483647 flex w-80 max-w-[calc(100vw-2rem)] flex-col-reverse gap-3 max-sm:top-20"
               >
-                <BaseToast.Viewport
-                  render={<ol ref={viewportRef} />}
-                  role={undefined}
-                  aria-live={undefined}
-                  aria-label={undefined}
-                  className="pointer-events-none fixed top-4 right-4 z-2147483647 flex w-80 max-w-[calc(100vw-2rem)] flex-col-reverse gap-3 max-sm:top-20"
-                >
-                  <AnimatePresence>
-                    {rendered.map((toast) => (
-                      <Toast
-                        key={toast.id}
-                        toast={toast}
-                        menuPortalContainer={menuPortalContainer}
-                        generation={generations.current.get(toast.id) ?? 0}
-                        isCurrentGeneration={isCurrentGeneration}
-                      />
-                    ))}
-                  </AnimatePresence>
-                  {/* A presentational li preserves the list's child semantics. Fixed
+                <AnimatePresence>
+                  {rendered.map((toast) => (
+                    <Toast
+                      key={toast.id}
+                      toast={toast}
+                      menuPortalContainer={menuPortalContainer}
+                      generation={generations.current.get(toast.id) ?? 0}
+                      isCurrentGeneration={isCurrentGeneration}
+                    />
+                  ))}
+                </AnimatePresence>
+                {/* A presentational li preserves the list's child semantics. Fixed
                       positioning excludes the host from flex layout; its z-index
                       stays inside the list and paints menus above the toasts.
                       Menu dismissal gives an open menu Escape before a toast. */}
-                  <li
-                    role="presentation"
-                    ref={registerMenuContainer}
-                    className="pointer-events-auto fixed z-2147483647"
-                  />
-                </BaseToast.Viewport>
-              </div>
-            </DismissableLayer.Branch>
+                <li
+                  role="presentation"
+                  ref={registerMenuContainer}
+                  className="pointer-events-auto fixed z-2147483647"
+                />
+              </BaseToast.Viewport>
+            </div>
           </BaseToast.Portal>
           {children}
         </ToastMountContext.Provider>

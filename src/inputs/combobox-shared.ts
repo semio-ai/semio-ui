@@ -32,7 +32,8 @@ export function popupClassName(opts?: { variant?: Variant; color?: string; extra
     // tints the popup's own edge: `.card-overlay` has no border, so the variant
     // reaches only the content.
     opts?.color ? "custom-color" : (opts?.variant ?? Variant.Default),
-    "variant-scope card-overlay dropdown-content",
+    // `combobox-popup` keeps the menus' slide entrance off this surface (styles.css).
+    "variant-scope card-overlay dropdown-content combobox-popup",
     "m-0.5 rounded-sm",
     "w-[calc(var(--available-width)-4px)]",
     "desktop:w-[calc(var(--anchor-width)+10px)]",
@@ -62,9 +63,8 @@ export function listClassName() {
 
 /**
  * Item class soup matches `NestedRadio` / `NestedItem` so popups feel identical
- * to Select's. Pair with a `data-state="checked"|"unchecked"` attribute on the
- * item — base-ui exposes `data-selected` but the project's `check-indicator` /
- * `highlight-list-item` styles key off `data-state`.
+ * to Select's. Selection styles read Base UI's `data-selected`; autocomplete
+ * suggestions use `data-unchecked` because choosing one runs an action.
  */
 export function itemClassName(opts?: { variant?: Variant; color?: string; extras?: string }) {
   return clsx(

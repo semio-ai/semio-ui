@@ -64,9 +64,7 @@ export function ContextMenu({
         changeOpen(next);
       }}
     >
-      <ContextMenuPrimitive.Trigger
-        render={(props, state) => renderMenuTrigger(children, props, state.open)}
-      />
+      <ContextMenuPrimitive.Trigger render={(props) => renderMenuTrigger(children, props)} />
       <ContextMenuPrimitive.Portal container={portalContainer ?? undefined}>
         {/* Below the press point, its top-left corner just past the pointer, so it
             enters with the same vertical slide as a Dropdown and flips above the
@@ -84,9 +82,6 @@ export function ContextMenu({
             finalFocus={() => (returnFocus.current ? previousFocus.current : false)}
             // Base UI's ContextMenu keeps focus inside the open menu, Tab included, and
             // hides the page from assistive technology until the menu closes.
-            render={(props, state) => (
-              <div {...props} data-state={state.open ? "open" : "closed"} />
-            )}
             style={color ? ({ "--custom-color": color } as CSSProperties) : {}}
             className={clsx(
               color ? "custom-color" : variant,

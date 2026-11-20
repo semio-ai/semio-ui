@@ -240,7 +240,6 @@ export function Combobox<TValue extends string>({
                             option={option}
                             variant={variant}
                             renderItem={renderItem}
-                            isSelected={option.value === value}
                           />
                         )}
                       </ComboboxPrimitive.Collection>
@@ -255,7 +254,6 @@ export function Combobox<TValue extends string>({
                       option={option}
                       variant={variant}
                       renderItem={renderItem}
-                      isSelected={option.value === value}
                     />
                   )}
                 </ComboboxPrimitive.List>
@@ -275,12 +273,10 @@ function ComboboxItemRow<TValue extends string>({
   option,
   variant,
   renderItem,
-  isSelected,
 }: {
   option: ComboboxOption<TValue>;
   variant: Variant;
   renderItem?: (option: ComboboxOption<TValue>, state: ComboboxItemState) => ReactNode;
-  isSelected: boolean;
 }) {
   const itemVariant = option.variant ?? variant;
   return (
@@ -290,7 +286,7 @@ function ComboboxItemRow<TValue extends string>({
       style={option.color ? ({ "--custom-color": option.color } as CSSProperties) : undefined}
       className={itemClassName({ variant: itemVariant, color: option.color })}
       render={(props, state) => (
-        <div {...props} data-state={isSelected ? "checked" : "unchecked"}>
+        <div {...props}>
           <span className={itemIndicatorClassName({ variant: itemVariant, color: option.color })}>
             <span className="icon-slot">
               {resolveIcon(option.icon) ?? <Icon name="option-placeholder" />}
@@ -300,7 +296,7 @@ function ComboboxItemRow<TValue extends string>({
             ? renderItem(option, {
                 highlighted: state.highlighted,
                 disabled: state.disabled,
-                selected: isSelected,
+                selected: state.selected,
               })
             : option.label}
         </div>

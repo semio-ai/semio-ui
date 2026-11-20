@@ -2,7 +2,7 @@ import { ReactNode } from "react";
 import { Collapsible } from "@base-ui/react/collapsible";
 import { clsx } from "clsx";
 import { Icon, DisclosureIcon } from "../icons/registry";
-import { LegacySizePanel } from "./legacy-size-panel";
+import { SizePanel } from "./size-panel";
 
 export interface CollapseProps {
   title: string | ReactNode;
@@ -29,7 +29,6 @@ export function Collapse({
       // Base UI passes event details second; the consumer contract is one boolean.
       onOpenChange={(next) => onStateChange(next)}
       disabled={disabled}
-      render={(props, state) => <div {...props} data-state={state.open ? "open" : "closed"} />}
     >
       <Collapsible.Trigger
         // The rendered native button owns disabled focus exclusion.
@@ -42,7 +41,6 @@ export function Collapse({
             disabled={state.disabled}
             // Native disabling excludes the trigger from keyboard focus.
             aria-disabled={undefined}
-            data-state={state.open ? "open" : "closed"}
           />
         )}
         className={clsx(
@@ -66,9 +64,7 @@ export function Collapse({
       </Collapsible.Trigger>
 
       <Collapsible.Panel
-        render={(props, state) => (
-          <LegacySizePanel {...props} data-state={state.open ? "open" : "closed"} />
-        )}
+        render={(props) => <SizePanel {...props} />}
         className={clsx(
           "bg-transparent",
           direction === "horizontal"

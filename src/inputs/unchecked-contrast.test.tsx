@@ -218,12 +218,9 @@ test.each([undefined, "#f56b29"])(
       expect(markup).toContain(`--custom-color:${color}`);
     }
     const partials: postcss.Rule[] = [];
-    compiled.walkRules(
-      '&.toggle-square-content:not(:disabled)[data-state="indeterminate"]',
-      (rule) => {
-        partials.push(rule);
-      },
-    );
+    compiled.walkRules("&.toggle-square-content:not(:disabled)[data-indeterminate]", (rule) => {
+      partials.push(rule);
+    });
     expect(partials).toHaveLength(1);
     expect((partials[0].parent as postcss.Rule).selector).toBe(".variant-checkbox-bg");
     const shadows: string[] = [];

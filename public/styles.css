@@ -198,7 +198,7 @@
     @apply dark:bg-layout-dark-deep-inset/30 bg-layout-light-deep-inset/30;
     @apply dark:hover:not-disabled:bg-layout-dark-deep-inset/70 hover:not-disabled:bg-layout-light-deep-inset/70;
     @apply dark:focus:not-disabled:bg-layout-dark-deep-inset/70 focus:not-disabled:bg-layout-light-deep-inset/70;
-    @apply dark:data-[state=open]:bg-layout-dark-deep-inset/70 data-[state=open]:bg-layout-light-deep-inset/70;
+    @apply dark:data-[popup-open]:bg-layout-dark-deep-inset/70 data-[popup-open]:bg-layout-light-deep-inset/70;
   }
 
   .variant-responsive-appearing-outline {
@@ -207,13 +207,13 @@
     @apply outline-0 outline-offset-2 hover:not-disabled:outline;
     @apply focus:not-disabled:outline-2 focus-within:not-disabled:outline-2;
     @apply focus:hover:not-disabled:outline-2 hover:focus-within:not-disabled:outline-2;
-    @apply focus:group-data-[state=open]/trigger:not-disabled:outline-2;
-    @apply focus:data-[state=closed]:outline-0;
-    @apply data-[state=open]:not-disabled:outline-2;
+    @apply focus:group-data-[popup-open]/trigger:not-disabled:outline-2;
+    @apply focus:[&.popup-trigger:not([data-popup-open])]:outline-0;
+    @apply data-[popup-open]:not-disabled:outline-2;
   }
 
   .parent-outline {
-    &:has(*[data-state="open"]) {
+    &:has([data-popup-open], [data-open]) {
       @apply outline-2;
     }
   }
@@ -901,7 +901,7 @@
       --control-boundary-color: var(--standard-color);
     }
 
-    &[data-state="indeterminate"] {
+    &[data-indeterminate] {
       --control-state-shadow: inset 0 0 0 3px var(--standard-color);
       &:disabled {
         --control-state-shadow: inset 0 0 0 3px
@@ -923,11 +923,12 @@
      * Declared with the fill rather than at the call site so the two cannot drift, and
      * so no consumer has to know which of a component's states fill from where. */
     @apply dark:text-neutral-200 text-neutral-800;
-    @apply dark:data-[state=indeterminate]:text-neutral-200 data-[state=indeterminate]:text-neutral-800;
+    @apply dark:data-[indeterminate]:text-neutral-200 data-[indeterminate]:text-neutral-800;
 
     &:not(*:disabled) {
-      &[data-state="checked"],
-      &[data-state="on"] {
+      &[data-checked],
+      &[data-pressed],
+      &[data-active] {
         /* The check mark is a child of this element and inherits `color`, so the
          * foreground is declared here, next to the fill it has to contrast against.
          * A child that names its own literal colour instead cannot follow the fill
@@ -946,7 +947,7 @@
 
     /* Icon toggles need no edge: the icon and fill identify the control.
      * A partial value uses a single inset stroke to distinguish its state. */
-    &.toggle-square-content:not(:disabled)[data-state="indeterminate"] {
+    &.toggle-square-content:not(:disabled)[data-indeterminate] {
       box-shadow: inset 0 0 0 1px var(--standard-color);
       &:hover {
         @media (hover: hover) {
@@ -957,8 +958,9 @@
 
     /* When using a custom color, show a subtle tinted background in the off state. */
     &.custom-color:not(*:disabled) {
-      &[data-state="unchecked"],
-      &[data-state="off"] {
+      &[data-unchecked],
+      &:is([aria-pressed], [role="radio"]):not([data-pressed]),
+      &[role="tab"]:not([data-active]) {
         background-color: color-mix(in oklab, var(--standard-color) 20%, transparent) !important;
         color: var(--standard-color) !important;
         &:hover {
@@ -972,7 +974,7 @@
         }
       }
       /* Indeterminate with custom color: same subtle bg as off + inset border + full color icon. */
-      &[data-state="indeterminate"] {
+      &[data-indeterminate] {
         background-color: color-mix(in oklab, var(--standard-color) 20%, transparent) !important;
         color: var(--standard-color) !important;
         &:hover {
@@ -989,8 +991,9 @@
 
     &:disabled {
       @apply dark:bg-layout-dark-base/50 bg-layout-light-base/50;
-      &[data-state="checked"],
-      &[data-state="on"] {
+      &[data-checked],
+      &[data-pressed],
+      &[data-active] {
         background-color: color-mix(in oklab, var(--standard-color) 50%, transparent) !important;
       }
     }
@@ -1004,13 +1007,13 @@
     @apply group-data-disabled/item:text-neutral-500/50;
     @apply dark:text-default-400 text-default-600;
     @apply dark:group-data-highlighted/item:text-black group-data-highlighted/item:text-white;
-    @apply group-data-highlighted/item:group-data-[state=unchecked]/item:text-white;
-    @apply dark:group-data-highlighted/item:group-data-[state=unchecked]/item:text-black;
-    @apply group-data-[state=unchecked]/item:opacity-50;
-    @apply dark:group-data-[state=checked]/item:bg-layout-light-base group-data-[state=checked]/item:bg-layout-dark-base;
-    @apply group-data-[state=indeterminate]/item:shadow-[inset_0_0_0_1px_currentColor];
+    @apply group-data-highlighted/item:group-[:is([data-unchecked],[role=option]:not([data-selected]))]/item:text-white;
+    @apply dark:group-data-highlighted/item:group-[:is([data-unchecked],[role=option]:not([data-selected]))]/item:text-black;
+    @apply group-[:is([data-unchecked],[role=option]:not([data-selected]))]/item:opacity-50;
+    @apply dark:group-[:is([data-checked],[data-selected])]/item:bg-layout-light-base group-[:is([data-checked],[data-selected])]/item:bg-layout-dark-base;
+    @apply group-data-[indeterminate]/item:shadow-[inset_0_0_0_1px_currentColor];
 
-    &:is(:where(.group\/item)[data-state="unchecked"] *) {
+    &:is(:where(.group\/item):is([data-unchecked], [role="option"]:not([data-selected])) *) {
       color: var(--accent-color);
     }
 
@@ -1020,12 +1023,12 @@
      * consumer but `NestedCheckbox` puts its variant class on the indicator, so the
      * fill is a saturated brand hue: white on it measures 2.9:1 on warning and
      * 3.2:1 on success in light mode. */
-    &:is(:where(.group\/item)[data-state="checked"] *) {
+    &:is(:where(.group\/item):is([data-checked], [data-selected]) *) {
       color: var(--on-accent-color);
       background-color: var(--accent-color);
     }
 
-    &:is(:where(.group\/item)[data-state="indeterminate"] *) {
+    &:is(:where(.group\/item)[data-indeterminate] *) {
       color: var(--accent-color);
       background-color: transparent;
     }
@@ -1033,7 +1036,13 @@
     /* A focused disabled option keeps the indicator colour it has at rest rather than
      * the highlighted one; see the matching rule in `.highlight-list-item`. Only the
      * unchecked state needs it: the checked rule above already outranks the highlight. */
-    &:is(:where(.group\/item)[data-highlighted][data-disabled][data-state="unchecked"] *) {
+    &:is(
+      :where(.group\/item)[data-highlighted][data-disabled]:is(
+          [data-unchecked],
+          [role="option"]:not([data-selected])
+        )
+        *
+    ) {
       color: var(--accent-color);
     }
   }
@@ -1046,22 +1055,25 @@
     @apply data-disabled:text-neutral-500/50;
     @apply dark:text-default-400 text-default-600;
     @apply dark:data-highlighted:text-black data-highlighted:text-white;
-    @apply dark:data-[state=checked]:text-black data-[state=checked]:text-white;
-    @apply dark:data-[state=on]:text-black data-[state=on]:text-white;
-    @apply data-highlighted:data-[state=unchecked]:text-white;
-    @apply dark:data-highlighted:data-[state=unchecked]:text-black;
-    @apply dark:data-[state=checked]:bg-layout-light-base data-[state=checked]:bg-layout-dark-base;
-    @apply dark:data-[state=on]:bg-layout-light-base data-[state=on]:bg-layout-dark-base;
+    @apply dark:data-[checked]:text-black data-[checked]:text-white;
+    @apply dark:data-[pressed]:text-black data-[pressed]:text-white;
+    @apply dark:data-active:text-black data-active:text-white;
+    @apply data-highlighted:data-[unchecked]:text-white;
+    @apply dark:data-highlighted:data-[unchecked]:text-black;
+    @apply dark:data-[checked]:bg-layout-light-base data-[checked]:bg-layout-dark-base;
+    @apply dark:data-[pressed]:bg-layout-light-base data-[pressed]:bg-layout-dark-base;
+    @apply dark:data-active:bg-layout-light-base data-active:bg-layout-dark-base;
 
     &:disabled {
       @apply dark:bg-black/20 bg-white/20;
-      &[data-state="checked"],
-      &[data-state="on"] {
+      &[data-checked],
+      &[data-pressed],
+      &[data-active] {
         @apply dark:bg-layout-light-base/50 bg-layout-dark-base/50;
       }
     }
 
-    &:is(:where(.group\/item)[data-state="unchecked"] *) {
+    &:is(:where(.group\/item):is([data-unchecked], [role="option"]:not([data-selected])) *) {
       color: var(--accent-color);
     }
 
@@ -1071,8 +1083,9 @@
      * branch is the one that fires if a consumer does nest it: the fill becomes a
      * variant hue that does not flip with the theme, so the foreground is derived
      * here rather than inheriting a pairing chosen for a different fill. */
-    &:is(:where(.group\/item)[data-state="checked"] *),
-    &:is(:where(.group\/item)[data-state="on"] *) {
+    &:is(:where(.group\/item):is([data-checked], [data-selected]) *),
+    &:is(:where(.group\/item)[data-pressed] *),
+    &:is(:where(.group\/item)[data-active] *) {
       color: var(--on-accent-color);
       background-color: var(--accent-color);
     }
@@ -1084,9 +1097,9 @@
     @apply group-data-disabled/item:text-neutral-500/25;
     @apply dark:text-default-600 text-default-400;
     @apply dark:group-data-highlighted/item:text-black group-data-highlighted/item:text-white;
-    @apply dark:group-data-[state=checked]/item:text-black group-data-[state=checked]/item:text-white;
-    @apply group-data-highlighted/item:group-data-[state=unchecked]/item:text-white;
-    @apply dark:group-data-highlighted/item:group-data-[state=unchecked]/item:text-black;
+    @apply dark:group-[:is([data-checked],[data-selected])]/item:text-black group-[:is([data-checked],[data-selected])]/item:text-white;
+    @apply group-data-highlighted/item:group-[:is([data-unchecked],[role=option]:not([data-selected]))]/item:text-white;
+    @apply dark:group-data-highlighted/item:group-[:is([data-unchecked],[role=option]:not([data-selected]))]/item:text-black;
 
     /* A focused disabled entry keeps its disabled icon colour; see the matching
      * rule in `.highlight-list-item`. */
@@ -1109,7 +1122,7 @@
       background-color: color-mix(in oklab, var(--accent-color) 50%, transparent);
     }
 
-    &[data-state="open"] {
+    &:is([data-popup-open], [data-open]) {
       background-color: color-mix(in oklab, var(--accent-color) 25%, transparent);
       &[data-highlighted] {
         background-color: color-mix(in oklab, var(--accent-color) 50%, transparent);
@@ -1157,7 +1170,7 @@
     }
 
     &:focus,
-    &[data-state="open"] {
+    &[data-popup-open] {
       background-color: color-mix(in oklab, var(--accent-color) 40%, transparent);
     }
   }
@@ -2165,16 +2178,16 @@
     transform-origin: var(--transform-origin);
   }
 
-  .popover-content[data-state="open"][data-side="top"] {
+  .popover-content[data-open][data-side="top"] {
     animation-name: slideDownAndFade;
   }
-  .popover-content[data-state="open"][data-side="right"] {
+  .popover-content[data-open][data-side="right"] {
     animation-name: slideLeftAndFade;
   }
-  .popover-content[data-state="open"][data-side="bottom"] {
+  .popover-content[data-open][data-side="bottom"] {
     animation-name: slideUpAndFade;
   }
-  .popover-content[data-state="open"][data-side="left"] {
+  .popover-content[data-open][data-side="left"] {
     animation-name: slideRightAndFade;
   }
 
@@ -2185,16 +2198,18 @@
     transform-origin: var(--transform-origin);
   }
 
-  .dropdown-content[data-state="open"][data-side="top"] {
+  /* Combobox and Autocomplete popups share the dropdown surface but keep their own
+     scale transition, so the menus' slide entrance leaves them out. */
+  .dropdown-content[data-open]:not(.combobox-popup)[data-side="top"] {
     animation-name: slideDownAndFade;
   }
-  .dropdown-content[data-state="open"][data-side="right"] {
+  .dropdown-content[data-open]:not(.combobox-popup)[data-side="right"] {
     animation-name: slideLeftAndFade;
   }
-  .dropdown-content[data-state="open"][data-side="bottom"] {
+  .dropdown-content[data-open]:not(.combobox-popup)[data-side="bottom"] {
     animation-name: slideUpAndFade;
   }
-  .dropdown-content[data-state="open"][data-side="left"] {
+  .dropdown-content[data-open]:not(.combobox-popup)[data-side="left"] {
     animation-name: slideRightAndFade;
   }
 
@@ -2204,21 +2219,21 @@
     animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
   }
 
-  .animated-modal[data-state="open"] {
+  .animated-modal[data-open] {
     animation-name: slideUpAndFade;
   }
 
-  .animated-modal[data-state="closed"] {
+  .animated-modal[data-closed] {
     animation-name: slideDownAndFade;
   }
 
   .CollapsibleVerticalContent {
     overflow: hidden;
   }
-  .CollapsibleVerticalContent[data-state="open"] {
+  .CollapsibleVerticalContent[data-open] {
     animation: expandDown 200ms ease-out;
   }
-  .CollapsibleVerticalContent[data-state="closed"] {
+  .CollapsibleVerticalContent[data-closed] {
     animation: expandUp 100ms ease-out;
   }
 
@@ -2226,11 +2241,11 @@
     overflow: hidden;
   }
 
-  .CollapsibleHorizontalContent[data-state="open"] {
+  .CollapsibleHorizontalContent[data-open] {
     animation: expandRight 200ms ease-out;
   }
 
-  .CollapsibleHorizontalContent[data-state="closed"] {
+  .CollapsibleHorizontalContent[data-closed] {
     animation: expandLeft 100ms ease-out;
   }
 
@@ -2258,13 +2273,13 @@
       height: 0;
     }
     to {
-      height: var(--radix-collapsible-content-height);
+      height: var(--collapsible-panel-height);
     }
   }
 
   @keyframes expandUp {
     from {
-      height: var(--radix-collapsible-content-height);
+      height: var(--collapsible-panel-height);
     }
     to {
       height: 0;
@@ -2273,7 +2288,7 @@
 
   @keyframes expandLeft {
     from {
-      width: var(--radix-collapsible-content-width);
+      width: var(--collapsible-panel-width);
     }
     to {
       width: 0;
@@ -2285,7 +2300,7 @@
       width: 0;
     }
     to {
-      width: var(--radix-collapsible-content-width);
+      width: var(--collapsible-panel-width);
     }
   }
 
@@ -2333,8 +2348,8 @@
     }
   }
 
-  [data-state="open"] > .radix-accordion-content {
-    height: var(--radix-accordion-content-height);
+  [data-open] > .radix-accordion-content {
+    height: var(--accordion-panel-height);
   }
 }
 

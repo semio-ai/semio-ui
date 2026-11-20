@@ -82,10 +82,9 @@ export function InnerTabsRow({
           }}
         />
 
-        {children.map((tabChild, tabIdx) => (
+        {children.map((tabChild) => (
           <Tooltip key={tabChild.key} content={tabChild.title}>
             <TabsPrimitive.Tab
-              data-state={tabIdx === activeIndex ? "on" : "off"}
               className={clsx(
                 "variant-scope z-1",
                 size,
@@ -117,13 +116,10 @@ export function InnerTabsRow({
                 )}
               >
                 {(visuals === "icons" || visuals === "both") && (
-                  <p
-                    className={clsx(
-                      "sized-inner-group-item grid place-items-center",
-                      size,
+                  <p className={clsx("sized-inner-group-item grid place-items-center", size)}>
+                    {resolveIcon(tabChild.icon) ?? (
+                      <Icon name="option-placeholder" size="none" className="size-2/5" />
                     )}
-                  >
-                    {resolveIcon(tabChild.icon) ?? <Icon name="option-placeholder" size="none" className="size-2/5" />}
                   </p>
                 )}
                 {(visuals === "labels" || visuals === "both") && (
@@ -153,11 +149,7 @@ export const TabsRow = memo(InnerTabsRow);
  * Internal tabs content component. Renders one `Tabs.Panel` per tab; base-ui
  * shows the active panel and unmounts the others.
  */
-function InnerTabsContent({
-  childrenTabs,
-}: {
-  childrenTabs: TabChild[];
-}): ReactNode {
+function InnerTabsContent({ childrenTabs }: { childrenTabs: TabChild[] }): ReactNode {
   return (
     <>
       {childrenTabs.map((tab) => (
@@ -174,8 +166,7 @@ export const TabsContent = memo(InnerTabsContent);
 /**
  * Complete tabs component that combines tab navigation and content with smooth animations.
  * Built on top of Base UI's `Tabs` primitive — `Tabs.Indicator` drives the moving
- * background, eliminating the manual ref/spring/resize tracking the Radix-based
- * version required.
+ * background and follows layout changes.
  *
  * @example
  * ```tsx

@@ -8,9 +8,8 @@ export interface DisclosureIconProps {
   /** Expanded state, for JS-driven consumers (e.g. `Collapse`). */
   open?: boolean;
   /**
-   * Drive rotation from a Radix `group-data-[state]` ancestor instead of `open`,
-   * for Radix-state components (e.g. `Accordion`). Always rotates — it can't swap,
-   * since the open/closed state never reaches JS.
+   * Drive rotation from `data-panel-open` on a `group` trigger (e.g. `Accordion`).
+   * Absence means closed. Always rotates; swapping glyphs requires the `open` prop.
    */
   fromGroupState?: boolean;
   /** Sizing/extra classes. `DisclosureIcon` imposes no size of its own. */
@@ -45,7 +44,7 @@ export function DisclosureIcon({
         size="none"
         className={clsx(
           "transition-transform",
-          "group-data-[state=closed]:-rotate-90 group-data-[state=open]:rotate-0",
+          "-rotate-90 group-data-[panel-open]:rotate-0",
           className,
         )}
       />

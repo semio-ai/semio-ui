@@ -44,13 +44,16 @@ test("swiping a toast right past the threshold follows the pointer and dismisses
   const initialX = element.getBoundingClientRect().x;
   let travel = 0;
   let trackingError = 0;
-  const aliases = new Set<string>();
+  const movementVariables = new Map<string, Set<string>>();
   const observer = new MutationObserver(() => {
-    for (const phase of ["move", "end"]) {
+    const phase = element.dataset.swipe;
+    if (phase === "move" || phase === "end") {
+      const variables = movementVariables.get(phase) ?? new Set<string>();
       for (const axis of ["x", "y"]) {
-        const name = `--radix-toast-swipe-${phase}-${axis}`;
-        if (getComputedStyle(element).getPropertyValue(name).trim() !== "") aliases.add(name);
+        const name = `--toast-swipe-movement-${axis}`;
+        if (getComputedStyle(element).getPropertyValue(name).trim() !== "") variables.add(name);
       }
+      movementVariables.set(phase, variables);
     }
     if (element.dataset.swipe === "move") {
       const displacement = element.getBoundingClientRect().x - initialX;
@@ -71,12 +74,14 @@ test("swiping a toast right past the threshold follows the pointer and dismisses
     expect(travel).toBeGreaterThan(50);
     expect(trackingError).toBeLessThan(1);
     await expect.poll(toast).toBeNull();
-    expect([...aliases].sort()).toEqual([
-      "--radix-toast-swipe-end-x",
-      "--radix-toast-swipe-end-y",
-      "--radix-toast-swipe-move-x",
-      "--radix-toast-swipe-move-y",
-    ]);
+    expect([...movementVariables.keys()].sort()).toEqual(["end", "move"]);
+    for (const variables of movementVariables.values()) {
+      expect([...variables].sort()).toEqual([
+        "--toast-swipe-movement-x",
+        "--toast-swipe-movement-y",
+      ]);
+    }
+    expect(element.style.cssText).not.toContain("--radix-");
   } finally {
     observer.disconnect();
   }
@@ -247,7 +252,9 @@ test("toast parts keep list elements and accessible native button contracts", as
   const toast = await mountToast();
   const element = toast()!;
   expect(element.tagName).toBe("LI");
-  expect(element.dataset.state).toBe("open");
+  // A showing toast is not ending, and the library sets no state attribute of its own.
+  expect(element.hasAttribute("data-ending-style")).toBe(false);
+  expect(element.hasAttribute("data-state")).toBe(false);
   for (const attribute of [
     "role",
     "aria-modal",
@@ -868,7 +875,7 @@ test.each([false, true])(
     await expect.poll(announcement, { timeout: 3000 }).toBeNull();
     if (leaving) {
       flushSync(() => api.removeToast("announced"));
-      expect(document.querySelector('li[data-state="closed"]')).not.toBeNull();
+      expect(document.querySelector("li[data-ending-style]")).not.toBeNull();
     }
     flushSync(() => api.addToast({ id: "announced", title: "Second notice", dismiss: 60000 }));
     await expect.poll(() => announcement()?.textContent).toBe("Notification Second notice");
@@ -983,7 +990,9 @@ test("menu presses stay inside the region and cannot swipe or dismiss its toast"
   expect(document.hasFocus()).toBe(true);
   await userEvent.keyboard("{Escape}");
   await expect.element(menu).not.toBeInTheDocument();
-  expect(toast.dataset.state).toBe("open");
+  // Closing the menu leaves the toast showing, not ending.
+  expect(toast.isConnected).toBe(true);
+  expect(toast.hasAttribute("data-ending-style")).toBe(false);
   await expect.element(page.getByText("Save failed", { exact: true })).toBeVisible();
 });
 

@@ -93,8 +93,8 @@ export function InnerBreadcrumbs({
                     name="disclosure-open"
                     className={clsx(
                       "ease-in-out",
-                      "opacity-20 group-hover/trigger:opacity-100 group-data-[state=open]/trigger:opacity-100",
-                      "-rotate-90 transition-transform duration-75 group-data-[state=open]/trigger:rotate-0",
+                      "opacity-20 group-hover/trigger:opacity-100 group-data-[popup-open]/trigger:opacity-100",
+                      "-rotate-90 transition-transform duration-75 group-data-[popup-open]/trigger:rotate-0",
                     )}
                   />
                 </button>

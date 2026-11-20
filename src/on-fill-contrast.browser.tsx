@@ -258,14 +258,14 @@ const ON_STANDARD_FILL: {
   {
     name: "Checkbox check mark",
     render: (v) => <Checkbox checked onCheckedChange={() => undefined} variant={v} />,
-    find: (root) => root.querySelector<HTMLElement>("[data-state='checked'] > *")!,
+    find: (root) => root.querySelector<HTMLElement>("[data-checked] > *")!,
   },
   {
     name: "ToggleSquare glyph when checked",
     render: (v) => (
       <ToggleSquare value onChange={() => undefined} variant={v} size={Size.Md} label="T" />
     ),
-    find: (root) => root.querySelector<HTMLElement>("[data-state='checked'], [data-state='on']")!,
+    find: (root) => root.querySelector<HTMLElement>("[data-checked], [data-pressed]")!,
   },
   {
     name: "ImageInput fallback initial",

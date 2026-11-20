@@ -59,7 +59,7 @@ function Popover({
             )
           }
           className="focus:outline-none"
-          render={(props, state) => renderMenuTrigger(trigger, props, state.open)}
+          render={(props) => renderMenuTrigger(trigger, props)}
         />
         <PopoverPrimitive.Portal container={portalContainer ?? undefined}>
           {/* 4px from the trigger, plus the 6px arrow that hangs from the popup's edge. Collisions
@@ -71,9 +71,6 @@ function Popover({
             collisionPadding={0}
           >
             <PopoverPrimitive.Popup
-              render={(props, state) => (
-                <div {...props} data-state={state.open ? "open" : "closed"} />
-              )}
               className={clsx(
                 variant,
                 "popover-content focus:outline-none",

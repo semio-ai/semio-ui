@@ -250,7 +250,7 @@ export function Autocomplete<TItem>({
                       onClick={() => onSelect(item)}
                       className={itemClassName({ variant })}
                       render={(props, state) => (
-                        <div {...props} data-state="unchecked">
+                        <div {...props} data-unchecked="">
                           <span className={itemIndicatorClassName({ variant })}>
                             <span className="icon-slot">
                               {getItemIcon?.(item) ?? <Icon name="option-placeholder" />}

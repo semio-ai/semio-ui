@@ -185,9 +185,6 @@ export function Dialog({
                     ? cancelRef.current
                     : closeRef.current
                 }
-                render={(props, state) => (
-                  <div {...props} data-state={state.open ? "open" : "closed"} />
-                )}
                 className={clsx(
                   "variant-scope",
                   variant,

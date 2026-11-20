@@ -132,7 +132,7 @@ export function Dropdown({
         onMouseDown={(event) => {
           if (!actualOpen && event.button === 0) event.preventDefault();
         }}
-        render={(props, state) => renderMenuTrigger(trigger, props, state.open)}
+        render={(props) => renderMenuTrigger(trigger, props)}
       />
       <Menu.Portal container={portalContainer ?? undefined}>
         <Menu.Positioner
@@ -157,9 +157,6 @@ export function Dropdown({
                 ? target
                 : false;
             }}
-            render={(props, state) => (
-              <div {...props} data-state={state.open ? "open" : "closed"} />
-            )}
             style={color ? ({ "--custom-color": color } as CSSProperties) : {}}
             className={clsx(
               color ? "custom-color" : variant,

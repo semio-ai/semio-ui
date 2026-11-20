@@ -56,7 +56,7 @@ for (const visuals of ["labels", "both", "icons"] as const) {
     ).toBe(true);
     await expect.element(page.getByText(DESCRIPTION, { exact: true }), WAIT_OPTIONS).toBeVisible();
     await userEvent.keyboard("{Escape}");
-    await expect.element(wrapper, WAIT_OPTIONS).toHaveAttribute("data-state", "closed");
+    await expect.element(wrapper, WAIT_OPTIONS).not.toHaveAttribute("data-popup-open");
     await expect
       .element(page.getByText(DESCRIPTION, { exact: true }), WAIT_OPTIONS)
       .not.toBeInTheDocument();
@@ -79,7 +79,7 @@ for (const visuals of ["labels", "both", "icons"] as const) {
 
     // With only the explanation open, Escape dismisses the tooltip without moving focus.
     await userEvent.keyboard("{Escape}");
-    await expect.element(wrapper, WAIT_OPTIONS).toHaveAttribute("data-state", "closed");
+    await expect.element(wrapper, WAIT_OPTIONS).not.toHaveAttribute("data-popup-open");
     await expect.element(explanation, WAIT_OPTIONS).not.toBeInTheDocument();
     await expect.element(trigger, WAIT_OPTIONS).toHaveFocus();
     await expect.element(menu, WAIT_OPTIONS).not.toBeInTheDocument();
@@ -92,7 +92,7 @@ for (const visuals of ["labels", "both", "icons"] as const) {
     await expect
       .element(page.getByRole("menuitemradio", { name: "Viewer", exact: true }), WAIT_OPTIONS)
       .toBeVisible();
-    await expect.element(wrapper, WAIT_OPTIONS).toHaveAttribute("data-state", "closed");
+    await expect.element(wrapper, WAIT_OPTIONS).not.toHaveAttribute("data-popup-open");
     await expect.element(explanation, WAIT_OPTIONS).not.toBeInTheDocument();
 
     // The modal menu hides the trigger from role queries until its content unmounts.
@@ -104,7 +104,7 @@ for (const visuals of ["labels", "both", "icons"] as const) {
     await expect.element(explanation, WAIT_OPTIONS).toBeVisible();
     await userEvent.keyboard("{Shift>}{Tab}{/Shift}");
     await expect.element(before, WAIT_OPTIONS).toHaveFocus();
-    await expect.element(wrapper, WAIT_OPTIONS).toHaveAttribute("data-state", "closed");
+    await expect.element(wrapper, WAIT_OPTIONS).not.toHaveAttribute("data-popup-open");
     await expect.element(explanation, WAIT_OPTIONS).not.toBeInTheDocument();
   }, 30_000);
 }

@@ -35,9 +35,6 @@ export function NestedCheckbox({
       }}
     >
       <Menu.CheckboxItem
-        render={(props, state) => (
-          <div {...props} data-state={state.checked ? "checked" : "unchecked"} />
-        )}
         key={label}
         checked={value}
         onCheckedChange={(next) => runAction(() => onChange?.(next), closeOnSelect)}
@@ -63,9 +60,6 @@ export function NestedCheckbox({
         )}
       >
         <Menu.CheckboxItemIndicator
-          render={(props, state) => (
-            <span {...props} data-state={state.checked ? "checked" : "unchecked"} />
-          )}
           className={clsx(
             "absolute top-1/2 left-1 grid -translate-y-1/2 place-items-center",
             "variant-scope check-indicator",

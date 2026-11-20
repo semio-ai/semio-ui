@@ -269,7 +269,7 @@ for (const theme of [Theme.Light, Theme.Dark]) {
         await settle(button);
         const style = getComputedStyle(button);
         const standard = rgba(style.getPropertyValue("--standard-color"));
-        const checked = button.dataset.state === "checked";
+        const checked = button.hasAttribute("data-checked");
         const disabled = button.hasAttribute("disabled");
         if (button.getAttribute("role") === "switch") {
           const thumb = button.querySelector<HTMLElement>("span")!;
@@ -417,10 +417,10 @@ for (const theme of [Theme.Light, Theme.Dark]) {
           expect(boundary(button), button.outerHTML).toEqual(standard);
           if (button.classList.contains("custom-color"))
             expect(standard).toEqual([245, 107, 41, 255]);
-          if (button.dataset.state === "indeterminate") expect(style.boxShadow).toContain("3px");
+          if (button.hasAttribute("data-indeterminate")) expect(style.boxShadow).toContain("3px");
         }
         for (const enabled of host.querySelectorAll<HTMLElement>(
-          'button.default[data-state="unchecked"]:not(:disabled)',
+          "button.default[data-unchecked]:not(:disabled)",
         )) {
           await userEvent.hover(enabled);
           expect(boundary(enabled)).toEqual(

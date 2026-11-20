@@ -1,16 +1,10 @@
-import {
-  forwardRef,
-  useLayoutEffect,
-  useRef,
-  type ComponentPropsWithoutRef,
-  type CSSProperties,
-} from "react";
+import { forwardRef, useLayoutEffect, useRef, type ComponentPropsWithoutRef } from "react";
 
 /** Pixel dimensions keep the public size variables usable after opening animations. */
-export const LegacySizePanel = forwardRef<
+export const SizePanel = forwardRef<
   HTMLDivElement,
   ComponentPropsWithoutRef<"div"> & { accordion?: boolean }
->(function LegacySizePanel({ accordion = false, style, ...props }, forwardedRef) {
+>(function SizePanel({ accordion = false, style, ...props }, forwardedRef) {
   const elementRef = useRef<HTMLDivElement | null>(null);
   const prefix = accordion ? "accordion" : "collapsible";
   useLayoutEffect(() => {
@@ -34,19 +28,7 @@ export const LegacySizePanel = forwardRef<
         if (typeof forwardedRef === "function") return forwardedRef(element);
         if (forwardedRef) forwardedRef.current = element;
       }}
-      style={
-        {
-          ...style,
-          "--radix-collapsible-content-height": `var(--${prefix}-panel-height)`,
-          "--radix-collapsible-content-width": `var(--${prefix}-panel-width)`,
-          ...(accordion
-            ? {
-                "--radix-accordion-content-height": "var(--accordion-panel-height)",
-                "--radix-accordion-content-width": "var(--accordion-panel-width)",
-              }
-            : {}),
-        } as CSSProperties
-      }
+      style={style}
     />
   );
 });

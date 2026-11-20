@@ -180,7 +180,7 @@ function description(result: Measurements, name: string, item: Element) {
 
 const menus = () => Array.from(document.querySelectorAll<HTMLElement>('[role="menu"]'));
 const openMenu = () => menus().length > 0;
-const tooltipVisible = () => !!document.querySelector('.tooltip-content[data-state$="open"]');
+const tooltipVisible = () => !!document.querySelector(".tooltip-content[data-open]");
 
 /** Roles locate items; Semio's caret viewBox excludes the item icons. */
 function menuParts(result: Measurements, name: string, popup: Element, trigger: Element) {
@@ -1137,7 +1137,7 @@ for (const theme of [Theme.Light, Theme.Dark]) {
         result.submenuEntry.focus = await focusEntry(
           role("menuitem", "Exit child first").element(),
         );
-        const rootOpen = () => root.isConnected && root.getAttribute("data-state") === "open";
+        const rootOpen = () => root.isConnected && root.hasAttribute("data-open");
         result.submenuEscape = {
           focus: await press("{Escape}"),
           menus: menus().length,

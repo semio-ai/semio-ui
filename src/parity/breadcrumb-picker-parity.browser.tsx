@@ -51,7 +51,7 @@ const options = [
   { value: "c", label: "Gamma" },
 ];
 const footerLabels = new Set(["Rename", "View all projects"]);
-const popup = () => document.querySelector('.dropdown-content[data-state="open"]');
+const popup = () => document.querySelector(".dropdown-content[data-open]");
 const text = (element: Element) => element.textContent?.trim() ?? "";
 // Styled rows keep their roles available as observations for both picker paths.
 const rows = (element: Element) => Array.from(element.querySelectorAll('[class~="group/item"]'));

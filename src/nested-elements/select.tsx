@@ -42,9 +42,6 @@ export function NestedSelect({ variant, disabled, onChange, values, options }: N
               side="right"
             >
               <Menu.CheckboxItem
-                render={(props, state) => (
-                  <div {...props} data-state={state.checked ? "checked" : "unchecked"} />
-                )}
                 checked={values.find((v) => v === option.value) !== undefined}
                 onCheckedChange={(v: boolean) => {
                   runAction(() => {
@@ -72,9 +69,6 @@ export function NestedSelect({ variant, disabled, onChange, values, options }: N
                 )}
               >
                 <Menu.CheckboxItemIndicator
-                  render={(props, state) => (
-                    <span {...props} data-state={state.checked ? "checked" : "unchecked"} />
-                  )}
                   keepMounted
                   className={clsx(
                     "absolute top-1/2 left-1 grid -translate-y-1/2 place-items-center",

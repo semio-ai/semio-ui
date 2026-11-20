@@ -33,14 +33,7 @@ export function Checkbox({
           event.preventBaseUIHandler();
         }
       }}
-      render={(props, state) => (
-        <button
-          {...props}
-          type="button"
-          tabIndex={undefined}
-          data-state={state.checked ? "checked" : "unchecked"}
-        />
-      )}
+      render={(props) => <button {...props} type="button" tabIndex={undefined} />}
       id={id}
       disabled={disabled}
       checked={checked}
@@ -67,9 +60,6 @@ export function Checkbox({
       )}
     >
       <BaseCheckbox.Indicator
-        render={(props, state) => (
-          <span {...props} data-state={state.checked ? "checked" : "unchecked"} />
-        )}
         // h-full/w-full so the check's `h-4/5` percentage resolves against the
         // sized Root and scales with `size` (the box is `sized-height/width`).
         //
